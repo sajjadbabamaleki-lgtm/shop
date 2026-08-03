@@ -12,8 +12,13 @@ const fs = require('fs');
 const path = require('path');
 
 const ROOT = path.resolve(__dirname, '..');
-const src = process.argv[2] || path.join(ROOT, 'download-version/shoe-shop.html');
-const out = process.argv[3] || path.join(ROOT, 'download-version/shoe-shop-rtl.html');
+
+// Usage: make-rtl-page.js [theme] [source.html]
+// theme names the palette stylesheet in assets/css; rtl-fixes.css is always
+// loaded alongside it, since direction corrections are shared by all variants.
+const theme = process.argv[2] || 'gold';
+const src = process.argv[3] || path.join(ROOT, 'download-version/shoe-shop.html');
+const out = path.join(ROOT, `download-version/shoe-shop-${theme}.html`);
 
 let html = fs.readFileSync(src, 'utf8');
 
@@ -36,10 +41,12 @@ for (const [from, to] of SHEETS) {
 html = html.replace(/<link[^>]*fonts\.googleapis\.com[^>]*>/gi, '');
 html = html.replace(/<link[^>]*fonts\.gstatic\.com[^>]*>/gi, '');
 
-// Theme layer loads last so its palette wins.
+// Theme layer loads last so its palette wins, with the shared direction
+// corrections after it.
 html = html.replace(
   /(<link[^>]+href="assets\/css\/style\.rtl\.css"[^>]*>)/i,
-  '$1\n    <link rel="stylesheet" href="assets/css/theme-gold.css">'
+  `$1\n    <link rel="stylesheet" href="assets/css/theme-${theme}.css">` +
+    '\n    <link rel="stylesheet" href="assets/css/rtl-fixes.css">'
 );
 
 // Swiper reads the container's own dir attribute, not the inherited one.
@@ -101,8 +108,17 @@ for (const [en, fa] of Object.entries(DICT).sort((a, b) => b[0].length - a[0].le
   html = html.split(en).join(fa);
 }
 
-// Currency: the demo prices are USD strings from the theme.
-html = html.replace(/\$(\d+)\.(\d+)\s*USD/g, (_, d) => `${(Number(d) * 100).toLocaleString('fa-IR')} تومان`);
+// Currency: the theme's demo prices are USD. Scaled to a plausible Toman
+// figure so the grid can be judged at realistic string lengths, which is what
+// actually stresses the layout.
+html = html.replace(
+  /\$(\d+)\.(\d+)\s*USD/g,
+  (_, d) => `${(Number(d) * 100000).toLocaleString('fa-IR')} تومان`
+);
+
+// Discount chips read "15%-" once the bidi algorithm moves the sign; write
+// them as Persian percent instead.
+html = html.replace(/-(\d+)%/g, (_, n) => `${Number(n).toLocaleString('fa-IR')}٪ تخفیف`);
 
 fs.writeFileSync(out, html);
-console.log(`wrote ${path.relative(ROOT, out)}`);
+console.log(`wrote ${path.relative(ROOT, out)} (theme: ${theme})`);
