@@ -18,6 +18,7 @@ const rtlcss = require('rtlcss');
 const ROOT = path.resolve(__dirname, '..');
 const CSS_DIR = path.join(ROOT, 'download-version/assets/css');
 const FONT_DIR = path.join(ROOT, 'download-version/assets/fonts/vazirmatn');
+const CAIRO_DIR = path.join(ROOT, 'download-version/assets/fonts/cairo');
 
 // Only the stylesheets that carry layout. Font and icon sheets are direction
 // agnostic, and flipping them would rewrite glyph metrics for no benefit.
@@ -53,8 +54,22 @@ function copyFont() {
   console.log(`  Vazirmatn variable -> assets/fonts/vazirmatn/ (${Math.round(fs.statSync(dest).size / 1024)}KB)`);
 }
 
+// Cairo is the display face — headings only, so it is split by script and both
+// subsets together cost less than the body font. Variable, like Vazirmatn, so
+// one file per subset covers 200-1000.
+function copyDisplayFont() {
+  fs.mkdirSync(CAIRO_DIR, { recursive: true });
+  for (const subset of ['arabic', 'latin']) {
+    const name = `cairo-${subset}-wght-normal.woff2`;
+    const dest = path.join(CAIRO_DIR, name);
+    fs.copyFileSync(path.join(__dirname, 'node_modules/@fontsource-variable/cairo/files', name), dest);
+    console.log(`  Cairo variable (${subset}) -> assets/fonts/cairo/ (${Math.round(fs.statSync(dest).size / 1024)}KB)`);
+  }
+}
+
 console.log('Building RTL stylesheets...');
 flip();
-console.log('Copying webfont...');
+console.log('Copying webfonts...');
 copyFont();
+copyDisplayFont();
 console.log('Done.');

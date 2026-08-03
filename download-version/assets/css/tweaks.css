@@ -877,3 +877,46 @@ option:hover {
   border-radius: 28px;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
 }
+
+/* --------------------------------------------------------------------------
+   Hero cards: the writing.
+
+   A display face for the card, heavier than the body. Cairo is variable
+   (200-1000) and ships split by script, so the Arabic and Latin subsets
+   together cost less than the body font and one file per subset covers every
+   weight. Vazirmatn stays the body face everywhere else.
+   -------------------------------------------------------------------------- */
+
+@font-face {
+  font-family: 'Cairo';
+  src: url('../fonts/cairo/cairo-arabic-wght-normal.woff2') format('woff2-variations');
+  font-weight: 200 1000;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+0898-08E1,
+                 U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF,
+                 U+FE70-FE74, U+FE76-FEFC;
+}
+
+@font-face {
+  font-family: 'Cairo';
+  src: url('../fonts/cairo/cairo-latin-wght-normal.woff2') format('woff2-variations');
+  font-weight: 200 1000;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+                 U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122,
+                 U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+.heroSlide6 .hero-inner .hero-title,
+.heroSlide6 .hero-inner .hero-title a {
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 900;
+}
+
+.heroSlide6 .hero-inner .sub-title,
+.heroSlide6 .hero-inner .th-btn {
+  font-family: 'Cairo', var(--body-font);
+  font-weight: 700;
+}
