@@ -819,11 +819,12 @@ option:hover {
    count and read as a different material.
 
    Glass shows nothing over a white ground, so the card is given something to
-   sit on: a soft gold wash from the brand's own ramp, behind the card, blurred
-   well past its own edges. Two offset sources rather than one, so the pane
-   picks up a gradient across its face instead of one flat tint. The
-   template's per-slide pastels are replaced by this — the gold is the brand's,
-   the pastels were the demo's.
+   sit on: two gold balls behind it, from the brand's own ramp — one large, one
+   small, in two places — rather than a wash across the whole card. The blur
+   softens their edges without spreading them into a field, so the pane picks
+   up two bright spots and stays clear elsewhere, which is what makes it read
+   as glass rather than as a tinted panel. The template's per-slide pastels
+   are replaced by this: the gold is the brand's, the pastels were the demo's.
    -------------------------------------------------------------------------- */
 
 .heroSlide6 .swiper-slide {
@@ -835,12 +836,10 @@ option:hover {
   position: absolute;
   inset: 0 40px;
   z-index: 0;
-  background-color: #F2D9A0;
   background-image:
-    radial-gradient(48% 62% at 20% 26%, #E9B84A 0%, rgba(233, 184, 74, 0) 72%),
-    radial-gradient(56% 72% at 82% 80%, #C89A2E 0%, rgba(200, 154, 46, 0) 74%);
-  border-radius: 60px;
-  filter: blur(30px);
+    radial-gradient(circle 190px at 72% 26%, #E9B84A 0%, #E9B84A 58%, rgba(233, 184, 74, 0) 100%),
+    radial-gradient(circle 90px at 46% 78%, #C89A2E 0%, #C89A2E 55%, rgba(200, 154, 46, 0) 100%);
+  filter: blur(22px);
 }
 
 /* The pane. */
