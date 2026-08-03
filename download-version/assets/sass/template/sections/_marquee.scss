@@ -1,0 +1,124 @@
+.marquee-section {
+    margin: 104px 0 48px 0;
+}
+
+.marquee-wrapper {
+    &.style2 {
+        margin: 0 -60px;
+        margin-top: -80px;
+
+        @include xs {
+            margin: 0;
+        }
+    }
+
+    .marquee {
+        position: relative;
+        --duration: 120s;
+        --gap: 0px;
+        display: -ms-flexbox;
+        display: flex;
+        overflow: hidden;
+        user-select: none;
+        gap: var(--gap);
+
+        &:first-child {
+            --duration: 100s;
+        }
+
+        &:last-child {
+            --duration: 80s;
+        }
+
+        &.marquee--reverse {
+            .marquee-group {
+                animation-direction: reverse;
+            }
+        }
+
+        .marquee-group {
+            -ms-flex-negative: 0;
+            flex-shrink: 0;
+            display: -webkit-box;
+            display: -ms-flexbox;
+            display: flex;
+            -webkit-box-align: center;
+            -ms-flex-align: center;
+            align-items: center;
+            -ms-flex-pack: distribute;
+            justify-content: space-around;
+            gap: var(--gap);
+            min-width: 100%;
+            animation: scroll var(--duration) linear infinite;
+
+            &.style2 {
+                .text {
+                    font-weight: 700;
+                    font-size: 72px;
+                    line-height: 72px;
+                    color: rgba(255, 255, 255, 0.2);
+
+                    img {
+                        margin-top: -20px;
+                    }
+                }
+            }
+
+            .text {
+                font-family: $title-font;
+                font-weight: 500;
+                font-size: 32px;
+                line-height: 40px;
+                text-align: center;
+                letter-spacing: 0.02em;
+                text-transform: uppercase;
+                color: $white-color;
+                padding: 6px 20px;
+                margin: 8px 5px;
+                display: inline-block;
+                cursor: pointer;
+                transition: all 0.4s ease-in-out;
+
+                &:nth-child(2) {
+                    img {
+                        filter: brightness(0) invert(1);
+                    }
+                }
+
+                &:nth-child(4) {
+                    img {
+                        filter: brightness(0) invert(1);
+                    }
+                }
+
+                &:nth-child(6) {
+                    img {
+                        filter: brightness(0) invert(1);
+                    }
+                }
+
+                &:nth-child(8) {
+                    img {
+                        filter: brightness(0) invert(1);
+                    }
+                }
+
+                &:nth-child(10) {
+                    img {
+                        filter: brightness(0) invert(1);
+                    }
+                }
+
+                &:nth-child(12) {
+                    img {
+                        filter: brightness(0) invert(1);
+                    }
+                }
+
+                img {
+                    margin-right: 40px;
+                }
+            }
+        }
+    }
+}

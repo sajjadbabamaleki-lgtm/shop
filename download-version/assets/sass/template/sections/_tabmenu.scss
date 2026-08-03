@@ -1,0 +1,246 @@
+/* Tab Menu 1 ------------------------------------*/
+.tab-menu {
+    @media(max-width: 450px) {
+        gap: 10px 0;
+    }
+
+    .th-btn {
+        background-color: #F5F5F5;
+        color: $title-color;
+        border-radius: 24px;
+        font-family: $title-font;
+        padding: 9.5px 20px;
+        font-weight: 400;
+
+
+        &:not(:last-child) {
+            margin-right: 20px;
+
+            @media(max-width: 1599px) {
+                margin-right: 10px;
+            }
+        }
+
+        &:hover {
+            background-color: $theme-color;
+            color: $white-color;
+
+            &:before {
+                background-color: $theme-color;
+            }
+        }
+
+        &.active {
+            background-color: $theme-color;
+            color: $white-color;
+
+            &:before {
+                background-color: $theme-color;
+            }
+        }
+    }
+
+    &.style2 {
+        @include ml {
+            gap: 15px 0;
+        }
+
+        .th-btn {
+            border: 1px solid #E0E8F0;
+            background-color: transparent;
+            border-radius: 8px;
+            padding: 12.5px 15px;
+            font-size: 18px;
+            font-weight: 500;
+
+            &:before {
+                background-color: var(--theme-color);
+            }
+
+            &:hover {
+                background-color: $theme-color;
+                color: var(--white-color);
+            }
+
+            &.active {
+                background-color: var(--theme-color);
+                color: var(--white-color);
+            }
+        }
+    }
+
+    &.style3 {
+        @include sm {
+            gap: 15px 0;
+        }
+
+        .th-btn {
+            border: 1px solid $gray-color;
+            background-color: transparent;
+            border-radius: 8px;
+            padding: 12.5px 15px;
+            font-size: 18px;
+            font-weight: 500;
+
+            &:before {
+                background-color: $title-color;
+            }
+
+            &:hover {
+                background-color: var(--title-color);
+                border: 1px solid $title-color;
+                color: var(--white-color);
+            }
+
+            &.active {
+                background-color: $title-color;
+                border: 1px solid $title-color;
+                color: var(--white-color);
+            }
+        }
+    }
+
+    &.style4 {
+        gap: 10px 12px;
+
+        .tab-btn {
+            position: relative;
+            z-index: 2;
+            background-color: transparent;
+            border-radius: 0;
+            padding: 7px 25px;
+            border: none;
+
+
+            &:before,
+            &:after {
+                content: "";
+                position: absolute;
+                inset: 0;
+                mask-image: url("../img/shape/bg-shape-1.png");
+                background-color: #E1E4E5;
+                mask-repeat: no-repeat;
+                mask-size: 100% 100%;
+                transition: all 0.4s ease-in-out;
+                z-index: -1;
+            }
+
+            &:after {
+                inset: 1px;
+                background-color: #F5F5F5;
+            }
+
+
+            &:not(:first-child) {
+                span {
+                    content: "";
+                    position: absolute;
+                    top: 13px;
+                    left: -11px;
+                    width: 10px;
+                    height: 10px;
+                    display: block;
+                    background-color: $title-color;
+                    transform: rotate(45deg);
+
+                }
+            }
+
+
+            &:hover {
+                background-color: transparent;
+                color: $white-color;
+
+                &:before,
+                &:after {
+                    background-color: $theme-color;
+                    color: $white-color;
+                }
+            }
+
+            &.active {
+                background-color: transparent;
+                color: $white-color;
+
+                &:before,
+                &:after {
+                    background-color: $theme-color;
+                }
+            }
+
+        }
+    }
+
+}
+
+/* Tab Menu 2 ------------------------------------*/
+.tab-menu2 {
+    position: relative;
+    gap: 0 114px;
+    text-align: center;
+    z-index: 2;
+
+    @include xl {
+        gap: 0 95px;
+    }
+
+    @include md {
+        gap: 30px 40px;
+    }
+
+    @include xs {
+        gap: 20px 10px;
+    }
+
+    &:before {
+        content: '';
+        position: absolute;
+        top: 40px;
+        left: 110px;
+        width: calc(100% - 240px);
+        height: 1px;
+        border-top: 2px dashed $gray-color;
+        z-index: -2;
+
+        @include sm {
+            display: none;
+        }
+    }
+
+    .tab-btn {
+        display: block;
+        border: none;
+        background-color: transparent;
+        color: $body-color;
+
+        .icon {
+            display: block;
+            width: 72px;
+            height: 72px;
+            line-height: 72px;
+            border-radius: 50%;
+            background-color: #E1E4E5;
+            display: block;
+            margin: auto auto 20px auto;
+            transition: all 0.4s ease-in-out;
+
+            img {
+                transition: all 0.4s ease-in-out;
+            }
+        }
+
+        &.active,
+        &:hover {
+            color: $title-color;
+
+            .icon {
+                background-color: $theme-color;
+                color: $white-color;
+
+                img {
+                    filter: brightness(0) invert(1);
+                }
+            }
+        }
+    }
+}

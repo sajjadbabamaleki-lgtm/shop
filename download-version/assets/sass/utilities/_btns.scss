@@ -1,0 +1,763 @@
+// Primary Button
+.th-btn {
+    position: relative;
+    z-index: 2;
+    overflow: hidden;
+    vertical-align: middle;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    border: none;
+    text-transform: capitalize;
+    text-align: center;
+    background-color: $theme-color;
+    color: $white-color;
+    font-family: $body-font2;
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 1;
+    padding: 16.5px 24px;
+    border-radius: 48px;
+    perspective: 320px;
+    z-index: 2;
+    transition: all 0.8s cubic-bezier(0.23, 1, 0.320, 1);
+
+    &::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 120%;
+        height: 120%;
+        background-color: $title-color;
+        opacity: 0;
+        z-index: -1;
+        transition: all 0.8s cubic-bezier(0.23, 1, 0.320, 1);
+    }
+
+    i {
+        font-size: 1em;
+    }
+
+    &.th-icon {
+        &:after {
+            content: '';
+            position: relative;
+            mask-image: url(../img/icon/arrow-right.svg);
+            background-repeat: no-repeat;
+            background-size: cover;
+            mask-repeat: no-repeat;
+            mask-position: center;
+            mask-size: 100% 100%;
+            background-color: $white-color;
+            width: 32px;
+            height: 10px;
+            display: inline-block;
+            transition: 0.4s;
+        }
+    }
+
+    &:hover {
+        color: $white-color;
+        background-color: $title-color;
+        box-shadow: 0 0 20px hsla(263, 77%, 31%, 0);
+
+        &::before {
+            transform: translate(-50%, -50%) rotate(45deg);
+            opacity: 1;
+        }
+
+        &.th-icon {
+            &:after {
+                // width: 45px;
+            }
+        }
+    }
+
+    &.style1 {
+        padding: 20.5px 40px;
+        font-size: 24px;
+    }
+
+    &.style2 {
+        border: 1px solid #E0E8F0;
+        background-color: transparent;
+        border-radius: 8px;
+        color: $title-color;
+        padding: 15px 20px;
+        width: 100%;
+        font-size: 16px;
+        box-shadow: none;
+
+        @include xxl {
+            font-size: 14px;
+            padding: 15px 15px;
+        }
+
+        &:hover {
+            color: $white-color;
+            border-color: $theme-color;
+            background-color: $theme-color;
+
+            &:before {
+                background-color: $theme-color;
+            }
+
+
+        }
+    }
+
+    &.style3 {
+        border-radius: 8px;
+
+    }
+
+    &.btn-white {
+        &::before {
+            background-color: $white-color;
+        }
+
+        &:hover,
+        &:focus {
+            color: $title-color;
+            background: $white-color;
+        }
+    }
+
+    &.style4 {
+        background-color: $title-color;
+
+        &:before,
+        &:after {
+            background-color: $theme-color;
+        }
+
+        &:hover {
+            color: $white-color;
+            background-color: $theme-color;
+        }
+    }
+
+    &.style5 {
+        background-color: $theme-color;
+        color: $white-color;
+
+        &:hover {
+            color: $theme-color;
+
+            &:before,
+            &:after {
+                background-color: $white-color;
+            }
+        }
+    }
+
+    &.style6 {
+        background-color: $title-color;
+
+        &:hover {
+            color: $theme-color;
+
+            &:before,
+            &:after {
+                background-color: $white-color;
+            }
+        }
+    }
+
+    &.style7 {
+        border: 1px solid #E0E8F0;
+        background-color: transparent;
+        border-radius: 8px;
+        color: $title-color;
+        padding: 15px 20px;
+        display: block;
+        width: 100%;
+        font-size: 16px;
+        box-shadow: none;
+
+        @include xxl {
+            font-size: 14px;
+            padding: 15px 15px;
+        }
+
+        &:after {
+            content: "\2b";
+            position: absolute;
+            right: 4px;
+            width: 32px;
+            height: 32px;
+            line-height: 32px;
+            font-size: 24px;
+            font-weight: 400;
+            border: 1px solid #E7F1F1;
+            border-radius: 4px;
+            transition: 0.4s;
+        }
+
+        &:hover {
+            color: $white-color;
+            border-color: $white-color;
+            background-color: $title-color;
+
+            &:before {
+                background-color: $title-color;
+            }
+
+
+        }
+    }
+
+    &.black-border {
+        border: 1px solid $title-color;
+        background-color: transparent;
+        border-radius: 8px;
+        color: $title-color;
+        font-size: 16px;
+        box-shadow: none;
+
+        @include xxl {
+            font-size: 14px;
+            padding: 15px 15px;
+        }
+
+        &:hover {
+            color: $white-color;
+            border-color: $white-color;
+            background-color: $title-color;
+
+            &:before {
+                background-color: $title-color;
+            }
+        }
+    }
+
+    &.black-btn {
+        background-color: $title-color;
+
+        &:before {
+            background-color: $theme-color;
+        }
+
+        &:hover {
+            background-color: $theme-color;
+        }
+    }
+
+    &.white-btn {
+        background-color: $white-color;
+        color: $title-color;
+
+        &:before {
+            background-color: $title-color;
+        }
+
+        &:hover {
+            color: $white-color;
+            background-color: $title-color;
+        }
+    }
+
+    &.white-btn2 {
+        background-color: $white-color;
+        color: $title-color;
+
+        &:before {
+            background-color: $title-color;
+        }
+
+        &:after {
+            background-color: $title-color;
+        }
+
+        &:hover {
+            color: $white-color;
+            background-color: $title-color;
+
+            &:after {
+                background-color: $white-color;
+            }
+        }
+    }
+
+    &.btn-fw {
+        width: 100%;
+    }
+
+    &.btn-sm {
+        padding: 16.5px 25px;
+        min-width: 150px;
+    }
+
+    &.radius {
+        border-radius: 8px;
+    }
+}
+
+.th-btn2 {
+    position: relative;
+    z-index: 2;
+    overflow: hidden;
+    vertical-align: middle;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    border: none;
+    text-transform: capitalize;
+    text-align: center;
+    background-color: transparent;
+    border: 1px solid #E7F1F1;
+    color: $title-color;
+    font-family: $body-font2;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1;
+    padding: 10px 24px;
+    border-radius: 8px;
+    perspective: 320px;
+    transition: 0.4s;
+
+    &:before {
+        content: "";
+        position: absolute;
+        height: 100%;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background-color: $theme-color;
+        z-index: -1;
+        transition: all 0.4s ease-in-out;
+        border-radius: inherit;
+        transform: scaleX(0.8) scaleY(0);
+        transform-origin: bottom center;
+    }
+
+    &.style2 {
+        background-color: $theme-color;
+        border-color: $theme-color;
+        color: $white-color;
+
+        &:hover {
+            border-color: $title-color;
+
+            &:before {
+                background-color: $title-color;
+            }
+        }
+
+        .link-effect {
+            .effect-1 {
+                &:before {
+                    background-color: $white-color;
+                }
+            }
+        }
+    }
+
+    &:hover {
+        border-color: $theme-color;
+
+        &::before,
+        &:after {
+            transform: scaleX(1) scaleY(1);
+        }
+    }
+
+    .link-effect {
+        position: relative;
+        overflow: hidden;
+        display: block;
+        height: 22px;
+        line-height: normal;
+
+        .effect-1 {
+            display: block;
+            height: 100%;
+            position: relative;
+            top: 0%;
+            margin-top: -1px;
+            transition: all 0.4s ease-in-out;
+
+            &:before {
+                content: '';
+                position: relative;
+                top: 3px;
+                left: 0;
+                mask-image: url(../img/icon/bag2.svg);
+                background-repeat: no-repeat;
+                background-size: cover;
+                mask-repeat: no-repeat;
+                mask-position: center;
+                mask-size: 100% 100%;
+                background-color: $theme-color;
+                width: 25px;
+                height: 18px;
+                font-size: 24px;
+                margin-right: 8px;
+                display: inline-block;
+                transition: all 0.4s ease-in-out;
+            }
+
+            &.style2 {
+                color: $white-color;
+            }
+        }
+    }
+
+    &:hover {
+        .link-effect {
+            .effect-1 {
+                top: -100%;
+
+                &:before {
+                    background-color: $white-color;
+                }
+            }
+        }
+    }
+
+    &.btn-fw {
+        width: 100%;
+    }
+
+    &.shop-btn {
+        padding: 15px 10px;
+
+        &:hover {
+            color: $white-color;
+
+            .action-text {
+                color: $white-color;
+            }
+        }
+
+        &.ajax_add_to_cart.added {
+            &.shop-btn {
+                display: none;
+            }
+
+
+
+        }
+    }
+}
+
+.added_to_cart {
+    background-color: transparent;
+    border: 1px solid #E7F1F1;
+    color: $title-color;
+    font-family: $body-font2;
+    font-size: 16px;
+    font-weight: 500;
+    color: $title-color;
+    display: block;
+    text-align: center;
+    padding: 10px 10px;
+    border-radius: 8px;
+    transition: all 0.4s ease-in-out;
+
+    &:hover {
+        background-color: $theme-color;
+        color: $white-color;
+    }
+}
+
+
+// Icon Btn
+.icon-btn {
+    display: inline-block;
+    width: var(--btn-size, 48px);
+    height: var(--btn-size, 48px);
+    line-height: var(--btn-size, 48px);
+    font-size: var(--btn-font-size, 18px);
+    background-color: var(--icon-bg, #f7f7f7);
+    color: $title-color;
+    text-align: center;
+    border-radius: 99px;
+    border: 1px solid $border-color;
+    transition: 0.4s ease-in-out;
+    position: relative;
+
+    &:hover {
+        background-color: $theme-color;
+        color: $white-color;
+        border-color: $theme-color;
+    }
+
+    &.style2 {
+        background-color: $theme-color;
+        color: $white-color;
+        border: none;
+        border-radius: 99px;
+
+        &:hover {
+            background-color: $theme-color;
+            color: $white-color;
+        }
+    }
+}
+
+// Play Button
+.play-btn {
+    display: inline-block;
+    position: relative;
+    z-index: 1;
+
+    >i {
+        display: inline-block;
+        width: var(--icon-size, 56px);
+        height: var(--icon-size, 56px);
+        line-height: var(--icon-size, 56px);
+        text-align: center;
+        background-color: $theme-color;
+        color: $white-color;
+        font-size: var(--icon-font-size, 1.4em);
+        border-radius: 50%;
+        z-index: 1;
+        transition: all ease 0.4s;
+    }
+
+    &:after,
+    &:before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        background-color: $theme-color;
+        @extend .ripple-animation;
+        z-index: -1;
+        border-radius: 50%;
+        transition: all ease 0.4s;
+    }
+
+    &:after {
+        animation-delay: 2s;
+    }
+
+    &:hover {
+
+        &:after,
+        &::before,
+        i {
+            background-color: $title-color;
+            color: $white-color;
+        }
+    }
+
+    &.gr-style1 {
+        >i {
+            background-image: $gr-bg1;
+            color: $white-color !important;
+        }
+
+        &:before,
+        &:after {
+            background-color: rgba(255, 255, 255, 0.5);
+        }
+    }
+
+    &.style2 {
+
+        &:before,
+        &:after {
+            background-color: transparent;
+            border: 1px solid $white-color;
+        }
+    }
+
+    &.style3 {
+        >i {
+            background-color: $white-color;
+            color: $theme-color;
+        }
+
+        &:before,
+        &:after {
+            background-color: $white-color;
+        }
+
+        &:hover {
+            >i {
+                background-color: $theme-color;
+                color: $white-color;
+            }
+
+            &:before,
+            &:after {
+                background-color: $theme-color;
+            }
+        }
+    }
+
+    &.style4 {
+        --icon-size: 120px;
+
+        >i {
+            font-size: 28px;
+            color: $white-color;
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        &:before,
+        &:after {
+            background-color: transparent;
+            border: 1px solid $white-color;
+        }
+
+        &:hover {
+            >i {
+                background-color: $theme-color;
+            }
+
+            &:before,
+            &:after {
+                border-color: $theme-color;
+            }
+        }
+    }
+}
+
+// Link Button
+.link-btn {
+    font-weight: 600;
+    font-size: 14px;
+    display: inline-block;
+    line-height: 0.8;
+    position: relative;
+    padding-bottom: 2px;
+    margin-bottom: -2px;
+    text-transform: uppercase;
+    color: $theme-color;
+
+    i {
+        margin-left: 5px;
+        font-size: 0.9rem;
+    }
+
+    &:before {
+        content: "";
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 0;
+        height: 2px;
+        background-color: $theme-color;
+        transition: all ease 0.4s;
+    }
+
+    &:hover {
+        color: $theme-color;
+
+        &::before {
+            width: 100%;
+        }
+    }
+}
+
+.line-btn {
+    font-family: $title-font;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 0.8;
+    position: relative;
+    text-transform: capitalize;
+    color: $title-color;
+
+    &:after {
+        content: '';
+        position: relative;
+        mask-image: url(../img/icon/arrow-right.svg);
+        background-repeat: no-repeat;
+        background-size: cover;
+        mask-repeat: no-repeat;
+        mask-position: center;
+        mask-size: auto;
+        background-color: $title-color;
+        width: 32px;
+        height: 10px;
+        display: inline-block;
+        margin-left: 8px;
+        transition: 0.4s;
+    }
+
+    &:hover {
+        color: $theme-color;
+
+        &:after {
+            background-color: $theme-color;
+            width: 45px;
+        }
+    }
+
+    &.style2 {
+        font-weight: 500;
+        font-size: 24px;
+        line-height: 35px;
+
+    }
+}
+
+// Scroll To Top
+.scroll-top {
+    position: fixed;
+    right: 30px;
+    bottom: 30px;
+    height: 50px;
+    width: 50px;
+    cursor: pointer;
+    display: block;
+    border-radius: 50px;
+    z-index: 10000;
+    opacity: 1;
+    visibility: hidden;
+    transform: translateY(45px);
+    transition: all 300ms linear;
+
+    &:after {
+        content: "\f062";
+        font-family: $icon-font;
+        position: absolute;
+        text-align: center;
+        line-height: 50px;
+        font-size: 20px;
+        color: $theme-color;
+        left: 0;
+        top: 0;
+        height: 50px;
+        width: 50px;
+        cursor: pointer;
+        display: block;
+        z-index: 1;
+        border: 2px solid $theme-color;
+        box-shadow: none;
+        border-radius: 50%;
+    }
+
+    svg {
+        color: $theme-color;
+        border-radius: 50%;
+        background: $white-color;
+
+        path {
+            fill: none;
+        }
+    }
+
+    .progress-circle path {
+        stroke: $theme-color;
+        stroke-width: 20px;
+        box-sizing: border-box;
+        transition: all 400ms linear;
+    }
+
+    &.show {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+}

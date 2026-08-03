@@ -1,0 +1,1184 @@
+//---------------------------------------
+.cta-img1 {
+    img {
+        height: 100%;
+        object-fit: cover;
+        object-position: right center;
+
+        @include md {
+            width: 100%;
+        }
+    }
+}
+
+.cta-sec1 {
+    position: relative;
+    background-color: #E0E8F0;
+    border-radius: 8px;
+    padding: 1px 24px;
+    overflow: hidden;
+    z-index: 2;
+
+    @include md {
+        padding: 15px 24px;
+    }
+
+    &:before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 1564px;
+        height: 100%;
+        background-color: #142038;
+        clip-path: path("M1530.33 40.5675C1519.12 20.7771 1513.51 10.882 1504.18 5.44099C1494.84 0 1483.47 0 1460.72 0H-6.10352e-05V100H1564L1530.33 40.5675Z");
+        z-index: -1;
+
+        @include md {
+            clip-path: none;
+        }
+    }
+
+    .th-btn {
+        min-width: 180px;
+
+        @include ml {
+            min-width: 150px;
+            display: block;
+            margin: auto;
+        }
+    }
+}
+
+.cta-content {
+    min-width: 1062px;
+    display: block;
+    margin: auto;
+    margin-left: -180px;
+    background-size: auto;
+    background-position: center center;
+    height: 90px;
+    line-height: 90px;
+
+    @media(max-width: 1699px) {
+        margin-left: -30px;
+        min-width: 100%;
+    }
+
+    @media(max-width: 1599px) {
+        margin-left: -60px;
+    }
+
+    @include md {
+        display: block;
+        text-align: center;
+        //margin: 20px 0;
+        margin: 0 0 15px 0;
+    }
+
+
+    .sec-text {
+        margin-left: 100px;
+        padding: 30px 0;
+
+        @media(max-width: 1699px) {
+            margin-left: 0;
+        }
+
+        @include xl {
+            //display: none;
+            text-align: center;
+            height: 100%;
+            line-height: 100%;
+            display: block;
+            margin: auto;
+            max-width: 400px;
+        }
+    }
+}
+
+.cta-wrapp {
+    display: flex;
+    gap: 28px;
+    align-items: center;
+    background-size: auto;
+    background-position: left center;
+
+    @include lg {
+        display: block;
+    }
+
+    .box-title {
+        text-align: center;
+        width: 170px;
+        font-size: 28px;
+        font-weight: 600;
+        color: $white-color;
+        margin-bottom: 0;
+        display: block;
+
+        @include lg {
+            width: 100%;
+        }
+
+        span {
+            display: block;
+        }
+    }
+
+    .cta-img1 {
+        @include lg {
+            display: none;
+        }
+    }
+}
+
+.cta-wrapp2 {
+    .cta-img1 {
+        @include ml {
+            display: none;
+        }
+    }
+}
+
+.cta-img2 {
+    @include lg {
+        display: none;
+    }
+}
+
+.sec-text {
+    font-weight: 600;
+    font-size: 20px;
+    margin-bottom: 0;
+
+    @include xxl {
+        font-size: 18px;
+    }
+
+}
+
+.cta-sec2 {
+    position: relative;
+    background-color: $theme-color;
+    padding: 0 130px;
+    border-radius: 12px;
+    z-index: 4;
+
+    @media(max-width: 1599px) {
+        padding: 0 50px;
+    }
+
+    @include xl {
+        padding: 0 20px;
+    }
+
+    @include lg {
+        padding: 30px 20px;
+    }
+
+    @include xs {
+        padding: 30px 0px;
+    }
+
+    &:before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-color: #E0E8F0;
+        background-image: url("../img/shape/cta-shape4.png");
+        background-size: auto;
+        background-repeat: no-repeat;
+        border-radius: 12px 12px 200px 12px;
+        z-index: -1;
+
+    }
+
+    .cta-shape {
+        content: "";
+        position: absolute;
+        left: 50px;
+        top: 0;
+        width: 1474px;
+        height: 100%;
+        background-image: url("../img/shape/cta-shape3.png");
+        background-position: center center;
+
+
+        @media(max-width: 1599px) {
+            width: 100%;
+            left: 0;
+        }
+
+    }
+}
+
+.cta-content2 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 68px;
+
+    @include md {
+        padding: 30px 20px;
+    }
+
+    @include sm {
+        display: block;
+
+        .box-title {
+            margin-bottom: 15px;
+        }
+    }
+
+    .box-title {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 16px;
+
+        @include xs {
+            display: block;
+        }
+    }
+
+    .th-btn {
+        font-size: 16px;
+        padding: 14px 24px;
+        min-width: 137px;
+    }
+}
+
+.cta-group {
+    text-align: right;
+
+    @include md {
+        text-align: center;
+    }
+}
+
+/*cta area start ---------------*/
+.cta-area {
+    border-radius: 8px;
+    padding: 35px 64px 35px 35px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    @include xl {
+        padding: 20px;
+    }
+
+    // @include sm {
+    //     display: block;
+    // }
+
+    .th-btn {
+        font-size: 16px;
+        padding: 14px 24px;
+    }
+
+    &.style3 {
+        position: relative;
+        background-color: #192E2E;
+        justify-content: center;
+        gap: 73px;
+
+        @include xxl {
+            gap: 40px;
+        }
+
+        @include ml {
+            gap: 20px;
+        }
+
+        @media(max-width: 450px) {
+            display: block;
+            text-align: center;
+        }
+
+        .cta-shape {
+            position: absolute;
+            top: -10%;
+            left: -30%;
+            z-index: 2;
+
+            @include ml {
+                left: -5%;
+            }
+
+            @include ml {
+                left: 0;
+                top: 0;
+            }
+        }
+
+        .cta-img {
+            @include xl {
+                max-width: 250px;
+            }
+
+            @media(max-width: 450px) {
+                max-width: 100%;
+                margin-top: 20px;
+            }
+        }
+
+        .title-area {
+            img {
+                margin-bottom: 16px;
+            }
+
+            .box-title {
+                font-size: 40px;
+                font-weight: 500;
+                color: $white-color;
+                margin-bottom: 0px;
+
+                @include xxl {
+                    font-size: 30px;
+                }
+
+                @include xl {
+                    font-size: 25px;
+                }
+            }
+
+            .text {
+                font-weight: 500;
+                font-size: 14px;
+                color: $white-color;
+            }
+
+            .text2 {
+                margin-left: 10px;
+            }
+        }
+
+        .th-btn {
+            &:before {
+                background-color: $white-color;
+            }
+
+            &:hover {
+                &:before {
+                    background-color: $title-color;
+                }
+            }
+        }
+    }
+}
+
+.cta-area2 {
+    position: relative;
+    border-radius: 8px;
+    padding: 46px 60px 25px 40px;
+    z-index: 3;
+    @include xs {
+        padding: 46px 30px 25px 30px; 
+    }
+}
+
+.cta-box {
+    position: relative;
+    text-align: center;
+    z-index: 3;
+
+    .th-btn {
+        color: $white-color;
+        text-align: center;
+        font-size: 24px;
+        font-weight: 500;
+        margin-top: 60px;
+
+        &:after {
+            background-color: $white-color;
+        }
+
+        &:hover {
+            &:after {
+                background-color: $title-color;
+            }
+        }
+
+    }
+}
+
+.cta-big-title {
+    text-align: center;
+    margin-top: -100px;
+
+    .box-title {
+        font-weight: 700;
+        font-size: 120px;
+        line-height: 120px;
+        color: $white-color;
+        opacity: 0.2;
+
+        @media(max-width: 480px) {
+            font-size: 50px;
+            line-height: 60px;
+        }
+
+    }
+}
+
+/* cta 8 start ---------------------*/
+.cta-sec4 {
+    background-color: #DCF5F4;
+    border-radius: 8px;
+    padding: 5px 22px 0 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    overflow: hidden;
+
+    .cta-content4 {
+        text-align: center;
+        min-width: 538px;
+        margin-right: -230px;
+
+        @include md {
+            margin-right: 0;
+            padding: 30px 0;
+            min-width: 100%;
+        }
+
+        .subtitle {
+            font-weight: 500;
+            font-size: 16px;
+            letter-spacing: 0.02em;
+            color: $theme-color;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .sec-title {
+            margin-bottom: 10px;
+        }
+
+        .box-title {
+            color: $title-color;
+            font-weight: 400;
+        }
+
+        .th-btn2 {
+            padding: 16px 34px;
+        }
+    }
+
+    .cta-img1 {
+        @include md {
+            display: none;
+        }
+    }
+}
+
+/* cta 8 end ---------------------*/
+
+/* cta 9 start --------------------------*/
+.cta-sec5 {
+    position: relative;
+    background: #D7F8F8;
+    border-radius: 8px;
+    background-size: cover;
+    background-repeat: no-repeat;
+    z-index: 2;
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    overflow: hidden;
+
+    &:before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-color: $title-color;
+        opacity: 0.5;
+        border-radius: inherit;
+        z-index: -1;
+    }
+
+}
+
+.cta-content5 {
+    padding: 100px 0 100px 100px;
+    min-width: 842px;
+
+    @include ml {
+        padding: 100px 0 100px 40px;
+
+    }
+
+    @include md {
+        min-width: 100%;
+        text-align: center;
+        padding: 80px 30px;
+    }
+
+    .box-text {
+        font-size: 18px;
+        font-family: $body-font3;
+        color: $white-color;
+    }
+
+    .th-btn2 {
+        padding: 16px 35px;
+    }
+}
+
+/* cta 9 end --------------------------*/
+
+// newsletter-area ----------------------
+.newsletter-area {
+    background-color: #147D77;
+}
+
+.newsletter-content {
+    padding: 60px 0 60px 60px;
+
+    @include lg {
+        padding: 60px 0 60px 0px;
+        text-align: center;
+        max-width: 600px;
+        display: block;
+        margin: auto;
+    }
+
+    @include md {
+        max-width: 100%;
+    }
+    @include sm {
+        padding: 60px 20px;
+    }
+}
+
+// Video Section 1 ----------------------
+.video-content1 {
+    padding: 342px 0;
+    width: 100%;
+    max-width: 550px;
+    text-align: center;
+    margin: 0 auto;
+
+    .sec-title {
+        margin: 40px 0 -0.22em 0;
+    }
+
+    .play-btn {
+        --icon-size: 116px;
+        font-size: 30px;
+
+        >i {
+            color: $title-color;
+        }
+    }
+
+    @include xl {
+        padding: 160px 0;
+    }
+
+    @include md {
+        padding: 120px 0;
+    }
+}
+
+// Video Section 2 ----------------------
+.link-btn2 {
+    font-family: $title-font;
+    font-size: 18px;
+    font-weight: 600;
+    color: $white-color;
+
+    i {
+        @include equal-size-lineHeight(36px);
+        font-size: 18px;
+        text-align: center;
+        border: 1px solid $white-color;
+        border-radius: 8px;
+        color: $theme-color;
+        margin-right: 12px;
+    }
+
+    &:hover {
+        color: $theme-color;
+    }
+}
+
+.video-content2 {
+    padding: 160px 0 110px 0;
+    width: 100%;
+    max-width: 840px;
+    text-align: center;
+    margin: 0 auto;
+
+    .sec-title {
+        margin: 60px 0 26px 0;
+    }
+
+    .sec-text {
+        margin-bottom: 40px;
+    }
+
+    .play-btn {
+        --icon-size: 80px;
+        font-size: 20px;
+    }
+
+    @include md {
+        padding: 100px 0;
+    }
+}
+
+.video-sec2 {
+    .counter-card-wrap {
+        border-radius: 40px 40px 0 0;
+
+        @include md {
+            border-radius: 20px 20px 0 0;
+        }
+    }
+}
+
+.video-sec3 {
+    .play-btn {
+        --icon-size: 80px;
+        font-size: 20px;
+    }
+}
+
+.video-content3 {
+    .sec-title {
+        margin-bottom: 26px;
+
+        @include lg {
+            margin-top: 50px;
+        }
+    }
+}
+
+/* cta area -----------------------*/
+.cta-area {
+    &.style1 {
+        height: 100%;
+
+        @include sm {
+            display: block;
+        }
+    }
+
+    &.style2 {
+        position: relative;
+        background-color: #FEEAD8;
+        padding: 18px 0 18px 40px;
+        min-height: 300px;
+        z-index: 2;
+
+        @include ml {
+            padding: 18px 0 18px 20px;
+        }
+
+        @include vxs {
+            display: block;
+
+            .cta-img {
+                text-align: right;
+            }
+        }
+
+
+        .shape1 {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 258px;
+            height: 100%;
+            mask-image: url("../img/shape/shape-6.png");
+            mask-repeat: no-repeat;
+            background-color: #FAE1CB;
+            z-index: -1;
+        }
+
+        .shape2 {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 287px;
+            height: 157px;
+            mask-image: url("../img/shape/shape-7.png");
+            mask-repeat: no-repeat;
+            background-color: #FDE2CA;
+            z-index: -1;
+        }
+
+        .tag {
+            background: #22AC5C;
+            border-radius: 4px;
+            font-weight: 500;
+            padding: 2px 8px;
+            color: $white-color;
+            display: inline-block;
+            margin-bottom: 16px;
+            text-transform: capitalize;
+        }
+
+        .box-title {
+            font-weight: 600;
+            color: $title-color;
+            line-height: 28px;
+            margin-top: 0;
+            margin-bottom: 3px;
+            min-width: 182px;
+
+            .discount {
+                font-size: 32px;
+                line-height: 32px;
+                color: $theme-color;
+            }
+        }
+
+        .box-text {
+            color: $title-color;
+        }
+
+        .th-btn {
+            padding: 11px 20px;
+            font-size: 16px;
+            font-weight: 500;
+        }
+    }
+}
+
+.cta-area_wrapp {
+    &:nth-child(2) {
+        .cta-area {
+            &.style2 {
+                background-color: #EDFFEE;
+
+                .tag {
+                    background-color: #F16B31;
+                }
+
+                .shape1 {
+                    background-color: #DBF6DC;
+                }
+
+                .shape2 {
+                    background-color: #DBF6DC;
+                }
+            }
+        }
+    }
+}
+
+.cta-area_wrapp {
+    &:nth-child(3) {
+        .cta-area {
+            &.style2 {
+                background-color: #FFE7C7;
+
+                .shape1 {
+                    background-color: #FCDFBA;
+                }
+
+                .shape2 {
+                    background-color: #FCDFBA;
+                }
+            }
+        }
+    }
+}
+
+.cta-area_wrapp {
+    &:nth-child(4) {
+        .cta-area {
+            &.style2 {
+                background-color: #FFEBEA;
+
+                .tag {
+                    background-color: #F16B31;
+                }
+
+                .shape1 {
+                    background-color: #FFE0DE;
+                }
+
+                .shape2 {
+                    background-color: #FFE0DE;
+                }
+            }
+        }
+    }
+}
+
+/* cta area -----------------------*/
+.cta-sec3 {
+    position: relative;
+    z-index: 2;
+    border-radius: 8px;
+    padding-right: 34px;
+
+    @include md {
+        padding: 40px 0;
+    }
+
+    &:before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(0deg, rgba(16, 17, 17, 0.7), rgba(16, 17, 17, 0.7));
+        border-radius: inherit;
+        z-index: -1;
+    }
+
+}
+
+.cta-wrapp3 {
+    display: flex;
+    gap: 50px;
+    align-items: end;
+
+    .cta-img1 {
+        @include xl {
+            display: none;
+        }
+    }
+
+    .cta-img3 {
+        @include md {
+            display: none;
+        }
+    }
+}
+
+.cta-content3 {
+    position: relative;
+    text-align: center;
+    padding: 30px 0;
+    z-index: 2;
+
+    .box-title {
+        color: $white-color;
+        font-size: 30px;
+        font-weight: 500;
+        text-align: center;
+
+        @include xxl {
+            font-size: 20px;
+        }
+    }
+
+    .text {
+        border: 1px dashed #FFFFFF;
+        border-radius: 4px;
+        font-size: 16px;
+        line-height: 16px;
+        font-weight: 600;
+        padding: 5px 12px;
+        color: $white-color;
+
+    }
+}
+
+/* cta area start ------------------*/
+.cta-area3 {
+    padding: 155px 155px 155px 0;
+    background-size: 100% 100%;
+
+    @include ml {
+        background-size: cover;
+    }
+
+    @include md {
+        background-size: 100%;
+        background-position: center;
+        padding: 155px 50px 155px 0;
+    }
+
+    @include sm {
+        background-size: cover;
+    }
+
+    @include xs {
+        padding: 130px 0px 130px 0;
+        text-align: center;
+    }
+
+    &.style2 {
+        padding: 96px 0 291px 0;
+
+        .cta-content-title {
+            text-align: center;
+            max-width: 100%;
+            margin: auto;
+
+            .sub-title2 {
+                color: $white-color;
+            }
+
+            .sec-title {
+                font-weight: 600;
+                font-size: 40px;
+                line-height: 46px;
+
+                @include xs {
+                    font-size: 30px;
+                }
+            }
+        }
+
+    }
+
+    .cta-content-title {
+        max-width: 403px;
+        display: block;
+        margin-left: auto;
+
+        @include md {
+            max-width: 300px;
+        }
+
+        @include xs {
+            max-width: 100%;
+        }
+
+        .sub-title2 {
+            font-weight: 500;
+            font-size: 16px;
+            line-height: 28px;
+            text-transform: uppercase;
+            color: $title-color;
+            text-decoration: underline;
+            margin-bottom: 18px;
+        }
+
+        .box-title {
+            font-weight: 400;
+            font-size: 54px;
+            line-height: 64px;
+            color: #6E7070;
+            margin-bottom: 10px;
+
+            @include md {
+                font-size: 35px;
+                line-height: 45px;
+            }
+        }
+
+        .sec-title {
+            font-weight: 700;
+            font-size: 54px;
+            line-height: 64px;
+            color: $title-color;
+            margin-bottom: 0px;
+
+            @include md {
+                font-size: 35px;
+                line-height: 45px;
+            }
+        }
+    }
+}
+
+/* cta area end ------------------*/
+
+/* cta area 4 start ------------------*/
+.cta-area4 {
+    position: relative;
+    padding: 150px 50px 150px 0;
+    background-size: 100% 100%;
+
+    @include ml {
+        background-size: cover;
+    }
+
+    @include md {
+        background-size: 100%;
+        background-position: center;
+        padding: 155px 50px 155px 0;
+    }
+
+    @include sm {
+        background-size: cover;
+    }
+
+    @include xs {
+        padding: 130px 0px 130px 0;
+    }
+
+    .discount {
+        position: absolute;
+        top: 24%;
+        right: 42%;
+
+        @include xxl {
+            right: unset;
+            left: 30%;
+        }
+
+        @include sm {
+            left: 20%;
+        }
+
+        @include xs {
+            left: 10%;
+        }
+
+        @media(max-width: 480px) {
+            display: none;
+        }
+    }
+
+    &.style2 {
+        padding: 60px 0 360px 60px;
+
+        .cta-content-title {
+            max-width: 350px;
+            margin-left: 0;
+
+            .sec-title {
+                font-weight: 600;
+                font-size: 36px;
+                line-height: 46px;
+                color: $title-color;
+
+                @include xs {
+                    font-size: 30px;
+                }
+            }
+        }
+
+    }
+
+    .cta-content-title {
+        max-width: 380px;
+        display: block;
+        margin-left: auto;
+        margin-top: -0.8rem;
+
+        @include md {
+            max-width: 300px;
+        }
+
+
+
+        .sub-title2 {
+            font-weight: 500;
+            font-size: 16px;
+            line-height: 28px;
+            text-transform: uppercase;
+            color: $title-color;
+            text-decoration: underline;
+            margin-bottom: 18px;
+        }
+
+        .box-title {
+            font-weight: 700;
+            font-size: 90px;
+            line-height: 110px;
+            color: $white-color;
+            margin-bottom: 0;
+
+            @include md {
+                font-size: 35px;
+                line-height: 45px;
+            }
+
+            &.style1 {
+                margin-left: 60px;
+            }
+        }
+
+        .sec-title {
+            font-weight: 500;
+            font-size: 40px;
+            line-height: 40px;
+            color: $white-color;
+            margin-bottom: 25px;
+
+            @include md {
+                font-size: 35px;
+                line-height: 45px;
+            }
+        }
+    }
+}
+
+/* cta area 4 end ------------------*/
+
+.newsletter-sec3 {
+    position: relative;
+    z-index: 2;
+
+    &:before {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 295px;
+        background-color: #988672;
+        z-index: -1;
+
+        @include lg {
+            height: 100%;
+        }
+
+    }
+
+    @include sm {
+        background-size: cover;
+    }
+}
+
+.newsletter-content3 {
+    padding: 60px;
+
+    @include lg {
+        text-align: center;
+    }
+
+    @include xs {
+        padding: 30px;
+    }
+
+    .sec-title2 {
+        font-size: 40px;
+        font-weight: 600;
+        margin-bottom: 10px;
+
+        @include xl {
+            font-size: 30px;
+        }
+
+    }
+
+    .box-text {
+        color: $white-color;
+        max-width: 490px;
+        margin-bottom: 20px;
+
+        @include lg {
+            max-width: 100%;
+            display: block;
+            margin: auto auto 20px auto;
+        }
+    }
+}
+
+.newsletter-form {
+    max-width: 500px;
+
+    @media(max-width: 480px) {
+        display: block;
+
+        .th-btn {
+            margin-top: 10px;
+            width: 100%;
+        }
+    }
+
+    .form-group {
+        margin-bottom: 0;
+    }
+}

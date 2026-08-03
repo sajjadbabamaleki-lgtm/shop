@@ -1,0 +1,144 @@
+/* Counter 1 ---------------------------------- */
+.counter-card {
+    &-wrap {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 48px;
+
+        @include lg {
+            justify-content: space-between;
+            gap: 15px;
+            width: 100%;
+
+        }
+        @include sm {
+            display: grid;
+            grid-template-columns: auto auto; 
+            gap: 30px;
+        }
+
+        @media(max-width: 480px) {
+            display: block;
+            text-align: center;
+        }
+
+        .divider {
+            width: 1px;
+            height: 83px;
+            background-color: #CFCBC7;
+
+            @media(max-width: 480px) {
+                display: none;
+            }
+
+            &:last-of-type {
+                display: none;
+            }
+
+
+        }
+        @include sm {
+            .divider {
+                display: none;
+            }
+        }
+    }
+
+    display: flex;
+    align-items: center;
+    gap: 15px;
+
+    @media(max-width: 480px) { 
+        margin-top: 20px;
+       // text-align: center; 
+    }
+
+    .box-number {
+        font-size: 48px;
+        color: $title-color;
+        font-weight: 600;
+        margin-bottom: 0px;
+        margin-top: -0.2em;
+        @media(max-width: 480px) { 
+            font-size: 32px;
+        }
+    }
+
+    .box-text {
+        color: $title-color;
+        max-width: 140px;
+        line-height: 24px;
+        @media(max-width: 480px) { 
+            display: block;
+            margin: auto;
+        }
+    }
+   
+
+    .media-body {
+        flex: 1;
+    }
+
+}
+.counter {
+    @media(max-width: 480px) { 
+        display: block;
+        margin: auto;
+        text-align: center;
+    }
+}
+.cilent-box {
+    .review {
+        font-weight: 600;
+        font-size: 48px;
+        line-height: 48px;
+        color: $title-color;
+        display: block;
+        margin-bottom: 10px;
+        @include xs {
+            font-size: 32px;
+            line-height: 38px;
+        }
+    }
+
+    .star {
+        color: #FFA621;
+        font-size: 14px;
+
+        i {
+            margin-right: 5px;
+        }
+    }
+
+    &_counter {
+        color: $title-color;
+        margin-bottom: 0;
+    }
+}
+
+@include sm {
+    // .counter-card {
+    //     &-wrap {
+    //         flex-wrap: wrap;
+    //         position: relative;
+    //         gap: 32px;
+
+    //         .divider {
+    //             display: none;
+    //         }
+    //     }
+
+    //     flex: calc(50% - 18px);
+    //     padding-left: 10px;
+    //     padding-right: 10px;
+    // }
+}
+
+@include xs {
+    .counter-card {
+        &-wrap {
+            flex-wrap: wrap;
+        }
+    }
+}

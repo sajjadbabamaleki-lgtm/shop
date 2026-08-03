@@ -1,0 +1,134 @@
+/* shop details start -----------------*/
+
+
+.woocommerce-js div.product div.images .flex-control-thumbs {
+    overflow: hidden;
+    zoom:1;margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: auto auto auto auto auto;
+    gap: 12px;
+    height: max-content;
+}
+
+.woocommerce-js div.product div.images .flex-control-thumbs li {
+    width: 25%;
+    float: left;
+    margin: 0;
+    list-style: none
+}
+
+.woocommerce-js div.product div.images .flex-control-thumbs li img {
+    cursor: pointer;
+    opacity: .8;
+    margin: 0;
+	border-radius: 8px;
+	border: 1px solid #E1E4E5; 
+	background-color: #F5F5F5; 
+}
+
+.woocommerce-js div.product div.images .flex-control-thumbs li img.flex-active,.woocommerce-js div.product div.images .flex-control-thumbs li img:hover {
+    opacity: 1;
+	border: 1px solid #E42E3B; 
+}
+
+.woocommerce-js div.product div.woocommerce-product-gallery--columns-3 .flex-control-thumbs li {
+    width: 32%;
+    width: calc(33.33% - .7em);
+    margin-right: 1em;
+    margin-bottom: 1em
+}
+
+.woocommerce-js div.product div.woocommerce-product-gallery--columns-3 .flex-control-thumbs li:nth-child(3n+1) {
+    clear: left
+}
+
+.woocommerce-js div.product div.woocommerce-product-gallery--columns-3 .flex-control-thumbs li:nth-child(3n) {
+    margin-right: 0
+}
+
+.woocommerce-js div.product div.woocommerce-product-gallery--columns-4 .flex-control-thumbs li {
+    width: 24%;
+    width: 100%; 
+    margin-right: 0;
+    margin-bottom: 0
+}
+
+.woocommerce-js div.product div.woocommerce-product-gallery--columns-4 .flex-control-thumbs li:nth-child(4n+1) {
+    clear: left
+}
+
+.woocommerce-js div.product div.woocommerce-product-gallery--columns-4 .flex-control-thumbs li:nth-child(4n) {
+    margin-right: 0
+}
+
+.woocommerce-js div.product div.woocommerce-product-gallery--columns-5 .flex-control-thumbs li {
+    width: 18.5%;
+    width: calc(20% - .8em);
+    margin-right: 1em;
+    margin-bottom: 1em
+		
+}
+
+.woocommerce-js div.product div.woocommerce-product-gallery--columns-5 .flex-control-thumbs li:nth-child(5n+1) {
+    clear: left
+}
+
+.woocommerce-js div.product div.woocommerce-product-gallery--columns-5 .flex-control-thumbs li:nth-child(5n) {
+    margin-right: 0
+}
+
+
+
+.product-details .product-big-img {
+	background-color: #fff;
+	    border-radius: 10px;
+}
+
+
+.product-big-img .img img {
+    background-color: #F5F5F5; 
+	border-radius: 10px; 
+	margin-bottom: 20px; 
+	
+}
+.product-big-img .img img {
+   border-radius: 10px; 
+}
+/* shop details end -----------------------*/
+.pl_show_swatches_label_1 .swatchly_loop_variation_form tr, .single-product .variations_form .variations tr {
+  
+    grid-template-columns: auto auto;
+	margin-bottom: 0; 
+	align-items: center; 
+}
+table.variations .label, .woocommerce-grouped-product-list-item .label {
+    padding: 0;
+	margin-right: 10px; 
+}
+.swatchly-shape-type-circle .swatchly-swatch {
+    border-radius: 10px;
+    border: 1px solid #E1E4E6; 
+    padding: 0px 10px;
+}
+.swatchly-shape-type-circle .swatchly-swatch { 
+    border-radius: 12px;
+    border: 1px solid #E1E4E6;
+    padding: 0;
+}
+.swatchly-shape-type-circle.swatchly-inset .swatchly-swatch:before { 
+    border-radius: 0;
+}
+.swatchly-swatch {
+    min-width: 20px;
+    min-height: 20px;
+    border-radius: 6px;
+}
+.swatchly-shape-type-circle .swatchly-swatch {  
+    border-radius: 6px;
+    border: 1px solid #E1E4E6;
+    padding: 0;
+}
+.swatchly-shape-type-circle .swatchly-content {
+    height: 20px;
+}

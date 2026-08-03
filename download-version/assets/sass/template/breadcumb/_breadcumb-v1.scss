@@ -1,0 +1,74 @@
+.breadcumb-menu {
+    max-width: 100%;
+    padding: 0;
+    margin: 20px 0 -0.42em 0;
+    list-style-type: none;
+    position: relative;
+
+    li {
+        display: inline-block;
+        margin-right: 3px;
+        padding-right: 3px;
+        list-style: none;
+        position: relative;
+
+        &:after {
+            content: "";
+            position: relative;
+            width: 7px;
+            height: 7px;
+            display: inline-block;
+            background: #101111;
+            margin-left: 10px;
+            font-weight: 500;
+            font-size: 0.9em;
+            color: inherit;
+            font-family: $icon-font;
+            transform: rotate(45deg);
+        }
+
+        &:last-child {
+            padding-right: 0;
+            margin-right: 0;
+            color: $theme-color;
+
+            &:after {
+                display: none;
+            }
+        }
+    }
+
+    li,
+    a,
+    span {
+        white-space: normal;
+        color: inherit;
+        word-break: break-word;
+        font-family: $title-font;
+        font-weight: 500;
+        font-size: 14px;
+        color: $title-color;
+    }
+}
+
+.breadcumb-title {
+    margin: -0.12em 0 -0.2em 0;
+    line-height: 1.1;
+    font-weight: 600;
+    font-size: 40px;
+    color: $title-color;
+}
+
+.breadcumb-wrapper {
+    background-color: $title-color;
+    padding: 70px 0 70px 0;
+    overflow: hidden;
+    text-align: center;
+}
+
+@include xs {
+
+    .breadcumb-title {
+        font-size: 34px;
+    }
+}
