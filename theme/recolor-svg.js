@@ -16,14 +16,17 @@ const path = require('path');
 const ROOT = path.resolve(__dirname, '..');
 const SITE = path.join(ROOT, 'download-version');
 
-// The template's two reds and its gradient orange, mapped onto the gold
-// sampled from the brand's chart bars. Fills take the bar's midpoint; the
-// orange, which only ever appears as a gradient stop, takes the light end.
-const MAP = {
-  '#FF0004': '#A47F25',
-  '#E42E3B': '#A47F25',
-  '#FD8900': '#CA9A24',
-};
+// The template's two reds and its gradient orange all become the bar gradient
+// itself: a `linearGradient` def is injected per file and the fills point at
+// it. Each icon is loaded through <img>, so the def is scoped to its own
+// document and the fixed id cannot collide.
+const GRADIENT_ID = 'vp-gold';
+const DEF = `<defs><linearGradient id="${GRADIENT_ID}" x1="0" y1="0" x2="0" y2="1">` +
+  `<stop offset="0" stop-color="#7D6324"/><stop offset="1" stop-color="#CE9E29"/>` +
+  `</linearGradient></defs>`;
+
+const REDS = /#(?:FF0004|E42E3B|FD8900)/gi;
+const FILL = `url(#${GRADIENT_ID})`;
 
 const page = fs.readFileSync(path.join(SITE, 'shoe-shop.html'), 'utf8');
 const referenced = new Set(
@@ -36,11 +39,15 @@ for (const rel of [...referenced].sort()) {
   if (!fs.existsSync(abs)) continue;
 
   const svg = fs.readFileSync(abs, 'utf8');
-  let out = svg;
-  for (const [from, to] of Object.entries(MAP)) {
-    out = out.replace(new RegExp(from, 'gi'), to);
-  }
-  if (out === svg) continue;
+  if (!REDS.test(svg)) continue;
+  REDS.lastIndex = 0;
+
+  // The gradient is in user-space-on-use terms once x1/y1/x2/y2 are fractions
+  // of the object's bounding box, which is the SVG default — so each shape
+  // gets the full run of the bar regardless of the icon's viewBox.
+  const out = svg
+    .replace(REDS, FILL)
+    .replace(/(<svg\b[^>]*>)/, `$1${DEF}`);
 
   const goldRel = rel.replace(/\.svg$/, '-gold.svg');
   fs.writeFileSync(path.join(SITE, goldRel), out);
