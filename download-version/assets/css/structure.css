@@ -218,33 +218,29 @@
 /* ==========================================================================
    Hero deck — five layered cards.
 
-   Three sharp cards and two blurred ones behind them.
+   Three cards: one sharp in front, two blurred behind it.
 
    Geometry, for a front card of width W:
-     slot  0  x = 0        scale 1.00   sharp, on top
-     slot ±1  x = ±62%W    scale 0.84   sharp; the front card's edge at 0.5W
-                                        covers about a third of its width
-     slot ±2  x = ±104%W   scale 0.68   blurred — depth of field rather than
-                                        another readable image
+     slot  0  x = 0       scale 1.00   sharp, on top
+     slot ±1  x = ±62%W   scale 0.84   blurred; the front card's edge at 0.5W
+                                       covers about a third of its width
 
-   Blurring the outer pair does two jobs: it reads as distance, and it stops
-   five photographs with different backgrounds from competing. Only the three
-   sharp cards carry information.
+   Blurring the pair behind does two jobs: it reads as distance, and it keeps
+   three photographs from competing — only the front card carries information.
 
    Every card reads its transform from the same custom properties, so tuning
-   the fan means editing numbers rather than five rules.
+   the fan means editing numbers rather than a rule per card.
    ========================================================================== */
 
 .vp-deck {
-  --card-w: min(24vw, 360px);
-  /* Upright rectangle — a shoe is taller than it is wide in a packshot, and
-     the near-square card was the flattest part of the composition. */
-  --card-ratio: 3 / 4;
+  --card-w: min(40vw, 580px);
+  /* Landscape rectangle. */
+  --card-ratio: 4 / 3;
   --card-radius: 6px;
 
   position: relative;
   width: 100%;
-  min-height: calc(var(--card-w) / (3 / 4) + 104px);
+  min-height: calc(var(--card-w) / (4 / 3) + 104px);
   display: grid;
   place-items: center;
 }
@@ -252,7 +248,7 @@
 .vp-deck__track {
   position: relative;
   width: 100%;
-  height: calc(var(--card-w) / (3 / 4));
+  height: calc(var(--card-w) / (4 / 3));
   margin: 0;
   padding: 0;
   list-style: none;
@@ -284,17 +280,15 @@
 /* The fan. Cards outside ±2 park behind the ±2 position and fade out, so a
    deck of more than five degrades instead of stacking visibly. */
 .vp-deck__card[data-slot="0"]  { --x: 0;      --s: 1;    --o: 1;    --z: 5; }
-.vp-deck__card[data-slot="1"]  { --x: 62%;    --s: 0.84; --o: 0.96; --z: 4; }
-.vp-deck__card[data-slot="-1"] { --x: -62%;   --s: 0.84; --o: 0.96; --z: 4; }
-.vp-deck__card[data-slot="2"]  { --x: 104%;   --s: 0.68; --o: 0.75; --z: 3; }
-.vp-deck__card[data-slot="-2"] { --x: -104%;  --s: 0.68; --o: 0.75; --z: 3; }
+.vp-deck__card[data-slot="1"]  { --x: 62%;    --s: 0.84; --o: 0.8;  --z: 4; }
+.vp-deck__card[data-slot="-1"] { --x: -62%;   --s: 0.84; --o: 0.8;  --z: 4; }
 .vp-deck__card[data-slot="out"]{ --x: 0;      --s: 0.5;  --o: 0;    --z: 1; }
 
-/* The outer pair is out of focus. Blurring the card rather than the image
+/* The pair behind is out of focus. Blurring the card rather than the image
    keeps its edge soft too, so it reads as depth instead of a sharp frame
    holding a fuzzy picture. */
-.vp-deck__card[data-slot="2"],
-.vp-deck__card[data-slot="-2"] {
+.vp-deck__card[data-slot="1"],
+.vp-deck__card[data-slot="-1"] {
   filter: blur(7px);
   box-shadow: none;
 }
@@ -316,8 +310,7 @@
 }
 
 /* Depth cue: only the front card is fully lit; the ones behind sit back. */
-.vp-deck__card[data-slot="1"] img,
-.vp-deck__card[data-slot="-1"] img { filter: brightness(0.97); }
+
 
 /* Cards behind the front one are decorative duplicates of what the front card
    already offers, so they are not keyboard stops. */
@@ -389,12 +382,7 @@
 /* --- responsive ---------------------------------------------------------- */
 
 @media (max-width: 991px) {
-  .vp-deck { --card-w: min(56vw, 280px); }
-  /* Only the immediate neighbours survive the narrower viewport; the outer
-     pair would be clipped to slivers. */
-  .vp-deck__card[data-slot="2"],
-  .vp-deck__card[data-slot="-2"] { --x: 96%; --s: 0.7; --o: 0.6; }
-  .vp-deck__card[data-slot="-2"] { --x: -96%; }
+  .vp-deck { --card-w: min(74vw, 460px); }
   .vp-deck__card[data-slot="1"]  { --x: 56%; }
   .vp-deck__card[data-slot="-1"] { --x: -56%; }
 }
