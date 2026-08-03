@@ -1,0 +1,20 @@
+/* ==========================================================================
+   Deliberate deviations from the template.
+
+   The site otherwise renders exactly as the template ships it. This file is
+   where requested changes go, one at a time, so what has been altered stays
+   readable at a glance instead of being buried in a theme layer.
+
+   Loaded last.
+   ========================================================================== */
+
+/* The hero cards sat flush against the header — measured gap was 0px. Space
+   below the header, not above the section's own content, so the gap is there
+   whatever the hero slide contains. */
+.th-hero-wrapper {
+  padding-block-start: 40px;
+}
+
+@media (max-width: 991px) {
+  .th-hero-wrapper { padding-block-start: 24px; }
+}

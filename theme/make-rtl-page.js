@@ -50,6 +50,8 @@ html = html.replace(/<link[^>]*fonts\.gstatic\.com[^>]*>/gi, '');
 const layers = ['assets/css/fonts-fa.css'];
 if (theme) layers.push(`assets/css/theme-${theme}.css`, 'assets/css/hero-original.css');
 layers.push('assets/css/rtl-fixes.css');
+// Requested deviations from the template, loaded last.
+layers.push('assets/css/tweaks.css');
 
 html = html.replace(
   /(<link[^>]+href="assets\/css\/style\.rtl\.css"[^>]*>)/i,
