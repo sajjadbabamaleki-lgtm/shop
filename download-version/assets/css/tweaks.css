@@ -786,21 +786,20 @@ option:hover {
 }
 
 /* --------------------------------------------------------------------------
-   Hero only: the same gradient, with less of its dark head showing.
+   Hero only: the gold, lifted for a white ground.
 
-   The bar's top third is the darkest stretch and on a 51px button it took up
-   too much of the face. The two stops are unchanged — the ramp simply starts
-   above the box, so the button shows the bar from its 31% mark down rather
-   than from the very top. The light foot is untouched.
+   The chart's own numbers sit on a near-black card, where they read luminous.
+   The same values on white read muddy — the ground is doing half the work in
+   the original, so matching the hex exactly does not match the impression.
+   This lifts both stops while holding the hue (42-43 degrees) and the
+   top-dark-to-bottom-light run of the bar.
 
-     box top   #967526  (was #7D6324)   ink 4.40:1
-     box 35%   #AA8427                  ink 5.41:1
-     box 65%   #BA9028                  ink 6.40:1
-     box foot  #CE9E29  unchanged       ink 7.70:1
+     box top   #C0972F  ink 6.94:1
+     box foot  #E3B54A  ink 9.88:1
 
-   Scoped to the hero while it is judged; the rest of the site still shows the
-   full ramp.
+   Scoped to the hero while it is judged; the rest of the site still carries
+   the sampled ramp.
    -------------------------------------------------------------------------- */
 .th-hero-wrapper .th-btn {
-  background-image: linear-gradient(180deg, #7D6324 -45%, #CE9E29 100%);
+  background-image: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
 }
