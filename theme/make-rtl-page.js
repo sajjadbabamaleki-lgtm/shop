@@ -73,6 +73,11 @@ html = html.replace(/<div class="swiper([^"]*)"/g, '<div dir="rtl" class="swiper
 // renders uppercase via text-transform while the source says "Contact Us".
 // Longest-first so multi-word phrases match before their constituent words.
 const DICT = {
+  // Hero slide titles. The template repeats the product name as the small
+  // label above it, so one mapping covers both.
+  'Adidas Stan Running Spikes': 'کتونی آدیداس استن اسمیت',
+  'Nike Air Running Spikes': 'کتونی رانینگ نایک ایر',
+  'Nike Mag Sneakers Shoe': 'کفش اسنیکر نایک مگ',
   'Shop Grid With Left Sidebar': 'فروشگاه با سایدبار راست',
   'Shop Grid With Right Sidebar': 'فروشگاه با سایدبار چپ',
   'Order Tracking': 'پیگیری سفارش',
