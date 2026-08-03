@@ -1,0 +1,311 @@
+/* ==========================================================================
+   Structural replacements: header and hero.
+
+   These two are markup, not palette, so they sit apart from the theme files.
+   Everything below reads its colours from the theme variables, which means one
+   structure works under minimal, boutique and contrast alike.
+
+   Loaded after the theme file and rtl-fixes.css.
+   ========================================================================== */
+
+.vp-visually-hidden {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* --------------------------------------------------------------------------
+   Header — one band, start-anchored.
+   -------------------------------------------------------------------------- */
+
+.vp-header {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 500;
+  background: var(--body-bg, #fff);
+  border-block-end: 1px solid var(--th-border-color, #e6e4de);
+}
+
+.vp-header__inner {
+  max-width: var(--main-container, 1290px);
+  margin-inline: auto;
+  padding-inline: var(--container-gutters, 24px);
+  min-height: 74px;
+
+  display: flex;
+  align-items: center;
+  /* The gap between nav and actions is what pushes the actions to the end;
+     logo and nav stay together at the start rather than being centred. */
+  gap: 40px;
+}
+
+.vp-header__logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+  text-decoration: none;
+}
+
+.vp-header__mark {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--theme-color, #b8912f);
+}
+
+.vp-header__name {
+  font-family: var(--title-font, sans-serif);
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--title-color, #1a1613);
+}
+
+.vp-nav {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.vp-nav ul {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.vp-nav a {
+  display: block;
+  padding-block: 6px;
+  font-family: var(--body-font, sans-serif);
+  font-size: 0.95rem;
+  color: var(--title-color, #1a1613);
+  text-decoration: none;
+  white-space: nowrap;
+  border-block-end: 2px solid transparent;
+  transition: border-color 140ms ease, color 140ms ease;
+}
+
+.vp-nav a:hover,
+.vp-nav a:focus-visible { border-block-end-color: var(--theme-color, #b8912f); }
+.vp-nav a.is-accent { color: var(--theme-color, #b8912f); font-weight: 600; }
+
+.vp-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-inline-start: auto;
+  flex: 0 0 auto;
+}
+
+/* Search is a quiet field until focused — present, but not the loud filled
+   bar with a coloured submit button the stock header uses. */
+.vp-search {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding-inline: 12px;
+  height: 40px;
+  min-width: 230px;
+  background: transparent;
+  border: 1px solid var(--th-border-color, #e6e4de);
+  border-radius: inherit;
+  transition: border-color 140ms ease;
+}
+
+.vp-search:focus-within { border-color: var(--theme-color, #b8912f); }
+
+.vp-search input {
+  all: unset;
+  flex: 1;
+  min-width: 0;
+  font-family: var(--body-font, sans-serif);
+  font-size: 0.9rem;
+  color: var(--title-color, #1a1613);
+}
+
+.vp-search input::placeholder { color: var(--gray-color, #8c8478); }
+
+.vp-search button {
+  all: unset;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  width: 28px; height: 28px;
+  color: var(--body-color, #6b6257);
+}
+
+.vp-search button:hover { color: var(--theme-color, #b8912f); }
+
+.vp-icon-btn {
+  display: grid;
+  place-items: center;
+  width: 40px; height: 40px;
+  color: var(--title-color, #1a1613);
+  text-decoration: none;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  position: relative;
+}
+
+.vp-icon-btn:hover { color: var(--theme-color, #b8912f); }
+
+.vp-cart__count {
+  position: absolute;
+  inset-block-start: 4px;
+  inset-inline-end: 2px;
+  min-width: 17px;
+  height: 17px;
+  padding-inline: 4px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--theme-color, #b8912f);
+  color: var(--body-bg, #fff);
+  font-size: 0.66rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.vp-burger { display: none; }
+
+.vp-header :focus-visible {
+  outline: 2px solid var(--theme-color, #b8912f);
+  outline-offset: 2px;
+}
+
+/* --------------------------------------------------------------------------
+   Hero — one message, full-bleed, asymmetric.
+   -------------------------------------------------------------------------- */
+
+.vp-hero {
+  position: relative;
+  display: grid;
+  /* Copy occupies the narrower track; the image runs wider and bleeds off the
+     page edge, so the two never read as matched halves. */
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  align-items: center;
+  gap: 0;
+  min-height: 560px;
+  padding-block: 64px;
+  padding-inline-start: max(var(--container-gutters, 24px), calc((100vw - var(--main-container, 1290px)) / 2));
+  overflow: hidden;
+}
+
+.vp-hero__copy {
+  position: relative;
+  z-index: 2;
+  max-width: 30rem;
+}
+
+.vp-hero__eyebrow {
+  margin: 0 0 18px;
+  font-family: var(--body-font, sans-serif);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  color: var(--theme-color, #b8912f);
+}
+
+.vp-hero__title {
+  margin: 0 0 18px;
+  font-family: var(--title-font, sans-serif);
+  font-size: clamp(2.4rem, 4.6vw, 3.9rem);
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  color: var(--title-color, #1a1613);
+  text-wrap: balance;
+}
+
+.vp-hero__meta {
+  margin: 0 0 34px;
+  font-family: var(--body-font, sans-serif);
+  font-size: 1rem;
+  color: var(--body-color, #6b6257);
+  font-variant-numeric: tabular-nums;
+}
+
+.vp-hero__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px 30px;
+  background: var(--title-color, #1a1613);
+  color: var(--body-bg, #fff);
+  font-family: var(--body-font, sans-serif);
+  font-size: 0.98rem;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: inherit;
+  transition: background 160ms ease;
+}
+
+.vp-hero__cta:hover { background: var(--theme-color, #b8912f); color: var(--title-color, #1a1613); }
+.vp-hero__cta svg { flex: 0 0 auto; }
+
+/* The image column runs past the inline end of the viewport rather than
+   stopping at the container, which is what breaks the card silhouette. */
+.vp-hero__media {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: stretch;
+  margin-inline-end: calc(var(--container-gutters, 24px) * -1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+}
+
+.vp-hero__media img {
+  width: 100%;
+  height: 100%;
+  max-height: 560px;
+  object-fit: contain;
+  /* The shipped imagery is placeholder art on an opaque light ground, which
+     reads as a panel — the exact silhouette this hero exists to avoid. Real
+     photography will be cut out on transparency; until then, blending keeps
+     the composition honest instead of showing a grey rectangle. */
+  mix-blend-mode: multiply;
+}
+
+/* The copy overlaps the image edge; the two share a column so neither reads
+   as a panel sitting beside the other. */
+@media (min-width: 992px) {
+  .vp-hero__copy { grid-column: 1 / span 2; grid-row: 1; }
+  .vp-hero__media { margin-inline-start: -6%; }
+}
+
+@media (max-width: 991px) {
+  .vp-hero {
+    grid-template-columns: 1fr;
+    min-height: 0;
+    padding-block: 40px 56px;
+    padding-inline: var(--container-gutters, 24px);
+    text-align: start;
+  }
+  .vp-hero__media { grid-column: 1; grid-row: 1; margin-inline: 0; }
+  .vp-hero__copy { grid-column: 1; grid-row: 2; max-width: none; }
+  .vp-hero__media img { max-height: 340px; }
+}
+
+@media (max-width: 991px) {
+  .vp-nav { display: none; }
+  .vp-search { min-width: 0; width: 150px; }
+  .vp-burger { display: grid; }
+  .vp-header__inner { gap: 16px; }
+}
+
+@media (max-width: 575px) {
+  .vp-search { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vp-nav a, .vp-hero__cta, .vp-search { transition: none; }
+}

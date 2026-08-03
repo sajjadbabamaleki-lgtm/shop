@@ -37,7 +37,14 @@
 /* --------------------------------------------------------------------------
    2. Palette
    -------------------------------------------------------------------------- */
-:root {
+/* The template scopes its palette to a per-demo body class
+   (.shoe-shop { --theme-color: #FF0004 }), not only :root — so overriding
+   :root alone loses to it for everything inside <body>. The variables are
+   declared on those scopes too, which is what lets components read
+   var(--theme-color) honestly instead of hard-coding !important colours. */
+:root,
+.shoe-shop, .fashion-shop, .electronics-shop, .grocery-shop,
+.coffee-shop, .furniture-shop, .home-electrician {
   --theme-color: #B8912F;
   --gr-color2: #D4AF37;
   --title-color: #1A1613;

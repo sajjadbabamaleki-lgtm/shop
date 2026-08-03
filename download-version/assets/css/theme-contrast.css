@@ -23,7 +23,14 @@
   font-display: swap;
 }
 
-:root {
+/* The template scopes its palette to a per-demo body class
+   (.shoe-shop { --theme-color: #FF0004 }), not only :root — so overriding
+   :root alone loses to it for everything inside <body>. The variables are
+   declared on those scopes too, which is what lets components read
+   var(--theme-color) honestly instead of hard-coding !important colours. */
+:root,
+.shoe-shop, .fashion-shop, .electronics-shop, .grocery-shop,
+.coffee-shop, .furniture-shop, .home-electrician {
   --title-font: 'Vazirmatn', sans-serif;
   --body-font: 'Vazirmatn', sans-serif;
   --body-font2: 'Vazirmatn', sans-serif;
