@@ -14,11 +14,14 @@ const path = require('path');
 const ROOT = path.resolve(__dirname, '..');
 
 // Usage: make-rtl-page.js [theme] [source.html]
-// theme names the palette stylesheet in assets/css; rtl-fixes.css is always
-// loaded alongside it, since direction corrections are shared by all variants.
-const theme = process.argv[2] || 'gold';
+//
+// With no theme the page renders in the template's own colours and styles;
+// only the Persian face and the direction corrections are added. Passing a
+// theme name layers that palette on top — the variants live in the repo but
+// are opt-in, not the default.
+const theme = process.argv[2] && process.argv[2] !== 'none' ? process.argv[2] : null;
 const src = process.argv[3] || path.join(ROOT, 'download-version/shoe-shop.html');
-const out = path.join(ROOT, `download-version/shoe-shop-${theme}.html`);
+const out = path.join(ROOT, `download-version/shoe-shop-${theme || 'rtl'}.html`);
 
 let html = fs.readFileSync(src, 'utf8');
 
@@ -41,14 +44,16 @@ for (const [from, to] of SHEETS) {
 html = html.replace(/<link[^>]*fonts\.googleapis\.com[^>]*>/gi, '');
 html = html.replace(/<link[^>]*fonts\.gstatic\.com[^>]*>/gi, '');
 
-// Theme layer loads after the template's own stylesheets so its palette wins,
-// then hero-original.css exempts the hero from it, then the shared direction
-// corrections.
+// The Persian face and the direction corrections load after the template's own
+// stylesheets. A theme, when asked for, sits between them, and hero-original
+// keeps the hero out of it.
+const layers = ['assets/css/fonts-fa.css'];
+if (theme) layers.push(`assets/css/theme-${theme}.css`, 'assets/css/hero-original.css');
+layers.push('assets/css/rtl-fixes.css');
+
 html = html.replace(
   /(<link[^>]+href="assets\/css\/style\.rtl\.css"[^>]*>)/i,
-  `$1\n    <link rel="stylesheet" href="assets/css/theme-${theme}.css">` +
-    '\n    <link rel="stylesheet" href="assets/css/hero-original.css">' +
-    '\n    <link rel="stylesheet" href="assets/css/rtl-fixes.css">'
+  '$1' + layers.map((h) => `\n    <link rel="stylesheet" href="${h}">`).join('')
 );
 
 // Swiper reads the container's own dir attribute, not the inherited one.
@@ -123,4 +128,4 @@ html = html.replace(
 html = html.replace(/-(\d+)%/g, (_, n) => `${Number(n).toLocaleString('fa-IR')}٪ تخفیف`);
 
 fs.writeFileSync(out, html);
-console.log(`wrote ${path.relative(ROOT, out)} (theme: ${theme})`);
+console.log(`wrote ${path.relative(ROOT, out)} (theme: ${theme || 'none — template colours'})`);
