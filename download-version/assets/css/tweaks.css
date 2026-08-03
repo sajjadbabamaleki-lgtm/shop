@@ -854,17 +854,16 @@ option:hover {
   backdrop-filter: blur(10px);
 }
 
-/* The block the template lays inside the card, as a lighter second sheet so
-   it reads as depth without punching back through the pane. */
+/* The block the template lays inside the card — a rectangle offset from the
+   card's own edges. Against a flat pastel it read as a subtle tonal shift;
+   against glass it reads as a second pane with a hard edge cutting through
+   the type. Removed on every slide. */
 .heroSlide6 .hero-inner .hero6-shape,
 .heroSlide6 .swiper-slide:nth-child(2) .hero-inner .hero6-shape,
 .heroSlide6 .swiper-slide:nth-child(3) .hero-inner .hero6-shape,
 .heroSlide6 .swiper-slide:nth-child(5) .hero-inner .hero6-shape,
 .heroSlide6 .swiper-slide:nth-child(6) .hero-inner .hero6-shape {
-  background: rgba(255, 255, 255, 0.35);
-  -webkit-backdrop-filter: blur(6px);
-  backdrop-filter: blur(6px);
-  border-radius: 8px;
+  display: none;
 }
 
 /* --------------------------------------------------------------------------
