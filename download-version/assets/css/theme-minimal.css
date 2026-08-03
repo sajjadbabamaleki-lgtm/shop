@@ -1,16 +1,23 @@
 /* ==========================================================================
    Variant 1 — Minimal
-   Reference points: COS, Aesop, Jil Sander.
+   Reference points: COS,
+Aesop,
+Jil Sander.
 
-   The idea: strip ornament until only type, space and one accent remain. A
-   stock theme is recognised by its decoration, so this variant removes
+   The idea: strip ornament until only type,
+space and one accent remain. A
+   stock theme is recognised by its decoration,
+so this variant removes
    decoration as the primary move rather than recolouring it.
 
-   Form changes, not just palette:
+   Form changes,
+not just palette:
      - corners squared (the theme's pill buttons and 20px cards are a tell)
-     - shadows removed entirely, borders reduced to hairlines
+     - shadows removed entirely,
+borders reduced to hairlines
      - section rhythm loosened from 120px to 140px
-     - gold used sparingly: one accent per screen, never as fill on large areas
+     - gold used sparingly: one accent per screen,
+never as fill on large areas
    ========================================================================== */
 
 @font-face {
@@ -19,16 +26,21 @@
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
-}
-
-/* The template scopes its palette to a per-demo body class
-   (.shoe-shop { --theme-color: #FF0004 }), not only :root — so overriding
+}/* The template scopes its palette to a per-demo body class
+   (.shoe-shop { --theme-color: #FF0004 }),
+not only :root — so overriding
    :root alone loses to it for everything inside <body>. The variables are
-   declared on those scopes too, which is what lets components read
+   declared on those scopes too,
+which is what lets components read
    var(--theme-color) honestly instead of hard-coding !important colours. */
 :root,
-.shoe-shop, .fashion-shop, .electronics-shop, .grocery-shop,
-.coffee-shop, .furniture-shop, .home-electrician {
+.shoe-shop,
+.fashion-shop,
+.electronics-shop,
+.grocery-shop,
+.coffee-shop,
+.furniture-shop,
+.home-electrician {
   --title-font: 'Vazirmatn', sans-serif;
   --body-font: 'Vazirmatn', sans-serif;
   --body-font2: 'Vazirmatn', sans-serif;
@@ -52,103 +64,121 @@
 
   --section-space: 140px;
   --section-space-mobile: 88px;
-}
-
-html, body { background: #FFFFFF; }
-
-/* Squared geometry. The template's rounded-20 cards and pill buttons are
+}html,
+body { background: #FFFFFF; }/* Squared geometry. The template's rounded-20 cards and pill buttons are
    among its most recognisable shapes. */
-.th-btn, .btn, button.th-btn, input, select, textarea, .form-control,
-.th-product, .product-card, .product-thumb, .blog-card, .deal-product,
-.hero-inner, .hero-card, .rounded-20, .nice-select, .testi-card {
+.th-btn,
+.btn,
+button.th-btn,
+input,
+select,
+textarea,
+.form-control,
+.th-product,
+.product-card,
+.product-thumb,
+.blog-card,
+.deal-product,
+.rounded-20,
+.nice-select,
+.testi-card {
   border-radius: 2px !important;
-}
-
-/* No shadows anywhere; separation comes from space and hairlines. */
-.th-product, .product-card, .blog-card, .deal-product, .testi-card,
-.hero-inner, .category-card, .brand-card {
+}/* No shadows anywhere; separation comes from space and hairlines. */
+.th-product,
+.product-card,
+.blog-card,
+.deal-product,
+.testi-card,
+.category-card,
+.brand-card {
   box-shadow: none !important;
   border: 1px solid #E6E4DE !important;
   background-color: #FFFFFF !important;
-}
-
-.bg-smoke, .bg-light, .testi-area, .brand-area { background-color: #F7F6F3 !important; }
-.hero-inner { background-color: #FFFFFF !important; }
-
-/* Decoration removed rather than restyled. */
-.hero6-shape, [class*="hero6-shape"],
-.cta-area .shape1, .cta-area .shape2,
-[class*="hero-shape"] { display: none !important; }
-.discount-wrapp { opacity: 0 !important; }
-.product-grid .box-img, .product-grid.style10 .box-img,
-.product-grid.style12 .box-img { background-color: #F7F6F3 !important; }
-
-/* Type does the work: heavier headings, quieter accents. */
-.hero-title, .sec-title, .box-title, h1, h2, h3, h4, h5, h6 {
+}.bg-smoke,
+.bg-light,
+.testi-area,
+.brand-area { background-color: #F7F6F3 !important; }/* Decoration removed rather than restyled. */
+.cta-area .shape1,
+.cta-area .shape2 { display: none !important; }.product-grid .box-img,
+.product-grid.style10 .box-img,
+.product-grid.style12 .box-img { background-color: #F7F6F3 !important; }/* Type does the work: heavier headings,
+quieter accents. */
+.hero-title,
+.sec-title,
+.box-title,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   color: #14120F !important;
   letter-spacing: -0.02em;
-}
-.sub-title, .hero-style6 .sub-title {
+}.sub-title {
   color: #6F6A62 !important;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   font-size: 0.75rem !important;
-}
-.price, .product-card .price { color: #14120F !important; font-weight: 600; }
-.price del, .product-card .price del { color: #8E897F !important; }
-
-/* One accent: an outlined button that fills only on hover. */
-.th-btn, .btn, button.th-btn {
+}.price,
+.product-card .price { color: #14120F !important; font-weight: 600; }.price del,
+.product-card .price del { color: #8E897F !important; }/* One accent: an outlined button that fills only on hover. */
+.th-btn,
+.btn,
+button.th-btn {
   background-color: transparent !important;
   color: #14120F !important;
   border: 1px solid #14120F !important;
-}
-.th-btn:hover, .btn:hover {
+}.th-btn:hover,
+.btn:hover {
   background-color: #14120F !important;
   color: #FFFFFF !important;
   border-color: #14120F !important;
-}
-
-.header-top { background-color: #14120F !important; }
-.header-top, .header-top a, .header-top span { color: #D9D5CC !important; }
-.header-wrapper, .menu-area, .sticky-wrapper {
+}.header-top { background-color: #14120F !important; }.header-top,
+.header-top a,
+.header-top span { color: #D9D5CC !important; }.header-wrapper,
+.menu-area,
+.sticky-wrapper {
   background-color: #FFFFFF !important;
   border-bottom: 1px solid #E6E4DE;
-}
-.main-menu > ul > li > a { color: #14120F !important; }
-.main-menu > ul > li > a:hover { color: #9A7B22 !important; }
-.searchBtn, .search-btn { background-color: #14120F !important; color: #FFFFFF !important; }
-.header-top .nice-select, .header-top select, .header-top .form-control {
+}.main-menu > ul > li > a { color: #14120F !important; }.main-menu > ul > li > a:hover { color: #9A7B22 !important; }.searchBtn,
+.search-btn { background-color: #14120F !important; color: #FFFFFF !important; }.header-top .nice-select,
+.header-top select,
+.header-top .form-control {
   background-color: transparent !important;
   border-color: transparent !important;
   color: #D9D5CC !important;
-}
-
-.feature-icon img, .box-icon img, .about-icon img {
+}.feature-icon img,
+.box-icon img,
+.about-icon img {
   filter: grayscale(1) brightness(0.35) !important;
-}
-
-.footer-wrapper { background-color: #14120F !important; }
-.footer-wrapper, .footer-wrapper p, .footer-wrapper a, .footer-wrapper li { color: #A8A399 !important; }
-.footer-wrapper .widget_title, .footer-wrapper h1, .footer-wrapper h2,
-.footer-wrapper h3, .footer-wrapper h4 { color: #FFFFFF !important; }
-.footer-wrapper a:hover { color: #B8912F !important; }
-.copyright-wrap { background-color: #0E0C0A !important; }
-
-input, select, textarea, .form-control, .nice-select {
+}.footer-wrapper { background-color: #14120F !important; }.footer-wrapper,
+.footer-wrapper p,
+.footer-wrapper a,
+.footer-wrapper li { color: #A8A399 !important; }.footer-wrapper .widget_title,
+.footer-wrapper h1,
+.footer-wrapper h2,
+.footer-wrapper h3,
+.footer-wrapper h4 { color: #FFFFFF !important; }.footer-wrapper a:hover { color: #B8912F !important; }.copyright-wrap { background-color: #0E0C0A !important; }input,
+select,
+textarea,
+.form-control,
+.nice-select {
   background-color: #FFFFFF !important;
   border-color: #E6E4DE !important;
   color: #14120F !important;
-}
-
-/* Service and collection cards carry their own radius and pastel fills, set
+}/* Service and collection cards carry their own radius and pastel fills,
+set
    outside the selectors handled above. The template misspells "collection" in
-   one of them; matching its spelling is required, not a typo here. */
-.feature-card, .callection-card, .collection-category {
+   one of them; matching its spelling is required,
+not a typo here. */
+.feature-card,
+.callection-card,
+.collection-category {
   border-radius: 2px !important;
   box-shadow: none !important;
   border: 1px solid #E6E4DE !important;
-}
-.callection-card, .collection-category, [class*="collection-category"] {
+}.callection-card,
+.collection-category,
+[class*="collection-category"] {
   background-color: #F7F6F3 !important;
 }

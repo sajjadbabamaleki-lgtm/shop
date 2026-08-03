@@ -41,11 +41,13 @@ for (const [from, to] of SHEETS) {
 html = html.replace(/<link[^>]*fonts\.googleapis\.com[^>]*>/gi, '');
 html = html.replace(/<link[^>]*fonts\.gstatic\.com[^>]*>/gi, '');
 
-// Theme layer loads last so its palette wins, with the shared direction
-// corrections after it.
+// Theme layer loads after the template's own stylesheets so its palette wins,
+// then hero-original.css exempts the hero from it, then the shared direction
+// corrections.
 html = html.replace(
   /(<link[^>]+href="assets\/css\/style\.rtl\.css"[^>]*>)/i,
   `$1\n    <link rel="stylesheet" href="assets/css/theme-${theme}.css">` +
+    '\n    <link rel="stylesheet" href="assets/css/hero-original.css">' +
     '\n    <link rel="stylesheet" href="assets/css/rtl-fixes.css">'
 );
 

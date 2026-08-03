@@ -1,0 +1,81 @@
+/* ==========================================================================
+   Hero — the template's own.
+
+   The hero is exempt from the theme layer. Rules that named hero elements
+   directly were removed from the theme files, so the template's own hero CSS
+   applies untouched, including the per-slide pastels it assigns with
+   :nth-child.
+
+   What remains here is the residue: theme rules that reach hero elements
+   through generic selectors (h1..h6, .sub-title, .th-btn) rather than by
+   naming them. Those carry !important, so they are answered in kind, scoped to
+   the hero and set to the values the template ships.
+
+   Loaded after the theme file.
+   ========================================================================== */
+
+/* The template scopes its palette to a body class; restoring those values on
+   the hero wrapper is what returns the coral accent, the pastel grounds and
+   the greys inside this section while the rest of the page stays on the
+   theme. */
+.th-hero-wrapper {
+  --theme-color: #FF0004;
+  --gr-color2: #FD8900;
+  --title-color: #101111;
+  --body-color: #6E7070;
+  --smoke-color: #F5F5F5;
+  --smoke-color2: #ECF1FF;
+  --white-color: #ffffff;
+  --black-color: #000000;
+  --black-color2: #101018;
+  --gray-color: #999999;
+  --light-color: #E1E4E5;
+  --th-border-color: #E1E4E5;
+  --yellow-color: #E2B93B;
+}
+
+/* The heading colour rule in each theme lists h1..h6, so it reaches the hero
+   title without naming it. */
+.th-hero-wrapper .hero-title,
+.th-hero-wrapper h1,
+.th-hero-wrapper h2,
+.th-hero-wrapper h3,
+.th-hero-wrapper h4,
+.th-hero-wrapper h5,
+.th-hero-wrapper h6 {
+  color: var(--title-color) !important;
+  letter-spacing: normal !important;
+}
+
+/* .hero-style6 .hero-title, from the template. */
+.th-hero-wrapper .hero-style6 .hero-title {
+  font-weight: 600 !important;
+  text-transform: capitalize !important;
+}
+
+/* .hero-style6 .sub-title, from the template. Minimal and contrast both
+   restyle .sub-title globally — uppercase, tracked out, resized — so all three
+   properties are answered, not just the colour. */
+.th-hero-wrapper .sub-title,
+.th-hero-wrapper .hero-style6 .sub-title {
+  color: #6E7070 !important;
+  font-size: 18px !important;
+  font-weight: 400 !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+}
+
+/* The hero's call to action follows the template's button, not the theme's. */
+.th-hero-wrapper .th-btn,
+.th-hero-wrapper .btn {
+  background-color: var(--theme-color) !important;
+  border-color: var(--theme-color) !important;
+  color: var(--white-color) !important;
+}
+
+.th-hero-wrapper .th-btn:hover,
+.th-hero-wrapper .btn:hover {
+  background-color: var(--title-color) !important;
+  border-color: var(--title-color) !important;
+  color: var(--white-color) !important;
+}

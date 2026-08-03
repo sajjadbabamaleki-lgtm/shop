@@ -3,15 +3,21 @@
    Reference points: sneaker and streetwear retail.
 
    The idea: hard edges and heavy type. Ink chrome brackets a white product
-   field, so photography still sits on white while the page reads as bold.
-   Gold appears only at the point of action, which is what makes it read as
+   field,
+so photography still sits on white while the page reads as bold.
+   Gold appears only at the point of action,
+which is what makes it read as
    gold rather than as a background tint.
 
-   Form changes, not just palette:
-     - corners fully squared, borders thickened to 2px ink
+   Form changes,
+not just palette:
+     - corners fully squared,
+borders thickened to 2px ink
      - headings enlarged and tightened; the template's mid-weight type is a
-       strong tell, so the type scale itself moves
-     - section rhythm compressed to 96px, blocks butted against each other
+       strong tell,
+so the type scale itself moves
+     - section rhythm compressed to 96px,
+blocks butted against each other
      - the hero becomes an ink block rather than a pastel card
    ========================================================================== */
 
@@ -21,16 +27,21 @@
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
-}
-
-/* The template scopes its palette to a per-demo body class
-   (.shoe-shop { --theme-color: #FF0004 }), not only :root — so overriding
+}/* The template scopes its palette to a per-demo body class
+   (.shoe-shop { --theme-color: #FF0004 }),
+not only :root — so overriding
    :root alone loses to it for everything inside <body>. The variables are
-   declared on those scopes too, which is what lets components read
+   declared on those scopes too,
+which is what lets components read
    var(--theme-color) honestly instead of hard-coding !important colours. */
 :root,
-.shoe-shop, .fashion-shop, .electronics-shop, .grocery-shop,
-.coffee-shop, .furniture-shop, .home-electrician {
+.shoe-shop,
+.fashion-shop,
+.electronics-shop,
+.grocery-shop,
+.coffee-shop,
+.furniture-shop,
+.home-electrician {
   --title-font: 'Vazirmatn', sans-serif;
   --body-font: 'Vazirmatn', sans-serif;
   --body-font2: 'Vazirmatn', sans-serif;
@@ -54,97 +65,112 @@
 
   --section-space: 96px;
   --section-space-mobile: 64px;
-}
-
-html, body { background: #FFFFFF; }
-.bg-smoke, .bg-light, .testi-area, .brand-area { background-color: #F2F2F2 !important; }
-
-/* Fully squared, with ink borders instead of shadows. */
-.th-btn, .btn, button.th-btn, input, select, textarea, .form-control,
-.th-product, .product-card, .product-thumb, .blog-card, .deal-product,
-.hero-inner, .hero-card, .rounded-20, .nice-select, .testi-card, .category-card {
+}html,
+body { background: #FFFFFF; }.bg-smoke,
+.bg-light,
+.testi-area,
+.brand-area { background-color: #F2F2F2 !important; }/* Fully squared,
+with ink borders instead of shadows. */
+.th-btn,
+.btn,
+button.th-btn,
+input,
+select,
+textarea,
+.form-control,
+.th-product,
+.product-card,
+.product-thumb,
+.blog-card,
+.deal-product,
+.rounded-20,
+.nice-select,
+.testi-card,
+.category-card {
   border-radius: 0 !important;
-}
-.th-product, .product-card, .blog-card, .deal-product, .category-card {
+}.th-product,
+.product-card,
+.blog-card,
+.deal-product,
+.category-card {
   background-color: #FFFFFF !important;
   border: 2px solid #0C0C0C !important;
   box-shadow: none !important;
-}
-.testi-card { background-color: #FFFFFF !important; border: 2px solid #0C0C0C !important; }
-
-/* The hero is an ink block; its text inverts. */
-.hero-inner { background-color: #0C0C0C !important; border: none !important; }
-.hero-inner .hero-title, .hero-style6 .hero-title { color: #FFFFFF !important; }
-.hero-inner .sub-title, .hero-style6 .sub-title { color: #C8A028 !important; }
-.hero6-shape, [class*="hero6-shape"] { background-color: #1C1C1C !important; }
-.cta-area .shape1, .cta-area .shape2 { background-color: #EBEBEB !important; }
-.product-grid .box-img, .product-grid.style10 .box-img,
-.product-grid.style12 .box-img { background-color: #F2F2F2 !important; }
-
-/* Heavier, tighter headings. */
-.sec-title, .box-title, h1, h2, h3, h4 {
+}.testi-card { background-color: #FFFFFF !important; border: 2px solid #0C0C0C !important; }/* The hero is an ink block; its text inverts. */.cta-area .shape1,
+.cta-area .shape2 { background-color: #EBEBEB !important; }.product-grid .box-img,
+.product-grid.style10 .box-img,
+.product-grid.style12 .box-img { background-color: #F2F2F2 !important; }/* Heavier,
+tighter headings. */
+.sec-title,
+.box-title,
+h1,
+h2,
+h3,
+h4 {
   color: #0C0C0C !important;
   font-weight: 800 !important;
   letter-spacing: -0.03em;
-}
-.hero-title { font-weight: 800 !important; letter-spacing: -0.03em; }
-.sub-title {
+}.sub-title {
   letter-spacing: 0.14em;
   text-transform: uppercase;
   font-weight: 600 !important;
-}
-.price, .product-card .price { color: #0C0C0C !important; font-weight: 700; }
-.price del, .product-card .price del { color: #7E7E7E !important; }
-
-/* Gold only at the point of action. */
-.th-btn, .btn, button.th-btn {
+}.price,
+.product-card .price { color: #0C0C0C !important; font-weight: 700; }.price del,
+.product-card .price del { color: #7E7E7E !important; }/* Gold only at the point of action. */
+.th-btn,
+.btn,
+button.th-btn {
   background-color: #C8A028 !important;
   color: #0C0C0C !important;
   border: 2px solid #0C0C0C !important;
   font-weight: 700 !important;
-}
-.th-btn:hover, .btn:hover { background-color: #0C0C0C !important; color: #C8A028 !important; }
-
-.header-top { background-color: #0C0C0C !important; }
-.header-top, .header-top a, .header-top span { color: #DCDCDC !important; }
-.header-wrapper, .menu-area, .sticky-wrapper {
+}.th-btn:hover,
+.btn:hover { background-color: #0C0C0C !important; color: #C8A028 !important; }.header-top { background-color: #0C0C0C !important; }.header-top,
+.header-top a,
+.header-top span { color: #DCDCDC !important; }.header-wrapper,
+.menu-area,
+.sticky-wrapper {
   background-color: #FFFFFF !important;
   border-bottom: 2px solid #0C0C0C;
-}
-.main-menu > ul > li > a { color: #0C0C0C !important; font-weight: 600 !important; }
-.main-menu > ul > li > a:hover { color: #C8A028 !important; }
-.searchBtn, .search-btn { background-color: #C8A028 !important; color: #0C0C0C !important; }
-.header-top .nice-select, .header-top select, .header-top .form-control {
+}.main-menu > ul > li > a { color: #0C0C0C !important; font-weight: 600 !important; }.main-menu > ul > li > a:hover { color: #C8A028 !important; }.searchBtn,
+.search-btn { background-color: #C8A028 !important; color: #0C0C0C !important; }.header-top .nice-select,
+.header-top select,
+.header-top .form-control {
   background-color: transparent !important;
   border-color: transparent !important;
   color: #DCDCDC !important;
-}
-
-.feature-icon img, .box-icon img, .about-icon img {
+}.feature-icon img,
+.box-icon img,
+.about-icon img {
   filter: grayscale(1) brightness(0.2) !important;
-}
-
-.footer-wrapper { background-color: #0C0C0C !important; }
-.footer-wrapper, .footer-wrapper p, .footer-wrapper a, .footer-wrapper li { color: #B4B4B4 !important; }
-.footer-wrapper .widget_title, .footer-wrapper h1, .footer-wrapper h2,
-.footer-wrapper h3, .footer-wrapper h4 { color: #FFFFFF !important; }
-.footer-wrapper a:hover { color: #C8A028 !important; }
-.copyright-wrap { background-color: #000000 !important; }
-
-input, select, textarea, .form-control, .nice-select {
+}.footer-wrapper { background-color: #0C0C0C !important; }.footer-wrapper,
+.footer-wrapper p,
+.footer-wrapper a,
+.footer-wrapper li { color: #B4B4B4 !important; }.footer-wrapper .widget_title,
+.footer-wrapper h1,
+.footer-wrapper h2,
+.footer-wrapper h3,
+.footer-wrapper h4 { color: #FFFFFF !important; }.footer-wrapper a:hover { color: #C8A028 !important; }.copyright-wrap { background-color: #000000 !important; }input,
+select,
+textarea,
+.form-control,
+.nice-select {
   background-color: #FFFFFF !important;
   border: 2px solid #0C0C0C !important;
   color: #0C0C0C !important;
-}
-
-/* Service and collection cards carry their own radius and pastel fills, set
+}/* Service and collection cards carry their own radius and pastel fills,
+set
    outside the selectors handled above. The template misspells "collection" in
-   one of them; matching its spelling is required, not a typo here. */
-.feature-card, .callection-card, .collection-category {
+   one of them; matching its spelling is required,
+not a typo here. */
+.feature-card,
+.callection-card,
+.collection-category {
   border-radius: 0 !important;
   border: 2px solid #0C0C0C !important;
   box-shadow: none !important;
-}
-.callection-card, .collection-category, [class*="collection-category"] {
+}.callection-card,
+.collection-category,
+[class*="collection-category"] {
   background-color: #F2F2F2 !important;
 }

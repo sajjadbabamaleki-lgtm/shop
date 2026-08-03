@@ -1,16 +1,24 @@
 /* ==========================================================================
    Variant 2 — Boutique
-   Reference points: warm leather goods, artisan retail.
+   Reference points: warm leather goods,
+artisan retail.
 
-   The idea: a warm, hand-made register. Where Minimal removes, this one
-   softens. Gold is generous here because the whole surface is warm, so gold
+   The idea: a warm,
+hand-made register. Where Minimal removes,
+this one
+   softens. Gold is generous here because the whole surface is warm,
+so gold
    reads as material rather than as an accent colour.
 
-   Form changes, not just palette:
+   Form changes,
+not just palette:
      - corners softened well past the template's default (20px -> 26px)
-     - cream page ground instead of white, so white cards float
-     - one low, wide shadow reused everywhere as the only depth cue
-     - section rhythm tightened from 120px to 104px for a denser, cosier page
+     - cream page ground instead of white,
+so white cards float
+     - one low,
+wide shadow reused everywhere as the only depth cue
+     - section rhythm tightened from 120px to 104px for a denser,
+cosier page
    ========================================================================== */
 
 @font-face {
@@ -19,16 +27,21 @@
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
-}
-
-/* The template scopes its palette to a per-demo body class
-   (.shoe-shop { --theme-color: #FF0004 }), not only :root — so overriding
+}/* The template scopes its palette to a per-demo body class
+   (.shoe-shop { --theme-color: #FF0004 }),
+not only :root — so overriding
    :root alone loses to it for everything inside <body>. The variables are
-   declared on those scopes too, which is what lets components read
+   declared on those scopes too,
+which is what lets components read
    var(--theme-color) honestly instead of hard-coding !important colours. */
 :root,
-.shoe-shop, .fashion-shop, .electronics-shop, .grocery-shop,
-.coffee-shop, .furniture-shop, .home-electrician {
+.shoe-shop,
+.fashion-shop,
+.electronics-shop,
+.grocery-shop,
+.coffee-shop,
+.furniture-shop,
+.home-electrician {
   --title-font: 'Vazirmatn', sans-serif;
   --body-font: 'Vazirmatn', sans-serif;
   --body-font2: 'Vazirmatn', sans-serif;
@@ -52,90 +65,107 @@
 
   --section-space: 104px;
   --section-space-mobile: 72px;
-}
-
-/* Cream ground so white product cards lift off the page. */
-html, body { background: #FBF6EE; }
-.bg-smoke, .bg-light, .testi-area, .brand-area { background-color: #F3EADA !important; }
-
-/* Softer than the template's own rounding, which is the point: the radius is
+}/* Cream ground so white product cards lift off the page. */
+html,
+body { background: #FBF6EE; }.bg-smoke,
+.bg-light,
+.testi-area,
+.brand-area { background-color: #F3EADA !important; }/* Softer than the template's own rounding,
+which is the point: the radius is
    itself a signature. */
-.th-product, .product-card, .product-thumb, .blog-card, .deal-product,
-.hero-inner, .hero-card, .rounded-20, .testi-card, .category-card {
+.th-product,
+.product-card,
+.product-thumb,
+.blog-card,
+.deal-product,
+.rounded-20,
+.testi-card,
+.category-card {
   border-radius: 26px !important;
-}
-.th-btn, .btn, button.th-btn, input, select, textarea, .form-control, .nice-select {
+}.th-btn,
+.btn,
+button.th-btn,
+input,
+select,
+textarea,
+.form-control,
+.nice-select {
   border-radius: 999px !important;
-}
-
-/* A single low, wide shadow is the only depth cue in the system. */
-.th-product, .product-card, .blog-card, .deal-product, .testi-card, .category-card {
+}/* A single low,
+wide shadow is the only depth cue in the system. */
+.th-product,
+.product-card,
+.blog-card,
+.deal-product,
+.testi-card,
+.category-card {
   background-color: #FFFFFF !important;
   border: 1px solid #EFE4D1 !important;
   box-shadow: 0 10px 30px rgba(78, 56, 30, 0.06) !important;
-}
-
-.hero-inner {
-  background-color: #F6EDDD !important;
-  border: 1px solid #EBDDC6 !important;
-}
-
-/* Per-slide pastels collapse into one sand tone. */
-.hero6-shape, [class*="hero6-shape"],
-.cta-area .shape1, .cta-area .shape2 { background-color: #E8D9BE !important; }
-.product-grid .box-img, .product-grid.style10 .box-img,
-.product-grid.style12 .box-img { background-color: #F6EDDD !important; }
-
-.hero-title, .sec-title, .box-title, h1, h2, h3, h4, h5, h6 { color: #2A2018 !important; }
-.sub-title, .hero-style6 .sub-title { color: #8A6A2A !important; }
-.price, .product-card .price { color: #2A2018 !important; font-weight: 600; }
-.price del, .product-card .price del { color: #948575 !important; }
-
-/* Gold fill with ink label; the warm ground keeps it from shouting. */
-.th-btn, .btn, button.th-btn {
+}/* Per-slide pastels collapse into one sand tone. */
+.cta-area .shape1,
+.cta-area .shape2 { background-color: #E8D9BE !important; }.product-grid .box-img,
+.product-grid.style10 .box-img,
+.product-grid.style12 .box-img { background-color: #F6EDDD !important; }.sec-title,
+.box-title,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 { color: #2A2018 !important; }.sub-title { color: #8A6A2A !important; }.price,
+.product-card .price { color: #2A2018 !important; font-weight: 600; }.price del,
+.product-card .price del { color: #948575 !important; }/* Gold fill with ink label; the warm ground keeps it from shouting. */
+.th-btn,
+.btn,
+button.th-btn {
   background-color: #B0873A !important;
   color: #2A2018 !important;
   border-color: #B0873A !important;
-}
-.th-btn:hover, .btn:hover { background-color: #8A6A2A !important; color: #FFFFFF !important; }
-
-.header-top { background-color: #2A2018 !important; }
-.header-top, .header-top a, .header-top span { color: #E3D6C1 !important; }
-.header-wrapper, .menu-area, .sticky-wrapper { background-color: #FBF6EE !important; }
-.main-menu > ul > li > a { color: #2A2018 !important; }
-.main-menu > ul > li > a:hover { color: #8A6A2A !important; }
-.searchBtn, .search-btn { background-color: #B0873A !important; color: #2A2018 !important; }
-.header-top .nice-select, .header-top select, .header-top .form-control {
+}.th-btn:hover,
+.btn:hover { background-color: #8A6A2A !important; color: #FFFFFF !important; }.header-top { background-color: #2A2018 !important; }.header-top,
+.header-top a,
+.header-top span { color: #E3D6C1 !important; }.header-wrapper,
+.menu-area,
+.sticky-wrapper { background-color: #FBF6EE !important; }.main-menu > ul > li > a { color: #2A2018 !important; }.main-menu > ul > li > a:hover { color: #8A6A2A !important; }.searchBtn,
+.search-btn { background-color: #B0873A !important; color: #2A2018 !important; }.header-top .nice-select,
+.header-top select,
+.header-top .form-control {
   background-color: transparent !important;
   border-color: transparent !important;
   color: #E3D6C1 !important;
-}
-
-.feature-icon img, .box-icon img, .about-icon img {
+}.feature-icon img,
+.box-icon img,
+.about-icon img {
   filter: sepia(1) saturate(2.2) hue-rotate(2deg) brightness(0.88) !important;
-}
-
-.footer-wrapper { background-color: #2A2018 !important; }
-.footer-wrapper, .footer-wrapper p, .footer-wrapper a, .footer-wrapper li { color: #C7B69E !important; }
-.footer-wrapper .widget_title, .footer-wrapper h1, .footer-wrapper h2,
-.footer-wrapper h3, .footer-wrapper h4 { color: #FBF6EE !important; }
-.footer-wrapper a:hover { color: #D9B65F !important; }
-.copyright-wrap { background-color: #1F1811 !important; }
-
-input, select, textarea, .form-control, .nice-select {
+}.footer-wrapper { background-color: #2A2018 !important; }.footer-wrapper,
+.footer-wrapper p,
+.footer-wrapper a,
+.footer-wrapper li { color: #C7B69E !important; }.footer-wrapper .widget_title,
+.footer-wrapper h1,
+.footer-wrapper h2,
+.footer-wrapper h3,
+.footer-wrapper h4 { color: #FBF6EE !important; }.footer-wrapper a:hover { color: #D9B65F !important; }.copyright-wrap { background-color: #1F1811 !important; }input,
+select,
+textarea,
+.form-control,
+.nice-select {
   background-color: #FFFFFF !important;
   border-color: #E7DCC9 !important;
   color: #2A2018 !important;
-}
-
-/* Service and collection cards carry their own radius and pastel fills, set
+}/* Service and collection cards carry their own radius and pastel fills,
+set
    outside the selectors handled above. The template misspells "collection" in
-   one of them; matching its spelling is required, not a typo here. */
-.feature-card, .callection-card, .collection-category {
+   one of them; matching its spelling is required,
+not a typo here. */
+.feature-card,
+.callection-card,
+.collection-category {
   border-radius: 26px !important;
   border: 1px solid #EFE4D1 !important;
   box-shadow: 0 10px 30px rgba(78, 56, 30, 0.06) !important;
-}
-.callection-card, .collection-category, [class*="collection-category"] {
+}.callection-card,
+.collection-category,
+[class*="collection-category"] {
   background-color: #F3EADA !important;
 }
