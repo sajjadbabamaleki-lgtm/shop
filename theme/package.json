@@ -11,6 +11,7 @@
   "license": "ISC",
   "devDependencies": {
     "rtlcss": "^4.3.0",
+    "sharp": "^0.35.3",
     "vazirmatn": "^33.0.3"
   }
 }

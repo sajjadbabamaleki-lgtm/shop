@@ -1,0 +1,127 @@
+/* Preview chrome.
+   The storefront underneath is the thing being judged, so this bar stays
+   deliberately quiet: neutral ground, no accent of its own, docked out of the
+   content's way. It does not follow the viewer's light/dark preference —
+   the page below is a fixed commercial design and inverting it would
+   misrepresent what is under review. */
+
+.vp-bar {
+  position: fixed;
+  inset-block-end: 16px;
+  inset-inline-start: 50%;
+  transform: translateX(50%);
+  /* Above .cursor-follower and .th-menu-wrapper, both of which the template
+     parks at 999999. */
+  z-index: 1000001;
+
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 10px 8px 16px;
+
+  background: rgba(22, 22, 24, 0.92);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.28);
+
+  font-family: 'Vazirmatn', system-ui, sans-serif;
+  color: #EDEAE4;
+  direction: rtl;
+}
+
+.vp-bar__brand {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  letter-spacing: 0.01em;
+  color: #9C978E;
+  white-space: nowrap;
+}
+
+.vp-bar__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #B8912F;
+}
+
+.vp-bar__switch {
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 999px;
+}
+
+/* The storefront styles bare <button> elements and decorates them with
+   pseudo-elements. This control lives inside that cascade, so it resets
+   itself rather than inheriting a gold blob from the theme under test. */
+.vp-bar__switch button {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  padding: 7px 15px;
+  border-radius: 999px;
+  background: transparent;
+  color: #B7B2AA;
+  font-family: 'Vazirmatn', system-ui, sans-serif;
+  font-size: 13px;
+  line-height: 1;
+  text-align: center;
+  transition: background 140ms ease, color 140ms ease;
+}
+
+.vp-bar__switch button::before,
+.vp-bar__switch button::after { content: none !important; }
+
+.vp-bar__switch button:hover { color: #EDEAE4; }
+
+.vp-bar__switch button[aria-checked="true"] {
+  background: #EDEAE4;
+  color: #17161A;
+}
+
+.vp-bar__switch button:focus-visible {
+  outline: 2px solid #B8912F;
+  outline-offset: 2px;
+}
+
+.vp-bar__note {
+  margin: 0;
+  font-size: 12px;
+  color: #827D75;
+  white-space: nowrap;
+}
+
+/* The bar is docked over the footer; give the page room to scroll past it. */
+#site { padding-block-end: 72px; }
+
+/* The template replaces the pointer with a trailing dot. It is one of the
+   decorations worth dropping in the real build, and in a preview it reads as
+   a rendering fault, so it is off here. */
+.cursor-follower, .mouse-cursor { display: none !important; }
+
+/* Scroll-to-top would sit under the bar on small screens. */
+@media (max-width: 720px) {
+  .scroll-top { inset-block-end: 76px !important; }
+}
+
+@media (max-width: 720px) {
+  .vp-bar {
+    inset-inline: 12px;
+    inset-block-end: 12px;
+    transform: none;
+    justify-content: center;
+    padding: 8px;
+    border-radius: 18px;
+  }
+  .vp-bar__brand, .vp-bar__note { display: none; }
+  .vp-bar__switch { width: 100%; }
+  .vp-bar__switch button { flex: 1; padding: 10px 8px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vp-bar__switch button { transition: none; }
+}
