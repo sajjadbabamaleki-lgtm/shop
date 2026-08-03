@@ -1,0 +1,177 @@
+/* ==========================================================================
+   VikyPlus theme layer
+   Loaded after style.rtl.css. Holds three things and nothing else:
+     1. the Persian webfont
+     2. the white-gold palette
+     3. RTL corrections rtlcss cannot infer
+
+   Palette rule, from measured WCAG ratios against #FFFFFF:
+     gold #B8912F as TEXT ....... 2.95:1  fails AA, never used for type
+     ink #1A1613 on gold ........ 6.10:1  passes, so gold is a SURFACE
+     deep gold #8A6D1F as text .. 4.90:1  passes, reserved for small accents
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Typography
+   Variable font: one file covers 100-900, keeping the initial payload within
+   the performance budget.
+   -------------------------------------------------------------------------- */
+@font-face {
+  font-family: 'Vazirmatn';
+  src: url('../fonts/vazirmatn/Vazirmatn[wght].woff2') format('woff2-variations');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --title-font: 'Vazirmatn', sans-serif;
+  --body-font: 'Vazirmatn', sans-serif;
+  --body-font2: 'Vazirmatn', sans-serif;
+  --body-font3: 'Vazirmatn', sans-serif;
+  /* The template's script accent (Dancing Script) has no Persian equivalent
+     and reads as decoration; fold it into the body face. */
+  --style-font: 'Vazirmatn', sans-serif;
+}
+
+/* --------------------------------------------------------------------------
+   2. Palette
+   -------------------------------------------------------------------------- */
+:root {
+  --theme-color: #B8912F;
+  --gr-color2: #D4AF37;
+  --title-color: #1A1613;
+  --body-color: #6B6257;
+  --smoke-color: #FAF7F0;
+  --smoke-color2: #F5F0E6;
+  --body-bg: #FFFFFF;
+  --white-color: #FFFFFF;
+  --black-color: #1A1613;
+  --black-color2: #241F19;
+  --light-color: #E8E2D6;
+  --gray-color: #8C8478;
+  --th-border-color: #E8E2D6;
+  --yellow-color: #B8912F;
+}
+
+html, body { background: #FFFFFF; }
+
+.bg-smoke, .bg-light, .testi-area, .brand-area { background-color: #FAF7F0 !important; }
+
+/* Product surfaces stay pure white so photography reads cleanly. */
+.th-product, .product-card, .product-thumb, .blog-card, .deal-product {
+  background-color: #FFFFFF !important;
+  border-color: #E8E2D6 !important;
+}
+
+.hero-inner, .hero-card { background-color: #FAF7F0 !important; }
+.hero-inner { border: 1px solid #EFE7D8 !important; }
+
+/* The template assigns a different pastel per slide via :nth-child (mint,
+   peach, lilac). That per-slide randomness is the clearest tell of a stock
+   theme, so collapse it to one warm cream. */
+.hero6-shape, [class*="hero6-shape"] { background-color: #F2E9D5 !important; }
+.product-grid .box-img,
+.product-grid.style10 .box-img,
+.product-grid.style12 .box-img { background-color: #FAF7F0 !important; }
+.cta-area .shape1, .cta-area .shape2 { background-color: #F2E9D5 !important; }
+
+.sub-title, .hero-style6 .sub-title { color: #8A6D1F !important; }
+.hero-title, .sec-title, .box-title, h1, h2, h3, h4, h5, h6 { color: #1A1613 !important; }
+.price, .product-card .price { color: #1A1613 !important; font-weight: 600; }
+.price del, .product-card .price del { color: #8C8478 !important; }
+
+.th-btn, .btn, button.th-btn {
+  background-color: #B8912F !important;
+  color: #1A1613 !important;
+  border-color: #B8912F !important;
+}
+.th-btn:hover, .btn:hover { background-color: #A67C1A !important; color: #FFFFFF !important; }
+
+.header-top { background-color: #1A1613 !important; }
+.header-top, .header-top a, .header-top span { color: #E8E2D6 !important; }
+.header-wrapper, .menu-area, .sticky-wrapper { background-color: #FFFFFF !important; }
+.main-menu > ul > li > a { color: #1A1613 !important; }
+.main-menu > ul > li > a:hover { color: #8A6D1F !important; }
+.searchBtn, .search-btn { background-color: #B8912F !important; color: #1A1613 !important; }
+
+.feature-icon img, .box-icon img, .about-icon img {
+  filter: sepia(1) saturate(2.4) hue-rotate(6deg) brightness(0.85) !important;
+}
+
+.footer-wrapper { background-color: #1A1613 !important; }
+.footer-wrapper, .footer-wrapper p, .footer-wrapper a, .footer-wrapper li { color: #C4BCAF !important; }
+.footer-wrapper .widget_title,
+.footer-wrapper h1, .footer-wrapper h2,
+.footer-wrapper h3, .footer-wrapper h4 { color: #FFFFFF !important; }
+.footer-wrapper a:hover { color: #D4AF37 !important; }
+.copyright-wrap { background-color: #120F0C !important; }
+
+input, select, textarea, .form-control, .nice-select {
+  background-color: #FFFFFF !important;
+  border-color: #E8E2D6 !important;
+  color: #1A1613 !important;
+}
+
+/* The language and currency pickers sit on the dark top bar, so they must not
+   inherit the white field treatment above. */
+.header-top .nice-select,
+.header-top select,
+.header-top .form-control {
+  background-color: transparent !important;
+  border-color: transparent !important;
+  color: #E8E2D6 !important;
+}
+
+/* --------------------------------------------------------------------------
+   3. RTL corrections
+   rtlcss flips CSS, but cannot reach values that are not directional in the
+   stylesheet: inline transforms set by JS, icon glyphs that point one way,
+   and numerals.
+   -------------------------------------------------------------------------- */
+
+/* Persian digits render with Latin glyph widths unless the font is told to
+   use its own numeral set. */
+body { font-feature-settings: 'ss02'; }
+
+/* Arrow glyphs inside buttons and links point left-to-right in the artwork. */
+[dir="rtl"] .th-btn i.fa-arrow-right,
+[dir="rtl"] .th-btn i.fa-long-arrow-right,
+[dir="rtl"] .link-btn i,
+[dir="rtl"] .th-btn .btn-icon { transform: scaleX(-1); }
+
+/* Swiper positions slides with inline transforms; it needs its own direction
+   flag rather than a CSS flip, which is set in the markup via dir="rtl".
+   These rules only correct the navigation furniture around it. */
+[dir="rtl"] .swiper-button-next i,
+[dir="rtl"] .swiper-button-prev i { transform: scaleX(-1); }
+
+/* Prices and SKUs mix Persian text with Latin numerals; isolate them so the
+   bidi algorithm does not reorder currency and digits. */
+.price, .product-code, .sku, .order-code { unicode-bidi: isolate; }
+
+/* Latin brand names inside Persian sentences (Nike, New Balance) keep their
+   own direction. */
+.brand-name, .product-title .latin { unicode-bidi: isolate; direction: ltr; }
+
+/* Phone numbers and email addresses are Latin runs inside Persian chrome.
+   Without isolation the bidi algorithm moves the leading + to the far end,
+   turning +00 123 456 789 into 789 456 123 00+. */
+a[href^="tel:"], a[href^="mailto:"] {
+  unicode-bidi: isolate;
+  direction: ltr;
+}
+
+/* The circular discount badge sets each glyph with
+   rotate(calc(var(--rotate-letter) * N)) and an offset of left:18px. rtlcss
+   negates the rotation and flips the offset, which makes the ring read
+   backwards ("FFO %51"). Because the angle comes from a variable, negating
+   the variable cancels rtlcss's own negation and restores the original sweep.
+   (This badge is one of the theme's signature decorations and is a candidate
+   for removal; the fix keeps the preview honest until that call is made.) */
+.discount-tag, .discount-wrapp { direction: ltr; unicode-bidi: isolate; }
+[dir="rtl"] .discount-tag span {
+  --rotate-letter: -13deg;
+  right: auto;
+  left: 18px;
+}
