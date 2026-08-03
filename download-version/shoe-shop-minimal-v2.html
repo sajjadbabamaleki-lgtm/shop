@@ -364,84 +364,204 @@ Product Lightbox
 <!--==============================
 Hero Area
 ==============================-->
-    <!--
-  Hero — three cards on one axis.
+    <div class="th-hero-wrapper hero-6 slider-area" id="hero">
 
-  Each card is a photograph with its own caption beneath it, not a bare image:
-  category, product name, and starting price. The front card is sharp; the two
-  behind sit back, blurred, and run past both edges of the viewport.
+        <div class="slider-area">
+            <div dir="rtl" class="swiper th-slider heroSlide6" id="heroSlide6" data-slider-options='{"centeredSlides":true,"centeredSlidesBounds":true,"spaceBetween":24,"breakpoints":{"0":{"slidesPerView":1},"576":{"slidesPerView":"1"},"768":{"slidesPerView":"1"},"992":{"slidesPerView":"2"},"1200":{"slidesPerView":"2"}}}'>
+                <div dir="rtl" class="swiper-wrapper">
+                    <div dir="rtl" class="swiper-slide">
+                        <div class="hero-inner">
+                            <div class="container th-container">
+                                <div class="row align-items-center">
+                                    <div class="col-lg-6">
+                                        <div class="hero-style6">
+                                            <span class="sub-title" data-ani="slideinleft" data-ani-delay="0.2s">Nike Air Running Spikes</span>
+                                            <h1 class="hero-title" data-ani="slideinleft" data-ani-delay="0.4s">
+                                                Nike Mag Sneakers Shoe </h1>
+                                            <div class="btn-group" data-ani="slideinup" data-ani-delay="0.7s"><a href="shop.html" class="th-btn th-icon">خرید کنید</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="hero-img" data-ani="slideinrighthero" data-ani-delay="0.8s">
+                                            <img src="assets/img/hero/hero_6_1.png" alt="Image">
+                                            <div class="discount-wrapp style2">
+                                                <h4 class="discount">26%</h4>
+                                                <div class="discount-tag">
+                                                    <span class="discount-anime">15% off save 15% off save</span>
+                                                </div>
+                                            </div>
+                                            <div class="hero6-shape" data-mask-src="assets/img/shape/hot.png"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-  Card order is presentational only. The DOM order is the reading order and
-  position is assigned by script, so without CSS or JS this is three captioned
-  product links in sequence.
--->
-<section class="vp-hero" aria-label="کالکشن فصل جدید">
-  <div class="vp-deck" data-deck>
-    <ul class="vp-deck__track">
+                    </div>
 
-      <li class="vp-deck__card">
-        <a href="product/leather-derby.html">
-          <span class="vp-deck__media">
-            <img src="assets/img/collection/collection_2_1.png" alt="کفش چرم قهوه‌ای مردانه" width="800" height="600" fetchpriority="high" decoding="async">
-          </span>
-          <span class="vp-deck__caption">
-            <span class="vp-deck__text">
-              <span class="vp-deck__kicker">کفش مردانه</span>
-              <span class="vp-deck__name">چرم دستدوز قهوه‌ای</span>
-            </span>
-            <span class="vp-deck__price">از ۳٬۲۰۰٬۰۰۰ تومان</span>
-          </span>
-        </a>
-      </li>
+                    <div dir="rtl" class="swiper-slide">
+                        <div class="hero-inner">
+                            <div class="container th-container">
+                                <div class="row align-items-center">
+                                    <div class="col-lg-6">
+                                        <div class="hero-style6">
+                                            <span class="sub-title" data-ani="slideinleft" data-ani-delay="0.2s">Nike Air Running Spikes</span>
+                                            <h1 class="hero-title" data-ani="slideinleft" data-ani-delay="0.4s">
+                                                Nike Air Running Spikes </h1>
+                                            <div class="btn-group" data-ani="slideinup" data-ani-delay="0.7s"><a href="shop.html" class="th-btn th-icon">خرید کنید</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="hero-img" data-ani="slideinrighthero" data-ani-delay="0.8s">
+                                            <img src="assets/img/hero/hero_6_2.png" alt="Image">
+                                            <div class="discount-wrapp style2">
+                                                <h4 class="discount">26%</h4>
+                                                <div class="discount-tag">
+                                                    <span class="discount-anime">15% off save 15% off save</span>
+                                                </div>
+                                            </div>
+                                            <div class="hero6-shape" data-mask-src="assets/img/shape/hot.png"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-      <li class="vp-deck__card">
-        <a href="product/running-sneaker.html">
-          <span class="vp-deck__media">
-            <img src="assets/img/collection/collection_2_3.png" alt="کتونی رانینگ رنگی" width="800" height="600" fetchpriority="high" decoding="async">
-          </span>
-          <span class="vp-deck__caption">
-            <span class="vp-deck__text">
-              <span class="vp-deck__kicker">کتونی رانینگ</span>
-              <span class="vp-deck__name">ایر ری‌اکت نئون</span>
-            </span>
-            <span class="vp-deck__price">از ۴٬۸۵۰٬۰۰۰ تومان</span>
-          </span>
-        </a>
-      </li>
+                    </div>
 
-      <li class="vp-deck__card">
-        <a href="product/gold-sneaker.html">
-          <span class="vp-deck__media">
-            <img src="assets/img/collection/collection_2_2.png" alt="کتونی طلایی و سفید زنانه" width="800" height="600" fetchpriority="high" decoding="async">
-          </span>
-          <span class="vp-deck__caption">
-            <span class="vp-deck__text">
-              <span class="vp-deck__kicker">کتونی زنانه</span>
-              <span class="vp-deck__name">متالیک طلایی</span>
-            </span>
-            <span class="vp-deck__price">از ۵٬۹۰۰٬۰۰۰ تومان</span>
-          </span>
-        </a>
-      </li>
+                    <div dir="rtl" class="swiper-slide">
+                        <div class="hero-inner">
+                            <div class="container th-container">
+                                <div class="row align-items-center">
+                                    <div class="col-lg-6">
+                                        <div class="hero-style6">
+                                            <span class="sub-title" data-ani="slideinleft" data-ani-delay="0.2s">Nike Air Running Spikes</span>
+                                            <h1 class="hero-title" data-ani="slideinleft" data-ani-delay="0.4s">
+                                                Adidas Stan Running Spikes </h1>
+                                            <div class="btn-group" data-ani="slideinup" data-ani-delay="0.7s"><a href="shop.html" class="th-btn th-icon">خرید کنید</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="hero-img" data-ani="slideinrighthero" data-ani-delay="0.8s">
+                                            <img src="assets/img/hero/hero_6_3.png" alt="Image">
+                                            <div class="discount-wrapp style2">
+                                                <h4 class="discount">26%</h4>
+                                                <div class="discount-tag">
+                                                    <span class="discount-anime">15% off save 15% off save</span>
+                                                </div>
+                                            </div>
+                                            <div class="hero6-shape" data-mask-src="assets/img/shape/hot.png"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-    </ul>
+                    </div>
 
-    <div class="vp-deck__controls">
-      <button type="button" class="vp-deck__nav" data-deck-prev aria-label="تصویر قبلی">
-        <svg viewBox="0 0 16 16" width="15" height="15" fill="none" aria-hidden="true">
-          <path d="M10 2.5 4.5 8l5.5 5.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
-      <div class="vp-deck__dots" role="tablist" aria-label="انتخاب تصویر"></div>
-      <button type="button" class="vp-deck__nav" data-deck-next aria-label="تصویر بعدی">
-        <svg viewBox="0 0 16 16" width="15" height="15" fill="none" aria-hidden="true">
-          <path d="M6 2.5 11.5 8 6 13.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
+                    <div dir="rtl" class="swiper-slide">
+                        <div class="hero-inner">
+                            <div class="container th-container">
+                                <div class="row align-items-center">
+                                    <div class="col-lg-6">
+                                        <div class="hero-style6">
+                                            <span class="sub-title" data-ani="slideinleft" data-ani-delay="0.2s">Nike Air Running Spikes</span>
+                                            <h1 class="hero-title" data-ani="slideinleft" data-ani-delay="0.4s">
+                                                Nike Mag Sneakers Shoe </h1>
+                                            <div class="btn-group" data-ani="slideinup" data-ani-delay="0.7s"><a href="shop.html" class="th-btn th-icon">خرید کنید</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="hero-img" data-ani="slideinrighthero" data-ani-delay="0.8s">
+                                            <img src="assets/img/hero/hero_6_1.png" alt="Image">
+                                            <div class="discount-wrapp style2">
+                                                <h4 class="discount">26%</h4>
+                                                <div class="discount-tag">
+                                                    <span class="discount-anime">15% off save 15% off save</span>
+                                                </div>
+                                            </div>
+                                            <div class="hero6-shape" data-mask-src="assets/img/shape/hot.png"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div dir="rtl" class="swiper-slide">
+                        <div class="hero-inner">
+                            <div class="container th-container">
+                                <div class="row align-items-center">
+                                    <div class="col-lg-6">
+                                        <div class="hero-style6">
+                                            <span class="sub-title" data-ani="slideinleft" data-ani-delay="0.2s">Nike Air Running Spikes</span>
+                                            <h1 class="hero-title" data-ani="slideinleft" data-ani-delay="0.4s">
+                                                Nike Air Running Spikes </h1>
+                                            <div class="btn-group" data-ani="slideinup" data-ani-delay="0.7s"><a href="shop.html" class="th-btn th-icon">خرید کنید</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="hero-img" data-ani="slideinrighthero" data-ani-delay="0.8s">
+                                            <img src="assets/img/hero/hero_6_2.png" alt="Image">
+                                            <div class="discount-wrapp style2">
+                                                <h4 class="discount">26%</h4>
+                                                <div class="discount-tag">
+                                                    <span class="discount-anime">15% off save 15% off save</span>
+                                                </div>
+                                            </div>
+                                            <div class="hero6-shape" data-mask-src="assets/img/shape/hot.png"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div dir="rtl" class="swiper-slide">
+                        <div class="hero-inner">
+                            <div class="container th-container">
+                                <div class="row align-items-center">
+                                    <div class="col-lg-6">
+                                        <div class="hero-style6">
+                                            <span class="sub-title" data-ani="slideinleft" data-ani-delay="0.2s">Nike Air Running Spikes</span>
+                                            <h1 class="hero-title" data-ani="slideinleft" data-ani-delay="0.4s">
+                                                Adidas Stan Running Spikes </h1>
+                                            <div class="btn-group" data-ani="slideinup" data-ani-delay="0.7s"><a href="shop.html" class="th-btn th-icon">خرید کنید</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="hero-img" data-ani="slideinrighthero" data-ani-delay="0.8s">
+                                            <img src="assets/img/hero/hero_6_3.png" alt="Image">
+                                            <div class="discount-wrapp style2">
+                                                <h4 class="discount">26%</h4>
+                                                <div class="discount-tag">
+                                                    <span class="discount-anime">15% off save 15% off save</span>
+                                                </div>
+                                            </div>
+                                            <div class="hero6-shape" data-mask-src="assets/img/shape/hot.png"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+            <button data-slider-prev="#heroSlide6" class="slider-arrow slider-prev"><i class="far fa-arrow-left"></i></button>
+            <button data-slider-next="#heroSlide6" class="slider-arrow slider-next"><i class="far fa-arrow-right"></i></button>
+        </div>
     </div>
-  </div>
-</section>
-
     <!--======== / Hero Section ========--><!--==============================
 Feature Area  
 ==============================-->
@@ -2083,101 +2203,6 @@ Brand Area
 
     <!-- Main Js File -->
     <script src="assets/js/main.js"></script>
-<script>
-/* Hero deck.
-   Assigns each card a slot relative to the active one and lets CSS place it.
-   Advancing means moving the front card off to one side while its neighbour
-   rises into its place; the slot arithmetic wraps so the deck is endless. */
-(function () {
-  var deck = document.querySelector('[data-deck]');
-  if (!deck) return;
-
-  var cards = Array.prototype.slice.call(deck.querySelectorAll('.vp-deck__card'));
-  if (cards.length < 2) return;
-
-  var dotsHost = deck.querySelector('.vp-deck__dots');
-  var active = Math.floor(cards.length / 2);
-  var timer = null;
-  var DELAY = 4600;
-
-  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
-
-  function layout() {
-    var n = cards.length;
-    cards.forEach(function (card, i) {
-      // Shortest signed distance from the active card, wrapped both ways.
-      var d = i - active;
-      if (d > n / 2) d -= n;
-      if (d < -n / 2) d += n;
-      card.dataset.slot = Math.abs(d) <= 2 ? String(d) : 'out';
-      card.setAttribute('aria-hidden', d === 0 ? 'false' : 'true');
-    });
-
-    Array.prototype.forEach.call(dotsHost.children, function (dot, i) {
-      dot.setAttribute('aria-selected', String(i === active));
-      dot.setAttribute('tabindex', i === active ? '0' : '-1');
-    });
-  }
-
-  function go(next) {
-    active = (next + cards.length) % cards.length;
-    layout();
-  }
-
-  // Dots are built here rather than in the markup: without script there is no
-  // deck to step through, so controls for it would be dead chrome.
-  cards.forEach(function (_, i) {
-    var dot = document.createElement('button');
-    dot.type = 'button';
-    dot.className = 'vp-deck__dot';
-    dot.setAttribute('role', 'tab');
-    dot.setAttribute('aria-label', 'تصویر ' + (i + 1).toLocaleString('fa-IR'));
-    dot.addEventListener('click', function () { go(i); restart(); });
-    dotsHost.appendChild(dot);
-  });
-
-  deck.querySelector('[data-deck-next]').addEventListener('click', function () { go(active + 1); restart(); });
-  deck.querySelector('[data-deck-prev]').addEventListener('click', function () { go(active - 1); restart(); });
-
-  // Clicking a card that is behind brings it forward instead of following its
-  // link — the link only applies once the card is the front one.
-  cards.forEach(function (card, i) {
-    card.addEventListener('click', function (e) {
-      if (card.dataset.slot === '0') return;
-      e.preventDefault();
-      go(i);
-      restart();
-    });
-  });
-
-  // The deck is a horizontal arrangement, so arrow keys follow the screen:
-  // ArrowRight always moves the fan rightward, in either text direction.
-  deck.addEventListener('keydown', function (e) {
-    if (e.key === 'ArrowRight') { e.preventDefault(); go(active + 1); restart(); }
-    else if (e.key === 'ArrowLeft') { e.preventDefault(); go(active - 1); restart(); }
-  });
-
-  function start() {
-    if (reduced.matches) return;
-    timer = window.setInterval(function () { go(active + 1); }, DELAY);
-  }
-  function stop() { window.clearInterval(timer); timer = null; }
-  function restart() { stop(); start(); }
-
-  // Auto-advance pauses while the reader is engaged, or the tab is hidden.
-  deck.addEventListener('mouseenter', stop);
-  deck.addEventListener('mouseleave', start);
-  deck.addEventListener('focusin', stop);
-  deck.addEventListener('focusout', start);
-  document.addEventListener('visibilitychange', function () {
-    if (document.hidden) stop(); else start();
-  });
-  reduced.addEventListener('change', function () { reduced.matches ? stop() : restart(); });
-
-  layout();
-  start();
-})();
-</script>
 </body>
 
 </html>

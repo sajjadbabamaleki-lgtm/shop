@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 /**
- * Swaps the template's header and hero for the replacements in theme/partials.
+ * Swaps the template's header for the replacement in theme/partials.
  *
- * Palette and geometry can be overridden from a stylesheet, but these two are
- * markup: a three-band header and a carousel of rounded pastel cards read as a
- * stock theme no matter how they are coloured. This step replaces the markup
- * itself, which is also why the partials are written as standalone fragments —
- * they port to Blade unchanged.
+ * Palette and geometry can be overridden from a stylesheet, but the header is
+ * markup: three stacked bands read as a stock theme no matter how they are
+ * coloured. This step replaces the markup itself, which is also why the
+ * partial is written as a standalone fragment — it ports to Blade unchanged.
+ *
+ * The hero is left as the template ships it.
  *
  * Run: node theme/restructure.js <theme> [source.html]
  */
@@ -57,9 +58,6 @@ function replaceBlock(source, startRe, tag, replacement, label) {
 // whole element goes rather than being edited in place.
 html = replaceBlock(html, /<header\b[^>]*class="[^"]*th-header/, 'header', partial('header'), 'header');
 
-// The hero wrapper contains the Swiper instance; removing it also removes the
-// slider, which the specification did not ask for.
-html = replaceBlock(html, /<div class="th-hero-wrapper[^"]*"/, 'div', partial('hero'), 'hero');
 
 // Structure loads last so it wins over the theme's own header rules.
 html = html.replace(
@@ -67,12 +65,6 @@ html = html.replace(
   '$1\n    <link rel="stylesheet" href="assets/css/structure.css">'
 );
 
-// The deck's behaviour goes in after the template's own scripts, so its
-// listeners attach to markup that is already settled.
-html = html.replace(
-  /<\/body>/i,
-  `<script>\n${fs.readFileSync(path.join(__dirname, 'partials', 'deck.js'), 'utf8')}</script>\n</body>`
-);
 
 fs.writeFileSync(out, html);
 console.log(`wrote ${path.relative(ROOT, out)}`);
