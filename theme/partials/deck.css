@@ -1,0 +1,172 @@
+/* ==========================================================================
+   Hero deck — five layered cards.
+
+   Geometry, for a front card of width W:
+     slot  0  x = 0        scale 1.00   the whole card, on top
+     slot ±1  x = ±62%W    scale 0.82   spans 0.21W..1.03W, so the front card's
+                                        edge at 0.5W covers 0.29W of it —
+                                        about a third of its 0.82W width
+     slot ±2  x = ±108%W   scale 0.66   further out and further back again
+
+   Slots are assigned by script via --slot; every card reads its transform from
+   the same three custom properties, so tuning the fan means editing three
+   numbers rather than five rules.
+   ========================================================================== */
+
+.vp-deck {
+  --card-w: min(30vw, 400px);
+  --card-ratio: 6 / 7;
+
+  position: relative;
+  grid-column: 2;
+  grid-row: 1;
+  align-self: center;
+  min-height: calc(var(--card-w) / (6 / 7) + 96px);
+  display: grid;
+  place-items: center;
+}
+
+.vp-deck__track {
+  position: relative;
+  width: 100%;
+  height: calc(var(--card-w) / (6 / 7));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  /* Physical, not logical: the fan is a left-right arrangement in both
+     directions, and transforms are not mirrored by dir="rtl" anyway. */
+  direction: ltr;
+}
+
+.vp-deck__card {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 50%;
+  width: var(--card-w);
+  aspect-ratio: var(--card-ratio);
+  margin-inline-start: calc(var(--card-w) / -2);
+
+  transform: translateX(var(--x, 0)) scale(var(--s, 1));
+  opacity: var(--o, 1);
+  z-index: var(--z, 1);
+  transition: transform 620ms cubic-bezier(0.22, 0.61, 0.36, 1),
+              opacity 620ms ease;
+  will-change: transform;
+}
+
+/* The fan. Cards outside ±2 park behind the ±2 position and fade out, so a
+   deck of more than five degrades instead of stacking visibly. */
+.vp-deck__card[data-slot="0"]  { --x: 0;      --s: 1;    --o: 1;    --z: 5; }
+.vp-deck__card[data-slot="1"]  { --x: 62%;    --s: 0.82; --o: 0.9;  --z: 4; }
+.vp-deck__card[data-slot="-1"] { --x: -62%;   --s: 0.82; --o: 0.9;  --z: 4; }
+.vp-deck__card[data-slot="2"]  { --x: 108%;   --s: 0.66; --o: 0.6;  --z: 3; }
+.vp-deck__card[data-slot="-2"] { --x: -108%;  --s: 0.66; --o: 0.6;  --z: 3; }
+.vp-deck__card[data-slot="out"]{ --x: 0;      --s: 0.5;  --o: 0;    --z: 1; }
+
+.vp-deck__card a {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: inherit;
+  background: var(--smoke-color, #faf7f0);
+}
+
+.vp-deck__card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Depth cue: only the front card is fully lit; the ones behind sit back. */
+.vp-deck__card:not([data-slot="0"]) img { filter: brightness(0.94) saturate(0.92); }
+
+/* Cards behind the front one are decorative duplicates of what the front card
+   already offers, so they are not keyboard stops. */
+.vp-deck__card:not([data-slot="0"]) a { pointer-events: none; }
+
+/* --- controls ------------------------------------------------------------ */
+
+.vp-deck__controls {
+  position: absolute;
+  inset-block-end: 0;
+  inset-inline: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  direction: ltr;
+}
+
+.vp-deck__nav {
+  all: unset;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--th-border-color, #e8e2d6);
+  border-radius: 999px;
+  color: var(--title-color, #1a1613);
+  background: var(--body-bg, #fff);
+  transition: border-color 150ms ease, color 150ms ease;
+}
+
+.vp-deck__nav:hover {
+  border-color: var(--theme-color, #b8912f);
+  color: var(--theme-color, #b8912f);
+}
+
+.vp-deck__nav:focus-visible {
+  outline: 2px solid var(--theme-color, #b8912f);
+  outline-offset: 2px;
+}
+
+.vp-deck__dots {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.vp-deck__dot {
+  all: unset;
+  cursor: pointer;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--light-color, #e8e2d6);
+  transition: width 220ms ease, background 220ms ease;
+}
+
+.vp-deck__dot[aria-selected="true"] {
+  width: 22px;
+  background: var(--theme-color, #b8912f);
+}
+
+.vp-deck__dot:focus-visible {
+  outline: 2px solid var(--theme-color, #b8912f);
+  outline-offset: 3px;
+}
+
+/* --- responsive ---------------------------------------------------------- */
+
+@media (max-width: 991px) {
+  .vp-deck {
+    --card-w: min(58vw, 300px);
+    grid-column: 1;
+    grid-row: 1;
+    width: 100%;
+  }
+  /* Only the immediate neighbours survive the narrower viewport; the outer
+     pair would be clipped to slivers. */
+  .vp-deck__card[data-slot="2"],
+  .vp-deck__card[data-slot="-2"] { --o: 0; --s: 0.6; }
+  .vp-deck__card[data-slot="1"]  { --x: 56%; }
+  .vp-deck__card[data-slot="-1"] { --x: -56%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vp-deck__card { transition: none; }
+  .vp-deck__dot { transition: none; }
+}

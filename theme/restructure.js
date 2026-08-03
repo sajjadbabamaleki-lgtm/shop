@@ -67,5 +67,12 @@ html = html.replace(
   '$1\n    <link rel="stylesheet" href="assets/css/structure.css">'
 );
 
+// The deck's behaviour goes in after the template's own scripts, so its
+// listeners attach to markup that is already settled.
+html = html.replace(
+  /<\/body>/i,
+  `<script>\n${fs.readFileSync(path.join(__dirname, 'partials', 'deck.js'), 'utf8')}</script>\n</body>`
+);
+
 fs.writeFileSync(out, html);
 console.log(`wrote ${path.relative(ROOT, out)}`);

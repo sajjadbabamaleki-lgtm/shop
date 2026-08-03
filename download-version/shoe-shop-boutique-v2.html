@@ -365,40 +365,60 @@ Product Lightbox
 Hero Area
 ==============================-->
     <!--
-  Replacement hero.
+  Hero — a layered deck of five photographs, and nothing else.
 
-  The stock hero is a rounded pastel card floating inside a carousel, with the
-  neighbouring slides peeking in from both edges, a 50/50 text-left /
-  image-right split, a colour block behind the headline, and a rotating
-  discount badge. Every one of those is a signature, and the carousel is also
-  the wrong shape for the brief: the specification asks for one hero with one
-  message, one image and one action.
+  Five cards on one axis: the front card whole, one on each side sitting back
+  with about a third of its width tucked under the front one, and one further
+  back again on each side. The deck advances sideways — the front card moves
+  off and its neighbour rises into its place.
 
-  So this is a single hero, not a slider:
-    - full-bleed, no card and no rounding, so nothing floats on a tinted panel
-    - asymmetric — the image runs past the container edge and the copy overlaps
-      it, instead of two centred halves meeting in the middle
-    - the shape block, the peeking slides and the rotating badge are gone
-    - one line of copy, one price cue, one call to action
-
-  Removing the carousel also fixes the LCP image: a single eager image with an
-  explicit aspect ratio beats a lazy-initialised Swiper slide.
+  Card order is presentational only. The DOM order is the reading order and
+  position is assigned by script, so without CSS or JS this is five captioned
+  images in sequence.
 -->
-<section class="vp-hero">
-  <div class="vp-hero__media">
-    <img src="assets/img/hero/hero_6_1.png" alt="کتونی نایک ایر، رنگ موکا روشن" width="626" height="600" fetchpriority="high" decoding="async">
-  </div>
+<section class="vp-hero" aria-label="کالکشن فصل جدید">
+  <div class="vp-deck" data-deck>
+    <ul class="vp-deck__track">
+      <li class="vp-deck__card">
+        <a href="product/leather-derby.html">
+          <img src="assets/img/collection/collection_2_1.png" alt="کفش چرم قهوه‌ای" width="600" height="700" fetchpriority="high" decoding="async">
+        </a>
+      </li>
+      <li class="vp-deck__card">
+        <a href="product/gold-sneaker.html">
+          <img src="assets/img/collection/collection_2_2.png" alt="کتونی طلایی و سفید" width="600" height="700" fetchpriority="high" decoding="async">
+        </a>
+      </li>
+      <li class="vp-deck__card">
+        <a href="product/running-sneaker.html">
+          <img src="assets/img/collection/collection_2_3.png" alt="کتونی رانینگ رنگی" width="600" height="700" fetchpriority="high" decoding="async">
+        </a>
+      </li>
+      <li class="vp-deck__card">
+        <a href="product/sport-sneaker.html">
+          <img src="assets/img/collection/collection_3_1.jpg" alt="کتونی اسپرت" width="600" height="700" loading="lazy" decoding="async">
+        </a>
+      </li>
+      <li class="vp-deck__card">
+        <a href="product/floral-heel.html">
+          <img src="assets/img/collection/collection_1_1.png" alt="کفش پاشنه‌دار گلدار" width="600" height="700" loading="lazy" decoding="async">
+        </a>
+      </li>
+    </ul>
 
-  <div class="vp-hero__copy">
-    <p class="vp-hero__eyebrow">کالکشن پاییز</p>
-    <h1 class="vp-hero__title">کتونی نایک ایر<br>موکا روشن</h1>
-    <p class="vp-hero__meta">از ۴٬۸۵۰٬۰۰۰ تومان · سایز ۳۹ تا ۴۵</p>
-    <a class="vp-hero__cta" href="product/nike-v2k.html">
-      مشاهده محصول
-      <svg viewBox="0 0 22 12" width="22" height="12" fill="none" aria-hidden="true">
-        <path d="M21 6H1M7 1 1.6 6 7 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    </a>
+    <div class="vp-deck__controls">
+      <button type="button" class="vp-deck__nav" data-deck-prev aria-label="تصویر قبلی">
+        <svg viewBox="0 0 16 16" width="15" height="15" fill="none" aria-hidden="true">
+          <path d="M10 2.5 4.5 8l5.5 5.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <div class="vp-deck__dots" role="tablist" aria-label="انتخاب تصویر"></div>
+      <button type="button" class="vp-deck__nav" data-deck-next aria-label="تصویر بعدی">
+        <svg viewBox="0 0 16 16" width="15" height="15" fill="none" aria-hidden="true">
+          <path d="M6 2.5 11.5 8 6 13.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
   </div>
 </section>
 
@@ -2043,6 +2063,101 @@ Brand Area
 
     <!-- Main Js File -->
     <script src="assets/js/main.js"></script>
+<script>
+/* Hero deck.
+   Assigns each card a slot relative to the active one and lets CSS place it.
+   Advancing means moving the front card off to one side while its neighbour
+   rises into its place; the slot arithmetic wraps so the deck is endless. */
+(function () {
+  var deck = document.querySelector('[data-deck]');
+  if (!deck) return;
+
+  var cards = Array.prototype.slice.call(deck.querySelectorAll('.vp-deck__card'));
+  if (cards.length < 2) return;
+
+  var dotsHost = deck.querySelector('.vp-deck__dots');
+  var active = Math.floor(cards.length / 2);
+  var timer = null;
+  var DELAY = 4600;
+
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  function layout() {
+    var n = cards.length;
+    cards.forEach(function (card, i) {
+      // Shortest signed distance from the active card, wrapped both ways.
+      var d = i - active;
+      if (d > n / 2) d -= n;
+      if (d < -n / 2) d += n;
+      card.dataset.slot = Math.abs(d) <= 2 ? String(d) : 'out';
+      card.setAttribute('aria-hidden', d === 0 ? 'false' : 'true');
+    });
+
+    Array.prototype.forEach.call(dotsHost.children, function (dot, i) {
+      dot.setAttribute('aria-selected', String(i === active));
+      dot.setAttribute('tabindex', i === active ? '0' : '-1');
+    });
+  }
+
+  function go(next) {
+    active = (next + cards.length) % cards.length;
+    layout();
+  }
+
+  // Dots are built here rather than in the markup: without script there is no
+  // deck to step through, so controls for it would be dead chrome.
+  cards.forEach(function (_, i) {
+    var dot = document.createElement('button');
+    dot.type = 'button';
+    dot.className = 'vp-deck__dot';
+    dot.setAttribute('role', 'tab');
+    dot.setAttribute('aria-label', 'تصویر ' + (i + 1).toLocaleString('fa-IR'));
+    dot.addEventListener('click', function () { go(i); restart(); });
+    dotsHost.appendChild(dot);
+  });
+
+  deck.querySelector('[data-deck-next]').addEventListener('click', function () { go(active + 1); restart(); });
+  deck.querySelector('[data-deck-prev]').addEventListener('click', function () { go(active - 1); restart(); });
+
+  // Clicking a card that is behind brings it forward instead of following its
+  // link — the link only applies once the card is the front one.
+  cards.forEach(function (card, i) {
+    card.addEventListener('click', function (e) {
+      if (card.dataset.slot === '0') return;
+      e.preventDefault();
+      go(i);
+      restart();
+    });
+  });
+
+  // The deck is a horizontal arrangement, so arrow keys follow the screen:
+  // ArrowRight always moves the fan rightward, in either text direction.
+  deck.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowRight') { e.preventDefault(); go(active + 1); restart(); }
+    else if (e.key === 'ArrowLeft') { e.preventDefault(); go(active - 1); restart(); }
+  });
+
+  function start() {
+    if (reduced.matches) return;
+    timer = window.setInterval(function () { go(active + 1); }, DELAY);
+  }
+  function stop() { window.clearInterval(timer); timer = null; }
+  function restart() { stop(); start(); }
+
+  // Auto-advance pauses while the reader is engaged, or the tab is hidden.
+  deck.addEventListener('mouseenter', stop);
+  deck.addEventListener('mouseleave', start);
+  deck.addEventListener('focusin', stop);
+  deck.addEventListener('focusout', start);
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) stop(); else start();
+  });
+  reduced.addEventListener('change', function () { reduced.matches ? stop() : restart(); });
+
+  layout();
+  start();
+})();
+</script>
 </body>
 
 </html>
