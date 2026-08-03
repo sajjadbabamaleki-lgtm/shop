@@ -18,3 +18,270 @@
 @media (max-width: 991px) {
   .th-hero-wrapper { padding-block-start: 24px; }
 }
+
+/* --------------------------------------------------------------------------
+   Accent colour: red -> gold.
+
+   Sampled from the bars of the brand's own tiered-sale chart, in sRGB after
+   the screenshot's Display-P3 profile is converted. The bars are not a flat
+   colour — they run a vertical metallic gradient, dark at the top and light
+   at the foot. Over the 112k pixels in that hue range:
+
+     dark end   (p25) .... #8F7022
+     midpoint   (p50) .... #A47F25   <- the single most common value
+     light end  (p90) .... #CA9A24
+
+   All three sit on the same hue (42-44°), so the three jobs below are the one
+   gold at three points along its own gradient, not three colours.
+
+   Measured against white:
+
+     ink #101111 on #A47F25 ....... 5.08:1   passes AA
+     #A47F25 as text on white ..... 3.72:1   passes AA Large only
+     #8F7022 as text on white ..... 4.66:1   passes AA
+     #CA9A24 on the footer's ink .. 7.35:1   passes AA
+
+   So: the midpoint is the fill everywhere, the light end drives gradients and
+   text on dark grounds, and text on light grounds takes the dark end. The
+   template could use its red for both jobs — 205 declarations as a fill and
+   197 selectors as text — because red cleared 4.00:1 either way.
+   -------------------------------------------------------------------------- */
+
+:root,
+.shoe-shop, .fashion-shop, .electronics-shop, .grocery-shop,
+.coffee-shop, .furniture-shop, .home-electrician {
+  --theme-color: #A47F25;
+  --gr-color2: #CA9A24;
+}
+
+/* Text that took its colour from the accent. The selector list is generated
+   from the template's own stylesheet, so nothing is missed. */
+.about-card .box-desig,
+.blog-box .blog-meta a > i,
+.blog-box .blog-meta span > i,
+.blog-card .blog-meta a > i,
+.blog-card .blog-meta span > i,
+.blog-grid .blog-meta a > i,
+.blog-grid .blog-meta span > i,
+.blog-inner-title i,
+.blog-meta a:hover,
+.blog-navigation .blog-btn:hover,
+.blog-navigation .nav-btn:hover .nav-text,
+.blog-single .blog-img .slider-arrow,
+.blog-title a:hover,
+.box-title a:hover,
+.box-title2 a:hover,
+.breadcumb-menu li:last-child,
+.calendar_wrap #today,
+.call-btn .box-link a:hover,
+.cart_table .remove,
+.cart_totals .order-total .amount,
+.cart_totals .shipping-calculator-button:hover,
+.category-menu .mega-menu ul li a:hover,
+.category-menu li.menu-item-has-children > a:hover:after,
+.check-list li > i,
+.checkout-ordertable .order-total .amount,
+.checkout-ordertable input[type="hidden"] ~ label,
+.collection-category.style10 .box-content .box-text span,
+.collection-category.style10 .text,
+.collection-category.style2 .box-content .box-text span,
+.collection-category.style4 .box-content .offer,
+.collection-category.style5 .box-content .box-text span,
+.collection-category.style5 .text,
+.collection-category.style6 .discount,
+.collection-category.style6 .text,
+.collection-category.style8 .box-content .box-text span,
+.color-scheme .color-switch-btns button,
+.contact-info_link:hover,
+.contact-item_icon,
+.contact-item_text a:hover,
+.contact-media .box-text a:hover,
+.contact-media .icon-btn,
+.contact-media-wrap .box-title,
+.copyright-text a,
+.copyright-wrap .copyright-text a,
+.copyright-wrap .copyright-text i,
+.copyright-wrap.bg-title .copyright-text a:hover,
+.counter-list.style5 li .count-name,
+.counter-list.style5 li .count-number,
+.cta-area.style2 .box-title .discount,
+.cta-sec4 .cta-content4 .subtitle,
+.currency-menu .nice-select .option.selected,
+.dark-theme .blog-card .blog-meta a > i,
+.dark-theme .blog-card .blog-meta span > i,
+.dark-theme .main-menu ul.sub-menu li a:before,
+.dark-theme .th-mobile-menu ul li.th-active > a,
+.dark-theme a:hover,
+.discount-wrapp .discount,
+.footer-contact .box-icon,
+.footer-contact .box-text a:hover,
+.footer-layout3 .copyright-wrap .copyright-text a:hover,
+.footer-layout4 .copyright-wrap .copyright-text a:hover,
+.footer-layout4 .th-social.style2 a,
+.footer-layout6 .copyright-wrap .copyright-text a,
+.footer-links a:hover,
+.footer-widget .form-group > i,
+.footer-widget .recent-post .recent-post-meta a:hover i,
+.footer-widget .recent-post .recent-post-meta i,
+.footer-widget.widget_archive a:hover,
+.footer-widget.widget_categories a:hover,
+.footer-widget.widget_meta a:hover,
+.footer-widget.widget_nav_menu a:hover,
+.footer-widget.widget_pages a:hover,
+.header-call:hover,
+.header-layout1 .category-menu a:hover,
+.header-layout1 .header-right li i,
+.header-layout2 .category-menu a:hover,
+.header-links a:hover,
+.header-links li > i,
+.info-box .box-icon,
+.info-box .box-link:hover,
+.info-list i,
+.langauge .nice-select .option.selected,
+.line-btn:hover,
+.link-btn,
+.link-btn2 i,
+.link-btn2:hover,
+.link-btn:hover,
+.main-menu > ul > li > a:hover,
+.main-menu a:hover,
+.main-menu ul li.menu-item-has-children > a:hover:after,
+.main-menu ul li:has(.mega-menu) > a:hover:after,
+.main-menu ul li:has(.sub-menu) > a:hover:after,
+.main-menu ul.sub-menu li a:before,
+.main-menu ul.sub-menu li a:hover,
+.mega-menu-box .mega-menu-title span,
+.menu-style1 > ul > li > a:hover,
+.offer-text,
+.offter-title,
+.play-btn.style3 > i,
+.popup-search-box button.searchClose,
+.product-box .box-price del,
+.product-box .circle-dot .dot,
+.product-box .rating i,
+.product-box .shape-mockup2 i,
+.product-grid .box-title:hover,
+.product-grid.style2 .product-action a .icon,
+.product-grid.style5 .product-action a .icon,
+.product-grid.style6 .box-price,
+.product-grid.style9 .box-price,
+.product-item.style2 .box-price,
+.product-item.style2 .line-btn:hover,
+.product-item.style3 .box-price,
+.product-item2 .line-btn,
+.product-style1 .box-price,
+.product-title-area.style2 .box-title,
+.product_meta > span a:hover,
+.project-block .box-subtitle,
+.project-element .box-subtitle,
+.recent-post .media-img:after,
+.recent-post .recent-post-meta a:hover,
+.scroll-top svg,
+.scroll-top:after,
+.service-card .box-subtitle,
+.service-gallery .box-btn:hover,
+.service-meta a i,
+.service-meta span i,
+.share-title i,
+.sidebar-gallery .gallery-btn:hover,
+.sidemenu-wrapper .closeButton:hover,
+.slider-arrow,
+.social-links a:hover,
+.sub-title,
+.sub-title2,
+.team-box .box-btn i,
+.team-contact .box-text a:hover,
+.team-grid .th-social a,
+.testi-box .box-review,
+.testi-card .box-review,
+.text-inherit:hover,
+.text-theme,
+.th-btn.style5:hover,
+.th-btn.style6:hover,
+.th-comments-wrap .commented-on i,
+.th-comments-wrap .reply-btn,
+.th-comments-wrap .reply-btn i,
+.th-comments-wrap .reply-btn:hover,
+.th-mobile-menu ul li.th-active > a,
+.th-product .price,
+.th-product .product-category:hover,
+.th-product .product-title a:hover,
+.th-product.list-view .price,
+.th-search .search-grid-title a:hover,
+.th-social.style2 a,
+.th-sort-bar .nav a.active,
+.th-sort-bar .nav a:hover,
+.th-team .box-desig,
+.th-team .team-social a:hover,
+.timer-counter li .count-number,
+.timer-counter li:not(:last-child):before,
+.tinv-wishlist .tinv-modal .icon_big_times,
+.tinv-wishlist td.product-name a:hover,
+.widget-banner .box-link a:hover,
+.widget-call .call:hover,
+.widget_archive a:hover,
+.widget_archive a:hover ~ span,
+.widget_categories a:hover,
+.widget_categories a:hover ~ span,
+.widget_meta a:hover,
+.widget_meta a:hover ~ span,
+.widget_nav_menu a:hover,
+.widget_nav_menu a:hover ~ span,
+.widget_pages a:hover,
+.widget_pages a:hover ~ span,
+.widget_recent_comments a:hover,
+.widget_recent_comments li:before,
+.widget_recent_entries ul li > a:hover,
+.widget_rss a:hover,
+.widget_rss ul .rss-date:before,
+.widget_rss ul a:hover,
+.widget_shopping_cart .cart_list a.remove:hover,
+.widget_shopping_cart .cart_list a:not(.remove):hover,
+.woocommerce-grouped-product-list-item label a:hover,
+.wp-block-calendar #today,
+.wp-block-categories a:hover,
+.wp-block-categories a:hover ~ span,
+.wp-block-latest-comments a:hover,
+.wp-block-latest-comments li:before,
+.wp-block-latest-comments__comment a:hover,
+.wp-block-quote.style-left-icon:before,
+.wp-block-rss a:hover,
+.wp-block-rss ul .rss-date:before,
+.wp-block-rss ul a:hover,
+a,
+blockquote.style-left-icon:before,
+input[type="checkbox"].style2:checked ~ label:before,
+table.variations label a:hover,
+ul.wp-block-latest-posts a:hover {
+  color: #8F7022;
+}
+
+/* On dark grounds the direction reverses: the gradient's light end is the
+   legible one there, 7.35:1 on the footer's ink. */
+.footer-wrapper a:hover,
+.footer-wrapper .footer-links a:hover,
+.header-top a:hover,
+.th-header .header-top a:hover {
+  color: #CA9A24;
+}
+
+/* The template puts white on the accent button, which the red carried at
+   4.00:1 and the gold does not. Ink instead, matching the brand's own
+   buttons. */
+.th-btn,
+.th-btn:hover,
+.btn,
+.checkout-button,
+.woocommerce-Button,
+button.single_add_to_cart_button {
+  color: #101111;
+}
+
+/* The last red the accent variable does not reach: a hardcoded #FF0004 on the
+   product-card swatch. Its class is .beige-color, so the template was already
+   rendering it wrong — it is gold here because the request was red to gold,
+   but it stands for a product colour and should carry a real one once the
+   catalogue is real. */
+.product-grid.style14 .beige-color span {
+  background-color: #A47F25;
+}

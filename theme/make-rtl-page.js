@@ -58,6 +58,13 @@ html = html.replace(
   '$1' + layers.map((h) => `\n    <link rel="stylesheet" href="${h}">`).join('')
 );
 
+// Icons carry the template's red inside the file, out of reach of the accent
+// variable. theme/recolor-svg.js derives gold siblings; swap the references.
+const SVG_GOLD = require('./svg-gold-map.json');
+for (const [from, to] of Object.entries(SVG_GOLD)) {
+  html = html.split(`"${from}"`).join(`"${to}"`);
+}
+
 // Swiper reads the container's own dir attribute, not the inherited one.
 html = html.replace(/<div class="swiper([^"]*)"/g, '<div dir="rtl" class="swiper$1"');
 
