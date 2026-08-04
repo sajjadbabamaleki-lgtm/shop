@@ -1184,12 +1184,14 @@ option:hover {
   height: 52px;
   flex: none;
   border-radius: 12px;
-  /* Close under the tile to hold its edge, then wide and soft beneath it so
-     it sits on the band rather than floating over it. */
+  /* All four sides, not only beneath: two shadows at zero offset carry the
+     edge the whole way round, and one small offset one keeps some weight
+     underneath so the tile still reads as sitting on the band rather than
+     glowing on it. */
   box-shadow:
-    0 1px 2px rgba(16, 17, 17, 0.10),
-    0 4px 10px -2px rgba(16, 17, 17, 0.12),
-    0 12px 24px -8px rgba(16, 17, 17, 0.14);
+    0 0 5px rgba(16, 17, 17, 0.13),
+    0 0 17px rgba(16, 17, 17, 0.10),
+    0 4px 12px -4px rgba(16, 17, 17, 0.12);
 }
 
 .vp-logo-text {
@@ -1206,7 +1208,7 @@ option:hover {
 .vp-logo-text b {
   font-family: 'Cairo', var(--title-font);
   font-weight: 800;
-  font-size: 20px;
+  font-size: 19px;
   color: #101111;
   letter-spacing: -0.01em;
   line-height: 1.3;
