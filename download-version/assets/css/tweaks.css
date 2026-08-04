@@ -841,7 +841,7 @@ body:before {
   pointer-events: none;
   background-image:
     radial-gradient(circle 152px at 62% 238px, #E9B84A 0%, #E9B84A 74%, rgba(233, 184, 74, 0) 100%),
-    radial-gradient(circle 81px at 96% 621px, #C89A2E 0%, #C89A2E 72%, rgba(200, 154, 46, 0) 100%);
+    radial-gradient(circle 81px at 96% 687px, #C89A2E 0%, #C89A2E 72%, rgba(200, 154, 46, 0) 100%);
 }
 
 /* The header band. The dark strip above it keeps its own ground; this is the
