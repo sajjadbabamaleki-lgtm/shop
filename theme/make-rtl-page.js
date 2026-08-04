@@ -69,14 +69,11 @@ for (const [from, to] of Object.entries(SVG_GOLD)) {
 // grey placeholder. Two slides share this source, both the same product.
 html = html.split('assets/img/hero/hero_6_2.png').join('assets/img/hero/vikyplus-hero-1.png');
 
-// The photographic band behind the top of the site, and the three gold bars.
-// Both are decoration, so both are first in the body and hidden from the
-// accessibility tree; the band's own z-index puts it under everything.
+// Three gold bars behind the hero, drawn as real elements so both ends can be
+// rounded. First thing in the body, so they paint behind the header and the
+// card and get frosted where they pass under either.
 html = html.replace(/(<body[^>]*>)/i,
-  '$1\n    <div class="vp-top-bg" aria-hidden="true">' +
-  '<i class="s1"></i><i class="s2"></i><i class="s3"></i>' +
-  '<i class="s4"></i><i class="s5"></i><i class="s6"></i></div>' +
-  '\n    <div class="vp-hero-marks" aria-hidden="true"><i class="m-fall"></i><i class="m-near"></i><i class="m-far"></i></div>');
+  '$1\n    <div class="vp-hero-marks" aria-hidden="true"><i class="m-fall"></i><i class="m-near"></i><i class="m-far"></i></div>');
 
 // Swiper reads the container's own dir attribute, not the inherited one.
 html = html.replace(/<div class="swiper([^"]*)"/g, '<div dir="rtl" class="swiper$1"');
