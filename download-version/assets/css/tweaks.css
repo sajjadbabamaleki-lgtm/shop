@@ -882,10 +882,10 @@ option:hover {
    the falloff happens inside the box where it can be seen, and the border
    radius is no longer doing the shaping. */
 .vp-hero-marks .m-orb {
-  top: 116px;
-  left: 638px;
-  width: 214px;
-  height: 214px;
+  top: 106px;
+  left: 628px;
+  width: 235px;
+  height: 235px;
   background: radial-gradient(circle closest-side, #C89A2E 0%, #C89A2E 72%, rgba(200, 154, 46, 0) 100%);
   filter: none;
 }
