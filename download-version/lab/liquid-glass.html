@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Liquid glass — lens study</title>
+<style>
+  html, body { margin: 0; padding: 0; background: #0B1220; }
+
+  /* The stage is exactly the ground image, so every offset below can be a
+     plain number and each lens stays registered with what is behind it. */
+  .stage {
+    position: relative;
+    width: 1240px;
+    height: 900px;
+    overflow: hidden;
+    background: url(ground.png) no-repeat 0 0;
+    font-family: -apple-system, "SF Pro Text", Inter, system-ui, sans-serif;
+  }
+
+  /* --------------------------------------------------------------------
+     A piece of glass. Four layers, and the order is the whole trick:
+
+       .refract  the ground again, displaced through a per-pixel map, so the
+                 rim bends what is behind it instead of blurring it flat;
+       .tint     almost nothing — glass this clear must not turn milky;
+       .fringe   the prismatic split at the extreme edge;
+       .rim      one hairline, lit where the light would fall.
+
+     The parent clips all four to the shape and carries the inner shadows
+     that give the surface its curve.
+     -------------------------------------------------------------------- */
+  .lens {
+    position: absolute;
+    overflow: hidden;
+    isolation: isolate;
+    box-shadow:
+      inset 0 1px 1px rgba(255, 255, 255, 0.45),
+      inset 0 -10px 18px -14px rgba(255, 255, 255, 0.30),
+      inset 0 9px 16px -12px rgba(9, 14, 28, 0.16),
+      0 24px 54px -20px rgba(6, 12, 26, 0.55);
+  }
+
+  /* The refraction has to live in an SVG, not on a div: a filter applied to
+     an HTML element cannot resolve an feImage as its displacement map in
+     Blink — it silently passes the source through. Inside an <svg> the same
+     chain runs. The layer overhangs the shape by the margin the maps were
+     built with, so the rim samples real ground rather than transparency. */
+  .refract { position: absolute; left: -90px; top: -90px; display: block; }
+
+  .tint { position: absolute; inset: 0; background: rgba(255, 255, 255, 0.10); }
+
+  .rim, .fringe {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    -webkit-mask-image: linear-gradient(#000 0 0), linear-gradient(#000 0 0);
+    -webkit-mask-clip: content-box, border-box;
+    -webkit-mask-composite: xor;
+    mask-image: linear-gradient(#000 0 0), linear-gradient(#000 0 0);
+    mask-clip: content-box, border-box;
+    mask-composite: exclude;
+  }
+
+  /* The prism. Cyan through magenta through yellow, blurred to a hair and
+     screened, so it reads as light splitting rather than a coloured line. */
+  .fringe {
+    padding: 3px;
+    background: conic-gradient(from 205deg,
+      rgba(64, 255, 255, 0.55),
+      rgba(255, 64, 255, 0.42) 22%,
+      rgba(255, 250, 90, 0.40) 46%,
+      rgba(64, 255, 235, 0.52) 68%,
+      rgba(255, 90, 220, 0.45) 88%,
+      rgba(64, 255, 255, 0.55));
+    filter: blur(1.6px);
+    mix-blend-mode: screen;
+    opacity: 0.7;
+  }
+
+  /* Bright where the light would catch, nearly gone on the opposite corners.
+     Diagonal on purpose, so it never lines up with the shape's own edges. */
+  .rim {
+    padding: 1.6px;
+    background: linear-gradient(128deg,
+      rgba(255, 255, 255, 0.98) 0%,
+      rgba(255, 255, 255, 0.22) 28%,
+      rgba(255, 255, 255, 0.08) 52%,
+      rgba(255, 255, 255, 0.40) 76%,
+      rgba(255, 255, 255, 0.95) 100%);
+  }
+
+  .content {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    color: #FFF;
+    z-index: 2;
+    text-shadow: 0 1px 3px rgba(8, 14, 30, 0.35);
+  }
+
+  /* --- the pieces ---------------------------------------------------- */
+  .pill { left: 340px; top: 380px; width: 560px; height: 148px; border-radius: 74px; }
+  .dot  { width: 148px; height: 148px; border-radius: 74px; top: 170px; }
+  .dot-a { left: 340px; }
+  .dot-b { left: 552px; }
+  .card { left: 340px; top: 560px; width: 560px; height: 300px; border-radius: 62px; }
+
+  .dot .content { justify-content: center; }
+  .pill .content { padding: 0 34px; gap: 22px; }
+  .card .content { flex-direction: column; align-items: flex-start; justify-content: center; padding: 0 54px; gap: 10px; }
+
+  .label { font-size: 40px; font-weight: 600; letter-spacing: -0.01em; }
+  .card .title { font-size: 46px; font-weight: 700; letter-spacing: -0.02em; }
+  .card .sub { font-size: 26px; font-weight: 500; opacity: 0.88; }
+  .spacer { flex: 1; }
+</style>
+</head>
+<body>
+
+<!-- The lens. Three displacements at slightly different strengths, one per
+     channel, recombined — which is what chromatic aberration physically is:
+     the same ray bent by a different amount for each wavelength. A single
+     displacement warps the ground but can never split its colour. -->
+<svg width="0" height="0" style="position:absolute">
+  <filter id="f-pill" x="0" y="0" width="740" height="328"
+          filterUnits="userSpaceOnUse" primitiveUnits="userSpaceOnUse"
+          color-interpolation-filters="sRGB">
+    <feImage href="map-pill.png" x="0" y="0" width="740" height="328" result="map" preserveAspectRatio="none"/>
+    <feDisplacementMap in="SourceGraphic" in2="map" scale="62" xChannelSelector="R" yChannelSelector="G" result="dr"/>
+    <feDisplacementMap in="SourceGraphic" in2="map" scale="72" xChannelSelector="R" yChannelSelector="G" result="dg"/>
+    <feDisplacementMap in="SourceGraphic" in2="map" scale="84" xChannelSelector="R" yChannelSelector="G" result="db"/>
+    <feColorMatrix in="dr" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="cr"/>
+    <feColorMatrix in="dg" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="cg"/>
+    <feColorMatrix in="db" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="cb"/>
+    <feBlend in="cr" in2="cg" mode="screen" result="crg"/>
+    <feBlend in="crg" in2="cb" mode="screen" result="crgb"/>
+    <feGaussianBlur in="crgb" stdDeviation="1.1"/>
+  </filter>
+
+  <filter id="f-dot" x="0" y="0" width="328" height="328"
+          filterUnits="userSpaceOnUse" primitiveUnits="userSpaceOnUse"
+          color-interpolation-filters="sRGB">
+    <feImage href="map-dot.png" x="0" y="0" width="328" height="328" result="map" preserveAspectRatio="none"/>
+    <feDisplacementMap in="SourceGraphic" in2="map" scale="52" xChannelSelector="R" yChannelSelector="G" result="dr"/>
+    <feDisplacementMap in="SourceGraphic" in2="map" scale="62" xChannelSelector="R" yChannelSelector="G" result="dg"/>
+    <feDisplacementMap in="SourceGraphic" in2="map" scale="72" xChannelSelector="R" yChannelSelector="G" result="db"/>
+    <feColorMatrix in="dr" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="cr"/>
+    <feColorMatrix in="dg" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="cg"/>
+    <feColorMatrix in="db" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="cb"/>
+    <feBlend in="cr" in2="cg" mode="screen" result="crg"/>
+    <feBlend in="crg" in2="cb" mode="screen" result="crgb"/>
+    <feGaussianBlur in="crgb" stdDeviation="1"/>
+  </filter>
+
+  <filter id="f-card" x="0" y="0" width="740" height="480"
+          filterUnits="userSpaceOnUse" primitiveUnits="userSpaceOnUse"
+          color-interpolation-filters="sRGB">
+    <feImage href="map-card.png" x="0" y="0" width="740" height="480" result="map" preserveAspectRatio="none"/>
+    <feDisplacementMap in="SourceGraphic" in2="map" scale="66" xChannelSelector="R" yChannelSelector="G" result="dr"/>
+    <feDisplacementMap in="SourceGraphic" in2="map" scale="78" xChannelSelector="R" yChannelSelector="G" result="dg"/>
+    <feDisplacementMap in="SourceGraphic" in2="map" scale="91" xChannelSelector="R" yChannelSelector="G" result="db"/>
+    <feColorMatrix in="dr" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="cr"/>
+    <feColorMatrix in="dg" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="cg"/>
+    <feColorMatrix in="db" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="cb"/>
+    <feBlend in="cr" in2="cg" mode="screen" result="crg"/>
+    <feBlend in="crg" in2="cb" mode="screen" result="crgb"/>
+    <feGaussianBlur in="crgb" stdDeviation="1.2"/>
+  </filter>
+</svg>
+
+<div class="stage">
+
+  <div class="lens dot dot-a">
+    <svg class="refract" width="328" height="328" viewBox="0 0 328 328">
+      <g filter="url(#f-dot)"><image href="ground.png" x="-250" y="-80" width="1240" height="900"/></g>
+    </svg>
+    <div class="tint"></div><div class="fringe"></div><div class="rim"></div>
+    <div class="content">
+      <svg width="58" height="58" viewBox="0 0 24 24" fill="none" stroke="#FFF" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="5" y="10.5" width="14" height="9.5" rx="2.6"/>
+        <path d="M8.4 10.5V8.2a3.6 3.6 0 0 1 6.7-1.8"/>
+        <path d="M15.6 3.6v2.9h-2.9"/>
+      </svg>
+    </div>
+  </div>
+
+  <div class="lens dot dot-b">
+    <svg class="refract" width="328" height="328" viewBox="0 0 328 328">
+      <g filter="url(#f-dot)"><image href="ground.png" x="-462" y="-80" width="1240" height="900"/></g>
+    </svg>
+    <div class="tint"></div><div class="fringe"></div><div class="rim"></div>
+    <div class="content">
+      <svg width="58" height="58" viewBox="0 0 24 24" fill="none" stroke="#FFF" stroke-width="1.7" stroke-linejoin="round">
+        <rect x="3.2" y="6" width="13.6" height="10.4" rx="2.4"/>
+        <path d="M8.4 18.6h9.2a2.4 2.4 0 0 0 2.4-2.4V8.6"/>
+      </svg>
+    </div>
+  </div>
+
+  <div class="lens pill">
+    <svg class="refract" width="740" height="328" viewBox="0 0 740 328">
+      <g filter="url(#f-pill)"><image href="ground.png" x="-250" y="-290" width="1240" height="900"/></g>
+    </svg>
+    <div class="tint"></div><div class="fringe"></div><div class="rim"></div>
+    <div class="content">
+      <svg width="60" height="60" viewBox="0 0 24 24" fill="#FFF">
+        <path d="M20.4 14.6A8.6 8.6 0 0 1 9.4 3.6a8.6 8.6 0 1 0 11 11z"/>
+      </svg>
+      <span class="label">Focus</span>
+      <span class="spacer"></span>
+      <svg width="34" height="52" viewBox="0 0 14 22" fill="none" stroke="#FFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M2.5 8.4 7 3.9l4.5 4.5"/>
+        <path d="M11.5 13.6 7 18.1l-4.5-4.5"/>
+      </svg>
+    </div>
+  </div>
+
+  <div class="lens card">
+    <svg class="refract" width="740" height="480" viewBox="0 0 740 480">
+      <g filter="url(#f-card)"><image href="ground.png" x="-250" y="-470" width="1240" height="900"/></g>
+    </svg>
+    <div class="tint"></div><div class="fringe"></div><div class="rim"></div>
+    <div class="content">
+      <span class="title">Air Jordan 1</span>
+      <span class="sub">the same lens at card size</span>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
