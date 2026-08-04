@@ -908,6 +908,29 @@ body:before {
   padding-block-start: 120px;
 }
 
+/* The product shot sat 12px inside the card's edge — the grid gutter on its
+   column — so a white wedge of the card showed between the shot and the card's
+   rounded corner. The gutter comes off that one column and the shot fills it
+   edge to edge, with the card's own 60px radius clipping the corner.
+
+   Worth knowing for later: this only shows because the demo image is an opaque
+   grey rectangle. A product shot on a transparent ground would let the card
+   through there by design, and cover would then crop it — revisit this when
+   the real photography lands. */
+.heroSlide6 .hero-inner .col-lg-6:has(> .hero-img) {
+  padding-inline: 0;
+}
+
+.heroSlide6 .hero-img {
+  height: 100%;
+}
+
+.heroSlide6 .hero-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 /* Only the card in front carries the edge. The slides either side peek out of
    the deck, and on a white page their rings and shadows read as a stray white
    panel — most visibly where one clipped a bite out of the gold behind it.
