@@ -824,6 +824,14 @@ option:hover {
   background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
+  /* Still, and square to the page. The template tilts the disc 30 degrees and
+     turns it a full circle every ten seconds, which a ring that runs the whole
+     way round can carry — every letter keeps its place on it. A line across the
+     top and its repeat across the foot cannot: a third of the way through the
+     turn the foot is up the side and reading upside down. The arrangement only
+     means anything held still, so it is. */
+  animation: none;
+  transform: none;
 }
 
 /* --------------------------------------------------------------------------
@@ -843,6 +851,21 @@ option:hover {
   width: 100%;
   height: 100%;
   overflow: visible;
+}
+
+/* The number, in the middle of the disc. The template puts it at 20% across
+   and 35% down and then nudges it with a negative margin — off-centre by
+   design, to sit inside a ring that ran the whole way round. With the ring in
+   two halves the middle is empty, so the number takes it: both insets are
+   stated so the flip has nothing to mirror. */
+.heroSlide6 .discount-wrapp .discount {
+  inset-inline: auto;
+  left: 50%;
+  top: 50%;
+  /* Upright with the disc: the 30 degrees the template gives it went with the
+     tilt the disc no longer has. */
+  transform: translate(-50%, -50%);
+  margin-top: 0;
 }
 
 .heroSlide6 .discount-tag .vp-ring text {

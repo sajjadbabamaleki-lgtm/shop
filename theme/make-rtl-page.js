@@ -130,21 +130,20 @@ html = html.replace(
 // as text on an SVG path instead, which curves the line without touching the
 // glyphs, and the joins survive.
 //
-// The phrase runs twice round so it closes on itself, with the word spacing
-// doing the filling. The path is a circle of radius 58 in the disc's own 150
-// box: the type sits on it and reaches to about 92% of the disc's radius, which
-// is where the template's own ring sat.
-//
-// The path starts at the foot of the circle and runs clockwise, so the middle
-// of the line — where startOffset puts it — falls across the top and the words
-// there are upright. Started anywhere else the top of the ring reads upside
-// down; all three ways round were rendered to pick this one.
+// The phrase is written once across the top half and once across the bottom,
+// on two half-circle paths rather than one full one, each line centred on its
+// own arc. The arcs run in opposite directions so that both lines are upright
+// to a reader: over the top the path goes left to right, under the foot it
+// comes back right to left.
 const RING =
   '<svg class="vp-ring" viewBox="0 0 150 150" aria-hidden="true">' +
-  '<defs><path id="vp-ring-path" fill="none" d="M 75,133 a 58,58 0 1,1 0,-116 a 58,58 0 1,1 0,116"></path></defs>' +
-  '<text dir="rtl"><textPath href="#vp-ring-path" startOffset="50%" text-anchor="middle">' +
-  '۲۵ درصد تخفیف ویژه • ۲۵ درصد تخفیف ویژه' +
-  '</textPath></text></svg>';
+  '<defs>' +
+  '<path id="vp-ring-top" fill="none" d="M 17,75 A 58,58 0 0,1 133,75"></path>' +
+  '<path id="vp-ring-bottom" fill="none" d="M 20,75 A 55,55 0 0,0 130,75"></path>' +
+  '</defs>' +
+  '<text dir="rtl"><textPath href="#vp-ring-top" startOffset="50%" text-anchor="middle">۲۵ درصد تخفیف ویژه</textPath></text>' +
+  '<text dir="rtl"><textPath href="#vp-ring-bottom" startOffset="50%" text-anchor="middle">۲۵ درصد تخفیف ویژه</textPath></text>' +
+  '</svg>';
 
 html = html.replace(
   /<span class="discount-anime">[^<]*<\/span>/g,
