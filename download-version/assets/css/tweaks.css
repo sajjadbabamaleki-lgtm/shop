@@ -839,10 +839,13 @@ body:before {
   height: 900px;
   z-index: 0;
   pointer-events: none;
+  /* The gold is carried at 30% rather than solid, so the circles read as a
+     tint under the glass instead of three discs on the page. The stops and
+     the geometry are unchanged; only the alpha moved. */
   background-image:
-    radial-gradient(circle 137px at 62% 238px, #C89A2E 0%, #C89A2E 74%, rgba(200, 154, 46, 0) 100%),
-    radial-gradient(circle 81px at 96% 636px, #C89A2E 0%, #C89A2E 72%, rgba(200, 154, 46, 0) 100%),
-    radial-gradient(circle 80px at 3% 348px, #C89A2E 0%, #C89A2E 72%, rgba(200, 154, 46, 0) 100%);
+    radial-gradient(circle 137px at 62% 238px, rgba(200, 154, 46, 0.3) 0%, rgba(200, 154, 46, 0.3) 74%, rgba(200, 154, 46, 0) 100%),
+    radial-gradient(circle 81px at 96% 636px, rgba(200, 154, 46, 0.3) 0%, rgba(200, 154, 46, 0.3) 72%, rgba(200, 154, 46, 0) 100%),
+    radial-gradient(circle 80px at 3% 348px, rgba(200, 154, 46, 0.3) 0%, rgba(200, 154, 46, 0.3) 72%, rgba(200, 154, 46, 0) 100%);
 }
 
 /* The header band. The dark strip above it keeps its own ground; this is the
