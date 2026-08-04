@@ -877,7 +877,7 @@ option:hover {
 /* Top right, above the small label, which starts at y 292. Held 29px off the
    right of the page for the same reason. */
 .vp-hero-marks .m-far {
-  top: 244px;
+  top: 220px;
   right: 29px;
   width: 218px;
   height: 26px;
