@@ -935,8 +935,11 @@ option:hover {
   background: rgba(16, 17, 17, 0.034);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
-  box-shadow: 0 3px 8px rgba(16, 17, 17, 0.025),
-    0 14px 34px rgba(16, 17, 17, 0.045);
+  /* The same foot as the hero card, for the same reason: the shadow that was
+     here read 244 against the island's own 247 and then climbed back to white
+     over thirty pixels, so the island had no bottom edge and the air between
+     it and the deck was a wash. Ink at a fourteenth ends it instead. */
+  box-shadow: inset 0 -1.4px 0 rgba(16, 17, 17, 0.07);
 }
 
 .th-header .sticky-wrapper.sticky {
@@ -1070,34 +1073,42 @@ option:hover {
   background: rgba(16, 17, 17, 0.034);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
-  /* Two soft layers, no spread.
+  /* A hairline at the foot instead of a shadow under it.
 
-     An earlier attempt used a negative spread, which pulls the shadow's own
-     rectangle inward so it ends in a straight cut instead of following the
-     rounded corner, and it carried enough alpha that the darkest part landed
-     exactly on the element's edge: measured, the pane read 249 and the pixel
-     below it 238. An eleven-level step in one pixel is a drawn line, not a
-     shadow.
+     The shadow could not do this job. A blurred shadow reaches only about half
+     its alpha at the element's own edge — the rest of it falls under the card,
+     where it is clipped away — so the pixel just below the card came out at
+     245 against the card's own 247. Two levels. Whatever it did further down,
+     at the edge it added nothing, and the long climb back to white read as the
+     card dissolving into the page rather than ending on it. Making the shadow
+     heavier fixes the edge and puts a drawn line under the card, which is
+     where this started.
 
-     A shadow always reaches about half its alpha at the element's own edge, so
-     the step can only be made small by keeping the alpha small — and it only
-     reads as natural if the falloff is long. Hence low alpha over a wide blur,
-     split in two so there is some weight close in as well. The room this needs
-     below the card is made further down, and the two have to be changed
-     together: the falloff runs 14px of offset plus half the 34px blur, so it
-     is not finished until 31px below the edge. */
-  box-shadow: 0 3px 8px rgba(16, 17, 17, 0.025),
-    0 14px 34px rgba(16, 17, 17, 0.045);
+     So the edge is drawn as an edge: ink at a fourteenth, the thickness of the
+     lit hairline that runs round the other three sides. Measured, the foot now
+     steps 247 to 231 to 255 — clearly an ending, and no fade anywhere.
+
+     A card lit from above and resting on a surface is darker where it meets
+     it, so the bright rim stopping short of the foot and the ink taking over
+     there is also what the light would do. */
+  box-shadow: inset 0 -1.4px 0 rgba(16, 17, 17, 0.07);
 }
 
 /* The lit hairline, masked to a band with mask-composite and run on a diagonal
-   so it never lines up with the card's own edges. */
+   so it never lines up with the card's own edges.
+
+   Not along the bottom. The band there is white at about half alpha, which put
+   a lighter line than the card itself on the one edge that has to separate the
+   card from a white page — the card read 247, the hairline on its edge 250 and
+   the page 255, so the boundary climbed rather than stepped and the edge
+   disappeared. Zero padding on that side leaves the mask's two boxes touching
+   there, so no band is drawn; the ink hairline below takes that edge instead. */
 .heroSlide6 .hero-inner:after {
   content: '';
   position: absolute;
   inset: 0;
   z-index: 0;
-  padding: 1.4px;
+  padding: 1.4px 1.4px 0;
   border-radius: inherit;
   pointer-events: none;
   background: linear-gradient(128deg,
@@ -1157,7 +1168,7 @@ option:hover {
    given there, and this gives the same 36 back so the gap that is seen is
    unchanged. */
 .feature-area2 {
-  padding-block-start: 0;
+  padding-block-start: 36px;
 }
 
 /* The shot is a cut-out on a transparent ground, so it is fitted rather than
@@ -1179,27 +1190,12 @@ option:hover {
   object-fit: contain;
 }
 
-/* Room for the card's shadow, inside the clip.
-
-   Three boxes end on the same pixel as the card — .th-hero-wrapper, the
-   swiper, and the card itself — and the first two are overflow: hidden in the
-   template, which the slider needs: without them the off-screen slides push
-   the document to 5085px wide. So anything the card casts below its own edge
-   is cut off, and the page's white meets the card's edge with nothing in
-   between. The edge then reads as tucked under the white — which is what it
-   looks like, and it is not a shadow problem you can fix by removing the
-   shadow: taking the shadow away leaves exactly the same bare edge.
-
-   The fix is to make room inside the clip. It was 20px, which was right for
-   the shadow of the day — 8 of offset plus half an 18px blur. That shadow was
-   later rebuilt wider, 14 of offset plus half of 34, and the room was not
-   moved with it: the falloff was cut at 251 instead of finishing at 255, which
-   put a straight line across the page 20px under the card. It now carries the
-   whole 36px gap, comfortably past the 31 the shadow reaches, and the section
-   below gives the same 36 back from its own top padding, so the gap that is
-   seen is unchanged. Change the shadow and this has to change with it. */
+/* The swiper held room below the slides for the card's shadow to fall in,
+   because it clips and the shadow was being cut off against the clip. There is
+   no shadow now — the card's foot is a hairline — so the room goes back and
+   the section below carries the whole gap again. */
 .heroSlide6 {
-  padding-block: 0 36px;
+  padding-block: 0;
   margin-block-start: 0;
 }
 
