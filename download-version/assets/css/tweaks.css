@@ -871,15 +871,22 @@ option:hover {
 }
 
 /* An orb over the card's top edge, built the way the first circles were: the
-   gold solid to 72% of the radius, then faded to nothing over the rest. That
-   gradient is its own falloff, so it takes no blur. */
+   gold solid to 72% of the radius, then faded to nothing over the rest. The
+   gradient is its own falloff, so it takes no blur.
+
+   closest-side matters. A radial gradient sizes to the farthest corner by
+   default, which on a square box is half the diagonal — so its 100% sat 151px
+   out while the box ended at 107, and the fade fell entirely outside the
+   element. What showed was the solid part, cut off on the box's own edge: a
+   hard circle. closest-side puts the gradient's end on that edge instead, so
+   the falloff happens inside the box where it can be seen, and the border
+   radius is no longer doing the shaping. */
 .vp-hero-marks .m-orb {
   top: 116px;
   left: 638px;
   width: 214px;
   height: 214px;
-  border-radius: 50%;
-  background: radial-gradient(circle, #C89A2E 0%, #C89A2E 72%, rgba(200, 154, 46, 0) 100%);
+  background: radial-gradient(circle closest-side, #C89A2E 0%, #C89A2E 72%, rgba(200, 154, 46, 0) 100%);
   filter: none;
 }
 
