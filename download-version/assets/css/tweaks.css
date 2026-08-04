@@ -830,8 +830,7 @@ option:hover {
    both ends can be rounded.
 
    Three bars, sized off the buy button: half its height thick, three times
-   its width long, then trimmed to 242 over three passes — 26 x 242, fully
-   rounded.
+   its width long, then trimmed over four passes — 26 x 218, fully rounded.
    -------------------------------------------------------------------------- */
 
 .vp-hero-marks {
@@ -856,14 +855,14 @@ option:hover {
   filter: blur(8px);
 }
 
-/* Falling through the header band and into the card. Held 29px off the top of
-   the page, the same inset the bar below the shoe keeps from the left, so
-   both of its ends are on the page rather than one being cut by the edge. */
+/* Falling through the header band and into the card. It starts 29px below the
+   dark strip, which ends at 48 — at 29 from the page top its head was behind
+   that strip, which paints over it, so the bar looked cut. */
 .vp-hero-marks .m-fall {
-  top: 29px;
+  top: 77px;
   left: 560px;
   width: 26px;
-  height: 242px;
+  height: 218px;
 }
 
 /* Under the shoe, which runs to y 610, still crossing the card's near edge at
@@ -871,7 +870,7 @@ option:hover {
 .vp-hero-marks .m-near {
   top: 640px;
   left: 29px;
-  width: 242px;
+  width: 218px;
   height: 26px;
 }
 
@@ -880,7 +879,7 @@ option:hover {
 .vp-hero-marks .m-far {
   top: 244px;
   right: 29px;
-  width: 242px;
+  width: 218px;
   height: 26px;
 }
 
