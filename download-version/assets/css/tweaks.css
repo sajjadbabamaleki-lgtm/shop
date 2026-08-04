@@ -837,7 +837,7 @@ option:hover {
   inset: 0 40px;
   z-index: 0;
   background-image:
-    radial-gradient(circle 190px at 72% 26%, #E9B84A 0%, #E9B84A 58%, rgba(233, 184, 74, 0) 100%),
+    radial-gradient(circle 152px at 72% 26%, #E9B84A 0%, #E9B84A 58%, rgba(233, 184, 74, 0) 100%),
     radial-gradient(circle 90px at 46% 78%, #C89A2E 0%, #C89A2E 55%, rgba(200, 154, 46, 0) 100%);
   filter: blur(22px);
 }
