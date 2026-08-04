@@ -923,7 +923,8 @@ option:hover {
   background: rgba(16, 17, 17, 0.023);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
-  box-shadow: 0 8px 18px -10px rgba(16, 17, 17, 0.18);
+  box-shadow: 0 3px 8px rgba(16, 17, 17, 0.025),
+    0 14px 34px rgba(16, 17, 17, 0.045);
 }
 
 .th-header .sticky-wrapper.sticky {
@@ -1057,12 +1058,21 @@ option:hover {
   background: rgba(16, 17, 17, 0.023);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
-  /* The tint draws the pane's boundary; this is only a breath of weight under
-     its foot. Offset down and given a negative spread so it stays below the
-     card rather than ringing it — and the blur is wide enough that the card's
-     own edge does not cut across a flat part of it, which is what left a hard
-     line here on an earlier attempt. */
-  box-shadow: 0 8px 18px -10px rgba(16, 17, 17, 0.18);
+  /* Two soft layers, no spread.
+
+     The previous attempt used a negative spread, which pulls the shadow's own
+     rectangle inward so it ends in a straight cut instead of following the
+     rounded corner, and it carried enough alpha that the darkest part of the
+     shadow landed exactly on the element's edge: measured, the pane read 249
+     and the pixel below it 238. An eleven-level step in one pixel is a drawn
+     line, not a shadow.
+
+     A shadow always reaches about half its alpha at the element's own edge, so
+     the step can only be made small by keeping the alpha small — and it only
+     reads as natural if the falloff is long. Hence low alpha over a wide blur,
+     split in two so there is some weight close in as well. */
+  box-shadow: 0 3px 8px rgba(16, 17, 17, 0.025),
+    0 14px 34px rgba(16, 17, 17, 0.045);
 }
 
 /* The lit hairline, masked to a band with mask-composite and run on a diagonal
