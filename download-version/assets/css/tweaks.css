@@ -905,19 +905,11 @@ body:before {
   padding-block-start: 50px;
 }
 
-/* The product shot sat 12px inside the card's edge — the grid gutter on its
-   column — so a white wedge of the card showed between the shot and the card's
-   rounded corner. The gutter comes off that one column and the shot fills it
-   edge to edge, with the card's own 60px radius clipping the corner.
-
-   Worth knowing for later: this only shows because the demo image is an opaque
-   grey rectangle. A product shot on a transparent ground would let the card
-   through there by design, and cover would then crop it — revisit this when
-   the real photography lands. */
-.heroSlide6 .hero-inner .col-lg-6:has(> .hero-img) {
-  padding-inline: 0;
-}
-
+/* The shot is a cut-out on a transparent ground, so it is fitted rather than
+   filled: contain keeps the whole shoe and lets the glass read right across
+   the card, where cover would have cropped it and walled off half the pane.
+   The column keeps its gutter — there is no opaque rectangle to butt against
+   the card's corner any more. */
 .heroSlide6 .hero-img {
   height: 100%;
 }
@@ -925,7 +917,7 @@ body:before {
 .heroSlide6 .hero-img img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 /* The card's drop shadow was being cut off. Three boxes ended on exactly the
@@ -942,15 +934,6 @@ body:before {
    as before and nothing below moves. */
 .heroSlide6 {
   padding-bottom: 40px;
-}
-
-/* Only the card in front carries the edge. The slides either side peek out of
-   the deck, and on a white page their rings and shadows read as a stray white
-   panel — most visibly where one clipped a bite out of the gold behind it.
-   They keep the glass, so a card entering the deck already has it, but they
-   draw no boundary until they are the one in front. */
-.heroSlide6 .swiper-slide:not(.swiper-slide-active) .hero-inner {
-  box-shadow: none;
 }
 
 /* The block the template lays inside the card — a rectangle offset from the

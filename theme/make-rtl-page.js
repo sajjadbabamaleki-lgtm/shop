@@ -65,6 +65,10 @@ for (const [from, to] of Object.entries(SVG_GOLD)) {
   html = html.split(`"${from}"`).join(`"${to}"`);
 }
 
+// The middle hero slide carries a real product shot instead of the template's
+// grey placeholder. Two slides share this source, both the same product.
+html = html.split('assets/img/hero/hero_6_2.png').join('assets/img/hero/vikyplus-hero-1.png');
+
 // Swiper reads the container's own dir attribute, not the inherited one.
 html = html.replace(/<div class="swiper([^"]*)"/g, '<div dir="rtl" class="swiper$1"');
 
