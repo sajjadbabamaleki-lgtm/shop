@@ -858,8 +858,12 @@ option:hover {
 
 /* Falling through the header band and into the card. It starts 29px below the
    dark strip, which ends at 48 — at 29 from the page top its head was behind
-   that strip, which paints over it, so the bar looked cut. */
+   that strip, which paints over it, so the bar looked cut.
+
+   Off for now, to see the hero without it. The rule keeps its numbers so it
+   is one line to bring back. */
 .vp-hero-marks .m-fall {
+  display: none;
   top: 77px;
   left: 560px;
   width: 26px;
