@@ -12,11 +12,11 @@
    below the header, not above the section's own content, so the gap is there
    whatever the hero slide contains. */
 .th-hero-wrapper {
-  padding-block-start: 40px;
+  padding-block-start: 30px;
 }
 
 @media (max-width: 991px) {
-  .th-hero-wrapper { padding-block-start: 24px; }
+  .th-hero-wrapper { padding-block-start: 18px; }
 }
 
 /* --------------------------------------------------------------------------
@@ -840,25 +840,8 @@ body:before {
   z-index: 0;
   pointer-events: none;
   background-image:
-    radial-gradient(circle 152px at 62% 216px, #E9B84A 0%, #E9B84A 74%, rgba(233, 184, 74, 0) 100%),
-    radial-gradient(circle 90px at 96% 700px, #C89A2E 0%, #C89A2E 72%, rgba(200, 154, 46, 0) 100%),
-    /* A cushion under the hero. The card met the page's plain white right at
-       its own bottom edge, with nothing between them, so it read as a white
-       block glued to the card; adding gap did not help, because the gap was
-       that same white.
-
-       It starts at the card's own lower edge and not above it, so the card is
-       still over plain white and its glass is the colour it always was — the
-       earlier version ran the whole section and tinted the card through it.
-
-       Soft at both ends: it reads as ground the card rests on, not a stripe.
-       Last layer, so both balls stay on top of it. */
-    linear-gradient(to bottom,
-      rgba(247, 244, 238, 0) 0px,
-      rgba(247, 244, 238, 0) 768px,
-      #F7F4EE 796px,
-      #F7F4EE 834px,
-      rgba(247, 244, 238, 0) 880px);
+    radial-gradient(circle 152px at 62% 206px, #E9B84A 0%, #E9B84A 74%, rgba(233, 184, 74, 0) 100%),
+    radial-gradient(circle 90px at 96% 690px, #C89A2E 0%, #C89A2E 72%, rgba(200, 154, 46, 0) 100%);
 }
 
 /* The header band. The dark strip above it keeps its own ground; this is the
@@ -922,7 +905,7 @@ body:before {
    section's own top padding, so raising it moves the row down without
    touching the cards above. */
 .feature-area2 {
-  padding-block-start: 120px;
+  padding-block-start: 90px;
 }
 
 /* The product shot sat 12px inside the card's edge — the grid gutter on its
