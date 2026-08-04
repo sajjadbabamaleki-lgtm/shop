@@ -888,6 +888,56 @@ option:hover {
   height: 26px;
 }
 
+/* --------------------------------------------------------------------------
+   The glassmorphism look, as an experiment.
+
+   Worth being plain about what carries that effect in the reference: almost
+   none of it is the card. The card there is white at roughly 15-20% with a
+   blur and a 1px rim — close to what is already on this one. What makes it
+   read is the ground: a saturated, many-coloured mesh directly behind the
+   pane, so the blur has strong colour to smear and the rim has something to
+   stand against.
+
+   On a white page that look is unreachable at any glass setting. So this puts
+   a mesh behind the hero — the brand gold and the shoe's own rose rather than
+   the reference's blue — and thins the pane to match.
+   -------------------------------------------------------------------------- */
+
+.th-hero-wrapper:before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-color: #F6EFE2;
+  background-image:
+    radial-gradient(58% 70% at 18% 22%, #F0C978 0%, rgba(240, 201, 120, 0) 70%),
+    radial-gradient(52% 64% at 78% 18%, #E3B0B5 0%, rgba(227, 176, 181, 0) 68%),
+    radial-gradient(64% 76% at 62% 86%, #C89A2E 0%, rgba(200, 154, 46, 0) 72%),
+    radial-gradient(46% 58% at 8% 88%, #EADFC6 0%, rgba(234, 223, 198, 0) 70%);
+}
+
+.th-hero-wrapper > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Thinner pane, so the mesh carries through it. */
+.heroSlide6 .swiper-slide-active .hero-inner {
+  background: rgba(255, 255, 255, 0.18);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  backdrop-filter: blur(14px) saturate(1.2);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8),
+    0 18px 50px -20px rgba(90, 60, 10, 0.22);
+}
+
+/* The bars are the wrong idiom against a mesh — it is already the texture. */
+.vp-hero-marks {
+  display: none;
+}
+
 /* The header band. The dark strip above it keeps its own ground; this is the
    white band with the logo, nav and search. Same recipe as the card, and the
    sticky state — which the template repaints solid white — is held to it. */
