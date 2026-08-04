@@ -86,8 +86,8 @@ html = html.replace(
 );
 
 // The row under the hero carries the six shoe categories instead of the
-// template's four service boxes. Icons only, no labels — the names live on the
-// links as their accessible names.
+// template's four service boxes: a photograph filling each square, with the
+// name on a strip of glass laid over it.
 // Right to left, the order the row reads in.
 const CATEGORIES = [
   ['majlesi', 'مجلسی'],
@@ -98,14 +98,15 @@ const CATEGORIES = [
   ['bag-set', 'ست کیف و کفش'],
 ];
 
-// The name stays on the link as its accessible name: the row is navigation,
-// and a set of six unlabelled pictures is nothing at all to a screen reader.
+// The name is real text on the tile, so it is also the link's own name and
+// needs no aria-label.
 const CATEGORY_ROW =
   '<div class="row vp-category-row">' +
   CATEGORIES.map(([file, name]) =>
     '\n                <div class="col-4 col-lg-2">' +
-    `\n                    <a class="vp-category" href="shop.html" aria-label="${name}">` +
-    `\n                        <img src="assets/img/category/${file}.svg" alt="" loading="lazy">` +
+    '\n                    <a class="vp-category" href="shop.html">' +
+    `\n                        <img src="assets/img/category/${file}.jpg" alt="" loading="lazy">` +
+    `\n                        <span class="vp-category-label">${name}</span>` +
     '\n                    </a>' +
     '\n                </div>'
   ).join('') +
