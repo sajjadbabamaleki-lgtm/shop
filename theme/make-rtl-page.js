@@ -193,6 +193,17 @@ for (const [en, fa] of Object.entries(DICT).sort((a, b) => b[0].length - a[0].le
   html = html.split(en).join(fa);
 }
 
+// The hero headline reads on two lines, 'کتونی جردن' over 'وان ایر'. The
+// non-breaking spaces above leave that as the only place it can break, but
+// whether it does depends on the type size — at a smaller size the whole name
+// fits on one line and the break is lost. The break is where the name divides,
+// not a consequence of the measure, so it is written in. Only in the heading:
+// the template repeats the same name as the small label above it, which is one
+// line by design.
+html = html.replace(/<h1 class="hero-title"[^>]*>[\s\S]*?<\/h1>/g, (h1) =>
+  h1.replace(DICT['Nike Air Running Spikes'], DICT['Nike Air Running Spikes'].replace(' ', ' <br>'))
+);
+
 // Currency: the theme's demo prices are USD. Scaled to a plausible Toman
 // figure so the grid can be judged at realistic string lengths, which is what
 // actually stresses the layout.

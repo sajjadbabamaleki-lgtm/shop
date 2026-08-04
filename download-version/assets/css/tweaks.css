@@ -878,26 +878,37 @@ option:hover {
    edge. */
 .vp-hero-marks .m-fall {
   top: 211px;
-  left: 640px;
-  width: 161px;
-  height: 161px;
+  /* A tenth off the 161 it was drawn at. Still centred on the card, so the
+     16px it loses come off both sides: 720 - 145/2 = 647. */
+  left: 647px;
+  width: 145px;
+  height: 145px;
 }
 
-/* Under the shoe, which runs to y 610, still crossing the card's near edge at
-   x 107 so the glass takes it apart. 204 wide: the stretch inside the card
-   runs 107..233, a tenth less than the 140 it was. */
+/* Under the shoe, still crossing the card's near edge at x 107 so the glass
+   takes it apart. 204 wide: the stretch inside the card runs 107..233, a tenth
+   less than the 140 it was.
+
+   Shortening the card lifted the shoe but left this where it was, 8px off the
+   card's bottom edge, where it read as sitting on the edge rather than under
+   the shoe. It follows the shoe up: the shot now ends at y 593, and the bar
+   keeps the same 16px under it. */
 .vp-hero-marks .m-near {
-  top: 640px;
+  top: 609px;
   left: 29px;
   width: 204px;
   height: 26px;
 }
 
-/* Top right, above the small label, which starts at y 292. Held 29px off the
-   right of the page for the same reason. Same 204: inside the card it runs
-   1207..1333, matching the near one. */
+/* Top right, above the small label. Held 29px off the right of the page for
+   the same reason. Same 204: inside the card it runs 1207..1333, matching the
+   near one.
+
+   It sat 46px above the label and read as adrift between the label and the
+   card's top edge. Down 18px, to 30 above the label and 51 below the card's
+   edge, so it groups with the writing rather than floating over it. */
 .vp-hero-marks .m-far {
-  top: 220px;
+  top: 238px;
   right: 29px;
   width: 204px;
   height: 26px;
