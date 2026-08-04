@@ -935,7 +935,8 @@ option:hover {
   background: rgba(16, 17, 17, 0.034);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
-  /* The same foot as the hero card, for the same reason: the shadow that was
+  /* The same foot as the hero card, for the same reason — «لبه پنهان» /
+     hidden edge, see CLAUDE.md: the shadow that was
      here read 244 against the island's own 247 and then climbed back to white
      over thirty pixels, so the island had no bottom edge and the air between
      it and the deck was a wash. Ink at a fourteenth ends it instead. */
@@ -1073,7 +1074,8 @@ option:hover {
   background: rgba(16, 17, 17, 0.034);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
-  /* A hairline at the foot instead of a shadow under it.
+  /* A hairline at the foot instead of a shadow under it. «لبه پنهان» /
+     hidden edge — see CLAUDE.md.
 
      The shadow could not do this job. A blurred shadow reaches only about half
      its alpha at the element's own edge — the rest of it falls under the card,
@@ -1094,7 +1096,10 @@ option:hover {
   box-shadow: inset 0 -1.4px 0 rgba(16, 17, 17, 0.07);
 }
 
-/* The lit hairline, masked to a band with mask-composite and run on a diagonal
+/* «لبه پنهان» / hidden edge — see CLAUDE.md before changing this or the
+   foot below it.
+
+   The lit hairline, masked to a band with mask-composite and run on a diagonal
    so it never lines up with the card's own edges.
 
    Not along the bottom. The band there is white at about half alpha, which put
