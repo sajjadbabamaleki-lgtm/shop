@@ -1268,11 +1268,11 @@ option:hover {
   max-width: 150px;
   margin-inline: auto;
   border-radius: 30px;
-  /* A very light gold rather than white. Taken from the brand gold's own hue,
-     42 degrees, lifted to 93% lightness, and still laid at 80% so it composites
-     to about #F6F1E1 over the page — present enough to separate the tile from
-     the page, quiet enough that the cut-out on it stays the subject. */
-  background: rgba(244, 237, 217, 0.8);
+  /* An off-white grey. Still laid at 80%, so it composites to #F1F1F1 over the
+     page: far enough off white to separate the tile from the page it sits on,
+     and neutral, so it takes nothing away from the colour in the cut-outs the
+     way the gold tint did. */
+  background: rgba(238, 238, 238, 0.8);
   box-shadow:
     0 0 0 1px rgba(16, 17, 17, 0.05),
     0 8px 22px -12px rgba(16, 17, 17, 0.18);
