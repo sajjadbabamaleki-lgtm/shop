@@ -1123,6 +1123,20 @@ option:hover {
   height: 100%;
 }
 
+/* Levelling the cards on the tallest leaves the shorter ones' contents sitting
+   at the top of their card, because the row inside is only as tall as what it
+   holds. On the active slide that put the shoe 56px below the card's top edge
+   and 131px above its bottom. The card centres its contents instead, so the
+   shoe sits the same distance from both edges whichever slide is showing. */
+.heroSlide6 .hero-inner {
+  display: flex;
+  align-items: center;
+}
+
+.heroSlide6 .hero-inner > .container {
+  width: 100%;
+}
+
 /* Room between the hero and the row beneath it, set to match the gap above
    the hero rather than picked separately, so the deck sits in equal air. 16
    rather than 36 because the swiper above carries 20px of its own for the
@@ -1237,6 +1251,9 @@ option:hover {
    -------------------------------------------------------------------------- */
 .heroSlide6 .hero-inner .hero-title {
   color: #535454;
+  /* 20% off the 84/94 it computed to. */
+  font-size: 67px;
+  line-height: 75px;
 }
 
 /* --------------------------------------------------------------------------
@@ -1255,6 +1272,20 @@ option:hover {
 
 .heroSlide6 .hero-style6 {
   padding-right: 68px;
+}
+
+/* And 80px above and below the shoe.
+
+   The card's height is not set by the shot — that is sized off the column's
+   width and does not move — but by the copy beside it: the template pads that
+   column 120px top and bottom, and the tallest slide's copy is what every card
+   is levelled to. At 120 the shoe cleared the card's edges by 93px. 107 takes
+   the 26px off that closes the difference. Below 992 the template stacks the
+   two columns and pads them differently, so this stays on the wide layout. */
+@media (min-width: 992px) {
+  .heroSlide6 .hero-style6 {
+    padding-block: 107px;
+  }
 }
 
 /* The template's two round slider arrows, one either side of the deck. */
