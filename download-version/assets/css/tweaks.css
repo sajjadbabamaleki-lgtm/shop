@@ -857,22 +857,13 @@ option:hover {
   height: 100%;
 }
 
+/* Both lines the same: same size, same weight, white. */
 .heroSlide6 .discount-tag .vp-burst text {
-  fill: #101111;
+  fill: #FFFFFF;
   text-anchor: middle;
   font-family: 'Cairo', var(--title-font);
-}
-
-.heroSlide6 .discount-tag .vp-burst .vp-burst-num {
   font-weight: 900;
-  font-size: 34px;
-}
-
-.heroSlide6 .discount-tag .vp-burst .vp-burst-off {
-  /* The same weight as the number above it. */
-  font-weight: 900;
-  font-size: 20px;
-  letter-spacing: 1px;
+  font-size: 26px;
 }
 
 /* --------------------------------------------------------------------------
