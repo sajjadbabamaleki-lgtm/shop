@@ -923,6 +923,7 @@ option:hover {
   background: rgba(16, 17, 17, 0.023);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
+  box-shadow: 0 8px 18px -10px rgba(16, 17, 17, 0.18);
 }
 
 .th-header .sticky-wrapper.sticky {
@@ -1056,10 +1057,12 @@ option:hover {
   background: rgba(16, 17, 17, 0.023);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
-  /* No shadow. The tint alone now draws the pane's boundary — it is darker
-     than the page it sits on, which is exactly what the shadows were there to
-     do back when the pane was white on white. */
-  box-shadow: none;
+  /* The tint draws the pane's boundary; this is only a breath of weight under
+     its foot. Offset down and given a negative spread so it stays below the
+     card rather than ringing it — and the blur is wide enough that the card's
+     own edge does not cut across a flat part of it, which is what left a hard
+     line here on an earlier attempt. */
+  box-shadow: 0 8px 18px -10px rgba(16, 17, 17, 0.18);
 }
 
 /* The lit hairline, masked to a band with mask-composite and run on a diagonal
@@ -1110,11 +1113,11 @@ option:hover {
 }
 
 /* Room between the hero and the row beneath it, set to match the gap above
-   the hero rather than picked separately, so the deck sits in equal air. This
-   is the section's own top padding, so it moves the row without touching the
-   cards above. */
+   the hero rather than picked separately, so the deck sits in equal air. 16
+   rather than 36 because the swiper above carries 20px of its own for the
+   pane's shadow, and the two add up to the gap that is actually seen. */
 .feature-area2 {
-  padding-block-start: 36px;
+  padding-block-start: 16px;
 }
 
 /* The shot is a cut-out on a transparent ground, so it is fitted rather than
@@ -1149,11 +1152,12 @@ option:hover {
    back the same 40px from its own top padding, so the parting looks the same
    as before and nothing below moves. */
 .heroSlide6 {
-  /* The clip used to be opened up to make room for the pane's drop shadow —
-     34px above and 40 below, with a negative top margin cancelling the top
-     padding's effect on position. The shadow is gone, so the room is not
-     needed, and the 40px below was showing up as extra space under the deck. */
-  padding-block: 0;
+  /* The swiper clips, so the pane's shadow needs room inside it or it is cut
+     off at the card's edge — which is exactly what happened when this went to
+     zero. 20px is what the shadow reaches: 8 of offset plus half of the 18
+     blur. The section below gives the same 20 back from its own top padding,
+     so the gap under the deck stays 36. */
+  padding-block: 0 20px;
   margin-block-start: 0;
 }
 
