@@ -841,7 +841,8 @@ body:before {
   pointer-events: none;
   background-image:
     radial-gradient(circle 137px at 62% 238px, #C89A2E 0%, #C89A2E 74%, rgba(200, 154, 46, 0) 100%),
-    radial-gradient(circle 81px at 96% 636px, #C89A2E 0%, #C89A2E 72%, rgba(200, 154, 46, 0) 100%);
+    radial-gradient(circle 81px at 96% 636px, #C89A2E 0%, #C89A2E 72%, rgba(200, 154, 46, 0) 100%),
+    radial-gradient(circle 80px at 6.5% 348px, #C89A2E 0%, #C89A2E 72%, rgba(200, 154, 46, 0) 100%);
 }
 
 /* The header band. The dark strip above it keeps its own ground; this is the
@@ -1015,13 +1016,36 @@ body:before {
 }
 
 /* --------------------------------------------------------------------------
-   Hero title: 20% off its darkness.
+   Hero title: 20% off its darkness, then another 10%.
 
-   The template sets it in --title-color, #101111. Each channel moves a fifth
-   of the way to white — #404141 — which is the same 20% whichever channel you
-   read it from. On the card's glass it measures 10.6:1, so it loses none of
-   its legibility.
+   The template sets it in --title-color, #101111. Each channel moved a fifth
+   of the way to white for #404141, then a tenth of what was left for
+   #535454. On the card it measures 7.7:1, still well past anything that
+   matters.
    -------------------------------------------------------------------------- */
 .heroSlide6 .hero-inner .hero-title {
-  color: #404141;
+  color: #535454;
+}
+
+/* --------------------------------------------------------------------------
+   80px from the card's edges.
+
+   The shot was centred in its column, which put it 68px in; it is pinned to
+   the column's far side instead and pushed out to 80. The copy sits 60px
+   inside its own column, which came to 72 from the card, so that padding goes
+   to 68. Both are measured from the card's own edges, not the column's, and
+   hold at any width because the columns start on the card's edges.
+   -------------------------------------------------------------------------- */
+.heroSlide6 .hero-img {
+  justify-content: flex-end;
+  padding-left: 68px;
+}
+
+.heroSlide6 .hero-style6 {
+  padding-right: 68px;
+}
+
+/* The template's two round slider arrows, one either side of the deck. */
+.th-hero-wrapper .slider-arrow {
+  display: none;
 }
