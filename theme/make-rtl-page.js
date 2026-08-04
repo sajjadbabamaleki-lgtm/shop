@@ -80,7 +80,9 @@ const DICT = {
   // Hero slide titles. The template repeats the product name as the small
   // label above it, so one mapping covers both.
   'Adidas Stan Running Spikes': 'کتونی آدیداس استن اسمیت',
-  'Nike Air Running Spikes': 'کتونی رانینگ نایک ایر',
+  // Non-breaking spaces bind each half, so the title breaks in one place
+  // only: 'کتونی جردن' over 'وان ایر'.
+  'Nike Air Running Spikes': 'کتونی\u00A0جردن وان\u00A0ایر',
   'Nike Mag Sneakers Shoe': 'کفش اسنیکر نایک مگ',
   'Shop Grid With Left Sidebar': 'فروشگاه با سایدبار راست',
   'Shop Grid With Right Sidebar': 'فروشگاه با سایدبار چپ',
