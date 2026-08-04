@@ -1070,14 +1070,24 @@ option:hover {
   background: rgba(16, 17, 17, 0.034);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
-  /* No drop shadow. It was two soft layers over a long falloff, and on its own
-     terms it was fine, but the swiper clips 20px below the card and the shadow
-     needed close to 50 — so what actually rendered was a grey wash under the
-     card that fell to 251 and was then cut to white on one line, straight
-     across the full width. Read as a fade band above the category row rather
-     than as weight under the card. The pane's own edge does the separating
-     instead: the tint steps 247 to 255 at the boundary, and the lit hairline
-     below carries the turn. */
+  /* Two soft layers, no spread.
+
+     An earlier attempt used a negative spread, which pulls the shadow's own
+     rectangle inward so it ends in a straight cut instead of following the
+     rounded corner, and it carried enough alpha that the darkest part landed
+     exactly on the element's edge: measured, the pane read 249 and the pixel
+     below it 238. An eleven-level step in one pixel is a drawn line, not a
+     shadow.
+
+     A shadow always reaches about half its alpha at the element's own edge, so
+     the step can only be made small by keeping the alpha small — and it only
+     reads as natural if the falloff is long. Hence low alpha over a wide blur,
+     split in two so there is some weight close in as well. The room this needs
+     below the card is made further down, and the two have to be changed
+     together: the falloff runs 14px of offset plus half the 34px blur, so it
+     is not finished until 31px below the edge. */
+  box-shadow: 0 3px 8px rgba(16, 17, 17, 0.025),
+    0 14px 34px rgba(16, 17, 17, 0.045);
 }
 
 /* The lit hairline, masked to a band with mask-composite and run on a diagonal
@@ -1143,10 +1153,11 @@ option:hover {
 
 /* Room between the hero and the row beneath it, set to match the gap above
    the hero rather than picked separately, so the deck sits in equal air. The
-   whole 36 sits here now: the swiper above used to hold 20 of it for the
-   pane's shadow, and there is no shadow to hold room for. */
+   swiper above holds all 36 of it as its own bottom padding, for the reason
+   given there, and this gives the same 36 back so the gap that is seen is
+   unchanged. */
 .feature-area2 {
-  padding-block-start: 36px;
+  padding-block-start: 0;
 }
 
 /* The shot is a cut-out on a transparent ground, so it is fitted rather than
@@ -1168,11 +1179,27 @@ option:hover {
   object-fit: contain;
 }
 
-/* The swiper carried 20px below the slides so the card's shadow had somewhere
-   to fall inside the clip. The shadow is gone, so the room goes back: the
-   section below holds the whole 36px gap instead, and nothing moves. */
+/* Room for the card's shadow, inside the clip.
+
+   Three boxes end on the same pixel as the card — .th-hero-wrapper, the
+   swiper, and the card itself — and the first two are overflow: hidden in the
+   template, which the slider needs: without them the off-screen slides push
+   the document to 5085px wide. So anything the card casts below its own edge
+   is cut off, and the page's white meets the card's edge with nothing in
+   between. The edge then reads as tucked under the white — which is what it
+   looks like, and it is not a shadow problem you can fix by removing the
+   shadow: taking the shadow away leaves exactly the same bare edge.
+
+   The fix is to make room inside the clip. It was 20px, which was right for
+   the shadow of the day — 8 of offset plus half an 18px blur. That shadow was
+   later rebuilt wider, 14 of offset plus half of 34, and the room was not
+   moved with it: the falloff was cut at 251 instead of finishing at 255, which
+   put a straight line across the page 20px under the card. It now carries the
+   whole 36px gap, comfortably past the 31 the shadow reaches, and the section
+   below gives the same 36 back from its own top padding, so the gap that is
+   seen is unchanged. Change the shadow and this has to change with it. */
 .heroSlide6 {
-  padding-block: 0;
+  padding-block: 0 36px;
   margin-block-start: 0;
 }
 
