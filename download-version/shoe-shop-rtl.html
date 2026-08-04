@@ -55,7 +55,6 @@
     <link rel="stylesheet" href="assets/css/fonts-fa.css">
     <link rel="stylesheet" href="assets/css/rtl-fixes.css">
     <link rel="stylesheet" href="assets/css/tweaks.css">
-    <link rel="stylesheet" href="assets/css/hero-colors.css">
 
 </head>
 
@@ -2426,21 +2425,6 @@ Brand Area
 
     <!-- Main Js File -->
     <script src="assets/js/main.js"></script>
-
-    <script>
-    (function () {
-      var deck = document.querySelector('.heroSlide6');
-      if (!deck) return;
-      function sync() {
-        var img = deck.querySelector('.swiper-slide-active .hero-img img');
-        if (!img) return;
-        var key = (img.getAttribute('src') || '').split('/').pop().replace(/\.[a-z0-9]+$/i, '');
-        if (document.body.getAttribute('data-hero') !== key) document.body.setAttribute('data-hero', key);
-      }
-      sync();
-      new MutationObserver(sync).observe(deck, { subtree: true, attributes: true, attributeFilter: ['class'] });
-    })();
-    </script>
 </body>
 
 </html>

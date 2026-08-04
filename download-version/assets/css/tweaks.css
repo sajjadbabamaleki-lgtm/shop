@@ -830,22 +830,6 @@ option:hover {
    the header.
    -------------------------------------------------------------------------- */
 
-/* Declared so the two colours can be animated: a plain custom property is a
-   string as far as the engine is concerned and jumps from one value to the
-   next, while one registered as a colour interpolates. Engines without
-   @property ignore this and the change simply snaps. */
-@property --ball-a {
-  syntax: '<color>';
-  inherits: true;
-  initial-value: #E9B84A;
-}
-
-@property --ball-b {
-  syntax: '<color>';
-  inherits: true;
-  initial-value: #C89A2E;
-}
-
 body:before {
   content: '';
   position: absolute;
@@ -855,18 +839,9 @@ body:before {
   height: 900px;
   z-index: 0;
   pointer-events: none;
-  /* The two colours come from the product on the card — see
-     theme/hero-colors.js, which reads them out of the photograph itself and
-     writes one rule per image into hero-colors.css. The gold here is the
-     fallback, used by any shot with no colour of its own.
-
-     The stops repeat the variable rather than fading it to transparent,
-     because a colour keyword cannot be given an alpha; the mask below does
-     the fade instead, which keeps the shape identical either way. */
   background-image:
-    radial-gradient(circle 152px at 62% 238px, var(--ball-a, #E9B84A) 0%, var(--ball-a, #E9B84A) 74%, transparent 100%),
-    radial-gradient(circle 81px at 96% 687px, var(--ball-b, #C89A2E) 0%, var(--ball-b, #C89A2E) 72%, transparent 100%);
-  transition: --ball-a 0.5s ease, --ball-b 0.5s ease;
+    radial-gradient(circle 152px at 62% 238px, #C89A2E 0%, #C89A2E 74%, rgba(200, 154, 46, 0) 100%),
+    radial-gradient(circle 81px at 96% 687px, #C89A2E 0%, #C89A2E 72%, rgba(200, 154, 46, 0) 100%);
 }
 
 /* The header band. The dark strip above it keeps its own ground; this is the
