@@ -922,7 +922,9 @@ option:hover {
   color: #FFFFFF;
   font-family: var(--body-font);
   font-weight: 800;
-  font-size: 28px;
+  /* Three glyphs instead of eight, so it can be set to the disc rather than
+     squeezed across it. */
+  font-size: 40px;
   line-height: 1;
   white-space: nowrap;
 }

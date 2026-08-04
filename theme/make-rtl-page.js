@@ -133,7 +133,7 @@ html = html.replace(/<div class="discount-wrapp style2">[\s\S]*?<\/div>\s*<\/div
 // child: the marks are blurred by a filter, which a child would inherit.
 html = html.replace(/(<body[^>]*>)/i,
   '$1\n    <div class="vp-hero-marks" aria-hidden="true"><i class="m-fall"></i><i class="m-near"></i><i class="m-far"></i>' +
-  '<span class="m-fall-text">۲۵ درصد</span></div>');
+  '<span class="m-fall-text">۲۵٪</span></div>');
 
 // Swiper reads the container's own dir attribute, not the inherited one.
 html = html.replace(/<div class="swiper([^"]*)"/g, '<div dir="rtl" class="swiper$1"');
