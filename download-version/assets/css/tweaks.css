@@ -965,7 +965,10 @@ option:hover {
 .heroSlide6 .swiper-slide:nth-child(3) .hero-inner,
 .heroSlide6 .swiper-slide:nth-child(5) .hero-inner,
 .heroSlide6 .swiper-slide:nth-child(6) .hero-inner {
-  background: rgba(255, 255, 255, 0.22);
+  /* An ink tint rather than a white one, so the pane sits down into the page
+     instead of floating off it. 8.5% was the first pass and read as grey; 5.5%
+     keeps the pane below the page's white without turning it into a card. */
+  background: rgba(16, 17, 17, 0.055);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   box-shadow:
