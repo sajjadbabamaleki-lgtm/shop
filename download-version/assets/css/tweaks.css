@@ -840,8 +840,8 @@ body:before {
   z-index: 0;
   pointer-events: none;
   background-image:
-    radial-gradient(circle 152px at 62% 150px, #E9B84A 0%, #E9B84A 74%, rgba(233, 184, 74, 0) 100%),
-    radial-gradient(circle 90px at 90% 720px, #C89A2E 0%, #C89A2E 72%, rgba(200, 154, 46, 0) 100%);
+    radial-gradient(circle 152px at 62% 270px, #E9B84A 0%, #E9B84A 74%, rgba(233, 184, 74, 0) 100%),
+    radial-gradient(circle 90px at 86% 700px, #C89A2E 0%, #C89A2E 72%, rgba(200, 154, 46, 0) 100%);
 }
 
 /* The header band. The dark strip above it keeps its own ground; this is the
@@ -881,6 +881,15 @@ body:before {
     inset 0 0 0 1px rgba(255, 255, 255, 0.7),
     inset 0 1px 0 rgba(255, 255, 255, 0.95),
     0 26px 50px -34px rgba(16, 17, 17, 0.35);
+}
+
+/* Only the card in front carries the edge. The slides either side peek out of
+   the deck, and on a white page their rings and shadows read as a stray white
+   panel — most visibly where one clipped a bite out of the gold behind it.
+   They keep the glass, so a card entering the deck already has it, but they
+   draw no boundary until they are the one in front. */
+.heroSlide6 .swiper-slide:not(.swiper-slide-active) .hero-inner {
+  box-shadow: none;
 }
 
 /* The block the template lays inside the card — a rectangle offset from the
