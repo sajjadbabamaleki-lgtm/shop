@@ -1313,46 +1313,62 @@ option:hover {
    is levelled to. At 120 the shoe cleared the card's edges by 93px. Every
    change to the copy has to be answered here or the shoe's 80 goes with it:
    107 took off the 26 that closed the original difference, 112.5 gave back
-   half the 10px the buy button lost when it came down a fifth, and 83 takes
-   off half the 60 the price line added. Below 992 the template stacks the two columns and
+   half the 10px the buy button lost when it came down a fifth, and 117 answers what
+   the copy lost when the price moved up onto the title's own line. Below 992 the template stacks the two columns and
    pads them differently, so this stays on the wide layout. */
 @media (min-width: 992px) {
   .heroSlide6 .hero-style6 {
-    padding-block: 83px;
+    padding-block: 117px;
   }
 }
 
 /* --------------------------------------------------------------------------
    The offer, in the copy column.
 
-   Under the title and above the button, reading right to left: what it costs
-   now, what it cost, and how much off. The figure carries the offer and the
-   chip only labels it — a percentage on its own does not tell anyone what they
-   will pay.
+   On the title's second line, in the space beside 'وان ایر'. The figures
+   stack — what it cost above, faint, and what it costs now below, in the
+   page's own ink — and the discount sits in a disc at the far end.
 
-   The chip takes the buy button's gold, so the right-hand side of the card is
-   one family: the same ramp, a corner scaled to its own size. Its type is ink
-   rather than the button's white — at 13px white on this gold measures 2.6:1,
-   which is a fail at any size and a bad one at this one, where ink gives 5.1.
+   The old price is not struck through. It is set light and small enough that
+   it reads as the figure being left behind on its own, which is what was
+   asked for and what the two sizes already say.
 
-   The struck figure is set light and small enough that it reads as the thing
-   being crossed out rather than as a second price competing with the first.
+   The disc takes the buy button's gold so the right-hand side of the card is
+   one family. Its type is ink rather than the button's white — at this size
+   white on this gold measures 2.6:1, a fail, where ink gives 5.1.
    -------------------------------------------------------------------------- */
 .heroSlide6 .hero-inner .vp-price {
   display: flex;
   align-items: center;
+  /* On the title's second line, not under it. That line is 'وان ایر' and ends
+     well short of the column, so the space beside it was already there — the
+     row is pulled up onto it and pushed to the far end, and the card does not
+     grow to carry the offer at all. */
+  justify-content: flex-end;
   gap: 12px;
-  margin-block: 26px 0;
+  margin-block: -96px 0;
+  /* Held off the far end so the chip does not run up against the shoe. The
+     copy column overhangs the shot's own by design, and measured in this band
+     the shoe's ink reaches x 647 against the column's 621 — so 40px, which
+     leaves 14 between the two. */
+  padding-inline-end: 40px;
   /* Vazirmatn, not the card's display face: Cairo draws the Persian digits in
      the Arabic forms, and a price is nothing but digits. */
   font-family: var(--body-font);
 }
 
+.heroSlide6 .hero-inner .vp-price-figures {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
 .heroSlide6 .hero-inner .vp-price-now {
   font-weight: 800;
-  font-size: 28px;
+  font-size: 30px;
   line-height: 1.2;
-  color: #2B2C2C;
+  color: #101111;
 }
 
 .heroSlide6 .hero-inner .vp-price-was {
@@ -1360,17 +1376,23 @@ option:hover {
   font-size: 17px;
   line-height: 1.2;
   color: #9A9C9C;
-  text-decoration-thickness: 1px;
+  /* No rule through it. */
+  text-decoration: none;
 }
 
 .heroSlide6 .hero-inner .vp-price-off {
-  padding: 4px 9px;
-  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
   background-image: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
   color: #101111;
   font-weight: 800;
-  font-size: 13px;
-  line-height: 1.3;
+  font-size: 15px;
+  line-height: 1;
 }
 
 /* The button already had 26px of air above it from the template; the price

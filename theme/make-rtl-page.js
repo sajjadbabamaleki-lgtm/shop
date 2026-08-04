@@ -135,8 +135,10 @@ html = html.replace(/<div class="discount-wrapp style2">[\s\S]*?<\/div>\s*<\/div
 // this page.
 const PRICE =
   '<div class="vp-price" data-ani="slideinup" data-ani-delay="0.6s">' +
-  '\n                                                <span class="vp-price-now">۲٬۴۰۰٬۰۰۰ تومان</span>' +
-  '\n                                                <del class="vp-price-was">۳٬۲۰۰٬۰۰۰</del>' +
+  '\n                                                <span class="vp-price-figures">' +
+  '\n                                                    <del class="vp-price-was">۳٬۲۰۰٬۰۰۰</del>' +
+  '\n                                                    <span class="vp-price-now">۲٬۴۰۰٬۰۰۰ تومان</span>' +
+  '\n                                                </span>' +
   '\n                                                <span class="vp-price-off">۲۵٪</span>' +
   '\n                                            </div>\n                                            ';
 
