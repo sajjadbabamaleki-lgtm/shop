@@ -14,10 +14,8 @@
  *   crop     take part of a cut-out before squaring it, where one source holds
  *            two subjects.
  *
- * Four of the six are the right subject for their category. Boot and sandal
- * are not: there is no boot and no sandal anywhere in the template's library,
- * so those two carry clean cut-outs of other footwear until real photographs
- * arrive. They are marked STAND-IN below.
+ * Five of the six are the shop's own photographs. The sixth, the sneaker, is
+ * still the template's cut-out — no trainer photograph has been supplied.
  *
  * Run: node theme/make-category-photos.js
  */
@@ -26,20 +24,27 @@ const path = require('path');
 const sharp = require('./node_modules/sharp');
 
 const IMG = path.resolve(__dirname, '../download-version/assets/img');
+const SRC = path.resolve(__dirname, 'category-src');
 const OUT = path.join(IMG, 'category');
 const SIZE = 560;
 
+// Five of the six are the shop's own photographs, kept in theme/category-src
+// because they are build input rather than anything the site serves. All five
+// are on an even pale ground, so all five go through the flood.
+//
+// The sneaker is still the template's, and still a cut-out: no trainer
+// photograph has been supplied yet.
 const SOURCES = {
-  // The whole frame: court shoes and a bag together, which is the category.
-  'bag-set': { src: 'collection/collection_1_1.png', mode: 'alpha' },
-  // The same frame, left portion only — the shoes without the bag. 0.52 left a
-  // sliver of the bag's edge in frame; 0.44 clears it.
-  majlesi:   { src: 'collection/collection_1_1.png', mode: 'crop', keep: [0, 0.44] },
-  sneaker:   { src: 'collection/collection_2_3.png', mode: 'alpha' },
-  // Derbies, worn, on an even pale-blue ground.
-  college:   { src: 'collection/collection_2_1.png', mode: 'flood', tolerance: 46 },
-  boot:      { src: 'product/product_13_1.png',      mode: 'alpha' }, // STAND-IN
-  sandal:    { src: 'product/product_12_112.png',    mode: 'alpha' }, // STAND-IN
+  // Lower than the rest: this frame has white trousers against a pale ground.
+  // At 30 the flood walked straight through them and took the model apart; at
+  // 20 the leg was still going translucent. 16 keeps the trousers whole and
+  // leaves only a small patch of ground near the top left.
+  'bag-set': { dir: SRC, src: 'bag-set.png',  mode: 'flood', tolerance: 16 },
+  majlesi:   { dir: SRC, src: 'majlesi.png',  mode: 'flood', tolerance: 30 },
+  college:   { dir: SRC, src: 'college.jpg',  mode: 'flood', tolerance: 30 },
+  boot:      { dir: SRC, src: 'boot.png',     mode: 'flood', tolerance: 30 },
+  sandal:    { dir: SRC, src: 'sandal.jpg',   mode: 'flood', tolerance: 30 },
+  sneaker:   { dir: IMG, src: 'collection/collection_2_3.png', mode: 'alpha' },
 };
 
 /**
@@ -102,7 +107,7 @@ async function square(buf) {
 (async () => {
   fs.mkdirSync(OUT, { recursive: true });
   for (const [name, spec] of Object.entries(SOURCES)) {
-    const src = path.join(IMG, spec.src);
+    const src = path.join(spec.dir, spec.src);
     if (!fs.existsSync(src)) throw new Error(`missing source: ${spec.src}`);
 
     let buf;
