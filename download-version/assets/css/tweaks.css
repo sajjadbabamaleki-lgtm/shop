@@ -939,12 +939,32 @@ option:hover {
   .th-header .menu-area .top-search { width: 185px; }
 }
 
-/* The header's height is the logo column's, and that column's height is the
-   template's 22px of padding above and below the lockup — nothing else in the
-   row comes close. 106px down to 85 is the 20% asked for, so the padding goes
-   to 11.5. */
+/* The header's height used to be whatever the logo column happened to be —
+   the template's 22px of padding above and below the lockup, and nothing else
+   in the row came close. That left the app icon sitting off centre: measured
+   12px of air above it and 22 below.
+
+   The height is stated on the row instead, and everything in it is centred, so
+   the icon's air above and below is the same by construction rather than by
+   arithmetic on someone else's padding. 85px is the 20% cut from the original
+   106. */
+.th-header .menu-area .row {
+  min-height: 85px;
+  align-items: center;
+}
+
+/* The lockup is inline-flex inside a block, which gives the block a line box
+   with descender space under it — 62px tall around a 52px lockup, all ten of
+   them below. That is where the uneven air came from; making the wrapper a
+   flex container drops the line box entirely. */
 .th-header .menu-area .header-logo {
-  padding-block: 11.5px;
+  padding-block: 0;
+  display: flex;
+  align-items: center;
+}
+
+.vp-logo {
+  display: flex;
 }
 
 /* The row is a wrapping flex row, and once the island narrowed it, it chose to
@@ -958,9 +978,12 @@ option:hover {
   }
 }
 
-/* Content off the rounded corners. */
+/* Content off the rounded corners, and set to the same 16.5 the icon has above
+   and below it — (85 - 52) / 2 — so the air around the app icon is equal on all
+   three sides it touches. The row's negative margin cancels the columns' own
+   gutter at the outer edges, so this padding is the whole inset. */
 .th-header .menu-area > .container {
-  padding-inline: 26px;
+  padding-inline: 16.5px;
 }
 
 /* The pane. */
@@ -1244,14 +1267,6 @@ option:hover {
   height: 52px;
   flex: none;
   border-radius: 12px;
-  /* All four sides, not only beneath: two shadows at zero offset carry the
-     edge the whole way round, and one small offset one keeps some weight
-     underneath so the tile still reads as sitting on the band rather than
-     glowing on it. */
-  box-shadow:
-    0 0 5px rgba(16, 17, 17, 0.13),
-    0 0 17px rgba(16, 17, 17, 0.10),
-    0 4px 12px -4px rgba(16, 17, 17, 0.12);
 }
 
 .vp-logo-text {
