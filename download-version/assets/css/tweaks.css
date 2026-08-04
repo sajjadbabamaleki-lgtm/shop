@@ -1253,6 +1253,11 @@ option:hover {
 .vp-category-row {
   --bs-gutter-x: 36px;
   --bs-gutter-y: 36px;
+  /* The gap between tiles is the column pitch less the tile's own 150, so it
+     is set by how wide the row is allowed to be rather than by the gutter.
+     Measured at 92px across the full container; 1230 brings it to 55. */
+  max-width: 1230px;
+  margin-inline: auto;
 }
 
 .vp-category {
