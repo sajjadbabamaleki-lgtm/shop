@@ -250,5 +250,52 @@ html = html.replace(
 // them as Persian percent instead.
 html = html.replace(/-(\d+)%/g, (_, n) => `${Number(n).toLocaleString('fa-IR')}٪ تخفیف`);
 
+// A soft entrance for the page's items as they come into view.
+//
+// The template has nothing of the kind: its data-ani attributes only fire on
+// the active swiper slide, so everything below the hero simply appears. This
+// watches the items with an IntersectionObserver — no library, and nothing runs
+// for anything already on screen after it has arrived — and hands the movement
+// itself to CSS.
+//
+// Items in the same row are staggered by their position in it, so a row arrives
+// as a row rather than all at once. The stagger is capped: a row of eight would
+// otherwise still be arriving long after the eye had moved on.
+//
+// Anyone who has asked their system for less motion gets none — the CSS holds
+// that, so it cannot be missed here.
+//
+// This goes in after the demo copy has been substituted, and has to: those
+// substitutions run over the whole document, and one of them rewrites a minus
+// followed by a percentage into a Persian discount chip. Injected before them,
+// the observer's own rootMargin of -8% was rewritten into '۸٪ تخفیف' and the
+// constructor threw. It is written in pixels now as well, but the ordering is
+// the actual guard — anything injected as code belongs after the prose pass.
+html = html.replace('</body>',
+  '    <script>\n' +
+  '        (function () {\n' +
+  '            var items = document.querySelectorAll(".vp-category, .th-product, .collection-category, .blog-card, .sec-title");\n' +
+  '            if (!items.length || !("IntersectionObserver" in window)) return;\n' +
+  '            items.forEach(function (el) {\n' +
+  '                el.classList.add("vp-enter");\n' +
+  '                var row = el.closest(".row") || el.parentElement;\n' +
+  '                var peers = row ? row.children : [];\n' +
+  '                var i = 0;\n' +
+  '                for (var n = 0; n < peers.length; n++) {\n' +
+  '                    if (peers[n] === el || peers[n].contains(el)) { i = n; break; }\n' +
+  '                }\n' +
+  '                el.style.setProperty("--enter-delay", Math.min(i, 5) * 60 + "ms");\n' +
+  '            });\n' +
+  '            var seen = new IntersectionObserver(function (entries) {\n' +
+  '                entries.forEach(function (entry) {\n' +
+  '                    if (!entry.isIntersecting) return;\n' +
+  '                    entry.target.classList.add("vp-entered");\n' +
+  '                    seen.unobserve(entry.target);\n' +
+  '                });\n' +
+  '            }, { rootMargin: "0px 0px -80px 0px", threshold: 0.12 });\n' +
+  '            items.forEach(function (el) { seen.observe(el); });\n' +
+  '        }());\n' +
+  '    </script>\n</body>');
+
 fs.writeFileSync(out, html);
 console.log(`wrote ${path.relative(ROOT, out)} (theme: ${theme || 'none — template colours'})`);

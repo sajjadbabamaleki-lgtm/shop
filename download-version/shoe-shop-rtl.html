@@ -2418,6 +2418,30 @@ Brand Area
 
     <!-- Main Js File -->
     <script src="assets/js/main.js"></script>
+    <script>
+        (function () {
+            var items = document.querySelectorAll(".vp-category, .th-product, .collection-category, .blog-card, .sec-title");
+            if (!items.length || !("IntersectionObserver" in window)) return;
+            items.forEach(function (el) {
+                el.classList.add("vp-enter");
+                var row = el.closest(".row") || el.parentElement;
+                var peers = row ? row.children : [];
+                var i = 0;
+                for (var n = 0; n < peers.length; n++) {
+                    if (peers[n] === el || peers[n].contains(el)) { i = n; break; }
+                }
+                el.style.setProperty("--enter-delay", Math.min(i, 5) * 60 + "ms");
+            });
+            var seen = new IntersectionObserver(function (entries) {
+                entries.forEach(function (entry) {
+                    if (!entry.isIntersecting) return;
+                    entry.target.classList.add("vp-entered");
+                    seen.unobserve(entry.target);
+                });
+            }, { rootMargin: "0px 0px -80px 0px", threshold: 0.12 });
+            items.forEach(function (el) { seen.observe(el); });
+        }());
+    </script>
 </body>
 
 </html>

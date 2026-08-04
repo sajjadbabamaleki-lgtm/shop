@@ -1389,6 +1389,42 @@ option:hover {
   }
 }
 
+/* --------------------------------------------------------------------------
+   The items' entrance.
+
+   Up 14px and in, over 420ms on an ease-out curve — the movement decelerates
+   into place rather than arriving at speed, which is what makes it read as
+   settling rather than as sliding. Rows are staggered 60ms a place, capped at
+   five, and the script sets that per item.
+
+   Only opacity and transform are animated: both are composited, so a row of
+   eight tiles costs nothing on the main thread. will-change is deliberately not
+   set — it would hold a layer for every item on the page for the sake of one
+   transition each.
+
+   Anyone who has asked their system for less motion gets the end state at once.
+   -------------------------------------------------------------------------- */
+.vp-enter {
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 420ms cubic-bezier(0.22, 0.61, 0.36, 1) var(--enter-delay, 0ms),
+    transform 420ms cubic-bezier(0.22, 0.61, 0.36, 1) var(--enter-delay, 0ms);
+}
+
+.vp-entered {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vp-enter {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
 /* The template's two round slider arrows, one either side of the deck. */
 .th-hero-wrapper .slider-arrow {
   display: none;
