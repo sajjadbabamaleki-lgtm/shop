@@ -869,7 +869,8 @@ option:hover {
 }
 
 .heroSlide6 .discount-tag .vp-burst .vp-burst-off {
-  font-weight: 700;
+  /* The same weight as the number above it. */
+  font-weight: 900;
   font-size: 20px;
   letter-spacing: 1px;
 }
