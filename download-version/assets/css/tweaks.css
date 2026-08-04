@@ -861,16 +861,20 @@ option:hover {
   filter: blur(8px);
 }
 
-/* The top mark is a circle rather than a bar. It keeps the bar's centre —
-   x 573, y 164 — so it still falls through the header band and into the card
-   the way the bar did, crossing both edges. 140 across: the two remaining bars
-   are 204 long, and a circle that size would outweigh them, since a disc
-   carries far more mass than a bar of the same span. */
+/* The top mark is a circle rather than a bar, 161 across.
+
+   Centred on the card, not on the page: the card runs 107..1334, so its middle
+   is 720 and the circle's left edge is 640.
+
+   Held so that a sixth of it sits above the header's lower edge at 142 — 15%
+   of 161 is 24, so it starts at 118. That puts 118..142 under the header, the
+   30px gap below it in the open, and 172..279 over the card: two thirds of the
+   disc against the glass, which is where it should read. */
 .vp-hero-marks .m-fall {
-  top: 94px;
-  left: 503px;
-  width: 140px;
-  height: 140px;
+  top: 118px;
+  left: 640px;
+  width: 161px;
+  height: 161px;
 }
 
 /* Under the shoe, which runs to y 610, still crossing the card's near edge at
