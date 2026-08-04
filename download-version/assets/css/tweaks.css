@@ -877,6 +877,7 @@ body:before {
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, 0.7),
     inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    0 0 22px -4px rgba(16, 17, 17, 0.09),
     0 13px 25px -17px rgba(16, 17, 17, 0.175);
 }
 
@@ -917,10 +918,10 @@ body:before {
   justify-content: center;
 }
 
-/* 70% of the column, centred in what is left. */
+/* 77% of the column, centred in what is left. */
 .heroSlide6 .hero-img img {
-  width: 70%;
-  height: 70%;
+  width: 77%;
+  height: 77%;
   object-fit: contain;
 }
 
@@ -937,7 +938,12 @@ body:before {
    back the same 40px from its own top padding, so the parting looks the same
    as before and nothing below moves. */
 .heroSlide6 {
-  padding-bottom: 40px;
+  /* Room inside the clip for the shadow: below for the drop, and above for
+     the ambient ring. The negative top margin cancels the top padding's
+     effect on position, so the slides stay exactly where they were and only
+     the clip box grows. */
+  padding-block: 34px 40px;
+  margin-block-start: -34px;
 }
 
 /* The block the template lays inside the card — a rectangle offset from the
