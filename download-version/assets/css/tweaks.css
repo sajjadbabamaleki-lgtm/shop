@@ -809,6 +809,50 @@ option:hover {
   background-image: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
 }
 
+/* The discount disc on the shoe takes the same ramp, so all three gold things
+   on the page are one colour. It was white glass, which is the card's own
+   material — the badge read as a piece of the pane that had come loose over
+   the shot rather than as a mark on it.
+
+   The type stays ink and gains from the change: it was on 63% white over the
+   photograph, so its ground moved with whatever was behind it, and now it sits
+   on 7.1:1 at the disc's dark end and 9.3:1 at the light, both measured off
+   the render. The backdrop blur goes with the transparency it was there for. The white ring stays — it is
+   what holds the disc off the shoe, and the disc is dark enough now that it
+   reads as a rim rather than as an edge doing the separating. */
+.heroSlide6 .discount-tag {
+  background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+/* --------------------------------------------------------------------------
+   The ring of type on the disc.
+
+   Drawn as text on an SVG path rather than a letter to a box, because Persian
+   letters join and one letter to a box renders every one of them isolated. The
+   path curves the line; the glyphs are left alone, so the joins survive.
+
+   The spacing between the words does the filling — the phrase runs twice and
+   the word gaps stretch it round the circle. Letter spacing cannot be used for
+   that here: adding it between joined letters pulls the word apart.
+   -------------------------------------------------------------------------- */
+.heroSlide6 .discount-tag .vp-ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.heroSlide6 .discount-tag .vp-ring text {
+  fill: #101111;
+  font-family: var(--body-font);
+  font-weight: 600;
+  font-size: 13px;
+  word-spacing: 6px;
+}
+
 /* --------------------------------------------------------------------------
    Glass: the header band and the hero cards.
 
@@ -1313,92 +1357,13 @@ option:hover {
    is levelled to. At 120 the shoe cleared the card's edges by 93px. Every
    change to the copy has to be answered here or the shoe's 80 goes with it:
    107 took off the 26 that closed the original difference, 112.5 gave back
-   half the 10px the buy button lost when it came down a fifth, and 117 answers what
-   the copy lost when the price moved up onto the title's own line. Below 992 the template stacks the two columns and
+   half the 10px the buy button lost when it came down a fifth, and 112 is where it
+   sits now. Below 992 the template stacks the two columns and
    pads them differently, so this stays on the wide layout. */
 @media (min-width: 992px) {
   .heroSlide6 .hero-style6 {
-    padding-block: 117px;
+    padding-block: 112px;
   }
-}
-
-/* --------------------------------------------------------------------------
-   The offer, in the copy column.
-
-   On the title's second line, in the space beside 'وان ایر'. The figures
-   stack — what it cost above, faint, and what it costs now below, in the
-   page's own ink — and the discount sits in a disc at the far end.
-
-   The old price is not struck through. It is set light and small enough that
-   it reads as the figure being left behind on its own, which is what was
-   asked for and what the two sizes already say.
-
-   The disc takes the buy button's gold so the right-hand side of the card is
-   one family. Its type is ink rather than the button's white — at this size
-   white on this gold measures 2.6:1, a fail, where ink gives 5.1.
-   -------------------------------------------------------------------------- */
-.heroSlide6 .hero-inner .vp-price {
-  display: flex;
-  align-items: center;
-  /* On the title's second line, not under it. That line is 'وان ایر' and ends
-     well short of the column, so the space beside it was already there — the
-     row is pulled up onto it and pushed to the far end, and the card does not
-     grow to carry the offer at all. */
-  justify-content: flex-end;
-  gap: 12px;
-  margin-block: -96px 0;
-  /* Held off the far end so the chip does not run up against the shoe. The
-     copy column overhangs the shot's own by design, and measured in this band
-     the shoe's ink reaches x 647 against the column's 621 — so 40px, which
-     leaves 14 between the two. */
-  padding-inline-end: 40px;
-  /* Vazirmatn, not the card's display face: Cairo draws the Persian digits in
-     the Arabic forms, and a price is nothing but digits. */
-  font-family: var(--body-font);
-}
-
-.heroSlide6 .hero-inner .vp-price-figures {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 2px;
-}
-
-.heroSlide6 .hero-inner .vp-price-now {
-  font-weight: 800;
-  font-size: 30px;
-  line-height: 1.2;
-  color: #101111;
-}
-
-.heroSlide6 .hero-inner .vp-price-was {
-  font-weight: 500;
-  font-size: 17px;
-  line-height: 1.2;
-  color: #9A9C9C;
-  /* No rule through it. */
-  text-decoration: none;
-}
-
-.heroSlide6 .hero-inner .vp-price-off {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex: none;
-  width: 54px;
-  height: 54px;
-  border-radius: 50%;
-  background-image: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
-  color: #101111;
-  font-weight: 800;
-  font-size: 15px;
-  line-height: 1;
-}
-
-/* The button already had 26px of air above it from the template; the price
-   sits in that gap, so the button takes its own. */
-.heroSlide6 .hero-inner .btn-group {
-  margin-block-start: 26px;
 }
 
 /* The template's two round slider arrows, one either side of the deck. */

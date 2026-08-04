@@ -121,29 +121,38 @@ html = html.replace(
   '    </section>'
 );
 
-// The template's spinning discount disc comes off the hero shot altogether.
-html = html.replace(/<div class="discount-wrapp style2">[\s\S]*?<\/div>\s*<\/div>\s*/g, '');
-
-// The offer, in the copy column rather than on the photograph. Every badge
-// laid over the shoe was rejected, and rightly: that half of the card is the
-// product's. This half is where the card already speaks, so the price goes
-// here, under the title and above the button.
+// The ring of type on the discount disc, in Persian.
 //
-// Read right to left: what it costs now, what it cost, and how much off. The
-// figure carries the offer and the chip labels it — a percentage on its own
-// tells nobody what they will pay. Demo numbers, like every other price on
-// this page.
-const PRICE =
-  '<div class="vp-price" data-ani="slideinup" data-ani-delay="0.6s">' +
-  '\n                                                <span class="vp-price-figures">' +
-  '\n                                                    <del class="vp-price-was">۳٬۲۰۰٬۰۰۰</del>' +
-  '\n                                                    <span class="vp-price-now">۲٬۴۰۰٬۰۰۰ تومان</span>' +
-  '\n                                                </span>' +
-  '\n                                                <span class="vp-price-off">۲۵٪</span>' +
-  '\n                                            </div>\n                                            ';
+// The template builds it by wrapping every character in its own span and
+// rotating each one a step further round the circle. That cannot carry Persian:
+// the letters join, and one letter to a box renders every one of them in its
+// isolated form — a row of disconnected shapes, not words. So the ring is drawn
+// as text on an SVG path instead, which curves the line without touching the
+// glyphs, and the joins survive.
+//
+// The phrase runs twice round so it closes on itself, with the word spacing
+// doing the filling. The path is a circle of radius 58 in the disc's own 150
+// box: the type sits on it and reaches to about 92% of the disc's radius, which
+// is where the template's own ring sat.
+//
+// The path starts at the foot of the circle and runs clockwise, so the middle
+// of the line — where startOffset puts it — falls across the top and the words
+// there are upright. Started anywhere else the top of the ring reads upside
+// down; all three ways round were rendered to pick this one.
+const RING =
+  '<svg class="vp-ring" viewBox="0 0 150 150" aria-hidden="true">' +
+  '<defs><path id="vp-ring-path" fill="none" d="M 75,133 a 58,58 0 1,1 0,-116 a 58,58 0 1,1 0,116"></path></defs>' +
+  '<text dir="rtl"><textPath href="#vp-ring-path" startOffset="50%" text-anchor="middle">' +
+  '۲۵ درصد تخفیف ویژه • ۲۵ درصد تخفیف ویژه' +
+  '</textPath></text></svg>';
 
-html = html.split('<div class="btn-group" data-ani="slideinup" data-ani-delay="0.7s">')
-           .join(PRICE + '<div class="btn-group" data-ani="slideinup" data-ani-delay="0.7s">');
+html = html.replace(
+  /<span class="discount-anime">[^<]*<\/span>/g,
+  RING
+);
+
+// The number in the middle, in Persian like every other figure on the page.
+html = html.replace(/(<h4 class="discount">)26%(<\/h4>)/g, '$1۲۵٪$2');
 
 // Three gold bars behind the hero, drawn as real elements so both ends can be
 // rounded. First thing in the body, so they paint behind the header and the
