@@ -1176,6 +1176,28 @@ option:hover {
   margin-block-start: 0;
 }
 
+/* The track, framing one card instead of three.
+
+   The template pulls the track 36% wider than the page on both sides and runs
+   two slides to a view, so the neighbouring cards show past the active one's
+   edges. With the template's pastels that is the point — the next colour shows
+   at the margins. With six panes of the same near-white glass it read as an
+   extra light ground beside the card, running under it and cut off in a
+   straight line where the track's clip ends.
+
+   One slide per view is set on the element; the track goes back to the page's
+   own width and is held at 85%, which is what the card measured before (the
+   two-up arithmetic came to 86% less half the 24px gutter, 1226 of 1440). So
+   the card keeps its size and its place, and the track's edges are the card's
+   edges — there is nothing left to spill. Below 992 the template already
+   ran one to a view at full width. */
+@media (min-width: 992px) {
+  .heroSlide6 {
+    width: 85%;
+    margin-inline: auto;
+  }
+}
+
 /* The block the template lays inside the card — a rectangle offset from the
    card's own edges. Against a flat pastel it read as a subtle tonal shift;
    against glass it reads as a second pane with a hard edge cutting through

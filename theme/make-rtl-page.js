@@ -127,6 +127,27 @@ html = html.replace(
 html = html.replace(/(<body[^>]*>)/i,
   '$1\n    <div class="vp-hero-marks" aria-hidden="true"><i class="m-fall"></i><i class="m-near"></i><i class="m-far"></i></div>');
 
+// One hero card at a time.
+//
+// The template runs the deck two slides to a view, centred, inside a track it
+// widens by 36% either side — so the cards on both sides of the active one show
+// as slivers past the page's edges. That works when every card is a different
+// pastel, which is how the template ships: the slivers read as the next colour
+// coming. Ours are all the same near-white glass, so they read instead as a
+// stray panel stuck to the sides and bottom of the card. One per view, and the
+// track's own width does the framing.
+// Two slides to a view put the deck's second card in the middle, and that is
+// the one carrying the real product shot; one to a view would open on the
+// first, which is still a template placeholder. Named outright so the deck
+// opens on the product either way.
+html = html.replace(
+  /(id="heroSlide6"[^>]*?)"992":\{"slidesPerView":"2"\},"1200":\{"slidesPerView":"2"\}/,
+  '$1"992":{"slidesPerView":"1"},"1200":{"slidesPerView":"1"}'
+).replace(
+  /(id="heroSlide6" data-slider-options='\{)/,
+  '$1"initialSlide":1,'
+);
+
 // Swiper reads the container's own dir attribute, not the inherited one.
 html = html.replace(/<div class="swiper([^"]*)"/g, '<div dir="rtl" class="swiper$1"');
 
