@@ -847,7 +847,13 @@ option:hover {
   --hole-offset: calc(var(--disc-radius) - var(--wing-overlap));
   position: absolute;
   inset-inline: 0;
-  top: 38%;
+  /* Off the shoe, not on it. Centred on the shot it sat across the product;
+     it hangs from the foot of it instead, measured from the shot's own bottom
+     edge so it stays with the shoe whatever the card does. Only the top 33px
+     of the lockup are still over the sole; the disc and both wings' type are
+     clear of it, and the lockup's own foot keeps 29px to the card's edge. */
+  top: auto;
+  bottom: -50px;
   z-index: 1;
   display: flex;
   align-items: center;
@@ -897,6 +903,9 @@ option:hover {
 }
 
 .vp-deal-label {
+  /* A step down from the timer's 11: it is a name, not a number, and it was
+     the wider of the two. */
+  font-size: 10px;
   padding-inline-start: 21px;
   margin-inline-start: calc(-1 * var(--wing-overlap));
   -webkit-mask-image: radial-gradient(circle var(--disc-radius)
@@ -911,6 +920,12 @@ option:hover {
   width: var(--deal-height);
   height: var(--deal-height);
   border-radius: 50%;
+  /* A stamp's perforation round the disc. Inside its own diameter — the box
+     stays 82.5 so it still fills the hole in the wings exactly — and it runs
+     the whole circle, across the join with the wings included, which is what
+     makes it read as one thing stamped rather than three assembled. */
+  box-sizing: border-box;
+  border: 2px dotted rgba(16, 17, 17, 0.35);
   /* Persian digits again, so the body face rather than Cairo. */
   font-family: var(--body-font);
   font-weight: 800;
