@@ -1242,9 +1242,12 @@ option:hover {
    filling each one, and the name on a strip of glass laid over it.
 
    Square by aspect-ratio rather than a fixed height, so the tiles hold their
-   shape at every width without a media query per breakpoint. Size comes from
-   the gutter — widening it both spaces the tiles and shrinks them, since six
-   still have to fit the same row.
+   shape at every width without a media query per breakpoint.
+
+   Size is capped rather than left to the grid. The column is a sixth of the
+   row and would make the tile ~190px on a wide screen, which was too heavy for
+   a row that sits under the hero; the cap holds it at 150 and centres it, and
+   the space the tile gives up widens the gaps on its own.
    -------------------------------------------------------------------------- */
 
 .vp-category-row {
@@ -1257,6 +1260,8 @@ option:hover {
   display: block;
   overflow: hidden;
   aspect-ratio: 1;
+  max-width: 150px;
+  margin-inline: auto;
   border-radius: 30px;
   background: #F4F4F4;
   box-shadow:
@@ -1314,6 +1319,6 @@ option:hover {
 
 @media (max-width: 991px) {
   .vp-category-row { --bs-gutter-x: 22px; --bs-gutter-y: 22px; }
-  .vp-category { border-radius: 24px; }
+  .vp-category { border-radius: 24px; max-width: 130px; }
   .vp-category-label { font-size: 13px; border-radius: 13px; }
 }
