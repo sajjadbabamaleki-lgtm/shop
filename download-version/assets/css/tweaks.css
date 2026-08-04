@@ -880,7 +880,7 @@ body:before {
     0 0 0 1px rgba(140, 110, 40, 0.16),
     inset 0 0 0 1px rgba(255, 255, 255, 0.7),
     inset 0 1px 0 rgba(255, 255, 255, 0.95),
-    0 14px 30px -24px rgba(16, 17, 17, 0.16);
+    0 13px 25px -17px rgba(16, 17, 17, 0.175);
 }
 
 /* Every card the same height. The template lets each card size to its own
