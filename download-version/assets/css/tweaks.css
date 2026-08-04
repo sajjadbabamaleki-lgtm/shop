@@ -810,131 +810,6 @@ option:hover {
 }
 
 /* --------------------------------------------------------------------------
-   The offer lockup on the hero shot.
-
-   It replaces the template's spinning discount disc. Read right to left: how
-   long the offer has left, the discount itself in a disc, and the offer's
-   name. The wings take the buy button's shape at four fifths of its size — a
-   33px bar with an 8.96px corner — and the disc, 82.5 across, swells out of
-   the middle of them.
-
-   In gold glass: the accent's own #A47F25 at 35% over the same blur the card
-   and the header use. Over the pane that composites to about 218,205,173 — a
-   warm gold 29 levels off the pane it sits on, so the lockup has an edge
-   without one being drawn, which white glass at any alpha could not manage
-   here. Ink on it measures 12:1.
-
-   No hairline anywhere on it. The disc carries a dotted ring instead.
-
-   Translucency is what makes the three read as one, and also what could give
-   them away. Where the disc lay over a wing the two alphas stacked and the
-   overlap came out lighter than either — the disc's edge drawn across the wing
-   in white, which is what it looked like in gold for the same reason. So the
-   wings do not run under the disc at all: each has the disc's own circle cut
-   out of it with a mask, positioned from the same numbers that set the
-   overlap, and the disc drops into the hole. One thickness of glass
-   everywhere, one blur, and a silhouette that is a bar with a swell in it.
-
-   The type is ink, the disc's number included — it was white on gold, which is
-   the one thing that cannot follow the pane onto white glass.
-   -------------------------------------------------------------------------- */
-.vp-deal {
-  /* The lockup's height is the disc's; the wings are centred in it and run
-     under it by --wing-overlap. The mask that cuts the disc out of them is
-     arithmetic on these three, so they are declared once, here. */
-  --deal-height: 82.5px;
-  --wing-height: 33px;
-  --wing-overlap: 16px;
-  --disc-radius: calc(var(--deal-height) / 2);
-  /* How far outside a wing's inner edge the disc's centre falls. */
-  --hole-offset: calc(var(--disc-radius) - var(--wing-overlap));
-  position: absolute;
-  /* In the open pane beside the shoe's collar, where it was marked: the box
-     sizes to its contents and is held off the shot's own edges, so it keeps
-     that place at any width. It clears the shoe's ink on one side and the pink
-     disc, which starts at 647, on the other. */
-  width: max-content;
-  inset-inline: 14% auto;
-  top: 20%;
-  bottom: auto;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  pointer-events: none;
-}
-
-.vp-deal-timer,
-.vp-deal-label,
-.vp-deal-disc {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(164, 127, 37, 0.35);
-  -webkit-backdrop-filter: blur(12px) saturate(1.2);
-  backdrop-filter: blur(12px) saturate(1.2);
-  color: #101111;
-  line-height: 1;
-  white-space: nowrap;
-}
-
-.vp-deal-timer,
-.vp-deal-label {
-  height: var(--wing-height);
-  padding-inline: 10px;
-  border-radius: 8.96px;
-  font-family: 'Cairo', var(--body-font);
-  font-weight: 700;
-  font-size: 11px;
-}
-
-.vp-deal-timer {
-  padding-inline-end: 21px;
-  margin-inline-end: calc(-1 * var(--wing-overlap));
-  /* Vazirmatn, not the card's display face. Cairo draws the Persian digits in
-     the Arabic forms — a ۴ as a ٤, a ۶ as a ٦ — which is the wrong numeral on
-     a Persian page. Letters can have Cairo; digits cannot. */
-  font-family: var(--body-font);
-  /* So the seconds changing does not shuffle the rest of the row. */
-  font-variant-numeric: tabular-nums;
-  /* The disc sits off this wing's inner end, which in this direction is its
-     left. Physical, because the mask's own position is. */
-  -webkit-mask-image: radial-gradient(circle var(--disc-radius)
-    at calc(-1 * var(--hole-offset)) 50%, transparent 100%, #000 100%);
-  mask-image: radial-gradient(circle var(--disc-radius)
-    at calc(-1 * var(--hole-offset)) 50%, transparent 100%, #000 100%);
-}
-
-.vp-deal-label {
-  /* A step down from the timer's 11: it is a name, not a number, and it was
-     the wider of the two. */
-  font-size: 10px;
-  padding-inline-start: 21px;
-  margin-inline-start: calc(-1 * var(--wing-overlap));
-  -webkit-mask-image: radial-gradient(circle var(--disc-radius)
-    at calc(100% + var(--hole-offset)) 50%, transparent 100%, #000 100%);
-  mask-image: radial-gradient(circle var(--disc-radius)
-    at calc(100% + var(--hole-offset)) 50%, transparent 100%, #000 100%);
-}
-
-.vp-deal-disc {
-  position: relative;
-  z-index: 1;
-  width: var(--deal-height);
-  height: var(--deal-height);
-  border-radius: 50%;
-  /* A stamp's perforation round the disc. Inside its own diameter — the box
-     stays 82.5 so it still fills the hole in the wings exactly — and it runs
-     the whole circle, across the join with the wings included, which is what
-     makes it read as one thing stamped rather than three assembled. */
-  box-sizing: border-box;
-  border: 2px dotted rgba(16, 17, 17, 0.35);
-  /* Persian digits again, so the body face rather than Cairo. */
-  font-family: var(--body-font);
-  font-weight: 800;
-  font-size: 24px;
-}
-
-/* --------------------------------------------------------------------------
    Glass: the header band and the hero cards.
 
    The template already has this effect — .beige-color, the panel that fades
@@ -1007,10 +882,10 @@ option:hover {
    that the 8px blur's falloff lands on the card rather than against its
    edge. */
 .vp-hero-marks .m-fall {
-  top: 202px;
-  /* A tenth off the 161 it was drawn at. Still centred on the card, so the
-     16px it loses come off both sides: 720 - 145/2 = 647. */
-  left: 647px;
+  /* Off the middle now: down 15 and 20 to the left of where it sat, which was
+     202 and the card's own centre line at 647. */
+  top: 217px;
+  left: 627px;
   width: 145px;
   height: 145px;
 }

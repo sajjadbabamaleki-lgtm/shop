@@ -121,50 +121,8 @@ html = html.replace(
   '    </section>'
 );
 
-// The offer lockup on the hero shot, in place of the template's spinning
-// discount disc: a countdown on the right, the discount in a disc in the
-// middle, and the offer's name on the left. Right to left, the order it reads
-// in — so that is the order it is written in, and the flow does the rest.
-//
-// The two wings carry the buy button's shape and fill; the disc is half the
-// diameter the template's was. The countdown is filled in by the script below,
-// so the markup ships a placeholder rather than a time that would be wrong the
-// moment the page is served.
-const DEAL =
-  '<div class="vp-deal">' +
-  '\n                                                <span class="vp-deal-timer" data-deal-countdown>--:--:--</span>' +
-  '\n                                                <span class="vp-deal-disc">۲۶٪</span>' +
-  '\n                                                <span class="vp-deal-label">تخفیف ویژه</span>' +
-  '\n                                            </div>';
-
-html = html.replace(
-  /<div class="discount-wrapp style2">[\s\S]*?<\/div>\s*<\/div>/g,
-  DEAL
-);
-
-// Counts down to the end of the day, so the preview always shows a live time
-// rather than a build-time one that would run out. The real end date belongs to
-// the campaign and comes from the store, not from here.
-html = html.replace('</body>',
-  '    <script>\n' +
-  '        (function () {\n' +
-  '            var fields = document.querySelectorAll("[data-deal-countdown]");\n' +
-  '            if (!fields.length) return;\n' +
-  '            var pad = function (n) {\n' +
-  '                return n.toLocaleString("fa-IR", { minimumIntegerDigits: 2, useGrouping: false });\n' +
-  '            };\n' +
-  '            var tick = function () {\n' +
-  '                var now = new Date();\n' +
-  '                var end = new Date(now);\n' +
-  '                end.setHours(24, 0, 0, 0);\n' +
-  '                var left = Math.max(0, Math.floor((end - now) / 1000));\n' +
-  '                var text = pad(Math.floor(left / 3600)) + ":" + pad(Math.floor(left / 60) % 60) + ":" + pad(left % 60);\n' +
-  '                for (var i = 0; i < fields.length; i++) fields[i].textContent = text;\n' +
-  '            };\n' +
-  '            tick();\n' +
-  '            setInterval(tick, 1000);\n' +
-  '        }());\n' +
-  '    </script>\n</body>');
+// The template's spinning discount disc comes off the hero shot altogether.
+html = html.replace(/<div class="discount-wrapp style2">[\s\S]*?<\/div>\s*<\/div>\s*/g, '');
 
 // Three gold bars behind the hero, drawn as real elements so both ends can be
 // rounded. First thing in the body, so they paint behind the header and the
