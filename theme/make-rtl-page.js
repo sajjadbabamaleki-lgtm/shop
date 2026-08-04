@@ -69,11 +69,44 @@ for (const [from, to] of Object.entries(SVG_GOLD)) {
 // grey placeholder. Two slides share this source, both the same product.
 html = html.split('assets/img/hero/hero_6_2.png').join('assets/img/hero/vikyplus-hero-1.png');
 
-// Three gold bars behind the hero, drawn as real elements so both ends can be
-// rounded. First thing in the body, so they paint behind the header and the
-// card and get frosted where they pass under either.
+// The hero cards' lens, and the three gold bars behind them.
+//
+// The lens is an SVG filter driven off a displacement map: red and green carry
+// the offset each pixel of the backdrop should be sampled from, so the rim
+// bends what passes under the card instead of only blurring it. Three passes
+// at slightly different strengths, one per colour channel, are what makes the
+// split at the edge — a single pass warps but cannot separate colour. The
+// spread between the three has to stay small: at a wide spread a hard-edged shape
+// passing under the card breaks into 18px bands of pure yellow and red rather
+// than a fringe.
+//
+// The map is stretched to whatever size the card is, so one file covers every
+// breakpoint. See theme/make-lens-assets.js for how it is built and why the
+// normal is negated.
+const LENS = `
+    <svg class="vp-lens-defs" width="0" height="0" aria-hidden="true" focusable="false">
+      <filter id="vp-lens" x="0" y="0" width="1" height="1"
+              filterUnits="objectBoundingBox" primitiveUnits="userSpaceOnUse"
+              color-interpolation-filters="sRGB">
+        <feImage href="assets/img/hero/vp-lens-map.png" x="0" y="0" width="100%" height="100%"
+                 preserveAspectRatio="none" result="map"/>
+        <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="soft"/>
+        <feDisplacementMap in="soft" in2="map" scale="38" xChannelSelector="R" yChannelSelector="G" result="dr"/>
+        <feDisplacementMap in="soft" in2="map" scale="40" xChannelSelector="R" yChannelSelector="G" result="dg"/>
+        <feDisplacementMap in="soft" in2="map" scale="42" xChannelSelector="R" yChannelSelector="G" result="db"/>
+        <feColorMatrix in="dr" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="cr"/>
+        <feColorMatrix in="dg" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="cg"/>
+        <feColorMatrix in="db" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="cb"/>
+        <feBlend in="cr" in2="cg" mode="screen" result="crg"/>
+        <feBlend in="crg" in2="cb" mode="screen"/>
+      </filter>
+    </svg>`;
+
+// Bars first in the body, so they paint behind the header and the card and get
+// bent where they pass under either.
 html = html.replace(/(<body[^>]*>)/i,
-  '$1\n    <div class="vp-hero-marks" aria-hidden="true"><i class="m-fall"></i><i class="m-near"></i><i class="m-far"></i></div>');
+  '$1' + LENS +
+  '\n    <div class="vp-hero-marks" aria-hidden="true"><i class="m-fall"></i><i class="m-near"></i><i class="m-far"></i></div>');
 
 // Swiper reads the container's own dir attribute, not the inherited one.
 html = html.replace(/<div class="swiper([^"]*)"/g, '<div dir="rtl" class="swiper$1"');

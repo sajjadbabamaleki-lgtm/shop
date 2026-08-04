@@ -59,6 +59,23 @@
 </head>
 
 <body class="shoe-shop">
+    <svg class="vp-lens-defs" width="0" height="0" aria-hidden="true" focusable="false">
+      <filter id="vp-lens" x="0" y="0" width="1" height="1"
+              filterUnits="objectBoundingBox" primitiveUnits="userSpaceOnUse"
+              color-interpolation-filters="sRGB">
+        <feImage href="assets/img/hero/vp-lens-map.png" x="0" y="0" width="100%" height="100%"
+                 preserveAspectRatio="none" result="map"/>
+        <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="soft"/>
+        <feDisplacementMap in="soft" in2="map" scale="38" xChannelSelector="R" yChannelSelector="G" result="dr"/>
+        <feDisplacementMap in="soft" in2="map" scale="40" xChannelSelector="R" yChannelSelector="G" result="dg"/>
+        <feDisplacementMap in="soft" in2="map" scale="42" xChannelSelector="R" yChannelSelector="G" result="db"/>
+        <feColorMatrix in="dr" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="cr"/>
+        <feColorMatrix in="dg" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="cg"/>
+        <feColorMatrix in="db" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="cb"/>
+        <feBlend in="cr" in2="cg" mode="screen" result="crg"/>
+        <feBlend in="crg" in2="cb" mode="screen"/>
+      </filter>
+    </svg>
     <div class="vp-hero-marks" aria-hidden="true"><i class="m-fall"></i><i class="m-near"></i><i class="m-far"></i></div>
 
     <!--[if lte IE 9]>

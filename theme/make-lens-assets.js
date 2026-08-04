@@ -108,3 +108,47 @@ const PAD = 90;
     roundedRect(560 + PAD * 2, 300 + PAD * 2, 560, 300, 62), 96, 1.3);
   console.log('wrote ground.png, map-pill.png, map-dot.png, map-card.png');
 })();
+
+/* --- the storefront's own lens ------------------------------------------
+   The hero cards get the same treatment, with one change forced by the
+   platform: backdrop-filter can only see the backdrop *inside* the element,
+   so a rim that samples outward hits the element's edge and clamps, and every
+   shape crossing the boundary picks up a hard step. Negating the normal makes
+   the rim sample inward instead — there is always content there, so nothing
+   clamps, and it reads as magnification at the edge rather than compression.
+
+   Run: node theme/make-lens-assets.js --hero
+   ------------------------------------------------------------------------ */
+function heroMap() {
+  // A 96px bevel on a 548px card smears whatever passes under it far enough
+  // along the rim to read as a gold frame rather than as an edge. 58 keeps the
+  // bend where the eye expects it.
+  const W = 1227, H = 548, r = 60, edge = 58, fall = 1.45;
+  const sdf = roundedRect(W, H, W, H, r);
+  const buf = Buffer.alloc(W * H * 3);
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      const i = (y * W + x) * 3;
+      const d = sdf(x + 0.5, y + 0.5);
+      let R = 0.5, G = 0.5;
+      if (d < 0) {
+        const e = Math.min(1, -d / edge);
+        const f = Math.pow(1 - e, fall);
+        let nx = (sdf(x + 1.5, y + 0.5) - sdf(x - 0.5, y + 0.5)) / 2;
+        let ny = (sdf(x + 0.5, y + 1.5) - sdf(x + 0.5, y - 0.5)) / 2;
+        const L = Math.hypot(nx, ny) || 1;
+        R = 0.5 - (nx / L) * f * 0.5;
+        G = 0.5 - (ny / L) * f * 0.5;
+      }
+      buf[i] = Math.round(R * 255);
+      buf[i + 1] = Math.round(G * 255);
+      buf[i + 2] = 128;
+    }
+  }
+  return sharp(buf, { raw: { width: W, height: H, channels: 3 } })
+    .png({ compressionLevel: 9 })
+    .toFile(path.resolve(__dirname, '../download-version/assets/img/hero/vp-lens-map.png'))
+    .then(() => console.log('wrote assets/img/hero/vp-lens-map.png'));
+}
+
+if (process.argv.includes('--hero')) heroMap();
