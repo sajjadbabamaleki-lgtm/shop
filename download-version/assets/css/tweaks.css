@@ -842,15 +842,15 @@ option:hover {
   pointer-events: none;
 }
 
-/* Same weight and same soft edge as the circles they replace: the gold at
-   30%, and a blur so the colour falls off instead of stopping on a line. The
-   circles faded over the outer quarter of their radius; a blur is that same
-   falloff for a shape whose edge is not a circle, and it softens the rounded
+/* Built like the circles were before they were faded: solid gold through the
+   middle, falling off at the edge rather than stopping on a line. The circles
+   held #C89A2E to 72% of their radius and faded over the rest; here the fill
+   is that same solid gold and a blur does the falloff, softening the rounded
    ends and the long sides alike. */
 .vp-hero-marks i {
   position: absolute;
   display: block;
-  background: rgba(200, 154, 46, 0.3);
+  background: #C89A2E;
   border-radius: 999px;
   filter: blur(8px);
 }
