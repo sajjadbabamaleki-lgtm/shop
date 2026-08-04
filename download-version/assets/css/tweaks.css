@@ -1161,24 +1161,35 @@ option:hover {
 /* --------------------------------------------------------------------------
    The brand lockup in the header band.
 
-   Mark on the left, name on its right, the whole thing at the right end of the
-   band where the template already puts its logo. The lockup runs LTR so the
-   mark leads and the name follows it rightward; each line of the name keeps
-   its own RTL resolution, and the two lines are ragged right against each
-   other, which is what Persian setting wants.
+   App icon on the right, the name and the line under it to its left, the whole
+   thing at the right end of the band. RTL order, so the mark leads from the
+   right the way the reading does.
+
+   The icon is the square as supplied: its own white field, uncropped, corners
+   rounded and a shadow under it so the tile reads as a tile against the band's
+   own white. The radius is set as a fraction of the rendered size, so it stays
+   an app-icon corner at any breakpoint rather than drifting to a rectangle
+   with soft edges.
    -------------------------------------------------------------------------- */
 
 .vp-logo {
   display: inline-flex;
   align-items: center;
   gap: 13px;
-  direction: ltr;
+  direction: rtl;
 }
 
 .vp-logo img {
-  width: 46px;
-  height: auto;
+  width: 52px;
+  height: 52px;
   flex: none;
+  border-radius: 12px;
+  /* Close under the tile to hold its edge, then wide and soft beneath it so
+     it sits on the band rather than floating over it. */
+  box-shadow:
+    0 1px 2px rgba(16, 17, 17, 0.10),
+    0 4px 10px -2px rgba(16, 17, 17, 0.12),
+    0 12px 24px -8px rgba(16, 17, 17, 0.14);
 }
 
 .vp-logo-text {
@@ -1212,7 +1223,7 @@ option:hover {
 }
 
 @media (max-width: 575px) {
-  .vp-logo img { width: 38px; }
+  .vp-logo img { width: 42px; height: 42px; border-radius: 10px; }
   .vp-logo-text b { font-size: 20px; }
   .vp-logo-text small { font-size: 11px; }
 }

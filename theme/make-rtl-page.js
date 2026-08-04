@@ -76,7 +76,7 @@ html = html.replace(
   /<div class="header-logo">\s*<a[^>]*>\s*<img[^>]*>\s*<\/a>\s*<\/div>/i,
   '<div class="header-logo">\n' +
   '                                <a href="index.html" class="vp-logo">\n' +
-  '                                    <img src="assets/img/vikyplus-mark.png" alt="ویکی پلاس">\n' +
+  '                                    <img src="assets/img/vikyplus-appicon.png" alt="ویکی پلاس">\n' +
   '                                    <span class="vp-logo-text">\n' +
   '                                        <b>ویکی پلاس</b>\n' +
   '                                        <small>فروشگاه کیف و کفش زنانه</small>\n' +
