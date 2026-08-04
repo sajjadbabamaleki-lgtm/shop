@@ -1157,3 +1157,62 @@ option:hover {
 .th-hero-wrapper .slider-arrow {
   display: none;
 }
+
+/* --------------------------------------------------------------------------
+   The brand lockup in the header band.
+
+   Mark on the left, name on its right, the whole thing at the right end of the
+   band where the template already puts its logo. The lockup runs LTR so the
+   mark leads and the name follows it rightward; each line of the name keeps
+   its own RTL resolution, and the two lines are ragged right against each
+   other, which is what Persian setting wants.
+   -------------------------------------------------------------------------- */
+
+.vp-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 13px;
+  direction: ltr;
+}
+
+.vp-logo img {
+  width: 46px;
+  height: auto;
+  flex: none;
+}
+
+.vp-logo-text {
+  direction: rtl;
+  text-align: right;
+  line-height: 1.2;
+}
+
+.vp-logo-text b,
+.vp-logo-text small {
+  display: block;
+}
+
+.vp-logo-text b {
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 800;
+  font-size: 25px;
+  color: #101111;
+  letter-spacing: -0.01em;
+}
+
+/* Smaller and lighter, as asked. 13px against the name's 25. The grey is the
+   lightest one that still passes AA on the band's white: #8A8C8C measured
+   3.38:1 and would have failed, #6E7070 gives 4.98:1 — and it is the same grey
+   the hero's own small label uses, so the page keeps one quiet tone. */
+.vp-logo-text small {
+  font-size: 13px;
+  font-weight: 500;
+  color: #6E7070;
+  margin-block-start: 1px;
+}
+
+@media (max-width: 575px) {
+  .vp-logo img { width: 38px; }
+  .vp-logo-text b { font-size: 20px; }
+  .vp-logo-text small { font-size: 11px; }
+}

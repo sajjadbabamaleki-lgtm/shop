@@ -69,6 +69,22 @@ for (const [from, to] of Object.entries(SVG_GOLD)) {
 // grey placeholder. Two slides share this source, both the same product.
 html = html.split('assets/img/hero/hero_6_2.png').join('assets/img/hero/vikyplus-hero-1.png');
 
+// The brand mark and name replace the template's own logo in the header band.
+// Written as markup rather than a single image so the name and the line under
+// it stay text — selectable, translatable, and sharp at any density.
+html = html.replace(
+  /<div class="header-logo">\s*<a[^>]*>\s*<img[^>]*>\s*<\/a>\s*<\/div>/i,
+  '<div class="header-logo">\n' +
+  '                                <a href="index.html" class="vp-logo">\n' +
+  '                                    <img src="assets/img/vikyplus-mark.png" alt="ویکی پلاس">\n' +
+  '                                    <span class="vp-logo-text">\n' +
+  '                                        <b>ویکی پلاس</b>\n' +
+  '                                        <small>فروشگاه کیف و کفش زنانه</small>\n' +
+  '                                    </span>\n' +
+  '                                </a>\n' +
+  '                            </div>'
+);
+
 // Three gold bars behind the hero, drawn as real elements so both ends can be
 // rounded. First thing in the body, so they paint behind the header and the
 // card and get frosted where they pass under either.
