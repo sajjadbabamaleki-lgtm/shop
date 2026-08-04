@@ -900,6 +900,29 @@ body:before {
   height: 100%;
 }
 
+/* The card stopped 60px short of the row beneath it. It runs 40px lower now,
+   leaving a 20px parting. The template sizes the card to its contents and lets
+   the product shot bleed to its edges, so the shot is stretched to the taller
+   card rather than being centred in it with bands above and below. */
+.heroSlide6 .hero-inner {
+  min-height: 605px;
+}
+
+/* The row centres its columns, so height:100% on the image column does not
+   reach it; the shot is given the card's height directly instead. */
+.heroSlide6 .hero-img img {
+  width: 100%;
+  height: 605px;
+  object-fit: cover;
+}
+
+/* The 60px above the row beneath the hero is that section's own top padding.
+   The card grew 40px into it, so the padding gives up the same 40px and the
+   page below does not move. */
+.feature-area2 {
+  padding-block-start: 20px;
+}
+
 /* Only the card in front carries the edge. The slides either side peek out of
    the deck, and on a white page their rings and shadows read as a stray white
    panel — most visibly where one clipped a bite out of the gold behind it.
