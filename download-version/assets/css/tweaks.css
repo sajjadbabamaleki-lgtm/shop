@@ -830,7 +830,7 @@ option:hover {
    both ends can be rounded.
 
    Three bars, sized off the buy button: half its height thick, three times
-   its width long — 26 x 482, fully rounded.
+   its width long less 3% — 26 x 468, fully rounded.
    -------------------------------------------------------------------------- */
 
 .vp-hero-marks {
@@ -842,11 +842,17 @@ option:hover {
   pointer-events: none;
 }
 
+/* Same weight and same soft edge as the circles they replace: the gold at
+   30%, and a blur so the colour falls off instead of stopping on a line. The
+   circles faded over the outer quarter of their radius; a blur is that same
+   falloff for a shape whose edge is not a circle, and it softens the rounded
+   ends and the long sides alike. */
 .vp-hero-marks i {
   position: absolute;
   display: block;
-  background: #C89A2E;
+  background: rgba(200, 154, 46, 0.3);
   border-radius: 999px;
+  filter: blur(8px);
 }
 
 /* Falling from the top of the page, through the header band and into the
@@ -855,14 +861,14 @@ option:hover {
   top: 0;
   left: 560px;
   width: 26px;
-  height: 482px;
+  height: 468px;
 }
 
 /* Crossing the near edge of the card, high. */
 .vp-hero-marks .m-near {
   top: 248px;
   left: 29px;
-  width: 482px;
+  width: 468px;
   height: 26px;
 }
 
@@ -870,7 +876,7 @@ option:hover {
 .vp-hero-marks .m-far {
   top: 623px;
   right: 0;
-  width: 482px;
+  width: 468px;
   height: 26px;
 }
 
