@@ -827,6 +827,77 @@ option:hover {
 }
 
 /* --------------------------------------------------------------------------
+   The ring of type on the disc.
+
+   It was not on the disc. The template sets each letter's box 75px tall and
+   pivots it about its own bottom edge, which puts the pivot at a fixed offset
+   from the badge's top-left corner rather than at its centre — and then rtlcss
+   mirrors that offset, because `left: 18px` flips to `right: 18px` like any
+   other. Measured against the disc's own centre, the letters were orbiting a
+   point 35px to one side of it: on the far side they ran 28px past the rim,
+   on the near side they crowded the numerals. On white glass over a white card
+   none of that was visible. On gold it is the first thing you see.
+
+   So the ring is given the geometry it was always meant to have. Each letter's
+   box runs from 14px inside the rim down to the disc's centre, and it pivots
+   about that centre, so every letter orbits at the same radius whatever the
+   disc's size — the numbers below are all proportions of it, and the mirroring
+   has nothing left to catch on. The step goes to a full turn divided by the
+   25 letters in the phrase, so the ring closes on itself instead of stopping
+   22 degrees short.
+
+   The letters are positioned against the wrapper span, which the template also
+   pushes off-centre and rotates, so that is flattened onto the disc first.
+   -------------------------------------------------------------------------- */
+.heroSlide6 .discount-tag .discount-anime {
+  position: absolute;
+  inset: 0;
+  min-width: 0;
+  min-height: 0;
+  transform: none;
+}
+
+.heroSlide6 .discount-tag .discount-anime > span {
+  /* Negative because the flip negated every letter's rotation for us. On a
+     ring of Persian type that would be right — it would have to run the other
+     way round — but this phrase is Latin, so it was left reading backwards,
+     EVAS FFO for SAVE OFF. Negating the step cancels the flip's negation and
+     the ring runs clockwise again. The first letter has no rule of its own in
+     the template and falls back to the unnegated base, so it is given one
+     below in the same form the others take. */
+  --rotate-letter: -14.4deg;
+  position: absolute;
+  inset-inline-start: 50%;
+  inset-block-start: 11px;
+  /* The template's own Latin face went with the Google Fonts request, so the
+     ring was falling back to Vazirmatn's Latin, which is wider and rounder —
+     the letters filled their slots and the ring closed up. Cairo's Latin
+     subset is already loaded for the card's display type and is the narrower,
+     geometric shape the badge was drawn with. */
+  font-family: 'Cairo', var(--title-font);
+  width: 1.4em;
+  height: calc(50% - 11px);
+  min-width: 0;
+  min-height: 0;
+  margin-inline-start: -0.7em;
+  transform-origin: bottom center;
+}
+
+.heroSlide6 .discount-tag .discount-anime > span.char1 {
+  transform: rotate(calc(-1 * var(--rotate-letter)));
+}
+
+/* The number in the middle, heavier. In Latin the template's 600 read as a
+   stamp; the Persian digits at the same weight came out lighter than the ring
+   around them and the badge lost its middle. The face stays Vazirmatn — Cairo
+   carries the card's display type, but its Arabic digits are drawn in the
+   Arabic forms rather than the Persian ones, and a ۶ that renders as a ٦ is
+   the wrong numeral on a Persian page. */
+.heroSlide6 .discount-wrapp .discount {
+  font-weight: 800;
+}
+
+/* --------------------------------------------------------------------------
    Glass: the header band and the hero cards.
 
    The template already has this effect — .beige-color, the panel that fades
