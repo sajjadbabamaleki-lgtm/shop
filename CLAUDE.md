@@ -1,5 +1,8 @@
 # VikyPlus — notes for whoever picks this up next
 
+**`HANDOFF.md` says what is finished, what is not, and which numbers the
+finished part is not allowed to lose. Read it after this.**
+
 An Iranian shoe and bag storefront (vikyplus.ir) built on the ThemeForest
 "Erna" HTML template. The page being worked on is the RTL Persian preview.
 
