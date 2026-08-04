@@ -1440,3 +1440,22 @@ option:hover {
 .sidemenu-wrapper {
   overflow: hidden;
 }
+
+/* --------------------------------------------------------------------------
+   The hero's buy button.
+
+   White type instead of ink, a corner that is rounded rather than a full pill,
+   and the arrow turned to face the product.
+
+   The template's arrow is a mask of arrow-right.svg with no transform, so it
+   points away from the shoe on this slide — the shoe sits to its left. A
+   scaleX flip turns it without needing a second asset.
+   -------------------------------------------------------------------------- */
+.heroSlide6 .hero-inner .th-btn {
+  color: #FFFFFF;
+  border-radius: 14px;
+}
+
+.heroSlide6 .hero-inner .th-btn.th-icon:after {
+  transform: scaleX(-1);
+}
