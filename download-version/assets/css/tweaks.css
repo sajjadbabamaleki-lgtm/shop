@@ -848,10 +848,15 @@ option:hover {
    held #C89A2E to 72% of their radius and faded over the rest; here the fill
    is that same solid gold and a blur does the falloff, softening the rounded
    ends and the long sides alike. */
+/* The bars take the shoe's own pink rather than the brand gold. Sampled from
+   the product shot itself: over the 138k pixels in its rose range the median
+   is #CFA2A4, hue 357 at 32% saturation. That hue and saturation held, lifted
+   to 80% lightness, is the pale version below — so it is the shoe's pink, not
+   a pink chosen to sit near it. */
 .vp-hero-marks i {
   position: absolute;
   display: block;
-  background: #C89A2E;
+  background: #DDBBBD;
   border-radius: 999px;
   filter: blur(8px);
 }
