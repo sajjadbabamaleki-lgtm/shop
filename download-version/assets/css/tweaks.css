@@ -1206,9 +1206,10 @@ option:hover {
 .vp-logo-text b {
   font-family: 'Cairo', var(--title-font);
   font-weight: 800;
-  font-size: 25px;
+  font-size: 20px;
   color: #101111;
   letter-spacing: -0.01em;
+  line-height: 1.3;
 }
 
 /* Smaller and lighter, as asked. 13px against the name's 25. The grey is the
@@ -1219,7 +1220,11 @@ option:hover {
   font-size: 13px;
   font-weight: 500;
   color: #6E7070;
-  margin-block-start: 1px;
+  /* Cairo sets Persian with a deep descender: the tail of the پ in پلاس was
+     reaching the line below, and at 1px of separation the two runs of ink were
+     half a pixel apart. Measured at the ink rather than at the boxes — this
+     leaves a 5px clear band between them. */
+  margin-block-start: 6px;
 }
 
 @media (max-width: 575px) {
