@@ -889,51 +889,155 @@ option:hover {
 }
 
 /* --------------------------------------------------------------------------
-   The glassmorphism look, as an experiment.
+   The ground behind the top of the site: irregular shapes in gold and white.
 
-   Worth being plain about what carries that effect in the reference: almost
-   none of it is the card. The card there is white at roughly 15-20% with a
-   blur and a 1px rim — close to what is already on this one. What makes it
-   read is the ground: a saturated, many-coloured mesh directly behind the
-   pane, so the blur has strong colour to smear and the rim has something to
-   stand against.
+   This is what the glass was missing. A frosted pane only reads as glass when
+   something with structure passes under it and crosses its edge; over flat
+   white there is nothing to blur, so the card reads as paper.
 
-   On a white page that look is unreachable at any glass setting. So this puts
-   a mesh behind the hero — the brand gold and the shoe's own rose rather than
-   the reference's blue — and thins the pane to match.
+   Shapes rather than a gradient mesh, because a mesh is symmetrical and reads
+   as a wash. Each one is an ellipse pulled out of round by an eight-value
+   border-radius, then blurred past the point where its outline can be seen —
+   what survives is the irregular mass, which is the whole effect. They are
+   real elements, not background layers, so each keeps its own shape and blur.
+
+   It is a band, not a page background: it covers the header and the hero and
+   then dissolves into the page's own white rather than ending at a line. The
+   fade runs below the cards, so the ground is at full strength everywhere the
+   glass has to work.
+
+   z-index -1 keeps it above the canvas but under every element on the page,
+   positioned or not, so nothing in the sections below can be washed by it.
    -------------------------------------------------------------------------- */
 
-.th-hero-wrapper:before {
+.vp-top-bg {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline: 0;
+  height: 780px;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+  background-color: #FDFAF4;
+}
+
+.vp-top-bg i {
+  position: absolute;
+  display: block;
+  /* Wide enough to lose each outline, tight enough that the masses stay
+     separate. Past about 70px they merge into a single wash. */
+  filter: blur(58px);
+}
+
+/* The deep tones are kept to the edges and corners on purpose. The card's
+   type is dark, so the middle of the band has to stay light — the structure
+   comes from the frame, not from a sweep across the centre. */
+
+/* Left, at the height of the cards rather than at the top of the band. Only
+   a 30px strip of ground shows between the header and the cards, so anything
+   strong up there reads as a stripe; the deep tones start below it. */
+.vp-top-bg .s1 {
+  top: 18%;
+  left: -14%;
+  width: 44%;
+  height: 76%;
+  border-radius: 62% 38% 55% 45% / 48% 62% 38% 52%;
+  background: linear-gradient(148deg, #B48C27 0%, #D9AF4B 68%, #EFD79A 100%);
+}
+
+/* Left edge, low, overlapping the first — the overlap is what makes the pair
+   read as one irregular mass instead of two ellipses. */
+.vp-top-bg .s2 {
+  top: 56%;
+  left: 2%;
+  width: 40%;
+  height: 70%;
+  border-radius: 44% 56% 38% 62% / 58% 40% 60% 42%;
+  background: linear-gradient(28deg, #A47F25 0%, #CDA13A 60%, #E7CB84 100%);
+}
+
+/* Right edge, turned the other way and lighter, so the two sides do not
+   mirror each other. */
+.vp-top-bg .s3 {
+  top: 22%;
+  right: -16%;
+  width: 42%;
+  height: 80%;
+  border-radius: 52% 48% 62% 38% / 42% 56% 44% 58%;
+  background: linear-gradient(210deg, #B98F28 0%, #DEB863 58%, #F3E3BC 100%);
+}
+
+/* Bottom right, catching the corner the others leave empty. */
+.vp-top-bg .s4 {
+  bottom: -40%;
+  right: 4%;
+  width: 46%;
+  height: 66%;
+  border-radius: 58% 42% 45% 55% / 38% 52% 48% 62%;
+  background: linear-gradient(340deg, #BE9330 0%, #E5C075 55%, #F7EEDA 100%);
+}
+
+/* The light mass: broad, across the top, over everything else. It keeps the
+   exposed strip under the header pale and the card's type on light ground. */
+.vp-top-bg .s5 {
+  top: -34%;
+  left: 2%;
+  width: 78%;
+  height: 88%;
+  border-radius: 48% 52% 58% 42% / 62% 44% 56% 38%;
+  background: radial-gradient(closest-side, #FFFEFB 0%, #FDF8ED 62%, rgba(253, 246, 231, 0) 100%);
+}
+
+/* One warm break inside the light core, so the middle is not a flat field. */
+.vp-top-bg .s6 {
+  top: 44%;
+  left: 40%;
+  width: 28%;
+  height: 50%;
+  border-radius: 56% 44% 42% 58% / 44% 60% 40% 56%;
+  background: #E8D2A0;
+  opacity: 0.55;
+}
+
+/* The bottom fade, over the shapes rather than under them. Measured from the
+   bottom, so it keeps its shape when the band's height changes with the
+   breakpoint: the last 20px are already white, the 200px above them dissolve.
+   Each height below is the top of the section that follows the hero, plus
+   that 20px — so full white lands exactly on the boundary. */
+.vp-top-bg:after {
   content: '';
   position: absolute;
   inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background-color: #F6EFE2;
-  background-image:
-    radial-gradient(58% 70% at 18% 22%, #F0C978 0%, rgba(240, 201, 120, 0) 70%),
-    radial-gradient(52% 64% at 78% 18%, #E3B0B5 0%, rgba(227, 176, 181, 0) 68%),
-    radial-gradient(64% 76% at 62% 86%, #C89A2E 0%, rgba(200, 154, 46, 0) 72%),
-    radial-gradient(46% 58% at 8% 88%, #EADFC6 0%, rgba(234, 223, 198, 0) 70%);
+  background-image: linear-gradient(to top,
+    #FFF 0px,
+    #FFF 20px,
+    rgba(255, 255, 255, 0.62) 80px,
+    rgba(255, 255, 255, 0) 220px);
 }
 
-.th-hero-wrapper > * {
-  position: relative;
-  z-index: 1;
+@media (max-width: 1399px) {
+  .vp-top-bg { height: 743px; }
 }
 
-/* Thinner pane, so the mesh carries through it. */
-.heroSlide6 .swiper-slide-active .hero-inner {
-  background: rgba(255, 255, 255, 0.18);
-  -webkit-backdrop-filter: blur(14px) saturate(1.2);
-  backdrop-filter: blur(14px) saturate(1.2);
-  box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.55),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8),
-    0 18px 50px -20px rgba(90, 60, 10, 0.22);
+@media (max-width: 1199px) {
+  .vp-top-bg { height: 725px; }
 }
 
-/* The bars are the wrong idiom against a mesh — it is already the texture. */
+/* The hero stacks here, so the band is nearly half again as tall. */
+@media (max-width: 991px) {
+  .vp-top-bg { height: 1154px; }
+}
+
+@media (max-width: 767px) {
+  .vp-top-bg { height: 1009px; }
+}
+
+@media (max-width: 575px) {
+  .vp-top-bg { height: 925px; }
+}
+
+/* The bars are the wrong idiom against this ground — it is already made of
+   gold shapes, and three more read as a smudge on top of them. */
 .vp-hero-marks {
   display: none;
 }
