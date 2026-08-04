@@ -887,16 +887,6 @@ option:hover {
   transform: rotate(calc(-1 * var(--rotate-letter)));
 }
 
-/* The number in the middle, heavier. In Latin the template's 600 read as a
-   stamp; the Persian digits at the same weight came out lighter than the ring
-   around them and the badge lost its middle. The face stays Vazirmatn — Cairo
-   carries the card's display type, but its Arabic digits are drawn in the
-   Arabic forms rather than the Persian ones, and a ۶ that renders as a ٦ is
-   the wrong numeral on a Persian page. */
-.heroSlide6 .discount-wrapp .discount {
-  font-weight: 800;
-}
-
 /* --------------------------------------------------------------------------
    Glass: the header band and the hero cards.
 

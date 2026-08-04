@@ -216,24 +216,5 @@ html = html.replace(
 // them as Persian percent instead.
 html = html.replace(/-(\d+)%/g, (_, n) => `${Number(n).toLocaleString('fa-IR')}٪ تخفیف`);
 
-// The disc on the hero shot. Its number is the one piece of Latin numeral left
-// on a page that is otherwise entirely Persian, so it takes Persian digits and
-// the Persian percent sign like every other price and chip.
-//
-// The ring of type around it stays Latin, and has to: the template rotates the
-// phrase one character at a time, and Persian letters join — split into
-// separate boxes they would all render in their isolated forms, which is not a
-// word any more. It is a decorative stamp, so it reads as one.
-//
-// The template's demo has the disc at 26% and the ring at 15%, which is a
-// contradiction on the same badge. The ring follows the number.
-html = html.replace(
-  /(<h4 class="discount">)26%(<\/h4>)/g,
-  (_, a, b) => `${a}۲۶٪${b}`
-).replace(
-  /(<span class="discount-anime">)[^<]*(<\/span>)/g,
-  '$1' + '26% off save 26% off save' + '$2'
-);
-
 fs.writeFileSync(out, html);
 console.log(`wrote ${path.relative(ROOT, out)} (theme: ${theme || 'none — template colours'})`);
