@@ -900,27 +900,12 @@ body:before {
   height: 100%;
 }
 
-/* The card stopped 60px short of the row beneath it. It runs 40px lower now,
-   leaving a 20px parting. The template sizes the card to its contents and lets
-   the product shot bleed to its edges, so the shot is stretched to the taller
-   card rather than being centred in it with bands above and below. */
-.heroSlide6 .hero-inner {
-  min-height: 605px;
-}
-
-/* The row centres its columns, so height:100% on the image column does not
-   reach it; the shot is given the card's height directly instead. */
-.heroSlide6 .hero-img img {
-  width: 100%;
-  height: 605px;
-  object-fit: cover;
-}
-
-/* The 60px above the row beneath the hero is that section's own top padding.
-   The card grew 40px into it, so the padding gives up the same 40px and the
-   page below does not move. */
+/* Room between the hero and the row beneath it. The template leaves 60px,
+   which put the feature cards right up against the hero deck; this is that
+   section's own top padding, so raising it moves the row down without
+   touching the cards above. */
 .feature-area2 {
-  padding-block-start: 20px;
+  padding-block-start: 120px;
 }
 
 /* Only the card in front carries the edge. The slides either side peek out of
