@@ -1426,11 +1426,13 @@ option:hover {
   }
 }
 
-/* The field's own input carries the template's fixed 350px, so narrowing the
-   field left the input hanging 63px off the side of the page. It follows the
-   field now. */
+/* The field's own input carries the template's fixed 350px width and a 280px
+   min-width, so narrowing the field left the input hanging off the side of the
+   page — and the min-width alone kept it 95px wider than its box even after
+   the width followed. Both have to go for the input to fit what holds it. */
 .th-header .menu-area .top-search input {
   width: 100%;
+  min-width: 0;
 }
 
 /* The search suggestions panel is a fixed 400px wide and hangs off the field.
@@ -1473,4 +1475,45 @@ option:hover {
 
 .heroSlide6 .hero-inner .th-btn.th-icon:after {
   transform: scaleX(-1);
+}
+
+/* --------------------------------------------------------------------------
+   The search bar.
+
+   White field, and the magnifier moved into a gold disc tucked inside the
+   field's own corner rather than filling the end of it as a half-pill.
+
+   Physical left/right rather than logical properties: the field is laid out
+   RTL, so inset-inline-start would put the disc on the far side from where the
+   template's button sits.
+   -------------------------------------------------------------------------- */
+/* The disc is positioned against this box, so it has to follow the field's
+   width rather than keep the template's fixed 320 — otherwise the disc lands
+   100px inside the field at the narrower breakpoints. */
+.th-header .menu-area .box-search {
+  position: relative;
+  width: 100%;
+}
+
+.th-header .menu-area .box-search input {
+  background-color: #FFFFFF;
+  /* The field is white on a band that is nearly white, so it needs a line to
+     have an edge at all. */
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.08);
+  padding-left: 54px;
+}
+
+.th-header .menu-area .box-search .th-btn {
+  position: absolute;
+  left: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 38px;
+  height: 38px;
+  min-width: 0;
+  padding: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
