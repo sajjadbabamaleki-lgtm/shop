@@ -69,6 +69,12 @@ for (const [from, to] of Object.entries(SVG_GOLD)) {
 // grey placeholder. Two slides share this source, both the same product.
 html = html.split('assets/img/hero/hero_6_2.png').join('assets/img/hero/vikyplus-hero-1.png');
 
+// Three gold bars behind the hero, drawn as real elements so both ends can be
+// rounded. First thing in the body, so they paint behind the header and the
+// card and get frosted where they pass under either.
+html = html.replace(/(<body[^>]*>)/i,
+  '$1\n    <div class="vp-hero-marks" aria-hidden="true"><i class="m-fall"></i><i class="m-near"></i><i class="m-far"></i></div>');
+
 // Swiper reads the container's own dir attribute, not the inherited one.
 html = html.replace(/<div class="swiper([^"]*)"/g, '<div dir="rtl" class="swiper$1"');
 

@@ -819,33 +819,59 @@ option:hover {
    thing doing the softening. A pane over a white page has nothing to soften,
    which is why the card first read as a plain white card.
 
-   So the gold sits on the page itself, behind everything, and stays sharp.
-   One ball is placed to run through the header band, the gap below it and the
-   top of the card: sharp in the gap, taken apart by the blur under each pane.
-   The same ball, three treatments — that is the pane being seen rather than a
-   tint being applied.
+   So the gold sits on the page itself, behind everything, and stays sharp: it
+   runs through the header band, the gap below it and the card, sharp in the
+   gap and taken apart by the blur under each pane. The same mark, three
+   treatments — that is the pane being seen rather than a tint being applied.
 
-   It goes on the body rather than the hero section because that section is
-   overflow: hidden in the template and would clip anything reaching up into
-   the header.
+   The marks go on the body rather than the hero section because that section
+   is overflow: hidden in the template and would clip anything reaching up
+   into the header. They are real elements rather than background layers so
+   both ends can be rounded.
+
+   Three bars, sized off the buy button: half its height thick, three times
+   its width long — 26 x 482, fully rounded.
    -------------------------------------------------------------------------- */
 
-body:before {
-  content: '';
+.vp-hero-marks {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 900px;
+  inset: 0 auto auto 0;
+  width: 100%;
+  height: 0;
   z-index: 0;
   pointer-events: none;
-  /* The gold is carried at 30% rather than solid, so the circles read as a
-     tint under the glass instead of three discs on the page. The stops and
-     the geometry are unchanged; only the alpha moved. */
-  background-image:
-    radial-gradient(circle 137px at 62% 238px, rgba(200, 154, 46, 0.3) 0%, rgba(200, 154, 46, 0.3) 74%, rgba(200, 154, 46, 0) 100%),
-    radial-gradient(circle 81px at 96% 636px, rgba(200, 154, 46, 0.3) 0%, rgba(200, 154, 46, 0.3) 72%, rgba(200, 154, 46, 0) 100%),
-    radial-gradient(circle 80px at 3% 348px, rgba(200, 154, 46, 0.3) 0%, rgba(200, 154, 46, 0.3) 72%, rgba(200, 154, 46, 0) 100%);
+}
+
+.vp-hero-marks i {
+  position: absolute;
+  display: block;
+  background: #C89A2E;
+  border-radius: 999px;
+}
+
+/* Falling from the top of the page, through the header band and into the
+   card. */
+.vp-hero-marks .m-fall {
+  top: 0;
+  left: 560px;
+  width: 26px;
+  height: 482px;
+}
+
+/* Crossing the near edge of the card, high. */
+.vp-hero-marks .m-near {
+  top: 248px;
+  left: 29px;
+  width: 482px;
+  height: 26px;
+}
+
+/* Crossing the far edge, low, and running out to the viewport. */
+.vp-hero-marks .m-far {
+  top: 623px;
+  right: 0;
+  width: 482px;
+  height: 26px;
 }
 
 /* The header band. The dark strip above it keeps its own ground; this is the
