@@ -827,10 +827,10 @@ option:hover {
    -------------------------------------------------------------------------- */
 .heroSlide6 .discount-tag {
   box-sizing: border-box;
-  width: 118px;
-  height: 118px;
-  min-width: 118px;
-  min-height: 118px;
+  width: 106px;
+  height: 106px;
+  min-width: 106px;
+  min-height: 106px;
   padding: 0;
   background: none;
   border: 0;
@@ -839,6 +839,16 @@ option:hover {
   backdrop-filter: none;
   animation: none;
   transform: none;
+}
+
+/* Along the shot a little, off the template's own 9%. Physical, not logical:
+   this element computes direction: ltr whatever the page does, so the logical
+   start is its left and setting that sends it the wrong way — measured, 160px
+   the wrong way. The flipped sheet has already turned the template's left into
+   a right here, so the right is what to add to. */
+.heroSlide6 .discount-wrapp {
+  right: calc(9% + 26px);
+  left: auto;
 }
 
 .heroSlide6 .discount-tag .vp-burst {
