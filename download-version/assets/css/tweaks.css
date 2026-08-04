@@ -820,6 +820,14 @@ option:hover {
    the render. The backdrop blur goes with the transparency it was there for. The white ring stays — it is
    what holds the disc off the shoe, and the disc is dark enough now that it
    reads as a rim rather than as an edge doing the separating. */
+/* Off the shot for now, at the client's word — the disc, its number and the
+   ring of type with it. Everything that dresses it is left in place below, so
+   this one line puts it back. It is positioned out of the flow, so nothing
+   moves either way. */
+.heroSlide6 .discount-wrapp {
+  display: none;
+}
+
 .heroSlide6 .discount-tag {
   background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
   -webkit-backdrop-filter: none;
