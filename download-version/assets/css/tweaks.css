@@ -897,16 +897,56 @@ option:hover {
   height: 26px;
 }
 
-/* The header band. The dark strip above it keeps its own ground; this is the
-   band with the logo, nav and search. Same glass as the hero pane now, ink
-   tint and all, so the two read as one material. The sticky state — which the
-   template repaints solid white — is held to it. */
+/* The header, as an island. The dark strip above it keeps its own ground and
+   its full width; this is the band with the logo, nav and search, and it is
+   now a floating panel rather than a band that runs edge to edge.
+
+   Its width matches the category row exactly — 1230 — so the header, the hero
+   deck and the tiles all sit on one pair of edges rather than three.
+
+   Same glass as the hero pane, ink tint and all, so the two read as one
+   material. The sticky wrapper is held transparent: the template repaints it
+   solid white, and any ground on it would put a full-width band back behind
+   the island the moment the page scrolls. */
 .th-header .menu-area,
-.th-header .sticky-wrapper.sticky,
 .th-header .sticky-wrapper.sticky .menu-area {
+  max-width: 1230px;
+  margin-inline: auto;
+  margin-block-start: 12px;
+  border-radius: 24px;
   background: rgba(16, 17, 17, 0.035);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
+}
+
+.th-header .sticky-wrapper.sticky {
+  background: transparent;
+}
+
+/* The row's three groups measured 225 + 592 + 438 = 1255 at their natural
+   widths against 1202 of usable row, so at 1230 the search and the cart
+   wrapped onto a second line. The search field is the only one of the three
+   carrying slack — the logo and the nav are as wide as their content — so it
+   gives up what the row needs. 300px still left it 3px over and wrapping; 275
+   brings the three to 1180 with 22 to spare. */
+.th-header .menu-area .top-search {
+  width: 275px;
+}
+
+/* The row is a wrapping flex row, and once the island narrowed it, it chose to
+   wrap even where the three groups did fit — measured 1180 into 1202. Held to
+   one line explicitly, but only from 1200 up: below that the nav is still
+   shown and genuinely does not fit, and forcing one line there pushed 152px
+   of overflow off the side of the page. */
+@media (min-width: 1200px) {
+  .th-header .menu-area .row {
+    flex-wrap: nowrap;
+  }
+}
+
+/* Content off the rounded corners. */
+.th-header .menu-area > .container {
+  padding-inline: 26px;
 }
 
 /* The pane. */
