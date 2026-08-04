@@ -831,6 +831,7 @@ option:hover {
 
    Three bars, sized off the buy button: half its height thick, three times
    its width long, then trimmed over four passes — 26 x 218, fully rounded.
+   The vertical one runs half that, 109.
    -------------------------------------------------------------------------- */
 
 .vp-hero-marks {
@@ -862,7 +863,7 @@ option:hover {
   top: 77px;
   left: 560px;
   width: 26px;
-  height: 218px;
+  height: 109px;
 }
 
 /* Under the shoe, which runs to y 610, still crossing the card's near edge at
