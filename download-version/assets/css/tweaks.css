@@ -1263,7 +1263,7 @@ option:hover {
   max-width: 150px;
   margin-inline: auto;
   border-radius: 30px;
-  background: #F4F4F4;
+  background: rgba(255, 255, 255, 0.8);
   box-shadow:
     0 0 0 1px rgba(16, 17, 17, 0.05),
     0 8px 22px -12px rgba(16, 17, 17, 0.18);
@@ -1277,12 +1277,15 @@ option:hover {
     0 18px 34px -14px rgba(16, 17, 17, 0.24);
 }
 
+/* The subjects are cut out, so they are fitted rather than filled: cover would
+   crop a shoe that has no background to lose. The inset is the tile's own
+   padding — without it the cut-out would touch the rounded corners. */
 .vp-category img {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  inset: 12px 12px 40px;
+  width: calc(100% - 24px);
+  height: calc(100% - 52px);
+  object-fit: contain;
   transition: transform 0.5s ease;
 }
 
