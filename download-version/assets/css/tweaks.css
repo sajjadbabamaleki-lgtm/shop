@@ -954,7 +954,12 @@ option:hover {
   filter: blur(8px);
 }
 
-/* The top mark is a circle rather than a bar, 161 across.
+/* The three marks below are placed in the page's own coordinates, not the
+   card's, so they have to be moved whenever anything above them changes
+   height. All three came up 9px with the header island when it went from 85
+   to 76; the gaps quoted in each are the ones that matter and are unchanged.
+
+   The top mark is a circle rather than a bar, 161 across.
 
    Centred on the card, not on the page: the card runs 107..1334, so its middle
    is 720 and the circle's left edge is 640.
@@ -965,7 +970,7 @@ option:hover {
    that the 8px blur's falloff lands on the card rather than against its
    edge. */
 .vp-hero-marks .m-fall {
-  top: 211px;
+  top: 202px;
   /* A tenth off the 161 it was drawn at. Still centred on the card, so the
      16px it loses come off both sides: 720 - 145/2 = 647. */
   left: 647px;
@@ -982,7 +987,7 @@ option:hover {
    the shoe. It follows the shoe up: the shot now ends at y 593, and the bar
    keeps the same 16px under it. */
 .vp-hero-marks .m-near {
-  top: 609px;
+  top: 600px;
   left: 29px;
   width: 204px;
   height: 26px;
@@ -996,7 +1001,7 @@ option:hover {
    card's top edge. Down 18px, to 30 above the label and 51 below the card's
    edge, so it groups with the writing rather than floating over it. */
 .vp-hero-marks .m-far {
-  top: 238px;
+  top: 229px;
   right: 29px;
   width: 204px;
   height: 26px;
@@ -1057,10 +1062,10 @@ option:hover {
 
    The height is stated on the row instead, and everything in it is centred, so
    the icon's air above and below is the same by construction rather than by
-   arithmetic on someone else's padding. 85px is the 20% cut from the original
-   106. */
+   arithmetic on someone else's padding. It was 85 — the 20% cut from the
+   template's 106 — and is now 76. */
 .th-header .menu-area .row {
-  min-height: 85px;
+  min-height: 76px;
   align-items: center;
 }
 
@@ -1089,12 +1094,13 @@ option:hover {
   }
 }
 
-/* Content off the rounded corners, and set to the same 16.5 the icon has above
-   and below it — (85 - 52) / 2 — so the air around the app icon is equal on all
-   three sides it touches. The row's negative margin cancels the columns' own
-   gutter at the outer edges, so this padding is the whole inset. */
+/* Content off the rounded corners, and set to the same air the icon has above
+   and below it — (76 - 52) / 2 — so the gap around the app icon is equal on all
+   three sides it touches. It follows the island's height: at 85 this was 16.5.
+   The row's negative margin cancels the columns' own gutter at the outer edges,
+   so this padding is the whole inset. */
 .th-header .menu-area > .container {
-  padding-inline: 16.5px;
+  padding-inline: 12px;
 }
 
 /* The pane. */
