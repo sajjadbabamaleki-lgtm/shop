@@ -85,8 +85,9 @@ html = html.replace(
   '                            </div>'
 );
 
-// The row under the hero carries the six shoe categories from the old site
-// instead of the template's four service boxes. Drawings only, no labels.
+// The row under the hero carries the six shoe categories instead of the
+// template's four service boxes. Icons only, no labels — the names live on the
+// links as their accessible names.
 // Right to left, the order the row reads in.
 const CATEGORIES = [
   ['majlesi', 'مجلسی'],
@@ -104,7 +105,7 @@ const CATEGORY_ROW =
   CATEGORIES.map(([file, name]) =>
     '\n                <div class="col-4 col-lg-2">' +
     `\n                    <a class="vp-category" href="shop.html" aria-label="${name}">` +
-    `\n                        <img src="assets/img/category/${file}.png" alt="" loading="lazy">` +
+    `\n                        <img src="assets/img/category/${file}.svg" alt="" loading="lazy">` +
     '\n                    </a>' +
     '\n                </div>'
   ).join('') +
