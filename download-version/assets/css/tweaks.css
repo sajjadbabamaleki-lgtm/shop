@@ -840,18 +840,20 @@ option:hover {
    -------------------------------------------------------------------------- */
 
 .vp-hero-marks {
-  /* The falling disc's box, in the page's own coordinates. Both the disc and
-     the writing on it are placed from these. */
-  --fall-x: 597px;
+  /* The falling disc's box, in the page's own coordinates.
+
+     A tenth wider than the 145 it was drawn at, and back on the card's centre
+     line: the card runs 107..1333, so its middle is 720 and a 160 disc starts
+     at 640. 160 rather than the 159.5 a tenth comes to, because the round
+     number is what lands the disc exactly on that line. */
+  --fall-x: 640px;
   --fall-y: 232px;
-  --fall-size: 145px;
+  --fall-size: 160px;
   position: absolute;
   inset: 0 auto auto 0;
   width: 100%;
   height: 0;
-  /* No stacking context of its own. The marks still paint first, because they
-     come first, so the pane still frosts them; but the writing on the disc can
-     be lifted over the pane on its own, which a z-index here would prevent. */
+  z-index: 0;
   pointer-events: none;
 }
 
@@ -893,40 +895,6 @@ option:hover {
   left: var(--fall-x);
   width: var(--fall-size);
   height: var(--fall-size);
-}
-
-/* The offer, written on the disc. Soft, but its own softness rather than the
-   pane's.
-
-   Under the glass it was gone: the pane frosts its backdrop by 10px, about the
-   stroke width of this type, so nothing came through but a white band on the
-   pink. Over the glass with no blur at all it read as a hard label stuck on
-   the page, which is the other thing it must not be. So it sits over the pane
-   and carries a 3px blur of its own — the words hold their shape and stay
-   readable, and the edges are wool. 2px was still crisp, 5px lost the word.
-
-   Not a child of the disc: the marks carry a blur filter already and a child
-   would inherit that as well. It takes the disc's box from the same three
-   numbers the disc does, so the two cannot drift apart. */
-.vp-hero-marks .m-fall-text {
-  position: absolute;
-  z-index: 20;
-  filter: blur(3px);
-  top: var(--fall-y);
-  left: var(--fall-x);
-  width: var(--fall-size);
-  height: var(--fall-size);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #FFFFFF;
-  font-family: var(--body-font);
-  font-weight: 800;
-  /* Three glyphs instead of eight, so it can be set to the disc rather than
-     squeezed across it. */
-  font-size: 40px;
-  line-height: 1;
-  white-space: nowrap;
 }
 
 /* Under the shoe, still crossing the card's near edge at x 107 so the glass

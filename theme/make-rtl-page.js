@@ -127,13 +127,8 @@ html = html.replace(/<div class="discount-wrapp style2">[\s\S]*?<\/div>\s*<\/div
 // Three gold bars behind the hero, drawn as real elements so both ends can be
 // rounded. First thing in the body, so they paint behind the header and the
 // card and get frosted where they pass under either.
-//
-// The disc carries the offer, written on it rather than on the card, so it
-// reads through the pane's frosting. It is a sibling of the disc and not a
-// child: the marks are blurred by a filter, which a child would inherit.
 html = html.replace(/(<body[^>]*>)/i,
-  '$1\n    <div class="vp-hero-marks" aria-hidden="true"><i class="m-fall"></i><i class="m-near"></i><i class="m-far"></i>' +
-  '<span class="m-fall-text">۲۵٪</span></div>');
+  '$1\n    <div class="vp-hero-marks" aria-hidden="true"><i class="m-fall"></i><i class="m-near"></i><i class="m-far"></i></div>');
 
 // Swiper reads the container's own dir attribute, not the inherited one.
 html = html.replace(/<div class="swiper([^"]*)"/g, '<div dir="rtl" class="swiper$1"');
