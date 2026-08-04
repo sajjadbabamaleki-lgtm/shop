@@ -809,6 +809,23 @@ option:hover {
   background-image: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
 }
 
+/* The discount disc on the shoe takes the same ramp, so all three gold things
+   on the page are one colour. It was white glass, which is the card's own
+   material — the badge read as a piece of the pane that had come loose over
+   the shot rather than as a mark on it.
+
+   The type stays ink and gains from the change: it was on 63% white over the
+   photograph, so its ground moved with whatever was behind it, and now it sits
+   on 7.1:1 at the disc's dark end and 9.3:1 at the light, both measured off
+   the render. The backdrop blur goes with the transparency it was there for. The white ring stays — it is
+   what holds the disc off the shoe, and the disc is dark enough now that it
+   reads as a rim rather than as an edge doing the separating. */
+.heroSlide6 .discount-tag {
+  background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
 /* --------------------------------------------------------------------------
    Glass: the header band and the hero cards.
 
