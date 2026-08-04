@@ -614,11 +614,10 @@ Hero Area
                                     <div class="col-lg-6">
                                         <div class="hero-img" data-ani="slideinrighthero" data-ani-delay="0.8s">
                                             <img src="assets/img/hero/hero_6_1.png" alt="Image">
-                                            <div class="discount-wrapp style2">
-                                                <h4 class="discount">26%</h4>
-                                                <div class="discount-tag">
-                                                    <span class="discount-anime">15% off save 15% off save</span>
-                                                </div>
+                                            <div class="vp-deal">
+                                                <span class="vp-deal-timer" data-deal-countdown>--:--:--</span>
+                                                <span class="vp-deal-disc">۲۶٪</span>
+                                                <span class="vp-deal-label">تخفیف ویژه</span>
                                             </div>
                                             <div class="hero6-shape" data-mask-src="assets/img/shape/hot.png"></div>
                                         </div>
@@ -645,11 +644,10 @@ Hero Area
                                     <div class="col-lg-6">
                                         <div class="hero-img" data-ani="slideinrighthero" data-ani-delay="0.8s">
                                             <img src="assets/img/hero/vikyplus-hero-1.png" alt="Image">
-                                            <div class="discount-wrapp style2">
-                                                <h4 class="discount">26%</h4>
-                                                <div class="discount-tag">
-                                                    <span class="discount-anime">15% off save 15% off save</span>
-                                                </div>
+                                            <div class="vp-deal">
+                                                <span class="vp-deal-timer" data-deal-countdown>--:--:--</span>
+                                                <span class="vp-deal-disc">۲۶٪</span>
+                                                <span class="vp-deal-label">تخفیف ویژه</span>
                                             </div>
                                             <div class="hero6-shape" data-mask-src="assets/img/shape/hot.png"></div>
                                         </div>
@@ -676,11 +674,10 @@ Hero Area
                                     <div class="col-lg-6">
                                         <div class="hero-img" data-ani="slideinrighthero" data-ani-delay="0.8s">
                                             <img src="assets/img/hero/hero_6_3.png" alt="Image">
-                                            <div class="discount-wrapp style2">
-                                                <h4 class="discount">26%</h4>
-                                                <div class="discount-tag">
-                                                    <span class="discount-anime">15% off save 15% off save</span>
-                                                </div>
+                                            <div class="vp-deal">
+                                                <span class="vp-deal-timer" data-deal-countdown>--:--:--</span>
+                                                <span class="vp-deal-disc">۲۶٪</span>
+                                                <span class="vp-deal-label">تخفیف ویژه</span>
                                             </div>
                                             <div class="hero6-shape" data-mask-src="assets/img/shape/hot.png"></div>
                                         </div>
@@ -707,11 +704,10 @@ Hero Area
                                     <div class="col-lg-6">
                                         <div class="hero-img" data-ani="slideinrighthero" data-ani-delay="0.8s">
                                             <img src="assets/img/hero/hero_6_1.png" alt="Image">
-                                            <div class="discount-wrapp style2">
-                                                <h4 class="discount">26%</h4>
-                                                <div class="discount-tag">
-                                                    <span class="discount-anime">15% off save 15% off save</span>
-                                                </div>
+                                            <div class="vp-deal">
+                                                <span class="vp-deal-timer" data-deal-countdown>--:--:--</span>
+                                                <span class="vp-deal-disc">۲۶٪</span>
+                                                <span class="vp-deal-label">تخفیف ویژه</span>
                                             </div>
                                             <div class="hero6-shape" data-mask-src="assets/img/shape/hot.png"></div>
                                         </div>
@@ -738,11 +734,10 @@ Hero Area
                                     <div class="col-lg-6">
                                         <div class="hero-img" data-ani="slideinrighthero" data-ani-delay="0.8s">
                                             <img src="assets/img/hero/vikyplus-hero-1.png" alt="Image">
-                                            <div class="discount-wrapp style2">
-                                                <h4 class="discount">26%</h4>
-                                                <div class="discount-tag">
-                                                    <span class="discount-anime">15% off save 15% off save</span>
-                                                </div>
+                                            <div class="vp-deal">
+                                                <span class="vp-deal-timer" data-deal-countdown>--:--:--</span>
+                                                <span class="vp-deal-disc">۲۶٪</span>
+                                                <span class="vp-deal-label">تخفیف ویژه</span>
                                             </div>
                                             <div class="hero6-shape" data-mask-src="assets/img/shape/hot.png"></div>
                                         </div>
@@ -769,11 +764,10 @@ Hero Area
                                     <div class="col-lg-6">
                                         <div class="hero-img" data-ani="slideinrighthero" data-ani-delay="0.8s">
                                             <img src="assets/img/hero/hero_6_3.png" alt="Image">
-                                            <div class="discount-wrapp style2">
-                                                <h4 class="discount">26%</h4>
-                                                <div class="discount-tag">
-                                                    <span class="discount-anime">15% off save 15% off save</span>
-                                                </div>
+                                            <div class="vp-deal">
+                                                <span class="vp-deal-timer" data-deal-countdown>--:--:--</span>
+                                                <span class="vp-deal-disc">۲۶٪</span>
+                                                <span class="vp-deal-label">تخفیف ویژه</span>
                                             </div>
                                             <div class="hero6-shape" data-mask-src="assets/img/shape/hot.png"></div>
                                         </div>
@@ -2424,6 +2418,25 @@ Brand Area
 
     <!-- Main Js File -->
     <script src="assets/js/main.js"></script>
+    <script>
+        (function () {
+            var fields = document.querySelectorAll("[data-deal-countdown]");
+            if (!fields.length) return;
+            var pad = function (n) {
+                return n.toLocaleString("fa-IR", { minimumIntegerDigits: 2, useGrouping: false });
+            };
+            var tick = function () {
+                var now = new Date();
+                var end = new Date(now);
+                end.setHours(24, 0, 0, 0);
+                var left = Math.max(0, Math.floor((end - now) / 1000));
+                var text = pad(Math.floor(left / 3600)) + ":" + pad(Math.floor(left / 60) % 60) + ":" + pad(left % 60);
+                for (var i = 0; i < fields.length; i++) fields[i].textContent = text;
+            };
+            tick();
+            setInterval(tick, 1000);
+        }());
+    </script>
 </body>
 
 </html>
