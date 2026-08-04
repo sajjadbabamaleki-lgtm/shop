@@ -991,7 +991,7 @@ option:hover {
    card's top edge. Down 18px, to 30 above the label and 51 below the card's
    edge, so it groups with the writing rather than floating over it. */
 .vp-hero-marks .m-far {
-  top: 229px;
+  top: 235px;
   right: 29px;
   width: 204px;
   height: 26px;
@@ -1381,12 +1381,15 @@ option:hover {
    The card's height is not set by the shot — that is sized off the column's
    width and does not move — but by the copy beside it: the template pads that
    column 120px top and bottom, and the tallest slide's copy is what every card
-   is levelled to. At 120 the shoe cleared the card's edges by 93px. 107 takes
-   the 26px off that closes the difference. Below 992 the template stacks the
-   two columns and pads them differently, so this stays on the wide layout. */
+   is levelled to. At 120 the shoe cleared the card's edges by 93px. 107 took
+   the 26px off that closed the difference, and 112.5 gives back half of the
+   10px the buy button lost when it came down a fifth — the copy sets this
+   height, so anything in it that changes size has to be answered here or the
+   shoe's 80 goes with it. Below 992 the template stacks the two columns and
+   pads them differently, so this stays on the wide layout. */
 @media (min-width: 992px) {
   .heroSlide6 .hero-style6 {
-    padding-block: 107px;
+    padding-block: 112.5px;
   }
 }
 
@@ -1630,7 +1633,16 @@ option:hover {
    -------------------------------------------------------------------------- */
 .heroSlide6 .hero-inner .th-btn {
   color: #FFFFFF;
-  border-radius: 14px;
+  /* A fifth off the whole button, not just its type: every measure the
+     template gives it is multiplied by 0.8, so the proportions hold and it
+     shrinks as one thing. 18 → 14.4 type, 16.5/24 → 13.2/19.2 padding,
+     14 → 11.2 corner, 8 → 6.4 between the label and the arrow. It measured
+     161x51 and comes out 129x41. The arrow takes the type's size, so it
+     follows on its own. */
+  font-size: 14.4px;
+  padding: 13.2px 19.2px;
+  border-radius: 11.2px;
+  gap: 6.4px;
 }
 
 .heroSlide6 .hero-inner .th-btn.th-icon:after {
