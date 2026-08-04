@@ -912,11 +912,15 @@ body:before {
    the card's corner any more. */
 .heroSlide6 .hero-img {
   height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
+/* 70% of the column, centred in what is left. */
 .heroSlide6 .hero-img img {
-  width: 100%;
-  height: 100%;
+  width: 70%;
+  height: 70%;
   object-fit: contain;
 }
 
