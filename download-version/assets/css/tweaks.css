@@ -905,7 +905,7 @@ body:before {
    section's own top padding, so raising it moves the row down without
    touching the cards above. */
 .feature-area2 {
-  padding-block-start: 90px;
+  padding-block-start: 20px;
 }
 
 /* The product shot sat 12px inside the card's edge — the grid gutter on its
@@ -929,6 +929,22 @@ body:before {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+/* The card's drop shadow was being cut off. Three boxes ended on exactly the
+   same pixel as the card — .th-hero-wrapper, the swiper, and the card itself
+   all ran 172..760 — and the first two are overflow: hidden in the template.
+   So everything the card cast below its own edge was clipped away, and the
+   page's white met the card's bottom edge with no shadow between them: the
+   edge read as tucked under the white rather than lifted off it.
+
+   The clips stay — the swiper needs its one to keep the off-screen slides out
+   of view — and the swiper is given room below the slides instead, so the
+   shadow falls inside the clip rather than against it. The row beneath gives
+   back the same 70px from its own top padding, so the parting looks the same
+   as before and nothing below moves. */
+.heroSlide6 {
+  padding-bottom: 70px;
 }
 
 /* Only the card in front carries the edge. The slides either side peek out of
