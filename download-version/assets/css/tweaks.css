@@ -871,12 +871,13 @@ option:hover {
    Centred on the card, not on the page: the card runs 107..1334, so its middle
    is 720 and the circle's left edge is 640.
 
-   Dropped clear of the header so the whole disc sits on the card. The card
-   starts at 172, but 172 would only put the disc's geometry inside it — the
-   8px blur throws roughly 24px further, and the card's own clip would cut it
-   into a hard line along the top edge. 196 puts the falloff on the card too. */
+   Dropped clear of the header so the whole disc sits on the card, and then
+   some. The card starts at 187; 196 left only 9px between the card's top edge
+   and the disc, which read as the disc leaning on it. 211 gives it 24 — enough
+   that the 8px blur's falloff lands on the card rather than against its
+   edge. */
 .vp-hero-marks .m-fall {
-  top: 196px;
+  top: 211px;
   left: 640px;
   width: 161px;
   height: 161px;
@@ -1542,4 +1543,9 @@ option:hover {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* The hero cards' corners, a little rounder than the template's 60. */
+.heroSlide6 .hero-inner {
+  border-radius: 72px;
 }
