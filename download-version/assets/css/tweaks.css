@@ -1327,10 +1327,16 @@ option:hover {
   font-weight: 900;
 }
 
-.heroSlide6 .hero-inner .sub-title,
-.heroSlide6 .hero-inner .th-btn {
+.heroSlide6 .hero-inner .sub-title {
   font-family: 'Cairo', var(--body-font);
   font-weight: 700;
+}
+
+/* The button's label a step heavier than the small label above the title. Cairo
+   is variable, so 800 is a real weight and not a synthesised one. */
+.heroSlide6 .hero-inner .th-btn {
+  font-family: 'Cairo', var(--body-font);
+  font-weight: 800;
 }
 
 /* --------------------------------------------------------------------------
