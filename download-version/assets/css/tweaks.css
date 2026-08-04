@@ -805,7 +805,7 @@ option:hover {
 }
 
 /* --------------------------------------------------------------------------
-   Hero cards: glass, on the template's own recipe.
+   Glass: the header band and the hero cards.
 
    The template already has this effect — .beige-color, the panel that fades
    in over the small product cards on hover:
@@ -815,41 +815,44 @@ option:hover {
      border-radius: 8px;
 
    That panel reads as glass because it sits over a photograph: you see the
-   image sharp around it and softened under it, and the pane is the thing
-   doing the softening. A pane over a white page has nothing to soften, which
-   is why the card read as a plain white card.
+   image sharp around it and softened under it, and the pane is plainly the
+   thing doing the softening. A pane over a white page has nothing to soften,
+   which is why the card first read as a plain white card.
 
-   So the gold is placed on the hero wrapper rather than inside the card, and
-   left sharp. It crosses the card's edges: outside the card it is a hard,
-   saturated ball, and under the card the pane's own blur takes it apart. The
-   difference across that boundary is the whole effect — it is the pane being
-   seen, not a tint being applied.
+   So the gold sits on the page itself, behind everything, and stays sharp.
+   One ball is placed to run through the header band, the gap below it and the
+   top of the card: sharp in the gap, taken apart by the blur under each pane.
+   The same ball, three treatments — that is the pane being seen rather than a
+   tint being applied.
+
+   It goes on the body rather than the hero section because that section is
+   overflow: hidden in the template and would clip anything reaching up into
+   the header.
    -------------------------------------------------------------------------- */
 
-.th-hero-wrapper {
-  position: relative;
-  z-index: 0;
-}
-
-/* Two balls, one large one small, sharp. Positioned to straddle the card:
-   the large one over its top edge, the small one over its lower start edge. */
-.th-hero-wrapper:before {
+body:before {
   content: '';
   position: absolute;
-  /* Extended above and below the section so the balls are cut by the header
-     and by the row beneath — an occlusion that reads as depth — rather than
-     ending on a flat line in open space. */
-  inset: -130px 0 -120px 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 900px;
   z-index: 0;
   pointer-events: none;
   background-image:
-    radial-gradient(circle 152px at 62% 22%, #E9B84A 0%, #E9B84A 74%, rgba(233, 184, 74, 0) 100%),
-    radial-gradient(circle 90px at 90% 80%, #C89A2E 0%, #C89A2E 72%, rgba(200, 154, 46, 0) 100%);
+    radial-gradient(circle 152px at 62% 150px, #E9B84A 0%, #E9B84A 74%, rgba(233, 184, 74, 0) 100%),
+    radial-gradient(circle 90px at 90% 720px, #C89A2E 0%, #C89A2E 72%, rgba(200, 154, 46, 0) 100%);
 }
 
-.th-hero-wrapper > * {
-  position: relative;
-  z-index: 1;
+/* The header band. The dark strip above it keeps its own ground; this is the
+   white band with the logo, nav and search. Same recipe as the card, and the
+   sticky state — which the template repaints solid white — is held to it. */
+.th-header .menu-area,
+.th-header .sticky-wrapper.sticky,
+.th-header .sticky-wrapper.sticky .menu-area {
+  background: rgba(255, 255, 255, 0.5);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
 }
 
 /* The pane. */
