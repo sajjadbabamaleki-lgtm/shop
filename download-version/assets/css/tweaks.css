@@ -1282,9 +1282,9 @@ option:hover {
    padding — without it the cut-out would touch the rounded corners. */
 .vp-category img {
   position: absolute;
-  inset: 12px 12px 40px;
+  inset: 12px;
   width: calc(100% - 24px);
-  height: calc(100% - 52px);
+  height: calc(100% - 24px);
   object-fit: contain;
   transition: transform 0.5s ease;
 }
@@ -1293,14 +1293,16 @@ option:hover {
   transform: scale(1.05);
 }
 
-/* The strip. Same recipe as the hero pane — a thin white tint over a blur,
-   with a lit inner edge — so the two pieces of glass on the page are the same
-   material. It sits inside the tile's corners, not on them, which is what
-   keeps it reading as something laid on the photograph. */
+/* The strip, across the middle of the tile rather than along its foot. Same
+   recipe as the hero pane — a thin white tint over a blur, with a lit inner
+   edge — so the two pieces of glass on the page are the same material. It sits
+   inside the tile's corners, not on them, which is what keeps it reading as
+   something laid over the subject. */
 .vp-category-label {
   position: absolute;
   inset-inline: 10px;
-  inset-block-end: 10px;
+  inset-block-start: 50%;
+  transform: translateY(-50%);
   padding: 8px 10px;
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.55);
@@ -1320,8 +1322,22 @@ option:hover {
   text-overflow: ellipsis;
 }
 
+/* Six in one row at every width, so the set is never split across two lines.
+   The gutter and the type come down instead. */
 @media (max-width: 991px) {
-  .vp-category-row { --bs-gutter-x: 22px; --bs-gutter-y: 22px; }
-  .vp-category { border-radius: 24px; max-width: 130px; }
-  .vp-category-label { font-size: 13px; border-radius: 13px; }
+  .vp-category-row { --bs-gutter-x: 16px; --bs-gutter-y: 16px; }
+  .vp-category { border-radius: 22px; max-width: 130px; }
+  .vp-category-label { font-size: 12px; border-radius: 12px; padding: 6px 6px; }
+}
+
+@media (max-width: 575px) {
+  .vp-category-row { --bs-gutter-x: 8px; --bs-gutter-y: 8px; }
+  .vp-category { border-radius: 14px; }
+  .vp-category img { inset: 6px; width: calc(100% - 12px); height: calc(100% - 12px); }
+  .vp-category-label {
+    inset-inline: 4px;
+    padding: 3px 2px;
+    border-radius: 8px;
+    font-size: 9px;
+  }
 }

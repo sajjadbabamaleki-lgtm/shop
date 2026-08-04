@@ -103,7 +103,7 @@ const CATEGORIES = [
 const CATEGORY_ROW =
   '<div class="row vp-category-row">' +
   CATEGORIES.map(([file, name]) =>
-    '\n                <div class="col-4 col-lg-2">' +
+    '\n                <div class="col-2">' +
     '\n                    <a class="vp-category" href="shop.html">' +
     `\n                        <img src="assets/img/category/${file}.png" alt="" loading="lazy">` +
     `\n                        <span class="vp-category-label">${name}</span>` +
