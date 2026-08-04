@@ -931,10 +931,10 @@ body:before {
   justify-content: center;
 }
 
-/* 77% of the column, centred in what is left. */
+/* 81% of the column, centred in what is left. */
 .heroSlide6 .hero-img img {
-  width: 77%;
-  height: 77%;
+  width: 81%;
+  height: 81%;
   object-fit: contain;
 }
 
