@@ -5,8 +5,28 @@ carries the codenames for problems that have already cost a day. This file says
 what is finished, what is not, and what the finished part is not allowed to
 lose.
 
-The page is `download-version/shoe-shop-rtl.html`, generated. Everything below
-is about that page at 1440.
+## What is being built, and what this HTML is
+
+**The deliverable is the Laravel app in `storefront/`.** It is Laravel 13 on
+PostgreSQL with the data core already standing — brands, categories, products,
+variants, media, inventory, with the invariants pushed into the database. It
+has no storefront views yet: one route, returning `welcome.blade.php`.
+
+`download-version/shoe-shop-rtl.html` is **not the product**. It is the
+ThemeForest template with the design decisions layered on top, and it exists
+because settling a look costs a fraction as much on a static page as it does in
+Blade — every argument in this repo's history was settled by rendering that page
+and reading pixels.
+
+**Nothing has been ported yet.** The finished top of the page lives entirely in
+`download-version/assets/css/tweaks.css` and `theme/make-rtl-page.js`, and the
+Laravel app does not render any of it. Porting it — a layout, partials for the
+header, hero and category row, the assets moved under `public/`, the tweaks
+carried over — is the next piece of real work, and it is what turns this
+handoff into a storefront.
+
+The numbers below are what that port has to reproduce. Everything in this file
+is about the HTML page at 1440.
 
 ---
 
