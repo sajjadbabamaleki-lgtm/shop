@@ -1262,11 +1262,16 @@ option:hover {
   direction: rtl;
 }
 
+/* The tile's own white is #FDFDFD and the header band is #F7F7F7 — six levels
+   apart, which is no edge at all. The three shadows that used to separate it
+   are gone, so a hairline does the job instead: same device as the search
+   field, and not a shadow. */
 .vp-logo img {
   width: 52px;
   height: 52px;
   flex: none;
   border-radius: 12px;
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.10);
 }
 
 .vp-logo-text {
