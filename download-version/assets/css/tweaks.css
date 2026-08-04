@@ -830,7 +830,8 @@ option:hover {
    both ends can be rounded.
 
    Three bars, sized off the buy button: half its height thick, three times
-   its width long less 30%, then 10% off that — 26 x 303, fully rounded.
+   its width long, then trimmed to 242 over three passes — 26 x 242, fully
+   rounded.
    -------------------------------------------------------------------------- */
 
 .vp-hero-marks {
@@ -861,7 +862,7 @@ option:hover {
   top: 0;
   left: 560px;
   width: 26px;
-  height: 303px;
+  height: 242px;
 }
 
 /* Under the shoe, which runs to y 610, still crossing the card's near edge at
@@ -869,7 +870,7 @@ option:hover {
 .vp-hero-marks .m-near {
   top: 640px;
   left: 29px;
-  width: 303px;
+  width: 242px;
   height: 26px;
 }
 
@@ -878,7 +879,7 @@ option:hover {
 .vp-hero-marks .m-far {
   top: 244px;
   right: 0;
-  width: 303px;
+  width: 242px;
   height: 26px;
 }
 
