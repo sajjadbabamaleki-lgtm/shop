@@ -919,6 +919,13 @@ body:before {
   padding-block-start: 50px;
 }
 
+/* Both columns pulled in 5% from either side, so the shoe and the copy sit
+   closer to the middle of the card rather than against its edges. On the
+   card's own width that is about 61px a side. */
+.heroSlide6 .hero-inner > .container {
+  padding-inline: 5%;
+}
+
 /* The shot is a cut-out on a transparent ground, so it is fitted rather than
    filled: contain keeps the whole shoe and lets the glass read right across
    the card, where cover would have cropped it and walled off half the pane.
