@@ -910,10 +910,10 @@ option:hover {
    the island the moment the page scrolls. */
 .th-header .menu-area,
 .th-header .sticky-wrapper.sticky .menu-area {
-  /* 24 above and to both sides. Nothing below: the gap down to the hero is
+  /* 18 above and to both sides. Nothing below: the gap down to the hero is
      the hero's own 36px of padding, and a bottom margin here would stack on
      top of it and break the equal air above and below the deck. */
-  margin: 24px 24px 0;
+  margin: 18px 18px 0;
   border-radius: 24px;
   background: rgba(16, 17, 17, 0.035);
   -webkit-backdrop-filter: blur(10px);
