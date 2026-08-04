@@ -842,7 +842,7 @@ body:before {
   background-image:
     radial-gradient(circle 137px at 62% 238px, #C89A2E 0%, #C89A2E 74%, rgba(200, 154, 46, 0) 100%),
     radial-gradient(circle 81px at 96% 636px, #C89A2E 0%, #C89A2E 72%, rgba(200, 154, 46, 0) 100%),
-    radial-gradient(circle 80px at 6.5% 348px, #C89A2E 0%, #C89A2E 72%, rgba(200, 154, 46, 0) 100%);
+    radial-gradient(circle 80px at 3% 348px, #C89A2E 0%, #C89A2E 72%, rgba(200, 154, 46, 0) 100%);
 }
 
 /* The header band. The dark strip above it keeps its own ground; this is the
@@ -932,10 +932,10 @@ body:before {
   justify-content: center;
 }
 
-/* 81% of the column, centred in what is left. */
+/* 89% of the column, pinned to its far side by the rule further down. */
 .heroSlide6 .hero-img img {
-  width: 81%;
-  height: 81%;
+  width: 89%;
+  height: 89%;
   object-fit: contain;
 }
 
