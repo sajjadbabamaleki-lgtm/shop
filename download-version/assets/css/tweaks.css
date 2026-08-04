@@ -866,12 +866,12 @@ option:hover {
    Centred on the card, not on the page: the card runs 107..1334, so its middle
    is 720 and the circle's left edge is 640.
 
-   Held so that a sixth of it sits above the header's lower edge at 142 — 15%
-   of 161 is 24, so it starts at 118. That puts 118..142 under the header, the
-   30px gap below it in the open, and 172..279 over the card: two thirds of the
-   disc against the glass, which is where it should read. */
+   Dropped clear of the header so the whole disc sits on the card. The card
+   starts at 172, but 172 would only put the disc's geometry inside it — the
+   8px blur throws roughly 24px further, and the card's own clip would cut it
+   into a hard line along the top edge. 196 puts the falloff on the card too. */
 .vp-hero-marks .m-fall {
-  top: 118px;
+  top: 196px;
   left: 640px;
   width: 161px;
   height: 161px;
