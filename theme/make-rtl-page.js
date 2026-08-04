@@ -143,8 +143,8 @@ const RING =
   '<stop offset="0%" stop-color="#C0972F"></stop><stop offset="100%" stop-color="#E3B54A"></stop>' +
   '</linearGradient></defs>' +
   '<path fill="url(#vp-burst-gold)" d="' + BURST_PATH + '"></path>' +
-  '<text class="vp-burst-num" x="75" y="71">25%</text>' +
-  '<text class="vp-burst-off" x="75" y="97">OFF</text>' +
+  '<text class="vp-burst-num" x="75" y="72">25%</text>' +
+  '<text class="vp-burst-off" x="75" y="98">OFF</text>' +
   '</svg>';
 
 html = html.replace(

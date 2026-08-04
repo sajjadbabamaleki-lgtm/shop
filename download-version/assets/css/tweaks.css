@@ -827,10 +827,10 @@ option:hover {
    -------------------------------------------------------------------------- */
 .heroSlide6 .discount-tag {
   box-sizing: border-box;
-  width: 106px;
-  height: 106px;
-  min-width: 106px;
-  min-height: 106px;
+  width: 101px;
+  height: 101px;
+  min-width: 101px;
+  min-height: 101px;
   padding: 0;
   background: none;
   border: 0;
@@ -847,7 +847,7 @@ option:hover {
    the wrong way. The flipped sheet has already turned the template's left into
    a right here, so the right is what to add to. */
 .heroSlide6 .discount-wrapp {
-  right: calc(9% + 26px);
+  right: calc(9% + 41px);
   left: auto;
 }
 
@@ -863,7 +863,10 @@ option:hover {
   text-anchor: middle;
   font-family: 'Cairo', var(--title-font);
   font-weight: 900;
-  font-size: 26px;
+  /* In the burst's own units, so it scales with the shape. 28.7 against the
+     101px the burst is drawn at puts the type 5% larger on the page than the
+     26 did at 106 — the burst comes down and the writing goes up. */
+  font-size: 28.7px;
 }
 
 /* --------------------------------------------------------------------------
