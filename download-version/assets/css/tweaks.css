@@ -901,8 +901,8 @@ option:hover {
    its full width; this is the band with the logo, nav and search, and it is
    now a floating panel rather than a band that runs edge to edge.
 
-   Its width matches the category row exactly — 1230 — so the header, the hero
-   deck and the tiles all sit on one pair of edges rather than three.
+   It runs to the sides rather than to a fixed width, with the same 12px of air
+   on the left and right as it has on top, so the island sits in even margins.
 
    Same glass as the hero pane, ink tint and all, so the two read as one
    material. The sticky wrapper is held transparent: the template repaints it
@@ -910,9 +910,7 @@ option:hover {
    the island the moment the page scrolls. */
 .th-header .menu-area,
 .th-header .sticky-wrapper.sticky .menu-area {
-  max-width: 1230px;
-  margin-inline: auto;
-  margin-block-start: 12px;
+  margin: 12px;
   border-radius: 24px;
   background: rgba(16, 17, 17, 0.035);
   -webkit-backdrop-filter: blur(10px);
@@ -924,13 +922,26 @@ option:hover {
 }
 
 /* The row's three groups measured 225 + 592 + 438 = 1255 at their natural
-   widths against 1202 of usable row, so at 1230 the search and the cart
-   wrapped onto a second line. The search field is the only one of the three
-   carrying slack — the logo and the nav are as wide as their content — so it
-   gives up what the row needs. 300px still left it 3px over and wrapping; 275
-   brings the three to 1180 with 22 to spare. */
+   widths, which overran the island when it was held to 1230. The island runs
+   full width now, so the pressure is off, but the search keeps a set width:
+   left to itself it takes whatever is going and pushes the nav off centre. */
 .th-header .menu-area .top-search {
-  width: 275px;
+  width: 320px;
+}
+
+/* Below 1400 the island is narrower but the nav is still shown at full width,
+   and the row is held to one line — so the search has to give the difference
+   back or it pushes the row off the side of the page. */
+@media (max-width: 1399px) {
+  .th-header .menu-area .top-search { width: 185px; }
+}
+
+/* The header's height is the logo column's, and that column's height is the
+   template's 22px of padding above and below the lockup — nothing else in the
+   row comes close. 106px down to 85 is the 20% asked for, so the padding goes
+   to 11.5. */
+.th-header .menu-area .header-logo {
+  padding-block: 11.5px;
 }
 
 /* The row is a wrapping flex row, and once the island narrowed it, it chose to
@@ -1395,4 +1406,34 @@ option:hover {
     border-radius: 8px;
     font-size: 9px;
   }
+}
+
+/* The field's own input carries the template's fixed 350px, so narrowing the
+   field left the input hanging 63px off the side of the page. It follows the
+   field now. */
+.th-header .menu-area .top-search input {
+  width: 100%;
+}
+
+/* The search suggestions panel is a fixed 400px wide and hangs off the field.
+   Once the field narrowed to fit the island, the panel was wider than what it
+   hangs from and ran 113px off the side of the page — real scroll, measured,
+   not a phantom: the document scrolled to -113 at 1300px. Matching it to the
+   field keeps it inside whatever width the field ends up with. */
+.th-header .menu-area .top-search .search-suggestions,
+.th-header .menu-area .top-search .box-suggestions {
+  width: 100%;
+  min-width: 0;
+}
+
+/* The two off-canvas panels — the mobile menu and the side cart — are parked
+   outside the viewport until opened. Both are position:fixed, which is why the
+   body's own overflow:hidden never clipped them: it does not apply to fixed
+   descendants. In the LTR template they park off the left, where an overhang
+   costs nothing; the RTL flip moved them to the right, where it becomes real
+   horizontal scroll. Each wrapper is fixed and viewport-sized, so clipping it
+   parks the panel without touching how it slides in. */
+.th-menu-wrapper,
+.sidemenu-wrapper {
+  overflow: hidden;
 }
