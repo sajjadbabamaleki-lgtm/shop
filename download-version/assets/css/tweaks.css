@@ -845,15 +845,7 @@ option:hover {
 }
 
 /* --------------------------------------------------------------------------
-   The ring of type on the disc.
-
-   Drawn as text on an SVG path rather than a letter to a box, because Persian
-   letters join and one letter to a box renders every one of them isolated. The
-   path curves the line; the glyphs are left alone, so the joins survive.
-
-   The spacing between the words does the filling — the phrase runs twice and
-   the word gaps stretch it round the circle. Letter spacing cannot be used for
-   that here: adding it between joined letters pulls the word apart.
+   The ring on the disc: two dashed arcs, where the writing was.
    -------------------------------------------------------------------------- */
 .heroSlide6 .discount-tag .vp-ring {
   position: absolute;
@@ -885,12 +877,11 @@ option:hover {
   margin-top: 0;
 }
 
-.heroSlide6 .discount-tag .vp-ring text {
-  fill: #101111;
-  font-family: var(--body-font);
-  font-weight: 600;
-  font-size: 13px;
-  word-spacing: 6px;
+.heroSlide6 .discount-tag .vp-ring path {
+  fill: none;
+  stroke: rgba(16, 17, 17, 0.35);
+  stroke-width: 2;
+  stroke-dasharray: 7 6;
 }
 
 /* --------------------------------------------------------------------------

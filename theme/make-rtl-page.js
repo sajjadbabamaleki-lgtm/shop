@@ -121,28 +121,18 @@ html = html.replace(
   '    </section>'
 );
 
-// The ring of type on the discount disc, in Persian.
+// The ring on the discount disc: two dashed arcs, one over the top and one
+// under the foot, where the writing was. Drawn as SVG strokes in the disc's own
+// 150-unit box, so they scale with it.
 //
-// The template builds it by wrapping every character in its own span and
-// rotating each one a step further round the circle. That cannot carry Persian:
-// the letters join, and one letter to a box renders every one of them in its
-// isolated form — a row of disconnected shapes, not words. So the ring is drawn
-// as text on an SVG path instead, which curves the line without touching the
-// glyphs, and the joins survive.
-//
-// The phrase is written once across the top half and once across the bottom,
-// on two half-circle paths rather than one full one, each line centred on its
-// own arc. The arcs run in opposite directions so that both lines are upright
-// to a reader: over the top the path goes left to right, under the foot it
-// comes back right to left.
+// Each arc runs from 165 degrees to 15, which leaves a gap at either side
+// rather than closing into a circle — two arcs, not a ring with two dashes
+// missing. The dash is 7 on 6 off against the 2px dotted perforation at the
+// disc's edge, so the two read as different marks rather than one repeated.
 const RING =
   '<svg class="vp-ring" viewBox="0 0 150 150" aria-hidden="true">' +
-  '<defs>' +
-  '<path id="vp-ring-top" fill="none" d="M 17,75 A 58,58 0 0,1 133,75"></path>' +
-  '<path id="vp-ring-bottom" fill="none" d="M 20,75 A 55,55 0 0,0 130,75"></path>' +
-  '</defs>' +
-  '<text dir="rtl"><textPath href="#vp-ring-top" startOffset="50%" text-anchor="middle">۲۵ درصد تخفیف ویژه</textPath></text>' +
-  '<text dir="rtl"><textPath href="#vp-ring-bottom" startOffset="50%" text-anchor="middle">۲۵ درصد تخفیف ویژه</textPath></text>' +
+  '<path d="M 19,60 A 58,58 0 0,1 131,60"></path>' +
+  '<path d="M 19,90 A 58,58 0 0,0 131,90"></path>' +
   '</svg>';
 
 html = html.replace(
