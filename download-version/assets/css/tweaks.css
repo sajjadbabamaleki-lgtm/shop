@@ -880,7 +880,7 @@ body:before {
     0 0 0 1px rgba(140, 110, 40, 0.16),
     inset 0 0 0 1px rgba(255, 255, 255, 0.7),
     inset 0 1px 0 rgba(255, 255, 255, 0.95),
-    0 26px 50px -34px rgba(16, 17, 17, 0.35);
+    0 14px 30px -24px rgba(16, 17, 17, 0.16);
 }
 
 /* Every card the same height. The template lets each card size to its own
@@ -905,7 +905,7 @@ body:before {
    section's own top padding, so raising it moves the row down without
    touching the cards above. */
 .feature-area2 {
-  padding-block-start: 20px;
+  padding-block-start: 50px;
 }
 
 /* The product shot sat 12px inside the card's edge — the grid gutter on its
@@ -941,10 +941,10 @@ body:before {
    The clips stay — the swiper needs its one to keep the off-screen slides out
    of view — and the swiper is given room below the slides instead, so the
    shadow falls inside the clip rather than against it. The row beneath gives
-   back the same 70px from its own top padding, so the parting looks the same
+   back the same 40px from its own top padding, so the parting looks the same
    as before and nothing below moves. */
 .heroSlide6 {
-  padding-bottom: 70px;
+  padding-bottom: 40px;
 }
 
 /* Only the card in front carries the edge. The slides either side peek out of
