@@ -861,16 +861,16 @@ option:hover {
   filter: blur(8px);
 }
 
-/* Falling through the header band and into the card. It starts 29px below the
-   dark strip, which ends at 48 — at 29 from the page top its head was behind
-   that strip, which paints over it, so the bar looked cut.
-
-*/
+/* The top mark is a circle rather than a bar. It keeps the bar's centre —
+   x 573, y 164 — so it still falls through the header band and into the card
+   the way the bar did, crossing both edges. 140 across: the two remaining bars
+   are 204 long, and a circle that size would outweigh them, since a disc
+   carries far more mass than a bar of the same span. */
 .vp-hero-marks .m-fall {
-  top: 77px;
-  left: 560px;
-  width: 26px;
-  height: 174px;
+  top: 94px;
+  left: 503px;
+  width: 140px;
+  height: 140px;
 }
 
 /* Under the shoe, which runs to y 610, still crossing the card's near edge at
