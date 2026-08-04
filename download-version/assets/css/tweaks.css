@@ -901,8 +901,8 @@ option:hover {
    its full width; this is the band with the logo, nav and search, and it is
    now a floating panel rather than a band that runs edge to edge.
 
-   It runs to the sides rather than to a fixed width, with the same 12px of air
-   on the left and right as it has on top, so the island sits in even margins.
+   It runs to the sides rather than to a fixed width, with the same air on the
+   left and right as it has on top, so the island sits in even margins.
 
    Same glass as the hero pane, ink tint and all, so the two read as one
    material. The sticky wrapper is held transparent: the template repaints it
@@ -910,7 +910,10 @@ option:hover {
    the island the moment the page scrolls. */
 .th-header .menu-area,
 .th-header .sticky-wrapper.sticky .menu-area {
-  margin: 12px;
+  /* 24 above and to both sides. Nothing below: the gap down to the hero is
+     the hero's own 36px of padding, and a bottom margin here would stack on
+     top of it and break the equal air above and below the deck. */
+  margin: 24px 24px 0;
   border-radius: 24px;
   background: rgba(16, 17, 17, 0.035);
   -webkit-backdrop-filter: blur(10px);
