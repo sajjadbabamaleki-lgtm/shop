@@ -920,7 +920,7 @@ option:hover {
      top of it and break the equal air above and below the deck. */
   margin: 18px 18px 0;
   border-radius: 24px;
-  background: rgba(16, 17, 17, 0.035);
+  background: rgba(16, 17, 17, 0.023);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
 }
@@ -1049,10 +1049,11 @@ option:hover {
 .heroSlide6 .swiper-slide:nth-child(5) .hero-inner,
 .heroSlide6 .swiper-slide:nth-child(6) .hero-inner {
   /* An ink tint rather than a white one, so the pane sits down into the page
-     instead of floating off it. Three passes: 8.5% read as a grey card, 5.5%
-     was still heavier than wanted, and 3.5% lands the pane on #F6F6F6 — below
-     the page's white, but only just. */
-  background: rgba(16, 17, 17, 0.035);
+     instead of floating off it. Four passes: 8.5% read as a grey card, 5.5%
+     was still heavier than wanted, 3.5% landed on #F7F7F7, and 2.3% takes it
+     to #FAFAFA — about as light as it can go and still be a pane rather than
+     the page. */
+  background: rgba(16, 17, 17, 0.023);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   /* No shadow. The tint alone now draws the pane's boundary — it is darker
