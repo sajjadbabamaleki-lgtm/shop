@@ -809,79 +809,59 @@ option:hover {
   background-image: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
 }
 
-/* The discount disc on the shoe takes the same ramp, so all three gold things
-   on the page are one colour. It was white glass, which is the card's own
-   material — the badge read as a piece of the pane that had come loose over
-   the shot rather than as a mark on it.
+/* --------------------------------------------------------------------------
+   The discount mark on the hero shot.
 
-   The type stays ink and gains from the change: it was on 63% white over the
-   photograph, so its ground moved with whatever was behind it, and now it sits
-   on 7.1:1 at the disc's dark end and 9.3:1 at the light, both measured off
-   the render. The backdrop blur goes with the transparency it was there for. The white ring stays — it is
-   what holds the disc off the shoe, and the disc is dark enough now that it
-   reads as a rim rather than as an edge doing the separating. */
+   A lobed burst rather than a disc, in the buy button's gold, carrying the
+   offer on two lines. The shape and the type are one SVG, so they scale
+   together and the lines stay centred on the burst at any size.
+
+   The template's own box is kept for the placing — it is what sits the mark on
+   the shot — but everything it drew is taken off: the glass, the white
+   hairline, the round corner, the tilt and the ten-second turn. What is left
+   is a box for the burst to fill.
+
+   The type is ink, not the button's white: on this gold white measures 2.6:1
+   and ink 5.1, and at this size that difference is the difference between
+   reading it and not.
+   -------------------------------------------------------------------------- */
 .heroSlide6 .discount-tag {
-  background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+  box-sizing: border-box;
+  width: 118px;
+  height: 118px;
+  min-width: 118px;
+  min-height: 118px;
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: 0;
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
-  /* Three tenths off the template's 150. The ring is drawn in the disc's own
-     150-unit space and scales with it, so the type comes down by the same
-     three tenths without being touched. */
-  box-sizing: border-box;
-  width: 105px;
-  height: 105px;
-  min-width: 105px;
-  min-height: 105px;
-  /* A stamp's perforation, in place of the template's white hairline. */
-  border: 2px dotted rgba(16, 17, 17, 0.35);
-  /* Still, and square to the page. The template tilts the disc 30 degrees and
-     turns it a full circle every ten seconds, which a ring that runs the whole
-     way round can carry — every letter keeps its place on it. A line across the
-     top and its repeat across the foot cannot: a third of the way through the
-     turn the foot is up the side and reading upside down. The arrangement only
-     means anything held still, so it is. */
   animation: none;
   transform: none;
 }
 
-/* --------------------------------------------------------------------------
-   The ring on the disc: two dashed arcs, where the writing was.
-   -------------------------------------------------------------------------- */
-.heroSlide6 .discount-tag .vp-ring {
-  position: absolute;
-  inset: 0;
+.heroSlide6 .discount-tag .vp-burst {
+  display: block;
   width: 100%;
   height: 100%;
-  overflow: visible;
 }
 
-/* The number, in the middle of the disc. The template puts it at 20% across
-   and 35% down and then nudges it with a negative margin — off-centre by
-   design, to sit inside a ring that ran the whole way round. With the ring in
-   two halves the middle is empty, so the number takes it: both insets are
-   stated so the flip has nothing to mirror. */
-.heroSlide6 .discount-wrapp .discount {
-  inset-inline: auto;
-  left: 50%;
-  top: 50%;
-  /* The ring scales with the disc because it is drawn in the disc's own units;
-     this is set in page pixels, so it takes the same three tenths by hand. */
-  font-size: 25px;
-  line-height: 1.1;
-  /* Upright with the disc: the 30 degrees the template gives it went with the
-     tilt the disc no longer has. The extra 2.4 up is the difference between
-     the box's middle and the numerals' own: the line box carries descender
-     space these glyphs do not use, and it is the ink that has to sit centred.
-     Measured after: the ink's centre and the disc's are the same pixel. */
-  transform: translate(-50%, calc(-50% - 2.4px));
-  margin-top: 0;
+.heroSlide6 .discount-tag .vp-burst text {
+  fill: #101111;
+  text-anchor: middle;
+  font-family: 'Cairo', var(--title-font);
 }
 
-.heroSlide6 .discount-tag .vp-ring path {
-  fill: none;
-  stroke: rgba(16, 17, 17, 0.35);
-  stroke-width: 2;
-  stroke-dasharray: 7 6;
+.heroSlide6 .discount-tag .vp-burst .vp-burst-num {
+  font-weight: 900;
+  font-size: 34px;
+}
+
+.heroSlide6 .discount-tag .vp-burst .vp-burst-off {
+  font-weight: 700;
+  font-size: 20px;
+  letter-spacing: 1px;
 }
 
 /* --------------------------------------------------------------------------
