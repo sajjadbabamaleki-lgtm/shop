@@ -864,17 +864,19 @@ option:hover {
   height: 303px;
 }
 
-/* Crossing the near edge of the card, high. */
+/* Under the shoe, which runs to y 610, still crossing the card's near edge at
+   x 107 so the glass takes it apart. */
 .vp-hero-marks .m-near {
-  top: 248px;
+  top: 640px;
   left: 29px;
   width: 303px;
   height: 26px;
 }
 
-/* Crossing the far edge, low, and running out to the viewport. */
+/* Top right, above the small label, which starts at y 292. Runs out to the
+   viewport so it crosses the card's far edge. */
 .vp-hero-marks .m-far {
-  top: 623px;
+  top: 244px;
   right: 0;
   width: 303px;
   height: 26px;
