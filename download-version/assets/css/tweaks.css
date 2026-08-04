@@ -814,34 +814,37 @@ option:hover {
 
    It replaces the template's spinning discount disc. Read right to left: how
    long the offer has left, the discount itself in a disc, and the offer's
-   name. The two wings take the buy button's fill and shape, at four fifths of
-   its size: 33px tall against the button's 41, an 8.96px corner against its
-   11.2, and 11px type. The disc is 82.5 across — half the template's badge,
-   and then a tenth back on — and carries no ring, so nothing draws its edge
-   but the gold itself.
+   name. The wings take the buy button's shape at four fifths of its size — a
+   33px bar with an 8.96px corner — and the disc, 82.5 across, swells out of
+   the middle of them.
 
-   The wings run under the disc rather than butting against it: each is padded
-   out on its inner end and then pulled back by half the overlap, so the disc
-   covers their inner corners entirely.
+   In glass rather than gold, the same material as the card and the header:
+   white at 55% over a blur. No hairline anywhere on it — the ring the disc
+   carried in gold was asked for and then asked away, and a lit edge on the
+   wings alone would only put the join back.
 
-   That alone still read as three pieces, because each was painting its own
-   gradient over its own height: the wings' 33px ramp met the disc's 82.5px
-   ramp at the join and the colours did not agree, so the disc's edge was drawn
-   across them in gold. The ramp is now one ramp — every part sizes it to the
-   lockup's full height and offsets it by its own distance from the lockup's
-   top, so the same y on the page is the same colour whichever piece is under
-   it. The disc's edge disappears where it crosses a wing, and what is left is
-   one gold silhouette: a bar with a swell in the middle.
+   Translucency is what makes the three read as one, and also what could give
+   them away. Where the disc lay over a wing the two alphas stacked and the
+   overlap came out lighter than either — the disc's edge drawn across the wing
+   in white, which is what it looked like in gold for the same reason. So the
+   wings do not run under the disc at all: each has the disc's own circle cut
+   out of it with a mask, positioned from the same numbers that set the
+   overlap, and the disc drops into the hole. One thickness of glass
+   everywhere, one blur, and a silhouette that is a bar with a swell in it.
 
-   The disc's number is ink on gold, 7.1:1 at the ramp's dark end. The wings
-   carry white, as the buy button does — that is 2.6:1, and the note on the
-   button applies here too, more so at this size.
+   The type is ink, the disc's number included — it was white on gold, which is
+   the one thing that cannot follow the pane onto white glass.
    -------------------------------------------------------------------------- */
 .vp-deal {
-  /* The lockup's own height is the disc's; the wings are centred in it. Both
-     numbers are used to line the gradients up, so they live here. */
+  /* The lockup's height is the disc's; the wings are centred in it and run
+     under it by --wing-overlap. The mask that cuts the disc out of them is
+     arithmetic on these three, so they are declared once, here. */
   --deal-height: 82.5px;
   --wing-height: 33px;
+  --wing-overlap: 16px;
+  --disc-radius: calc(var(--deal-height) / 2);
+  /* How far outside a wing's inner edge the disc's centre falls. */
+  --hole-offset: calc(var(--disc-radius) - var(--wing-overlap));
   position: absolute;
   inset-inline: 0;
   top: 38%;
@@ -853,58 +856,65 @@ option:hover {
 }
 
 .vp-deal-timer,
-.vp-deal-label {
+.vp-deal-label,
+.vp-deal-disc {
   display: flex;
   align-items: center;
-  height: var(--wing-height);
-  padding-inline: 15.36px;
-  border-radius: 8.96px;
-  background-image: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
-  background-size: 100% var(--deal-height);
-  background-position: 0 calc((var(--wing-height) - var(--deal-height)) / 2);
-  background-repeat: no-repeat;
-  color: #FFFFFF;
-  font-family: 'Cairo', var(--body-font);
-  font-weight: 700;
-  font-size: 11px;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.55);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  backdrop-filter: blur(12px) saturate(1.2);
+  color: #101111;
   line-height: 1;
   white-space: nowrap;
 }
 
+.vp-deal-timer,
+.vp-deal-label {
+  height: var(--wing-height);
+  padding-inline: 10px;
+  border-radius: 8.96px;
+  font-family: 'Cairo', var(--body-font);
+  font-weight: 700;
+  font-size: 11px;
+}
+
 .vp-deal-timer {
-  padding-inline-end: 25.6px;
-  margin-inline-end: -16px;
+  padding-inline-end: 21px;
+  margin-inline-end: calc(-1 * var(--wing-overlap));
   /* Vazirmatn, not the card's display face. Cairo draws the Persian digits in
      the Arabic forms — a ۴ as a ٤, a ۶ as a ٦ — which is the wrong numeral on
      a Persian page. Letters can have Cairo; digits cannot. */
   font-family: var(--body-font);
   /* So the seconds changing does not shuffle the rest of the row. */
   font-variant-numeric: tabular-nums;
+  /* The disc sits off this wing's inner end, which in this direction is its
+     left. Physical, because the mask's own position is. */
+  -webkit-mask-image: radial-gradient(circle var(--disc-radius)
+    at calc(-1 * var(--hole-offset)) 50%, transparent 100%, #000 100%);
+  mask-image: radial-gradient(circle var(--disc-radius)
+    at calc(-1 * var(--hole-offset)) 50%, transparent 100%, #000 100%);
 }
 
 .vp-deal-label {
-  padding-inline-start: 25.6px;
-  margin-inline-start: -16px;
+  padding-inline-start: 21px;
+  margin-inline-start: calc(-1 * var(--wing-overlap));
+  -webkit-mask-image: radial-gradient(circle var(--disc-radius)
+    at calc(100% + var(--hole-offset)) 50%, transparent 100%, #000 100%);
+  mask-image: radial-gradient(circle var(--disc-radius)
+    at calc(100% + var(--hole-offset)) 50%, transparent 100%, #000 100%);
 }
 
 .vp-deal-disc {
   position: relative;
   z-index: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   width: var(--deal-height);
   height: var(--deal-height);
   border-radius: 50%;
-  background-image: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
-  background-size: 100% var(--deal-height);
-  background-repeat: no-repeat;
-  color: #101111;
   /* Persian digits again, so the body face rather than Cairo. */
   font-family: var(--body-font);
   font-weight: 800;
   font-size: 24px;
-  line-height: 1;
 }
 
 /* --------------------------------------------------------------------------
