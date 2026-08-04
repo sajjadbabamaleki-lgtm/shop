@@ -797,10 +797,15 @@ option:hover {
      box top   #C0972F  ink 6.94:1
      box foot  #E3B54A  ink 9.88:1
 
-   Scoped to the hero while it is judged; the rest of the site still carries
-   the sampled ramp.
+   The search disc in the header takes the same ramp, so the two gold controls
+   on the page are one colour rather than two: it was carrying the sampled
+   #7D6324 to #CE9E29 and read noticeably darker beside the buy button.
+
+   Scoped to these two while the gold is judged; the rest of the site still
+   carries the sampled ramp.
    -------------------------------------------------------------------------- */
-.th-hero-wrapper .th-btn {
+.th-hero-wrapper .th-btn,
+.th-header .menu-area .box-search .th-btn {
   background-image: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
 }
 
