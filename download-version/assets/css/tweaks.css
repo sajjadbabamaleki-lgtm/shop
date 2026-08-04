@@ -1013,3 +1013,15 @@ body:before {
   font-family: 'Cairo', var(--body-font);
   font-weight: 700;
 }
+
+/* --------------------------------------------------------------------------
+   Hero title: 20% off its darkness.
+
+   The template sets it in --title-color, #101111. Each channel moves a fifth
+   of the way to white — #404141 — which is the same 20% whichever channel you
+   read it from. On the card's glass it measures 10.6:1, so it loses none of
+   its legibility.
+   -------------------------------------------------------------------------- */
+.heroSlide6 .hero-inner .hero-title {
+  color: #404141;
+}
