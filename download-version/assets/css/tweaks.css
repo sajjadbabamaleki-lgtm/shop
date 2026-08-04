@@ -856,10 +856,11 @@ option:hover {
   filter: blur(8px);
 }
 
-/* Falling from the top of the page, through the header band and into the
-   card. */
+/* Falling through the header band and into the card. Held 29px off the top of
+   the page, the same inset the bar below the shoe keeps from the left, so
+   both of its ends are on the page rather than one being cut by the edge. */
 .vp-hero-marks .m-fall {
-  top: 0;
+  top: 29px;
   left: 560px;
   width: 26px;
   height: 242px;
@@ -874,11 +875,11 @@ option:hover {
   height: 26px;
 }
 
-/* Top right, above the small label, which starts at y 292. Runs out to the
-   viewport so it crosses the card's far edge. */
+/* Top right, above the small label, which starts at y 292. Held 29px off the
+   right of the page for the same reason. */
 .vp-hero-marks .m-far {
   top: 244px;
-  right: 0;
+  right: 29px;
   width: 242px;
   height: 26px;
 }
