@@ -1234,3 +1234,52 @@ option:hover {
   .vp-logo-text b { font-size: 20px; }
   .vp-logo-text small { font-size: 11px; }
 }
+
+/* --------------------------------------------------------------------------
+   The category row under the hero.
+
+   Six drawings from the old site in place of the template's four service
+   boxes, and no labels — so each one is a card whose whole content is the
+   picture. The link still carries the category name as its accessible name;
+   six unlabelled pictures are nothing at all to a screen reader.
+
+   Six across on desktop, three on tablet and phone, which keeps two full rows
+   rather than a ragged one.
+   -------------------------------------------------------------------------- */
+
+.vp-category-row {
+  --bs-gutter-x: 22px;
+  --bs-gutter-y: 22px;
+}
+
+.vp-category {
+  display: block;
+  padding: 14px;
+  border-radius: 20px;
+  background: #FFF;
+  box-shadow:
+    0 0 0 1px rgba(16, 17, 17, 0.05),
+    0 6px 18px -10px rgba(16, 17, 17, 0.14);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.vp-category:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 0 0 1px rgba(164, 127, 37, 0.22),
+    0 14px 30px -12px rgba(16, 17, 17, 0.20);
+}
+
+/* The drawings were cut to one height, so a fixed box keeps the row level
+   whatever each one's width turned out to be. */
+.vp-category img {
+  display: block;
+  width: 100%;
+  height: 118px;
+  object-fit: contain;
+}
+
+@media (max-width: 991px) {
+  .vp-category { padding: 10px; border-radius: 16px; }
+  .vp-category img { height: 96px; }
+}

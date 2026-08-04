@@ -85,6 +85,40 @@ html = html.replace(
   '                            </div>'
 );
 
+// The row under the hero carries the six shoe categories from the old site
+// instead of the template's four service boxes. Drawings only, no labels.
+// Right to left, the order the row reads in.
+const CATEGORIES = [
+  ['majlesi', 'مجلسی'],
+  ['sneaker', 'ونس و کتونی'],
+  ['college', 'کالج'],
+  ['sandal', 'صندل'],
+  ['boot', 'بوت و نیم‌بوت'],
+  ['bag-set', 'ست کیف و کفش'],
+];
+
+// The name stays on the link as its accessible name: the row is navigation,
+// and a set of six unlabelled pictures is nothing at all to a screen reader.
+const CATEGORY_ROW =
+  '<div class="row vp-category-row">' +
+  CATEGORIES.map(([file, name]) =>
+    '\n                <div class="col-4 col-lg-2">' +
+    `\n                    <a class="vp-category" href="shop.html" aria-label="${name}">` +
+    `\n                        <img src="assets/img/category/${file}.png" alt="" loading="lazy">` +
+    '\n                    </a>' +
+    '\n                </div>'
+  ).join('') +
+  '\n            </div>';
+
+html = html.replace(
+  /<section class="feature-area2[^"]*">\s*<div class="container th-container">\s*<div class="row gy-4 gx-50">[\s\S]*?<\/div>\s*<\/div>\s*<\/section>/i,
+  '<section class="feature-area2 positive-relative overflow-hidden">\n' +
+  '        <div class="container th-container">\n' +
+  '            ' + CATEGORY_ROW + '\n' +
+  '        </div>\n' +
+  '    </section>'
+);
+
 // Three gold bars behind the hero, drawn as real elements so both ends can be
 // rounded. First thing in the body, so they paint behind the header and the
 // card and get frosted where they pass under either.
