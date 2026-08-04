@@ -124,6 +124,25 @@ html = html.replace(
 // The template's spinning discount disc comes off the hero shot altogether.
 html = html.replace(/<div class="discount-wrapp style2">[\s\S]*?<\/div>\s*<\/div>\s*/g, '');
 
+// The offer, in the copy column rather than on the photograph. Every badge
+// laid over the shoe was rejected, and rightly: that half of the card is the
+// product's. This half is where the card already speaks, so the price goes
+// here, under the title and above the button.
+//
+// Read right to left: what it costs now, what it cost, and how much off. The
+// figure carries the offer and the chip labels it — a percentage on its own
+// tells nobody what they will pay. Demo numbers, like every other price on
+// this page.
+const PRICE =
+  '<div class="vp-price" data-ani="slideinup" data-ani-delay="0.6s">' +
+  '\n                                                <span class="vp-price-now">۲٬۴۰۰٬۰۰۰ تومان</span>' +
+  '\n                                                <del class="vp-price-was">۳٬۲۰۰٬۰۰۰</del>' +
+  '\n                                                <span class="vp-price-off">۲۵٪</span>' +
+  '\n                                            </div>\n                                            ';
+
+html = html.split('<div class="btn-group" data-ani="slideinup" data-ani-delay="0.7s">')
+           .join(PRICE + '<div class="btn-group" data-ani="slideinup" data-ani-delay="0.7s">');
+
 // Three gold bars behind the hero, drawn as real elements so both ends can be
 // rounded. First thing in the body, so they paint behind the header and the
 // card and get frosted where they pass under either.
