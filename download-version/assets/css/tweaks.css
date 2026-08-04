@@ -1498,7 +1498,10 @@ option:hover {
   display: block;
   overflow: hidden;
   aspect-ratio: 1;
-  max-width: 150px;
+  /* A twentieth up from the 150 they were drawn at. The row's width is what
+     sets the pitch, so the tiles take that 7.5px out of the gap between them
+     rather than out of the page. */
+  max-width: 157.5px;
   margin-inline: auto;
   border-radius: 30px;
   /* An off-white grey. Still laid at 80%, so it composites to #F1F1F1 over the
