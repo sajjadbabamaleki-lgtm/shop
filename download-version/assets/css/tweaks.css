@@ -10,13 +10,13 @@
 
 /* The hero cards sat flush against the header — measured gap was 0px. Space
    below the header, not above the section's own content, so the gap is there
-   whatever the hero slide contains. */
+   whatever the hero slide contains. 30px to start with, now 36. */
 .th-hero-wrapper {
-  padding-block-start: 30px;
+  padding-block-start: 36px;
 }
 
 @media (max-width: 991px) {
-  .th-hero-wrapper { padding-block-start: 18px; }
+  .th-hero-wrapper { padding-block-start: 22px; }
 }
 
 /* --------------------------------------------------------------------------
@@ -1026,12 +1026,12 @@ option:hover {
   height: 100%;
 }
 
-/* Room between the hero and the row beneath it. The template leaves 60px,
-   which put the feature cards right up against the hero deck; this is that
-   section's own top padding, so raising it moves the row down without
-   touching the cards above. */
+/* Room between the hero and the row beneath it, set to match the gap above
+   the hero rather than picked separately, so the deck sits in equal air. This
+   is the section's own top padding, so it moves the row without touching the
+   cards above. */
 .feature-area2 {
-  padding-block-start: 50px;
+  padding-block-start: 36px;
 }
 
 /* The shot is a cut-out on a transparent ground, so it is fitted rather than
@@ -1066,12 +1066,12 @@ option:hover {
    back the same 40px from its own top padding, so the parting looks the same
    as before and nothing below moves. */
 .heroSlide6 {
-  /* Room inside the clip for the shadow: below for the drop, and above for
-     the ambient ring. The negative top margin cancels the top padding's
-     effect on position, so the slides stay exactly where they were and only
-     the clip box grows. */
-  padding-block: 34px 40px;
-  margin-block-start: -34px;
+  /* The clip used to be opened up to make room for the pane's drop shadow —
+     34px above and 40 below, with a negative top margin cancelling the top
+     padding's effect on position. The shadow is gone, so the room is not
+     needed, and the 40px below was showing up as extra space under the deck. */
+  padding-block: 0;
+  margin-block-start: 0;
 }
 
 /* The block the template lays inside the card — a rectangle offset from the
