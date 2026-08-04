@@ -818,10 +818,13 @@ option:hover {
    33px bar with an 8.96px corner — and the disc, 82.5 across, swells out of
    the middle of them.
 
-   In glass rather than gold, the same material as the card and the header:
-   white at 55% over a blur. No hairline anywhere on it — the ring the disc
-   carried in gold was asked for and then asked away, and a lit edge on the
-   wings alone would only put the join back.
+   In gold glass: the accent's own #A47F25 at 35% over the same blur the card
+   and the header use. Over the pane that composites to about 218,205,173 — a
+   warm gold 29 levels off the pane it sits on, so the lockup has an edge
+   without one being drawn, which white glass at any alpha could not manage
+   here. Ink on it measures 12:1.
+
+   No hairline anywhere on it. The disc carries a dotted ring instead.
 
    Translucency is what makes the three read as one, and also what could give
    them away. Where the disc lay over a wing the two alphas stacked and the
@@ -846,18 +849,17 @@ option:hover {
   /* How far outside a wing's inner edge the disc's centre falls. */
   --hole-offset: calc(var(--disc-radius) - var(--wing-overlap));
   position: absolute;
-  inset-inline: 0;
-  /* Off the shoe, not on it. Centred on the shot it sat across the product;
-     it hangs from the foot of it instead, measured from the shot's own bottom
-     edge so it stays with the shoe whatever the card does. Only the top 33px
-     of the lockup are still over the sole; the disc and both wings' type are
-     clear of it, and the lockup's own foot keeps 29px to the card's edge. */
-  top: auto;
-  bottom: -50px;
+  /* In the open pane beside the shoe's collar, where it was marked: the box
+     sizes to its contents and is held off the shot's own edges, so it keeps
+     that place at any width. It clears the shoe's ink on one side and the pink
+     disc, which starts at 647, on the other. */
+  width: max-content;
+  inset-inline: 14% auto;
+  top: 20%;
+  bottom: auto;
   z-index: 1;
   display: flex;
   align-items: center;
-  justify-content: center;
   pointer-events: none;
 }
 
@@ -867,7 +869,7 @@ option:hover {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.55);
+  background: rgba(164, 127, 37, 0.35);
   -webkit-backdrop-filter: blur(12px) saturate(1.2);
   backdrop-filter: blur(12px) saturate(1.2);
   color: #101111;
