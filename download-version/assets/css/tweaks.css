@@ -849,10 +849,7 @@ option:hover {
   inset: 0 auto auto 0;
   width: 100%;
   height: 0;
-  /* No stacking context of its own: the marks still paint first, because they
-     come first, and the writing on the disc can then be lifted above the card
-     on its own. With a z-index here it could not — everything inside would be
-     trapped under the pane. */
+  z-index: 0;
   pointer-events: none;
 }
 
@@ -896,21 +893,20 @@ option:hover {
   height: var(--fall-size);
 }
 
-/* The offer, written on the disc, and the one part of this that sits over the
-   pane rather than under it.
+/* The offer, written on the disc — under the glass with it, which is the whole
+   point of putting it there.
 
-   Under it is where it was put first, and the measurement says why it could
-   not stay: the pane frosts its backdrop by 10px, and a 10px blur is about the
-   stroke width of the type — at 24px on one line the whole thing came out as a
-   white smear on the pink, and at 52px it was still two soft blobs. The disc
-   stays under the glass, where its softness is the point; the writing goes
-   over it, where it can be read. Nothing else on the page is lifted.
+   The pane frosts its backdrop by 10px and that is about the stroke width of
+   this type, so what comes through is not lettering but the soft wadded shape
+   of it. That was read as a fault once and lifted over the pane to fix it; it
+   is not a fault, it is what was asked for. It stays under.
 
-   It takes the disc's box from the same three numbers the disc does, so the
-   two cannot drift apart. */
+   Not a child of the disc, though: the marks carry a blur filter of their own
+   and a child would inherit it, which would soften the writing twice. It takes
+   the disc's box from the same three numbers the disc does, so the two cannot
+   drift apart. */
 .vp-hero-marks .m-fall-text {
   position: absolute;
-  z-index: 20;
   top: var(--fall-y);
   left: var(--fall-x);
   width: var(--fall-size);
@@ -918,19 +914,12 @@ option:hover {
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-direction: column;
   color: #FFFFFF;
   font-family: var(--body-font);
+  font-weight: 800;
+  font-size: 28px;
   line-height: 1;
   white-space: nowrap;
-  /* The numeral carries it; the word sits under it. */
-  font-weight: 700;
-  font-size: 15px;
-}
-
-.vp-hero-marks .m-fall-text b {
-  font-weight: 900;
-  font-size: 40px;
 }
 
 /* Under the shoe, still crossing the card's near edge at x 107 so the glass
