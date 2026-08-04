@@ -867,8 +867,6 @@ body:before {
   /* The edge. On a white page the pane had no boundary at all, so four
      shadows do the work a border would, without changing the box:
 
-       a gold-tinted hairline ring, so the card has an outline that belongs
-         to the palette rather than a grey box rule;
        the pane's own lit edge, inset, which is what a sheet of glass shows
          where it turns;
        a brighter top line, the specular catch along the upper edge;
@@ -877,7 +875,6 @@ body:before {
      Each is deliberately faint — together they read as a boundary, and none
      of them alone reads as a border. */
   box-shadow:
-    0 0 0 1px rgba(140, 110, 40, 0.16),
     inset 0 0 0 1px rgba(255, 255, 255, 0.7),
     inset 0 1px 0 rgba(255, 255, 255, 0.95),
     0 13px 25px -17px rgba(16, 17, 17, 0.175);
