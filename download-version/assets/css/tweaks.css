@@ -860,51 +860,31 @@ option:hover {
    dark strip, which ends at 48 — at 29 from the page top its head was behind
    that strip, which paints over it, so the bar looked cut.
 
-   Off for now, to see the hero without it. The rule keeps its numbers so it
-   is one line to bring back. */
+*/
 .vp-hero-marks .m-fall {
-  display: none;
   top: 77px;
   left: 560px;
   width: 26px;
   height: 174px;
 }
 
-/* An orb over the card's top edge, built the way the first circles were: the
-   gold solid to 72% of the radius, then faded to nothing over the rest. The
-   gradient is its own falloff, so it takes no blur.
-
-   closest-side matters. A radial gradient sizes to the farthest corner by
-   default, which on a square box is half the diagonal — so its 100% sat 151px
-   out while the box ended at 107, and the fade fell entirely outside the
-   element. What showed was the solid part, cut off on the box's own edge: a
-   hard circle. closest-side puts the gradient's end on that edge instead, so
-   the falloff happens inside the box where it can be seen, and the border
-   radius is no longer doing the shaping. */
-.vp-hero-marks .m-orb {
-  top: 106px;
-  left: 628px;
-  width: 235px;
-  height: 235px;
-  background: radial-gradient(circle closest-side, #C89A2E 0%, #C89A2E 72%, rgba(200, 154, 46, 0) 100%);
-  filter: none;
-}
-
 /* Under the shoe, which runs to y 610, still crossing the card's near edge at
-   x 107 so the glass takes it apart. */
+   x 107 so the glass takes it apart. 204 wide: the stretch inside the card
+   runs 107..233, a tenth less than the 140 it was. */
 .vp-hero-marks .m-near {
   top: 640px;
   left: 29px;
-  width: 218px;
+  width: 204px;
   height: 26px;
 }
 
 /* Top right, above the small label, which starts at y 292. Held 29px off the
-   right of the page for the same reason. */
+   right of the page for the same reason. Same 204: inside the card it runs
+   1207..1333, matching the near one. */
 .vp-hero-marks .m-far {
   top: 220px;
   right: 29px;
-  width: 218px;
+  width: 204px;
   height: 26px;
 }
 

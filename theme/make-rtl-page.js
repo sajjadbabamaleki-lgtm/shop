@@ -73,7 +73,7 @@ html = html.split('assets/img/hero/hero_6_2.png').join('assets/img/hero/vikyplus
 // rounded. First thing in the body, so they paint behind the header and the
 // card and get frosted where they pass under either.
 html = html.replace(/(<body[^>]*>)/i,
-  '$1\n    <div class="vp-hero-marks" aria-hidden="true"><i class="m-fall"></i><i class="m-orb"></i><i class="m-near"></i><i class="m-far"></i></div>');
+  '$1\n    <div class="vp-hero-marks" aria-hidden="true"><i class="m-fall"></i><i class="m-near"></i><i class="m-far"></i></div>');
 
 // Swiper reads the container's own dir attribute, not the inherited one.
 html = html.replace(/<div class="swiper([^"]*)"/g, '<div dir="rtl" class="swiper$1"');
