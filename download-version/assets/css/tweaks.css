@@ -1753,8 +1753,13 @@ option:hover {
 
 /* The icon's own tile stays solid white rather than glass, so the gold icon
    sits on plain ground instead of on the same tinted blur as the card around
-   it — legible first, material second. */
-.vp-trust-row .box-icon {
+   it — legible first, material second.
+
+   Three classes deep (.vp-trust-row .feature-card.style2 .box-icon), not two:
+   the template's own .feature-card.style2 .box-icon rule is also three
+   classes, and a two-class override here loses that specificity fight
+   regardless of source order, so the background silently stayed #F5F5F5. */
+.vp-trust-row .feature-card.style2 .box-icon {
   background: #fff;
 }
 
