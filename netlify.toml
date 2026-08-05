@@ -3,20 +3,11 @@
 # The pages under download-version/ are committed already generated — the
 # generator (theme/make-rtl-page.js) is run by hand and its output checked in —
 # so there is nothing for Netlify to build.
+#
+# No redirect rule: the generator writes the Persian page to index.html as well
+# as shoe-shop-rtl.html, so the host serves it at / on its own. A rule here had
+# to fight Netlify's shadowing — a file that exists at the requested path beats
+# a matching rule unless the rule is forced — and a home page that depends on
+# getting that precedence right is a home page that breaks on the next host.
 [build]
   publish = "download-version"
-
-# The Persian storefront is shoe-shop-rtl.html. The download-version/ root also
-# holds the template's own index.html — the English electronics shop — which is
-# what Netlify would otherwise serve at /. Rewrite (200, not 301) so the site
-# opens on the right page and the address stays clean.
-#
-# force is what makes the rule run at all. Netlify serves a file that exists at
-# the requested path in preference to a matching rule — it shadows it — and
-# index.html does exist here, so without force this rule never fires and / is
-# the English template. That is exactly what the first deploy showed.
-[[redirects]]
-  from = "/"
-  to = "/shoe-shop-rtl.html"
-  status = 200
-  force = true

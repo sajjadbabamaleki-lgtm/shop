@@ -299,3 +299,17 @@ html = html.replace('</body>',
 
 fs.writeFileSync(out, html);
 console.log(`wrote ${path.relative(ROOT, out)} (theme: ${theme || 'none — template colours'})`);
+
+// The storefront's home page is this page, so write it to index.html as well:
+// any static host serves index.html at the root, and the template's own «خانه»
+// links point at index.html too, so both the address and the menu land here
+// without a redirect rule to carry them. The template's index.html was a copy
+// of electronics-shop.html, which is still there and still reachable.
+//
+// Only the default build claims index.html — a themed variant is a study and
+// must not take over the home page.
+if (!theme) {
+  const home = path.join(ROOT, 'download-version/index.html');
+  fs.writeFileSync(home, html);
+  console.log(`wrote ${path.relative(ROOT, home)} (same page, as the site's home)`);
+}
