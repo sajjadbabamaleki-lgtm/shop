@@ -1319,10 +1319,28 @@ option:hover {
   justify-content: center;
 }
 
-/* 89% of the column, pinned to its far side by the rule further down. */
+/* 89% of the column, pinned to its far side by the rule further down.
+
+   The box's own shape is stated rather than inherited from whatever
+   photograph is in it. `height: 89%` never resolved — the column has no
+   definite height for a percentage to resolve against — so the box fell back
+   to the image's natural aspect, and since the pane is levelled to its
+   tallest slide, the pane's height was really being set by the aspect of the
+   photographs. Swapping one for a shot of a different shape moved the whole
+   hero: the template's near-square placeholders (617x560, 1.102) held the
+   pane 101px taller at 1920 than the 1.414 shots that replaced them, and the
+   card visibly shrank the moment the last placeholder went.
+
+   1.102 is where the pane stood, so that is what is written down. Held here
+   the height is a decision rather than a side effect, and the next
+   photograph — whatever shape it arrives in — cannot move it. object-fit
+   keeps doing the fitting inside the box, so the shoe itself is unaffected:
+   every shot on the page is wider than 1.102 and so is bound by width, at
+   exactly the size it would have been anyway. */
 .heroSlide6 .hero-img img {
   width: 89%;
-  height: 89%;
+  height: auto;
+  aspect-ratio: 617 / 560;
   object-fit: contain;
 }
 
