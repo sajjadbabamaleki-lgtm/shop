@@ -180,30 +180,9 @@ html = html.replace(
 // Swiper reads the container's own dir attribute, not the inherited one.
 html = html.replace(/<div class="swiper([^"]*)"/g, '<div dir="rtl" class="swiper$1"');
 
-// One hero card to a view on the desktop widths, not two.
-//
-// The template runs two slides to a view, centred, on a track widened by
-// `margin: 0 -36%`, so the cards either side of the active one show past the
-// page — 83px of pane at each margin, at every width. In the template each
-// card is a different pastel and those slivers read as the next colour coming;
-// ours are six panes of the same glass and they read as stray panels stuck to
-// the page's edges. See «همسایه» in CLAUDE.md: this is the change that entry
-// describes, and the client has now asked for it directly.
-//
-// initialSlide keeps the deck opening on slide 1, the one carrying the real
-// product photograph — with two to a view swiper made that one active on its
-// own, and with one to a view it would otherwise open on slide 0's placeholder.
-// The track's width is put back in tweaks.css, where the -36% is undone.
-html = html.replace(
-  /(id="heroSlide6"[^>]*data-slider-options=')([^']*)(')/,
-  (_, head, opts, tail) => {
-    const o = JSON.parse(opts);
-    o.initialSlide = 1;
-    for (const bp of Object.keys(o.breakpoints)) {
-      if (Number(bp) >= 992) o.breakpoints[bp].slidesPerView = 1;
-    }
-    return head + JSON.stringify(o) + tail;
-  });
+// The hero deck keeps the template's two slides to a view. See «همسایه» in
+// CLAUDE.md — the panes either side of the active card are wanted, and cutting
+// them has now been undone twice.
 
 // --- demo copy --------------------------------------------------------------
 // Keys must match the markup's own casing, not what the page displays: the nav

@@ -1267,30 +1267,6 @@ option:hover {
   }
 }
 
-/* --------------------------------------------------------------------------
-   The track, back to the page's own width — «همسایه».
-
-   The template widens the deck with `margin: 0 -36%` so that, at two slides to
-   a view, the neighbouring cards show past the page's margins. With one slide
-   to a view (set in make-rtl-page.js) that margin would instead make the one
-   card 172% of the page and bleed it off both edges, so it has to come off.
-
-   85% is the card's own width, not a new number: at 1440 the card measured
-   1227, which is 85.2% of the page, and the deck is centred. Putting the track
-   at 85% and centring it hands the single slide exactly the width the active
-   card already had, so nothing about the card's size or position changes —
-   only the two panes either side of it stop being drawn.
-
-   Above 991 only: below that the template already sets `margin: 0` and runs one
-   slide to a view, and the card is meant to be full width there.
-   -------------------------------------------------------------------------- */
-@media (min-width: 992px) {
-  .heroSlide6 {
-    width: 85%;
-    margin-inline: auto;
-  }
-}
-
 /* Every card the same height. The template lets each card size to its own
    contents, so the slides run 548px or 565px depending on which product image
    and title they hold, and the deck steps up and down as it moves. Stretching

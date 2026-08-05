@@ -93,26 +93,25 @@ amount taken off `.feature-area2`'s top padding) — and that room has to be
 changed whenever the shadow's reach changes. Getting that wrong is what put a
 straight cut across the page 20px under the card.
 
-## «همسایه» — the peeking neighbours — **settled**
+## «همسایه» — the peeking neighbours
 
-The template gave the hero deck `margin: 0 -36%` and ran two slides to a view,
-centred, so the cards either side of the active one showed past the page's
-margins — 83px of pane on each side, at every width. In the template each card
-is a different pastel and the slivers read as the next colour coming; ours were
-six panes of the same glass and read as stray panels stuck to the page's edges.
+The template gives the hero deck `margin: 0 -36%` and runs two slides to a view,
+centred, so the cards either side of the active one show past the page's
+margins — 83px of pane on each side, at every width. Ours are six panes of the
+same glass rather than the template's six pastels, so they can be mistaken for
+a stray panel.
 
-A change here was reverted once, on the grounds that it was the template working
-as designed and the client had not asked. The client has now asked directly
-("منوی بالا اضافات داره از ۲ طرف"), and it is done:
+**They are wanted. Cutting them has been undone twice now.** The second time
+cost more than the first, because the request that prompted it was about
+something else entirely: the client wrote «منوی بالا اضافات داره از ۲ طرف» —
+the top *menu* has extra space at both ends — and that was the 120px of dead
+space inside the header island, not these panes. The giveaway was in the very
+next message, «هدر بالا **هنوز** فضای اضافه داره»: *still*, because the header
+had not been touched. When a complaint names a part of the page, take it to
+mean that part.
 
-- `slidesPerView: 1` at the 992 and 1200 breakpoints, plus `initialSlide: 1` so
-  the deck still opens on slide 1, the one carrying the real product
-  photograph — set in `make-rtl-page.js`, which rewrites the deck's
-  `data-slider-options`.
-- The track back to the card's own width in `tweaks.css`: `width: 85%` with
-  `margin-inline: auto`, above 992 only. 85% is not a new number — the card
-  measured 1224 of 1440 — so the card's size and position are unchanged and
-  only the two panes either side stop being drawn.
-
-Measured after, across the hero at the card's mid-height: 255 everywhere
-outside the card, 247 inside, one step at the edge and nothing beyond it.
+If this ever genuinely is asked for, the change is `slidesPerView: 1` at the 992
+and 1200 breakpoints of the hero's `data-slider-options`, the track back to the
+page's width with `width: 85%` and `margin-inline: auto` above 992, and
+`initialSlide: 1` so the deck still opens on the slide carrying the real
+product photograph. Confirm it against the page before writing any of it.
