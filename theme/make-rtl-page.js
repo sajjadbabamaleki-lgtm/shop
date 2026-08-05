@@ -211,6 +211,58 @@ html = html.replace(
   '    </section>'
 );
 
+// The collections band under the trust row, rebuilt.
+//
+// The template gave it three cards and three different layouts: two read
+// photograph then copy, the third read copy then photograph, so its title sat
+// at 451px from the section's top against the others' 53 and its button at 575
+// against 177. Its photograph was 687 tall against their 426, and it sat on
+// #FFE2B5 while they sat on #F5F5F5 — a colour that appears nowhere else on
+// the page. Nothing in the band shared a line with anything else in it.
+//
+// One card, three times, is the whole fix: the same order, the same
+// photograph box, the same ground, and the button pinned to the foot so the
+// three agree whatever the copy does.
+//
+// The names are not the template's. Two of its three cards both said
+// "Women's Collections", and a "Men's Collections" card contradicts the line
+// under the logo — «فروشگاه کیف و کفش زنانه». They are also not categories:
+// the eight tiles above already answer "what kind of shoe", so repeating that
+// here would be the same question twice. These are edits instead — what is
+// new, what sells, what is reduced.
+const COLLECTIONS = [
+  ['collection_2_2.png', 'جدیدترین‌ها', 'تازه‌ترین مدل‌های این فصل'],
+  ['collection_2_1.png', 'پرفروش‌ترین‌ها', 'انتخاب همیشگی مشتری‌ها'],
+  ['collection_2_3.png', 'تخفیف‌دار', 'قیمت ویژه تا پایان موجودی'],
+];
+
+const COLLECTION_ROW =
+  '<div class="row gy-4 row-cols-1 row-cols-md-2 row-cols-xl-3 vp-collection-row">' +
+  COLLECTIONS.map(([file, title, text]) =>
+    '\n                <div class="col">' +
+    '\n                    <div class="vp-collection">' +
+    '\n                        <div class="vp-collection-photo">' +
+    `\n                            <img src="assets/img/collection/${file}" alt="" loading="lazy">` +
+    '\n                        </div>' +
+    '\n                        <div class="vp-collection-body">' +
+    `\n                            <h3 class="vp-collection-title">${title}</h3>` +
+    `\n                            <p class="vp-collection-text">${text}</p>` +
+    '\n                            <a href="shop.html" class="th-btn th-icon">مشاهده همه</a>' +
+    '\n                        </div>' +
+    '\n                    </div>' +
+    '\n                </div>'
+  ).join('') +
+  '\n            </div>';
+
+html = html.replace(
+  /<section class="collection-area[^"]*">[\s\S]*?<\/section>/i,
+  '<section class="collection-area overflow-hidden">\n' +
+  '        <div class="container th-container">\n' +
+  '            ' + COLLECTION_ROW + '\n' +
+  '        </div>\n' +
+  '    </section>'
+);
+
 // The discount mark on the shot: a lobed burst in the buy button's gold, with
 // the offer on it.
 //

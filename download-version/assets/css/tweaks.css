@@ -1850,6 +1850,108 @@ option:hover {
   background: #fff;
 }
 
+/* --------------------------------------------------------------------------
+   The collections band, rebuilt as one card three times.
+
+   The template's version had three cards and three layouts — see the note in
+   theme/make-rtl-page.js for what was measured. Everything here exists to make
+   the three agree: one order, one photograph box, one ground, and the button
+   on the foot rather than wherever the copy leaves it.
+
+   Same glass as the trust row above, so the band belongs to the page rather
+   than arriving from the template with its own palette.
+   -------------------------------------------------------------------------- */
+/* The band's own 40 off the row above it, on the section rather than on the
+   row. A margin-top on a Bootstrap .row overwrites the negative gutter margin
+   the grid puts there, which stops the columns' own padding being cancelled
+   and quietly adds the gutter to the gap — measured, 64 where 40 was asked
+   for. The trust row above avoided this by carrying its margin on a wrapper;
+   this carries it on the section, which comes to the same thing.
+
+   The template padded .feature-area2 100px along the bottom, which is on top
+   of whatever is set here, so that goes: the 40 is the whole gap. */
+.feature-area2 {
+  padding-block-end: 0;
+}
+
+.collection-area {
+  padding-block-start: 40px;
+}
+
+/* The card fills its column's full height, so three cards whose copy runs to
+   different lengths still end on the same line. */
+.vp-collection {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 24px;
+  background: rgba(16, 17, 17, 0.034);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  /* The same ink foot as the hero pane and the trust cards — «لبه پنهان» in
+     CLAUDE.md. No drop shadow. */
+  box-shadow: inset 0 -1.4px 0 rgba(16, 17, 17, 0.07);
+}
+
+/* One box for all three photographs, stated rather than taken from the files:
+   the three the template ships are 1.07, 1.07 and 1.01, and left to themselves
+   that put one card's photograph 61% taller than another's. cover rather than
+   contain because these are full-bleed shots with their own grounds, not
+   cut-outs — contain would letterbox them and show the card's tint down the
+   sides. */
+.vp-collection-photo {
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+}
+
+.vp-collection-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.vp-collection:hover .vp-collection-photo img {
+  transform: scale(1.04);
+}
+
+/* The body grows to fill what the photograph leaves, and the button is pushed
+   to its foot, so the three buttons sit on one line however the copy above
+   them wraps. */
+.vp-collection-body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  flex: 1;
+  padding: 28px 28px 30px;
+}
+
+.vp-collection-title {
+  margin: 0 0 6px;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 800;
+  font-size: 24px;
+  line-height: 1.5;
+  color: var(--title-color);
+}
+
+.vp-collection-text {
+  margin: 0 0 22px;
+  color: var(--body-color);
+  font-size: 15px;
+  line-height: 1.9;
+}
+
+.vp-collection-body .th-btn {
+  margin-top: auto;
+}
+
+@media (max-width: 991px) {
+  .vp-collection-body { padding: 22px 22px 24px; }
+  .vp-collection-title { font-size: 21px; }
+}
+
 /* The field's own input carries the template's fixed 350px width and a 280px
    min-width, so narrowing the field left the input hanging off the side of the
    page — and the min-width alone kept it 95px wider than its box even after
