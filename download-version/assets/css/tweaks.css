@@ -1698,6 +1698,66 @@ option:hover {
   margin-top: 36px;
 }
 
+/* The five icons come from different source sets (feature_card_*, check2,
+   secure) with different native viewBox proportions — 37x25, 33x25, 30x25,
+   14x15, 28x32 — so left to their own width/height attributes they'd render
+   at five different sizes in the same 64px box. Capped to a common box with
+   contain so every icon reads as the same weight regardless of source. */
+.vp-trust-row .box-icon img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+/* The card is the same glass as the hero pane and header island — see «لبه
+   پنهان» in CLAUDE.md before touching this. Same tint, same blur, same ink
+   foot instead of a drop shadow, same masked lit hairline on the other three
+   sides; the template's own border and box-shadow (from .feature-card.style2)
+   are dropped so the glass edge is the only boundary, exactly as it is on the
+   other two panes. Scoped to .vp-trust-row rather than every .feature-card on
+   the site, which the template reuses on pages this pass never touched. */
+.vp-trust-row .feature-card {
+  border: none;
+  background: rgba(16, 17, 17, 0.034);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  box-shadow: inset 0 -1.4px 0 rgba(16, 17, 17, 0.07);
+}
+
+.vp-trust-row .feature-card:after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  padding: 1.4px 1.4px 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(128deg,
+    rgba(255, 255, 255, 0.98) 0%,
+    rgba(255, 255, 255, 0.34) 28%,
+    rgba(255, 255, 255, 0.16) 52%,
+    rgba(255, 255, 255, 0.48) 76%,
+    rgba(255, 255, 255, 0.96) 100%);
+  -webkit-mask-image: linear-gradient(#000 0 0), linear-gradient(#000 0 0);
+  -webkit-mask-clip: content-box, border-box;
+  -webkit-mask-composite: xor;
+  mask-image: linear-gradient(#000 0 0), linear-gradient(#000 0 0);
+  mask-clip: content-box, border-box;
+  mask-composite: exclude;
+}
+
+.vp-trust-row .feature-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* The icon's own tile stays solid white rather than glass, so the gold icon
+   sits on plain ground instead of on the same tinted blur as the card around
+   it — legible first, material second. */
+.vp-trust-row .box-icon {
+  background: #fff;
+}
+
 /* The field's own input carries the template's fixed 350px width and a 280px
    min-width, so narrowing the field left the input hanging off the side of the
    page — and the min-width alone kept it 95px wider than its box even after
