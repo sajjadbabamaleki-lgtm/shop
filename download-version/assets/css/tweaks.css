@@ -1575,17 +1575,20 @@ option:hover {
    way the original six (col-2) did, and "col" sidesteps that by splitting
    the row evenly regardless of how many tiles there are.
 
-   Size is capped rather than left to the grid. An eighth of the row would
-   make the tile ~140px on a wide screen; the cap holds it at 150 and centres
-   it, and the space the tile gives up widens the gaps on its own.
-   -------------------------------------------------------------------------- */
+   Size is capped on the tile itself (max-width: 157.5px below), not on the
+   row. The row used to carry its own separate cap too — 1230px, tuned so six
+   tiles landed at a deliberate 150px with a 55px gap — but that number was
+   picked for six and stayed fixed when the count changed to eight, so it
+   quietly went stale: the tiles shrank to fit within it while
+   .feature-area2 .th-container itself is free to run out to ~1620–1644px,
+   and the gap between the two showed up as dead margin on both sides of the
+   row. Letting the row take the container's own width and leaving the
+   capping to the tile keeps both in step regardless of how many tiles there
+   are or how the container's width changes. */
 
 .vp-category-row {
   --bs-gutter-x: 36px;
   --bs-gutter-y: 36px;
-  /* The gap between tiles is the column pitch less the tile's own 150, so it
-     is set by how wide the row is allowed to be rather than by the gutter. */
-  max-width: 1230px;
   margin-inline: auto;
 }
 
