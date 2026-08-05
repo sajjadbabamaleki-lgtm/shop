@@ -118,11 +118,41 @@ const CATEGORY_ROW =
   ).join('') +
   '\n            </div>';
 
+// Five trust badges under the category row: the template's own feature-card
+// markup and CSS (feature-card.style2), just with gold icons in place of its
+// red ones and Persian copy. row-cols-* rather than col-N, same reason as the
+// category row: five is not a clean fraction of Bootstrap's 12 columns.
+const TRUST_ITEMS = [
+  ['feature_2_1-gold.svg', 'ارسال سریع', 'ارسال به سراسر کشور'],
+  ['feature_2_2-gold.svg', 'ضمانت بازگشت کالا', 'بازگشت و تعویض آسان'],
+  ['secure-gold.svg', 'پرداخت امن', 'پرداخت آنلاین مطمئن'],
+  ['feature_2_3-gold.svg', 'تضمین اصالت', 'گارانتی اصل بودن کالا'],
+  ['feature_2_4-gold.svg', 'پشتیبانی آنلاین', 'پاسخگویی ۲۴ ساعته'],
+];
+
+const TRUST_ROW =
+  '<div class="row gy-4 row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-5 vp-trust-row">' +
+  TRUST_ITEMS.map(([icon, title, text]) =>
+    '\n                <div class="col">' +
+    '\n                    <div class="feature-card style2">' +
+    '\n                        <div class="box-icon">' +
+    `\n                            <img src="assets/img/icon/${icon}" alt="">` +
+    '\n                        </div>' +
+    '\n                        <div class="box-content">' +
+    `\n                            <h3 class="box-title">${title}</h3>` +
+    `\n                            <p class="box-text">${text}</p>` +
+    '\n                        </div>' +
+    '\n                    </div>' +
+    '\n                </div>'
+  ).join('') +
+  '\n            </div>';
+
 html = html.replace(
   /<section class="feature-area2[^"]*">\s*<div class="container th-container">\s*<div class="row gy-4 gx-50">[\s\S]*?<\/div>\s*<\/div>\s*<\/section>/i,
   '<section class="feature-area2 positive-relative overflow-hidden">\n' +
   '        <div class="container th-container">\n' +
   '            ' + CATEGORY_ROW + '\n' +
+  '            ' + TRUST_ROW + '\n' +
   '        </div>\n' +
   '    </section>'
 );
