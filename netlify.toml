@@ -1,0 +1,16 @@
+# Netlify deploys the static preview page, not the Laravel app.
+#
+# The pages under download-version/ are committed already generated — the
+# generator (theme/make-rtl-page.js) is run by hand and its output checked in —
+# so there is nothing for Netlify to build.
+[build]
+  publish = "download-version"
+
+# The Persian storefront is shoe-shop-rtl.html. The download-version/ root also
+# holds the template's own index.html — the English electronics shop — which is
+# what Netlify would otherwise serve at /. Rewrite (200, not 301) so the site
+# opens on the right page and the address stays clean.
+[[redirects]]
+  from = "/"
+  to = "/shoe-shop-rtl.html"
+  status = 200
