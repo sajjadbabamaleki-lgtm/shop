@@ -552,7 +552,7 @@ html = html.replace(/-(\d+)%/g, (_, n) => `${Number(n).toLocaleString('fa-IR')}Ù
 html = html.replace('</body>',
   '    <script>\n' +
   '        (function () {\n' +
-  '            var items = document.querySelectorAll(".vp-category, .th-product, .collection-category, .blog-card, .sec-title");\n' +
+  '            var items = document.querySelectorAll(".vp-category, .vp-trust-row .feature-card, .th-product, .vp-deal, .blog-card, .sec-title");\n' +
   '            if (!items.length || !("IntersectionObserver" in window)) return;\n' +
   '            items.forEach(function (el) {\n' +
   '                el.classList.add("vp-enter");\n' +
@@ -562,7 +562,18 @@ html = html.replace('</body>',
   '                for (var n = 0; n < peers.length; n++) {\n' +
   '                    if (peers[n] === el || peers[n].contains(el)) { i = n; break; }\n' +
   '                }\n' +
-  '                el.style.setProperty("--enter-delay", Math.min(i, 5) * 60 + "ms");\n' +
+  '                var count = peers.length;\n' +
+  '                var delay = Math.min(i, 5) * 60;\n' +
+  '                if (el.classList.contains("vp-category")) {\n' +
+  // The row is rtl, so the first half of it is the right-hand half. Each tile
+  // starts on the side it belongs to and closes on the middle, and the two
+  // halves run together: the outermost pair leaves first, the innermost last.
+  '                    var half = count / 2;\n' +
+  '                    var fromRight = i < half;\n' +
+  '                    el.style.setProperty("--enter-x", (fromRight ? 56 : -56) + "px");\n' +
+  '                    delay = (fromRight ? i : count - 1 - i) * 70;\n' +
+  '                }\n' +
+  '                el.style.setProperty("--enter-delay", delay + "ms");\n' +
   '            });\n' +
   '            var seen = new IntersectionObserver(function (entries) {\n' +
   '                entries.forEach(function (entry) {\n' +
