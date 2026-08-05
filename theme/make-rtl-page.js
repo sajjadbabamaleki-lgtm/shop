@@ -65,9 +65,47 @@ for (const [from, to] of Object.entries(SVG_GOLD)) {
   html = html.split(`"${from}"`).join(`"${to}"`);
 }
 
-// The middle hero slide carries a real product shot instead of the template's
-// grey placeholder. Two slides share this source, both the same product.
-html = html.split('assets/img/hero/hero_6_2.png').join('assets/img/hero/vikyplus-hero-1.png');
+// The hero deck is six slides over three photographs — the template repeats
+// hero_6_1..3 twice — so these three cover the whole deck, one product each,
+// in place of its grey placeholders. theme/make-hero-photos.js prepares them;
+// see the note there on why they are normalised rather than dropped in as
+// supplied.
+//
+// The product name is written per slot here rather than left to the DICT
+// below, because the template puts the same label ("Nike Air Running Spikes")
+// on every slide whatever product that slide actually shows. One global
+// mapping cannot tell the three apart, and each slide now shows a different
+// shoe.
+//
+// Non-breaking spaces bind each half of the Jordan's name, so it breaks in one
+// place only: 'کتونی جردن' over 'وان ایر'. See the <br> pass further down.
+const HERO_TITLES = {
+  hero_6_1: 'کتونی نایک وی۲کی ران',
+  hero_6_2: 'کتونی\u00A0جردن وان\u00A0ایر',
+  hero_6_3: 'کتونی اون کلادتیلت',
+};
+
+const HERO_PHOTOS = {
+  hero_6_1: 'vikyplus-hero-v2k.webp',
+  hero_6_2: 'vikyplus-hero-jordan.webp',
+  hero_6_3: 'vikyplus-hero-cloudtilt.webp',
+};
+
+// One match per slide: the label, the heading and the photograph are rewritten
+// together, keyed on which of the three placeholders the slide carries. There
+// is no other <img> between the heading and the shot, so the lazy span between
+// them cannot run past the slide it started in.
+html = html.replace(
+  /(<span class="sub-title"[^>]*>)[^<]*(<\/span>\s*<h1 class="hero-title"[^>]*>)[\s\S]*?(<\/h1>[\s\S]*?<img src=")assets\/img\/hero\/(hero_6_[123])\.png(")/g,
+  (_, openLabel, openTitle, betweenTitleAndImg, slot, closeSrc) => {
+    const title = HERO_TITLES[slot];
+    // The label is the same name without the binding spaces: it is one line by
+    // design and has no break to protect.
+    const label = title.replace(/\u00A0/g, ' ');
+    return openLabel + label + openTitle + '\n                                                ' +
+      title + ' ' + betweenTitleAndImg + `assets/img/hero/${HERO_PHOTOS[slot]}` + closeSrc;
+  }
+);
 
 // The brand mark and name replace the template's own logo in the header band.
 // Written as markup rather than a single image so the name and the line under
@@ -234,13 +272,9 @@ html = html.replace(/<div class="swiper([^"]*)"/g, '<div dir="rtl" class="swiper
 // renders uppercase via text-transform while the source says "Contact Us".
 // Longest-first so multi-word phrases match before their constituent words.
 const DICT = {
-  // Hero slide titles. The template repeats the product name as the small
-  // label above it, so one mapping covers both.
-  'Adidas Stan Running Spikes': 'کتونی آدیداس استن اسمیت',
-  // Non-breaking spaces bind each half, so the title breaks in one place
-  // only: 'کتونی جردن' over 'وان ایر'.
-  'Nike Air Running Spikes': 'کتونی\u00A0جردن وان\u00A0ایر',
-  'Nike Mag Sneakers Shoe': 'کفش اسنیکر نایک مگ',
+  // The hero's own names are not here: its three slides each carry a
+  // different product now and the template labels them all the same, so
+  // they are written per slot up in HERO_TITLES instead.
   'Shop Grid With Left Sidebar': 'فروشگاه با سایدبار راست',
   'Shop Grid With Right Sidebar': 'فروشگاه با سایدبار چپ',
   'Order Tracking': 'پیگیری سفارش',
@@ -300,7 +334,7 @@ for (const [en, fa] of Object.entries(DICT).sort((a, b) => b[0].length - a[0].le
 // the template repeats the same name as the small label above it, which is one
 // line by design.
 html = html.replace(/<h1 class="hero-title"[^>]*>[\s\S]*?<\/h1>/g, (h1) =>
-  h1.replace(DICT['Nike Air Running Spikes'], DICT['Nike Air Running Spikes'].replace(' ', ' <br>'))
+  h1.replace(HERO_TITLES.hero_6_2, HERO_TITLES.hero_6_2.replace(' ', ' <br>'))
 );
 
 // Currency: the theme's demo prices are USD. Scaled to a plausible Toman
