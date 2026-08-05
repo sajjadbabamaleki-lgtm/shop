@@ -85,10 +85,11 @@ html = html.replace(
   '                            </div>'
 );
 
-// The row under the hero carries the six shoe categories instead of the
+// The row under the hero carries eight shoe categories instead of the
 // template's four service boxes: a photograph filling each square, with the
 // name on a strip of glass laid over it.
-// Right to left, the order the row reads in.
+// Right to left, the order the row reads in. Four to a row (col-3), so eight
+// tiles wrap into two rows of four rather than shrinking to fit one.
 const CATEGORIES = [
   ['majlesi', 'مجلسی'],
   ['sneaker', 'ونس و کتونی'],
@@ -96,6 +97,8 @@ const CATEGORIES = [
   ['sandal', 'صندل'],
   ['boot', 'بوت و نیم‌بوت'],
   ['bag-set', 'ست کیف و کفش'],
+  ['accessory', 'اکسسوری'],
+  ['sport-set', 'ست ورزشی'],
 ];
 
 // The name is real text on the tile, so it is also the link's own name and
@@ -103,7 +106,7 @@ const CATEGORIES = [
 const CATEGORY_ROW =
   '<div class="row vp-category-row">' +
   CATEGORIES.map(([file, name]) =>
-    '\n                <div class="col-2">' +
+    '\n                <div class="col-3">' +
     '\n                    <a class="vp-category" href="shop.html">' +
     `\n                        <img src="assets/img/category/${file}.jpg" alt="" loading="lazy">` +
     `\n                        <span class="vp-category-label">${name}</span>` +
