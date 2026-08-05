@@ -10,7 +10,13 @@
 # holds the template's own index.html — the English electronics shop — which is
 # what Netlify would otherwise serve at /. Rewrite (200, not 301) so the site
 # opens on the right page and the address stays clean.
+#
+# force is what makes the rule run at all. Netlify serves a file that exists at
+# the requested path in preference to a matching rule — it shadows it — and
+# index.html does exist here, so without force this rule never fires and / is
+# the English template. That is exactly what the first deploy showed.
 [[redirects]]
   from = "/"
   to = "/shoe-shop-rtl.html"
   status = 200
+  force = true
