@@ -1564,24 +1564,27 @@ option:hover {
 /* --------------------------------------------------------------------------
    The category row under the hero.
 
-   Six squares in place of the template's four service boxes: a photograph
+   Eight squares in place of the template's four service boxes: a photograph
    filling each one, and the name on a strip of glass laid over it.
 
    Square by aspect-ratio rather than a fixed height, so the tiles hold their
    shape at every width without a media query per breakpoint.
 
-   Size is capped rather than left to the grid. The column is a sixth of the
-   row and would make the tile ~190px on a wide screen, which was too heavy for
-   a row that sits under the hero; the cap holds it at 150 and centres it, and
-   the space the tile gives up widens the gaps on its own.
+   The columns use Bootstrap's bare "col" (equal flex division), not a
+   numbered col-N: eight does not divide evenly into the 12-column grid the
+   way the original six (col-2) did, and "col" sidesteps that by splitting
+   the row evenly regardless of how many tiles there are.
+
+   Size is capped rather than left to the grid. An eighth of the row would
+   make the tile ~140px on a wide screen; the cap holds it at 150 and centres
+   it, and the space the tile gives up widens the gaps on its own.
    -------------------------------------------------------------------------- */
 
 .vp-category-row {
   --bs-gutter-x: 36px;
   --bs-gutter-y: 36px;
   /* The gap between tiles is the column pitch less the tile's own 150, so it
-     is set by how wide the row is allowed to be rather than by the gutter.
-     Measured at 92px across the full container; 1230 brings it to 55. */
+     is set by how wide the row is allowed to be rather than by the gutter. */
   max-width: 1230px;
   margin-inline: auto;
 }
@@ -1661,8 +1664,8 @@ option:hover {
   text-overflow: ellipsis;
 }
 
-/* Six in one row at every width, so the set is never split across two lines.
-   The gutter and the type come down instead. */
+/* Eight in one row at every width, so the set is never split across two
+   lines. The gutter and the type come down instead. */
 @media (max-width: 991px) {
   .vp-category-row { --bs-gutter-x: 16px; --bs-gutter-y: 16px; }
   .vp-category { border-radius: 22px; max-width: 130px; }

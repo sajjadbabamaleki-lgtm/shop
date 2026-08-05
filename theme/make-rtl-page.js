@@ -88,8 +88,11 @@ html = html.replace(
 // The row under the hero carries eight shoe categories instead of the
 // template's four service boxes: a photograph filling each square, with the
 // name on a strip of glass laid over it.
-// Right to left, the order the row reads in. Four to a row (col-3), so eight
-// tiles wrap into two rows of four rather than shrinking to fit one.
+// Right to left, the order the row reads in. Eight does not divide evenly
+// into Bootstrap's 12-column grid (unlike the original six, which was
+// col-2), so the tiles use the bare "col" auto-layout class instead — equal
+// flex division with no 12-unit quantization — to stay one row at every
+// width, same as before.
 const CATEGORIES = [
   ['majlesi', 'مجلسی'],
   ['sneaker', 'ونس و کتونی'],
@@ -106,7 +109,7 @@ const CATEGORIES = [
 const CATEGORY_ROW =
   '<div class="row vp-category-row">' +
   CATEGORIES.map(([file, name]) =>
-    '\n                <div class="col-3">' +
+    '\n                <div class="col">' +
     '\n                    <a class="vp-category" href="shop.html">' +
     `\n                        <img src="assets/img/category/${file}.jpg" alt="" loading="lazy">` +
     `\n                        <span class="vp-category-label">${name}</span>` +
