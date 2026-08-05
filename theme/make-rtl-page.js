@@ -329,7 +329,10 @@ const LADDER_DEALS_HTML = LADDER_DEALS.map(([file, name, price, stock]) => {
 html = html.replace(
   /<section class="collection-area[^"]*">[\s\S]*?<\/section>/i,
   '<section class="collection-area vp-ladder-area overflow-hidden">\n' +
-  '        <div class="container th-container">\n' +
+  // Its own wrapper rather than .th-container, for the same reason the trust
+  // row above has one: the client wants both run out to the header island's
+  // 18px from the page's edges, and a container caps and centres instead.
+  '        <div class="vp-ladder-wrap">\n' +
   '            <div class="vp-ladder">\n' +
   '                <div class="vp-ladder-head">\n' +
   '                    <div class="vp-ladder-intro">\n' +
