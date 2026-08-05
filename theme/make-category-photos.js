@@ -32,7 +32,7 @@ const SOURCES = {
   boot: 'boot.png',
   'bag-set': 'bag-set.png',
   accessory: 'accessory.png',
-  'sport-set': 'sport-set.png',
+  'sport-set': 'sport-set.jpg',
 };
 
 (async () => {
