@@ -227,12 +227,51 @@ html = html.replace(
 const BURST_PATH =
   'M 75,3 C 80.73,3 85.7,14.57 92.19,16.47 C 98.67,18.38 109.11,11.33 113.93,14.43 C 118.75,17.53 116.67,29.94 121.1,35.05 C 125.53,40.16 138.11,39.88 140.49,45.09 C 142.87,50.3 134.42,59.63 135.38,66.32 C 136.34,73.01 147.08,79.58 146.27,85.25 C 145.45,90.92 133.3,94.19 130.49,100.34 C 127.68,106.49 133.17,117.82 129.41,122.15 C 125.66,126.48 113.67,122.66 107.98,126.32 C 102.29,129.97 100.78,142.47 95.28,144.08 C 89.79,145.7 81.76,136 75,136 C 68.24,136 60.21,145.7 54.72,144.08 C 49.22,142.47 47.71,129.97 42.02,126.32 C 36.33,122.66 24.34,126.48 20.59,122.15 C 16.83,117.82 22.32,106.49 19.51,100.34 C 16.7,94.19 4.55,90.92 3.73,85.25 C 2.92,79.58 13.66,73.01 14.62,66.32 C 15.58,59.63 7.13,50.3 9.51,45.09 C 11.89,39.88 24.47,40.16 28.9,35.05 C 33.33,29.94 31.25,17.53 36.07,14.43 C 40.89,11.33 51.33,18.38 57.81,16.47 C 64.3,14.57 69.27,3 75,3 Z';
 
+// A stud in the mouth of each outward lobe — where the lobe opens out of the
+// body, on the lobe's own axis. Not in the notches between them: that is half
+// a lobe round from here and is where these first went, wrongly.
+//
+// Taken off the client's reference by measuring it, not by reading it. The
+// centre has to be the gold's centroid and not its bounding box — eleven lobes
+// are not symmetric about a box, and using the box put every angle out by
+// enough to land the studs a half-lobe away. From the centroid, the outline's
+// own tips come out at 285.3° and 317.8° and its notches at 300.4° and 333.1°;
+// the two dots sit at 285.0° and 317.3°, which is the tips.
+//
+// Their radius measures 0.783 and 0.751 of the outline's, so 56.4 and 54.1 of
+// our 72, and 55.5 is between them. It reads as the lobe's mouth because that
+// is about where the mouth is: the chord joining the two notches either side
+// crosses the lobe's axis at 61·cos(180°/11) = 58.5.
+const BURST_LOBES = 11;
+const BURST_STUD_ORBIT = 55.5;
+const BURST_STUD_R = 2;
+
+// The outline starts on an outer point at twelve o'clock, so the lobes' own
+// axes are that angle and every 360/11 from it.
+const BURST_STUDS = Array.from({ length: BURST_LOBES }, (_, i) => {
+  const turn = (2 * Math.PI) / BURST_LOBES;
+  const angle = -Math.PI / 2 + i * turn;
+  const cx = (75 + BURST_STUD_ORBIT * Math.cos(angle)).toFixed(2);
+  const cy = (75 + BURST_STUD_ORBIT * Math.sin(angle)).toFixed(2);
+  // Spread evenly over the turn's own 12s, so the flash travels once round
+  // the burst in exactly the time the burst takes to come back to itself.
+  // Negative, so the ring is already mid-cycle on the first frame rather than
+  // lighting up together and only then spreading out.
+  const delay = (-i * 12 / BURST_LOBES).toFixed(2);
+  return `<circle class="vp-burst-stud" cx="${cx}" cy="${cy}" r="${BURST_STUD_R}"` +
+    ` style="animation-delay:${delay}s"></circle>`;
+}).join('');
+
 const RING =
   '<svg class="vp-burst" viewBox="0 0 150 150" aria-hidden="true">' +
   '<defs><linearGradient id="vp-burst-gold" x1="0" y1="0" x2="0" y2="1">' +
   '<stop offset="0%" stop-color="#C0972F"></stop><stop offset="100%" stop-color="#E3B54A"></stop>' +
   '</linearGradient></defs>' +
+  // The shape and its studs turn together, so the studs stay in the notches.
+  '<g class="vp-burst-star">' +
   '<path fill="url(#vp-burst-gold)" d="' + BURST_PATH + '"></path>' +
+  BURST_STUDS +
+  '</g>' +
   '<text class="vp-burst-num" x="75" y="72">25%</text>' +
   '<text class="vp-burst-off" x="75" y="98">OFF</text>' +
   '</svg>';
