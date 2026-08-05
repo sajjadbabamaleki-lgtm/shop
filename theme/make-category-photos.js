@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Prepares the six category photographs.
+ * Prepares the eight category photographs.
  *
  * Nothing is removed and nothing is cut: each photograph goes in exactly as
  * supplied, background and all. Every source is already square, so scaling to
@@ -27,10 +27,12 @@ const SIZE = 420;
 const SOURCES = {
   majlesi: 'majlesi.png',
   sneaker: 'sneaker.png',
-  college: 'college.jpg',
-  sandal: 'sandal.jpg',
+  college: 'college.png',
+  sandal: 'sandal.png',
   boot: 'boot.png',
   'bag-set': 'bag-set.png',
+  accessory: 'accessory.png',
+  'sport-set': 'sport-set.png',
 };
 
 (async () => {
