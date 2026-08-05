@@ -1298,13 +1298,13 @@ option:hover {
   width: 100%;
 }
 
-/* Room between the hero and the row beneath it, set to match the gap above
-   the hero rather than picked separately, so the deck sits in equal air. The
-   swiper above holds all 36 of it as its own bottom padding, for the reason
-   given there, and this gives the same 36 back so the gap that is seen is
-   unchanged. */
+/* Room between the hero and the row beneath it. This was 36, matched to the
+   36 above the hero so the deck sat in equal air; the client asked for 40
+   between the stacked rows, so the two no longer agree — the gap above the
+   hero is still 36. Worth knowing before reading either as a mistake. The
+   gap below the tiles is set to the same 40, in .vp-trust-row-wrap. */
 .feature-area2 {
-  padding-block-start: 36px;
+  padding-block-start: 40px;
 }
 
 /* The shot is a cut-out on a transparent ground, so it is fitted rather than
@@ -1342,6 +1342,24 @@ option:hover {
   height: auto;
   aspect-ratio: 617 / 560;
   object-fit: contain;
+  /* The client's 36 off the card's height, the half of it that lands above
+     1700 where this box is the taller of the two columns and so is what the
+     card is levelled to. A negative margin rather than a smaller aspect
+     because it comes off as a flat 36 at every width, where a reshaped box
+     would take a share of its own width and so a different amount at each
+     one — measured, 33.5 at 1800 against 40.7 at 2200.
+
+     Nothing is cropped, and nothing about the shot changes. A negative margin
+     does not shrink the box or what is drawn in it; it only makes the box
+     claim 36px less of the layout, so the card closes up around a box that is
+     unchanged. From 1600 up the box does then reach 18px past the card's own
+     edges, but the shot is bound by width inside it and letterboxed
+     vertically, so what is painted stays well inside: measured, the shoe
+     clears the card by 39.5px at its tightest, at 1600.
+
+     The other 18 of the 36 is on .hero-style6's padding, which is what sets
+     the height below 1700. */
+  margin-block: -18px;
 }
 
 /* The swiper held room below the slides for the card's shadow to fall in,
@@ -1456,12 +1474,18 @@ option:hover {
    is levelled to. At 120 the shoe cleared the card's edges by 93px. Every
    change to the copy has to be answered here or the shoe's 80 goes with it:
    107 took off the 26 that closed the original difference, 112.5 gave back
-   half the 10px the buy button lost when it came down a fifth, and 112 is where it
-   sits now. Below 992 the template stacks the two columns and
-   pads them differently, so this stays on the wide layout. */
+   half the 10px the buy button lost when it came down a fifth, 112 held for a
+   while, and 94 is the client's 36 off the card's height — 18 from each side.
+   Below 992 the template stacks the two columns and
+   pads them differently, so this stays on the wide layout.
+
+   Taking the 36 here only reaches the widths where this column is the taller
+   of the two. From about 1700 up the image box is, so it carries the same 36
+   itself — see the margin on it above, and change the two together or the
+   card loses 36 at one width and not another. */
 @media (min-width: 992px) {
   .heroSlide6 .hero-style6 {
-    padding-block: 112px;
+    padding-block: 94px;
   }
 }
 
@@ -1714,7 +1738,7 @@ option:hover {
    the category row inside it. */
 .vp-trust-row-wrap {
   margin-inline: 18px;
-  margin-top: 36px;
+  margin-top: 40px;
 }
 
 /* The five icons come from different source sets (feature_card_*, check2,
