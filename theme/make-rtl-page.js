@@ -147,11 +147,17 @@ const TRUST_ROW =
   ).join('') +
   '\n            </div>';
 
+// The trust row sits outside .th-container, in its own full-bleed wrapper —
+// the client wants it run out to the same 18px-from-the-edge margin as the
+// header island (.th-header .menu-area), not held to the container's width
+// like the category row above it.
 html = html.replace(
   /<section class="feature-area2[^"]*">\s*<div class="container th-container">\s*<div class="row gy-4 gx-50">[\s\S]*?<\/div>\s*<\/div>\s*<\/section>/i,
   '<section class="feature-area2 positive-relative overflow-hidden">\n' +
   '        <div class="container th-container">\n' +
   '            ' + CATEGORY_ROW + '\n' +
+  '        </div>\n' +
+  '        <div class="vp-trust-row-wrap">\n' +
   '            ' + TRUST_ROW + '\n' +
   '        </div>\n' +
   '    </section>'

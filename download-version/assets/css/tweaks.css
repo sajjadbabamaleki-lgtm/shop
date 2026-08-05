@@ -1687,20 +1687,15 @@ option:hover {
   }
 }
 
-/* Five trust badges under the category row. The template's own
-   feature-card.style2 is unchanged — border, radius, icon tile — it only
-   needed the gap from the row above it, since the template never had another
-   row stacked directly on top of this one.
-
-   The gap has to read the same as the one above the category row (measured
-   at a flat 36px there, unchanged across every width). This row's own gy-4
-   already contributes 24px of that on its own — Bootstrap's row/col gutter
-   pushes column content down by the gutter regardless of what precedes the
-   row, the same mechanic that gives the category row its 36px against the
-   hero. So the extra margin only needs to make up the remaining 12px, not
-   the full 36, or the two gaps stop matching. */
-.vp-trust-row {
-  margin-top: 12px;
+/* Five trust badges under the category row, run out to the page's edges the
+   same way the header island is: a fixed 18px margin on both sides rather
+   than held to .th-container's width (see .th-header .menu-area above — same
+   "runs to the sides rather than to a fixed width" reasoning). That is why
+   this has its own wrapper outside .th-container instead of living alongside
+   the category row inside it. */
+.vp-trust-row-wrap {
+  margin-inline: 18px;
+  margin-top: 36px;
 }
 
 /* The field's own input carries the template's fixed 350px width and a 280px
