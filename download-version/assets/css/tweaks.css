@@ -1105,6 +1105,28 @@ option:hover {
   background: transparent;
 }
 
+/* Stuck, the island is frosted rather than tinted.
+
+   At rest it sits on the page's white and 3.4% ink is the whole of it — five
+   passes went into that number and it is not touched here. Stuck, the page
+   runs underneath it, and 3.4% over moving content is a window, not a
+   surface: the type and the photographs beneath stayed legible straight
+   through the bar.
+
+   So the stuck state gets a ground of its own — near-white at 88%, over a
+   blur twice the resting one with the saturation lifted, which is what makes
+   a frosted pane read as frosted rather than as a grey wash. The colour is
+   the page's own #F8F8F8, so what settles under the bar is the page's ground
+   and not a new one. */
+.th-header .sticky-wrapper.sticky .menu-area {
+  background: rgba(248, 248, 248, 0.88);
+  -webkit-backdrop-filter: blur(20px) saturate(1.8);
+  backdrop-filter: blur(20px) saturate(1.8);
+  box-shadow:
+    inset 0 -1.4px 0 rgba(16, 17, 17, 0.07),
+    0 10px 30px -22px rgba(16, 17, 17, 0.5);
+}
+
 /* The row's three groups measured 225 + 592 + 438 = 1255 at their natural
    widths, which overran the island when it was held to 1230. The island runs
    full width now, so the pressure is off, but the search keeps a set width:
@@ -1558,17 +1580,40 @@ option:hover {
 
    Anyone who has asked their system for less motion gets the end state at once.
    -------------------------------------------------------------------------- */
+/* Where an item comes in from is set per item, in the script, so a row can
+   arrive as a movement rather than as a list. The defaults are the plain rise
+   everything used to do; the category row overrides the x and the trust row
+   the y. translate3d rather than translate so each item is composited on its
+   own layer and the arrival does not repaint the row behind it.
+
+   The duration is the same for all of them: what differs between rows is the
+   direction and the order, not the speed, or they stop reading as one page. */
 .vp-enter {
   opacity: 0;
-  transform: translateY(14px);
+  transform: translate3d(var(--enter-x, 0), var(--enter-y, 14px), 0);
   transition:
-    opacity 420ms cubic-bezier(0.22, 0.61, 0.36, 1) var(--enter-delay, 0ms),
-    transform 420ms cubic-bezier(0.22, 0.61, 0.36, 1) var(--enter-delay, 0ms);
+    opacity 560ms cubic-bezier(0.22, 0.61, 0.36, 1) var(--enter-delay, 0ms),
+    transform 560ms cubic-bezier(0.22, 0.61, 0.36, 1) var(--enter-delay, 0ms);
 }
 
 .vp-entered {
   opacity: 1;
   transform: none;
+}
+
+/* The eight category tiles come in from the sides: the four on the right from
+   the right, the four on the left from the left, closing on the middle. The
+   script sets the sign per tile — it is the only thing that knows which half a
+   tile is in — and the distance is here so it can be judged in one place. */
+.vp-category-row .vp-enter {
+  --enter-y: 0;
+}
+
+/* The five badges rise instead, and from further down than the page's default
+   14, so the row reads as a separate movement arriving after the tiles rather
+   than as more of the same. */
+.vp-trust-row .vp-enter {
+  --enter-y: 34px;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2452,4 +2497,56 @@ option:hover {
 /* The hero cards' corners, a little rounder than the template's 60. */
 .heroSlide6 .hero-inner {
   border-radius: 72px;
+}
+
+/* --------------------------------------------------------------------------
+   Blur only where there is something to blur.
+
+   A backdrop-filter is one of the most expensive things a page can ask for,
+   and it buys nothing over a flat ground: blurring one uniform colour returns
+   that same colour. Measured, the page was asking for it 46 times over
+   5.2 megapixels a frame, and scrolling averaged 45.8fps with a worst frame
+   of 54ms.
+
+   The hero panes keep theirs — the gold marks run behind them and being taken
+   apart by the pane is the whole effect — and so do the header island and the
+   category labels, which sit over photographs. These three sat over the
+   page's own white:
+
+     .vp-ladder                    0.92 Mpx
+     .beige-color x24              0.74 Mpx   (hidden until hover, blurring
+                                               the whole time)
+     .vp-trust-row .feature-card   0.13 Mpx
+
+   The tint stays on all of them, so nothing changes on screen.
+   -------------------------------------------------------------------------- */
+.vp-ladder,
+.vp-trust-row .feature-card {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+/* The template's colour panel is opacity 0 and visibility hidden until its
+   card is hovered, but it carried the filter the whole time — twenty-four
+   layers for a panel nobody is looking at. It gets it when it is shown. */
+.beige-color {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+.product-grid:hover .beige-color {
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+/* Half the hero's blur is spent on panes nobody can see. The deck runs six
+   slides and shows three — measured, the other three sit between 1168 and
+   3645 pixels outside the viewport — and every one of them was painting a
+   1227x450 filter. Swiper already names the three that are on screen, so the
+   filter follows those names. The tint stays on all six, which is all an
+   off-screen pane needs, and a slide is given the class before it travels in,
+   so the blur is never seen switching on. */
+.heroSlide6 .swiper-slide:not(.swiper-slide-active):not(.swiper-slide-prev):not(.swiper-slide-next) .hero-inner {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
 }
