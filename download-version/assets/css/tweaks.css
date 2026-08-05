@@ -1242,6 +1242,32 @@ option:hover {
 }
 
 /* --------------------------------------------------------------------------
+   The header island's row, out to the island's own edges.
+
+   The island is drawn with an 18px margin off each side of the page, and that
+   margin is the inset the header was designed to; the app icon then takes 12
+   inside it, the same air it has above and below.
+
+   The row inside is a .th-container, and the template caps that at
+   `--main-container: 1620px` above 1300 — 1644 with its gutters. Below an
+   island of that width the cap never bites and the row fills the island; above
+   it the row stops growing and centres, and the difference opens as empty
+   space at both ends. At 1920 the island is 1884 and the row 1644, so 120px
+   sat behind the logo and another 120 behind the cart, and the icon's 12
+   became 132.
+
+   Lifting the cap inside the island only: the row is already bounded by the
+   island, which is bounded by the page, so it needs no second bound. Elsewhere
+   on the page .th-container is what holds the content to a readable measure and
+   is left alone.
+   -------------------------------------------------------------------------- */
+@media (min-width: 1300px) {
+  .th-header .menu-area > .th-container {
+    max-width: 100%;
+  }
+}
+
+/* --------------------------------------------------------------------------
    The track, back to the page's own width — «همسایه».
 
    The template widens the deck with `margin: 0 -36%` so that, at two slides to
