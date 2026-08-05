@@ -80,15 +80,15 @@ for (const [from, to] of Object.entries(SVG_GOLD)) {
 // Non-breaking spaces bind each half of the Jordan's name, so it breaks in one
 // place only: 'کتونی جردن' over 'وان ایر'. See the <br> pass further down.
 const HERO_TITLES = {
-  hero_6_1: 'کتونی نایک وی۲کی ران',
+  hero_6_1: 'کتونی نیوبالانس ۵۳۰',
   hero_6_2: 'کتونی\u00A0جردن وان\u00A0ایر',
-  hero_6_3: 'کتونی اون کلادتیلت',
+  hero_6_3: 'کتونی گلدن گوز سوپراستار',
 };
 
 const HERO_PHOTOS = {
-  hero_6_1: 'vikyplus-hero-v2k.webp',
+  hero_6_1: 'vikyplus-hero-nb530.webp',
   hero_6_2: 'vikyplus-hero-jordan.webp',
-  hero_6_3: 'vikyplus-hero-cloudtilt.webp',
+  hero_6_3: 'vikyplus-hero-goldengoose.webp',
 };
 
 // One match per slide: the label, the heading and the photograph are rewritten

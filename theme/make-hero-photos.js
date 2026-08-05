@@ -51,7 +51,7 @@ const H = 990;
 // and the toe are the extremes and they should not sit hard against the crop.
 const INSET = 0.96;
 
-const SOURCES = ['jordan', 'cloudtilt', 'v2k'];
+const SOURCES = ['jordan', 'goldengoose', 'nb530'];
 
 // Anything at or below this is background, not shoe. The cut-outs carry a
 // feathered edge, so a strict `> 0` would keep a rim of near-invisible pixels
