@@ -77,12 +77,22 @@ for (const [from, to] of Object.entries(SVG_GOLD)) {
 // mapping cannot tell the three apart, and each slide now shows a different
 // shoe.
 //
-// Non-breaking spaces bind each half of the Jordan's name, so it breaks in one
-// place only: 'کتونی جردن' over 'وان ایر'. See the <br> pass further down.
+// Every name is the word the three share, 'کتونی', plus the model. The
+// heading sets the model on its own second line: the shared word reads as a
+// lead-in, and the models start at the same place on every slide instead of
+// wrapping wherever the measure happens to run out.
 const HERO_TITLES = {
   hero_6_1: 'کتونی نیوبالانس ۵۳۰',
-  hero_6_2: 'کتونی\u00A0جردن وان\u00A0ایر',
+  hero_6_2: 'کتونی جردن وان ایر',
   hero_6_3: 'کتونی گلدن گوس',
+};
+
+// The model is bound with non-breaking spaces so the second line stays one
+// line whatever the type size — the break belongs to the name, not to the
+// measure. The label above the heading keeps the plain name on one line.
+const heroHeading = (name) => {
+  const [kind, ...model] = name.split(' ');
+  return kind + '<br>' + model.join('\u00A0');
 };
 
 const HERO_PHOTOS = {
@@ -99,11 +109,8 @@ html = html.replace(
   /(<span class="sub-title"[^>]*>)[^<]*(<\/span>\s*<h1 class="hero-title"[^>]*>)[\s\S]*?(<\/h1>[\s\S]*?<img src=")assets\/img\/hero\/(hero_6_[123])\.png(")/g,
   (_, openLabel, openTitle, betweenTitleAndImg, slot, closeSrc) => {
     const title = HERO_TITLES[slot];
-    // The label is the same name without the binding spaces: it is one line by
-    // design and has no break to protect.
-    const label = title.replace(/\u00A0/g, ' ');
-    return openLabel + label + openTitle + '\n                                                ' +
-      title + ' ' + betweenTitleAndImg + `assets/img/hero/${HERO_PHOTOS[slot]}` + closeSrc;
+    return openLabel + title + openTitle + '\n                                                ' +
+      heroHeading(title) + ' ' + betweenTitleAndImg + `assets/img/hero/${HERO_PHOTOS[slot]}` + closeSrc;
   }
 );
 
@@ -326,16 +333,6 @@ for (const [en, fa] of Object.entries(DICT).sort((a, b) => b[0].length - a[0].le
   html = html.split(en).join(fa);
 }
 
-// The hero headline reads on two lines, 'کتونی جردن' over 'وان ایر'. The
-// non-breaking spaces above leave that as the only place it can break, but
-// whether it does depends on the type size — at a smaller size the whole name
-// fits on one line and the break is lost. The break is where the name divides,
-// not a consequence of the measure, so it is written in. Only in the heading:
-// the template repeats the same name as the small label above it, which is one
-// line by design.
-html = html.replace(/<h1 class="hero-title"[^>]*>[\s\S]*?<\/h1>/g, (h1) =>
-  h1.replace(HERO_TITLES.hero_6_2, HERO_TITLES.hero_6_2.replace(' ', ' <br>'))
-);
 
 // Currency: the theme's demo prices are USD. Scaled to a plausible Toman
 // figure so the grid can be judged at realistic string lengths, which is what

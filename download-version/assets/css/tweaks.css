@@ -1415,15 +1415,16 @@ option:hover {
 }
 
 /* --------------------------------------------------------------------------
-   Hero title: 20% off its darkness, then another 10%.
+   Hero title: 20% off its darkness, then another 10%, then 5% back.
 
    The template sets it in --title-color, #101111. Each channel moved a fifth
-   of the way to white for #404141, then a tenth of what was left for
-   #535454. On the card it measures 7.7:1, still well past anything that
-   matters.
+   of the way to white for #404141, then a tenth of what was left for #535454,
+   and now 5% of each channel back off for #4F5050 — 28.0% of the way to white
+   becomes 26.3%. Measured against the pane, which composites to #F7F7F7, it
+   goes 7.09:1 to 7.57:1, still well past anything that matters.
    -------------------------------------------------------------------------- */
 .heroSlide6 .hero-inner .hero-title {
-  color: #535454;
+  color: #4F5050;
   /* 20% off the 84/94 it computed to. */
   font-size: 67px;
   line-height: 75px;
