@@ -825,12 +825,15 @@ option:hover {
    and ink 5.1, and at this size that difference is the difference between
    reading it and not.
    -------------------------------------------------------------------------- */
+/* 101 was the size the burst was drawn at; 121.2 is the client's 20% on it.
+   The SVG fills this box and everything in it is in the burst's own units, so
+   the shape, the offer and the studs all take the 20% together. */
 .heroSlide6 .discount-tag {
   box-sizing: border-box;
-  width: 101px;
-  height: 101px;
-  min-width: 101px;
-  min-height: 101px;
+  width: 121.2px;
+  height: 121.2px;
+  min-width: 121.2px;
+  min-height: 121.2px;
   padding: 0;
   background: none;
   border: 0;
@@ -888,26 +891,31 @@ option:hover {
   to { transform: rotate(360deg); }
 }
 
-/* A stud in the mouth of each lobe, and the flash that travels round them.
+/* A stud in the mouth of each lobe, and the blink they share.
 
-   They sit low and lift briefly rather than blinking on and off: on this gold
-   a white dot never disappears, so switching it would read as a fault. The
-   flash is short against the gap after it — up over a twentieth of the turn,
-   down over the next twentieth, dim for the rest — which is what makes eleven
-   of them read as one light going round rather than as eleven lights. The
-   cycle is the turn's own 12s and each stud is a lobe's worth of it behind
-   the last, so the light and the shape come back together every turn. */
+   All eleven together, out and back in: the client asked for the ring to go
+   off and come on as one, so there is no per-stud offset — the stagger that
+   made a single light travel round the burst is gone, and with it the inline
+   animation-delay each stud used to carry.
+
+   2.4s, not the turn's own 12s. Eleven studs going at once is one event, and
+   at 12s that event would happen five times less often than it reads as
+   wanting to; 2.4 is the turn's fifth, so the blink still lands on the same
+   phase of the turn every time rather than drifting against it.
+
+   Out for a short part of the cycle rather than half of it — on is the
+   resting state and the blink is the departure from it, which is the way
+   round that reads as a mark that blinks rather than one that flashes. */
 .heroSlide6 .discount-tag .vp-burst .vp-burst-stud {
   fill: #FFFFFF;
-  opacity: 0.28;
-  animation: vp-burst-twinkle 12s ease-in-out infinite;
+  animation: vp-burst-twinkle 2.4s ease-in-out infinite;
 }
 
 @keyframes vp-burst-twinkle {
-  0%   { opacity: 0.28; }
-  5%   { opacity: 1; }
-  10%  { opacity: 0.28; }
-  100% { opacity: 0.28; }
+  0%   { opacity: 1; }
+  62%  { opacity: 1; }
+  80%  { opacity: 0; }
+  100% { opacity: 1; }
 }
 
 /* Anyone who has asked the system for less movement gets the burst still, and
