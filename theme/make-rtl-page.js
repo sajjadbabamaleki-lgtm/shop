@@ -244,7 +244,11 @@ const BURST_PATH =
 // crosses the lobe's axis at 61·cos(180°/11) = 58.5.
 const BURST_LOBES = 11;
 const BURST_STUD_ORBIT = 55.5;
-const BURST_STUD_R = 2;
+// 2 was where these started. The client asked for 20% on the studs as well
+// as on the burst, and the burst's own 20% is taken on its box in the CSS,
+// so this 20% is on top of that: 2.4 here is a stud 44% larger on the page
+// than before, against a burst 20% larger.
+const BURST_STUD_R = 2.4;
 
 // The outline starts on an outer point at twelve o'clock, so the lobes' own
 // axes are that angle and every 360/11 from it.
@@ -253,13 +257,7 @@ const BURST_STUDS = Array.from({ length: BURST_LOBES }, (_, i) => {
   const angle = -Math.PI / 2 + i * turn;
   const cx = (75 + BURST_STUD_ORBIT * Math.cos(angle)).toFixed(2);
   const cy = (75 + BURST_STUD_ORBIT * Math.sin(angle)).toFixed(2);
-  // Spread evenly over the turn's own 12s, so the flash travels once round
-  // the burst in exactly the time the burst takes to come back to itself.
-  // Negative, so the ring is already mid-cycle on the first frame rather than
-  // lighting up together and only then spreading out.
-  const delay = (-i * 12 / BURST_LOBES).toFixed(2);
-  return `<circle class="vp-burst-stud" cx="${cx}" cy="${cy}" r="${BURST_STUD_R}"` +
-    ` style="animation-delay:${delay}s"></circle>`;
+  return `<circle class="vp-burst-stud" cx="${cx}" cy="${cy}" r="${BURST_STUD_R}"></circle>`;
 }).join('');
 
 const RING =
