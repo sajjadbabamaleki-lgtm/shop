@@ -82,7 +82,7 @@ for (const [from, to] of Object.entries(SVG_GOLD)) {
 const HERO_TITLES = {
   hero_6_1: 'کتونی نیوبالانس ۵۳۰',
   hero_6_2: 'کتونی\u00A0جردن وان\u00A0ایر',
-  hero_6_3: 'کتونی گلدن گوز سوپراستار',
+  hero_6_3: 'کتونی گلدن گوس',
 };
 
 const HERO_PHOTOS = {
