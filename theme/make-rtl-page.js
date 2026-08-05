@@ -211,54 +211,144 @@ html = html.replace(
   '    </section>'
 );
 
-// The collections band under the trust row, rebuilt.
+// The stepped sale, in place of the template's collections band.
 //
-// The template gave it three cards and three different layouts: two read
-// photograph then copy, the third read copy then photograph, so its title sat
-// at 451px from the section's top against the others' 53 and its button at 575
-// against 177. Its photograph was 687 tall against their 426, and it sat on
-// #FFE2B5 while they sat on #F5F5F5 — a colour that appears nowhere else on
-// the page. Nothing in the band shared a line with anything else in it.
+// What the band was is worth recording, because it is why it went. It was
+// three cards and three layouts: two read photograph then copy and the third
+// read copy then photograph, so its title sat 451px down the section against
+// the others' 53 and its button 575 against 177; its photograph was 687 tall
+// against their 426; and it sat on #FFE2B5 while they sat on #F5F5F5, a colour
+// found nowhere else on the page.
 //
-// One card, three times, is the whole fix: the same order, the same
-// photograph box, the same ground, and the button pinned to the foot so the
-// three agree whatever the copy does.
+// Rebuilding it as one card three times fixed the form but not the reason: the
+// three names it then carried — جدیدترین‌ها, پرفروش‌ترین‌ها, تخفیف‌دار — are
+// the headings of three sections immediately below it on the same page. A band
+// whose whole content is a table of contents for the next screenful is a band
+// the page is better without.
 //
-// The names are not the template's. Two of its three cards both said
-// "Women's Collections", and a "Men's Collections" card contradicts the line
-// under the logo — «فروشگاه کیف و کفش زنانه». They are also not categories:
-// the eight tiles above already answer "what kind of shoe", so repeating that
-// here would be the same question twice. These are edits instead — what is
-// new, what sells, what is reduced.
-const COLLECTIONS = [
-  ['collection_2_2.png', 'جدیدترین‌ها', 'تازه‌ترین مدل‌های این فصل'],
-  ['collection_2_1.png', 'پرفروش‌ترین‌ها', 'انتخاب همیشگی مشتری‌ها'],
-  ['collection_2_3.png', 'تخفیف‌دار', 'قیمت ویژه تا پایان موجودی'],
+// This is a mechanism instead, and one the page has nowhere else: a price that
+// falls a step a week until the thing sells. It gives the visitor a reason to
+// act now that the discount badge on the hero cannot — the choice between this
+// price and a better one that may not still have their size.
+//
+// The reference for it came in the client's own colours, maroon on cream. It
+// is drawn here in the page's: the same glass as the hero pane and the trust
+// cards, the same gold for the live step as the buy button, the same 24px
+// corner, the same Cairo.
+const LADDER_INTRO = {
+  title: 'حراج پله‌ای ویکی پلاس',
+  strap: 'خرید هوشمندانه، قیمت منصفانه',
+  how: 'نحوه کار',
+};
+
+// Step, its cut, the week it runs, and where it stands. Exactly one is
+// 'current' — the CSS leans on that for the gold tile and the live label.
+const LADDER_STEPS = [
+  ['پله اول', 15, 'هفته اول', 'done'],
+  ['پله دوم', 30, 'هفته دوم', 'current'],
+  ['پله سوم', 45, 'هفته سوم', ''],
+  ['پله چهارم', 60, 'هفته چهارم', ''],
+  ['پله نهایی', 70, 'پس از هفته چهارم', ''],
 ];
 
-const COLLECTION_ROW =
-  '<div class="row gy-4 row-cols-1 row-cols-md-2 row-cols-xl-3 vp-collection-row">' +
-  COLLECTIONS.map(([file, title, text]) =>
-    '\n                <div class="col">' +
-    '\n                    <div class="vp-collection">' +
-    '\n                        <div class="vp-collection-photo">' +
-    `\n                            <img src="assets/img/collection/${file}" alt="" loading="lazy">` +
+// The standing condition first, the countdown second: in RTL the first sits on
+// the right, which is the order the reference reads in.
+const LADDER_NOTES = [
+  'انتقال پله فقط در صورت باقی‌ماندن موجودی',
+  'پله بعدی در ۲۲ روز و ۱۴ ساعت',
+];
+
+// The cut is the live step's, so the two cannot drift apart when the step
+// moves — the card's badge and its price both read from here.
+const LADDER_CUT = LADDER_STEPS.find(([, , , state]) => state === 'current')[1];
+const LADDER_STEP_NAME = LADDER_STEPS.find(([, , , state]) => state === 'current')[0];
+
+// Four products, all cut-outs on transparent so they sit on the card's glass
+// the way the hero's do. Two are the hero's own shots and two are shots that
+// were the hero's before the client replaced them — kept rather than thrown
+// away, so all four carry the same treatment. Real stock photography replaces
+// these; the prices are demo figures, like every other price on the page.
+//
+// price is what it was before the sale. What is shown is that less the live
+// step's cut, worked out here rather than written down twice.
+const LADDER_DEALS = [
+  ['hero/vikyplus-hero-goldengoose.webp', 'کتونی گلدن گوس', 6480000, 'فقط سایزهای ۳۷ و ۳۹'],
+  ['hero/vikyplus-deal-cloudtilt.webp', 'کتونی اون کلادتیلت', 4880000, 'فقط سایزهای ۳۸ و ۴۰'],
+  ['hero/vikyplus-hero-nb530.webp', 'کتونی نیوبالانس ۵۳۰', 7980000, 'فقط ۱ عدد باقی مانده'],
+  ['hero/vikyplus-deal-v2k.webp', 'کتونی نایک وی۲کی ران', 6980000, 'فقط سایزهای ۳۷ و ۳۹'],
+];
+
+// fa-IR gives Persian digits and the Arabic thousands mark, which is what a
+// price should read as on this page.
+const fa = (n) => n.toLocaleString('fa-IR');
+
+const LADDER_STEPS_HTML = LADDER_STEPS.map(([name, cut, when, state]) =>
+  `\n                    <li class="vp-step${state ? ' is-' + state : ''}">` +
+  `\n                        <span class="vp-step-name">${name}</span>` +
+  // Each digit on its own tile, split across the middle, so the row reads as a
+  // board that flips rather than as type in a box.
+  '\n                        <span class="vp-step-rate">' +
+  [...fa(cut), '٪'].map((ch) => `<b>${ch}</b>`).join('') +
+  '</span>' +
+  `\n                        <span class="vp-step-when">${when}</span>` +
+  (state === 'done' ? '\n                        <span class="vp-step-flag is-done" aria-label="گذشته"></span>' : '') +
+  (state === 'current' ? '\n                        <span class="vp-step-flag">مرحله فعلی</span>' : '') +
+  '\n                    </li>'
+).join('');
+
+const LADDER_TRACK_HTML = LADDER_STEPS.map(([, , , state], i) => {
+  const currentAt = LADDER_STEPS.findIndex(([, , , st]) => st === 'current');
+  return `\n                    <span class="vp-track-leg${i <= currentAt ? ' is-filled' : ''}"></span>`;
+}).join('');
+
+const LADDER_DEALS_HTML = LADDER_DEALS.map(([file, name, price, stock]) => {
+  const now = Math.round(price * (100 - LADDER_CUT) / 100);
+  return '\n                <div class="col">' +
+    '\n                    <div class="vp-deal">' +
+    // Copy first, photograph second: in RTL the first child takes the right,
+    // and the card reads name-then-shot from the right.
+    '\n                        <div class="vp-deal-top">' +
+    '\n                            <div class="vp-deal-body">' +
+    `\n                                <h3 class="vp-deal-name">${name}</h3>` +
+    '\n                                <p class="vp-deal-tags">' +
+    `<span class="vp-deal-step">${LADDER_STEP_NAME}</span>` +
+    `<span class="vp-deal-cut">${fa(LADDER_CUT)}٪</span></p>` +
+    '\n                                <p class="vp-deal-price">' +
+    `<del>${fa(price)}</del>` +
+    `<strong>${fa(now)} <span>تومان</span></strong></p>` +
+    `\n                                <p class="vp-deal-stock">${stock}</p>` +
+    '\n                            </div>' +
+    `\n                            <div class="vp-deal-photo"><img src="assets/img/${file}" alt="" loading="lazy"></div>` +
     '\n                        </div>' +
-    '\n                        <div class="vp-collection-body">' +
-    `\n                            <h3 class="vp-collection-title">${title}</h3>` +
-    `\n                            <p class="vp-collection-text">${text}</p>` +
-    '\n                            <a href="shop.html" class="th-btn th-icon">مشاهده همه</a>' +
-    '\n                        </div>' +
+    '\n                        <p class="vp-deal-left"><span class="vp-deal-bar"></span>۱ روز و ۱۴ ساعت</p>' +
+    '\n                        <a href="shop.html" class="th-btn th-icon vp-deal-buy">خرید با قیمت فعلی</a>' +
     '\n                    </div>' +
-    '\n                </div>'
-  ).join('') +
-  '\n            </div>';
+    '\n                </div>';
+}).join('');
 
 html = html.replace(
   /<section class="collection-area[^"]*">[\s\S]*?<\/section>/i,
-  '<section class="collection-area overflow-hidden">\n' +
+  '<section class="collection-area vp-ladder-area overflow-hidden">\n' +
   '        <div class="container th-container">\n' +
-  '            ' + COLLECTION_ROW + '\n' +
+  '            <div class="vp-ladder">\n' +
+  '                <div class="vp-ladder-head">\n' +
+  '                    <div class="vp-ladder-intro">\n' +
+  `                        <h2 class="vp-ladder-title">${LADDER_INTRO.title}</h2>\n` +
+  `                        <p class="vp-ladder-strap">${LADDER_INTRO.strap}</p>\n` +
+  `                        <a href="#" class="vp-ladder-how">${LADDER_INTRO.how}</a>\n` +
+  '                    </div>\n' +
+  '                    <ol class="vp-ladder-steps">' + LADDER_STEPS_HTML + '\n' +
+  '                    </ol>\n' +
+  '                </div>\n' +
+  '                <div class="vp-ladder-track">' + LADDER_TRACK_HTML + '\n' +
+  '                </div>\n' +
+  '                <div class="vp-ladder-notes">\n' +
+  LADDER_NOTES.map((n) => `                    <span>${n}</span>`).join('\n') + '\n' +
+  '                </div>\n' +
+  '                <div class="row gy-4 row-cols-1 row-cols-sm-2 row-cols-xl-4 vp-ladder-deals">' + LADDER_DEALS_HTML + '\n' +
+  '                </div>\n' +
+  '                <a href="shop.html" class="vp-ladder-all">مشاهده همه کالاهای حراج</a>\n' +
+  '            </div>\n' +
   '        </div>\n' +
   '    </section>'
 );

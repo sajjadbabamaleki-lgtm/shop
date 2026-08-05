@@ -1851,25 +1851,25 @@ option:hover {
 }
 
 /* --------------------------------------------------------------------------
-   The collections band, rebuilt as one card three times.
+   The stepped sale — «حراج پله‌ای».
 
-   The template's version had three cards and three layouts — see the note in
-   theme/make-rtl-page.js for what was measured. Everything here exists to make
-   the three agree: one order, one photograph box, one ground, and the button
-   on the foot rather than wherever the copy leaves it.
+   A price that falls a step a week until the thing sells, in place of the
+   template's collections band. The reasoning for the swap is in
+   theme/make-rtl-page.js; this is only how it is drawn.
 
-   Same glass as the trust row above, so the band belongs to the page rather
-   than arriving from the template with its own palette.
+   The client's reference came in maroon on cream. Nothing of that palette is
+   here: the panel is the same glass as the hero pane and the trust cards, the
+   live step and the buy button are the same gold, and the corner and the face
+   are the page's own. What is kept from the reference is its structure —
+   ladder, track, two notes, four cards, one link out.
    -------------------------------------------------------------------------- */
-/* The band's own 40 off the row above it, on the section rather than on the
-   row. A margin-top on a Bootstrap .row overwrites the negative gutter margin
-   the grid puts there, which stops the columns' own padding being cancelled
-   and quietly adds the gutter to the gap — measured, 64 where 40 was asked
-   for. The trust row above avoided this by carrying its margin on a wrapper;
-   this carries it on the section, which comes to the same thing.
-
-   The template padded .feature-area2 100px along the bottom, which is on top
-   of whatever is set here, so that goes: the 40 is the whole gap. */
+/* The band takes the page's 40 off the row above it, and it is set here rather
+   than on the row inside: a margin-top on a Bootstrap .row overwrites the
+   negative gutter margin the grid puts there, which stops the columns' own
+   padding being cancelled and quietly adds the gutter to the gap — measured,
+   64 where 40 was asked for. The template's own 100px bottom padding on
+   .feature-area2 is on top of whatever is set here, so that goes too: the 40
+   is the whole gap. */
 .feature-area2 {
   padding-block-end: 0;
 }
@@ -1878,78 +1878,435 @@ option:hover {
   padding-block-start: 40px;
 }
 
-/* The card fills its column's full height, so three cards whose copy runs to
-   different lengths still end on the same line. */
-.vp-collection {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow: hidden;
-  border-radius: 24px;
+/* One panel holding the whole mechanism, so the ladder and the cards under it
+   read as one offer rather than as two bands that happen to be adjacent. */
+.vp-ladder {
+  padding: 34px 34px 30px;
+  border-radius: 28px;
   background: rgba(16, 17, 17, 0.034);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
-  /* The same ink foot as the hero pane and the trust cards — «لبه پنهان» in
+  /* The same ink foot as every other pane on the page — «لبه پنهان» in
      CLAUDE.md. No drop shadow. */
   box-shadow: inset 0 -1.4px 0 rgba(16, 17, 17, 0.07);
 }
 
-/* One box for all three photographs, stated rather than taken from the files:
-   the three the template ships are 1.07, 1.07 and 1.01, and left to themselves
-   that put one card's photograph 61% taller than another's. cover rather than
-   contain because these are full-bleed shots with their own grounds, not
-   cut-outs — contain would letterbox them and show the card's tint down the
-   sides. */
-.vp-collection-photo {
-  aspect-ratio: 4 / 3;
-  overflow: hidden;
-}
+/* --- the head: the offer's name, then the ladder ------------------------- */
 
-.vp-collection-photo img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.5s ease;
-}
-
-.vp-collection:hover .vp-collection-photo img {
-  transform: scale(1.04);
-}
-
-/* The body grows to fill what the photograph leaves, and the button is pushed
-   to its foot, so the three buttons sit on one line however the copy above
-   them wraps. */
-.vp-collection-body {
+.vp-ladder-head {
   display: flex;
-  flex-direction: column;
   align-items: flex-start;
-  flex: 1;
-  padding: 28px 28px 30px;
+  gap: 28px;
 }
 
-.vp-collection-title {
-  margin: 0 0 6px;
+.vp-ladder-intro {
+  flex: 0 0 260px;   /* the offer name measures 249 set on one line; this clears it */
+  padding-block-start: 22px;
+}
+
+.vp-ladder-title {
+  margin: 0 0 4px;
   font-family: 'Cairo', var(--title-font);
   font-weight: 800;
   font-size: 24px;
   line-height: 1.5;
+  color: var(--theme-color);
+}
+
+.vp-ladder-strap {
+  margin: 0 0 8px;
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--body-color);
+}
+
+.vp-ladder-how {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--theme-color);
+  border-block-end: 1px solid currentColor;
+}
+
+.vp-ladder-how:hover {
   color: var(--title-color);
 }
 
-.vp-collection-text {
-  margin: 0 0 22px;
-  color: var(--body-color);
-  font-size: 15px;
-  line-height: 1.9;
+/* The five steps share the row evenly, so the ladder reads as a scale rather
+   than as five things of different importance. */
+.vp-ladder-steps {
+  display: flex;
+  flex: 1;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
-.vp-collection-body .th-btn {
-  margin-top: auto;
+.vp-step {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.vp-step-name,
+.vp-step-when {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--body-color);
+  text-align: center;
+}
+
+.vp-step-name {
+  font-weight: 700;
+  color: var(--title-color);
+}
+
+/* --- the rate, as a board that flips ------------------------------------ */
+
+.vp-step-rate {
+  display: flex;
+  gap: 4px;
+}
+
+/* Each character on its own tile, split across the middle. The split is a
+   hairline in the tile's own background rather than a border on a child, so
+   the tile stays one box and the digit can sit centred on the join the way it
+   does on a board that flips. */
+.vp-step-rate b {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  height: 46px;
+  border-radius: 8px;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 800;
+  font-size: 24px;
+  line-height: 1;
+  color: var(--title-color);
+  background:
+    linear-gradient(
+      rgba(16, 17, 17, 0) calc(50% - 0.5px),
+      rgba(16, 17, 17, 0.10) calc(50% - 0.5px) calc(50% + 0.5px),
+      rgba(16, 17, 17, 0) calc(50% + 0.5px)
+    ),
+    #FFFFFF;
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.06);
+}
+
+/* The live step in the buy button's own gold, so the thing the visitor can act
+   on now and the thing they act with are the same colour. */
+.vp-step.is-current .vp-step-rate b {
+  color: #FFFFFF;
+  background:
+    linear-gradient(
+      rgba(16, 17, 17, 0) calc(50% - 0.5px),
+      rgba(16, 17, 17, 0.16) calc(50% - 0.5px) calc(50% + 0.5px),
+      rgba(16, 17, 17, 0) calc(50% + 0.5px)
+    ),
+    linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+  box-shadow: none;
+}
+
+/* Steps already gone read back rather than forward: their tiles keep the gold
+   but only as ink, and the ground stays white. */
+.vp-step.is-done .vp-step-rate b {
+  color: var(--theme-color);
+}
+
+.vp-step.is-current .vp-step-name {
+  color: var(--theme-color);
+}
+
+/* --- the flag under a step ---------------------------------------------- */
+
+.vp-step-flag {
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.6;
+  color: var(--theme-color);
+}
+
+/* A tick for a step that has been and gone, drawn rather than set, so it needs
+   no icon font and lands on the same gold as everything else. */
+.vp-step-flag.is-done {
+  position: relative;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1.4px var(--theme-color);
+}
+
+/* Physical borders, not logical. A tick is a shape, not a direction: on this
+   RTL page border-inline-end resolves to the left edge, which mirrors the
+   stroke and draws it backwards. */
+.vp-step-flag.is-done:after {
+  content: '';
+  position: absolute;
+  left: 5.5px;
+  top: 3.5px;
+  width: 5px;
+  height: 8px;
+  border-right: 1.6px solid var(--theme-color);
+  border-bottom: 1.6px solid var(--theme-color);
+  transform: rotate(45deg);
+}
+
+/* --- the track ----------------------------------------------------------- */
+
+.vp-ladder-track {
+  display: flex;
+  gap: 6px;
+  margin-block: 22px 16px;
+}
+
+.vp-track-leg {
+  flex: 1;
+  height: 5px;
+  border-radius: 3px;
+  background: rgba(16, 17, 17, 0.07);
+}
+
+.vp-track-leg.is-filled {
+  background: linear-gradient(90deg, #C0972F 0%, #E3B54A 100%);
+}
+
+/* --- the two notes ------------------------------------------------------- */
+
+.vp-ladder-notes {
+  display: flex;
+  gap: 16px;
+  margin-block-end: 22px;
+}
+
+.vp-ladder-notes span {
+  flex: 1;
+  padding: 11px 16px;
+  border-radius: 12px;
+  background: #FFFFFF;
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.05);
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--body-color);
+  text-align: center;
+}
+
+/* --- the four cards ------------------------------------------------------ */
+
+/* Solid white on the panel's glass, so the cards sit on it rather than
+   disappear into it — glass on glass reads as one surface. */
+.vp-deal {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 14px;
+  border-radius: 20px;
+  background: #FFFFFF;
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.05);
+}
+
+.vp-deal-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-block-end: 12px;
+}
+
+/* The shots are cut-outs on transparent, so they are fitted, not filled —
+   the same reasoning as the hero's. */
+.vp-deal-photo {
+  flex: 0 0 42%;
+  aspect-ratio: 1;
+  border-radius: 14px;
+  background: rgba(16, 17, 17, 0.03);
+  overflow: hidden;
+}
+
+.vp-deal-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.vp-deal-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.vp-deal-name {
+  margin: 0 0 7px;
+  min-height: 45px;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 800;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--title-color);
+}
+
+.vp-deal-tags {
+  display: flex;
+  gap: 5px;
+  margin: 0 0 7px;
+}
+
+.vp-deal-step,
+.vp-deal-cut {
+  padding: 2px 9px;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.7;
+  white-space: nowrap;
+}
+
+/* The step the price is at, in the gold it is at. */
+.vp-deal-step {
+  color: #FFFFFF;
+  background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+}
+
+/* The cut is the same fact stated as a number, so it takes the same gold at a
+   tenth of the weight rather than a second colour. */
+.vp-deal-cut {
+  color: var(--theme-color);
+  background: rgba(164, 127, 37, 0.10);
+}
+
+.vp-deal-price {
+  margin: 0 0 5px;
+  line-height: 1.6;
+}
+
+/* The old price is not the offer, so it is small, light and struck. */
+.vp-deal-price del {
+  display: block;
+  font-size: 12px;
+  color: rgba(16, 17, 17, 0.38);
+}
+
+.vp-deal-price strong {
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 800;
+  font-size: 17px;
+  color: var(--title-color);
+}
+
+.vp-deal-price strong span {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--body-color);
+}
+
+.vp-deal-stock {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--theme-color);
+}
+
+/* What is left of this step, on the card. The bar is short by design: it is
+   the same fact as the text beside it, not a second measurement. */
+.vp-deal-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 12px;
+  padding: 7px 12px;
+  border-radius: 10px;
+  background: rgba(164, 127, 37, 0.07);
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--theme-color);
+}
+
+.vp-deal-bar {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  background:
+    linear-gradient(90deg, #C0972F 0%, #E3B54A 100%) no-repeat,
+    rgba(164, 127, 37, 0.18);
+  background-size: 32% 100%;
+}
+
+/* The button is the card's foot, so four cards whose names run to different
+   lengths still end on one line. */
+.vp-deal-buy {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-block-start: auto;
+  padding-inline: 14px;
+  font-size: 14px;
+  text-align: center;
+}
+
+/* --- the way out --------------------------------------------------------- */
+
+.vp-ladder-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-block-start: 22px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--theme-color);
+}
+
+/* Physical borders again, and pointing left because that is where the page
+   continues in RTL — the logical pair would resolve to the right and send the
+   chevron back the way the reader came. */
+.vp-ladder-all:after {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-left: 1.6px solid currentColor;
+  border-bottom: 1.6px solid currentColor;
+  transform: rotate(45deg);
+}
+
+.vp-ladder-all:hover {
+  color: var(--title-color);
+}
+
+/* --- narrower ------------------------------------------------------------ */
+
+/* Below 1200 the five steps and the intro cannot share one line and stay
+   legible, so the intro goes above the ladder and the ladder keeps the width
+   to itself. */
+@media (max-width: 1199px) {
+  .vp-ladder-head {
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .vp-ladder-intro {
+    flex: none;
+    padding-block-start: 0;
+  }
+
+  .vp-ladder-steps { width: 100%; }
 }
 
 @media (max-width: 991px) {
-  .vp-collection-body { padding: 22px 22px 24px; }
-  .vp-collection-title { font-size: 21px; }
+  .vp-ladder { padding: 26px 20px 24px; }
+  .vp-step-rate b { min-width: 28px; height: 38px; font-size: 20px; }
+  .vp-step-name, .vp-step-when { font-size: 12px; }
+  .vp-ladder-notes { flex-direction: column; gap: 10px; }
+}
+
+/* The ladder is a scale, so it is never allowed to wrap — under 700 it scrolls
+   sideways instead, which keeps the five steps in one line and in order. */
+@media (max-width: 700px) {
+  .vp-ladder-steps {
+    overflow-x: auto;
+    padding-block-end: 6px;
+  }
+
+  .vp-step { flex: 0 0 116px; }
 }
 
 /* The field's own input carries the template's fixed 350px width and a 280px
