@@ -1932,8 +1932,15 @@ option:hover {
 }
 
 /* The five steps share the row evenly, so the ladder reads as a scale rather
-   than as five things of different importance. */
+   than as five things of different importance.
+
+   It runs left to right, against the page. A ladder of rates is a number line
+   — 15 to 70 — and a number line does not turn round because the words beside
+   it do. So «پله اول» sits at the far left and «پله نهایی» at the right, next
+   to the offer's name, and the track below fills from the left as the weeks
+   go by. The words inside each step are put back to rtl below. */
 .vp-ladder-steps {
+  direction: ltr;
   display: flex;
   flex: 1;
   gap: 12px;
@@ -1948,6 +1955,14 @@ option:hover {
   flex-direction: column;
   align-items: center;
   gap: 8px;
+}
+
+/* The ladder is ltr so the scale reads the right way; the Persian on it is
+   not, so it goes back. */
+.vp-step-name,
+.vp-step-when,
+.vp-step-flag {
+  direction: rtl;
 }
 
 .vp-step-name,
@@ -1978,12 +1993,19 @@ option:hover {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 34px;
-  height: 46px;
-  border-radius: 8px;
+  /* Square, as the reference draws them. It was 34 wide by 46 tall, which is
+     a different object — a board that flips is made of squares. 58 is what
+     three of them plus their gaps come to inside a step: the ladder is 1060
+     across at 1440, less four 12px gaps between steps is 202 each, less the
+     two 4px gaps inside a step leaves 194 for three tiles, so 64 is the
+     ceiling and 58 keeps air around them. */
+  width: 58px;
+  height: 58px;
+  flex: none;
+  border-radius: 10px;
   font-family: 'Cairo', var(--title-font);
   font-weight: 800;
-  font-size: 24px;
+  font-size: 27px;
   line-height: 1;
   color: var(--title-color);
   background:
@@ -2057,6 +2079,9 @@ option:hover {
 /* --- the track ----------------------------------------------------------- */
 
 .vp-ladder-track {
+  /* Same direction as the ladder above it, so the legs already gone are the
+     left-hand ones. */
+  direction: ltr;
   display: flex;
   gap: 6px;
   margin-block: 22px 16px;
@@ -2293,7 +2318,7 @@ option:hover {
 
 @media (max-width: 991px) {
   .vp-ladder { padding: 26px 20px 24px; }
-  .vp-step-rate b { min-width: 28px; height: 38px; font-size: 20px; }
+  .vp-step-rate b { width: 44px; height: 44px; font-size: 21px; }
   .vp-step-name, .vp-step-when { font-size: 12px; }
   .vp-ladder-notes { flex-direction: column; gap: 10px; }
 }
