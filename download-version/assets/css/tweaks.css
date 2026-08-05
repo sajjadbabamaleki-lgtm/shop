@@ -857,6 +857,37 @@ option:hover {
   height: 100%;
 }
 
+/* The burst turns; the offer does not turn with it.
+
+   The shape and the type are separate elements inside the one SVG, so the
+   rotation can go on the path alone and the two <text> lines stay upright and
+   still. The lobes read as moving because they are not radially symmetric —
+   the writing would just be unreadable.
+
+   fill-box makes the origin the path's own centre, so it spins in place rather
+   than around the SVG's corner. 12s linear: slow enough to be a drift rather
+   than a spin, and unvarying, because an eased turn of a symmetric-ish shape
+   reads as a stutter.
+
+   The template turned this box in 10s and that was taken off with everything
+   else it drew; this puts the movement back on the part it belongs to. */
+.heroSlide6 .discount-tag .vp-burst path {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: vp-burst-turn 12s linear infinite;
+}
+
+@keyframes vp-burst-turn {
+  to { transform: rotate(360deg); }
+}
+
+/* Anyone who has asked the system for less movement gets the burst still. */
+@media (prefers-reduced-motion: reduce) {
+  .heroSlide6 .discount-tag .vp-burst path {
+    animation: none;
+  }
+}
+
 /* Both lines the same: same size, same weight, white. */
 .heroSlide6 .discount-tag .vp-burst text {
   fill: #FFFFFF;
@@ -900,20 +931,15 @@ option:hover {
    -------------------------------------------------------------------------- */
 
 .vp-hero-marks {
-  /* The falling disc's box, in the page's own coordinates.
-
-     A tenth wider than the 145 it was drawn at, and back on the card's centre
-     line: the card runs 107..1333, so its middle is 720 and a 160 disc starts
-     at 640. 160 rather than the 159.5 a tenth comes to, because the round
-     number is what lands the disc exactly on that line. Up 15 from the 232 it
-     sat at. */
-  --fall-x: 640px;
-  --fall-y: 217px;
+  /* The disc is a tenth wider than the 145 it was drawn at. 160 rather than the
+     159.5 a tenth comes to, because the round number halves cleanly. */
   --fall-size: 160px;
+  /* This box is .slider-area's, which is the card's box vertically and the
+     page's horizontally. So top 0 is the card's top edge, bottom 0 is its foot,
+     and 50% is its centre line — at any width, with no number here that has to
+     be re-measured when the card moves or grows. */
   position: absolute;
-  inset: 0 auto auto 0;
-  width: 100%;
-  height: 0;
+  inset: 0;
   z-index: 0;
   pointer-events: none;
 }
@@ -936,52 +962,57 @@ option:hover {
   filter: blur(8px);
 }
 
-/* The three marks below are placed in the page's own coordinates, not the
-   card's, so they have to be moved whenever anything above them changes
-   height. All three came up 9px with the header island when it went from 85
-   to 76; the gaps quoted in each are the ones that matter and are unchanged.
+/* The three marks are placed in the card's own coordinates — see the box above.
+   The gaps quoted below are the ones that were argued for and are unchanged;
+   what has changed is that each is now measured from the card edge it was
+   always about, so it holds at every width instead of only at 1440.
 
    The top mark is a circle rather than a bar, 161 across.
 
-   Centred on the card, not on the page: the card runs 107..1334, so its middle
-   is 720 and the circle's left edge is 640.
+   Centred on the card. The deck is centred on the page and the card fills it,
+   so the card's centre line is the page's: half the width, less half the disc.
+   It used to be `left: 640px`, which was that same centre line worked out for
+   1440 and frozen — 80px off at 1600 and 240px off at 1920.
 
    Dropped clear of the header so the whole disc sits on the card, and then
-   some. The card starts at 187; 196 left only 9px between the card's top edge
-   and the disc, which read as the disc leaning on it. 211 gives it 24 — enough
-   that the 8px blur's falloff lands on the card rather than against its
-   edge. */
+   some. 24px below the card's top edge: at 9px it read as the disc leaning on
+   the edge, and 24 is enough that the 8px blur's falloff lands on the card
+   rather than against it. The disc's own top is 15 above that, hence 39. */
 .vp-hero-marks .m-fall {
-  top: var(--fall-y);
-  left: var(--fall-x);
+  top: 39px;
+  left: 50%;
+  margin-left: calc(var(--fall-size) / -2);
   width: var(--fall-size);
   height: var(--fall-size);
 }
 
-/* Under the shoe, still crossing the card's near edge at x 107 so the glass
-   takes it apart. 204 wide: the stretch inside the card runs 107..233, a tenth
-   less than the 140 it was.
+/* Under the shoe, still crossing the card's near edge so the glass takes it
+   apart. 204 wide, held 29px off the page's edge: the card's edge moves with
+   the width, so how much of the bar the glass gets varies, but it always gets
+   some and the bar always breaks the edge, which is the point.
 
-   Shortening the card lifted the shoe but left this where it was, 8px off the
-   card's bottom edge, where it read as sitting on the edge rather than under
-   the shoe. It follows the shoe up: the shot now ends at y 593, and the bar
-   keeps the same 16px under it. */
+   Measured up from the card's foot, not down from the page's top. It was
+   `top: 600px`, which is 38 off the foot at 1440 and was right there — but the
+   shot is sized off its column, so a wider page grows the shoe and the card
+   grows with it while 600 stays put. At 1920 that left the bar 137 off the
+   foot and 98px up inside the shot, sitting on the shoe rather than under it.
+   38 off the foot is the gap that was chosen, and now it is the one kept. */
 .vp-hero-marks .m-near {
-  top: 600px;
+  bottom: 38px;
   left: 29px;
   width: 204px;
   height: 26px;
 }
 
 /* Top right, above the small label. Held 29px off the right of the page for
-   the same reason. Same 204: inside the card it runs 1207..1333, matching the
-   near one.
+   the same reason as the near one, and the same 204 wide.
 
-   It sat 46px above the label and read as adrift between the label and the
-   card's top edge. Down 18px, to 30 above the label and 51 below the card's
-   edge, so it groups with the writing rather than floating over it. */
+   57 below the card's top edge — the same place `top: 235px` put it, now
+   measured from the edge it was about. It sat 46px above the label and read as
+   adrift between the label and the card's edge; this groups it with the
+   writing instead. */
 .vp-hero-marks .m-far {
-  top: 235px;
+  top: 57px;
   right: 29px;
   width: 204px;
   height: 26px;
@@ -1208,6 +1239,30 @@ option:hover {
 .heroSlide6 .hero-inner > * {
   position: relative;
   z-index: 1;
+}
+
+/* --------------------------------------------------------------------------
+   The track, back to the page's own width — «همسایه».
+
+   The template widens the deck with `margin: 0 -36%` so that, at two slides to
+   a view, the neighbouring cards show past the page's margins. With one slide
+   to a view (set in make-rtl-page.js) that margin would instead make the one
+   card 172% of the page and bleed it off both edges, so it has to come off.
+
+   85% is the card's own width, not a new number: at 1440 the card measured
+   1227, which is 85.2% of the page, and the deck is centred. Putting the track
+   at 85% and centring it hands the single slide exactly the width the active
+   card already had, so nothing about the card's size or position changes —
+   only the two panes either side of it stop being drawn.
+
+   Above 991 only: below that the template already sets `margin: 0` and runs one
+   slide to a view, and the card is meant to be full width there.
+   -------------------------------------------------------------------------- */
+@media (min-width: 992px) {
+  .heroSlide6 {
+    width: 85%;
+    margin-inline: auto;
+  }
 }
 
 /* Every card the same height. The template lets each card size to its own

@@ -93,15 +93,26 @@ amount taken off `.feature-area2`'s top padding) — and that room has to be
 changed whenever the shadow's reach changes. Getting that wrong is what put a
 straight cut across the page 20px under the card.
 
-## «همسایه» — the peeking neighbours
+## «همسایه» — the peeking neighbours — **settled**
 
-Not a bug, and a change here was reverted once. The template gives the hero
-deck `margin: 0 -36%` and runs two slides to a view, centred, so the cards
-either side of the active one show past the page's margins — 83px of pane on
-each side at 1440. In the template every card is a different pastel and the
-slivers read as the next colour coming; ours are six panes of the same glass,
-so they can be mistaken for a stray panel. **Leave it alone unless the client
-asks for it directly**, and if they do, the change is: `slidesPerView: 1` above
-992 in the hero's `data-slider-options`, the track back to the page's width at
-`width: 85%`, plus `initialSlide: 1` so the deck still opens on the slide that
-carries the real product photograph.
+The template gave the hero deck `margin: 0 -36%` and ran two slides to a view,
+centred, so the cards either side of the active one showed past the page's
+margins — 83px of pane on each side, at every width. In the template each card
+is a different pastel and the slivers read as the next colour coming; ours were
+six panes of the same glass and read as stray panels stuck to the page's edges.
+
+A change here was reverted once, on the grounds that it was the template working
+as designed and the client had not asked. The client has now asked directly
+("منوی بالا اضافات داره از ۲ طرف"), and it is done:
+
+- `slidesPerView: 1` at the 992 and 1200 breakpoints, plus `initialSlide: 1` so
+  the deck still opens on slide 1, the one carrying the real product
+  photograph — set in `make-rtl-page.js`, which rewrites the deck's
+  `data-slider-options`.
+- The track back to the card's own width in `tweaks.css`: `width: 85%` with
+  `margin-inline: auto`, above 992 only. 85% is not a new number — the card
+  measured 1224 of 1440 — so the card's size and position are unchanged and
+  only the two panes either side stop being drawn.
+
+Measured after, across the hero at the card's mid-height: 255 everywhere
+outside the card, 247 inside, one step at the edge and nothing beyond it.

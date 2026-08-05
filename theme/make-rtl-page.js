@@ -155,14 +155,55 @@ html = html.replace(
 // The template's own number goes: the burst carries its own type.
 html = html.replace(/<h4 class="discount">[^<]*<\/h4>\s*/g, '');
 
-// Three gold bars behind the hero, drawn as real elements so both ends can be
-// rounded. First thing in the body, so they paint behind the header and the
-// card and get frosted where they pass under either.
-html = html.replace(/(<body[^>]*>)/i,
-  '$1\n    <div class="vp-hero-marks" aria-hidden="true"><i class="m-fall"></i><i class="m-near"></i><i class="m-far"></i></div>');
+// Three pink marks behind the hero, drawn as real elements so both ends can be
+// rounded.
+//
+// They go inside .slider-area, immediately before the deck, for two reasons.
+// They have to paint under the card so the glass frosts them, and a preceding
+// sibling in the same stacking context does that. And .slider-area's box is the
+// card's box vertically — measured 178..664 at 1280, 1440 and 1600 and
+// 178..763 at 1920, matching the card's top and foot exactly each time — while
+// staying the full width of the page, so a mark can still cross the card's
+// edge and be taken apart by it.
+//
+// That is what lets the marks be placed in the card's coordinates rather than
+// the page's. They were in the page's, as fixed pixel offsets from the body,
+// which held only at 1440: the disc sat 240px off the card's centre at 1920,
+// and the low bar, pinned to y 600 while the card's foot moved with the shoe,
+// climbed 137px off the foot and onto the shoe. Anchored here, both hold at
+// every width, and neither has to be re-measured when something above the hero
+// changes height.
+html = html.replace(
+  /(<div class="th-hero-wrapper[^>]*>\s*<div class="slider-area">)/,
+  '$1\n            <div class="vp-hero-marks" aria-hidden="true"><i class="m-fall"></i><i class="m-near"></i><i class="m-far"></i></div>');
 
 // Swiper reads the container's own dir attribute, not the inherited one.
 html = html.replace(/<div class="swiper([^"]*)"/g, '<div dir="rtl" class="swiper$1"');
+
+// One hero card to a view on the desktop widths, not two.
+//
+// The template runs two slides to a view, centred, on a track widened by
+// `margin: 0 -36%`, so the cards either side of the active one show past the
+// page — 83px of pane at each margin, at every width. In the template each
+// card is a different pastel and those slivers read as the next colour coming;
+// ours are six panes of the same glass and they read as stray panels stuck to
+// the page's edges. See «همسایه» in CLAUDE.md: this is the change that entry
+// describes, and the client has now asked for it directly.
+//
+// initialSlide keeps the deck opening on slide 1, the one carrying the real
+// product photograph — with two to a view swiper made that one active on its
+// own, and with one to a view it would otherwise open on slide 0's placeholder.
+// The track's width is put back in tweaks.css, where the -36% is undone.
+html = html.replace(
+  /(id="heroSlide6"[^>]*data-slider-options=')([^']*)(')/,
+  (_, head, opts, tail) => {
+    const o = JSON.parse(opts);
+    o.initialSlide = 1;
+    for (const bp of Object.keys(o.breakpoints)) {
+      if (Number(bp) >= 992) o.breakpoints[bp].slidesPerView = 1;
+    }
+    return head + JSON.stringify(o) + tail;
+  });
 
 // --- demo copy --------------------------------------------------------------
 // Keys must match the markup's own casing, not what the page displays: the nav

@@ -58,9 +58,14 @@ Two of those hold each other up and have to be changed together:
   `padding-block` has to answer it or the shoe's 80 goes with it. That padding
   has been 107, 112.5, 116.5, 117, 120 and is 112 — every one of those numbers
   was the answer to something else changing.
-- **The marks behind the glass are placed in the page's own coordinates**, not
-  the card's. Shorten the header and the card slides out from under them. When
-  anything above them changes height, move all three.
+The marks behind the glass used to be the second of these, and are no longer:
+they were placed in the page's own coordinates as fixed offsets from the body,
+which held only at 1440 — the disc sat 240px off the card's centre at 1920, and
+the low bar, pinned to y 600 while the card's foot moved with the shoe, climbed
+137px off the foot and onto the shoe. They now live in `.slider-area`, whose box
+is the card's box vertically and the page's horizontally, so `top: 0` is the
+card's top edge, `bottom: 0` its foot and `left: 50%` its centre line. Nothing
+about them has to be re-measured when the header or the card changes height.
 
 ## Not finished
 
@@ -85,12 +90,12 @@ template writes them with a curly apostrophe — `Men’s`, `Today’s` — and 
 dictionary in `theme/make-rtl-page.js` has the straight one. Fixing the two
 keys is the first five minutes of the next session.
 
-The hero deck's other five slides still carry the template's grey placeholder
-shoes; only the slide the deck opens on has a real product photograph
-(`assets/img/hero/vikyplus-hero-1.png`). The deck runs two slides to a view and
-shows 83px of the neighbouring cards at each margin — that is the template
-working as designed, and it has been changed once for no reason. See «همسایه»
-in `CLAUDE.md` before touching it.
+The hero deck's other four slides still carry the template's grey placeholder
+shoes; only the two slides that hold the real product photograph
+(`assets/img/hero/vikyplus-hero-1.png`) are ours, and the deck opens on one of
+them. The deck now runs one slide to a view above 992 and the neighbouring
+panes no longer show past the page's margins — see «همسایه» in `CLAUDE.md` for
+what changed and why.
 
 ## How to work on this
 
