@@ -801,11 +801,20 @@ option:hover {
    on the page are one colour rather than two: it was carrying the sampled
    #7D6324 to #CE9E29 and read noticeably darker beside the buy button.
 
-   Scoped to these two while the gold is judged; the rest of the site still
-   carries the sampled ramp.
+   Every button, now, not the hero's two. The scoping said "while the gold is
+   judged" and the judging is done — and leaving it scoped is what made the
+   sale's «خرید با قیمت فعلی» read as dark olive: it was falling through to
+   the sampled ramp, whose top stop is #7D6324. Two golds on one page is a
+   mistake whichever of them is right, and this is the one measured for a
+   white ground.
+
+   The sampled ramp stays where it belongs, on the SVG icons. That is not an
+   oversight: an icon is a small mark that has to hold its shape, and the two
+   ramps measure 5.70:1 and 2.72:1 against white at their top stop. The dark
+   one is the readable one at 32px; the light one is the readable one under
+   ink at button size.
    -------------------------------------------------------------------------- */
-.th-hero-wrapper .th-btn,
-.th-header .menu-area .box-search .th-btn {
+.th-btn {
   background-image: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
 }
 
@@ -898,17 +907,18 @@ option:hover {
    made a single light travel round the burst is gone, and with it the inline
    animation-delay each stud used to carry.
 
-   2.4s, not the turn's own 12s. Eleven studs going at once is one event, and
-   at 12s that event would happen five times less often than it reads as
-   wanting to; 2.4 is the turn's fifth, so the blink still lands on the same
-   phase of the turn every time rather than drifting against it.
+   1.2s, not the turn's own 12s. Eleven studs going at once is one event, and
+   at 12s that event would happen far less often than it reads as wanting to.
+   It was 2.4 and the client asked for twice the speed, so 1.2 — still a whole
+   division of the turn, its tenth, which is what keeps the blink landing on
+   the same phase of the turn every time rather than drifting against it.
 
    Out for a short part of the cycle rather than half of it — on is the
    resting state and the blink is the departure from it, which is the way
    round that reads as a mark that blinks rather than one that flashes. */
 .heroSlide6 .discount-tag .vp-burst .vp-burst-stud {
   fill: #FFFFFF;
-  animation: vp-burst-twinkle 2.4s ease-in-out infinite;
+  animation: vp-burst-twinkle 1.2s ease-in-out infinite;
 }
 
 @keyframes vp-burst-twinkle {
@@ -1878,6 +1888,13 @@ option:hover {
   padding-block-start: 40px;
 }
 
+/* Out to the header island's own 18px, the same as the trust row above it,
+   rather than held to a container: measured, the container put this at 12
+   against their 18 and the three bands did not line up down the page. */
+.vp-ladder-wrap {
+  margin-inline: 18px;
+}
+
 /* One panel holding the whole mechanism, so the ladder and the cards under it
    read as one offer rather than as two bands that happen to be adjacent. */
 .vp-ladder {
@@ -1985,10 +2002,17 @@ option:hover {
   gap: 4px;
 }
 
-/* Each character on its own tile, split across the middle. The split is a
-   hairline in the tile's own background rather than a border on a child, so
-   the tile stays one box and the digit can sit centred on the join the way it
-   does on a board that flips. */
+/* Each character on its own tile.
+
+   No seam across the middle. The reference has one — it is drawn as a
+   split-flap board — but the client does not want it, and at our size it read
+   as a line through the digit rather than as the join of two flaps.
+
+   The face is Vazirmatn, not the Cairo the rest of the page's headings take.
+   Cairo's Persian digits are the same weight and width as its letters, so on
+   a tile they read as type set in a box; Vazirmatn's are narrower and more
+   drawn, which is what a rate on a board should look like. It costs nothing
+   to load — it is already the page's body face. */
 .vp-step-rate b {
   display: flex;
   align-items: center;
@@ -2003,32 +2027,22 @@ option:hover {
   height: 58px;
   flex: none;
   border-radius: 10px;
-  font-family: 'Cairo', var(--title-font);
+  font-family: 'Vazirmatn', var(--body-font);
   font-weight: 800;
   font-size: 27px;
   line-height: 1;
   color: var(--title-color);
-  background:
-    linear-gradient(
-      rgba(16, 17, 17, 0) calc(50% - 0.5px),
-      rgba(16, 17, 17, 0.10) calc(50% - 0.5px) calc(50% + 0.5px),
-      rgba(16, 17, 17, 0) calc(50% + 0.5px)
-    ),
-    #FFFFFF;
+  background: #FFFFFF;
   box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.06);
 }
 
 /* The live step in the buy button's own gold, so the thing the visitor can act
    on now and the thing they act with are the same colour. */
 .vp-step.is-current .vp-step-rate b {
-  color: #FFFFFF;
-  background:
-    linear-gradient(
-      rgba(16, 17, 17, 0) calc(50% - 0.5px),
-      rgba(16, 17, 17, 0.16) calc(50% - 0.5px) calc(50% + 0.5px),
-      rgba(16, 17, 17, 0) calc(50% + 0.5px)
-    ),
-    linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+  /* Ink on the gold, not white — the page settled that question on the
+     burst: white measures 2.6:1 on this gold and ink 5.1. */
+  color: var(--title-color);
+  background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
   box-shadow: none;
 }
 
@@ -2188,7 +2202,7 @@ option:hover {
 
 /* The step the price is at, in the gold it is at. */
 .vp-deal-step {
-  color: #FFFFFF;
+  color: var(--title-color);
   background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
 }
 
