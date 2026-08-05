@@ -122,12 +122,15 @@ const CATEGORY_ROW =
 // markup and CSS (feature-card.style2), just with gold icons in place of its
 // red ones and Persian copy. row-cols-* rather than col-N, same reason as the
 // category row: five is not a clean fraction of Bootstrap's 12 columns.
+// Solid-fill icons (feature_card_* and check2), not the outlined feature_2_*
+// set — the client wants every icon in the same filled style as the payment
+// shield.
 const TRUST_ITEMS = [
-  ['feature_2_1-gold.svg', 'ارسال سریع', 'ارسال به سراسر کشور'],
-  ['feature_2_2-gold.svg', 'ضمانت بازگشت کالا', 'بازگشت و تعویض آسان'],
+  ['feature_card_1-gold.svg', 'ارسال سریع', 'ارسال به سراسر کشور'],
+  ['feature_card_2-gold.svg', 'ضمانت بازگشت کالا', 'بازگشت و تعویض آسان'],
   ['secure-gold.svg', 'پرداخت امن', 'پرداخت آنلاین مطمئن'],
-  ['feature_2_3-gold.svg', 'تضمین اصالت', 'گارانتی اصل بودن کالا'],
-  ['feature_2_4-gold.svg', 'پشتیبانی آنلاین', 'پاسخگویی ۲۴ ساعته'],
+  ['check2-gold.svg', 'تضمین اصالت', 'گارانتی اصل بودن کالا'],
+  ['feature_card_4-gold.svg', 'پشتیبانی آنلاین', 'پاسخگویی ۲۴ ساعته'],
 ];
 
 const TRUST_ROW =
