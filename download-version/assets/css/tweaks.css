@@ -870,10 +870,17 @@ option:hover {
    reads as a stutter.
 
    The template turned this box in 10s and that was taken off with everything
-   else it drew; this puts the movement back on the part it belongs to. */
-.heroSlide6 .discount-tag .vp-burst path {
-  transform-box: fill-box;
-  transform-origin: center;
+   else it drew; this puts the movement back on the part it belongs to.
+
+   The turn is on the group holding the shape and its studs, not on the path,
+   so the studs keep their places in the notches instead of standing still
+   while the shape moves out from under them. view-box rather than fill-box:
+   the origin then is the middle of the 150 the burst is drawn in, which is
+   the shape's own centre, and it stays there however the group's bounding box
+   changes. */
+.heroSlide6 .discount-tag .vp-burst .vp-burst-star {
+  transform-box: view-box;
+  transform-origin: 50% 50%;
   animation: vp-burst-turn 12s linear infinite;
 }
 
@@ -881,10 +888,39 @@ option:hover {
   to { transform: rotate(360deg); }
 }
 
-/* Anyone who has asked the system for less movement gets the burst still. */
+/* A stud in the mouth of each lobe, and the flash that travels round them.
+
+   They sit low and lift briefly rather than blinking on and off: on this gold
+   a white dot never disappears, so switching it would read as a fault. The
+   flash is short against the gap after it — up over a twentieth of the turn,
+   down over the next twentieth, dim for the rest — which is what makes eleven
+   of them read as one light going round rather than as eleven lights. The
+   cycle is the turn's own 12s and each stud is a lobe's worth of it behind
+   the last, so the light and the shape come back together every turn. */
+.heroSlide6 .discount-tag .vp-burst .vp-burst-stud {
+  fill: #FFFFFF;
+  opacity: 0.28;
+  animation: vp-burst-twinkle 12s ease-in-out infinite;
+}
+
+@keyframes vp-burst-twinkle {
+  0%   { opacity: 0.28; }
+  5%   { opacity: 1; }
+  10%  { opacity: 0.28; }
+  100% { opacity: 0.28; }
+}
+
+/* Anyone who has asked the system for less movement gets the burst still, and
+   the studs held at the top of their flash rather than mid-way, so they read
+   as meant rather than as half-drawn. */
 @media (prefers-reduced-motion: reduce) {
-  .heroSlide6 .discount-tag .vp-burst path {
+  .heroSlide6 .discount-tag .vp-burst .vp-burst-star,
+  .heroSlide6 .discount-tag .vp-burst .vp-burst-stud {
     animation: none;
+  }
+
+  .heroSlide6 .discount-tag .vp-burst .vp-burst-stud {
+    opacity: 1;
   }
 }
 
