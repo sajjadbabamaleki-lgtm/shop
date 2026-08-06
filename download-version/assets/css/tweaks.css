@@ -2151,15 +2151,22 @@ option:hover {
    square mark costs the width of one tile's height and the row comes in at
    152 on the widest step.
 
+   The gap is the tiles' own 4, so the rectangles are spaced the way the
+   squares above them are and the two rows read as one grid.
+
    direction: rtl puts them back the way the words read — the ladder around
    them is forced ltr so the scale runs 15 to 70 against the page. */
 .vp-step-tags {
+  /* The row's height, stated rather than left to fall out of the type. The
+     mark at the end is a square and takes its side from this, so the two
+     cannot drift apart when the font or the padding moves. */
+  --tag-h: 25px;
   direction: rtl;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   align-items: stretch;
-  gap: 3px;
+  gap: 4px;
   width: calc(var(--tile) * 3 + 8px);
 }
 
@@ -2168,12 +2175,16 @@ option:hover {
 .vp-step-name,
 .vp-step-when,
 .vp-step-flag {
-  padding: 3px 7px;
+  padding: 0 7px;
   border-radius: 8px;
   background: rgba(16, 17, 17, 0.034);
   box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.05);
   font-size: 11px;
-  line-height: 1.7;
+  /* The line box is the whole height, so the row is exactly --tag-h and the
+     mark's square side is the same number. It was 1.7 plus 3px of padding
+     top and bottom, which came to 24.7 — close enough to the mark's fixed 22
+     to look like a square without being one. */
+  line-height: var(--tag-h);
   color: var(--body-color);
   text-align: center;
   white-space: nowrap;
@@ -2234,8 +2245,7 @@ option:hover {
   width: var(--tile);
   height: var(--tile);
   flex: none;
-  /* 15% rounder than the 10 it was. */
-  border-radius: 11.5px;
+  border-radius: 15px;
   font-family: 'Vazirmatn', var(--body-font);
   font-weight: 800;
   font-size: 27px;
@@ -2273,15 +2283,19 @@ option:hover {
 
 /* --- the mark, the third rectangle under a step -------------------------- */
 
-/* Square, the row's own height, so it reads as a mark beside the two labels
-   rather than as a third label. The words it stands in for are on the element
-   as aria-label. */
+/* Square, and square by construction rather than by a guessed number: the row
+   stretches every rectangle to the tallest, which is whatever the 11px labels
+   come to, and a fixed 22 against that measured 24.7 — near enough to read as
+   a square without being one. width: auto with aspect-ratio takes the width
+   from the height the stretch already set, so the two stay equal whatever the
+   type does. The words it stands in for are on the element as aria-label. */
 .vp-step-flag {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex: none;
-  width: 22px;
+  width: var(--tag-h);
+  height: var(--tag-h);
   padding: 0;
   color: var(--theme-color);
 }
@@ -2352,13 +2366,27 @@ option:hover {
   background: linear-gradient(90deg, #C0972F 0%, #E3B54A 100%);
 }
 
-/* --- the two notes ------------------------------------------------------- */
+/* --- the two notes, and the way out beside them --------------------------- */
 
+/* The row is set to the deal grid below it: same gap as the gap between two
+   cards, and the link sized to exactly one card (see .vp-ladder-all). The
+   cards are a Bootstrap row whose gutter is 24 — measured, the visual gap
+   between two cards is 24 at every width — so 24 here puts the two rows on
+   one rhythm.
+
+   --deal-cols is how many cards that row runs, which is what the link's width
+   is worked out from. The grid is row-cols-2 / md-3 / xl-5; below 992 this row
+   stacks anyway, so only the 3 and the 5 matter. */
 .vp-ladder-notes {
+  --deal-cols: 3;
   display: flex;
   align-items: stretch;
-  gap: 12px;
+  gap: 24px;
   margin-block-end: 18px;
+}
+
+@media (min-width: 1200px) {
+  .vp-ladder-notes { --deal-cols: 5; }
 }
 
 /* White again. They carried the page's ink wash while the panel under them was
@@ -2619,12 +2647,18 @@ option:hover {
 
 /* --- the way out --------------------------------------------------------- */
 
-/* Sized to its own text rather than sharing the row evenly: it is a way out,
-   not a third condition, and it should not read as one. */
+/* Exactly one deal card wide, so it sits directly over the card beneath it
+   rather than at whatever width its own text happens to want. The cards
+   divide the row's width between them with a 24px gutter, so one card is
+   (100% - (n-1) * 24) / n, and the row it lives in is the same width as the
+   deals row — both are the panel's content box, measured equal at 1364 at
+   1440. It still does not share the row evenly with the two conditions: it is
+   a way out, not a third condition. */
 .vp-ladder-all {
-  flex: none;
+  flex: 0 0 calc((100% - (var(--deal-cols) - 1) * 24px) / var(--deal-cols));
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   padding: 11px 18px;
   border-radius: 12px;
@@ -2632,7 +2666,15 @@ option:hover {
   font-size: 14px;
   font-weight: 700;
   line-height: 1.7;
-  white-space: nowrap;
+  /* Both needed for the basis above to actually bind. A flex item will not go
+     below its content width while min-width is auto, and this label sets 274
+     against a card of 253.6 at 1440 and 193.6 at 1200 — so it simply ignored
+     the basis and stayed 274 at both. min-width: 0 lets it shrink, and the
+     wrap lets the words take a second line rather than spilling out of the
+     box. The row is align-items: stretch, so the two conditions beside it grow
+     to match and the three stay one band. */
+  min-width: 0;
+  text-align: center;
   color: var(--theme-color);
 }
 
@@ -2679,7 +2721,10 @@ option:hover {
   .vp-step { --tile: 44px; }
   .vp-step-rate b { font-size: 21px; }
   .vp-step-name, .vp-step-when { font-size: 12px; }
+  /* Stacked, so there is no card beside the link to match — it goes back to
+     filling the line like the two conditions above it. */
   .vp-ladder-notes { flex-direction: column; gap: 10px; }
+  .vp-ladder-all { flex: none; }
 }
 
 /* The ladder is a scale, so it is never allowed to wrap — under 700 it scrolls
