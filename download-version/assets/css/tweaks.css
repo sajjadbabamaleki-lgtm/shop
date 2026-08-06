@@ -1976,11 +1976,16 @@ option:hover {
 /* One panel holding the whole mechanism, so the ladder and the cards under it
    read as one offer rather than as two bands that happen to be adjacent. */
 .vp-ladder {
-  padding: 34px 34px 30px;
+  /* Tighter than it was — 34/30 became 26/24 — because the section's job is to
+     be scanned, not dwelt in, and every row of padding here is repeated four
+     times down the page in the eye's memory. */
+  padding: 26px 26px 24px;
   border-radius: 28px;
-  background: rgba(16, 17, 17, 0.034);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
+  /* White, not the page's glass. The tiles inside it are the same tiles the
+     categories use and they carry their own off-white ground; on glass that
+     was a grey object on a grey object, and neither edge did any work. A white
+     card puts one clean step between the page and the tiles. */
+  background: #FFFFFF;
   /* The same ink foot as every other pane on the page — «لبه پنهان» in
      CLAUDE.md. No drop shadow. */
   box-shadow: inset 0 -1.4px 0 rgba(16, 17, 17, 0.07);
@@ -2194,16 +2199,19 @@ option:hover {
 
 .vp-ladder-notes {
   display: flex;
-  gap: 16px;
-  margin-block-end: 22px;
+  align-items: stretch;
+  gap: 12px;
+  margin-block-end: 18px;
 }
 
+/* On a white card these need a ground of their own, so they take the page's
+   own faint ink wash rather than the white they used to sit on. */
 .vp-ladder-notes span {
   flex: 1;
   padding: 11px 16px;
   border-radius: 12px;
-  background: #FFFFFF;
-  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.05);
+  background: rgba(16, 17, 17, 0.034);
+  box-shadow: none;
   font-size: 14px;
   line-height: 1.7;
   color: var(--body-color);
@@ -2226,8 +2234,9 @@ option:hover {
   display: block;
   overflow: hidden;
   aspect-ratio: 1;
-  /* The tiles' 30 at 157px, kept in proportion at the ~330 these run at. */
-  border-radius: 34px;
+  /* The tiles' 30 at 157px, kept in proportion at the ~260 five across run
+     at. It was 34 when there were four. */
+  border-radius: 28px;
   /* The same off-white as the category tiles, for the same reason: these shots
      are cut-outs and need a ground to sit on. */
   background: rgba(238, 238, 238, 0.8);
@@ -2403,13 +2412,20 @@ option:hover {
 
 /* --- the way out --------------------------------------------------------- */
 
+/* Sized to its own text rather than sharing the row evenly: it is a way out,
+   not a third condition, and it should not read as one. */
 .vp-ladder-all {
+  flex: none;
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  margin-block-start: 22px;
+  padding: 11px 18px;
+  border-radius: 12px;
+  background: rgba(164, 127, 37, 0.10);
   font-size: 14px;
   font-weight: 700;
+  line-height: 1.7;
+  white-space: nowrap;
   color: var(--theme-color);
 }
 
@@ -2426,6 +2442,7 @@ option:hover {
 }
 
 .vp-ladder-all:hover {
+  background: rgba(164, 127, 37, 0.16);
   color: var(--title-color);
 }
 

@@ -276,6 +276,7 @@ const LADDER_DEALS = [
   ['hero/vikyplus-deal-cloudtilt.webp', 'کتونی اون کلادتیلت', 4880000, 'فقط سایزهای ۳۸ و ۴۰'],
   ['hero/vikyplus-hero-nb530.webp', 'کتونی نیوبالانس ۵۳۰', 7980000, 'فقط ۱ عدد باقی مانده'],
   ['hero/vikyplus-deal-v2k.webp', 'کتونی نایک وی۲کی ران', 6980000, 'فقط سایزهای ۳۷ و ۳۹'],
+  ['hero/vikyplus-hero-jordan.webp', 'کتونی جردن وان ایر', 8480000, 'فقط سایز ۳۸'],
 ];
 
 // fa-IR gives Persian digits and the Arabic thousands mark, which is what a
@@ -354,12 +355,16 @@ html = html.replace(
   '                </div>\n' +
   '                <div class="vp-ladder-track">' + LADDER_TRACK_HTML + '\n' +
   '                </div>\n' +
+  // The way out sits with the two conditions rather than on a line of its own
+  // under the tiles. It is the same kind of thing they are — a standing fact
+  // about the sale, not a step in it — and putting it here takes a whole row
+  // off the section's height.
   '                <div class="vp-ladder-notes">\n' +
   LADDER_NOTES.map((n) => `                    <span>${n}</span>`).join('\n') + '\n' +
+  '                    <a href="shop.html" class="vp-ladder-all">مشاهده همه محصولات</a>\n' +
   '                </div>\n' +
-  '                <div class="row gy-4 row-cols-1 row-cols-sm-2 row-cols-xl-4 vp-ladder-deals">' + LADDER_DEALS_HTML + '\n' +
+  '                <div class="row gy-4 row-cols-2 row-cols-md-3 row-cols-xl-5 vp-ladder-deals">' + LADDER_DEALS_HTML + '\n' +
   '                </div>\n' +
-  '                <a href="shop.html" class="vp-ladder-all">مشاهده همه کالاهای حراج</a>\n' +
   '            </div>\n' +
   '        </div>\n' +
   '    </section>'
