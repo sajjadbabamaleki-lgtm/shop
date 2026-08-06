@@ -1126,8 +1126,25 @@ option:hover {
   box-shadow: inset 0 -1.4px 0 rgba(16, 17, 17, 0.07);
 }
 
+/* filter: none overrides the template's own -webkit-filter: drop-shadow(...)
+   on this element — the actual reason the frosting further down was doing
+   nothing once stuck, and the reason things kept reading as showing through
+   the bar rather than soft behind it.
+
+   A `filter` on an element puts every descendant's `backdrop-filter` in a new
+   backdrop root scoped to that element's own layer, so .menu-area's blur, one
+   level down, could only ever see the header's own contents, never the page
+   behind it. The trust row's cards and the ladder head were both showing
+   through crisp instead of soft for this reason: there was nothing wrong
+   with the blur itself, it had nothing real to blur. Measured after: a pixel
+   dead centre of trust-row title text went from 17 (bare ink, unblurred) to
+   122 (averaged toward the page behind it) at the same spot.
+
+   The drop-shadow is not lost — .menu-area's own box-shadow two rules down
+   already carries an equivalent `0 10px 30px -24px rgba(16,17,17,0.45)`. */
 .th-header .sticky-wrapper.sticky {
   background: transparent;
+  filter: none;
 }
 
 /* Stuck, the island frosts harder — but it stays the same glass.
@@ -1423,6 +1440,16 @@ option:hover {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* The shoe's own entrance — the template's slideinrighthero, which the six
+   hero-img elements carry via data-ani — comes in 50% faster. The template
+   sets 1.3s on a shared selector (.slideinrighthero, .slideindown, ...) in
+   style.css, so it is overridden here rather than edited there: 1.3 / 1.5 =
+   0.867s. The delay (0.3s, plus the per-slide 0.8s from data-ani-delay) is
+   untouched — only how long the slide itself takes changes. */
+.heroSlide6 .hero-img.slideinrighthero {
+  animation-duration: 0.867s;
 }
 
 /* 89% of the column, pinned to its far side by the rule further down.
