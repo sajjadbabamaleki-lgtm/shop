@@ -2221,14 +2221,14 @@ option:hover {
      left-hand ones. */
   direction: ltr;
   display: flex;
-  gap: 6px;
+  gap: 7.8px;
   margin-block: 22px 16px;
 }
 
 .vp-track-leg {
   flex: 1;
-  height: 5px;
-  border-radius: 3px;
+  height: 10px;
+  border-radius: 5px;
   background: rgba(16, 17, 17, 0.07);
 }
 
