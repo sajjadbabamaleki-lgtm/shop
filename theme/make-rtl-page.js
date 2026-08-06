@@ -12,6 +12,7 @@ const fs = require('fs');
 const path = require('path');
 
 const ROOT = path.resolve(__dirname, '..');
+const SITE_IMG = path.join(ROOT, 'download-version/assets/img');
 
 // Usage: make-rtl-page.js [theme] [source.html]
 //
@@ -619,6 +620,188 @@ html = html.replace(
 // them as Persian percent instead.
 html = html.replace(/-(\d+)%/g, (_, n) => `${Number(n).toLocaleString('fa-IR')}٪ تخفیف`);
 
+/* --------------------------------------------------------------------------
+   «نحوه کار» — the how-it-works dialog.
+
+   Opened from the link in the sale's own head. It carries the offer's terms in
+   full, and above them a short motion piece that says the same thing in about
+   ten seconds for anyone who will not read the rest.
+
+   Everything here is injected at </body> rather than written into the section,
+   because the prose passes above run over the whole document — the dictionary,
+   the currency scaling and the discount-chip rewrite — and this copy is
+   already Persian and already carries percent signs. Injected earlier it would
+   be rewritten. The note on the entrance-animation script at the end of this
+   file makes the same point about code.
+   -------------------------------------------------------------------------- */
+
+/* --------------------------------------------------------------------------
+   «نحوه کار» — the how-it-works dialog.
+
+   Opened from the link in the sale's own head, and laid out as the client's
+   reference is: one wide landscape board, not a column. The title sits between
+   two asides, the five steps run across the middle as podiums, the rules are a
+   single strip under them, and the prose that is left goes in columns beside
+   each other rather than stacked.
+
+   Everything here is injected at </body> rather than written into the section,
+   because the prose passes above run over the whole document — the dictionary,
+   the currency scaling and the discount-chip rewrite — and this copy is
+   already Persian and already carries percent signs. Injected earlier it would
+   be rewritten. The note on the entrance-animation script at the end of this
+   file makes the same point about code.
+
+   The reference came in purple on cream. Nothing of that palette is here, for
+   the same reason the ladder itself is not maroon: the page is gold and ink,
+   and the live step takes the buy button's gold exactly as the ladder's does.
+   -------------------------------------------------------------------------- */
+
+// A calendar, drawn rather than set, so it needs no icon font — the same
+// reason the ladder's own step marks are drawn.
+const HOW_CAL =
+  '<svg viewBox="0 0 16 16" aria-hidden="true">' +
+  '<rect x="2" y="3.4" width="12" height="10.6" rx="2.4" fill="none" stroke="currentColor" stroke-width="1.4"></rect>' +
+  '<path d="M2 6.8h12M5.4 2v2.6M10.6 2v2.6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"></path>' +
+  '<circle cx="5.6" cy="9.6" r="0.9" fill="currentColor"></circle>' +
+  '<circle cx="8" cy="9.6" r="0.9" fill="currentColor"></circle>' +
+  '<circle cx="10.4" cy="9.6" r="0.9" fill="currentColor"></circle>' +
+  '</svg>';
+
+// A drawn sneaker rather than a photograph: this is a diagram of how the offer
+// works, not a shop window, and a cut-out of a real shoe in a 58px box reads as
+// a thumbnail of something for sale. One outline, in currentColor, so it takes
+// the step's own state the way the rest of the card does.
+// The template's own shoe icon, inlined rather than loaded through <img> so it
+// can take the step's colour: the file paints itself the template's red, and
+// an <img> cannot inherit currentColor. The original asset is left alone —
+// this reads it at build time and swaps the fill, the same bargain
+// theme/recolor-svg.js strikes for the icons that do go in as files.
+const HOW_SHOE = fs
+  .readFileSync(path.join(SITE_IMG, 'icon/shoe.svg'), 'utf8')
+  .replace(/<\?xml[^>]*\?>/g, '')
+  .replace(/\s(?:width|height)="[^"]*"/g, '')
+  .replace(/fill="#E42E3B"/gi, 'fill="currentColor"')
+  .replace('<svg', '<svg aria-hidden="true"')
+  .replace(/\n\s*/g, '')
+  .trim();
+
+// The steps are the page's own, not a second set written out here: the dialog
+// explains the ladder that is actually running, so it reads from the same
+// array the ladder itself is built from.
+//
+// The percent sign is written before the digits, not after: the row is forced
+// ltr so the scale reads as a number line, and in an ltr box the last thing in
+// the string lands on the right — which is the first thing an RTL reader's eye
+// meets. The ladder in the section is written the same way, for the same
+// reason.
+const HOW_STEPS = LADDER_STEPS.map(([name, cut, when], i) =>
+  // The third step is the one shown lit. The board is a diagram of how the
+  // offer runs, so it shows a step part-way along rather than the one the
+  // live ladder happens to be on today.
+  `\n                        <li class="vp-how-step${i === 2 ? ' is-lit' : ''}">` +
+  `\n                            <span class="vp-how-step-no">${name}</span>` +
+  '\n                            <div class="vp-how-card">' +
+  `\n                                <span class="vp-how-shot">${HOW_SHOE}</span>` +
+  `\n                                <span class="vp-how-off"><b>\u066a${fa(cut)}</b><small>تخفیف</small></span>` +
+  '\n                            </div>' +
+  '\n                            <span class="vp-how-podium"></span>' +
+  // The week goes under the podium, where it reads as when that step runs
+  // rather than as another fact on the card.
+  `\n                            <span class="vp-how-when">${HOW_CAL}${when}</span>` +
+  '\n                        </li>'
+).join('');
+
+// The six standing conditions, as the reference runs them: one strip under the
+// steps, an icon and two lines each.
+const HOW_RULES = [
+  ['tag', 'تخفیف‌ها خودکار و', 'زمان‌بندی‌شده هستند'],
+  ['cal', 'انتقال به پله بعد فقط', 'با باقی‌ماندن موجودی'],
+  ['box', 'کالاهای حراج پله‌ای', 'موجودی محدود دارند'],
+  ['pct', 'امکان اتمام موجودی', 'در هر مرحله هست'],
+  ['lock', 'پس از اتمام موجودی', 'رزرو قیمت ممکن نیست'],
+  ['user', 'اولویت با کسانی است', 'که زودتر ثبت می‌کنند'],
+];
+
+const HOW_RULE_ICONS = {
+  tag: '<path d="M3 8.4V3.4a.9.9 0 0 1 .9-.9h5l7.6 7.6a1.2 1.2 0 0 1 0 1.7l-4.3 4.3a1.2 1.2 0 0 1-1.7 0Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"></path><circle cx="6.4" cy="6" r="1.2" fill="currentColor"></circle>',
+  cal: '<rect x="2.6" y="4" width="12.8" height="11.4" rx="2.6" fill="none" stroke="currentColor" stroke-width="1.5"></rect><path d="M2.6 7.6h12.8M6.4 2.4v3M11.6 2.4v3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>',
+  box: '<path d="M9 2.4 15.6 6v6L9 15.6 2.4 12V6Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"></path><path d="M2.4 6 9 9.6 15.6 6M9 9.6v6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"></path>',
+  pct: '<circle cx="9" cy="9" r="6.6" fill="none" stroke="currentColor" stroke-width="1.5"></circle><path d="M6.6 11.4 11.4 6.6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path><circle cx="6.9" cy="6.9" r="1.1" fill="currentColor"></circle><circle cx="11.1" cy="11.1" r="1.1" fill="currentColor"></circle>',
+  lock: '<rect x="3.6" y="7.8" width="10.8" height="7.6" rx="2.4" fill="none" stroke="currentColor" stroke-width="1.5"></rect><path d="M6 7.8V6a3 3 0 0 1 6 0v1.8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>',
+  user: '<circle cx="9" cy="6.4" r="2.8" fill="none" stroke="currentColor" stroke-width="1.5"></circle><path d="M3.6 15.2a5.4 5.4 0 0 1 10.8 0" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>',
+};
+
+const HOW_RULES_HTML = HOW_RULES.map(([icon, a, b]) =>
+  '\n                        <li class="vp-how-rule">' +
+  `<span class="vp-how-rule-icon"><svg viewBox="0 0 18 18" aria-hidden="true">${HOW_RULE_ICONS[icon]}</svg></span>` +
+  `<span class="vp-how-rule-text">${a}<br>${b}</span></li>`
+).join('');
+
+
+const HOW_HTML =
+  '    <div class="vp-how-modal" id="vp-how" hidden>\n' +
+  '        <div class="vp-how-veil" data-vp-how-close></div>\n' +
+  '        <div class="vp-how-panel" role="dialog" aria-modal="true" aria-labelledby="vp-how-title">\n' +
+  '            <button type="button" class="vp-how-close" data-vp-how-close aria-label="بستن">\n' +
+  '                <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4 12 12 M12 4 4 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path></svg>\n' +
+  '            </button>\n' +
+  '            <div class="vp-how-scroll">\n' +
+  // The head: the title in the middle with an aside on each side, as the
+  // reference has it. They are one row, not three stacked blocks.
+  '                <header class="vp-how-head">\n' +
+  '                    <p class="vp-how-aside">اگر در هر مرحله فروش نرود، به پله بعدی منتقل شده و با تخفیف بیشتر عرضه می‌شود.</p>\n' +
+  '                    <div class="vp-how-titles">\n' +
+  `                        <h2 class="vp-how-title" id="vp-how-title">${LADDER_INTRO.title}</h2>\n` +
+  `                        <p class="vp-how-strap"><span>${LADDER_INTRO.strap}</span></p>\n` +
+  '                    </div>\n' +
+  '                    <p class="vp-how-aside is-warn"><b>فرصت را از دست ندهید!</b> ممکن است قبل از رسیدن به تخفیف بیشتر فروخته شود.</p>\n' +
+  '                </header>\n' +
+  '                <div class="vp-how-board">\n' +
+  '                    <ol class="vp-how-steps">' + HOW_STEPS + '\n' +
+  '                    </ol>\n' +
+  '                </div>\n' +
+  '                <ul class="vp-how-rules">' + HOW_RULES_HTML + '\n' +
+  '                </ul>\n' +
+  // What is left of the copy, in columns beside each other.
+  '                <div class="vp-how-cols">\n' +
+  '                    <section>\n' +
+  '                        <h3>حراج پله‌ای چیست؟</h3>\n' +
+  '                        <p>در ویکی پلاس، برای اولین بار مدل فروش حراج پله‌ای را طراحی کرده‌ایم؛ روشی شفاف، زمان‌بندی‌شده و منصفانه که به شما امکان می‌دهد کالاهای منتخب را با تخفیف‌های مرحله‌ای و واقعی بخرید.</p>\n' +
+  '                        <p>این طرح مخصوص محصولاتی است که موجودی محدودی دارند یا پس از فروش اولیه، تنها برخی سایزها یا رنگ‌های آن‌ها باقی مانده است.</p>\n' +
+  '                    </section>\n' +
+  '                    <section>\n' +
+  '                        <h3>چگونه کار می‌کند؟</h3>\n' +
+  '                        <ol class="vp-how-list">\n' +
+  '                            <li>هر محصول با یک تخفیف اولیه وارد پله اول می‌شود.</li>\n' +
+  '                            <li>اگر تا پایان آن مرحله فروش نرود، به پله بعدی منتقل می‌شود.</li>\n' +
+  '                            <li>در هر پله، درصد تخفیف بیشتر از مرحله قبل خواهد بود.</li>\n' +
+  '                            <li>تنها موجودی باقی‌مانده وارد مرحله بعد می‌شود.</li>\n' +
+  '                            <li>این روند تا فروش کامل کالا یا پایان آخرین پله ادامه دارد.</li>\n' +
+  '                        </ol>\n' +
+  '                    </section>\n' +
+  '                    <section>\n' +
+  '                        <h3>یک مثال</h3>\n' +
+  '                        <p>فرض کنید از یک مدل کفش فقط سایزهای ۳۷ و ۴۰ باقی مانده باشد.</p>\n' +
+  '                        <p>اگر این سایزها در پله اول به فروش نرسند، همان موجودی وارد پله دوم می‌شود و با تخفیف بیشتری عرضه خواهد شد. بنابراین ممکن است پیش از رسیدن به تخفیف بالاتر، سایز موردنظر شما را شخص دیگری بخرد.</p>\n' +
+  '                    </section>\n' +
+  '                    <section>\n' +
+  '                        <h3>چرا حراج پله‌ای؟</h3>\n' +
+  '                        <ul class="vp-how-list is-ticked">\n' +
+  '                            <li>قیمت‌گذاری شفاف و بدون تخفیف ساختگی</li>\n' +
+  '                            <li>خرید هوشمندانه متناسب با بودجه شما</li>\n' +
+  '                            <li>مدیریت عادلانه کالاهای با موجودی محدود</li>\n' +
+  '                            <li>تجربه‌ای نو در خرید آنلاین کفش و کیف</li>\n' +
+  '                        </ul>\n' +
+  '                    </section>\n' +
+  '                </div>\n' +
+  '                <p class="vp-how-note">انتخاب با شماست؛ خرید زودتر با اطمینان بیشتر، یا صبر برای تخفیف بالاتر با ریسک از دست رفتن کالا.</p>\n' +
+  '            </div>\n' +
+  '        </div>\n' +
+  '    </div>\n';
+
+html = html.replace('</body>', HOW_HTML + '</body>');
+
+
 // The marks behind the hero take the colour of the shoe on the card.
 //
 // Each hue is measured from the photograph itself — its opaque, coloured
@@ -715,6 +898,50 @@ html = html.replace('</body>',
   '                });\n' +
   '            }, { rootMargin: "0px 0px -80px 0px", threshold: 0.12 });\n' +
   '            items.forEach(function (el) { seen.observe(el); });\n' +
+  '        }());\n' +
+  '    </script>\n</body>');
+
+// Opening and closing the how-it-works dialog.
+//
+// Delegated off the document rather than bound to the link, so it does not
+// matter whether this script or the dialog's own markup is written into the
+// page first — both are injected at </body> and the order between them is an
+// implementation detail of the replaces above, not something to depend on.
+//
+// The scroll lock is the page's own overflow rather than a fixed body: fixing
+// the body loses the scroll position and this dialog is opened from the middle
+// of the page. The animation is paused while closed so a hidden dialog is not
+// running a ten-second loop for the life of the session.
+html = html.replace('</body>',
+  '    <script>\n' +
+  '        (function () {\n' +
+  '            var opener = ".vp-ladder-how";\n' +
+  '            function modal() { return document.getElementById("vp-how"); }\n' +
+  '            var lastFocus = null;\n' +
+  '            function open(e) {\n' +
+  '                var m = modal();\n' +
+  '                if (!m) return;\n' +
+  '                if (e) e.preventDefault();\n' +
+  '                lastFocus = document.activeElement;\n' +
+  '                m.hidden = false;\n' +
+  '                document.documentElement.style.overflow = "hidden";\n' +
+  '                var close = m.querySelector(".vp-how-close");\n' +
+  '                if (close) close.focus();\n' +
+  '            }\n' +
+  '            function close() {\n' +
+  '                var m = modal();\n' +
+  '                if (!m || m.hidden) return;\n' +
+  '                m.hidden = true;\n' +
+  '                document.documentElement.style.overflow = "";\n' +
+  '                if (lastFocus && lastFocus.focus) lastFocus.focus();\n' +
+  '            }\n' +
+  '            document.addEventListener("click", function (e) {\n' +
+  '                if (e.target.closest && e.target.closest(opener)) { open(e); return; }\n' +
+  '                if (e.target.closest && e.target.closest("[data-vp-how-close]")) { close(); }\n' +
+  '            });\n' +
+  '            document.addEventListener("keydown", function (e) {\n' +
+  '                if (e.key === "Escape") close();\n' +
+  '            });\n' +
   '        }());\n' +
   '    </script>\n</body>');
 

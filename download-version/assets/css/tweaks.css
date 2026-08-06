@@ -2941,3 +2941,1250 @@ option:hover {
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
 }
+
+/* --------------------------------------------------------------------------
+   «نحوه کار» — the how-it-works dialog.
+
+   A wide landscape board, laid out as the client's reference is: the title
+   between two asides, five podiums across the middle, one strip of conditions
+   under them, and the prose in columns beside each other. Nothing stacks that
+   the reference has side by side.
+
+   The reference is purple on cream; this is the page's own gold and ink, for
+   the same reason the ladder itself is not maroon.
+   -------------------------------------------------------------------------- */
+
+.vp-how-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+/* [hidden] alone does not beat the display above, so the two are stated
+   together. */
+.vp-how-modal[hidden] {
+  display: none;
+}
+
+.vp-how-veil {
+  position: absolute;
+  inset: 0;
+  background: rgba(16, 17, 17, 0.45);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  animation: vp-how-fade 220ms ease-out;
+}
+
+@keyframes vp-how-fade { from { opacity: 0; } }
+
+/* Landscape: as wide as the viewport allows, and no taller than it has to be.
+   The sale panel's own 50px corner, so the dialog reads as that panel opened
+   up rather than as a new surface. */
+.vp-how-panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: min(1240px, 100%);
+  max-height: min(90vh, 860px);
+  border-radius: 50px;
+  background: #FBFAF8;
+  box-shadow: 0 40px 90px -40px rgba(16, 17, 17, 0.55);
+  overflow: hidden;
+  animation: vp-how-rise 260ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+@keyframes vp-how-rise {
+  from { opacity: 0; transform: translateY(16px) scale(0.985); }
+}
+
+/* Physical left: a close button belongs on the far side from the reading
+   start, and the logical pair resolves to the right on this page. */
+.vp-how-close {
+  position: absolute;
+  inset-block-start: 20px;
+  left: 20px;
+  z-index: 3;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  background: rgba(16, 17, 17, 0.05);
+  color: var(--title-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.vp-how-close:hover { background: rgba(16, 17, 17, 0.10); }
+.vp-how-close svg { width: 15px; height: 15px; }
+.vp-how-close:focus-visible { outline: 2px solid var(--theme-color); outline-offset: 2px; }
+
+.vp-how-scroll {
+  overflow-y: auto;
+  padding: 30px 44px 34px;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* --- the head: aside, title, aside — one row ----------------------------- */
+
+.vp-how-head {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 30px;
+  margin-block-end: 26px;
+}
+
+.vp-how-titles { text-align: center; }
+
+.vp-how-title {
+  margin: 0 0 8px;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 800;
+  font-size: 30px;
+  line-height: 1.4;
+  color: var(--theme-color);
+}
+
+/* The strap is ruled either side, as the reference draws it. The rules are
+   drawn on the span rather than the paragraph so they meet the words rather
+   than the column. */
+.vp-how-strap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.8;
+  color: var(--body-color);
+}
+
+.vp-how-strap:before,
+.vp-how-strap:after {
+  content: '';
+  width: 54px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(164, 127, 37, 0.55));
+}
+
+.vp-how-strap:after { transform: scaleX(-1); }
+
+.vp-how-aside {
+  margin: 0;
+  font-size: 13px;
+  line-height: 2;
+  color: var(--body-color);
+}
+
+/* The first aside is ruled on its inner edge, the way the reference rules it;
+   the second is the warning and takes the gold instead. */
+.vp-how-head .vp-how-aside:first-child {
+  padding-inline-end: 18px;
+  border-inline-end: 2px solid rgba(164, 127, 37, 0.35);
+  text-align: end;
+}
+
+.vp-how-aside.is-warn {
+  padding-inline-start: 18px;
+  border-inline-start: 2px solid rgba(164, 127, 37, 0.35);
+  text-align: start;
+}
+
+.vp-how-aside b {
+  display: block;
+  font-weight: 800;
+  color: var(--theme-color);
+}
+
+/* --- the board: five podiums across ------------------------------------- */
+
+.vp-how-board {
+  /* Left to right, against the page — the same decision the ladder in the
+     section takes: a run of rates is a number line, 15 to 70, and a number
+     line does not turn round because the words beside it do. So پله اول sits
+     at the far left, پله نهایی at the right, and the stopwatch after it. The
+     Persian inside each card is put back to rtl below. */
+  direction: ltr;
+  display: flex;
+  align-items: flex-end;
+  gap: 18px;
+  margin-block-end: 26px;
+}
+
+.vp-how-step-no,
+.vp-how-when,
+.vp-how-off small {
+  direction: rtl;
+}
+
+.vp-how-steps {
+  display: flex;
+  align-items: flex-end;
+  gap: 26px;
+  flex: 1;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.vp-how-step {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.vp-how-step-no {
+  margin-block-end: 10px;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 800;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--title-color);
+  white-space: nowrap;
+}
+
+/* The card: the drawing on one side, the offer on the other. --box is the
+   height of both, so the frame beside the chip is a true square and not a
+   fixed number that happens to be near the chip's content height. */
+.vp-how-card {
+  --box: 64px;
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 12px 12px 10px;
+  border-radius: 18px;
+  background: #FFFFFF;
+  box-shadow:
+    inset 0 0 0 1px rgba(16, 17, 17, 0.06),
+    0 12px 26px -18px rgba(16, 17, 17, 0.4);
+}
+
+/* A lined square, not a ring: the drawing inside it is a diagram in a frame,
+   and a circle round a shoe reads as a product thumbnail. Square by
+   construction — the same --box drives the width here and the height of the
+   chip beside it. */
+.vp-how-shot {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--box);
+  height: var(--box);
+  border-radius: 14px;
+  box-shadow: inset 0 0 0 1.4px rgba(164, 127, 37, 0.32);
+  color: var(--theme-color);
+}
+
+.vp-how-shot svg {
+  width: 40px;
+  height: auto;
+  display: block;
+}
+
+/* The offer, in ink until its step is the live one. It takes the rest of the
+   card and sets the row's height, which is what makes the frame beside it
+   square. */
+.vp-how-off {
+  flex: 1;
+  min-width: 0;
+  height: var(--box);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  padding: 7px 8px;
+  border-radius: 12px;
+  /* Light grey until its step is the live one, not the ink this started as:
+     five near-black chips in a row were the heaviest thing in the dialog and
+     read as the subject rather than as the thing waiting its turn. The type
+     stays ink at both states, so only the ground moves. */
+  background: rgba(16, 17, 17, 0.07);
+  color: var(--title-color);
+  transition: background 0.35s ease;
+}
+
+.vp-how-off b {
+  font-family: 'Vazirmatn', var(--body-font);
+  font-weight: 800;
+  font-size: 20px;
+  line-height: 1.15;
+}
+
+.vp-how-off small { font-size: 10.5px; font-weight: 700; line-height: 1.5; }
+
+/* Under the podium, where it says when that step runs rather than reading as
+   another fact on the card. */
+.vp-how-when {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  margin-block-start: 10px;
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: var(--body-color);
+  white-space: nowrap;
+}
+
+.vp-how-when svg { width: 13px; height: 13px; flex: none; }
+
+/* The podium under the card: a cylinder, drawn as a wide ellipse with a lit
+   top face, so the row reads as five stands rather than five boxes. */
+.vp-how-podium {
+  position: relative;
+  width: 100%;
+  height: 26px;
+  margin-block-start: -6px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #DFDCD6 0%, #C7C3BB 100%);
+  transition: background 0.35s ease;
+}
+
+.vp-how-podium:before {
+  content: '';
+  position: absolute;
+  inset: 0 0 7px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #F0EEEA 0%, #DFDCD6 100%);
+  transition: background 0.35s ease;
+}
+
+/* One step is lit, and stays lit — the board is a diagram of the offer, not a
+   loop. The third is the one shown gold, and the gold is the hero burst's
+   own: #C0972F to #E3B54A, the same pair the discount mark on the hero shot
+   takes. Everything else stays grey. */
+.vp-how-step.is-lit .vp-how-off {
+  background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+}
+
+.vp-how-step.is-lit .vp-how-podium {
+  background: linear-gradient(180deg, #C0972F 0%, #A07C22 100%);
+}
+
+.vp-how-step.is-lit .vp-how-podium:before {
+  background: linear-gradient(180deg, #E3B54A 0%, #C0972F 100%);
+}
+
+/* --- the conditions, one strip ------------------------------------------- */
+
+.vp-how-rules {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+  margin: 0 0 26px;
+  padding: 16px 12px;
+  border-radius: 22px;
+  background: rgba(16, 17, 17, 0.034);
+  list-style: none;
+}
+
+.vp-how-rule {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-inline: 6px;
+}
+
+.vp-how-rule + .vp-how-rule {
+  border-inline-end: 1px solid rgba(16, 17, 17, 0.08);
+}
+
+.vp-how-rule-icon {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  color: var(--theme-color);
+  box-shadow: inset 0 0 0 1px rgba(164, 127, 37, 0.18);
+}
+
+.vp-how-rule-icon svg { width: 17px; height: 17px; }
+
+.vp-how-rule-text {
+  font-size: 11.5px;
+  line-height: 1.7;
+  color: var(--body-color);
+}
+
+/* --- the prose, in columns beside each other ----------------------------- */
+
+.vp-how-cols {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 26px;
+}
+
+.vp-how-cols h3 {
+  margin: 0 0 10px;
+  padding-block-end: 10px;
+  border-block-end: 1px solid rgba(16, 17, 17, 0.10);
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 800;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--title-color);
+}
+
+.vp-how-cols p {
+  margin: 0 0 10px;
+  font-size: 12.5px;
+  line-height: 2;
+  color: var(--body-color);
+}
+
+.vp-how-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: vp-how;
+}
+
+.vp-how-list li {
+  position: relative;
+  padding-inline-start: 26px;
+  margin-block-end: 7px;
+  font-size: 12.5px;
+  line-height: 1.9;
+  color: var(--body-color);
+}
+
+/* Drawn as a counter so the markup stays an ordered list and the digits come
+   out Persian without being written that way in the source. */
+ol.vp-how-list li:before {
+  counter-increment: vp-how;
+  content: counter(vp-how, persian);
+  position: absolute;
+  inset-inline-start: 0;
+  inset-block-start: 3px;
+  width: 19px;
+  height: 19px;
+  border-radius: 6px;
+  background: rgba(164, 127, 37, 0.10);
+  color: var(--theme-color);
+  font-family: 'Vazirmatn', var(--body-font);
+  font-weight: 800;
+  font-size: 10.5px;
+  line-height: 19px;
+  text-align: center;
+}
+
+/* Physical borders: a tick is a shape, not a direction, and the logical pair
+   draws it mirrored on this page. */
+ul.vp-how-list.is-ticked li:before {
+  content: '';
+  position: absolute;
+  inset-inline-start: 2px;
+  inset-block-start: 9px;
+  width: 9px;
+  height: 5px;
+  border-left: 1.8px solid var(--theme-color);
+  border-bottom: 1.8px solid var(--theme-color);
+  transform: rotate(-45deg);
+}
+
+.vp-how-note {
+  margin: 24px 0 0;
+  padding: 14px 20px;
+  border-radius: 16px;
+  background: rgba(164, 127, 37, 0.09);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.9;
+  color: var(--title-color);
+  text-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vp-how-panel,
+  .vp-how-veil {
+    animation: none;
+  }
+}
+
+/* --- narrower ------------------------------------------------------------ */
+
+/* Below 1200 the five steps and the intro cannot share one line and stay
+   legible, so the intro goes above the ladder and the ladder keeps the width
+   to itself. */
+@media (max-width: 1199px) {
+  .vp-ladder-head {
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .vp-ladder-intro {
+    flex: none;
+    padding-block-start: 0;
+  }
+
+  .vp-ladder-steps { width: 100%; }
+}
+
+@media (max-width: 991px) {
+  .vp-ladder { padding: 26px 20px 24px; }
+  /* The tag row under the tiles is sized off --tile, so it narrows with them
+     rather than needing its own number here. */
+  .vp-step { --tile: 44px; }
+  .vp-step-rate b { font-size: 21px; }
+  .vp-step-name, .vp-step-when { font-size: 12px; }
+  /* Stacked, so there is no card beside the link to match — it goes back to
+     filling the line like the two conditions above it. */
+  .vp-ladder-notes { flex-direction: column; gap: 10px; }
+  .vp-ladder-all { flex: none; }
+}
+
+/* The ladder is a scale, so it is never allowed to wrap — under 700 it scrolls
+   sideways instead, which keeps the five steps in one line and in order. */
+@media (max-width: 700px) {
+  .vp-ladder-steps {
+    overflow-x: auto;
+    padding-block-end: 6px;
+  }
+
+  .vp-step { flex: 0 0 116px; }
+}
+
+/* The field's own input carries the template's fixed 350px width and a 280px
+   min-width, so narrowing the field left the input hanging off the side of the
+   page — and the min-width alone kept it 95px wider than its box even after
+   the width followed. Both have to go for the input to fit what holds it. */
+.th-header .menu-area .top-search input {
+  width: 100%;
+  min-width: 0;
+}
+
+/* The search suggestions panel is a fixed 400px wide and hangs off the field.
+   Once the field narrowed to fit the island, the panel was wider than what it
+   hangs from and ran 113px off the side of the page — real scroll, measured,
+   not a phantom: the document scrolled to -113 at 1300px. Matching it to the
+   field keeps it inside whatever width the field ends up with. */
+.th-header .menu-area .top-search .search-suggestions,
+.th-header .menu-area .top-search .box-suggestions {
+  width: 100%;
+  min-width: 0;
+}
+
+/* The two off-canvas panels — the mobile menu and the side cart — are parked
+   outside the viewport until opened. Both are position:fixed, which is why the
+   body's own overflow:hidden never clipped them: it does not apply to fixed
+   descendants. In the LTR template they park off the left, where an overhang
+   costs nothing; the RTL flip moved them to the right, where it becomes real
+   horizontal scroll. Each wrapper is fixed and viewport-sized, so clipping it
+   parks the panel without touching how it slides in. */
+.th-menu-wrapper,
+.sidemenu-wrapper {
+  overflow: hidden;
+}
+
+/* --------------------------------------------------------------------------
+   The hero's buy button.
+
+   White type instead of ink, a corner that is rounded rather than a full pill,
+   and the arrow turned to face the product.
+
+   The template's arrow is a mask of arrow-right.svg with no transform, so it
+   points away from the shoe on this slide — the shoe sits to its left. A
+   scaleX flip turns it without needing a second asset.
+   -------------------------------------------------------------------------- */
+.heroSlide6 .hero-inner .th-btn {
+  color: #FFFFFF;
+  /* A fifth off the whole button, not just its type: every measure the
+     template gives it is multiplied by 0.8, so the proportions hold and it
+     shrinks as one thing. 18 → 14.4 type, 16.5/24 → 13.2/19.2 padding,
+     14 → 11.2 corner, 8 → 6.4 between the label and the arrow. It measured
+     161x51 and comes out 129x41. The arrow takes the type's size, so it
+     follows on its own. */
+  font-size: 14.4px;
+  padding: 13.2px 19.2px;
+  border-radius: 11.2px;
+  gap: 6.4px;
+}
+
+.heroSlide6 .hero-inner .th-btn.th-icon:after {
+  transform: scaleX(-1);
+}
+
+/* --------------------------------------------------------------------------
+   The search bar.
+
+   White field, and the magnifier moved into a gold disc tucked inside the
+   field's own corner rather than filling the end of it as a half-pill.
+
+   Physical left/right rather than logical properties: the field is laid out
+   RTL, so inset-inline-start would put the disc on the far side from where the
+   template's button sits.
+   -------------------------------------------------------------------------- */
+/* The disc is positioned against this box, so it has to follow the field's
+   width rather than keep the template's fixed 320 — otherwise the disc lands
+   100px inside the field at the narrower breakpoints. */
+.th-header .menu-area .box-search {
+  position: relative;
+  width: 100%;
+}
+
+.th-header .menu-area .box-search input {
+  background-color: #FFFFFF;
+  /* The field is white on a band that is nearly white, so it needs a line to
+     have an edge at all. */
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.08);
+  padding-left: 54px;
+  /* A rounded rectangle, not a pill: the field is 48 tall and was carrying 24,
+     which is exactly half and so leaves no straight edge at all. 14 is the
+     same family as the app icon's 12 on 52 and the basket's 12 on 48, so the
+     three objects in this row read as one set. */
+  border-radius: 14px;
+}
+
+.th-header .menu-area .box-search .th-btn {
+  position: absolute;
+  left: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 38px;
+  height: 38px;
+  min-width: 0;
+  padding: 0;
+  /* Square with a corner rather than a disc, in proportion to the field it
+     sits in: 10 on 38 is the same ratio as 14 on 48. */
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* The basket, a gold square with a filled white icon on it — the same object
+   as the search button at the other end of the row, one size up, so the two
+   bracket the bar. It was a near-white disc, which made the only two controls
+   in the header read as two different kinds of thing.
+
+   White on the gold here, not the ink the page uses for type on this colour:
+   an icon is a shape, not a word, and at 20px the shape is what has to carry —
+   white against the gold's midtone separates it more than ink does. The
+   template's own .icon-btn rules are two classes deep, so these are three. */
+.th-header .header-button .icon-btn.sideMenuToggler {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+  border: 0;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.th-header .header-button .icon-btn.sideMenuToggler i {
+  font-size: 20px;
+  line-height: 1;
+  color: #FFFFFF;
+}
+
+/* The count keeps its own ground so it stays legible where it overlaps the
+   gold, rather than being gold type on gold. */
+.th-header .header-button .icon-btn.sideMenuToggler .badge {
+  background: var(--title-color);
+  color: #FFFFFF;
+}
+
+/* The hero cards' corners, a little rounder than the template's 60. */
+.heroSlide6 .hero-inner {
+  border-radius: 72px;
+}
+
+/* --------------------------------------------------------------------------
+   Blur only where there is something to blur.
+
+   A backdrop-filter is one of the most expensive things a page can ask for,
+   and it buys nothing over a flat ground: blurring one uniform colour returns
+   that same colour. Measured, the page was asking for it 46 times over
+   5.2 megapixels a frame, and scrolling averaged 45.8fps with a worst frame
+   of 54ms.
+
+   The hero panes keep theirs — the gold marks run behind them and being taken
+   apart by the pane is the whole effect — and so do the header island and the
+   category labels, which sit over photographs. These three sat over the
+   page's own white:
+
+     .vp-ladder                    0.92 Mpx
+     .beige-color x24              0.74 Mpx   (hidden until hover, blurring
+                                               the whole time)
+     .vp-trust-row .feature-card   0.13 Mpx
+
+   The tint stays on all of them, so nothing changes on screen.
+
+   This follows the glass. It named .vp-ladder-head while the head was the
+   pane and the panel around it was white; the two swapped materials, so it
+   names the panel again — the head is solid white now and has no filter to
+   drop.
+   -------------------------------------------------------------------------- */
+.vp-ladder,
+.vp-trust-row .feature-card {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+/* The template's colour panel is opacity 0 and visibility hidden until its
+   card is hovered, but it carried the filter the whole time — twenty-four
+   layers for a panel nobody is looking at. It gets it when it is shown. */
+.beige-color {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+.product-grid:hover .beige-color {
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+/* Half the hero's blur is spent on panes nobody can see. The deck runs six
+   slides and shows three — measured, the other three sit between 1168 and
+   3645 pixels outside the viewport — and every one of them was painting a
+   1227x450 filter. Swiper already names the three that are on screen, so the
+   filter follows those names. The tint stays on all six, which is all an
+   off-screen pane needs, and a slide is given the class before it travels in,
+   so the blur is never seen switching on. */
+.heroSlide6 .swiper-slide:not(.swiper-slide-active):not(.swiper-slide-prev):not(.swiper-slide-next) .hero-inner {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+/* --------------------------------------------------------------------------
+   «نحوه کار» — the how-it-works dialog.
+
+   A wide landscape board, laid out as the client's reference is: the title
+   between two asides, five podiums across the middle, one strip of conditions
+   under them, and the prose in columns beside each other. Nothing stacks that
+   the reference has side by side.
+
+   The reference is purple on cream; this is the page's own gold and ink, for
+   the same reason the ladder itself is not maroon.
+   -------------------------------------------------------------------------- */
+
+.vp-how-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+/* [hidden] alone does not beat the display above, so the two are stated
+   together. */
+.vp-how-modal[hidden] {
+  display: none;
+}
+
+.vp-how-veil {
+  position: absolute;
+  inset: 0;
+  background: rgba(16, 17, 17, 0.45);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  animation: vp-how-fade 220ms ease-out;
+}
+
+@keyframes vp-how-fade { from { opacity: 0; } }
+
+/* Landscape: as wide as the viewport allows, and no taller than it has to be.
+   The sale panel's own 50px corner, so the dialog reads as that panel opened
+   up rather than as a new surface. */
+.vp-how-panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: min(1240px, 100%);
+  max-height: min(90vh, 860px);
+  border-radius: 50px;
+  background: #FBFAF8;
+  box-shadow: 0 40px 90px -40px rgba(16, 17, 17, 0.55);
+  overflow: hidden;
+  animation: vp-how-rise 260ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+@keyframes vp-how-rise {
+  from { opacity: 0; transform: translateY(16px) scale(0.985); }
+}
+
+/* Physical left: a close button belongs on the far side from the reading
+   start, and the logical pair resolves to the right on this page. */
+.vp-how-close {
+  position: absolute;
+  inset-block-start: 20px;
+  left: 20px;
+  z-index: 3;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  background: rgba(16, 17, 17, 0.05);
+  color: var(--title-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.vp-how-close:hover { background: rgba(16, 17, 17, 0.10); }
+.vp-how-close svg { width: 15px; height: 15px; }
+.vp-how-close:focus-visible { outline: 2px solid var(--theme-color); outline-offset: 2px; }
+
+.vp-how-scroll {
+  overflow-y: auto;
+  padding: 30px 44px 34px;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* --- the head: aside, title, aside — one row ----------------------------- */
+
+.vp-how-head {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 30px;
+  margin-block-end: 26px;
+}
+
+.vp-how-titles { text-align: center; }
+
+.vp-how-title {
+  margin: 0 0 8px;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 800;
+  font-size: 30px;
+  line-height: 1.4;
+  color: var(--theme-color);
+}
+
+/* The strap is ruled either side, as the reference draws it. The rules are
+   drawn on the span rather than the paragraph so they meet the words rather
+   than the column. */
+.vp-how-strap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.8;
+  color: var(--body-color);
+}
+
+.vp-how-strap:before,
+.vp-how-strap:after {
+  content: '';
+  width: 54px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(164, 127, 37, 0.55));
+}
+
+.vp-how-strap:after { transform: scaleX(-1); }
+
+.vp-how-aside {
+  margin: 0;
+  font-size: 13px;
+  line-height: 2;
+  color: var(--body-color);
+}
+
+/* The first aside is ruled on its inner edge, the way the reference rules it;
+   the second is the warning and takes the gold instead. */
+.vp-how-head .vp-how-aside:first-child {
+  padding-inline-end: 18px;
+  border-inline-end: 2px solid rgba(164, 127, 37, 0.35);
+  text-align: end;
+}
+
+.vp-how-aside.is-warn {
+  padding-inline-start: 18px;
+  border-inline-start: 2px solid rgba(164, 127, 37, 0.35);
+  text-align: start;
+}
+
+.vp-how-aside b {
+  display: block;
+  font-weight: 800;
+  color: var(--theme-color);
+}
+
+/* --- the board: five podiums across ------------------------------------- */
+
+.vp-how-board {
+  /* Left to right, against the page — the same decision the ladder in the
+     section takes: a run of rates is a number line, 15 to 70, and a number
+     line does not turn round because the words beside it do. So پله اول sits
+     at the far left, پله نهایی at the right, and the stopwatch after it. The
+     Persian inside each card is put back to rtl below. */
+  direction: ltr;
+  display: flex;
+  align-items: flex-end;
+  gap: 18px;
+  margin-block-end: 26px;
+}
+
+.vp-how-step-no,
+.vp-how-when,
+.vp-how-off small {
+  direction: rtl;
+}
+
+.vp-how-steps {
+  display: flex;
+  align-items: flex-end;
+  gap: 26px;
+  flex: 1;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.vp-how-step {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.vp-how-step-no {
+  margin-block-end: 10px;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 800;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--title-color);
+  white-space: nowrap;
+}
+
+/* The card: the drawing on one side, the offer on the other. --box is the
+   height of both, so the frame beside the chip is a true square and not a
+   fixed number that happens to be near the chip's content height. */
+.vp-how-card {
+  --box: 64px;
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 12px 12px 10px;
+  border-radius: 18px;
+  background: #FFFFFF;
+  box-shadow:
+    inset 0 0 0 1px rgba(16, 17, 17, 0.06),
+    0 12px 26px -18px rgba(16, 17, 17, 0.4);
+}
+
+/* A lined square, not a ring: the drawing inside it is a diagram in a frame,
+   and a circle round a shoe reads as a product thumbnail. Square by
+   construction — the same --box drives the width here and the height of the
+   chip beside it. */
+.vp-how-shot {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--box);
+  height: var(--box);
+  border-radius: 14px;
+  box-shadow: inset 0 0 0 1.4px rgba(164, 127, 37, 0.32);
+  color: var(--theme-color);
+}
+
+.vp-how-shot svg {
+  width: 40px;
+  height: auto;
+  display: block;
+}
+
+/* The offer, in ink until its step is the live one. It takes the rest of the
+   card and sets the row's height, which is what makes the frame beside it
+   square. */
+.vp-how-off {
+  flex: 1;
+  min-width: 0;
+  height: var(--box);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  padding: 7px 8px;
+  border-radius: 12px;
+  /* Light grey until its step is the live one, not the ink this started as:
+     five near-black chips in a row were the heaviest thing in the dialog and
+     read as the subject rather than as the thing waiting its turn. The type
+     stays ink at both states, so only the ground moves. */
+  background: rgba(16, 17, 17, 0.07);
+  color: var(--title-color);
+  transition: background 0.35s ease;
+}
+
+.vp-how-off b {
+  font-family: 'Vazirmatn', var(--body-font);
+  font-weight: 800;
+  font-size: 20px;
+  line-height: 1.15;
+}
+
+.vp-how-off small { font-size: 10.5px; font-weight: 700; line-height: 1.5; }
+
+/* Under the podium, where it says when that step runs rather than reading as
+   another fact on the card. */
+.vp-how-when {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  margin-block-start: 10px;
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: var(--body-color);
+  white-space: nowrap;
+}
+
+.vp-how-when svg { width: 13px; height: 13px; flex: none; }
+
+/* The podium under the card: a cylinder, drawn as a wide ellipse with a lit
+   top face, so the row reads as five stands rather than five boxes. */
+.vp-how-podium {
+  position: relative;
+  width: 100%;
+  height: 26px;
+  margin-block-start: -6px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #DFDCD6 0%, #C7C3BB 100%);
+  transition: background 0.35s ease;
+}
+
+.vp-how-podium:before {
+  content: '';
+  position: absolute;
+  inset: 0 0 7px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #F0EEEA 0%, #DFDCD6 100%);
+  transition: background 0.35s ease;
+}
+
+/* One step is lit, and stays lit — the board is a diagram of the offer, not a
+   loop. The third is the one shown gold, and the gold is the hero burst's
+   own: #C0972F to #E3B54A, the same pair the discount mark on the hero shot
+   takes. Everything else stays grey. */
+.vp-how-step.is-lit .vp-how-off {
+  background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+}
+
+.vp-how-step.is-lit .vp-how-podium {
+  background: linear-gradient(180deg, #C0972F 0%, #A07C22 100%);
+}
+
+.vp-how-step.is-lit .vp-how-podium:before {
+  background: linear-gradient(180deg, #E3B54A 0%, #C0972F 100%);
+}
+
+/* --- the conditions, one strip ------------------------------------------- */
+
+.vp-how-rules {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+  margin: 0 0 26px;
+  padding: 16px 12px;
+  border-radius: 22px;
+  background: rgba(16, 17, 17, 0.034);
+  list-style: none;
+}
+
+.vp-how-rule {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-inline: 6px;
+}
+
+.vp-how-rule + .vp-how-rule {
+  border-inline-end: 1px solid rgba(16, 17, 17, 0.08);
+}
+
+.vp-how-rule-icon {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  color: var(--theme-color);
+  box-shadow: inset 0 0 0 1px rgba(164, 127, 37, 0.18);
+}
+
+.vp-how-rule-icon svg { width: 17px; height: 17px; }
+
+.vp-how-rule-text {
+  font-size: 11.5px;
+  line-height: 1.7;
+  color: var(--body-color);
+}
+
+/* --- the prose, in columns beside each other ----------------------------- */
+
+.vp-how-cols {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 26px;
+}
+
+.vp-how-cols h3 {
+  margin: 0 0 10px;
+  padding-block-end: 10px;
+  border-block-end: 1px solid rgba(16, 17, 17, 0.10);
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 800;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--title-color);
+}
+
+.vp-how-cols p {
+  margin: 0 0 10px;
+  font-size: 12.5px;
+  line-height: 2;
+  color: var(--body-color);
+}
+
+.vp-how-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: vp-how;
+}
+
+.vp-how-list li {
+  position: relative;
+  padding-inline-start: 26px;
+  margin-block-end: 7px;
+  font-size: 12.5px;
+  line-height: 1.9;
+  color: var(--body-color);
+}
+
+/* Drawn as a counter so the markup stays an ordered list and the digits come
+   out Persian without being written that way in the source. */
+ol.vp-how-list li:before {
+  counter-increment: vp-how;
+  content: counter(vp-how, persian);
+  position: absolute;
+  inset-inline-start: 0;
+  inset-block-start: 3px;
+  width: 19px;
+  height: 19px;
+  border-radius: 6px;
+  background: rgba(164, 127, 37, 0.10);
+  color: var(--theme-color);
+  font-family: 'Vazirmatn', var(--body-font);
+  font-weight: 800;
+  font-size: 10.5px;
+  line-height: 19px;
+  text-align: center;
+}
+
+/* Physical borders: a tick is a shape, not a direction, and the logical pair
+   draws it mirrored on this page. */
+ul.vp-how-list.is-ticked li:before {
+  content: '';
+  position: absolute;
+  inset-inline-start: 2px;
+  inset-block-start: 9px;
+  width: 9px;
+  height: 5px;
+  border-left: 1.8px solid var(--theme-color);
+  border-bottom: 1.8px solid var(--theme-color);
+  transform: rotate(-45deg);
+}
+
+.vp-how-note {
+  margin: 24px 0 0;
+  padding: 14px 20px;
+  border-radius: 16px;
+  background: rgba(164, 127, 37, 0.09);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.9;
+  color: var(--title-color);
+  text-align: center;
+}
+
+/* Anyone who asked for less movement gets the board as a still, with the live
+   step lit — the same step the ladder on the page is on. */
+@media (prefers-reduced-motion: reduce) {
+  .vp-how-panel,
+  .vp-how-veil,
+  .vp-how-step,
+  .vp-how-off,
+  .vp-how-podium,
+  .vp-how-podium:before {
+    animation: none !important;
+  }
+
+  .vp-how-step:nth-child(2) .vp-how-off { background: #C29A31; color: var(--title-color); }
+  .vp-how-step:nth-child(2) .vp-how-podium { background: linear-gradient(180deg, #C29A31 0%, #8C6E1F 100%); }
+  .vp-how-step:nth-child(2) .vp-how-podium:before { background: linear-gradient(180deg, #E3B54A 0%, #C29A31 100%); }
+}
+
+/* --- narrower ------------------------------------------------------------ */
+
+@media (max-width: 1199px) {
+  .vp-how-scroll { padding: 26px 26px 30px; }
+  .vp-how-cols { grid-template-columns: repeat(2, 1fr); }
+  .vp-how-rules { grid-template-columns: repeat(3, 1fr); row-gap: 14px; }
+  .vp-how-rule:nth-child(3n + 1) { border-inline-end: 0; }
+}
+
+@media (max-width: 991px) {
+  .vp-how-head { grid-template-columns: 1fr; gap: 14px; }
+  .vp-how-head .vp-how-aside:first-child,
+  .vp-how-aside.is-warn {
+    padding: 0;
+    border: 0;
+    text-align: center;
+  }
+  /* Below this the five podiums cannot share a line and stay legible, so the
+     row scrolls sideways rather than shrinking the cards to nothing. */
+  .vp-how-board { overflow-x: auto; padding-block-end: 6px; }
+  .vp-how-steps { flex: none; }
+  .vp-how-step { flex: none; width: 168px; }
+}
+
+@media (max-width: 767px) {
+  .vp-how-modal { padding: 10px; }
+  .vp-how-panel { border-radius: 28px; max-height: 94vh; }
+  .vp-how-scroll { padding: 22px 18px 26px; }
+  .vp-how-title { font-size: 22px; }
+  .vp-how-cols { grid-template-columns: 1fr; gap: 18px; }
+  .vp-how-rules { grid-template-columns: repeat(2, 1fr); }
+  .vp-how-rule { border-inline-end: 0 !important; }
+}
