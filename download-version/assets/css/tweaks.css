@@ -2003,38 +2003,22 @@ option:hover {
   --main-container: 1620px;
 }
 
-/* A spacing wrapper now, not a card of its own — the ladder reads as several
-   panes (the head, the two notes, the five deals) rather than one enclosure
-   holding all of them. Padding stays, so everything keeps its 34px inset off
-   the page; the tint, blur and foot move to the head below, which is the only
-   part of this that is a pane. */
+/* The panel is the glass now, and what stands on it is white — the reverse of
+   what it was, so the section reads as one pane with objects laid on it rather
+   than as a white sheet carrying tinted ones. Two things stay glass on
+   purpose, and are marked where they are set: the rate tiles and the deal
+   cards' name/price strip.
+
+   This takes the page's glass recipe entire: the hero card's tint, its ink
+   foot and its lit hairline. «لبه پنهان» / hidden edge in CLAUDE.md governs
+   the foot and the ring — read it before changing either. */
 .vp-ladder {
+  position: relative;
   /* Tighter than it was — 34/30 became 26/24 — because the section's job is to
      be scanned, not dwelt in, and every row of padding here is repeated four
      times down the page in the eye's memory. */
   padding: 26px 26px 24px;
   border-radius: 28px;
-  /* White, not the page's glass. The tiles inside it are the same tiles the
-     categories use and they carry their own off-white ground; on glass that
-     was a grey object on a grey object, and neither edge did any work. A white
-     card puts one clean step between the page and the tiles. */
-  background: #FFFFFF;
-  /* The same ink foot as every other pane on the page — «لبه پنهان» in
-     CLAUDE.md. No drop shadow. */
-  box-shadow: inset 0 -1.4px 0 rgba(16, 17, 17, 0.07);
-}
-
-/* --- the head: its own glass pane, the same recipe as the hero card and the
-   header island — «لبه پنهان» / hidden edge, see CLAUDE.md. The two must stay
-   in step if either changes. --------------------------------------------- */
-
-.vp-ladder-head {
-  position: relative;
-  display: flex;
-  align-items: flex-start;
-  gap: 28px;
-  padding: 26px 30px;
-  border-radius: 24px;
   background: rgba(16, 17, 17, 0.034);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
@@ -2044,7 +2028,7 @@ option:hover {
 /* The lit hairline, masked to a band and stopping short of the foot — same
    construction as the hero card's, see CLAUDE.md before changing this or the
    foot above it. */
-.vp-ladder-head:after {
+.vp-ladder:after {
   content: '';
   position: absolute;
   inset: 0;
@@ -2066,9 +2050,25 @@ option:hover {
   mask-composite: exclude;
 }
 
-.vp-ladder-head > * {
+/* The panel's own content sits above the ring. */
+.vp-ladder > * {
   position: relative;
   z-index: 1;
+}
+
+/* --- the head, white on the glass --------------------------------------- */
+
+/* Solid white, with a faint ink ring rather than the glass foot: on this page
+   a white object states its edge all the way round, where a glass pane states
+   it only at the foot. */
+.vp-ladder-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 28px;
+  padding: 26px 30px;
+  border-radius: 24px;
+  background: #FFFFFF;
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.05);
 }
 
 .vp-ladder-intro {
@@ -2120,7 +2120,11 @@ option:hover {
   list-style: none;
 }
 
+/* --tile is the rate tile's side, and the tag row below is sized off it, so
+   the two boxes are the same width by construction rather than by a number
+   typed twice. Changing the tile size at a breakpoint moves both. */
 .vp-step {
+  --tile: 58px;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -2128,20 +2132,65 @@ option:hover {
   gap: 8px;
 }
 
-/* The ladder is ltr so the scale reads the right way; the Persian on it is
-   not, so it goes back. */
+/* Everything that says what the step is, under the tiles, as its own row of
+   small rectangles: the name, the week, and — on the step that is done and the
+   one that is live — how it stands. Nothing sits above the tiles any more.
+
+   Exactly as wide as the three tiles above it and no wider — three tiles plus
+   their two 4px gaps — so the step is one column with a straight edge down
+   both sides instead of a row of type spilling past the board it belongs to.
+
+   The three sit inside that width because the third is a mark rather than a
+   phrase: «مرحله فعلی» set as words needed 194.5px and could not fit in 182,
+   which is what pushed the row wider than the tiles in the first place. A
+   square mark costs the width of one tile's height and the row comes in at
+   152 on the widest step.
+
+   direction: rtl puts them back the way the words read — the ladder around
+   them is forced ltr so the scale runs 15 to 70 against the page. */
+.vp-step-tags {
+  direction: rtl;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: stretch;
+  gap: 3px;
+  width: calc(var(--tile) * 3 + 8px);
+}
+
+/* One rectangle each, in the same glass as the tiles above them, so the step
+   reads as one object rather than as tiles with loose type under them. */
 .vp-step-name,
 .vp-step-when,
 .vp-step-flag {
-  direction: rtl;
-}
-
-.vp-step-name,
-.vp-step-when {
-  font-size: 13px;
-  line-height: 1.6;
+  padding: 3px 7px;
+  border-radius: 8px;
+  background: rgba(16, 17, 17, 0.034);
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.05);
+  font-size: 11px;
+  line-height: 1.7;
   color: var(--body-color);
   text-align: center;
+  white-space: nowrap;
+}
+
+/* The two labels take the whole width between them, so the row's outer edges
+   land on the outer edges of the tiles above rather than sitting inside them.
+   Setting the row's width alone was not enough: the rectangles stayed at their
+   text width and centred, which left the gap at both ends that made the row
+   read as ragged against the board.
+
+   1 1 auto, not 1 1 0: the labels grow from their own widths, so «پس از هفته
+   چهارم» keeps the room it needs and «پله اول» does not get the same share as
+   a label three times its length. min-width 0 lets them shrink below that
+   basis at narrow widths, where the ellipsis takes over rather than the text
+   pushing the row past the tiles. */
+.vp-step-name,
+.vp-step-when {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .vp-step-name {
@@ -2177,8 +2226,8 @@ option:hover {
      across at 1440, less four 12px gaps between steps is 202 each, less the
      two 4px gaps inside a step leaves 194 for three tiles, so 64 is the
      ceiling and 58 keeps air around them. */
-  width: 58px;
-  height: 58px;
+  width: var(--tile);
+  height: var(--tile);
   flex: none;
   border-radius: 10px;
   font-family: 'Vazirmatn', var(--body-font);
@@ -2186,7 +2235,13 @@ option:hover {
   font-size: 27px;
   line-height: 1;
   color: var(--title-color);
-  background: #FFFFFF;
+  /* Glass, not the white the rest of the head's furniture takes: asked for
+     specifically, and it is the right way round for a board that flips —
+     the tile is a recess in the white pane, not another object on it. 3.4%
+     ink over the head's white composites to 247 against its 255, the same
+     step the panel below has against the page. The ring keeps the corners
+     readable at this size. */
+  background: rgba(16, 17, 17, 0.034);
   box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.06);
 }
 
@@ -2210,38 +2265,63 @@ option:hover {
   color: var(--theme-color);
 }
 
-/* --- the flag under a step ---------------------------------------------- */
+/* --- the mark, the third rectangle under a step -------------------------- */
 
+/* Square, the row's own height, so it reads as a mark beside the two labels
+   rather than as a third label. The words it stands in for are on the element
+   as aria-label. */
 .vp-step-flag {
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 1.6;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 22px;
+  padding: 0;
   color: var(--theme-color);
 }
 
-/* A tick for a step that has been and gone, drawn rather than set, so it needs
-   no icon font and lands on the same gold as everything else. */
-.vp-step-flag.is-done {
-  position: relative;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  box-shadow: inset 0 0 0 1.4px var(--theme-color);
+.vp-step-flag svg {
+  width: 13px;
+  height: 13px;
+  display: block;
 }
 
-/* Physical borders, not logical. A tick is a shape, not a direction: on this
-   RTL page border-inline-end resolves to the left edge, which mirrors the
-   stroke and draws it backwards. */
-.vp-step-flag.is-done:after {
-  content: '';
-  position: absolute;
-  left: 5.5px;
-  top: 3.5px;
-  width: 5px;
-  height: 8px;
-  border-right: 1.6px solid var(--theme-color);
-  border-bottom: 1.6px solid var(--theme-color);
-  transform: rotate(45deg);
+/* The live one is filled with the buy button's gold, the same as its tiles
+   above it, so the step reads as one thing lit. Ink on the gold, not white —
+   the page settled that on the burst: white measures 2.6:1 here and ink 5.1. */
+.vp-step.is-current .vp-step-flag {
+  color: var(--title-color);
+  background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+  box-shadow: none;
+}
+
+/* The loading ring turns, because that is the whole of what it says: this step
+   is the one running. 1.4s linear, the same unvarying turn the burst takes —
+   an eased spin of a near-symmetric shape reads as a stutter. */
+.vp-step-flag.is-current svg {
+  animation: vp-step-spin 1.4s linear infinite;
+}
+
+@keyframes vp-step-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vp-step-flag.is-current svg { animation: none; }
+}
+
+/* A step already gone reads back rather than forward, so its tick keeps the
+   gold as ink only and the ground stays the glass the other rectangles take. */
+.vp-step-flag.is-done {
+  color: var(--theme-color);
+}
+
+/* Still to come: the clock is the quietest of the three, so it takes the
+   body colour rather than the gold — the gold is for what has happened and
+   what is happening. */
+.vp-step-flag.is-upcoming {
+  color: var(--body-color);
+  opacity: 0.75;
 }
 
 /* --- the track ----------------------------------------------------------- */
@@ -2275,14 +2355,15 @@ option:hover {
   margin-block-end: 18px;
 }
 
-/* On a white card these need a ground of their own, so they take the page's
-   own faint ink wash rather than the white they used to sit on. */
+/* White again. They carried the page's ink wash while the panel under them was
+   white; the panel is now that same wash, so the two would have composited to
+   one flat field and the notes would have had no edge at all. */
 .vp-ladder-notes span {
   flex: 1;
   padding: 11px 16px;
   border-radius: 12px;
-  background: rgba(16, 17, 17, 0.034);
-  box-shadow: none;
+  background: #FFFFFF;
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.05);
   font-size: 14px;
   line-height: 1.7;
   color: var(--body-color);
@@ -2308,9 +2389,12 @@ option:hover {
   /* The tiles' 30 at 157px, kept in proportion at the ~260 five across run
      at. It was 34 when there were four. */
   border-radius: 28px;
-  /* The same off-white as the category tiles, for the same reason: these shots
-     are cut-outs and need a ground to sit on. */
-  background: rgba(238, 238, 238, 0.8);
+  /* White, not the category tiles' off-white. That off-white was chosen
+     against a white panel; on the glass panel it is a grey object on a grey
+     ground and neither edge does any work — which is the exact problem that
+     made the panel white in the first place, now solved from the other side.
+     The cut-outs still get a ground to sit on, it is just a lighter one. */
+  background: #FFFFFF;
   box-shadow:
     0 0 0 1px rgba(16, 17, 17, 0.05),
     0 8px 22px -12px rgba(16, 17, 17, 0.18);
@@ -2391,19 +2475,26 @@ option:hover {
   max-width: 58%;
   padding: 3px 10px;
   border-radius: 9px;
-  background: rgba(255, 255, 255, 0.72);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
+  /* Solid white with a ring, not a tinted blur. It sits on the tile, which is
+     white now too, so the ring is what separates them. */
+  background: #FFFFFF;
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.05);
   color: var(--title-color);
   font-size: 12px;
   line-height: 1.7;
   text-align: center;
 }
 
-/* The strip, the category tiles' own glass: a thin white tint over a blur with
-   a lit inner edge, inside the tile's corners rather than on them. It sits at
-   the foot here rather than across the middle, because it carries two lines
-   and a control instead of one word.
+/* The strip: solid white, inside the tile's corners rather than on them. It
+   sits at the foot here rather than across the middle, because it carries two
+   lines and a control instead of one word.
+
+   Glass, asked for specifically, and it keeps its blur — this one does sit
+   over the shot, so there is something real behind it to soften. It is the
+   page's ink tint rather than the category tiles' white one it used to carry,
+   which is why the lit ring goes: that read against a white tint and draws
+   nothing against this. An ink ring takes the edge instead, and the drop
+   shadow stays to lift the strip off the shot.
 
    Stops short of the basket rather than running full width with padding
    reserved under it: the basket used to sit in that padding, on top of the
@@ -2428,11 +2519,11 @@ option:hover {
   height: 44px;
   padding-inline: 16px;
   border-radius: 22px;
-  background: rgba(255, 255, 255, 0.55);
+  background: rgba(16, 17, 17, 0.034);
   -webkit-backdrop-filter: blur(12px) saturate(1.2);
   backdrop-filter: blur(12px) saturate(1.2);
   box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.65),
+    inset 0 0 0 1px rgba(16, 17, 17, 0.05),
     0 4px 14px -8px rgba(16, 17, 17, 0.35);
 }
 
@@ -2577,7 +2668,10 @@ option:hover {
 
 @media (max-width: 991px) {
   .vp-ladder { padding: 26px 20px 24px; }
-  .vp-step-rate b { width: 44px; height: 44px; font-size: 21px; }
+  /* The tag row under the tiles is sized off --tile, so it narrows with them
+     rather than needing its own number here. */
+  .vp-step { --tile: 44px; }
+  .vp-step-rate b { font-size: 21px; }
   .vp-step-name, .vp-step-when { font-size: 12px; }
   .vp-ladder-notes { flex-direction: column; gap: 10px; }
 }
@@ -2713,14 +2807,19 @@ option:hover {
    category labels, which sit over photographs. These three sat over the
    page's own white:
 
-     .vp-ladder-head                0.92 Mpx
+     .vp-ladder                    0.92 Mpx
      .beige-color x24              0.74 Mpx   (hidden until hover, blurring
                                                the whole time)
      .vp-trust-row .feature-card   0.13 Mpx
 
    The tint stays on all of them, so nothing changes on screen.
+
+   This follows the glass. It named .vp-ladder-head while the head was the
+   pane and the panel around it was white; the two swapped materials, so it
+   names the panel again — the head is solid white now and has no filter to
+   drop.
    -------------------------------------------------------------------------- */
-.vp-ladder-head,
+.vp-ladder,
 .vp-trust-row .feature-card {
   -webkit-backdrop-filter: none;
   backdrop-filter: none;

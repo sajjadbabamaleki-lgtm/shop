@@ -348,9 +348,49 @@ const LADDER_DEALS = [
 // price should read as on this page.
 const fa = (n) => n.toLocaleString('fa-IR');
 
-const LADDER_STEPS_HTML = LADDER_STEPS.map(([name, cut, when, state]) =>
-  `\n                    <li class="vp-step${state ? ' is-' + state : ''}">` +
-  `\n                        <span class="vp-step-name">${name}</span>` +
+// How a step stands, drawn rather than set: a tick for the one that is done, a
+// loading ring for the one running now, a clock for the ones still to come.
+// Drawn, because that is what the tick here always was — it needs no icon font
+// and lands on the same gold as everything else — and because three marks from
+// one hand read as a set where three glyphs from a font do not.
+//
+// 16-unit box, stroked in currentColor, so each takes the colour of the
+// rectangle it sits in and scales with it.
+const STEP_MARKS = {
+  done:
+    '<svg viewBox="0 0 16 16" aria-hidden="true">' +
+    '<path d="M3.6 8.4 6.6 11.4 12.4 4.9" fill="none" stroke="currentColor" ' +
+    'stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>',
+  // A ring with a bite out of it, turning: the arc is 26 of the circle's 34.5
+  // circumference, so about a quarter is open, which is what reads as loading
+  // rather than as a plain circle.
+  current:
+    '<svg viewBox="0 0 16 16" aria-hidden="true">' +
+    '<circle cx="8" cy="8" r="5.5" fill="none" stroke="currentColor" ' +
+    'stroke-width="2" stroke-linecap="round" stroke-dasharray="26 9"></circle></svg>',
+  upcoming:
+    '<svg viewBox="0 0 16 16" aria-hidden="true">' +
+    '<circle cx="8" cy="8" r="5.9" fill="none" stroke="currentColor" stroke-width="1.6"></circle>' +
+    '<path d="M8 4.7 V8.2 L10.3 9.7" fill="none" stroke="currentColor" ' +
+    'stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>',
+};
+
+// The words the marks stand in for. They are still said, on the element, so a
+// screen reader gets what the eye gets.
+const STEP_MARK_LABELS = {
+  done: 'تکمیل شد',
+  current: 'مرحله فعلی',
+  upcoming: 'هنوز نرسیده',
+};
+
+// Nothing above the tiles: the step's name used to sit there, and everything
+// that says what the step is now sits under it instead, as a row of small
+// rectangles — the name, the week, and a mark for how the step stands. Every
+// step carries all three now, so the five read as one row rather than as two
+// long ones and three short.
+const LADDER_STEPS_HTML = LADDER_STEPS.map(([name, cut, when, state]) => {
+  const mark = state || 'upcoming';
+  return `\n                    <li class="vp-step${state ? ' is-' + state : ''}">` +
   // Each digit on its own tile, split across the middle, so the row reads as a
   // board that flips rather than as type in a box.
   //
@@ -361,10 +401,14 @@ const LADDER_STEPS_HTML = LADDER_STEPS.map(([name, cut, when, state]) =>
   '\n                        <span class="vp-step-rate">' +
   ['٪', ...fa(cut)].map((ch) => `<b>${ch}</b>`).join('') +
   '</span>' +
-  `\n                        <span class="vp-step-when">${when}</span>` +
-  (state === 'done' ? '\n                        <span class="vp-step-flag is-done" aria-label="گذشته"></span>' : '') +
-  (state === 'current' ? '\n                        <span class="vp-step-flag">مرحله فعلی</span>' : '') +
-  '\n                    </li>'
+  '\n                        <span class="vp-step-tags">' +
+  `<span class="vp-step-name">${name}</span>` +
+  `<span class="vp-step-when">${when}</span>` +
+  `<span class="vp-step-flag is-${mark}" role="img" aria-label="${STEP_MARK_LABELS[mark]}">` +
+  STEP_MARKS[mark] + '</span>' +
+  '</span>' +
+  '\n                    </li>';
+}
 ).join('');
 
 const LADDER_TRACK_HTML = LADDER_STEPS.map(([, , , state], i) => {
