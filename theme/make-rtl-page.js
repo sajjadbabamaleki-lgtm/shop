@@ -301,27 +301,34 @@ const LADDER_TRACK_HTML = LADDER_STEPS.map(([, , , state], i) => {
   return `\n                    <span class="vp-track-leg${i <= currentAt ? ' is-filled' : ''}"></span>`;
 }).join('');
 
+// The card is one of the eight tiles, larger: a square photograph with the
+// name on a strip of the same glass laid across it, and a round button for the
+// basket beside the name. The tall card it replaces carried the same facts
+// stacked — name, badges, price, stock, a bar, a full-width button — and at
+// four across that made the row the heaviest thing on the page.
+//
+// What is kept on the tile is what the sale is: the cut, the name, the two
+// prices, and how much is left. The step's name and the countdown come off the
+// card, because the ladder above already says both once for all four.
 const LADDER_DEALS_HTML = LADDER_DEALS.map(([file, name, price, stock]) => {
   const now = Math.round(price * (100 - LADDER_CUT) / 100);
   return '\n                <div class="col">' +
     '\n                    <div class="vp-deal">' +
-    // Copy first, photograph second: in RTL the first child takes the right,
-    // and the card reads name-then-shot from the right.
-    '\n                        <div class="vp-deal-top">' +
-    '\n                            <div class="vp-deal-body">' +
-    `\n                                <h3 class="vp-deal-name">${name}</h3>` +
-    '\n                                <p class="vp-deal-tags">' +
-    `<span class="vp-deal-step">${LADDER_STEP_NAME}</span>` +
-    `<span class="vp-deal-cut">${fa(LADDER_CUT)}٪</span></p>` +
-    '\n                                <p class="vp-deal-price">' +
-    `<del>${fa(price)}</del>` +
-    `<strong>${fa(now)} <span>تومان</span></strong></p>` +
-    `\n                                <p class="vp-deal-stock">${stock}</p>` +
-    '\n                            </div>' +
-    `\n                            <div class="vp-deal-photo"><img src="assets/img/${file}" alt="" loading="lazy"></div>` +
-    '\n                        </div>' +
-    '\n                        <p class="vp-deal-left"><span class="vp-deal-bar"></span>۱ روز و ۱۴ ساعت</p>' +
-    '\n                        <a href="shop.html" class="th-btn th-icon vp-deal-buy">خرید با قیمت فعلی</a>' +
+    `\n                        <a class="vp-deal-shot" href="shop.html">` +
+    `\n                            <img src="assets/img/${file}" alt="" loading="lazy">` +
+    `\n                            <span class="vp-deal-cut">${fa(LADDER_CUT)}٪</span>` +
+    `\n                            <span class="vp-deal-stock">${stock}</span>` +
+    '\n                            <span class="vp-deal-label">' +
+    '\n                                <span class="vp-deal-lines">' +
+    `\n                                    <span class="vp-deal-name">${name}</span>` +
+    '\n                                    <span class="vp-deal-price">' +
+    `<del>${fa(price)}</del><strong>${fa(now)} <span>تومان</span></strong></span>` +
+    '\n                                </span>' +
+    '\n                            </span>' +
+    '\n                        </a>' +
+    // Its own control, outside the link, so a basket is never a navigation.
+    '\n                        <button type="button" class="vp-deal-cart" aria-label="افزودن به سبد خرید">' +
+    '<i class="fa-light fa-bag-shopping" aria-hidden="true"></i></button>' +
     '\n                    </div>' +
     '\n                </div>';
 }).join('');
@@ -329,10 +336,12 @@ const LADDER_DEALS_HTML = LADDER_DEALS.map(([file, name, price, stock]) => {
 html = html.replace(
   /<section class="collection-area[^"]*">[\s\S]*?<\/section>/i,
   '<section class="collection-area vp-ladder-area overflow-hidden">\n' +
-  // Its own wrapper rather than .th-container, for the same reason the trust
-  // row above has one: the client wants both run out to the header island's
-  // 18px from the page's edges, and a container caps and centres instead.
-  '        <div class="vp-ladder-wrap">\n' +
+  // The tiles above are held by .feature-area2 .th-container, which caps at
+  // 1620; the trust row is not, and runs to 18 from the page. Those two do
+  // not agree with each other — measured at 1920, the tiles end at 173 from
+  // the edge and the trust row at 18 — and the client wants the sale to line
+  // up with the tiles, so it takes their container and their cap.
+  '        <div class="container th-container vp-ladder-wrap">\n' +
   '            <div class="vp-ladder">\n' +
   '                <div class="vp-ladder-head">\n' +
   '                    <div class="vp-ladder-intro">\n' +
@@ -527,6 +536,47 @@ html = html.replace(
 // Discount chips read "15%-" once the bidi algorithm moves the sign; write
 // them as Persian percent instead.
 html = html.replace(/-(\d+)%/g, (_, n) => `${Number(n).toLocaleString('fa-IR')}٪ تخفیف`);
+
+// The marks behind the hero take the colour of the shoe on the card.
+//
+// Each hue is measured from the photograph itself — its opaque, coloured
+// pixels, weighted by how much colour they carry, with white, black and grey
+// left out of the vote — and then set at the mark's own saturation and
+// lightness so the three read as a family. See the note on .vp-hero-marks i.
+//
+// The active slide is found by the class Swiper puts on it rather than through
+// Swiper's own API: the deck is initialised by the template's script, and
+// waiting for that to exist is a race this does not need. A MutationObserver
+// on the wrapper's classes catches every change, including the ones the deck
+// makes on its own.
+const HERO_MARKS = {
+  'vikyplus-hero-jordan.webp': '#DDC1BB',
+  'vikyplus-hero-goldengoose.webp': '#DDCEBB',
+  'vikyplus-hero-nb530.webp': '#BBCFDD',
+};
+
+html = html.replace('</body>',
+  '    <script>\n' +
+  '        (function () {\n' +
+  '            var deck = document.querySelector("#heroSlide6");\n' +
+  '            var marks = document.querySelector(".vp-hero-marks");\n' +
+  '            if (!deck || !marks) return;\n' +
+  '            var tones = ' + JSON.stringify(HERO_MARKS) + ';\n' +
+  '            function paint() {\n' +
+  '                var shot = deck.querySelector(".swiper-slide-active .hero-img img");\n' +
+  '                if (!shot) return;\n' +
+  '                var tone = tones[shot.getAttribute("src").split("/").pop()];\n' +
+  '                if (tone) marks.style.setProperty("--vp-mark", tone);\n' +
+  '            }\n' +
+  '            paint();\n' +
+  '            var wrapper = deck.querySelector(".swiper-wrapper");\n' +
+  '            if (wrapper && "MutationObserver" in window) {\n' +
+  '                new MutationObserver(paint).observe(wrapper, {\n' +
+  '                    subtree: true, attributes: true, attributeFilter: ["class"]\n' +
+  '                });\n' +
+  '            }\n' +
+  '        }());\n' +
+  '    </script>\n</body>');
 
 // A soft entrance for the page's items as they come into view.
 //
