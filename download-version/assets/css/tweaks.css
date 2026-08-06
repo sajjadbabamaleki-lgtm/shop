@@ -1008,12 +1008,34 @@ option:hover {
    is #CFA2A4, hue 357 at 32% saturation. That hue and saturation held, lifted
    to 80% lightness, is the pale version below — so it is the shoe's pink, not
    a pink chosen to sit near it. */
+/* The marks take the colour of the shoe on the card.
+
+   #DDBBBD was the pink they were drawn in, and its hue is 356 — it was the
+   Jordan's pink all along, which is why it stopped belonging the moment the
+   deck carried a tan shoe and a navy one. So the hue now comes off the
+   photograph and the rest does not: each shoe's own hue is measured from its
+   opaque, coloured pixels, then set at this mark's own saturation and
+   lightness, 33% and 80%. The three stay a family and only the hue moves.
+
+     jordan       hue  10   #DDC1BB
+     goldengoose  hue  34   #DDCEBB
+     nb530        hue 204   #BBCFDD
+
+   The fallback is the Jordan's, so a slide whose photograph is not in the map
+   still gets a mark rather than none. The transition is long and eased because
+   the colour changes under a pane of glass while the deck slides — a snap
+   would read as a fault in the glass. */
 .vp-hero-marks i {
   position: absolute;
   display: block;
-  background: #DDBBBD;
+  background: var(--vp-mark, #DDC1BB);
   border-radius: 999px;
   filter: blur(8px);
+  transition: background 700ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vp-hero-marks i { transition: none; }
 }
 
 /* The three marks are placed in the card's own coordinates — see the box above.
@@ -1105,26 +1127,31 @@ option:hover {
   background: transparent;
 }
 
-/* Stuck, the island is frosted rather than tinted.
+/* Stuck, the island frosts harder — but it stays the same glass.
 
-   At rest it sits on the page's white and 3.4% ink is the whole of it — five
-   passes went into that number and it is not touched here. Stuck, the page
-   runs underneath it, and 3.4% over moving content is a window, not a
-   surface: the type and the photographs beneath stayed legible straight
-   through the bar.
+   The first attempt at this put a near-white ground on it, 88% opaque, and
+   that was the wrong instrument: at 88% there is nothing left to see through,
+   so it stopped being glass and became a painted bar that happened to sit
+   where the glass had been. The hero's pane and this island are meant to read
+   as one material, and a material is its tint, not its opacity.
 
-   So the stuck state gets a ground of its own — near-white at 88%, over a
-   blur twice the resting one with the saturation lifted, which is what makes
-   a frosted pane read as frosted rather than as a grey wash. The colour is
-   the page's own #F8F8F8, so what settles under the bar is the page's ground
-   and not a new one. */
+   So the tint is the hero's own, to the third decimal — rgba(16,17,17,0.034),
+   the value five passes went into — and the frosting is done where frosting
+   is actually done, in the blur. 10px is right at rest, where all it has
+   under it is the page's white; over content moving past it, 10px leaves type
+   readable straight through the bar, and 30 does not. The saturation is
+   lifted a little because a heavy blur averages colour towards grey, and
+   glass does not drain what is behind it.
+
+   What that buys is the thing worth having: what passes under the bar is
+   still visibly there, as colour and movement, and none of it is legible. */
 .th-header .sticky-wrapper.sticky .menu-area {
-  background: rgba(248, 248, 248, 0.88);
-  -webkit-backdrop-filter: blur(20px) saturate(1.8);
-  backdrop-filter: blur(20px) saturate(1.8);
+  background: rgba(16, 17, 17, 0.034);
+  -webkit-backdrop-filter: blur(30px) saturate(1.5);
+  backdrop-filter: blur(30px) saturate(1.5);
   box-shadow:
     inset 0 -1.4px 0 rgba(16, 17, 17, 0.07),
-    0 10px 30px -22px rgba(16, 17, 17, 0.5);
+    0 10px 30px -24px rgba(16, 17, 17, 0.45);
 }
 
 /* The row's three groups measured 225 + 592 + 438 = 1255 at their natural
@@ -1933,21 +1960,32 @@ option:hover {
   padding-block-start: 40px;
 }
 
-/* Out to the header island's own 18px, the same as the trust row above it,
-   rather than held to a container: measured, the container put this at 12
-   against their 18 and the three bands did not line up down the page. */
+/* The sale lines up with the eight tiles, so it takes their container and
+   their cap. .th-container defaults to 1800 and .feature-area2 narrows its own
+   to 1620; without this the sale ran 1800 wide against the tiles' 1620 and the
+   two bands started 60px apart at 1920.
+
+   This does not agree with the trust row above, which runs to 18 from the
+   page's edges — measured at 1920, the tiles end 173 from the edge and the
+   trust row 18. Those two were never the same width; the sale can only match
+   one of them, and the tiles are the one asked for. */
 .vp-ladder-wrap {
-  margin-inline: 18px;
+  --main-container: 1620px;
 }
 
 /* One panel holding the whole mechanism, so the ladder and the cards under it
    read as one offer rather than as two bands that happen to be adjacent. */
 .vp-ladder {
-  padding: 34px 34px 30px;
+  /* Tighter than it was — 34/30 became 26/24 — because the section's job is to
+     be scanned, not dwelt in, and every row of padding here is repeated four
+     times down the page in the eye's memory. */
+  padding: 26px 26px 24px;
   border-radius: 28px;
-  background: rgba(16, 17, 17, 0.034);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
+  /* White, not the page's glass. The tiles inside it are the same tiles the
+     categories use and they carry their own off-white ground; on glass that
+     was a grey object on a grey object, and neither edge did any work. A white
+     card puts one clean step between the page and the tiles. */
+  background: #FFFFFF;
   /* The same ink foot as every other pane on the page — «لبه پنهان» in
      CLAUDE.md. No drop shadow. */
   box-shadow: inset 0 -1.4px 0 rgba(16, 17, 17, 0.07);
@@ -2161,182 +2199,233 @@ option:hover {
 
 .vp-ladder-notes {
   display: flex;
-  gap: 16px;
-  margin-block-end: 22px;
+  align-items: stretch;
+  gap: 12px;
+  margin-block-end: 18px;
 }
 
+/* On a white card these need a ground of their own, so they take the page's
+   own faint ink wash rather than the white they used to sit on. */
 .vp-ladder-notes span {
   flex: 1;
   padding: 11px 16px;
   border-radius: 12px;
-  background: #FFFFFF;
-  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.05);
+  background: rgba(16, 17, 17, 0.034);
+  box-shadow: none;
   font-size: 14px;
   line-height: 1.7;
   color: var(--body-color);
   text-align: center;
 }
 
-/* --- the four cards ------------------------------------------------------ */
+/* --- the four cards, as tiles -------------------------------------------- */
 
-/* Solid white on the panel's glass, so the cards sit on it rather than
-   disappear into it — glass on glass reads as one surface. */
+/* One of the eight category tiles, larger. The tall card this replaces stacked
+   the name, two badges, two prices, a stock line, a countdown bar and a
+   full-width button, and four of those across made the row the heaviest thing
+   on the page. Square photograph, glass strip, done — the same object the page
+   already uses to say "here is a thing you can go and look at". */
 .vp-deal {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  padding: 14px;
-  border-radius: 20px;
-  background: #FFFFFF;
-  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.05);
+  position: relative;
 }
 
-.vp-deal-top {
+.vp-deal-shot {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  aspect-ratio: 1;
+  /* The tiles' 30 at 157px, kept in proportion at the ~260 five across run
+     at. It was 34 when there were four. */
+  border-radius: 28px;
+  /* The same off-white as the category tiles, for the same reason: these shots
+     are cut-outs and need a ground to sit on. */
+  background: rgba(238, 238, 238, 0.8);
+  box-shadow:
+    0 0 0 1px rgba(16, 17, 17, 0.05),
+    0 8px 22px -12px rgba(16, 17, 17, 0.18);
+  transition: transform 0.28s ease, box-shadow 0.28s ease;
+}
+
+.vp-deal:hover .vp-deal-shot {
+  transform: translateY(-5px);
+  box-shadow:
+    0 0 0 1px rgba(164, 127, 37, 0.28),
+    0 18px 34px -14px rgba(16, 17, 17, 0.24);
+}
+
+/* Fitted, not filled: a cut-out cropped to a square would lose the toe or the
+   heel, which on a shoe is the whole silhouette. The inset keeps it off the
+   glass strip below it. */
+.vp-deal-shot img {
+  position: absolute;
+  inset: 8% 8% 30%;
+  width: 84%;
+  height: 62%;
+  object-fit: contain;
+  transition: transform 0.5s ease;
+}
+
+.vp-deal:hover .vp-deal-shot img {
+  transform: scale(1.05);
+}
+
+/* The cut, top corner. Solid gold with ink on it, the page's settled answer
+   for type on this colour. */
+.vp-deal-cut {
+  position: absolute;
+  inset-block-start: 14px;
+  inset-inline-start: 14px;
+  z-index: 2;
+  padding: 3px 11px;
+  border-radius: 9px;
+  background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+  color: var(--title-color);
+  font-family: 'Vazirmatn', var(--body-font);
+  font-weight: 800;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+/* What is left of it, opposite the cut. It is the scarcity half of the offer —
+   the reason to take this step rather than wait for the next — so it stays on
+   the tile even though the rest of the detail came off. */
+.vp-deal-stock {
+  position: absolute;
+  inset-block-start: 14px;
+  inset-inline-end: 14px;
+  z-index: 2;
+  max-width: 58%;
+  padding: 3px 10px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.72);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  color: var(--title-color);
+  font-size: 12px;
+  line-height: 1.7;
+  text-align: center;
+}
+
+/* The strip, the category tiles' own glass: a thin white tint over a blur with
+   a lit inner edge, inside the tile's corners rather than on them. It sits at
+   the foot here rather than across the middle, because it carries two lines
+   and a control instead of one word. */
+.vp-deal-label {
+  position: absolute;
+  inset-inline: 12px;
+  inset-block-end: 12px;
+  z-index: 2;
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-block-end: 12px;
+  gap: 10px;
+  /* Room on the far side for the basket, which is not inside this strip: the
+     button is a sibling, so it can be a real button rather than something
+     nested in the tile's link. */
+  padding: 10px 14px 10px 62px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.55);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  backdrop-filter: blur(12px) saturate(1.2);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.65),
+    0 4px 14px -8px rgba(16, 17, 17, 0.35);
 }
 
-/* The shots are cut-outs on transparent, so they are fitted, not filled —
-   the same reasoning as the hero's. */
-.vp-deal-photo {
-  flex: 0 0 42%;
-  aspect-ratio: 1;
-  border-radius: 14px;
-  background: rgba(16, 17, 17, 0.03);
-  overflow: hidden;
-}
-
-.vp-deal-photo img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-.vp-deal-body {
-  flex: 1;
+.vp-deal-lines {
+  display: block;
   min-width: 0;
 }
 
 .vp-deal-name {
-  margin: 0 0 7px;
-  min-height: 45px;
+  display: block;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 800;
-  font-size: 15px;
-  line-height: 1.5;
-  color: var(--title-color);
-}
-
-.vp-deal-tags {
-  display: flex;
-  gap: 5px;
-  margin: 0 0 7px;
-}
-
-.vp-deal-step,
-.vp-deal-cut {
-  padding: 2px 9px;
-  border-radius: 7px;
-  font-size: 12px;
   font-weight: 700;
-  line-height: 1.7;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #101111;
   white-space: nowrap;
-}
-
-/* The step the price is at, in the gold it is at. */
-.vp-deal-step {
-  color: var(--title-color);
-  background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
-}
-
-/* The cut is the same fact stated as a number, so it takes the same gold at a
-   tenth of the weight rather than a second colour. */
-.vp-deal-cut {
-  color: var(--theme-color);
-  background: rgba(164, 127, 37, 0.10);
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .vp-deal-price {
-  margin: 0 0 5px;
-  line-height: 1.6;
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  line-height: 1.5;
 }
 
-/* The old price is not the offer, so it is small, light and struck. */
 .vp-deal-price del {
-  display: block;
-  font-size: 12px;
-  color: rgba(16, 17, 17, 0.38);
+  font-size: 11px;
+  color: rgba(16, 17, 17, 0.42);
 }
 
 .vp-deal-price strong {
-  font-family: 'Cairo', var(--title-font);
+  font-family: 'Vazirmatn', var(--body-font);
   font-weight: 800;
-  font-size: 17px;
-  color: var(--title-color);
+  font-size: 15px;
+  color: #101111;
 }
 
 .vp-deal-price strong span {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--body-color);
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(16, 17, 17, 0.62);
 }
 
-.vp-deal-stock {
-  margin: 0;
-  font-size: 12px;
-  line-height: 1.7;
-  color: var(--theme-color);
+/* The basket, round, on the strip's far end. Sized off the strip so the two
+   read as one object: the strip's 62px of reserved padding is this 44 plus the
+   9 either side of it. */
+.vp-deal-cart {
+  position: absolute;
+  z-index: 3;
+  inset-block-end: 21px;
+  inset-inline-end: 21px;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+  color: var(--title-color);
+  font-size: 17px;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* What is left of this step, on the card. The bar is short by design: it is
-   the same fact as the text beside it, not a second measurement. */
-.vp-deal-left {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0 0 12px;
-  padding: 7px 12px;
-  border-radius: 10px;
-  background: rgba(164, 127, 37, 0.07);
-  font-size: 12px;
-  line-height: 1.7;
-  color: var(--theme-color);
+.vp-deal-cart:hover {
+  transform: scale(1.06);
+  box-shadow: 0 6px 16px -8px rgba(16, 17, 17, 0.55);
 }
 
-.vp-deal-bar {
-  flex: 1;
-  height: 4px;
-  border-radius: 2px;
-  background:
-    linear-gradient(90deg, #C0972F 0%, #E3B54A 100%) no-repeat,
-    rgba(164, 127, 37, 0.18);
-  background-size: 32% 100%;
+.vp-deal-cart:focus-visible {
+  outline: 2px solid var(--title-color);
+  outline-offset: 2px;
 }
 
-/* The button is the card's foot, so four cards whose names run to different
-   lengths still end on one line. */
-.vp-deal-buy {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  margin-block-start: auto;
-  padding-inline: 14px;
-  font-size: 14px;
-  text-align: center;
+@media (max-width: 1199px) {
+  .vp-deal-shot { border-radius: 28px; }
+  .vp-deal-label { padding-left: 56px; }
+  .vp-deal-cart { width: 40px; height: 40px; inset-block-end: 19px; inset-inline-end: 19px; }
 }
 
 /* --- the way out --------------------------------------------------------- */
 
+/* Sized to its own text rather than sharing the row evenly: it is a way out,
+   not a third condition, and it should not read as one. */
 .vp-ladder-all {
+  flex: none;
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  margin-block-start: 22px;
+  padding: 11px 18px;
+  border-radius: 12px;
+  background: rgba(164, 127, 37, 0.10);
   font-size: 14px;
   font-weight: 700;
+  line-height: 1.7;
+  white-space: nowrap;
   color: var(--theme-color);
 }
 
@@ -2353,6 +2442,7 @@ option:hover {
 }
 
 .vp-ladder-all:hover {
+  background: rgba(164, 127, 37, 0.16);
   color: var(--title-color);
 }
 
