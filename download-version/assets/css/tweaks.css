@@ -2221,7 +2221,7 @@ option:hover {
      left-hand ones. */
   direction: ltr;
   display: flex;
-  gap: 7.8px;
+  gap: 10px;
   margin-block: 22px 16px;
 }
 
