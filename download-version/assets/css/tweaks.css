@@ -933,11 +933,14 @@ option:hover {
    as meant rather than as half-drawn. */
 @media (prefers-reduced-motion: reduce) {
   .heroSlide6 .discount-tag .vp-burst .vp-burst-star,
-  .heroSlide6 .discount-tag .vp-burst .vp-burst-stud {
+  .heroSlide6 .discount-tag .vp-burst .vp-burst-stud,
+  .vp-deal-burst .vp-burst-star,
+  .vp-deal-burst .vp-burst-stud {
     animation: none;
   }
 
-  .heroSlide6 .discount-tag .vp-burst .vp-burst-stud {
+  .heroSlide6 .discount-tag .vp-burst .vp-burst-stud,
+  .vp-deal-burst .vp-burst-stud {
     opacity: 1;
   }
 }
@@ -2221,7 +2224,7 @@ option:hover {
      left-hand ones. */
   direction: ltr;
   display: flex;
-  gap: 10px;
+  gap: 14px;
   margin-block: 22px 16px;
 }
 
@@ -2295,13 +2298,17 @@ option:hover {
 }
 
 /* Fitted, not filled: a cut-out cropped to a square would lose the toe or the
-   heel, which on a shoe is the whole silhouette. The inset keeps it off the
-   glass strip below it. */
+   heel, which on a shoe is the whole silhouette.
+
+   20% smaller than the original fit: 84%/62% become 67.2%/49.6%, kept at the
+   same 16.4% off each side. Down the tile rather than centred: 33% top read
+   as sitting on the floor and came back up to 18%, then down again 5 points
+   to 23%, which puts the shoe's centre at 47.8%. */
 .vp-deal-shot img {
   position: absolute;
-  inset: 8% 8% 30%;
-  width: 84%;
-  height: 62%;
+  inset: 23% 16.4% 27.4%;
+  width: 67.2%;
+  height: 49.6%;
   object-fit: contain;
   transition: transform 0.5s ease;
 }
@@ -2310,21 +2317,40 @@ option:hover {
   transform: scale(1.05);
 }
 
-/* The cut, top corner. Solid gold with ink on it, the page's settled answer
-   for type on this colour. */
-.vp-deal-cut {
+/* The cut, top corner — the hero shot's own burst, verbatim: same outline,
+   same eleven studs, same turn and blink, same white type. Only the size and
+   the line count change — 46px for a ~250px tile against the hero's 121 for a
+   1227px card, and one line instead of two, since there is only room for the
+   cut and not a second word under it. */
+.vp-deal-burst {
   position: absolute;
-  inset-block-start: 14px;
-  inset-inline-start: 14px;
+  inset-block-start: 8px;
+  inset-inline-start: 8px;
   z-index: 2;
-  padding: 3px 11px;
-  border-radius: 9px;
-  background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
-  color: var(--title-color);
+  width: 46px;
+  height: 46px;
+}
+
+/* Turns in place, same as the hero's — see the keyframes and the reasoning
+   above, under the hero's own discount mark. */
+.vp-deal-burst .vp-burst-star {
+  transform-box: view-box;
+  transform-origin: 50% 50%;
+  animation: vp-burst-turn 12s linear infinite;
+}
+
+.vp-deal-burst .vp-burst-stud {
+  fill: #FFFFFF;
+  animation: vp-burst-twinkle 1.2s ease-in-out infinite;
+}
+
+.vp-deal-burst text {
+  fill: #FFFFFF;
+  text-anchor: middle;
   font-family: 'Vazirmatn', var(--body-font);
   font-weight: 800;
-  font-size: 13px;
-  line-height: 1.7;
+  /* In the burst's own 150-unit space, so it scales with the shape. */
+  font-size: 42px;
 }
 
 /* What is left of it, opposite the cut. It is the scarcity half of the offer —
@@ -2350,20 +2376,31 @@ option:hover {
 /* The strip, the category tiles' own glass: a thin white tint over a blur with
    a lit inner edge, inside the tile's corners rather than on them. It sits at
    the foot here rather than across the middle, because it carries two lines
-   and a control instead of one word. */
+   and a control instead of one word.
+
+   Stops short of the basket rather than running full width with padding
+   reserved under it: the basket used to sit in that padding, on top of the
+   strip, which cut into the strip's own rounded corner instead of sitting
+   beside it as its own circle. The strip's inline-end edge now ends where the
+   basket's gap begins, so the two read as two objects, not one lapped over
+   the other.
+
+   44 tall, the same as the basket beside it, so the two sit on one line as a
+   matched pair rather than the strip towering over a smaller circle — and
+   22px of round on each end, half the height, so both ends are true
+   semicircles rather than the shallower 20 a taller strip could carry. */
 .vp-deal-label {
   position: absolute;
-  inset-inline: 12px;
+  inset-inline-start: 12px;
+  inset-inline-end: 66px;
   inset-block-end: 12px;
   z-index: 2;
   display: flex;
   align-items: center;
   gap: 10px;
-  /* Room on the far side for the basket, which is not inside this strip: the
-     button is a sibling, so it can be a real button rather than something
-     nested in the tile's link. */
-  padding: 10px 14px 10px 62px;
-  border-radius: 20px;
+  height: 44px;
+  padding-inline: 16px;
+  border-radius: 22px;
   background: rgba(255, 255, 255, 0.55);
   -webkit-backdrop-filter: blur(12px) saturate(1.2);
   backdrop-filter: blur(12px) saturate(1.2);
@@ -2377,11 +2414,12 @@ option:hover {
   min-width: 0;
 }
 
+/* 12, not the 14 this started at. */
 .vp-deal-name {
   display: block;
   font-family: 'Cairo', var(--title-font);
   font-weight: 700;
-  font-size: 14px;
+  font-size: 12px;
   line-height: 1.6;
   color: #101111;
   white-space: nowrap;
@@ -2396,39 +2434,43 @@ option:hover {
   line-height: 1.5;
 }
 
+/* 10% down across all three: 11 -> 9.9, 15 -> 13.5. */
 .vp-deal-price del {
-  font-size: 11px;
+  font-size: 9.9px;
   color: rgba(16, 17, 17, 0.42);
 }
 
 .vp-deal-price strong {
   font-family: 'Vazirmatn', var(--body-font);
   font-weight: 800;
-  font-size: 15px;
+  font-size: 13.5px;
   color: #101111;
 }
 
 .vp-deal-price strong span {
-  font-size: 11px;
+  font-size: 9.9px;
   font-weight: 600;
   color: rgba(16, 17, 17, 0.62);
 }
 
-/* The basket, round, on the strip's far end. Sized off the strip so the two
-   read as one object: the strip's 62px of reserved padding is this 44 plus the
-   9 either side of it. */
+/* The basket, round, on the tile's own corner — the same 12px inset as the
+   strip beside it, so the two sit on one baseline as separate objects rather
+   than one lapping the other. 44 plus a 10px gap is the strip's 66px inset. */
 .vp-deal-cart {
   position: absolute;
   z-index: 3;
-  inset-block-end: 21px;
-  inset-inline-end: 21px;
+  inset-block-end: 12px;
+  inset-inline-end: 12px;
   width: 44px;
   height: 44px;
   padding: 0;
   border: 0;
   border-radius: 50%;
   background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
-  color: var(--title-color);
+  /* White and solid (fa-solid, not the fa-light this started as) — the
+     client asked for the icon filled and white, not the ink this took from
+     the burst and the ladder's live step. */
+  color: #FFFFFF;
   font-size: 17px;
   line-height: 1;
   cursor: pointer;
@@ -2447,8 +2489,8 @@ option:hover {
 
 @media (max-width: 1199px) {
   .vp-deal-shot { border-radius: 28px; }
-  .vp-deal-label { padding-left: 56px; }
-  .vp-deal-cart { width: 40px; height: 40px; inset-block-end: 19px; inset-inline-end: 19px; }
+  .vp-deal-label { inset-inline-end: 62px; }
+  .vp-deal-cart { width: 40px; height: 40px; inset-block-end: 12px; inset-inline-end: 12px; }
 }
 
 /* --- the way out --------------------------------------------------------- */

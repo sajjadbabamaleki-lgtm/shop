@@ -241,6 +241,71 @@ const LADDER_INTRO = {
   how: 'نحوه کار',
 };
 
+// The discount mark: a lobed burst in the buy button's gold, with the offer
+// on it. Used full-size on the hero shot, and again, smaller and with one
+// line instead of two, on each of the five deal cards below — declared here
+// so both can reach it.
+//
+// The outline is eleven lobes — outer and inner points alternating round a
+// circle at radii 72 and 61, with a Catmull-Rom spline through them turned into
+// cubic segments, which is what gives the soft scalloped edge rather than a
+// spiked star. Generated once and written in, since it never changes.
+const BURST_PATH =
+  'M 75,3 C 80.73,3 85.7,14.57 92.19,16.47 C 98.67,18.38 109.11,11.33 113.93,14.43 C 118.75,17.53 116.67,29.94 121.1,35.05 C 125.53,40.16 138.11,39.88 140.49,45.09 C 142.87,50.3 134.42,59.63 135.38,66.32 C 136.34,73.01 147.08,79.58 146.27,85.25 C 145.45,90.92 133.3,94.19 130.49,100.34 C 127.68,106.49 133.17,117.82 129.41,122.15 C 125.66,126.48 113.67,122.66 107.98,126.32 C 102.29,129.97 100.78,142.47 95.28,144.08 C 89.79,145.7 81.76,136 75,136 C 68.24,136 60.21,145.7 54.72,144.08 C 49.22,142.47 47.71,129.97 42.02,126.32 C 36.33,122.66 24.34,126.48 20.59,122.15 C 16.83,117.82 22.32,106.49 19.51,100.34 C 16.7,94.19 4.55,90.92 3.73,85.25 C 2.92,79.58 13.66,73.01 14.62,66.32 C 15.58,59.63 7.13,50.3 9.51,45.09 C 11.89,39.88 24.47,40.16 28.9,35.05 C 33.33,29.94 31.25,17.53 36.07,14.43 C 40.89,11.33 51.33,18.38 57.81,16.47 C 64.3,14.57 69.27,3 75,3 Z';
+
+// A stud in the mouth of each outward lobe — where the lobe opens out of the
+// body, on the lobe's own axis. Not in the notches between them: that is half
+// a lobe round from here and is where these first went, wrongly.
+//
+// Taken off the client's reference by measuring it, not by reading it. The
+// centre has to be the gold's centroid and not its bounding box — eleven lobes
+// are not symmetric about a box, and using the box put every angle out by
+// enough to land the studs a half-lobe away. From the centroid, the outline's
+// own tips come out at 285.3° and 317.8° and its notches at 300.4° and 333.1°;
+// the two dots sit at 285.0° and 317.3°, which is the tips.
+//
+// Their radius measures 0.783 and 0.751 of the outline's, so 56.4 and 54.1 of
+// our 72, and 55.5 is between them. It reads as the lobe's mouth because that
+// is about where the mouth is: the chord joining the two notches either side
+// crosses the lobe's axis at 61·cos(180°/11) = 58.5.
+const BURST_LOBES = 11;
+const BURST_STUD_ORBIT = 55.5;
+// 2 was where these started. The client asked for 20% on the studs as well
+// as on the burst, and the burst's own 20% is taken on its box in the CSS,
+// so this 20% is on top of that: 2.4 here is a stud 44% larger on the page
+// than before, against a burst 20% larger.
+const BURST_STUD_R = 2.4;
+
+// The outline starts on an outer point at twelve o'clock, so the lobes' own
+// axes are that angle and every 360/11 from it.
+const BURST_STUDS = Array.from({ length: BURST_LOBES }, (_, i) => {
+  const turn = (2 * Math.PI) / BURST_LOBES;
+  const angle = -Math.PI / 2 + i * turn;
+  const cx = (75 + BURST_STUD_ORBIT * Math.cos(angle)).toFixed(2);
+  const cy = (75 + BURST_STUD_ORBIT * Math.sin(angle)).toFixed(2);
+  return `<circle class="vp-burst-stud" cx="${cx}" cy="${cy}" r="${BURST_STUD_R}"></circle>`;
+}).join('');
+
+// The same construction as the hero's mark, verbatim — shape, studs and all —
+// just drawn smaller and with one line instead of two: at the deal cards'
+// size there is room for the cut and nothing else. A gradient id per card:
+// SVG ids have to be unique in the document, and five cards each need their
+// own.
+const dealBurst = (cut, i) =>
+  `<svg class="vp-deal-burst" viewBox="0 0 150 150" aria-hidden="true">` +
+  `<defs><linearGradient id="vp-deal-burst-gold-${i}" x1="0" y1="0" x2="0" y2="1">` +
+  '<stop offset="0%" stop-color="#C0972F"></stop><stop offset="100%" stop-color="#E3B54A"></stop>' +
+  '</linearGradient></defs>' +
+  '<g class="vp-burst-star">' +
+  `<path fill="url(#vp-deal-burst-gold-${i})" d="${BURST_PATH}"></path>` +
+  BURST_STUDS +
+  '</g>' +
+  // Percent first in the string, same reasoning as the ladder tiles: this
+  // text renders left to right, so the sign has to come before the digits in
+  // source order to land behind them for an RTL reader.
+  `<text x="75" y="88">٪${fa(cut)}</text>` +
+  '</svg>';
+
 // Step, its cut, the week it runs, and where it stands. Exactly one is
 // 'current' — the CSS leans on that for the gold tile and the live label.
 const LADDER_STEPS = [
@@ -288,8 +353,13 @@ const LADDER_STEPS_HTML = LADDER_STEPS.map(([name, cut, when, state]) =>
   `\n                        <span class="vp-step-name">${name}</span>` +
   // Each digit on its own tile, split across the middle, so the row reads as a
   // board that flips rather than as type in a box.
+  //
+  // The percent tile comes first, not last: this row is forced ltr (see
+  // above), so the last item lands at the visual right — the first thing an
+  // RTL reader's eye meets — which put the sign in front of the number
+  // instead of behind it.
   '\n                        <span class="vp-step-rate">' +
-  [...fa(cut), '٪'].map((ch) => `<b>${ch}</b>`).join('') +
+  ['٪', ...fa(cut)].map((ch) => `<b>${ch}</b>`).join('') +
   '</span>' +
   `\n                        <span class="vp-step-when">${when}</span>` +
   (state === 'done' ? '\n                        <span class="vp-step-flag is-done" aria-label="گذشته"></span>' : '') +
@@ -311,13 +381,13 @@ const LADDER_TRACK_HTML = LADDER_STEPS.map(([, , , state], i) => {
 // What is kept on the tile is what the sale is: the cut, the name, the two
 // prices, and how much is left. The step's name and the countdown come off the
 // card, because the ladder above already says both once for all four.
-const LADDER_DEALS_HTML = LADDER_DEALS.map(([file, name, price, stock]) => {
+const LADDER_DEALS_HTML = LADDER_DEALS.map(([file, name, price, stock], i) => {
   const now = Math.round(price * (100 - LADDER_CUT) / 100);
   return '\n                <div class="col">' +
     '\n                    <div class="vp-deal">' +
     `\n                        <a class="vp-deal-shot" href="shop.html">` +
     `\n                            <img src="assets/img/${file}" alt="" loading="lazy">` +
-    `\n                            <span class="vp-deal-cut">${fa(LADDER_CUT)}٪</span>` +
+    `\n                            ${dealBurst(LADDER_CUT, i)}` +
     `\n                            <span class="vp-deal-stock">${stock}</span>` +
     '\n                            <span class="vp-deal-label">' +
     '\n                                <span class="vp-deal-lines">' +
@@ -329,7 +399,7 @@ const LADDER_DEALS_HTML = LADDER_DEALS.map(([file, name, price, stock]) => {
     '\n                        </a>' +
     // Its own control, outside the link, so a basket is never a navigation.
     '\n                        <button type="button" class="vp-deal-cart" aria-label="افزودن به سبد خرید">' +
-    '<i class="fa-light fa-bag-shopping" aria-hidden="true"></i></button>' +
+    '<i class="fa-solid fa-bag-shopping" aria-hidden="true"></i></button>' +
     '\n                    </div>' +
     '\n                </div>';
 }).join('');
@@ -359,9 +429,12 @@ html = html.replace(
   // under the tiles. It is the same kind of thing they are — a standing fact
   // about the sale, not a step in it — and putting it here takes a whole row
   // off the section's height.
+  //
+  // First in the row, not last: the row is RTL, so the first child sits at
+  // the right, which is where the client asked for the link to read.
   '                <div class="vp-ladder-notes">\n' +
-  LADDER_NOTES.map((n) => `                    <span>${n}</span>`).join('\n') + '\n' +
   '                    <a href="shop.html" class="vp-ladder-all">مشاهده همه محصولات</a>\n' +
+  LADDER_NOTES.map((n) => `                    <span>${n}</span>`).join('\n') + '\n' +
   '                </div>\n' +
   '                <div class="row gy-4 row-cols-2 row-cols-md-3 row-cols-xl-5 vp-ladder-deals">' + LADDER_DEALS_HTML + '\n' +
   '                </div>\n' +
@@ -369,55 +442,6 @@ html = html.replace(
   '        </div>\n' +
   '    </section>'
 );
-
-// The discount mark on the shot: a lobed burst in the buy button's gold, with
-// the offer on it.
-//
-// The outline is eleven lobes — outer and inner points alternating round a
-// circle at radii 72 and 61, with a Catmull-Rom spline through them turned into
-// cubic segments, which is what gives the soft scalloped edge rather than a
-// spiked star. Generated once and written in, since it never changes.
-//
-// The type lives in the same SVG as the shape, so both scale together and the
-// lines stay centred on the burst whatever size it is drawn at. The two
-// baselines are 26 apart and sit where they do because the block is centred on
-// its own ink, not on its line boxes: rendered and measured, the ink's centre
-// and the burst's are the same point to within a fifth of a unit.
-const BURST_PATH =
-  'M 75,3 C 80.73,3 85.7,14.57 92.19,16.47 C 98.67,18.38 109.11,11.33 113.93,14.43 C 118.75,17.53 116.67,29.94 121.1,35.05 C 125.53,40.16 138.11,39.88 140.49,45.09 C 142.87,50.3 134.42,59.63 135.38,66.32 C 136.34,73.01 147.08,79.58 146.27,85.25 C 145.45,90.92 133.3,94.19 130.49,100.34 C 127.68,106.49 133.17,117.82 129.41,122.15 C 125.66,126.48 113.67,122.66 107.98,126.32 C 102.29,129.97 100.78,142.47 95.28,144.08 C 89.79,145.7 81.76,136 75,136 C 68.24,136 60.21,145.7 54.72,144.08 C 49.22,142.47 47.71,129.97 42.02,126.32 C 36.33,122.66 24.34,126.48 20.59,122.15 C 16.83,117.82 22.32,106.49 19.51,100.34 C 16.7,94.19 4.55,90.92 3.73,85.25 C 2.92,79.58 13.66,73.01 14.62,66.32 C 15.58,59.63 7.13,50.3 9.51,45.09 C 11.89,39.88 24.47,40.16 28.9,35.05 C 33.33,29.94 31.25,17.53 36.07,14.43 C 40.89,11.33 51.33,18.38 57.81,16.47 C 64.3,14.57 69.27,3 75,3 Z';
-
-// A stud in the mouth of each outward lobe — where the lobe opens out of the
-// body, on the lobe's own axis. Not in the notches between them: that is half
-// a lobe round from here and is where these first went, wrongly.
-//
-// Taken off the client's reference by measuring it, not by reading it. The
-// centre has to be the gold's centroid and not its bounding box — eleven lobes
-// are not symmetric about a box, and using the box put every angle out by
-// enough to land the studs a half-lobe away. From the centroid, the outline's
-// own tips come out at 285.3° and 317.8° and its notches at 300.4° and 333.1°;
-// the two dots sit at 285.0° and 317.3°, which is the tips.
-//
-// Their radius measures 0.783 and 0.751 of the outline's, so 56.4 and 54.1 of
-// our 72, and 55.5 is between them. It reads as the lobe's mouth because that
-// is about where the mouth is: the chord joining the two notches either side
-// crosses the lobe's axis at 61·cos(180°/11) = 58.5.
-const BURST_LOBES = 11;
-const BURST_STUD_ORBIT = 55.5;
-// 2 was where these started. The client asked for 20% on the studs as well
-// as on the burst, and the burst's own 20% is taken on its box in the CSS,
-// so this 20% is on top of that: 2.4 here is a stud 44% larger on the page
-// than before, against a burst 20% larger.
-const BURST_STUD_R = 2.4;
-
-// The outline starts on an outer point at twelve o'clock, so the lobes' own
-// axes are that angle and every 360/11 from it.
-const BURST_STUDS = Array.from({ length: BURST_LOBES }, (_, i) => {
-  const turn = (2 * Math.PI) / BURST_LOBES;
-  const angle = -Math.PI / 2 + i * turn;
-  const cx = (75 + BURST_STUD_ORBIT * Math.cos(angle)).toFixed(2);
-  const cy = (75 + BURST_STUD_ORBIT * Math.sin(angle)).toFixed(2);
-  return `<circle class="vp-burst-stud" cx="${cx}" cy="${cy}" r="${BURST_STUD_R}"></circle>`;
-}).join('');
 
 const RING =
   '<svg class="vp-burst" viewBox="0 0 150 150" aria-hidden="true">' +
