@@ -130,6 +130,15 @@ html = html.replace(
   '                            </div>'
 );
 
+// The basket takes a filled icon rather than the template's outline SVG, to
+// match the one on the sale cards and because it now sits on gold, where an
+// outline reads as a hole rather than as a bag. fa-solid is already loaded —
+// the sale cards use the same glyph.
+html = html.replace(
+  /(<button type="button" class="icon-btn sideMenuToggler">)<img[^>]*>/i,
+  '$1<i class="fa-solid fa-bag-shopping" aria-hidden="true"></i>'
+);
+
 // The row under the hero carries eight shoe categories instead of the
 // template's four service boxes: a photograph filling each square, with the
 // name on a strip of glass laid over it.
@@ -477,7 +486,7 @@ html = html.replace(
   // First in the row, not last: the row is RTL, so the first child sits at
   // the right, which is where the client asked for the link to read.
   '                <div class="vp-ladder-notes">\n' +
-  '                    <a href="shop.html" class="vp-ladder-all">مشاهده همه محصولات</a>\n' +
+  '                    <a href="shop.html" class="vp-ladder-all">مشاهده همه محصولات موجود در حراج</a>\n' +
   LADDER_NOTES.map((n) => `                    <span>${n}</span>`).join('\n') + '\n' +
   '                </div>\n' +
   '                <div class="row gy-4 row-cols-2 row-cols-md-3 row-cols-xl-5 vp-ladder-deals">' + LADDER_DEALS_HTML + '\n' +

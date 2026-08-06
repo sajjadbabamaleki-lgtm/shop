@@ -2018,7 +2018,12 @@ option:hover {
      be scanned, not dwelt in, and every row of padding here is repeated four
      times down the page in the eye's memory. */
   padding: 26px 26px 24px;
-  border-radius: 28px;
+  /* 50, between the 28 this started at and the hero card's 72. The hero's own
+     corner was tried here and read too round: that 72 is cut into a card 450
+     tall, and this panel is 567 and much busier, so the same radius takes a
+     larger bite out of a shape that has more going on near its edges. The lit
+     hairline inherits it. */
+  border-radius: 50px;
   background: rgba(16, 17, 17, 0.034);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
@@ -2229,7 +2234,8 @@ option:hover {
   width: var(--tile);
   height: var(--tile);
   flex: none;
-  border-radius: 10px;
+  /* 15% rounder than the 10 it was. */
+  border-radius: 11.5px;
   font-family: 'Vazirmatn', var(--body-font);
   font-weight: 800;
   font-size: 27px;
@@ -2771,6 +2777,11 @@ option:hover {
      have an edge at all. */
   box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.08);
   padding-left: 54px;
+  /* A rounded rectangle, not a pill: the field is 48 tall and was carrying 24,
+     which is exactly half and so leaves no straight edge at all. 14 is the
+     same family as the app icon's 12 on 52 and the basket's 12 on 48, so the
+     three objects in this row read as one set. */
+  border-radius: 14px;
 }
 
 .th-header .menu-area .box-search .th-btn {
@@ -2782,10 +2793,46 @@ option:hover {
   height: 38px;
   min-width: 0;
   padding: 0;
-  border-radius: 50%;
+  /* Square with a corner rather than a disc, in proportion to the field it
+     sits in: 10 on 38 is the same ratio as 14 on 48. */
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* The basket, a gold square with a filled white icon on it — the same object
+   as the search button at the other end of the row, one size up, so the two
+   bracket the bar. It was a near-white disc, which made the only two controls
+   in the header read as two different kinds of thing.
+
+   White on the gold here, not the ink the page uses for type on this colour:
+   an icon is a shape, not a word, and at 20px the shape is what has to carry —
+   white against the gold's midtone separates it more than ink does. The
+   template's own .icon-btn rules are two classes deep, so these are three. */
+.th-header .header-button .icon-btn.sideMenuToggler {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+  border: 0;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.th-header .header-button .icon-btn.sideMenuToggler i {
+  font-size: 20px;
+  line-height: 1;
+  color: #FFFFFF;
+}
+
+/* The count keeps its own ground so it stays legible where it overlaps the
+   gold, rather than being gold type on gold. */
+.th-header .header-button .icon-btn.sideMenuToggler .badge {
+  background: var(--title-color);
+  color: #FFFFFF;
 }
 
 /* The hero cards' corners, a little rounder than the template's 60. */
