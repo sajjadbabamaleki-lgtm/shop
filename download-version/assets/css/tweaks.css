@@ -2796,6 +2796,7 @@ option:hover {
 }
 
 /* "مشاهده دسته", not a price — every card here browses a category. */
+/* A test price, at the client's request — not "مشاهده دسته" any more. */
 .vp-best-cta {
   display: block;
   line-height: 1.5;
@@ -2806,6 +2807,12 @@ option:hover {
   font-weight: 800;
   font-size: 12.5px;
   color: #101111;
+}
+
+.vp-best-cta strong span {
+  font-size: 9.9px;
+  font-weight: 600;
+  color: rgba(16, 17, 17, 0.62);
 }
 
 /* The browse control, glass rather than solid: same tint and ring as the
