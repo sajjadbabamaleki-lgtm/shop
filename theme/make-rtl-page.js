@@ -140,6 +140,19 @@ html = html.replace(
   '$1<i class="fa-solid fa-bag-shopping" aria-hidden="true"></i>'
 );
 
+// FontAwesome's fa-search draws its handle almost as long as the glass
+// itself, which read cramped once the header disc shrank. A two-shape inline
+// SVG — a circle and a short stroke — replaces it, so the handle length is a
+// number to set rather than a glyph's fixed proportions. currentColor keeps
+// it on the button's own white, same as the glyph it replaces.
+html = html.replace(
+  /<button type="submit" class="th-btn"><i class="far fa-search"><\/i><\/button>/i,
+  '<button type="submit" class="th-btn"><svg class="vp-search-icon" width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true">' +
+    '<circle cx="8.5" cy="8.5" r="6" stroke="currentColor" stroke-width="2"/>' +
+    '<line x1="12.9" y1="12.9" x2="15.3" y2="15.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>' +
+  '</svg></button>'
+);
+
 // The row under the hero carries eight shoe categories instead of the
 // template's four service boxes: a photograph filling each square, with the
 // name on a strip of glass laid over it.
@@ -217,6 +230,62 @@ html = html.replace(
   '        </div>\n' +
   '        <div class="vp-trust-row-wrap">\n' +
   '            ' + TRUST_ROW + '\n' +
+  '        </div>\n' +
+  '    </section>'
+);
+
+// Best sellers: six cards in a fixed row rather than the template's
+// filterable grid — there is nothing left to filter once the count is
+// fixed at six, so the tab row goes with it. Built on the same "photo tile,
+// glass strip" object the category row and the deal cards already use, not
+// a fourth new one: square shot, rounded corners, a glass strip carrying
+// the name, and a round glass control at the foot.
+//
+// The client's own instruction: photographs and copy the site already has,
+// not invented ones. The row draws its six straight from CATEGORIES above
+// — the first six of the eight real category photographs, in the row's own
+// order — rather than mixing in the five real deal products, so the row is
+// one material throughout instead of two. Each card browses its category
+// (its existing label, "مشاهده دسته", and a browse arrow) rather than
+// pricing a single product, since a category photograph is not a SKU and
+// forcing a price onto it would be the invented-content problem this was
+// asked to avoid.
+const bestCard = ([file, name]) =>
+  '\n                <div class="col">' +
+  '\n                    <div class="vp-best">' +
+  '\n                        <a class="vp-best-shot" href="shop.html">' +
+  `\n                            <img src="assets/img/category/${file}.jpg" alt="" loading="lazy">` +
+  '\n                        </a>' +
+  '\n                        <div class="vp-best-label">' +
+  '\n                            <span class="vp-best-lines">' +
+  `\n                                <span class="vp-best-name">${name}</span>` +
+  '\n                                <span class="vp-best-cta"><strong>مشاهده دسته</strong></span>' +
+  '\n                            </span>' +
+  '\n                        </div>' +
+  // fa-arrow-right, not -left: the hero slider already fixes what "forward"
+  // looks like on this page (data-slider-next carries fa-arrow-right), so
+  // browsing into a category takes the same glyph rather than a second one.
+  `\n                        <a class="vp-best-browse" href="shop.html" aria-label="مشاهده دسته ${name}"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>` +
+  '\n                    </div>' +
+  '\n                </div>';
+
+// row-cols rather than col-N: six is a clean twelfth either way, but this
+// keeps it in the same idiom as the trust and deal rows either side of it,
+// and their default 24px gutter is the "small gap" the client pointed at —
+// measured on both those rows, not eyeballed.
+const BEST_ROW =
+  '<div class="row gy-4 row-cols-2 row-cols-md-3 row-cols-xl-6 vp-best-row">' +
+  CATEGORIES.slice(0, 6).map(bestCard).join('') +
+  '\n            </div>';
+
+html = html.replace(
+  /<section class="space overflow-hidden overflow-hidden">\s*<div class="container th-container5">\s*<div class="row justify-content-xl-between justify-content-center align-items-center">\s*<div class="col-xl-4">\s*<div class="title-area text-center text-xl-start">\s*<h2 class="sec-title sec-title2 style1">Best Seller Products<\/h2>[\s\S]*?<\/section>/,
+  '<section class="space overflow-hidden overflow-hidden">\n' +
+  '        <div class="container th-container5">\n' +
+  '            <div class="title-area text-center text-xl-start">\n' +
+  '                <h2 class="sec-title sec-title2 style1">پرفروش‌ترین‌ها</h2>\n' +
+  '            </div>\n' +
+  '            ' + BEST_ROW + '\n' +
   '        </div>\n' +
   '    </section>'
 );
@@ -867,7 +936,7 @@ html = html.replace('</body>',
 html = html.replace('</body>',
   '    <script>\n' +
   '        (function () {\n' +
-  '            var items = document.querySelectorAll(".vp-category, .vp-trust-row .feature-card, .th-product, .vp-deal, .blog-card, .sec-title");\n' +
+  '            var items = document.querySelectorAll(".vp-category, .vp-trust-row .feature-card, .th-product, .vp-deal, .vp-best, .blog-card, .sec-title");\n' +
   '            if (!items.length || !("IntersectionObserver" in window)) return;\n' +
   '            items.forEach(function (el) {\n' +
   '                el.classList.add("vp-enter");\n' +

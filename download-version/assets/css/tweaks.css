@@ -2645,6 +2645,164 @@ option:hover {
   .vp-deal-cart { width: 40px; height: 40px; inset-block-end: 12px; inset-inline-end: 12px; }
 }
 
+/* --------------------------------------------------------------------------
+   Best sellers: six cards, one row, tight gutter.
+
+   The same object as the deal cards above — square shot, rounded corners, a
+   glass strip carrying the name — sized for six across instead of five,
+   with a plain glass arrow at the foot instead of the deal's solid gold
+   bag: every card here browses a category (see CATEGORIES in
+   make-rtl-page.js) rather than selling a single product, so the control is
+   a browse rather than the ladder's urgent buy.
+
+   Gutter is the row's own default (24px), not a custom value: measured on
+   both the trust row and the deal row beside this one, so "the same gap as
+   those five items" is the same number already sitting in this file rather
+   than a fresh guess.
+   -------------------------------------------------------------------------- */
+.vp-best {
+  position: relative;
+}
+
+.vp-best-shot {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  aspect-ratio: 1;
+  border-radius: 28px;
+  background: #FFFFFF;
+  box-shadow:
+    0 0 0 1px rgba(16, 17, 17, 0.05),
+    0 8px 22px -12px rgba(16, 17, 17, 0.18);
+  transition: transform 0.28s ease, box-shadow 0.28s ease;
+}
+
+.vp-best:hover .vp-best-shot {
+  transform: translateY(-5px);
+  box-shadow:
+    0 0 0 1px rgba(164, 127, 37, 0.28),
+    0 18px 34px -14px rgba(16, 17, 17, 0.24);
+}
+
+/* Full-bleed cover, not the deal shot's tuned inset: these are the same
+   real category photographs the category row above uses, already filling
+   their own frame, so there is no silhouette to fit around — the exact
+   treatment the category tiles give them. */
+.vp-best-shot img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.vp-best:hover .vp-best-shot img {
+  transform: scale(1.05);
+}
+
+/* 40 tall rather than the deal strip's 44 — six across runs narrower than
+   five, and the strip and the button beside it stay a matched pair at any
+   width as long as they change together. Inset-end is the button's 40 plus
+   its 10px gap plus the shared 12px base, same arithmetic as the deal strip
+   beside it. */
+.vp-best-label {
+  position: absolute;
+  inset-inline-start: 12px;
+  inset-inline-end: 62px;
+  inset-block-end: 12px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 40px;
+  padding-inline: 14px;
+  border-radius: 20px;
+  background: rgba(16, 17, 17, 0.034);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  backdrop-filter: blur(12px) saturate(1.2);
+  box-shadow:
+    inset 0 0 0 1px rgba(16, 17, 17, 0.05),
+    0 4px 14px -8px rgba(16, 17, 17, 0.35);
+}
+
+.vp-best-lines {
+  display: block;
+  min-width: 0;
+}
+
+.vp-best-name {
+  display: block;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #101111;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* "مشاهده دسته", not a price — every card here browses a category. */
+.vp-best-cta {
+  display: block;
+  line-height: 1.5;
+}
+
+.vp-best-cta strong {
+  font-family: 'Vazirmatn', var(--body-font);
+  font-weight: 800;
+  font-size: 12.5px;
+  color: #101111;
+}
+
+/* The browse arrow, glass rather than solid: same recipe as the strip
+   beside it — ink tint, blur, ink ring — so the two read as one material
+   instead of a control borrowed from the deal cards next door. Ink icon on
+   it for the same reason the strip's own text is ink: this tint reads
+   close to white, where ink is what separates. An <a>, not a <button> —
+   every card here browses a category, nothing is being added to a cart. */
+.vp-best-browse {
+  position: absolute;
+  z-index: 3;
+  inset-block-end: 12px;
+  inset-inline-end: 12px;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(16, 17, 17, 0.034);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  backdrop-filter: blur(12px) saturate(1.2);
+  box-shadow:
+    inset 0 0 0 1px rgba(16, 17, 17, 0.05),
+    0 4px 14px -8px rgba(16, 17, 17, 0.35);
+  color: #101111;
+  font-size: 15px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  /* An <a> would otherwise pick up the template's underline-on-hover link
+     styling. */
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.vp-best-browse:hover {
+  transform: scale(1.06);
+  box-shadow:
+    inset 0 0 0 1px rgba(16, 17, 17, 0.05),
+    0 6px 16px -8px rgba(16, 17, 17, 0.35);
+}
+
+.vp-best-browse:focus-visible {
+  outline: 2px solid var(--title-color);
+  outline-offset: 2px;
+}
+
 /* --- the way out --------------------------------------------------------- */
 
 /* Exactly one deal card wide, so it sits directly over the card beneath it
@@ -2822,46 +2980,69 @@ option:hover {
      have an edge at all. */
   box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.08);
   padding-left: 54px;
-  /* A rounded rectangle, not a pill: the field is 48 tall and was carrying 24,
-     which is exactly half and so leaves no straight edge at all. 14 is the
-     same family as the app icon's 12 on 52 and the basket's 12 on 48, so the
-     three objects in this row read as one set. */
-  border-radius: 14px;
+  /* A rounded rectangle, not a pill: the field is 48 tall, and 18 is the same
+     ratio (0.375) the cart square next to it now rounds at, so the two keep
+     reading as one set after both got rounder. */
+  border-radius: 18px;
 }
 
 .th-header .menu-area .box-search .th-btn {
   position: absolute;
-  left: 5px;
+  /* 7px on every side it has one: matches the 7px top and bottom the 34
+     square already gets from centering in the 48-tall field (7 = (48-34)/2),
+     so the gap reads the same on all three edges instead of tighter on the
+     left than top and bottom. */
+  left: 7px;
   top: 50%;
   transform: translateY(-50%);
-  width: 38px;
-  height: 38px;
+  width: 34px;
+  height: 34px;
   min-width: 0;
   padding: 0;
-  /* Square with a corner rather than a disc, in proportion to the field it
-     sits in: 10 on 38 is the same ratio as 14 on 48. */
-  border-radius: 10px;
+  /* Same 0.375 ratio as the field around it, on the smaller box: 34 * 0.375
+     rounds to 13. */
+  border-radius: 13px;
+  /* .th-btn is in the site-wide list that swapped button labels to ink
+     (measured at the top of this file, for the lighter button ramp) — but
+     this button carries a shape, not a word, and the client asked for it
+     back to white. */
+  color: #FFFFFF;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/* The basket, a gold square with a filled white icon on it — the same object
-   as the search button at the other end of the row, one size up, so the two
-   bracket the bar. It was a near-white disc, which made the only two controls
-   in the header read as two different kinds of thing.
+/* The lens icon, sized to the disc — a little larger than the first pass,
+   at the client's word. */
+.th-header .menu-area .box-search .th-btn .vp-search-icon {
+  width: 19px;
+  height: 19px;
+}
 
-   White on the gold here, not the ink the page uses for type on this colour:
-   an icon is a shape, not a word, and at 20px the shape is what has to carry —
-   white against the gold's midtone separates it more than ink does. The
+/* The basket, white to match the search field beside it, with the bag and
+   the count carrying the gold instead of the square itself. A gold square
+   is what forced the count onto a dark ground of its own in the first
+   place — nothing gold reads on gold — so white removes the problem rather
+   than working around it, and it is what puts the field and the basket
+   back to reading as one set.
+
+   The one gold on the page, not a second one: the button ramp — #C0972F to
+   #E3B54A, the same pair the buy button and the discount mark use — on the
+   badge's fill, and its darker stop flat as the icon's colour so the two
+   read as the one metal instead of two different golds sitting next to
+   each other in the same row. Ink on the ramp is the pairing already
+   measured at the top of this file (6.94:1 / 9.88:1, both AA). The
    template's own .icon-btn rules are two classes deep, so these are three. */
 .th-header .header-button .icon-btn.sideMenuToggler {
   width: 48px;
   height: 48px;
-  border-radius: 12px;
-  background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+  border-radius: 18px;
+  background: #FFFFFF;
+  /* The square is white on a header band that is nearly white too, so it
+     needs the same hairline the search field uses to have an edge at all. */
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.08);
   border: 0;
-  color: #FFFFFF;
+  color: #C0972F;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2870,14 +3051,12 @@ option:hover {
 .th-header .header-button .icon-btn.sideMenuToggler i {
   font-size: 20px;
   line-height: 1;
-  color: #FFFFFF;
+  color: #C0972F;
 }
 
-/* The count keeps its own ground so it stays legible where it overlaps the
-   gold, rather than being gold type on gold. */
 .th-header .header-button .icon-btn.sideMenuToggler .badge {
-  background: var(--title-color);
-  color: #FFFFFF;
+  background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+  color: #101111;
 }
 
 /* The hero cards' corners, a little rounder than the template's 60. */
@@ -3547,46 +3726,69 @@ ul.vp-how-list.is-ticked li:before {
      have an edge at all. */
   box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.08);
   padding-left: 54px;
-  /* A rounded rectangle, not a pill: the field is 48 tall and was carrying 24,
-     which is exactly half and so leaves no straight edge at all. 14 is the
-     same family as the app icon's 12 on 52 and the basket's 12 on 48, so the
-     three objects in this row read as one set. */
-  border-radius: 14px;
+  /* A rounded rectangle, not a pill: the field is 48 tall, and 18 is the same
+     ratio (0.375) the cart square next to it now rounds at, so the two keep
+     reading as one set after both got rounder. */
+  border-radius: 18px;
 }
 
 .th-header .menu-area .box-search .th-btn {
   position: absolute;
-  left: 5px;
+  /* 7px on every side it has one: matches the 7px top and bottom the 34
+     square already gets from centering in the 48-tall field (7 = (48-34)/2),
+     so the gap reads the same on all three edges instead of tighter on the
+     left than top and bottom. */
+  left: 7px;
   top: 50%;
   transform: translateY(-50%);
-  width: 38px;
-  height: 38px;
+  width: 34px;
+  height: 34px;
   min-width: 0;
   padding: 0;
-  /* Square with a corner rather than a disc, in proportion to the field it
-     sits in: 10 on 38 is the same ratio as 14 on 48. */
-  border-radius: 10px;
+  /* Same 0.375 ratio as the field around it, on the smaller box: 34 * 0.375
+     rounds to 13. */
+  border-radius: 13px;
+  /* .th-btn is in the site-wide list that swapped button labels to ink
+     (measured at the top of this file, for the lighter button ramp) — but
+     this button carries a shape, not a word, and the client asked for it
+     back to white. */
+  color: #FFFFFF;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/* The basket, a gold square with a filled white icon on it — the same object
-   as the search button at the other end of the row, one size up, so the two
-   bracket the bar. It was a near-white disc, which made the only two controls
-   in the header read as two different kinds of thing.
+/* The lens icon, sized to the disc — a little larger than the first pass,
+   at the client's word. */
+.th-header .menu-area .box-search .th-btn .vp-search-icon {
+  width: 19px;
+  height: 19px;
+}
 
-   White on the gold here, not the ink the page uses for type on this colour:
-   an icon is a shape, not a word, and at 20px the shape is what has to carry —
-   white against the gold's midtone separates it more than ink does. The
+/* The basket, white to match the search field beside it, with the bag and
+   the count carrying the gold instead of the square itself. A gold square
+   is what forced the count onto a dark ground of its own in the first
+   place — nothing gold reads on gold — so white removes the problem rather
+   than working around it, and it is what puts the field and the basket
+   back to reading as one set.
+
+   The one gold on the page, not a second one: the button ramp — #C0972F to
+   #E3B54A, the same pair the buy button and the discount mark use — on the
+   badge's fill, and its darker stop flat as the icon's colour so the two
+   read as the one metal instead of two different golds sitting next to
+   each other in the same row. Ink on the ramp is the pairing already
+   measured at the top of this file (6.94:1 / 9.88:1, both AA). The
    template's own .icon-btn rules are two classes deep, so these are three. */
 .th-header .header-button .icon-btn.sideMenuToggler {
   width: 48px;
   height: 48px;
-  border-radius: 12px;
-  background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+  border-radius: 18px;
+  background: #FFFFFF;
+  /* The square is white on a header band that is nearly white too, so it
+     needs the same hairline the search field uses to have an edge at all. */
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.08);
   border: 0;
-  color: #FFFFFF;
+  color: #C0972F;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3595,14 +3797,12 @@ ul.vp-how-list.is-ticked li:before {
 .th-header .header-button .icon-btn.sideMenuToggler i {
   font-size: 20px;
   line-height: 1;
-  color: #FFFFFF;
+  color: #C0972F;
 }
 
-/* The count keeps its own ground so it stays legible where it overlaps the
-   gold, rather than being gold type on gold. */
 .th-header .header-button .icon-btn.sideMenuToggler .badge {
-  background: var(--title-color);
-  color: #FFFFFF;
+  background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+  color: #101111;
 }
 
 /* The hero cards' corners, a little rounder than the template's 60. */
