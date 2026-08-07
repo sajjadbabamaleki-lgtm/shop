@@ -2725,8 +2725,8 @@ option:hover {
   gap: 8px;
   /* Same height as .vp-best-label below — client's own request, one glass
      pill's height for both jobs. */
-  height: 40px;
-  border-radius: 20px;
+  height: 44px;
+  border-radius: 22px;
   background: rgba(255, 255, 255, 0.55);
   -webkit-backdrop-filter: blur(12px) saturate(1.2);
   backdrop-filter: blur(12px) saturate(1.2);
@@ -2766,18 +2766,28 @@ option:hover {
   gap: 10px;
 }
 
+/* 44 tall, 16 padding, 22 radius — .vp-deal-label's own numbers, from the
+   stepped-sale deals below (same .vp-deal component): client's own request
+   to match that price box's shape. The browse circle and the swatch pill
+   go to 44 with it, so all three glass pieces in this card family stay one
+   height. */
 .vp-best-label {
   flex: 1;
   min-width: 0;
   display: flex;
   align-items: center;
-  height: 40px;
-  padding-inline: 14px;
-  border-radius: 20px;
+  height: 44px;
+  padding-inline: 16px;
+  border-radius: 22px;
   background: rgba(16, 17, 17, 0.034);
   box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.05);
 }
 
+/* Name above price, .vp-deal-lines' own stack — client's "write it in that
+   same shape" — not the single row this briefly went to: each line gets
+   the strip's full width instead of splitting it with the other, which is
+   also what stopped the name ellipsizing down to two or three letters
+   before this. */
 .vp-best-lines {
   display: block;
   min-width: 0;
@@ -2787,7 +2797,7 @@ option:hover {
   display: block;
   font-family: 'Cairo', var(--title-font);
   font-weight: 700;
-  font-size: 12px;
+  font-size: 13.5px;
   line-height: 1.6;
   color: #101111;
   white-space: nowrap;
@@ -2795,7 +2805,6 @@ option:hover {
   text-overflow: ellipsis;
 }
 
-/* "مشاهده دسته", not a price — every card here browses a category. */
 /* A test price, at the client's request — not "مشاهده دسته" any more. */
 .vp-best-cta {
   display: block;
@@ -2805,12 +2814,12 @@ option:hover {
 .vp-best-cta strong {
   font-family: 'Vazirmatn', var(--body-font);
   font-weight: 800;
-  font-size: 12.5px;
+  font-size: 14px;
   color: #101111;
 }
 
 .vp-best-cta strong span {
-  font-size: 9.9px;
+  font-size: 10.5px;
   font-weight: 600;
   color: rgba(16, 17, 17, 0.62);
 }
@@ -2824,8 +2833,8 @@ option:hover {
    plus glyph now at the client's request. */
 .vp-best-browse {
   flex: 0 0 auto;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   padding: 0;
   border: 0;
   border-radius: 50%;
@@ -2865,14 +2874,25 @@ option:hover {
    margin-inline: 18px is the trust row's own edge margin (see
    .vp-trust-row-wrap) — the client's "same distance as those five items,"
    applied to the card itself now that the card is what sits at the row's
-   old outer edge. */
+   old outer edge.
+
+   The ring on its own read as no edge at all — white on the page's own
+   white, at 1px and 5% — so it goes to 1.5 and 12%, and a drop shadow is
+   added under the card rather than asking the ring to do both jobs: an
+   inset ring states an edge but can't lift the card off the page the way a
+   shadow does. First pass at the shadow overshot — client's "not much
+   volume" — so it is pulled back to the tiles' own established shadow
+   opacity (.vp-category / .vp-deal-shot both sit at .18), just scaled up
+   in reach for a card this much larger. */
 .vp-best-panel {
   margin-inline: 18px;
   margin-top: 24px;
   padding: 28px;
   border-radius: 50px;
   background: #FFFFFF;
-  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.05);
+  box-shadow:
+    inset 0 0 0 1.5px rgba(16, 17, 17, 0.12),
+    0 18px 32px -22px rgba(16, 17, 17, 0.18);
 }
 
 /* The card's own header: title at its own top-right (reading start in
@@ -2889,12 +2909,13 @@ option:hover {
 
 /* Small — client's own word — against the section's usual sec-title, which
    this replaced: the row it sits over now says what it is well enough on
-   its own that the heading is a label, not a headline. */
+   its own that the heading is a label, not a headline. 19.2 is the 16 it
+   started at, plus the client's own 20%. */
 .vp-best-title {
   margin: 0;
   font-family: 'Cairo', var(--title-font);
   font-weight: 800;
-  font-size: 16px;
+  font-size: 19.2px;
   line-height: 1.4;
   color: #101111;
 }
@@ -2920,10 +2941,18 @@ option:hover {
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
+/* The one gold this file has, not var(--theme-color) — that accent
+   variable is a different, older sample from earlier in this file and
+   using it here was the exact mistake already made once on this page (the
+   header cart icon, before it got fixed) and was not supposed to happen a
+   second time on the same page. This is .th-btn's own ramp, #C0972F to
+   #E3B54A, and ink on it rather than white for the same measured reason
+   every button label on this page is ink on this ramp (6.94:1–9.88:1 vs
+   white's 2.46:1, documented at the top of this file). */
 .vp-best-filter.active,
 .vp-best-filter:hover {
-  background: var(--theme-color);
-  color: #FFFFFF;
+  background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+  color: #101111;
 }
 
 /* Ink-gold on white, same pairing the header search icon and the trust

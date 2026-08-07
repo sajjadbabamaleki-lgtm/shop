@@ -271,13 +271,15 @@ const bestColors =
 // worry that it doesn't match the photograph — this is a placeholder for
 // testing, not a claim about what's in the shot. Reuses the five real
 // name/price pairs already on the site (DEAL_ITEMS below) rather than
-// inventing new ones, cycling to cover the sixth tile.
+// inventing new ones, cycling to cover the sixth tile. "کتونی" dropped from
+// every name — client's own request, so the name is short enough to sit on
+// one line with the price beside it.
 const BEST_TEST_ITEMS = [
-  ['کتونی نیوبالانس ۵۳۰', '۷٬۹۸۰٬۰۰۰'],
-  ['کتونی جردن وان ایر', '۸٬۴۸۰٬۰۰۰'],
-  ['کتونی گلدن گوس', '۶٬۴۸۰٬۰۰۰'],
-  ['کتونی نایک وی۲کی ران', '۶٬۹۸۰٬۰۰۰'],
-  ['کتونی اون کلادتیلت', '۴٬۸۸۰٬۰۰۰'],
+  ['نیوبالانس ۵۳۰', '۷٬۹۸۰٬۰۰۰'],
+  ['جردن وان ایر', '۸٬۴۸۰٬۰۰۰'],
+  ['گلدن گوس', '۶٬۴۸۰٬۰۰۰'],
+  ['نایک وی۲کی ران', '۶٬۹۸۰٬۰۰۰'],
+  ['اون کلادتیلت', '۴٬۸۸۰٬۰۰۰'],
 ];
 
 const bestCard = ([file], i) => {
