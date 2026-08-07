@@ -702,8 +702,13 @@ const DAILY_DEAL =
 // means the photo again.
 html = html.replace(
   /<section class="space overflow-hidden overflow-hidden">\s*<div class="product-area3">[\s\S]*?<\/section>/,
+  // .th-container, not the .th-container5 this started on, and narrowed to
+  // the ladder sale's own 1620 by .vp-daily-deal-wrap — client asked for
+  // this band to stand off the desktop's edges by the same amount that
+  // section does. The two containers only differ above 1300 (1800 vs 1420),
+  // which is why they already agreed at 1440 and only parted at 1920.
   '<section class="space overflow-hidden overflow-hidden vp-daily-deal-section">\n' +
-  '        <div class="container th-container5">\n' +
+  '        <div class="container th-container vp-daily-deal-wrap">\n' +
   '            ' + DAILY_DEAL + '\n' +
   '        </div>\n' +
   '    </section>'

@@ -3016,11 +3016,26 @@ option:hover {
    already applied to .vp-ladder. The ring is 1.5px at 10%, not a thin
    hairline — a subtler one already read as no edge at all on .vp-best-panel
    before that got the same fix. */
+/* Matches the ladder sale's band exactly, which is what the client asked
+   for: .th-container is 1800 above 1300, the same --main-container: 1620
+   override .vp-ladder-wrap carries brings both to 1620. Below 1300 the two
+   containers are identical anyway, which is why this only shows above it —
+   at 1920 the deal stood 250 off each edge against the ladder's 150, and at
+   1440 they already agreed at 12. */
+.vp-daily-deal-wrap {
+  --main-container: 1620px;
+}
+
+/* 28, down from 40 — the client's own comparison with the best-seller
+   panel, which stands its photos 28 off its left and right edges (measured)
+   and is the pane this one is meant to read alongside. The white card's own
+   40 is a separate number and stays: that one is the shoe's clearance from
+   the card edge, asked for in those words. */
 .vp-daily-deal {
   display: flex;
   align-items: center;
   gap: 40px;
-  padding: 40px;
+  padding: 28px;
   border-radius: 40px;
   background: rgba(16, 17, 17, 0.034);
   box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.1);
@@ -3250,19 +3265,23 @@ option:hover {
    101px of empty box above and below it. That dead space, not the shoe, is
    what the client was looking at when they asked why the height had grown.
 
-   So the box is sized to the photo instead of to itself. Height 240.5 is
-   the lever: 240.5 + the card's 40px padding twice + the banner's 40px
-   padding twice = 400.5, the banner in the client's screenshot. Width is
-   whatever the row has left (415 at 1440: the card's 695 of content, less
-   the info column's 256 and the 24 gap), and 415/240.5 = 1.73 is wider than
-   the photo's 1.414, so the height is what limits it and the photo draws
-   340x240.5, centred.
+   So the box is sized to the photo instead of to itself. Height is the
+   lever, and it is set to hold the banner at the 400.5 in the client's
+   screenshot: 264.5 + the card's 40px padding twice + the banner's 28px
+   twice = 400.5. It was 240.5 while the banner's padding was 40; dropping
+   that to 28 freed 24px, and the 24 went into the photo rather than out of
+   the banner, so the height the client pinned survives the padding change.
 
-   Measured against what it replaces: 340 wide against the 346 on screen
-   before this — the same photo, to within 2% — and against 212.5 in the
-   400.5-tall version the client rejected for having shrunk it. The height
-   came out of the empty box, which is the only place it could come from
-   without taking it back off the shoe again.
+   Width is whatever the row has left (415 at 1440: the card's 695 of
+   content, less the info column's 256 and the 24 gap), and 415/264.5 = 1.57
+   is wider than the photo's 1.414, so the height is what limits it and the
+   photo draws 374x264.5, centred.
+
+   Measured against what it replaces: 374 wide against the 346 on screen
+   before any of this, and against 212.5 in the 400.5-tall version the
+   client rejected for having shrunk it. The height came out of the empty
+   box, which is the only place it could come from without taking it back
+   off the shoe again.
 
    No inset on the img: the box's own edges are already the card's 40px
    clearance, so padding here would be a second inset inside the first and
@@ -3270,7 +3289,7 @@ option:hover {
 .vp-daily-deal-shot {
   flex: 1 1 auto;
   min-width: 0;
-  height: 240.5px;
+  height: 264.5px;
 }
 
 .vp-daily-deal-shot img {
