@@ -1986,14 +1986,20 @@ option:hover {
   padding-block-end: 0;
 }
 
-/* Doubled, 40 -> 80, on the client's "make it twice what it is". This is
-   the whole gap and the only lever for it: .feature-area2's bottom padding
-   above is 0 (see just above), so trust-row bottom to ladder-panel top is
-   exactly this number — measured 40 before, 80 after. The 40 above the
-   trust row (.vp-trust-row-wrap margin-top) is a different gap and is not
-   part of this; the two used to match and now deliberately do not. */
+/* 40 -> 80 (client's "twice what it is") -> 100, asked for in two passes.
+   This is the whole gap and the only lever for it: .feature-area2's bottom
+   padding above is 0 (see just above), so trust-row bottom to ladder-panel
+   top is exactly this number — measured at each step.
+
+   Its pair is .vp-best-panel's margin-top, which sets the next gap down the
+   page and was moved to the same 100 in the same breath. The two are meant
+   to read as one rhythm between the page's big panes; change one and the
+   other wants the same.
+
+   The 40 above the trust row (.vp-trust-row-wrap margin-top) is not part of
+   that rhythm — it used to match and now deliberately does not. */
 .collection-area {
-  padding-block-start: 80px;
+  padding-block-start: 100px;
 }
 
 /* The sale lines up with the eight tiles, so it takes their container and
@@ -2898,12 +2904,14 @@ option:hover {
    in reach for a card this much larger. */
 .vp-best-panel {
   margin-inline: 18px;
-  /* The whole gap above the card now — see .vp-best-section, which zeroes
-     the section's own top padding — set to the 40px measured between the
-     trust row and the stepped sale above it, so this section sits the same
-     distance from the section above it as the sections above it sit from
-     each other. */
-  margin-top: 40px;
+  /* The whole gap above the card — see .vp-best-section, which zeroes the
+     section's own top padding — and deliberately the same number as the
+     gap between the trust row and the stepped sale above it, so the page's
+     big panes sit at one rhythm rather than at two. That number went 40 ->
+     100 across two rounds of the client asking; both moved together, and
+     both live one comment apart (the other is .collection-area's
+     padding-block-start). */
+  margin-top: 100px;
   padding: 28px;
   border-radius: 50px;
   background: #FFFFFF;
