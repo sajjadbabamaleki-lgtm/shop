@@ -295,12 +295,12 @@ const BEST_ROW =
   CATEGORIES.slice(0, 6).map(bestCard).join('') +
   '\n            </div>';
 
-// The row runs out to the same 18px-from-the-edge margin as the trust row
-// and the header island (see .vp-trust-row-wrap) — the client asked for
-// this the first time the row went in and it stayed inside .th-container5
-// instead, which holds it to the container's width rather than the page's.
-// The title stays in the container; only the row itself moves out to its
-// own wrapper, same split .feature-area2 uses for the category/trust pair.
+// Back inside .th-container5 — the client's next request was a single big
+// white card under the row, which puts it back in step with the title
+// above it rather than running to the page's own edge the way the trust
+// row does. The card's own padding is what makes the six tiles "a little
+// smaller and tidier": nothing on the tiles themselves changes size, the
+// row just has less width to divide six ways.
 html = html.replace(
   /<section class="space overflow-hidden overflow-hidden">\s*<div class="container th-container5">\s*<div class="row justify-content-xl-between justify-content-center align-items-center">\s*<div class="col-xl-4">\s*<div class="title-area text-center text-xl-start">\s*<h2 class="sec-title sec-title2 style1">Best Seller Products<\/h2>[\s\S]*?<\/section>/,
   '<section class="space overflow-hidden overflow-hidden">\n' +
@@ -308,9 +308,9 @@ html = html.replace(
   '            <div class="title-area text-center text-xl-start">\n' +
   '                <h2 class="sec-title sec-title2 style1">پرفروش‌ترین‌ها</h2>\n' +
   '            </div>\n' +
-  '        </div>\n' +
-  '        <div class="vp-best-row-wrap">\n' +
-  '            ' + BEST_ROW + '\n' +
+  '            <div class="vp-best-panel">\n' +
+  '                ' + BEST_ROW + '\n' +
+  '            </div>\n' +
   '        </div>\n' +
   '    </section>'
 );
