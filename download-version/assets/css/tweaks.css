@@ -2992,6 +2992,23 @@ option:hover {
 /* --------------------------------------------------------------------------
    The daily deal — the client's own reference photo, mirrored for RTL.
    -------------------------------------------------------------------------- */
+/* Two numbers have to come out right here at once, and they were argued
+   about separately for long enough to be worth writing down together.
+
+   The section's page footprint is .space's own padding (120px each side)
+   plus the banner — not the banner alone, which "shorten this section" got
+   mistaken for once already. It started at 120+534+120 = 774, and 25% less
+   is 580.5.
+
+   The banner is 400.5 (see .vp-daily-deal-shot for where that comes from),
+   which is the height the client pointed at in their own screenshot. So the
+   padding is (580.5-400.5)/2 = 90 each side — both the asked-for total and
+   the asked-for banner, rather than one bought with the other. */
+.vp-daily-deal-section {
+  padding-top: 90px;
+  padding-bottom: 90px;
+}
+
 /* Glass, not the light-gold wash this started at — the page's own ink tint
    (0.034, the same value the hero pane, header island and ladder panel all
    carry) rather than a fourth colour. No backdrop-filter: this panel sits
@@ -3014,12 +3031,14 @@ option:hover {
   min-width: 0;
 }
 
+/* This column's text, ~15% up too — client's "make those right-side texts
+   bigger as well." */
 .vp-daily-deal-badge {
   display: block;
   margin-block-end: 10px;
   font-family: 'Vazirmatn', var(--body-font);
   font-weight: 800;
-  font-size: 13px;
+  font-size: 15px;
   letter-spacing: 0.02em;
   /* Text on a light ground takes the accent ramp's dark end — same pairing
      as .vp-best-all and the header search icon, not a fresh value. */
@@ -3030,14 +3049,14 @@ option:hover {
   margin: 0 0 10px;
   font-family: 'Cairo', var(--title-font);
   font-weight: 800;
-  font-size: 34px;
+  font-size: 39px;
   line-height: 1.3;
   color: var(--title-color);
 }
 
 .vp-daily-deal-sub {
   margin: 0 0 24px;
-  font-size: 15px;
+  font-size: 17px;
   line-height: 1.8;
   color: var(--body-color);
 }
@@ -3046,12 +3065,12 @@ option:hover {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  padding: 14px 26px;
+  padding: 16px 30px;
   border-radius: 48px;
   background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
   font-family: 'Vazirmatn', var(--body-font);
   font-weight: 700;
-  font-size: 15px;
+  font-size: 17px;
   /* Ink, not white — this ramp's own measured pairing (6.94:1–9.88:1),
      documented at the top of this file, same as every other button label
      on the page. */
@@ -3059,7 +3078,7 @@ option:hover {
   text-decoration: none;
 }
 
-.vp-daily-deal-cta i { font-size: 13px; }
+.vp-daily-deal-cta i { font-size: 15px; }
 
 .vp-daily-deal-cta:hover { color: #101111; }
 
@@ -3068,12 +3087,15 @@ option:hover {
    left edge without needing the internal order mirrored, which would have
    left it stranded in the middle of the banner instead. */
 /* 775, the 620 this started at plus the client's own 25%. */
+/* Padding 24 to 40 — client's own "40px from the card's edge" for the
+   photo, which the card's uniform padding already gives every edge
+   without a one-off margin just for the shot. */
 .vp-daily-deal-card {
   flex: 0 1 775px;
   display: flex;
   align-items: center;
   gap: 24px;
-  padding: 24px;
+  padding: 40px;
   border-radius: 32px;
   background: #FFFFFF;
   box-shadow:
@@ -3091,10 +3113,13 @@ option:hover {
   min-width: 0;
 }
 
+/* This column's text, ~15% up across the board — client's "make the texts
+   and the timer bigger" once the wider card and the shrunk-to-content info
+   column left room for it. */
 .vp-daily-deal-cat {
   display: block;
   margin-block-end: 4px;
-  font-size: 12.5px;
+  font-size: 14.4px;
   color: var(--body-color);
 }
 
@@ -3102,7 +3127,7 @@ option:hover {
   margin: 0 0 10px;
   font-family: 'Cairo', var(--title-font);
   font-weight: 700;
-  font-size: 17px;
+  font-size: 19.5px;
   line-height: 1.5;
   color: var(--title-color);
 }
@@ -3112,19 +3137,19 @@ option:hover {
   margin-block-end: 16px;
   font-family: 'Vazirmatn', var(--body-font);
   font-weight: 800;
-  font-size: 20px;
+  font-size: 23px;
   color: var(--title-color);
 }
 
 .vp-daily-deal-price span {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   color: rgba(16, 17, 17, 0.62);
 }
 
 .vp-daily-deal-stock {
   margin-block-end: 18px;
-  font-size: 12.5px;
+  font-size: 14.4px;
   font-weight: 600;
   color: var(--title-color);
 }
@@ -3176,9 +3201,9 @@ option:hover {
    94x65, which stretched to fill the row instead of sizing to its own
    content. */
 .vp-daily-deal-timer li {
-  flex: 0 0 52px;
-  width: 52px;
-  height: 52px;
+  flex: 0 0 58px;
+  width: 58px;
+  height: 58px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -3196,32 +3221,56 @@ option:hover {
 .vp-daily-deal-timer .count-number {
   font-family: 'Vazirmatn', var(--body-font);
   font-weight: 800;
-  font-size: 17px;
+  font-size: 19.5px;
   line-height: 1.3;
   color: var(--title-color);
   margin: 0;
 }
 
-/* The gap to the number above it, pixel-scanned at 14.75px, halved. */
+/* The gap to the number above it, still halved from its own unpressed
+   value — re-measured after the type grew, not left at the old font
+   size's number. */
 .vp-daily-deal-timer .count-name {
-  font-size: 10.5px;
+  font-size: 12px;
   color: var(--body-color);
   margin-top: -7.4px;
   display: block;
 }
 
-/* Grows into the width .vp-daily-deal-info stopped taking, capped so it
-   does not run away on very wide viewports. aspect-ratio keeps it square
-   as that width changes. */
 /* No background of its own — the photo is a real transparent cutout
    (checked: corner pixel alpha 0), so a filled box behind it drew a visible
    square the client didn't ask for. It sits directly on the card's own
    white now. */
+
+/* This box used to be `aspect-ratio: 1; max-width: 374px`, and that square
+   is what made the banner too tall — the two are the same argument.
+
+   The photo is 1400x990, so it draws at 1.414:1. Letterboxed into a 374
+   square (346 after the old 14px inset) it came out 346x244.7 and left
+   101px of empty box above and below it. That dead space, not the shoe, is
+   what the client was looking at when they asked why the height had grown.
+
+   So the box is sized to the photo instead of to itself. Height 240.5 is
+   the lever: 240.5 + the card's 40px padding twice + the banner's 40px
+   padding twice = 400.5, the banner in the client's screenshot. Width is
+   whatever the row has left (415 at 1440: the card's 695 of content, less
+   the info column's 256 and the 24 gap), and 415/240.5 = 1.73 is wider than
+   the photo's 1.414, so the height is what limits it and the photo draws
+   340x240.5, centred.
+
+   Measured against what it replaces: 340 wide against the 346 on screen
+   before this — the same photo, to within 2% — and against 212.5 in the
+   400.5-tall version the client rejected for having shrunk it. The height
+   came out of the empty box, which is the only place it could come from
+   without taking it back off the shoe again.
+
+   No inset on the img: the box's own edges are already the card's 40px
+   clearance, so padding here would be a second inset inside the first and
+   would come straight off the photo, since height is the binding limit. */
 .vp-daily-deal-shot {
   flex: 1 1 auto;
   min-width: 0;
-  max-width: 340px;
-  aspect-ratio: 1;
+  height: 240.5px;
 }
 
 .vp-daily-deal-shot img {
@@ -3229,7 +3278,6 @@ option:hover {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  padding: 14px;
   box-sizing: border-box;
 }
 

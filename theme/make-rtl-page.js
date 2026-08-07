@@ -695,9 +695,14 @@ const DAILY_DEAL =
   '                </div>\n' +
   '            </div>';
 
+// vp-daily-deal-section on the <section> itself: .space's own padding-top
+// and padding-bottom (120px each) are what actually set how much of the
+// page this section takes, distinct from the banner's own internal
+// proportions — see the CSS note before assuming "shorten this section"
+// means the photo again.
 html = html.replace(
   /<section class="space overflow-hidden overflow-hidden">\s*<div class="product-area3">[\s\S]*?<\/section>/,
-  '<section class="space overflow-hidden overflow-hidden">\n' +
+  '<section class="space overflow-hidden overflow-hidden vp-daily-deal-section">\n' +
   '        <div class="container th-container5">\n' +
   '            ' + DAILY_DEAL + '\n' +
   '        </div>\n' +
