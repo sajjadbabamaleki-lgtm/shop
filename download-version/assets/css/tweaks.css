@@ -3227,11 +3227,17 @@ option:hover {
    (checked: corner pixel alpha 0), so a filled box behind it drew a visible
    square the client didn't ask for. It sits directly on the card's own
    white now. */
-/* 374, the 340 this started at plus the client's own 10%. */
+/* The section's own height is set by this box — the card's tallest child,
+   with the card's 40px padding above and below it, inside the banner's own
+   40px padding above and below that: shot + 160 = section height. Client
+   asked for the section 25% shorter (534px measured to 400.5px), so the
+   shot is worked back from that: 400.5 - 160 = 240.5. The copy column
+   beside it measures 209px, well under that, so it is not what the section
+   height would hinge on if the shot went smaller still. */
 .vp-daily-deal-shot {
   flex: 1 1 auto;
   min-width: 0;
-  max-width: 374px;
+  max-width: 240.5px;
   aspect-ratio: 1;
 }
 
