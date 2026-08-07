@@ -3014,12 +3014,14 @@ option:hover {
   min-width: 0;
 }
 
+/* This column's text, ~15% up too — client's "make those right-side texts
+   bigger as well." */
 .vp-daily-deal-badge {
   display: block;
   margin-block-end: 10px;
   font-family: 'Vazirmatn', var(--body-font);
   font-weight: 800;
-  font-size: 13px;
+  font-size: 15px;
   letter-spacing: 0.02em;
   /* Text on a light ground takes the accent ramp's dark end — same pairing
      as .vp-best-all and the header search icon, not a fresh value. */
@@ -3030,14 +3032,14 @@ option:hover {
   margin: 0 0 10px;
   font-family: 'Cairo', var(--title-font);
   font-weight: 800;
-  font-size: 34px;
+  font-size: 39px;
   line-height: 1.3;
   color: var(--title-color);
 }
 
 .vp-daily-deal-sub {
   margin: 0 0 24px;
-  font-size: 15px;
+  font-size: 17px;
   line-height: 1.8;
   color: var(--body-color);
 }
@@ -3046,12 +3048,12 @@ option:hover {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  padding: 14px 26px;
+  padding: 16px 30px;
   border-radius: 48px;
   background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
   font-family: 'Vazirmatn', var(--body-font);
   font-weight: 700;
-  font-size: 15px;
+  font-size: 17px;
   /* Ink, not white — this ramp's own measured pairing (6.94:1–9.88:1),
      documented at the top of this file, same as every other button label
      on the page. */
@@ -3059,7 +3061,7 @@ option:hover {
   text-decoration: none;
 }
 
-.vp-daily-deal-cta i { font-size: 13px; }
+.vp-daily-deal-cta i { font-size: 15px; }
 
 .vp-daily-deal-cta:hover { color: #101111; }
 
@@ -3068,12 +3070,15 @@ option:hover {
    left edge without needing the internal order mirrored, which would have
    left it stranded in the middle of the banner instead. */
 /* 775, the 620 this started at plus the client's own 25%. */
+/* Padding 24 to 40 — client's own "40px from the card's edge" for the
+   photo, which the card's uniform padding already gives every edge
+   without a one-off margin just for the shot. */
 .vp-daily-deal-card {
   flex: 0 1 775px;
   display: flex;
   align-items: center;
   gap: 24px;
-  padding: 24px;
+  padding: 40px;
   border-radius: 32px;
   background: #FFFFFF;
   box-shadow:
@@ -3091,10 +3096,13 @@ option:hover {
   min-width: 0;
 }
 
+/* This column's text, ~15% up across the board — client's "make the texts
+   and the timer bigger" once the wider card and the shrunk-to-content info
+   column left room for it. */
 .vp-daily-deal-cat {
   display: block;
   margin-block-end: 4px;
-  font-size: 12.5px;
+  font-size: 14.4px;
   color: var(--body-color);
 }
 
@@ -3102,7 +3110,7 @@ option:hover {
   margin: 0 0 10px;
   font-family: 'Cairo', var(--title-font);
   font-weight: 700;
-  font-size: 17px;
+  font-size: 19.5px;
   line-height: 1.5;
   color: var(--title-color);
 }
@@ -3112,19 +3120,19 @@ option:hover {
   margin-block-end: 16px;
   font-family: 'Vazirmatn', var(--body-font);
   font-weight: 800;
-  font-size: 20px;
+  font-size: 23px;
   color: var(--title-color);
 }
 
 .vp-daily-deal-price span {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   color: rgba(16, 17, 17, 0.62);
 }
 
 .vp-daily-deal-stock {
   margin-block-end: 18px;
-  font-size: 12.5px;
+  font-size: 14.4px;
   font-weight: 600;
   color: var(--title-color);
 }
@@ -3176,9 +3184,9 @@ option:hover {
    94x65, which stretched to fill the row instead of sizing to its own
    content. */
 .vp-daily-deal-timer li {
-  flex: 0 0 52px;
-  width: 52px;
-  height: 52px;
+  flex: 0 0 58px;
+  width: 58px;
+  height: 58px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -3196,15 +3204,17 @@ option:hover {
 .vp-daily-deal-timer .count-number {
   font-family: 'Vazirmatn', var(--body-font);
   font-weight: 800;
-  font-size: 17px;
+  font-size: 19.5px;
   line-height: 1.3;
   color: var(--title-color);
   margin: 0;
 }
 
-/* The gap to the number above it, pixel-scanned at 14.75px, halved. */
+/* The gap to the number above it, still halved from its own unpressed
+   value — re-measured after the type grew, not left at the old font
+   size's number. */
 .vp-daily-deal-timer .count-name {
-  font-size: 10.5px;
+  font-size: 12px;
   color: var(--body-color);
   margin-top: -7.4px;
   display: block;
@@ -3217,10 +3227,11 @@ option:hover {
    (checked: corner pixel alpha 0), so a filled box behind it drew a visible
    square the client didn't ask for. It sits directly on the card's own
    white now. */
+/* 374, the 340 this started at plus the client's own 10%. */
 .vp-daily-deal-shot {
   flex: 1 1 auto;
   min-width: 0;
-  max-width: 340px;
+  max-width: 374px;
   aspect-ratio: 1;
 }
 
