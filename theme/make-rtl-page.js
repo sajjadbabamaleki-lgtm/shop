@@ -634,6 +634,76 @@ html = html.replace(
   '    </section>'
 );
 
+// The "Today's Best Deals" template section — a generic product slider over
+// an unstyled countdown scaffold, never touched — becomes a single-product
+// daily-deal banner instead, built from the client's own reference photo and
+// mirrored for RTL: the photo and the countdown move to the banner's own
+// left, the marketing copy to the right, the opposite of the reference's
+// left-to-right original. Within the white card the image is the DOM's last
+// child rather than its first, so RTL's own right-to-left flow puts it at
+// the card's left edge — and the card's left edge is the banner's left edge
+// — instead of mirroring the reference's internal image/info order too and
+// leaving the photo stranded in the middle.
+//
+// The featured product is New Balance 530, third in LADDER_DEALS above —
+// the same real photo, name and price already used there and in the deal
+// ladder, not a new figure. The stock line reuses that entry's own "فقط ۱
+// عدد باقی مانده" too, and the bar reads it literally: near empty, not the
+// reference's near-full one, since a real "1 left" is not a healthy stock
+// level to draw as comfortable.
+//
+// The countdown itself is the template's own working widget
+// (.timer-counter.counter-list, wired to $(".counter-list").countdown() in
+// main.js) restyled into four boxes rather than a fourth timer built from
+// scratch — data-offer-date is the one input it reads.
+const [DAILY_SHOT, DAILY_NAME, DAILY_PRICE, DAILY_STOCK] = LADDER_DEALS[2];
+
+const DAILY_DEAL =
+  '<div class="vp-daily-deal">\n' +
+  '                <div class="vp-daily-deal-copy">\n' +
+  '                    <span class="vp-daily-deal-badge">پیشنهاد امروز</span>\n' +
+  '                    <h2 class="vp-daily-deal-title">قبل از تمام شدن بخرش!</h2>\n' +
+  '                    <p class="vp-daily-deal-sub">عجله کن؛ موجودی محدوده.</p>\n' +
+  '                    <a href="shop-details.html" class="vp-daily-deal-cta">خرید کنید' +
+  '<i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>\n' +
+  '                </div>\n' +
+  '                <div class="vp-daily-deal-card">\n' +
+  '                    <div class="vp-daily-deal-info">\n' +
+  '                        <span class="vp-daily-deal-cat">ونس و کتونی</span>\n' +
+  `                        <h3 class="vp-daily-deal-name">${DAILY_NAME}</h3>\n` +
+  `                        <strong class="vp-daily-deal-price">${fa(DAILY_PRICE)} <span>تومان</span></strong>\n` +
+  '                        <div class="vp-daily-deal-stock">\n' +
+  `                            <span>${DAILY_STOCK}</span>\n` +
+  '                            <span class="vp-daily-deal-bar"><span class="vp-daily-deal-bar-fill"></span></span>\n' +
+  '                        </div>\n' +
+  // .counter-list is what $(".counter-list").countdown() in main.js looks
+  // for — the only class this markup needs from the template. Neither
+  // .timer-counter nor .style7 comes along: both carry their own selectors
+  // (.counter-list.style7 li and the giant accent-colour list further up
+  // this file) more specific than a single custom class can out-cascade,
+  // and .style7's own box is already gold-filled with white type — this
+  // component's own boxes were fighting a design that happened to look
+  // like a finished one, not building from a blank slate.
+  '                        <ul class="counter-list vp-daily-deal-timer" data-offer-date="08/08/2026">\n' +
+  '                            <li><div class="day count-number">00</div><span class="count-name">روز</span></li>\n' +
+  '                            <li><div class="hour count-number">00</div><span class="count-name">ساعت</span></li>\n' +
+  '                            <li><div class="minute count-number">00</div><span class="count-name">دقیقه</span></li>\n' +
+  '                            <li><div class="seconds count-number">00</div><span class="count-name">ثانیه</span></li>\n' +
+  '                        </ul>\n' +
+  '                    </div>\n' +
+  `                    <div class="vp-daily-deal-shot"><img src="assets/img/${DAILY_SHOT}" alt="" loading="lazy"></div>\n` +
+  '                </div>\n' +
+  '            </div>';
+
+html = html.replace(
+  /<section class="space overflow-hidden overflow-hidden">\s*<div class="product-area3">[\s\S]*?<\/section>/,
+  '<section class="space overflow-hidden overflow-hidden">\n' +
+  '        <div class="container th-container5">\n' +
+  '            ' + DAILY_DEAL + '\n' +
+  '        </div>\n' +
+  '    </section>'
+);
+
 const RING =
   '<svg class="vp-burst" viewBox="0 0 150 150" aria-hidden="true">' +
   '<defs><linearGradient id="vp-burst-gold" x1="0" y1="0" x2="0" y2="1">' +

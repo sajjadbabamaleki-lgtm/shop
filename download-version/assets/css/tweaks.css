@@ -2989,6 +2989,238 @@ option:hover {
   color: #101111;
 }
 
+/* --------------------------------------------------------------------------
+   The daily deal — the client's own reference photo, mirrored for RTL.
+
+   A warm wash rather than the neutral ink-tint glass the rest of the page's
+   panels use: this one banner is meant to read as a promotion, not as
+   structure, and the tint is the same gold ramp everything else on the page
+   already carries, just thinned to a background instead of a fill — one
+   gold, not a new hue borrowed from the reference's peach.
+   -------------------------------------------------------------------------- */
+.vp-daily-deal {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  padding: 40px;
+  border-radius: 40px;
+  background: linear-gradient(135deg, rgba(227, 181, 74, 0.16) 0%, rgba(192, 151, 47, 0.05) 100%);
+  box-shadow: inset 0 0 0 1px rgba(164, 127, 37, 0.14);
+}
+
+.vp-daily-deal-copy {
+  flex: 1;
+  min-width: 0;
+}
+
+.vp-daily-deal-badge {
+  display: block;
+  margin-block-end: 10px;
+  font-family: 'Vazirmatn', var(--body-font);
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  /* Text on a light ground takes the accent ramp's dark end — same pairing
+     as .vp-best-all and the header search icon, not a fresh value. */
+  color: #8F7022;
+}
+
+.vp-daily-deal-title {
+  margin: 0 0 10px;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 800;
+  font-size: 34px;
+  line-height: 1.3;
+  color: var(--title-color);
+}
+
+.vp-daily-deal-sub {
+  margin: 0 0 24px;
+  font-size: 15px;
+  line-height: 1.8;
+  color: var(--body-color);
+}
+
+.vp-daily-deal-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 26px;
+  border-radius: 48px;
+  background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+  font-family: 'Vazirmatn', var(--body-font);
+  font-weight: 700;
+  font-size: 15px;
+  /* Ink, not white — this ramp's own measured pairing (6.94:1–9.88:1),
+     documented at the top of this file, same as every other button label
+     on the page. */
+  color: #101111;
+  text-decoration: none;
+}
+
+.vp-daily-deal-cta i { font-size: 13px; }
+
+.vp-daily-deal-cta:hover { color: #101111; }
+
+/* The white card: photo and info, photo last in source so RTL's own flow —
+   first child at the row's right, last at its left — puts it at the card's
+   left edge without needing the internal order mirrored, which would have
+   left it stranded in the middle of the banner instead. */
+.vp-daily-deal-card {
+  flex: 0 1 620px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 24px;
+  border-radius: 32px;
+  background: #FFFFFF;
+  box-shadow:
+    inset 0 0 0 1px rgba(16, 17, 17, 0.05),
+    0 24px 48px -28px rgba(16, 17, 17, 0.22);
+}
+
+.vp-daily-deal-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.vp-daily-deal-cat {
+  display: block;
+  margin-block-end: 4px;
+  font-size: 12.5px;
+  color: var(--body-color);
+}
+
+.vp-daily-deal-name {
+  margin: 0 0 10px;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 700;
+  font-size: 17px;
+  line-height: 1.5;
+  color: var(--title-color);
+}
+
+.vp-daily-deal-price {
+  display: block;
+  margin-block-end: 16px;
+  font-family: 'Vazirmatn', var(--body-font);
+  font-weight: 800;
+  font-size: 20px;
+  color: var(--title-color);
+}
+
+.vp-daily-deal-price span {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(16, 17, 17, 0.62);
+}
+
+.vp-daily-deal-stock {
+  margin-block-end: 18px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--title-color);
+}
+
+.vp-daily-deal-stock span:first-child {
+  display: block;
+  margin-block-end: 6px;
+}
+
+.vp-daily-deal-bar {
+  display: block;
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  background: rgba(16, 17, 17, 0.07);
+  overflow: hidden;
+}
+
+/* 8%, not the reference's near-full bar: the stock line above it says one
+   item left, and a bar drawn comfortably full would contradict its own
+   caption. */
+.vp-daily-deal-bar-fill {
+  display: block;
+  height: 100%;
+  width: 8%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #C0972F 0%, #E3B54A 100%);
+}
+
+/* Overrides the template's own .timer-counter: a divided strip of plain
+   numbers becomes four boxes, one per unit, each a small version of the
+   white-card-on-light-ground pairing the rest of this page's chips use. The
+   countdown logic itself is untouched — main.js still finds .day/.hour/
+   .minute/.seconds inside .counter-list and fills them in every second. */
+.vp-daily-deal-timer {
+  display: flex;
+  gap: 8px;
+  padding: 0;
+  margin: 0;
+  /* Dropping .timer-counter (see the markup note in make-rtl-page.js) also
+     dropped the reset that class carried, so the <ul>'s own bullets need
+     doing here instead. */
+  list-style: none;
+  background: none;
+  border-radius: 0;
+}
+
+.vp-daily-deal-timer li {
+  flex: 1;
+  padding: 8px 4px;
+  border-radius: 12px;
+  background: rgba(16, 17, 17, 0.045);
+  text-align: center;
+}
+
+.vp-daily-deal-timer li:not(:last-child):before {
+  content: none;
+}
+
+.vp-daily-deal-timer .count-number {
+  font-family: 'Vazirmatn', var(--body-font);
+  font-weight: 800;
+  font-size: 17px;
+  line-height: 1.3;
+  color: var(--title-color);
+  margin: 0;
+}
+
+.vp-daily-deal-timer .count-name {
+  font-size: 10.5px;
+  color: var(--body-color);
+}
+
+.vp-daily-deal-shot {
+  flex: none;
+  width: 148px;
+  height: 148px;
+  border-radius: 20px;
+  background: #F6F4F0;
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.05);
+  overflow: hidden;
+}
+
+.vp-daily-deal-shot img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 14px;
+  box-sizing: border-box;
+}
+
+@media (max-width: 1199px) {
+  .vp-daily-deal { flex-direction: column; align-items: stretch; gap: 28px; padding: 28px; }
+  .vp-daily-deal-card { flex-basis: auto; }
+}
+
+@media (max-width: 575px) {
+  .vp-daily-deal-card { flex-direction: column; }
+  .vp-daily-deal-shot { width: 100%; height: 200px; }
+  .vp-daily-deal-title { font-size: 26px; }
+}
+
 /* --- the way out --------------------------------------------------------- */
 
 /* Exactly one deal card wide, so it sits directly over the card beneath it
