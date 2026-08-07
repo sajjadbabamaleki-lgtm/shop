@@ -3349,13 +3349,14 @@ option:hover {
 /* Landscape: as wide as the viewport allows, and no taller than it has to be.
    The sale panel's own 50px corner, so the dialog reads as that panel opened
    up rather than as a new surface. */
+/* 40, the 50 this started at less the client's 20%. */
 .vp-how-panel {
   position: relative;
   display: flex;
   flex-direction: column;
   width: min(1240px, 100%);
   max-height: min(90vh, 860px);
-  border-radius: 50px;
+  border-radius: 40px;
   background: #FBFAF8;
   box-shadow: 0 40px 90px -40px rgba(16, 17, 17, 0.55);
   overflow: hidden;
@@ -3577,10 +3578,13 @@ option:hover {
   /* Light grey until its step is the live one, not the ink this started as:
      five near-black chips in a row were the heaviest thing in the dialog and
      read as the subject rather than as the thing waiting its turn. The type
-     stays ink at both states, so only the ground moves. */
+     went ink-at-both-states before the motion existed; now the live step's
+     own number goes white (client's request) and a step that already had
+     its turn keeps a gold number after the ground fades back to grey — see
+     .is-lit and .is-done below. */
   background: rgba(16, 17, 17, 0.07);
   color: var(--title-color);
-  transition: background 0.35s ease;
+  transition: background 0.35s ease, color 0.35s ease;
 }
 
 .vp-how-off b {
@@ -3629,12 +3633,17 @@ option:hover {
   transition: background 0.35s ease;
 }
 
-/* One step is lit, and stays lit — the board is a diagram of the offer, not a
-   loop. The third is the one shown gold, and the gold is the hero burst's
-   own: #C0972F to #E3B54A, the same pair the discount mark on the hero shot
-   takes. Everything else stays grey. */
+/* The steps light in turn now (see the modal's own script) rather than one
+   staying lit — a step is the live one for 3s, then hands off to the next.
+   The gold is the hero burst's own: #C0972F to #E3B54A, the same pair the
+   discount mark on the hero shot takes — this page's one gold, not a
+   second one. White on it here, not the ink the rest of the page's type
+   takes on this ramp: client's own request, and the number is a large bold
+   mark rather than a sentence, closer to the icon case this file's own
+   contrast table already carries an exception for than to a button label. */
 .vp-how-step.is-lit .vp-how-off {
   background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+  color: #FFFFFF;
 }
 
 .vp-how-step.is-lit .vp-how-podium {
@@ -3643,6 +3652,14 @@ option:hover {
 
 .vp-how-step.is-lit .vp-how-podium:before {
   background: linear-gradient(180deg, #E3B54A 0%, #C0972F 100%);
+}
+
+/* A step that already had its turn: the ground fades back to the default
+   grey with the rest, but the number keeps the gold the light left behind
+   — text on light grounds takes the dark end of this file's own accent
+   ramp (4.66:1 on white, AA), not a fresh colour. */
+.vp-how-step.is-done .vp-how-off {
+  color: #8F7022;
 }
 
 /* --- the conditions, one strip ------------------------------------------- */
@@ -4095,13 +4112,14 @@ ul.vp-how-list.is-ticked li:before {
 /* Landscape: as wide as the viewport allows, and no taller than it has to be.
    The sale panel's own 50px corner, so the dialog reads as that panel opened
    up rather than as a new surface. */
+/* 40, the 50 this started at less the client's 20%. */
 .vp-how-panel {
   position: relative;
   display: flex;
   flex-direction: column;
   width: min(1240px, 100%);
   max-height: min(90vh, 860px);
-  border-radius: 50px;
+  border-radius: 40px;
   background: #FBFAF8;
   box-shadow: 0 40px 90px -40px rgba(16, 17, 17, 0.55);
   overflow: hidden;
@@ -4323,10 +4341,13 @@ ul.vp-how-list.is-ticked li:before {
   /* Light grey until its step is the live one, not the ink this started as:
      five near-black chips in a row were the heaviest thing in the dialog and
      read as the subject rather than as the thing waiting its turn. The type
-     stays ink at both states, so only the ground moves. */
+     went ink-at-both-states before the motion existed; now the live step's
+     own number goes white (client's request) and a step that already had
+     its turn keeps a gold number after the ground fades back to grey — see
+     .is-lit and .is-done below. */
   background: rgba(16, 17, 17, 0.07);
   color: var(--title-color);
-  transition: background 0.35s ease;
+  transition: background 0.35s ease, color 0.35s ease;
 }
 
 .vp-how-off b {
@@ -4375,12 +4396,17 @@ ul.vp-how-list.is-ticked li:before {
   transition: background 0.35s ease;
 }
 
-/* One step is lit, and stays lit — the board is a diagram of the offer, not a
-   loop. The third is the one shown gold, and the gold is the hero burst's
-   own: #C0972F to #E3B54A, the same pair the discount mark on the hero shot
-   takes. Everything else stays grey. */
+/* The steps light in turn now (see the modal's own script) rather than one
+   staying lit — a step is the live one for 3s, then hands off to the next.
+   The gold is the hero burst's own: #C0972F to #E3B54A, the same pair the
+   discount mark on the hero shot takes — this page's one gold, not a
+   second one. White on it here, not the ink the rest of the page's type
+   takes on this ramp: client's own request, and the number is a large bold
+   mark rather than a sentence, closer to the icon case this file's own
+   contrast table already carries an exception for than to a button label. */
 .vp-how-step.is-lit .vp-how-off {
   background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+  color: #FFFFFF;
 }
 
 .vp-how-step.is-lit .vp-how-podium {
@@ -4389,6 +4415,14 @@ ul.vp-how-list.is-ticked li:before {
 
 .vp-how-step.is-lit .vp-how-podium:before {
   background: linear-gradient(180deg, #E3B54A 0%, #C0972F 100%);
+}
+
+/* A step that already had its turn: the ground fades back to the default
+   grey with the rest, but the number keeps the gold the light left behind
+   — text on light grounds takes the dark end of this file's own accent
+   ramp (4.66:1 on white, AA), not a fresh colour. */
+.vp-how-step.is-done .vp-how-off {
+  color: #8F7022;
 }
 
 /* --- the conditions, one strip ------------------------------------------- */
@@ -4567,7 +4601,7 @@ ul.vp-how-list.is-ticked li:before {
 
 @media (max-width: 767px) {
   .vp-how-modal { padding: 10px; }
-  .vp-how-panel { border-radius: 28px; max-height: 94vh; }
+  .vp-how-panel { border-radius: 22.4px; max-height: 94vh; }
   .vp-how-scroll { padding: 22px 18px 26px; }
   .vp-how-title { font-size: 22px; }
   .vp-how-cols { grid-template-columns: 1fr; gap: 18px; }

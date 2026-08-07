@@ -831,11 +831,12 @@ const HOW_SHOE = fs
 // the string lands on the right — which is the first thing an RTL reader's eye
 // meets. The ladder in the section is written the same way, for the same
 // reason.
-const HOW_STEPS = LADDER_STEPS.map(([name, cut, when], i) =>
-  // The third step is the one shown lit. The board is a diagram of how the
-  // offer runs, so it shows a step part-way along rather than the one the
-  // live ladder happens to be on today.
-  `\n                        <li class="vp-how-step${i === 2 ? ' is-lit' : ''}">` +
+const HOW_STEPS = LADDER_STEPS.map(([name, cut, when]) =>
+  // No step starts lit in the markup any more — the modal's own script
+  // lights the first step when it opens and carries the light along from
+  // there (see the script below), so a static is-lit here would just be
+  // the state the script immediately overwrites.
+  `\n                        <li class="vp-how-step">` +
   `\n                            <span class="vp-how-step-no">${name}</span>` +
   '\n                            <div class="vp-how-card">' +
   `\n                                <span class="vp-how-shot">${HOW_SHOE}</span>` +
@@ -1055,6 +1056,31 @@ html = html.replace('</body>',
   '            var opener = ".vp-ladder-how";\n' +
   '            function modal() { return document.getElementById("vp-how"); }\n' +
   '            var lastFocus = null;\n' +
+  '            var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;\n' +
+  '            var lightTimer = null;\n' +
+  '            // 3s a step, starting from the first — client asked for the board to\n' +
+  '            // walk itself through instead of opening on one fixed step. Runs once\n' +
+  '            // through and stops on the last step rather than looping: the board is\n' +
+  '            // a diagram of how the offer runs, not a marquee. Skipped entirely\n' +
+  '            // under reduced motion, where the CSS fallback (see tweaks.css) lights\n' +
+  '            // the live step as a still instead.\n' +
+  '            function stepEls(m) { return m.querySelectorAll(".vp-how-step"); }\n' +
+  '            function stopLights() {\n' +
+  '                if (lightTimer) { clearInterval(lightTimer); lightTimer = null; }\n' +
+  '            }\n' +
+  '            function startLights(m) {\n' +
+  '                var els = stepEls(m);\n' +
+  '                if (!els.length) return;\n' +
+  '                var i = 0;\n' +
+  '                els[i].classList.add("is-lit");\n' +
+  '                lightTimer = setInterval(function () {\n' +
+  '                    els[i].classList.remove("is-lit");\n' +
+  '                    els[i].classList.add("is-done");\n' +
+  '                    i += 1;\n' +
+  '                    if (i >= els.length) { stopLights(); return; }\n' +
+  '                    els[i].classList.add("is-lit");\n' +
+  '                }, 3000);\n' +
+  '            }\n' +
   '            function open(e) {\n' +
   '                var m = modal();\n' +
   '                if (!m) return;\n' +
@@ -1064,6 +1090,11 @@ html = html.replace('</body>',
   '                document.documentElement.style.overflow = "hidden";\n' +
   '                var close = m.querySelector(".vp-how-close");\n' +
   '                if (close) close.focus();\n' +
+  '                if (!reduceMotion) {\n' +
+  '                    var els = stepEls(m);\n' +
+  '                    for (var j = 0; j < els.length; j++) els[j].classList.remove("is-lit", "is-done");\n' +
+  '                    startLights(m);\n' +
+  '                }\n' +
   '            }\n' +
   '            function close() {\n' +
   '                var m = modal();\n' +
@@ -1071,6 +1102,7 @@ html = html.replace('</body>',
   '                m.hidden = true;\n' +
   '                document.documentElement.style.overflow = "";\n' +
   '                if (lastFocus && lastFocus.focus) lastFocus.focus();\n' +
+  '                stopLights();\n' +
   '            }\n' +
   '            document.addEventListener("click", function (e) {\n' +
   '                if (e.target.closest && e.target.closest(opener)) { open(e); return; }\n' +
