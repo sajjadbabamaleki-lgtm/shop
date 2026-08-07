@@ -2822,26 +2822,28 @@ option:hover {
      have an edge at all. */
   box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.08);
   padding-left: 54px;
-  /* A rounded rectangle, not a pill: the field is 48 tall and was carrying 24,
-     which is exactly half and so leaves no straight edge at all. 14 is the
-     same family as the app icon's 12 on 52 and the basket's 12 on 48, so the
-     three objects in this row read as one set. */
-  border-radius: 14px;
+  /* A rounded rectangle, not a pill: the field is 48 tall, and 18 is the same
+     ratio (0.375) the cart square next to it now rounds at, so the two keep
+     reading as one set after both got rounder. */
+  border-radius: 18px;
 }
 
 .th-header .menu-area .box-search .th-btn {
   position: absolute;
-  left: 5px;
+  /* 7px on every side it has one: matches the 7px top and bottom the 34
+     square already gets from centering in the 48-tall field (7 = (48-34)/2),
+     so the gap reads the same on all three edges instead of tighter on the
+     left than top and bottom. */
+  left: 7px;
   top: 50%;
   transform: translateY(-50%);
   width: 34px;
   height: 34px;
   min-width: 0;
   padding: 0;
-  /* Square with a corner rather than a disc, in proportion to the field it
-     sits in: 10 on 38 was the ratio; 9 on 34 holds it after the client's
-     "a little smaller". */
-  border-radius: 9px;
+  /* Same 0.375 ratio as the field around it, on the smaller box: 34 * 0.375
+     rounds to 13. */
+  border-radius: 13px;
   /* .th-btn is in the site-wide list that swapped button labels to ink
      (measured at the top of this file, for the lighter button ramp) — but
      this button carries a shape, not a word, and the client asked for it
@@ -2852,11 +2854,11 @@ option:hover {
   justify-content: center;
 }
 
-/* The lens icon, sized to the shrunk disc — see the SVG note in
-   make-rtl-page.js for why it is two shapes rather than a font glyph. */
+/* The lens icon, sized to the disc — a little larger than the first pass,
+   at the client's word. */
 .th-header .menu-area .box-search .th-btn .vp-search-icon {
-  width: 16px;
-  height: 16px;
+  width: 19px;
+  height: 19px;
 }
 
 /* The basket, white to match the search field beside it, with the bag and
@@ -3566,26 +3568,28 @@ ul.vp-how-list.is-ticked li:before {
      have an edge at all. */
   box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.08);
   padding-left: 54px;
-  /* A rounded rectangle, not a pill: the field is 48 tall and was carrying 24,
-     which is exactly half and so leaves no straight edge at all. 14 is the
-     same family as the app icon's 12 on 52 and the basket's 12 on 48, so the
-     three objects in this row read as one set. */
-  border-radius: 14px;
+  /* A rounded rectangle, not a pill: the field is 48 tall, and 18 is the same
+     ratio (0.375) the cart square next to it now rounds at, so the two keep
+     reading as one set after both got rounder. */
+  border-radius: 18px;
 }
 
 .th-header .menu-area .box-search .th-btn {
   position: absolute;
-  left: 5px;
+  /* 7px on every side it has one: matches the 7px top and bottom the 34
+     square already gets from centering in the 48-tall field (7 = (48-34)/2),
+     so the gap reads the same on all three edges instead of tighter on the
+     left than top and bottom. */
+  left: 7px;
   top: 50%;
   transform: translateY(-50%);
   width: 34px;
   height: 34px;
   min-width: 0;
   padding: 0;
-  /* Square with a corner rather than a disc, in proportion to the field it
-     sits in: 10 on 38 was the ratio; 9 on 34 holds it after the client's
-     "a little smaller". */
-  border-radius: 9px;
+  /* Same 0.375 ratio as the field around it, on the smaller box: 34 * 0.375
+     rounds to 13. */
+  border-radius: 13px;
   /* .th-btn is in the site-wide list that swapped button labels to ink
      (measured at the top of this file, for the lighter button ramp) — but
      this button carries a shape, not a word, and the client asked for it
@@ -3596,11 +3600,11 @@ ul.vp-how-list.is-ticked li:before {
   justify-content: center;
 }
 
-/* The lens icon, sized to the shrunk disc — see the SVG note in
-   make-rtl-page.js for why it is two shapes rather than a font glyph. */
+/* The lens icon, sized to the disc — a little larger than the first pass,
+   at the client's word. */
 .th-header .menu-area .box-search .th-btn .vp-search-icon {
-  width: 16px;
-  height: 16px;
+  width: 19px;
+  height: 19px;
 }
 
 /* The basket, white to match the search field beside it, with the bag and
