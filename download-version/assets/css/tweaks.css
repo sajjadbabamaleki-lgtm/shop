@@ -2650,18 +2650,29 @@ option:hover {
 
    The same object as the deal cards above — square shot, rounded corners, a
    glass strip carrying the name — sized for six across instead of five,
-   with a plain glass arrow at the foot instead of the deal's solid gold
-   bag: every card here browses a category (see CATEGORIES in
-   make-rtl-page.js) rather than selling a single product, so the control is
-   a browse rather than the ladder's urgent buy.
+   with a plain glass arrow beside it instead of the deal's solid gold bag:
+   every card here browses a category (see CATEGORIES in make-rtl-page.js)
+   rather than selling a single product, so the control is a browse rather
+   than the ladder's urgent buy.
+
+   The strip sits under the photograph, not lapped over its foot — client
+   correction, the deal card's own overlay was the wrong half of that object
+   to copy here. It is a second block inside the card rather than an
+   absolutely-positioned layer, and it drops the blur that came with being
+   an overlay: there is nothing left to blur once it is off the photo and
+   onto the page's own near-white ground, so it is a flat tint instead, same
+   move .vp-ladder-notes span already made for the same reason.
 
    Gutter is the row's own default (24px), not a custom value: measured on
    both the trust row and the deal row beside this one, so "the same gap as
    those five items" is the same number already sitting in this file rather
-   than a fresh guess.
-   -------------------------------------------------------------------------- */
+   than a fresh guess. The row also runs out to their shared 18px edge
+   margin now — see .vp-best-row-wrap below — which it did not the first
+   time this went in, still held to .th-container5's width instead. */
 .vp-best {
-  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .vp-best-shot {
@@ -2701,29 +2712,23 @@ option:hover {
   transform: scale(1.05);
 }
 
-/* 40 tall rather than the deal strip's 44 — six across runs narrower than
-   five, and the strip and the button beside it stay a matched pair at any
-   width as long as they change together. Inset-end is the button's 40 plus
-   its 10px gap plus the shared 12px base, same arithmetic as the deal strip
-   beside it. */
-.vp-best-label {
-  position: absolute;
-  inset-inline-start: 12px;
-  inset-inline-end: 62px;
-  inset-block-end: 12px;
-  z-index: 2;
+/* The strip and the browse circle, side by side under the shot. */
+.vp-best-info {
   display: flex;
   align-items: center;
   gap: 10px;
+}
+
+.vp-best-label {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
   height: 40px;
   padding-inline: 14px;
   border-radius: 20px;
   background: rgba(16, 17, 17, 0.034);
-  -webkit-backdrop-filter: blur(12px) saturate(1.2);
-  backdrop-filter: blur(12px) saturate(1.2);
-  box-shadow:
-    inset 0 0 0 1px rgba(16, 17, 17, 0.05),
-    0 4px 14px -8px rgba(16, 17, 17, 0.35);
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.05);
 }
 
 .vp-best-lines {
@@ -2756,28 +2761,21 @@ option:hover {
   color: #101111;
 }
 
-/* The browse arrow, glass rather than solid: same recipe as the strip
-   beside it — ink tint, blur, ink ring — so the two read as one material
-   instead of a control borrowed from the deal cards next door. Ink icon on
-   it for the same reason the strip's own text is ink: this tint reads
-   close to white, where ink is what separates. An <a>, not a <button> —
-   every card here browses a category, nothing is being added to a cart. */
+/* The browse arrow, glass rather than solid: same tint and ring as the
+   strip beside it, so the two read as one material instead of a control
+   borrowed from the deal cards next door. Ink icon on it for the same
+   reason the strip's own text is ink: this tint reads close to white,
+   where ink is what separates. An <a>, not a <button> — every card here
+   browses a category, nothing is being added to a cart. */
 .vp-best-browse {
-  position: absolute;
-  z-index: 3;
-  inset-block-end: 12px;
-  inset-inline-end: 12px;
+  flex: 0 0 auto;
   width: 40px;
   height: 40px;
   padding: 0;
   border: 0;
   border-radius: 50%;
   background: rgba(16, 17, 17, 0.034);
-  -webkit-backdrop-filter: blur(12px) saturate(1.2);
-  backdrop-filter: blur(12px) saturate(1.2);
-  box-shadow:
-    inset 0 0 0 1px rgba(16, 17, 17, 0.05),
-    0 4px 14px -8px rgba(16, 17, 17, 0.35);
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.05);
   color: #101111;
   font-size: 15px;
   line-height: 1;
@@ -2793,14 +2791,19 @@ option:hover {
 
 .vp-best-browse:hover {
   transform: scale(1.06);
-  box-shadow:
-    inset 0 0 0 1px rgba(16, 17, 17, 0.05),
-    0 6px 16px -8px rgba(16, 17, 17, 0.35);
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.05);
 }
 
 .vp-best-browse:focus-visible {
   outline: 2px solid var(--title-color);
   outline-offset: 2px;
+}
+
+/* Same reasoning as .vp-trust-row-wrap right above this section: run to the
+   header island's own 18px edge margin instead of .th-container5's width. */
+.vp-best-row-wrap {
+  margin-inline: 18px;
+  margin-top: 24px;
 }
 
 /* --- the way out --------------------------------------------------------- */

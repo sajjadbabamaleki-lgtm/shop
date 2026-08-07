@@ -250,22 +250,29 @@ html = html.replace(
 // pricing a single product, since a category photograph is not a SKU and
 // forcing a price onto it would be the invented-content problem this was
 // asked to avoid.
+// The glass strip sits under the photograph rather than lapped over its
+// foot — client correction — so it is a second block inside the card, not
+// an absolutely-positioned overlay: nothing left to blur once it is off
+// the photo and onto the page's own ground, so it drops the backdrop-filter
+// too (see .vp-best-label below, same reasoning as .vp-ladder-notes span).
 const bestCard = ([file, name]) =>
   '\n                <div class="col">' +
   '\n                    <div class="vp-best">' +
   '\n                        <a class="vp-best-shot" href="shop.html">' +
   `\n                            <img src="assets/img/category/${file}.jpg" alt="" loading="lazy">` +
   '\n                        </a>' +
-  '\n                        <div class="vp-best-label">' +
-  '\n                            <span class="vp-best-lines">' +
-  `\n                                <span class="vp-best-name">${name}</span>` +
-  '\n                                <span class="vp-best-cta"><strong>مشاهده دسته</strong></span>' +
-  '\n                            </span>' +
-  '\n                        </div>' +
+  '\n                        <div class="vp-best-info">' +
+  '\n                            <div class="vp-best-label">' +
+  '\n                                <span class="vp-best-lines">' +
+  `\n                                    <span class="vp-best-name">${name}</span>` +
+  '\n                                    <span class="vp-best-cta"><strong>مشاهده دسته</strong></span>' +
+  '\n                                </span>' +
+  '\n                            </div>' +
   // fa-arrow-right, not -left: the hero slider already fixes what "forward"
   // looks like on this page (data-slider-next carries fa-arrow-right), so
   // browsing into a category takes the same glyph rather than a second one.
-  `\n                        <a class="vp-best-browse" href="shop.html" aria-label="مشاهده دسته ${name}"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>` +
+  `\n                            <a class="vp-best-browse" href="shop.html" aria-label="مشاهده دسته ${name}"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>` +
+  '\n                        </div>' +
   '\n                    </div>' +
   '\n                </div>';
 
@@ -278,6 +285,12 @@ const BEST_ROW =
   CATEGORIES.slice(0, 6).map(bestCard).join('') +
   '\n            </div>';
 
+// The row runs out to the same 18px-from-the-edge margin as the trust row
+// and the header island (see .vp-trust-row-wrap) — the client asked for
+// this the first time the row went in and it stayed inside .th-container5
+// instead, which holds it to the container's width rather than the page's.
+// The title stays in the container; only the row itself moves out to its
+// own wrapper, same split .feature-area2 uses for the category/trust pair.
 html = html.replace(
   /<section class="space overflow-hidden overflow-hidden">\s*<div class="container th-container5">\s*<div class="row justify-content-xl-between justify-content-center align-items-center">\s*<div class="col-xl-4">\s*<div class="title-area text-center text-xl-start">\s*<h2 class="sec-title sec-title2 style1">Best Seller Products<\/h2>[\s\S]*?<\/section>/,
   '<section class="space overflow-hidden overflow-hidden">\n' +
@@ -285,6 +298,8 @@ html = html.replace(
   '            <div class="title-area text-center text-xl-start">\n' +
   '                <h2 class="sec-title sec-title2 style1">پرفروش‌ترین‌ها</h2>\n' +
   '            </div>\n' +
+  '        </div>\n' +
+  '        <div class="vp-best-row-wrap">\n' +
   '            ' + BEST_ROW + '\n' +
   '        </div>\n' +
   '    </section>'
