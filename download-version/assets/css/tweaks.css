@@ -2712,6 +2712,53 @@ option:hover {
   transform: scale(1.05);
 }
 
+/* The swatch pill, over the photo, hidden until the photo is hovered. Round
+   on both ends (client's own words) rather than the template's 8px-radius
+   box — same white glass recipe as the category tiles' own label
+   (.vp-category-label) since both sit on top of a photograph. */
+.vp-best-colors {
+  position: absolute;
+  z-index: 2;
+  inset-inline: 12px;
+  inset-block-end: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 36px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.55);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  backdrop-filter: blur(12px) saturate(1.2);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.65),
+    0 4px 14px -8px rgba(16, 17, 17, 0.35);
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.vp-best-shot:hover .vp-best-colors,
+.vp-best-shot:focus-visible .vp-best-colors {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.vp-best-colors span {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.12);
+}
+
+/* The template's own five, from .beige-color in style.css — not a new
+   palette invented for this tile. */
+.vp-best-colors span:nth-child(1) { background-color: #FF7575; }
+.vp-best-colors span:nth-child(2) { background-color: #9694FF; }
+.vp-best-colors span:nth-child(3) { background-color: #FF8FD2; }
+.vp-best-colors span:nth-child(4) { background-color: #F8E480; }
+.vp-best-colors span:nth-child(5) { background-color: #85FF83; }
+
 /* The strip and the browse circle, side by side under the shot. */
 .vp-best-info {
   display: flex;
@@ -2761,12 +2808,13 @@ option:hover {
   color: #101111;
 }
 
-/* The browse arrow, glass rather than solid: same tint and ring as the
+/* The browse control, glass rather than solid: same tint and ring as the
    strip beside it, so the two read as one material instead of a control
    borrowed from the deal cards next door. Ink icon on it for the same
    reason the strip's own text is ink: this tint reads close to white,
    where ink is what separates. An <a>, not a <button> — every card here
-   browses a category, nothing is being added to a cart. */
+   browses a category, nothing is being added to a cart, even carrying a
+   plus glyph now at the client's request. */
 .vp-best-browse {
   flex: 0 0 auto;
   width: 40px;

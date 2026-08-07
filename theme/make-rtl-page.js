@@ -255,11 +255,24 @@ html = html.replace(
 // an absolutely-positioned overlay: nothing left to blur once it is off
 // the photo and onto the page's own ground, so it drops the backdrop-filter
 // too (see .vp-best-label below, same reasoning as .vp-ladder-notes span).
+// Colour swatches on hover, over the photo: the template's own Select
+// Color panel (.beige-color, still on the untouched product grids further
+// down the page) reused rather than invented — same five swatch colours
+// already baked into style.css. Plain spans, not the template's nested
+// anchors: those swatches don't link anywhere distinct from the tile's own
+// link anyway (every href in the original is the same shop-details.html),
+// and a real anchor can't nest inside .vp-best-shot's own anchor.
+const bestColors =
+  '\n                            <div class="vp-best-colors" aria-hidden="true">' +
+  '\n                                <span></span><span></span><span></span><span></span><span></span>' +
+  '\n                            </div>';
+
 const bestCard = ([file, name]) =>
   '\n                <div class="col">' +
   '\n                    <div class="vp-best">' +
   '\n                        <a class="vp-best-shot" href="shop.html">' +
   `\n                            <img src="assets/img/category/${file}.jpg" alt="" loading="lazy">` +
+  bestColors +
   '\n                        </a>' +
   '\n                        <div class="vp-best-info">' +
   '\n                            <div class="vp-best-label">' +
@@ -268,10 +281,7 @@ const bestCard = ([file, name]) =>
   '\n                                    <span class="vp-best-cta"><strong>مشاهده دسته</strong></span>' +
   '\n                                </span>' +
   '\n                            </div>' +
-  // fa-arrow-right, not -left: the hero slider already fixes what "forward"
-  // looks like on this page (data-slider-next carries fa-arrow-right), so
-  // browsing into a category takes the same glyph rather than a second one.
-  `\n                            <a class="vp-best-browse" href="shop.html" aria-label="مشاهده دسته ${name}"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>` +
+  `\n                            <a class="vp-best-browse" href="shop.html" aria-label="مشاهده دسته ${name}"><i class="fa-solid fa-plus" aria-hidden="true"></i></a>` +
   '\n                        </div>' +
   '\n                    </div>' +
   '\n                </div>';
