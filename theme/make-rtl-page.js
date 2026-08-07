@@ -341,9 +341,16 @@ const BEST_HEAD =
   '\n                </div>' +
   '\n            </div>';
 
+// vp-best-section on the <section> itself: the default .space class gives
+// every section 120px top padding, which — stacked with .vp-best-panel's
+// own margin-top — put 144px between the stepped sale above it and this
+// card, against the 40px measured between the trust row and the stepped
+// sale. .vp-best-section zeroes the top half of .space (same specificity,
+// this file loads last) so .vp-best-panel's own margin-top is the entire
+// gap, set to that same measured 40.
 html = html.replace(
   /<section class="space overflow-hidden overflow-hidden">\s*<div class="container th-container5">\s*<div class="row justify-content-xl-between justify-content-center align-items-center">\s*<div class="col-xl-4">\s*<div class="title-area text-center text-xl-start">\s*<h2 class="sec-title sec-title2 style1">Best Seller Products<\/h2>[\s\S]*?<\/section>/,
-  '<section class="space overflow-hidden overflow-hidden">\n' +
+  '<section class="space overflow-hidden overflow-hidden vp-best-section">\n' +
   '        <div class="vp-best-panel">\n' +
   '            ' + BEST_HEAD + '\n' +
   '            ' + BEST_ROW + '\n' +
