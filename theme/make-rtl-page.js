@@ -239,57 +239,33 @@ html = html.replace(
 // fixed at six, so the tab row goes with it. Built on the same "photo tile,
 // glass strip" object the category row and the deal cards already use, not
 // a fourth new one: square shot, rounded corners, a glass strip carrying
-// the name and price, and a round glass control at the foot — the deal
-// card's own layout, with the button reworked to glass-plus rather than
-// solid-gold-bag, since this row is not selling against a clock.
-// The site has exactly five products with a real photograph, name and
-// price — the same five the hero and the deal ladder already carry (see
-// DEAL_ITEMS below), at their base price rather than the ladder's
-// stepped-down one, since this row isn't running that countdown. There is
-// no real sixth product yet, so the sixth card is a category instead of an
-// invented one: one of the eight real category photographs, its own
-// existing label, and a browse arrow in place of the add-to-cart plus,
-// rather than a price that does not exist.
-const BEST_PRODUCTS = [
-  ['hero/vikyplus-hero-nb530.webp', 'کتونی نیوبالانس ۵۳۰', '۷٬۹۸۰٬۰۰۰'],
-  ['hero/vikyplus-hero-jordan.webp', 'کتونی جردن وان ایر', '۸٬۴۸۰٬۰۰۰'],
-  ['hero/vikyplus-hero-goldengoose.webp', 'کتونی گلدن گوس', '۶٬۴۸۰٬۰۰۰'],
-  ['hero/vikyplus-deal-v2k.webp', 'کتونی نایک وی۲کی ران', '۶٬۹۸۰٬۰۰۰'],
-  ['hero/vikyplus-deal-cloudtilt.webp', 'کتونی اون کلادتیلت', '۴٬۸۸۰٬۰۰۰'],
-];
-
-const bestProductCard = ([img, name, price]) =>
+// the name, and a round glass control at the foot.
+//
+// The client's own instruction: photographs and copy the site already has,
+// not invented ones. The row draws its six straight from CATEGORIES above
+// — the first six of the eight real category photographs, in the row's own
+// order — rather than mixing in the five real deal products, so the row is
+// one material throughout instead of two. Each card browses its category
+// (its existing label, "مشاهده دسته", and a browse arrow) rather than
+// pricing a single product, since a category photograph is not a SKU and
+// forcing a price onto it would be the invented-content problem this was
+// asked to avoid.
+const bestCard = ([file, name]) =>
   '\n                <div class="col">' +
   '\n                    <div class="vp-best">' +
-  '\n                        <a class="vp-best-shot" href="shop-details.html">' +
-  `\n                            <img src="assets/img/${img}" alt="" loading="lazy">` +
+  '\n                        <a class="vp-best-shot" href="shop.html">' +
+  `\n                            <img src="assets/img/category/${file}.jpg" alt="" loading="lazy">` +
   '\n                        </a>' +
   '\n                        <div class="vp-best-label">' +
   '\n                            <span class="vp-best-lines">' +
   `\n                                <span class="vp-best-name">${name}</span>` +
-  `\n                                <span class="vp-best-price"><strong>${price} <span>تومان</span></strong></span>` +
+  '\n                                <span class="vp-best-cta"><strong>مشاهده دسته</strong></span>' +
   '\n                            </span>' +
   '\n                        </div>' +
-  '\n                        <button type="button" class="vp-best-add" aria-label="افزودن به سبد خرید"><i class="fa-solid fa-plus" aria-hidden="true"></i></button>' +
-  '\n                    </div>' +
-  '\n                </div>';
-
-// fa-arrow-right, not -left: the hero slider already fixes what "forward"
-// looks like on this page (data-slider-next carries fa-arrow-right), so
-// browsing into a category takes the same glyph rather than a second one.
-const bestCategoryCard =
-  '\n                <div class="col">' +
-  '\n                    <div class="vp-best">' +
-  '\n                        <a class="vp-best-shot" href="shop.html">' +
-  '\n                            <img src="assets/img/category/boot.jpg" alt="" loading="lazy">' +
-  '\n                        </a>' +
-  '\n                        <div class="vp-best-label">' +
-  '\n                            <span class="vp-best-lines">' +
-  '\n                                <span class="vp-best-name">بوت و نیم‌بوت</span>' +
-  '\n                                <span class="vp-best-price"><strong>مشاهده دسته</strong></span>' +
-  '\n                            </span>' +
-  '\n                        </div>' +
-  '\n                        <a class="vp-best-add" href="shop.html" aria-label="مشاهده دسته بوت و نیم‌بوت"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>' +
+  // fa-arrow-right, not -left: the hero slider already fixes what "forward"
+  // looks like on this page (data-slider-next carries fa-arrow-right), so
+  // browsing into a category takes the same glyph rather than a second one.
+  `\n                        <a class="vp-best-browse" href="shop.html" aria-label="مشاهده دسته ${name}"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>` +
   '\n                    </div>' +
   '\n                </div>';
 
@@ -299,8 +275,7 @@ const bestCategoryCard =
 // measured on both those rows, not eyeballed.
 const BEST_ROW =
   '<div class="row gy-4 row-cols-2 row-cols-md-3 row-cols-xl-6 vp-best-row">' +
-  BEST_PRODUCTS.map(bestProductCard).join('') +
-  bestCategoryCard +
+  CATEGORIES.slice(0, 6).map(bestCard).join('') +
   '\n            </div>';
 
 html = html.replace(
