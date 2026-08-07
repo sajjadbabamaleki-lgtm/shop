@@ -295,22 +295,39 @@ const BEST_ROW =
   CATEGORIES.slice(0, 6).map(bestCard).join('') +
   '\n            </div>';
 
-// Back inside .th-container5 — the client's next request was a single big
-// white card under the row, which puts it back in step with the title
-// above it rather than running to the page's own edge the way the trust
-// row does. The card's own padding is what makes the six tiles "a little
-// smaller and tidier": nothing on the tiles themselves changes size, the
-// row just has less width to divide six ways.
+// The card itself now runs to the trust row's own 18px edge margin — the
+// client's "same distance as those five items" applied to the panel this
+// time, not the row inside it (see .vp-best-panel below) — so .th-container5
+// drops out entirely; nothing else needs its width.
+//
+// The title moves inside the card, small, at its own top-right, with a row
+// of brand filters and a "view all" link opposite it on the left — the
+// template's own filter-menu job, dropped when the row went from a
+// filterable grid to a fixed six, now back but scoped to what the row can
+// actually promise. The six tiles are categories, not SKUs tagged by
+// brand, so the filters do not drive real isotope filtering the way the
+// template's did — same footing as the colour swatches on the tiles below,
+// which don't switch a real variant either. The five names are real ones
+// already on the site (DEAL_ITEMS below), not invented.
+const BEST_FILTERS = ['همه', 'نایک', 'جردن', 'نیوبالانس', 'گلدن گوس'];
+
+const BEST_HEAD =
+  '<div class="vp-best-head">' +
+  '\n                <h2 class="vp-best-title">پرفروش‌ترین‌ها</h2>' +
+  '\n                <div class="vp-best-filters">' +
+  BEST_FILTERS.map((label, i) =>
+    `\n                    <button type="button" class="vp-best-filter${i === 0 ? ' active' : ''}">${label}</button>`
+  ).join('') +
+  '\n                    <a class="vp-best-all" href="shop.html">مشاهده همه محصولات</a>' +
+  '\n                </div>' +
+  '\n            </div>';
+
 html = html.replace(
   /<section class="space overflow-hidden overflow-hidden">\s*<div class="container th-container5">\s*<div class="row justify-content-xl-between justify-content-center align-items-center">\s*<div class="col-xl-4">\s*<div class="title-area text-center text-xl-start">\s*<h2 class="sec-title sec-title2 style1">Best Seller Products<\/h2>[\s\S]*?<\/section>/,
   '<section class="space overflow-hidden overflow-hidden">\n' +
-  '        <div class="container th-container5">\n' +
-  '            <div class="title-area text-center text-xl-start">\n' +
-  '                <h2 class="sec-title sec-title2 style1">پرفروش‌ترین‌ها</h2>\n' +
-  '            </div>\n' +
-  '            <div class="vp-best-panel">\n' +
-  '                ' + BEST_ROW + '\n' +
-  '            </div>\n' +
+  '        <div class="vp-best-panel">\n' +
+  '            ' + BEST_HEAD + '\n' +
+  '            ' + BEST_ROW + '\n' +
   '        </div>\n' +
   '    </section>'
 );
