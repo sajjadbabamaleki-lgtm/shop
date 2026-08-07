@@ -1058,12 +1058,13 @@ html = html.replace('</body>',
   '            var lastFocus = null;\n' +
   '            var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;\n' +
   '            var lightTimer = null;\n' +
-  '            // 3s a step, starting from the first — client asked for the board to\n' +
-  '            // walk itself through instead of opening on one fixed step. Runs once\n' +
-  '            // through and stops on the last step rather than looping: the board is\n' +
-  '            // a diagram of how the offer runs, not a marquee. Skipped entirely\n' +
-  '            // under reduced motion, where the CSS fallback (see tweaks.css) lights\n' +
-  '            // the live step as a still instead.\n' +
+  '            // 2s a step, starting from the first — client asked for the board to\n' +
+  '            // walk itself through instead of opening on one fixed step. Runs the\n' +
+  '            // full five twice: the first pass ends at the last step and wraps back\n' +
+  '            // to the first rather than stopping, the second pass ends at the last\n' +
+  '            // step and stays there. Skipped entirely under reduced motion, where\n' +
+  '            // the CSS fallback (see tweaks.css) lights the live step as a still\n' +
+  '            // instead.\n' +
   '            function stepEls(m) { return m.querySelectorAll(".vp-how-step"); }\n' +
   '            function stopLights() {\n' +
   '                if (lightTimer) { clearInterval(lightTimer); lightTimer = null; }\n' +
@@ -1072,14 +1073,22 @@ html = html.replace('</body>',
   '                var els = stepEls(m);\n' +
   '                if (!els.length) return;\n' +
   '                var i = 0;\n' +
+  '                var pass = 1;\n' +
   '                els[i].classList.add("is-lit");\n' +
   '                lightTimer = setInterval(function () {\n' +
+  '                    if (i === els.length - 1) {\n' +
+  '                        if (pass >= 2) { stopLights(); return; }\n' +
+  '                        pass += 1;\n' +
+  '                        for (var j = 0; j < els.length; j++) els[j].classList.remove("is-lit", "is-done");\n' +
+  '                        i = 0;\n' +
+  '                        els[i].classList.add("is-lit");\n' +
+  '                        return;\n' +
+  '                    }\n' +
   '                    els[i].classList.remove("is-lit");\n' +
   '                    els[i].classList.add("is-done");\n' +
   '                    i += 1;\n' +
-  '                    if (i >= els.length) { stopLights(); return; }\n' +
   '                    els[i].classList.add("is-lit");\n' +
-  '                }, 3000);\n' +
+  '                }, 2000);\n' +
   '            }\n' +
   '            function open(e) {\n' +
   '                var m = modal();\n' +

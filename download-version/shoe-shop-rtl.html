@@ -2624,12 +2624,13 @@ Brand Area
             var lastFocus = null;
             var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
             var lightTimer = null;
-            // 3s a step, starting from the first — client asked for the board to
-            // walk itself through instead of opening on one fixed step. Runs once
-            // through and stops on the last step rather than looping: the board is
-            // a diagram of how the offer runs, not a marquee. Skipped entirely
-            // under reduced motion, where the CSS fallback (see tweaks.css) lights
-            // the live step as a still instead.
+            // 2s a step, starting from the first — client asked for the board to
+            // walk itself through instead of opening on one fixed step. Runs the
+            // full five twice: the first pass ends at the last step and wraps back
+            // to the first rather than stopping, the second pass ends at the last
+            // step and stays there. Skipped entirely under reduced motion, where
+            // the CSS fallback (see tweaks.css) lights the live step as a still
+            // instead.
             function stepEls(m) { return m.querySelectorAll(".vp-how-step"); }
             function stopLights() {
                 if (lightTimer) { clearInterval(lightTimer); lightTimer = null; }
@@ -2638,14 +2639,22 @@ Brand Area
                 var els = stepEls(m);
                 if (!els.length) return;
                 var i = 0;
+                var pass = 1;
                 els[i].classList.add("is-lit");
                 lightTimer = setInterval(function () {
+                    if (i === els.length - 1) {
+                        if (pass >= 2) { stopLights(); return; }
+                        pass += 1;
+                        for (var j = 0; j < els.length; j++) els[j].classList.remove("is-lit", "is-done");
+                        i = 0;
+                        els[i].classList.add("is-lit");
+                        return;
+                    }
                     els[i].classList.remove("is-lit");
                     els[i].classList.add("is-done");
                     i += 1;
-                    if (i >= els.length) { stopLights(); return; }
                     els[i].classList.add("is-lit");
-                }, 3000);
+                }, 2000);
             }
             function open(e) {
                 var m = modal();
