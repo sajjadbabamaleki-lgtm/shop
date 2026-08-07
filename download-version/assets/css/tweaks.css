@@ -2795,6 +2795,9 @@ option:hover {
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  /* Also used as an <a> on the category card, which would otherwise pick up
+     the template's underline-on-hover link styling. */
+  text-decoration: none;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
