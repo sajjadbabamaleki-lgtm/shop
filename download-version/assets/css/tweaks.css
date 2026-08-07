@@ -2645,6 +2645,171 @@ option:hover {
   .vp-deal-cart { width: 40px; height: 40px; inset-block-end: 12px; inset-inline-end: 12px; }
 }
 
+/* --------------------------------------------------------------------------
+   Best sellers: six cards, one row, tight gutter.
+
+   The same object as the deal cards above — square shot, rounded corners, a
+   glass strip carrying the name and price — sized for six across instead of
+   five, with a plain glass circle at the foot instead of the deal's solid
+   gold bag: this row is not racing a countdown, so the control is a plain
+   add rather than the ladder's urgent buy.
+
+   Gutter is the row's own default (24px), not a custom value: measured on
+   both the trust row and the deal row beside this one, so "the same gap as
+   those five items" is the same number already sitting in this file rather
+   than a fresh guess.
+   -------------------------------------------------------------------------- */
+.vp-best {
+  position: relative;
+}
+
+.vp-best-shot {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  aspect-ratio: 1;
+  border-radius: 28px;
+  background: #FFFFFF;
+  box-shadow:
+    0 0 0 1px rgba(16, 17, 17, 0.05),
+    0 8px 22px -12px rgba(16, 17, 17, 0.18);
+  transition: transform 0.28s ease, box-shadow 0.28s ease;
+}
+
+.vp-best:hover .vp-best-shot {
+  transform: translateY(-5px);
+  box-shadow:
+    0 0 0 1px rgba(164, 127, 37, 0.28),
+    0 18px 34px -14px rgba(16, 17, 17, 0.24);
+}
+
+/* Full-bleed cover, not the deal shot's tuned inset: these are the
+   template's own square placeholder photographs, already filling their
+   frame edge to edge, so there is no silhouette to fit around — the same
+   treatment the category tiles give their photographs. */
+.vp-best-shot img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.vp-best:hover .vp-best-shot img {
+  transform: scale(1.05);
+}
+
+/* 40 tall rather than the deal strip's 44 — six across runs narrower than
+   five, and the strip and the button beside it stay a matched pair at any
+   width as long as they change together. Inset-end is the button's 40 plus
+   its 10px gap plus the shared 12px base, same arithmetic as the deal strip
+   beside it. */
+.vp-best-label {
+  position: absolute;
+  inset-inline-start: 12px;
+  inset-inline-end: 62px;
+  inset-block-end: 12px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 40px;
+  padding-inline: 14px;
+  border-radius: 20px;
+  background: rgba(16, 17, 17, 0.034);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  backdrop-filter: blur(12px) saturate(1.2);
+  box-shadow:
+    inset 0 0 0 1px rgba(16, 17, 17, 0.05),
+    0 4px 14px -8px rgba(16, 17, 17, 0.35);
+}
+
+.vp-best-lines {
+  display: block;
+  min-width: 0;
+}
+
+.vp-best-name {
+  display: block;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #101111;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vp-best-price {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  line-height: 1.5;
+}
+
+.vp-best-price del {
+  font-size: 9.9px;
+  color: rgba(16, 17, 17, 0.42);
+}
+
+.vp-best-price strong {
+  font-family: 'Vazirmatn', var(--body-font);
+  font-weight: 800;
+  font-size: 13.5px;
+  color: #101111;
+}
+
+.vp-best-price strong span {
+  font-size: 9.9px;
+  font-weight: 600;
+  color: rgba(16, 17, 17, 0.62);
+}
+
+/* The plus, glass rather than solid: same recipe as the strip beside it —
+   ink tint, blur, ink ring — so the two read as one material instead of a
+   control borrowed from the deal cards next door. Ink icon on it for the
+   same reason the strip's own text is ink: this tint reads close to white,
+   where ink is what separates. */
+.vp-best-add {
+  position: absolute;
+  z-index: 3;
+  inset-block-end: 12px;
+  inset-inline-end: 12px;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(16, 17, 17, 0.034);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  backdrop-filter: blur(12px) saturate(1.2);
+  box-shadow:
+    inset 0 0 0 1px rgba(16, 17, 17, 0.05),
+    0 4px 14px -8px rgba(16, 17, 17, 0.35);
+  color: #101111;
+  font-size: 15px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.vp-best-add:hover {
+  transform: scale(1.06);
+  box-shadow:
+    inset 0 0 0 1px rgba(16, 17, 17, 0.05),
+    0 6px 16px -8px rgba(16, 17, 17, 0.35);
+}
+
+.vp-best-add:focus-visible {
+  outline: 2px solid var(--title-color);
+  outline-offset: 2px;
+}
+
 /* --- the way out --------------------------------------------------------- */
 
 /* Exactly one deal card wide, so it sits directly over the card beneath it

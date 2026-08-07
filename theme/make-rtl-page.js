@@ -234,6 +234,62 @@ html = html.replace(
   '    </section>'
 );
 
+// Best sellers: six cards in a fixed row rather than the template's
+// filterable grid — there is nothing left to filter once the count is
+// fixed at six, so the tab row goes with it. Built on the same "photo tile,
+// glass strip" object the category row and the deal cards already use, not
+// a fourth new one: square shot, rounded corners, a glass strip carrying
+// the name and price, and a round glass control at the foot — the deal
+// card's own layout, with the button reworked to glass-plus rather than
+// solid-gold-bag, since this row is not selling against a clock.
+const BEST_ITEMS = [
+  ['product_12_1.png', 'Nike Renew Serenity Run', '۲٬۵۰۰٬۰۰۰', '۳٬۵۰۰٬۰۰۰'],
+  ['product_12_2.png', 'Nike Renew Color Shoes', '۲٬۵۰۰٬۰۰۰', null],
+  ['product_12_3.png', 'Adidas Plastic Rebar Shoes', '۲٬۵۰۰٬۰۰۰', '۳٬۵۰۰٬۰۰۰'],
+  ['product_12_4.png', 'Nike Flex Run 2021', '۳٬۵۰۰٬۰۰۰', null],
+  ['product_12_5.png', 'Nike Air Max 97', '۲٬۵۰۰٬۰۰۰', '۳٬۵۰۰٬۰۰۰'],
+  ['product_12_6.png', "Men's harpoon Rubber Shoes", '۴٬۵۰۰٬۰۰۰', null],
+];
+
+// row-cols rather than col-N: six is a clean twelfth either way, but this
+// keeps it in the same idiom as the trust and deal rows either side of it,
+// and their default 24px gutter is the "small gap" the client pointed at —
+// measured on both those rows, not eyeballed.
+const BEST_ROW =
+  '<div class="row gy-4 row-cols-2 row-cols-md-3 row-cols-xl-6 vp-best-row">' +
+  BEST_ITEMS.map(([img, name, price, oldPrice]) =>
+    '\n                <div class="col">' +
+    '\n                    <div class="vp-best">' +
+    '\n                        <a class="vp-best-shot" href="shop-details.html">' +
+    `\n                            <img src="assets/img/product/${img}" alt="" loading="lazy">` +
+    '\n                        </a>' +
+    '\n                        <div class="vp-best-label">' +
+    '\n                            <span class="vp-best-lines">' +
+    `\n                                <span class="vp-best-name">${name}</span>` +
+    '\n                                <span class="vp-best-price">' +
+    (oldPrice ? `<del>${oldPrice}</del>` : '') +
+    `<strong>${price} <span>تومان</span></strong>` +
+    '</span>' +
+    '\n                            </span>' +
+    '\n                        </div>' +
+    '\n                        <button type="button" class="vp-best-add" aria-label="افزودن به سبد خرید"><i class="fa-solid fa-plus" aria-hidden="true"></i></button>' +
+    '\n                    </div>' +
+    '\n                </div>'
+  ).join('') +
+  '\n            </div>';
+
+html = html.replace(
+  /<section class="space overflow-hidden overflow-hidden">\s*<div class="container th-container5">\s*<div class="row justify-content-xl-between justify-content-center align-items-center">\s*<div class="col-xl-4">\s*<div class="title-area text-center text-xl-start">\s*<h2 class="sec-title sec-title2 style1">Best Seller Products<\/h2>[\s\S]*?<\/section>/,
+  '<section class="space overflow-hidden overflow-hidden">\n' +
+  '        <div class="container th-container5">\n' +
+  '            <div class="title-area text-center text-xl-start">\n' +
+  '                <h2 class="sec-title sec-title2 style1">پرفروش‌ترین‌ها</h2>\n' +
+  '            </div>\n' +
+  '            ' + BEST_ROW + '\n' +
+  '        </div>\n' +
+  '    </section>'
+);
+
 // The stepped sale, in place of the template's collections band.
 //
 // What the band was is worth recording, because it is why it went. It was
@@ -880,7 +936,7 @@ html = html.replace('</body>',
 html = html.replace('</body>',
   '    <script>\n' +
   '        (function () {\n' +
-  '            var items = document.querySelectorAll(".vp-category, .vp-trust-row .feature-card, .th-product, .vp-deal, .blog-card, .sec-title");\n' +
+  '            var items = document.querySelectorAll(".vp-category, .vp-trust-row .feature-card, .th-product, .vp-deal, .vp-best, .blog-card, .sec-title");\n' +
   '            if (!items.length || !("IntersectionObserver" in window)) return;\n' +
   '            items.forEach(function (el) {\n' +
   '                el.classList.add("vp-enter");\n' +
