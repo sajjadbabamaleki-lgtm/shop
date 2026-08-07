@@ -140,6 +140,19 @@ html = html.replace(
   '$1<i class="fa-solid fa-bag-shopping" aria-hidden="true"></i>'
 );
 
+// FontAwesome's fa-search draws its handle almost as long as the glass
+// itself, which read cramped once the header disc shrank. A two-shape inline
+// SVG — a circle and a short stroke — replaces it, so the handle length is a
+// number to set rather than a glyph's fixed proportions. currentColor keeps
+// it on the button's own white, same as the glyph it replaces.
+html = html.replace(
+  /<button type="submit" class="th-btn"><i class="far fa-search"><\/i><\/button>/i,
+  '<button type="submit" class="th-btn"><svg class="vp-search-icon" width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true">' +
+    '<circle cx="8.5" cy="8.5" r="6" stroke="currentColor" stroke-width="2"/>' +
+    '<line x1="12.9" y1="12.9" x2="15.3" y2="15.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>' +
+  '</svg></button>'
+);
+
 // The row under the hero carries eight shoe categories instead of the
 // template's four service boxes: a photograph filling each square, with the
 // name on a strip of glass laid over it.
