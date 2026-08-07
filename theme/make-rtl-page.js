@@ -267,24 +267,41 @@ const bestColors =
   '\n                                <span></span><span></span><span></span><span></span><span></span>' +
   '\n                            </div>';
 
-const bestCard = ([file, name]) =>
-  '\n                <div class="col">' +
-  '\n                    <div class="vp-best">' +
-  '\n                        <a class="vp-best-shot" href="shop.html">' +
-  `\n                            <img src="assets/img/category/${file}.jpg" alt="" loading="lazy">` +
-  bestColors +
-  '\n                        </a>' +
-  '\n                        <div class="vp-best-info">' +
-  '\n                            <div class="vp-best-label">' +
-  '\n                                <span class="vp-best-lines">' +
-  `\n                                    <span class="vp-best-name">${name}</span>` +
-  '\n                                    <span class="vp-best-cta"><strong>مشاهده دسته</strong></span>' +
-  '\n                                </span>' +
-  '\n                            </div>' +
-  `\n                            <a class="vp-best-browse" href="shop.html" aria-label="مشاهده دسته ${name}"><i class="fa-solid fa-plus" aria-hidden="true"></i></a>` +
-  '\n                        </div>' +
-  '\n                    </div>' +
-  '\n                </div>';
+// Client's own words: put a shoe name and a price in the strip, and don't
+// worry that it doesn't match the photograph — this is a placeholder for
+// testing, not a claim about what's in the shot. Reuses the five real
+// name/price pairs already on the site (DEAL_ITEMS below) rather than
+// inventing new ones, cycling to cover the sixth tile.
+const BEST_TEST_ITEMS = [
+  ['کتونی نیوبالانس ۵۳۰', '۷٬۹۸۰٬۰۰۰'],
+  ['کتونی جردن وان ایر', '۸٬۴۸۰٬۰۰۰'],
+  ['کتونی گلدن گوس', '۶٬۴۸۰٬۰۰۰'],
+  ['کتونی نایک وی۲کی ران', '۶٬۹۸۰٬۰۰۰'],
+  ['کتونی اون کلادتیلت', '۴٬۸۸۰٬۰۰۰'],
+];
+
+const bestCard = ([file], i) => {
+  const [name, price] = BEST_TEST_ITEMS[i % BEST_TEST_ITEMS.length];
+  return (
+    '\n                <div class="col">' +
+    '\n                    <div class="vp-best">' +
+    '\n                        <a class="vp-best-shot" href="shop.html">' +
+    `\n                            <img src="assets/img/category/${file}.jpg" alt="" loading="lazy">` +
+    bestColors +
+    '\n                        </a>' +
+    '\n                        <div class="vp-best-info">' +
+    '\n                            <div class="vp-best-label">' +
+    '\n                                <span class="vp-best-lines">' +
+    `\n                                    <span class="vp-best-name">${name}</span>` +
+    `\n                                    <span class="vp-best-cta"><strong>${price} <span>تومان</span></strong></span>` +
+    '\n                                </span>' +
+    '\n                            </div>' +
+    `\n                            <a class="vp-best-browse" href="shop.html" aria-label="افزودن ${name} به سبد خرید"><i class="fa-solid fa-plus" aria-hidden="true"></i></a>` +
+    '\n                        </div>' +
+    '\n                    </div>' +
+    '\n                </div>'
+  );
+};
 
 // row-cols rather than col-N: six is a clean twelfth either way, but this
 // keeps it in the same idiom as the trust and deal rows either side of it,
