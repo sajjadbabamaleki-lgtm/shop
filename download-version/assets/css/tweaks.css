@@ -2866,11 +2866,13 @@ option:hover {
    than working around it, and it is what puts the field and the basket
    back to reading as one set.
 
-   Two points on the same gold ramp the top of this file measures against
-   white, not one colour picked twice: the dark end for the icon, a shape
-   at 20px (4.66:1), and the midpoint for the badge's own fill, with ink on
-   top of that at 5.08:1 — both pass AA. The template's own .icon-btn rules
-   are two classes deep, so these are three. */
+   The one gold on the page, not a second one: the button ramp — #C0972F to
+   #E3B54A, the same pair the buy button and the discount mark use — on the
+   badge's fill, and its darker stop flat as the icon's colour so the two
+   read as the one metal instead of two different golds sitting next to
+   each other in the same row. Ink on the ramp is the pairing already
+   measured at the top of this file (6.94:1 / 9.88:1, both AA). The
+   template's own .icon-btn rules are two classes deep, so these are three. */
 .th-header .header-button .icon-btn.sideMenuToggler {
   width: 48px;
   height: 48px;
@@ -2880,7 +2882,7 @@ option:hover {
      needs the same hairline the search field uses to have an edge at all. */
   box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.08);
   border: 0;
-  color: #8F7022;
+  color: #C0972F;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2889,12 +2891,12 @@ option:hover {
 .th-header .header-button .icon-btn.sideMenuToggler i {
   font-size: 20px;
   line-height: 1;
-  color: #8F7022;
+  color: #C0972F;
 }
 
 .th-header .header-button .icon-btn.sideMenuToggler .badge {
-  background: var(--theme-color);
-  color: var(--title-color);
+  background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+  color: #101111;
 }
 
 /* The hero cards' corners, a little rounder than the template's 60. */
@@ -3608,11 +3610,13 @@ ul.vp-how-list.is-ticked li:before {
    than working around it, and it is what puts the field and the basket
    back to reading as one set.
 
-   Two points on the same gold ramp the top of this file measures against
-   white, not one colour picked twice: the dark end for the icon, a shape
-   at 20px (4.66:1), and the midpoint for the badge's own fill, with ink on
-   top of that at 5.08:1 — both pass AA. The template's own .icon-btn rules
-   are two classes deep, so these are three. */
+   The one gold on the page, not a second one: the button ramp — #C0972F to
+   #E3B54A, the same pair the buy button and the discount mark use — on the
+   badge's fill, and its darker stop flat as the icon's colour so the two
+   read as the one metal instead of two different golds sitting next to
+   each other in the same row. Ink on the ramp is the pairing already
+   measured at the top of this file (6.94:1 / 9.88:1, both AA). The
+   template's own .icon-btn rules are two classes deep, so these are three. */
 .th-header .header-button .icon-btn.sideMenuToggler {
   width: 48px;
   height: 48px;
@@ -3622,7 +3626,7 @@ ul.vp-how-list.is-ticked li:before {
      needs the same hairline the search field uses to have an edge at all. */
   box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.08);
   border: 0;
-  color: #8F7022;
+  color: #C0972F;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3631,12 +3635,12 @@ ul.vp-how-list.is-ticked li:before {
 .th-header .header-button .icon-btn.sideMenuToggler i {
   font-size: 20px;
   line-height: 1;
-  color: #8F7022;
+  color: #C0972F;
 }
 
 .th-header .header-button .icon-btn.sideMenuToggler .badge {
-  background: var(--theme-color);
-  color: var(--title-color);
+  background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+  color: #101111;
 }
 
 /* The hero cards' corners, a little rounder than the template's 60. */
