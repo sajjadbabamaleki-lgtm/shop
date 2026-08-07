@@ -2809,6 +2809,12 @@ option:hover {
 .vp-best-cta {
   display: block;
   line-height: 1.5;
+  /* The line boxes already touch at 0; the visual gap between the name's
+     ink and the price's is the two lines' own leading, measured at 9.25px
+     by pixel-scanning a screenshot of the strip, not eyeballed. 30% less is
+     6.475px; -2.5px pixel-scanned back out at 6.25px, the closest this
+     line-height's own rendering steps land to that target. */
+  margin-top: -2.5px;
 }
 
 .vp-best-cta strong {
@@ -2886,13 +2892,24 @@ option:hover {
    in reach for a card this much larger. */
 .vp-best-panel {
   margin-inline: 18px;
-  margin-top: 24px;
+  /* The whole gap above the card now — see .vp-best-section, which zeroes
+     the section's own top padding — set to the 40px measured between the
+     trust row and the stepped sale above it, so this section sits the same
+     distance from the section above it as the sections above it sit from
+     each other. */
+  margin-top: 40px;
   padding: 28px;
   border-radius: 50px;
   background: #FFFFFF;
   box-shadow:
     inset 0 0 0 1.5px rgba(16, 17, 17, 0.12),
     0 18px 32px -22px rgba(16, 17, 17, 0.18);
+}
+
+/* Cancels .space's own 120px padding-top on this specific section (same
+   specificity, this file loads last) — see .vp-best-panel's margin-top. */
+.vp-best-section {
+  padding-top: 0;
 }
 
 /* The card's own header: title at its own top-right (reading start in
