@@ -1986,8 +1986,14 @@ option:hover {
   padding-block-end: 0;
 }
 
+/* Doubled, 40 -> 80, on the client's "make it twice what it is". This is
+   the whole gap and the only lever for it: .feature-area2's bottom padding
+   above is 0 (see just above), so trust-row bottom to ladder-panel top is
+   exactly this number — measured 40 before, 80 after. The 40 above the
+   trust row (.vp-trust-row-wrap margin-top) is a different gap and is not
+   part of this; the two used to match and now deliberately do not. */
 .collection-area {
-  padding-block-start: 40px;
+  padding-block-start: 80px;
 }
 
 /* The sale lines up with the eight tiles, so it takes their container and
@@ -3047,13 +3053,16 @@ option:hover {
 }
 
 /* This column's text, ~15% up too — client's "make those right-side texts
-   bigger as well." */
+   bigger as well." The badge and the sub then took a second, separate pass
+   at 30% and 20% on top of that (19.5 from 15, 20.4 from 17), asked for one
+   by one rather than as one move across the column — the title in between
+   them is deliberately still 39. */
 .vp-daily-deal-badge {
   display: block;
   margin-block-end: 10px;
   font-family: 'Vazirmatn', var(--body-font);
   font-weight: 800;
-  font-size: 15px;
+  font-size: 19.5px;
   letter-spacing: 0.02em;
   /* Text on a light ground takes the accent ramp's dark end — same pairing
      as .vp-best-all and the header search icon, not a fresh value. */
@@ -3071,7 +3080,7 @@ option:hover {
 
 .vp-daily-deal-sub {
   margin: 0 0 24px;
-  font-size: 17px;
+  font-size: 20.4px;
   line-height: 1.8;
   color: var(--body-color);
 }

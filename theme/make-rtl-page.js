@@ -662,7 +662,10 @@ const DAILY_DEAL =
   '<div class="vp-daily-deal">\n' +
   '                <div class="vp-daily-deal-copy">\n' +
   '                    <span class="vp-daily-deal-badge">پیشنهاد امروز</span>\n' +
-  '                    <h2 class="vp-daily-deal-title">قبل از تمام شدن بخرش!</h2>\n' +
+  // Broken where the client broke it in their own message, not left to
+  // wrap on its own — the copy column is 521 wide and the line fits on one
+  // at every desktop width, so without the <br> it would never stack.
+  '                    <h2 class="vp-daily-deal-title">قبل از<br>تمام شدن بخرش!</h2>\n' +
   '                    <p class="vp-daily-deal-sub">عجله کن؛ موجودی محدوده.</p>\n' +
   '                    <a href="shop-details.html" class="vp-daily-deal-cta">خرید کنید' +
   '<i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>\n' +
