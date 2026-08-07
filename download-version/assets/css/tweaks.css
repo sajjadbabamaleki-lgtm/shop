@@ -3081,8 +3081,13 @@ option:hover {
     0 24px 48px -28px rgba(16, 17, 17, 0.22);
 }
 
+/* Shrinks to its own content's width now, rather than stretching to fill
+   whatever the card doesn't give the shot — the timer row is what sets
+   that width in practice (232px, wider than the name/price lines), and the
+   stock bar below matches it for the same reason at 100%. What this frees
+   up goes to the photo instead. */
 .vp-daily-deal-info {
-  flex: 1;
+  flex: 0 0 auto;
   min-width: 0;
 }
 
@@ -3197,19 +3202,26 @@ option:hover {
   margin: 0;
 }
 
+/* The gap to the number above it, pixel-scanned at 14.75px, halved. */
 .vp-daily-deal-timer .count-name {
   font-size: 10.5px;
   color: var(--body-color);
+  margin-top: -7.4px;
+  display: block;
 }
 
+/* Grows into the width .vp-daily-deal-info stopped taking, capped so it
+   does not run away on very wide viewports. aspect-ratio keeps it square
+   as that width changes. */
+/* No background of its own — the photo is a real transparent cutout
+   (checked: corner pixel alpha 0), so a filled box behind it drew a visible
+   square the client didn't ask for. It sits directly on the card's own
+   white now. */
 .vp-daily-deal-shot {
-  flex: none;
-  width: 148px;
-  height: 148px;
-  border-radius: 20px;
-  background: #F6F4F0;
-  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.05);
-  overflow: hidden;
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 340px;
+  aspect-ratio: 1;
 }
 
 .vp-daily-deal-shot img {
