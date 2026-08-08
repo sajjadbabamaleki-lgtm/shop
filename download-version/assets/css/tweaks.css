@@ -2549,22 +2549,33 @@ option:hover {
    basket's gap begins, so the two read as two objects, not one lapped over
    the other.
 
-   44 tall, the same as the basket beside it, so the two sit on one line as a
+   52.8 tall, the same as the basket beside it, so the two sit on one line as a
    matched pair rather than the strip towering over a smaller circle — and
-   22px of round on each end, half the height, so both ends are true
-   semicircles rather than the shallower 20 a taller strip could carry. */
+   26.4px of round on each end, half the height, so both ends are true
+   semicircles rather than the shallower round a taller strip could carry.
+
+   Both were 44 and are now 20% up, asked for together: «ارتفاع باکس اسم محصول
+   و قیمت ۲۰ درصد بیشتر بشه، به همون نسبت دایره هم بیشتر بشه». They have to
+   move together or the pair stops being a pair, which is the whole point of
+   the paragraph above — so the basket, its glyph and the round on the strip's
+   ends all take the same 20%, and the 10px gap between the two objects is
+   left alone, because a gap is not part of either of them.
+
+   The strip's inline-end inset is not a number of its own: it is where the
+   basket's gap begins, 12 (the basket's own inset) + 52.8 (the basket) + 10
+   (the gap) = 74.8. It was 66 on the same arithmetic. */
 .vp-deal-label {
   position: absolute;
   inset-inline-start: 12px;
-  inset-inline-end: 66px;
+  inset-inline-end: 74.8px;
   inset-block-end: 12px;
   z-index: 2;
   display: flex;
   align-items: center;
   gap: 10px;
-  height: 44px;
+  height: 52.8px;
   padding-inline: 16px;
-  border-radius: 22px;
+  border-radius: 26.4px;
   background: rgba(16, 17, 17, 0.034);
   -webkit-backdrop-filter: blur(12px) saturate(1.2);
   backdrop-filter: blur(12px) saturate(1.2);
@@ -2619,14 +2630,15 @@ option:hover {
 
 /* The basket, round, on the tile's own corner — the same 12px inset as the
    strip beside it, so the two sit on one baseline as separate objects rather
-   than one lapping the other. 44 plus a 10px gap is the strip's 66px inset. */
+   than one lapping the other. 52.8 plus a 10px gap is the strip's 74.8px
+   inset. It was 44 against a 66px inset before the pair went up 20%. */
 .vp-deal-cart {
   position: absolute;
   z-index: 3;
   inset-block-end: 12px;
   inset-inline-end: 12px;
-  width: 44px;
-  height: 44px;
+  width: 52.8px;
+  height: 52.8px;
   padding: 0;
   border: 0;
   border-radius: 50%;
@@ -2635,7 +2647,10 @@ option:hover {
      client asked for the icon filled and white, not the ink this took from
      the burst and the ladder's live step. */
   color: #FFFFFF;
-  font-size: 17px;
+  /* 17 scaled by the same 20% — a circle that grows and keeps its old glyph
+     is not the same object 20% bigger, it is a bigger circle with a small
+     mark rattling around in it. */
+  font-size: 20.4px;
   line-height: 1;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -2651,10 +2666,13 @@ option:hover {
   outline-offset: 2px;
 }
 
+/* Below 1200 the tile is narrower and the basket steps down with it. The same
+   20% applies here — 40 -> 48 — and the strip's inset is the same arithmetic
+   as above, 12 + 48 + 10 = 70, where it read 12 + 40 + 10 = 62 before. */
 @media (max-width: 1199px) {
   .vp-deal-shot { border-radius: 28px; }
-  .vp-deal-label { inset-inline-end: 62px; }
-  .vp-deal-cart { width: 40px; height: 40px; inset-block-end: 12px; inset-inline-end: 12px; }
+  .vp-deal-label { inset-inline-end: 70px; }
+  .vp-deal-cart { width: 48px; height: 48px; inset-block-end: 12px; inset-inline-end: 12px; }
 }
 
 /* --------------------------------------------------------------------------
