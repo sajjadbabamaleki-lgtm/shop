@@ -4273,3 +4273,266 @@ ul.vp-how-list.is-ticked li:before {
 .th-header {
   padding-top: var(--vp-sticky-reserve, 0px);
 }
+
+/* --------------------------------------------------------------------------
+   The brand strip, rebuilt: four tiles on one white card.
+
+   The template had a three-up carousel of «The Official Store of the Amazing
+   Brand» with Adidas cards and stock products. The client sent a reference —
+   tiles built from a photo mosaic with a rounded plate floating in the middle
+   of each — and asked for four of them «رو یه کارت سفید که از چپ تا راست
+   وبسایت کشیده باشه».
+
+   The card is .vp-best-panel's, number for number: 18 to the sides, 100 above,
+   28 of padding, 50 of round, the same ring and the same shadow. That is not
+   laziness — those numbers are the page's pane rhythm, argued over two rounds
+   and recorded on .vp-best-panel and .collection-area, and a fourth pane that
+   invented its own would break a decision that already cost a commit to make.
+   -------------------------------------------------------------------------- */
+.vp-brands-section {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.vp-brands-panel {
+  margin-inline: 18px;
+  margin-top: 100px;
+  padding: 28px;
+  border-radius: 50px;
+  background: #FFFFFF;
+  box-shadow:
+    inset 0 0 0 1.5px rgba(16, 17, 17, 0.12),
+    0 18px 32px -22px rgba(16, 17, 17, 0.18);
+}
+
+/* Title at the reading start, the way out opposite it — .vp-best-head's own
+   arrangement, so the two cards open the same way. */
+.vp-brands-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.vp-brands-title {
+  margin: 0;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 1.4;
+  color: #101111;
+}
+
+.vp-brands-all {
+  font-family: 'Vazirmatn', var(--body-font);
+  font-weight: 600;
+  font-size: 13.5px;
+  color: #A47F25;
+  text-decoration: none;
+}
+
+.vp-brands-all:hover {
+  color: #8A6A2A;
+  text-decoration: underline;
+}
+
+.vp-brands-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+
+/* The tile. 4:3, and the ratio is the whole argument here.
+
+   The reference shows two cards to a row; this shows four, so each tile is
+   about half the width the reference's are and the mosaic's cells shrink with
+   it. At 5:3 — tried first — a tile at 1440 came out 324x194 and the two
+   stacked cells were 95px tall each: too small to read as photographs, and
+   the plate at 58 tall filled a third of the tile instead of floating in it.
+   4:3 puts the same tile at 324x243, which is where the two-up rendering at
+   992 already reads correctly.
+
+   Checked at 1440, 1200 and 992; the plate stays centred and inside the tile
+   at all three. */
+/* 40, up from 28 — «۴ تا گوشه بیرونی». These four are the only corners in the
+   tile: the mosaic's internal joins stay square, and the tile's own overflow
+   clip is what rounds the photographs where they meet these. 40 sits under
+   the white card's 50 so the tile still reads as something held by the card
+   rather than as another card. */
+.vp-brand {
+  /* The mosaic's proportions, hoisted here because two rules need them: the
+     grid that draws the columns, and the plate, which is positioned on the
+     seam between them rather than on the tile's centre. Change them here and
+     both follow. */
+  --mosaic-lead: 1.35;
+  --mosaic-small: 1;
+  --mosaic-gap: 6px;
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 3;
+  border-radius: 40px;
+  overflow: hidden;
+  text-decoration: none;
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.06);
+}
+
+/* One lead photograph, two stacked small ones opposite it — the reference's
+   own arrangement, and the sides are the reference's too: **lead on the left,
+   the small pair on the right**.
+
+   This does not follow the page's direction, and that is deliberate. The
+   mosaic is a picture, not a line of content: it is `aria-hidden`, it holds no
+   text, and nothing in it reads in an order. Left to itself in an RTL document
+   the first grid column lands on the right, which put the lead on the right
+   and mirrored the reference — «طرحو فلیپ کن اون کوچولوها بیفته راست مث همون
+   عکسی که بهت دادم». So the placement is stated rather than inherited: the
+   narrow column is column 1 (the right in RTL) and the lead is put explicitly
+   in column 2.
+
+   The gap is 6, doubled from the 3 this started at at the client's request,
+   and it is the card's own white showing through rather than a drawn line, so
+   it stays a gap at any size. */
+.vp-brand-mosaic {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  /* Written as percentages of what is left after the gap, not as fr — `fr` is
+     not allowed inside calc(), so `calc(1.35 * 1fr)` is an invalid value, and
+     an invalid track list drops the whole declaration and leaves the columns
+     to auto-size off the photographs. That happened here: the seam wandered to
+     wherever the images put it, 202px into a 324px tile instead of 186, and
+     the plate that is positioned on it was measured 17px adrift. Percentages
+     take the same three variables and give the same proportions. */
+  grid-template-columns:
+    calc((100% - var(--mosaic-gap)) * var(--mosaic-small) /
+      (var(--mosaic-lead) + var(--mosaic-small)))
+    calc((100% - var(--mosaic-gap)) * var(--mosaic-lead) /
+      (var(--mosaic-lead) + var(--mosaic-small)));
+  grid-template-rows: 1fr 1fr;
+  gap: var(--mosaic-gap);
+  background: #FFFFFF;
+}
+
+/* The cells stay square. «گوشه ها کروتر بشه» meant the tile's four outer
+   corners, not the joins in the middle — rounding the cells was read wrong
+   once and put a corner on every internal edge, which is the opposite of what
+   was asked. The tile's own radius carries the round; see .vp-brand. */
+.vp-brand-cell {
+  overflow: hidden;
+}
+
+.vp-brand-cell.is-lead {
+  grid-column: 2;
+  grid-row: 1 / 3;
+}
+
+.vp-brand-cell img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.5s ease;
+}
+
+.vp-brand:hover .vp-brand-cell img {
+  transform: scale(1.05);
+}
+
+/* The plate, floating dead centre of the mosaic.
+
+   White glass, not the page's ink tint: this sits on photographs, and the
+   established recipe for glass over a photograph here is the category tiles'
+   own label — .vp-category-label, which .vp-best-colors already borrowed for
+   exactly this reason. Ink glass over a photograph reads as a smudge; white
+   glass reads as glass.
+
+   Sat on the seam between the lead photograph and the stacked pair, not on the
+   tile's centre — «اون شیشه ای بیاد راستتر که اون خط عمودی بیفته وسطش». The
+   seam is where the wide column ends, so its middle is that column's width
+   plus half the gap, and this is that expression rather than a percentage
+   somebody measured once: it stays on the seam at every tile width, and it
+   follows if the columns are ever re-proportioned.
+
+   Still centred by transform rather than by insets, so it does not care which
+   way the page runs. */
+.vp-brand-plate {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  left: calc(
+    (100% - var(--mosaic-gap)) * var(--mosaic-lead) /
+      (var(--mosaic-lead) + var(--mosaic-small))
+    + var(--mosaic-gap) / 2
+  );
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: calc(100% - 32px);
+  padding: 10px 16px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.55);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  backdrop-filter: blur(12px) saturate(1.2);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.65),
+    0 4px 14px -8px rgba(16, 17, 17, 0.35);
+}
+
+/* Held to a box rather than sized by the file: the marks in here are the
+   template's placeholders and the real ones will not share their proportions,
+   so the slot has to be the constant, not the artwork. */
+.vp-brand-logo {
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+}
+
+.vp-brand-lines {
+  display: block;
+  min-width: 0;
+}
+
+.vp-brand-name {
+  display: block;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #101111;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vp-brand-stock {
+  display: block;
+  font-family: 'Vazirmatn', var(--body-font);
+  font-weight: 600;
+  font-size: 11px;
+  line-height: 1.5;
+  color: rgba(16, 17, 17, 0.62);
+  white-space: nowrap;
+}
+
+/* Four across needs the page's full width. Below 1200 they go two up, which
+   makes each tile wider than it is at 1440 — the plate has more room, not
+   less, so nothing inside it has to change. */
+@media (max-width: 1199px) {
+  .vp-brands-row { grid-template-columns: repeat(2, 1fr); }
+  .vp-brands-panel { border-radius: 40px; padding: 22px; }
+}
+
+@media (max-width: 575px) {
+  .vp-brands-row { grid-template-columns: 1fr; }
+  .vp-brands-panel { margin-top: 70px; border-radius: 32px; padding: 16px; }
+  .vp-brands-title { font-size: 20px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vp-brand-cell img { transition: none; }
+  .vp-brand:hover .vp-brand-cell img { transform: none; }
+}
