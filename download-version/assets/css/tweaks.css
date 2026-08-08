@@ -4469,11 +4469,21 @@ ul.vp-how-list.is-ticked li:before {
   transform: translate(-50%, -50%);
   display: flex;
   align-items: center;
-  gap: 10px;
+  /* 20% up on every measurement the plate is made of, so it grows as one
+     object rather than as a bigger box with the old contents in it: gap
+     10 -> 12, padding 10/16 -> 12/19.2, round 22 -> 26.4, and the mark and
+     both lines with them (see .vp-brand-logo and the two below it). */
+  gap: 12px;
   max-width: calc(100% - 32px);
-  padding: 10px 16px;
-  border-radius: 22px;
-  background: rgba(255, 255, 255, 0.55);
+  padding: 12px 19.2px;
+  border-radius: 26.4px;
+  /* 0.68, up from the 0.55 this and .vp-category-label share — «کمی هم
+     سفیدتر». It is the one place on the page that departs from that value,
+     and it stays a long way short of the mistake «لبه پنهان» records: a
+     near-opaque white was tried on the header island and rejected, because
+     at that point there is nothing left to see through and it stops being
+     glass. At 0.68 the photograph still moves under it. */
+  background: rgba(255, 255, 255, 0.68);
   -webkit-backdrop-filter: blur(12px) saturate(1.2);
   backdrop-filter: blur(12px) saturate(1.2);
   box-shadow:
@@ -4486,8 +4496,8 @@ ul.vp-how-list.is-ticked li:before {
    so the slot has to be the constant, not the artwork. */
 .vp-brand-logo {
   flex: 0 0 auto;
-  width: 30px;
-  height: 30px;
+  width: 36px;
+  height: 36px;
   object-fit: contain;
 }
 
@@ -4500,7 +4510,7 @@ ul.vp-how-list.is-ticked li:before {
   display: block;
   font-family: 'Cairo', var(--title-font);
   font-weight: 700;
-  font-size: 14px;
+  font-size: 16.8px;
   line-height: 1.5;
   color: #101111;
   white-space: nowrap;
@@ -4512,7 +4522,7 @@ ul.vp-how-list.is-ticked li:before {
   display: block;
   font-family: 'Vazirmatn', var(--body-font);
   font-weight: 600;
-  font-size: 11px;
+  font-size: 13.2px;
   line-height: 1.5;
   color: rgba(16, 17, 17, 0.62);
   white-space: nowrap;
