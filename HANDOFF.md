@@ -69,24 +69,41 @@ about them has to be re-measured when the header or the card changes height.
 
 ## Not finished
 
-Everything below the category row is the template's, in the template's English,
-with the template's stock photography:
+This table used to say everything below the category row was the template's.
+That is no longer true, and it had drifted far enough to be misleading — the
+row it called «Men’s Collections» has been the Persian ladder for some time.
+What follows was read off the rendered page, section by section, rather than
+carried forward: the heading each block actually shows, and how many of its
+photographs are ours rather than the template's.
 
-| section | |
-|---|---|
-| collection-area | «Men’s Collections» — still English, see below |
-| best sellers | Persian heading, template products |
-| offer banner | «BLACK» — English |
-| today's deals | «Today’s Best Deals» — still English |
-| brand strip | «The Official Store of the Amazing Brand» — English |
-| footer | «Menu» and the column headings — English |
+| section, top to bottom | heading it renders | photographs | whose |
+|---|---|---|---|
+| trust row | «ارسال سریع» | 8 of 13 ours | ours |
+| ladder — was collection-area | «حراج پله‌ای ویکی پلاس» | 5 of 5 ours | ours |
+| best sellers | «پرفروش‌ترین‌ها» | 6 of 6 ours | ours |
+| offer banner | «SPECIAL OFFER» / «BLACK FRIDAY» | 0 of 1 | **template** |
+| daily deal — was today's deals | «قبل از تمام شدن بخرش!» | 1 of 1 ours | ours |
+| brand strip | «The Official Store of the Amazing Brand» | 0 of 40 | **template** |
+| footer | «Menu» | 0 of 5 | **template** |
 
-**Two headings are already in the dictionary and still render English.** The
-template writes them with a curly apostrophe — `Men’s`, `Today’s` — and the
-dictionary in `theme/make-rtl-page.js` has the straight one. Fixing the two
-keys is the first five minutes of the next session.
+So three blocks are left, not eight: **the offer banner, the brand strip and
+the footer.** The banner still reads BLACK FRIDAY / SPECIAL OFFER over ADIDAS
+SHOES on a stock photograph; the brand strip is forty template logos under an
+English line; the footer carries «Menu», the column headings and an address in
+Germany for a furniture company.
 
-**Four of these are no longer on the page.** «نظرات مشتریان», «محصولات منتخب»,
+**The dark strip at the very top is not done either**, though the "Finished"
+section above covers its geometry. It still shows the template's
+`helloerna@mail.com`, its English/Spanish/Hindi language list and its USD/Euro
+currency list. That is copy, not layout, which is why the measurements above
+still hold.
+
+**The note about two curly-apostrophe dictionary keys is gone with them.**
+`Men’s Collections` and `Today’s Best Deals` do not render anywhere on the
+page any more — the ladder and the daily deal took those two slots — so there
+is nothing left to fix in the dictionary for them.
+
+**Four sections came off the page entirely.** «نظرات مشتریان», «محصولات منتخب»,
 «تازه‌ترین مطالب» and «اینستاگرام» — testimonials, feature products, blog,
 instagram — were taken off the home page at the client's request. They were
 the four that had nothing of ours in them at all, only template faces,
@@ -100,10 +117,14 @@ silently leaving the section on the page. If any of these is ever wanted back,
 delete its heading from the list — the markup is still in the template's own
 `shoe-shop.html`, untouched.
 
-The hero deck's other four slides still carry the template's grey placeholder
-shoes; only the two slides that hold the real product photograph
-(`assets/img/hero/vikyplus-hero-1.png`) are ours, and the deck opens on one of
-them. The deck runs two slides to a view and shows 83px of the neighbouring
+The hero deck no longer carries any placeholders — this used to say four of
+the six slides were the template's grey shoes and that the one real photograph
+was `vikyplus-hero-1.png`, which is not even in the repo any more. All six
+slides are ours now: three photographs — `vikyplus-hero-nb530.webp`,
+`-jordan.webp`, `-goldengoose.webp` — each used twice, so the deck reads as a
+loop of three rather than six of anything.
+
+The deck runs two slides to a view and shows 83px of the neighbouring
 cards at each margin — that is the template working as designed and it is
 wanted. It has now been cut twice and put back twice. See «همسایه» in
 `CLAUDE.md` before touching it.
