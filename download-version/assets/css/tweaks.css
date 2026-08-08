@@ -4366,15 +4366,27 @@ ul.vp-how-list.is-ticked li:before {
   box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.06);
 }
 
-/* One lead photograph down the reading-start side, two stacked opposite it —
-   the reference's own arrangement. The 3px gap is the reference's hairline
-   between cells, and it is the card's white showing through rather than a
-   drawn line, so it stays a gap at any size. */
+/* One lead photograph, two stacked small ones opposite it — the reference's
+   own arrangement, and the sides are the reference's too: **lead on the left,
+   the small pair on the right**.
+
+   This does not follow the page's direction, and that is deliberate. The
+   mosaic is a picture, not a line of content: it is `aria-hidden`, it holds no
+   text, and nothing in it reads in an order. Left to itself in an RTL document
+   the first grid column lands on the right, which put the lead on the right
+   and mirrored the reference — «طرحو فلیپ کن اون کوچولوها بیفته راست مث همون
+   عکسی که بهت دادم». So the placement is stated rather than inherited: the
+   narrow column is column 1 (the right in RTL) and the lead is put explicitly
+   in column 2.
+
+   The 3px gap is the reference's hairline between cells, and it is the card's
+   own white showing through rather than a drawn line, so it stays a gap at
+   any size. */
 .vp-brand-mosaic {
   position: absolute;
   inset: 0;
   display: grid;
-  grid-template-columns: 1.35fr 1fr;
+  grid-template-columns: 1fr 1.35fr;
   grid-template-rows: 1fr 1fr;
   gap: 3px;
   background: #FFFFFF;
@@ -4385,6 +4397,7 @@ ul.vp-how-list.is-ticked li:before {
 }
 
 .vp-brand-cell.is-lead {
+  grid-column: 2;
   grid-row: 1 / 3;
 }
 
