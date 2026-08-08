@@ -1023,6 +1023,88 @@ const HOW_HTML =
 html = html.replace('</body>', HOW_HTML + '</body>');
 
 
+// --- the brand strip, rebuilt as four tiles ----------------------------------
+//
+// Was the template's: a three-up carousel of «The Official Store of the
+// Amazing Brand» with Adidas cards and stock products. The client asked for
+// the shape in the reference they sent — a photo mosaic per tile with a glass
+// plate floating in the middle of it — four of them, on one white card running
+// the width of the page.
+//
+// Three things in here are placeholders and are marked as such below: the
+// logos, the photographs and the stock counts. The client chose each of those
+// substitutions rather than wait for the real assets, so the layout can be
+// settled now and the content dropped in later.
+const BRANDS = [
+  // The mosaic photographs are the eight category tiles from the top of the
+  // page — the client's own call («از عکس های اون قسمت هشتایی بالای وبسایت
+  // استفاده کن») when it turned out we hold one product photograph per brand
+  // and this shape wants three. Twelve slots against eight photographs means
+  // four repeat; what does not repeat is the lead photograph of each tile, so
+  // no two tiles open on the same image.
+  //
+  // The logos are the template's own. brand_5_2 is genuinely the Nike swoosh
+  // and is used where it belongs; the other three are the template's abstract
+  // marks from one family, standing in until real ones arrive. Swap the file
+  // and nothing else has to change.
+  //
+  // The counts are invented. There is no inventory behind this page — the
+  // Laravel app has the tables, this static page has no data — so they are
+  // shaped like real numbers and are not real numbers.
+  { name: 'نایک',       logo: 'brand_5_2.png', stock: '۴۲', lead: 'sneaker', a: 'sport-set', b: 'sandal' },
+  { name: 'جردن',       logo: 'brand_1_6.svg', stock: '۲۸', lead: 'boot',    a: 'college',   b: 'accessory' },
+  { name: 'نیوبالانس',  logo: 'brand_1_5.svg', stock: '۳۵', lead: 'college', a: 'bag-set',   b: 'sneaker' },
+  { name: 'گلدن گوس',   logo: 'brand_1_3.svg', stock: '۱۹', lead: 'majlesi', a: 'accessory', b: 'sport-set' },
+];
+
+const BRANDS_HTML =
+  '    <section class="vp-brands-section space">\n' +
+  '        <div class="vp-brands-panel">\n' +
+  '            <div class="vp-brands-head">\n' +
+  '                <h2 class="vp-brands-title">برندهای موجود</h2>\n' +
+  '                <a href="shop.html" class="vp-brands-all">مشاهده همه برندها</a>\n' +
+  '            </div>\n' +
+  '            <div class="vp-brands-row">\n' +
+  BRANDS.map(b =>
+    '                <a class="vp-brand" href="shop.html">\n' +
+    // The mosaic is decoration: the tile already says the brand's name and
+    // what it holds in text, so the photographs carry nothing a reader would
+    // otherwise lose and are hidden rather than given invented alt copy.
+    '                    <span class="vp-brand-mosaic" aria-hidden="true">\n' +
+    `                        <span class="vp-brand-cell is-lead"><img src="assets/img/category/${b.lead}.jpg" alt="" loading="lazy"></span>\n` +
+    `                        <span class="vp-brand-cell"><img src="assets/img/category/${b.a}.jpg" alt="" loading="lazy"></span>\n` +
+    `                        <span class="vp-brand-cell"><img src="assets/img/category/${b.b}.jpg" alt="" loading="lazy"></span>\n` +
+    '                    </span>\n' +
+    '                    <span class="vp-brand-plate">\n' +
+    `                        <img class="vp-brand-logo" src="assets/img/brand/${b.logo}" alt="" loading="lazy">\n` +
+    '                        <span class="vp-brand-lines">\n' +
+    `                            <span class="vp-brand-name">${b.name}</span>\n` +
+    `                            <span class="vp-brand-stock">${b.stock} کالا موجود</span>\n` +
+    '                        </span>\n' +
+    '                    </span>\n' +
+    '                </a>\n'
+  ).join('') +
+  '            </div>\n' +
+  '        </div>\n' +
+  '    </section>';
+
+// Keyed on the class rather than the heading: this block has a real one
+// (.brand-area6) and the heading is English the dictionary may yet catch.
+{
+  const start = html.indexOf('\n    <div class="brand-area6') + 1;
+  if (start === 0) throw new Error('brand strip: .brand-area6 is not on the page');
+  const tags = /<div\b|<\/div>/g;
+  tags.lastIndex = start;
+  let depth = 0, end = -1, m;
+  while ((m = tags.exec(html))) {
+    depth += m[0][1] === '/' ? -1 : 1;
+    if (depth === 0) { end = m.index + m[0].length; break; }
+  }
+  if (end < 0) throw new Error('brand strip: .brand-area6 never closes');
+  html = html.slice(0, start) + BRANDS_HTML + html.slice(end);
+}
+
+
 // --- sections the client took off the home page ------------------------------
 //
 // «نظرات مشتریان», «محصولات منتخب», «تازه‌ترین مطالب» and «اینستاگرام» come off.

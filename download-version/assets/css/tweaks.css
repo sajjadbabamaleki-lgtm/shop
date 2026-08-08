@@ -4273,3 +4273,215 @@ ul.vp-how-list.is-ticked li:before {
 .th-header {
   padding-top: var(--vp-sticky-reserve, 0px);
 }
+
+/* --------------------------------------------------------------------------
+   The brand strip, rebuilt: four tiles on one white card.
+
+   The template had a three-up carousel of «The Official Store of the Amazing
+   Brand» with Adidas cards and stock products. The client sent a reference —
+   tiles built from a photo mosaic with a rounded plate floating in the middle
+   of each — and asked for four of them «رو یه کارت سفید که از چپ تا راست
+   وبسایت کشیده باشه».
+
+   The card is .vp-best-panel's, number for number: 18 to the sides, 100 above,
+   28 of padding, 50 of round, the same ring and the same shadow. That is not
+   laziness — those numbers are the page's pane rhythm, argued over two rounds
+   and recorded on .vp-best-panel and .collection-area, and a fourth pane that
+   invented its own would break a decision that already cost a commit to make.
+   -------------------------------------------------------------------------- */
+.vp-brands-section {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.vp-brands-panel {
+  margin-inline: 18px;
+  margin-top: 100px;
+  padding: 28px;
+  border-radius: 50px;
+  background: #FFFFFF;
+  box-shadow:
+    inset 0 0 0 1.5px rgba(16, 17, 17, 0.12),
+    0 18px 32px -22px rgba(16, 17, 17, 0.18);
+}
+
+/* Title at the reading start, the way out opposite it — .vp-best-head's own
+   arrangement, so the two cards open the same way. */
+.vp-brands-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.vp-brands-title {
+  margin: 0;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 1.4;
+  color: #101111;
+}
+
+.vp-brands-all {
+  font-family: 'Vazirmatn', var(--body-font);
+  font-weight: 600;
+  font-size: 13.5px;
+  color: #A47F25;
+  text-decoration: none;
+}
+
+.vp-brands-all:hover {
+  color: #8A6A2A;
+  text-decoration: underline;
+}
+
+.vp-brands-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+
+/* The tile. 4:3, and the ratio is the whole argument here.
+
+   The reference shows two cards to a row; this shows four, so each tile is
+   about half the width the reference's are and the mosaic's cells shrink with
+   it. At 5:3 — tried first — a tile at 1440 came out 324x194 and the two
+   stacked cells were 95px tall each: too small to read as photographs, and
+   the plate at 58 tall filled a third of the tile instead of floating in it.
+   4:3 puts the same tile at 324x243, which is where the two-up rendering at
+   992 already reads correctly.
+
+   Checked at 1440, 1200 and 992; the plate stays centred and inside the tile
+   at all three. */
+.vp-brand {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 3;
+  border-radius: 28px;
+  overflow: hidden;
+  text-decoration: none;
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.06);
+}
+
+/* One lead photograph down the reading-start side, two stacked opposite it —
+   the reference's own arrangement. The 3px gap is the reference's hairline
+   between cells, and it is the card's white showing through rather than a
+   drawn line, so it stays a gap at any size. */
+.vp-brand-mosaic {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 3px;
+  background: #FFFFFF;
+}
+
+.vp-brand-cell {
+  overflow: hidden;
+}
+
+.vp-brand-cell.is-lead {
+  grid-row: 1 / 3;
+}
+
+.vp-brand-cell img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.5s ease;
+}
+
+.vp-brand:hover .vp-brand-cell img {
+  transform: scale(1.05);
+}
+
+/* The plate, floating dead centre of the mosaic.
+
+   White glass, not the page's ink tint: this sits on photographs, and the
+   established recipe for glass over a photograph here is the category tiles'
+   own label — .vp-category-label, which .vp-best-colors already borrowed for
+   exactly this reason. Ink glass over a photograph reads as a smudge; white
+   glass reads as glass.
+
+   Centred with a transform rather than by insets so it does not care which
+   way the page runs. */
+.vp-brand-plate {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: calc(100% - 32px);
+  padding: 10px 16px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.55);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  backdrop-filter: blur(12px) saturate(1.2);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.65),
+    0 4px 14px -8px rgba(16, 17, 17, 0.35);
+}
+
+/* Held to a box rather than sized by the file: the marks in here are the
+   template's placeholders and the real ones will not share their proportions,
+   so the slot has to be the constant, not the artwork. */
+.vp-brand-logo {
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+}
+
+.vp-brand-lines {
+  display: block;
+  min-width: 0;
+}
+
+.vp-brand-name {
+  display: block;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #101111;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vp-brand-stock {
+  display: block;
+  font-family: 'Vazirmatn', var(--body-font);
+  font-weight: 600;
+  font-size: 11px;
+  line-height: 1.5;
+  color: rgba(16, 17, 17, 0.62);
+  white-space: nowrap;
+}
+
+/* Four across needs the page's full width. Below 1200 they go two up, which
+   makes each tile wider than it is at 1440 — the plate has more room, not
+   less, so nothing inside it has to change. */
+@media (max-width: 1199px) {
+  .vp-brands-row { grid-template-columns: repeat(2, 1fr); }
+  .vp-brands-panel { border-radius: 40px; padding: 22px; }
+}
+
+@media (max-width: 575px) {
+  .vp-brands-row { grid-template-columns: 1fr; }
+  .vp-brands-panel { margin-top: 70px; border-radius: 32px; padding: 16px; }
+  .vp-brands-title { font-size: 20px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vp-brand-cell img { transition: none; }
+  .vp-brand:hover .vp-brand-cell img { transform: none; }
+}

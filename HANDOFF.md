@@ -83,14 +83,33 @@ photographs are ours rather than the template's.
 | best sellers | «پرفروش‌ترین‌ها» | 6 of 6 ours | ours |
 | offer banner | «SPECIAL OFFER» / «BLACK FRIDAY» | 0 of 1 | **template** |
 | daily deal — was today's deals | «قبل از تمام شدن بخرش!» | 1 of 1 ours | ours |
-| brand strip | «The Official Store of the Amazing Brand» | 0 of 40 | **template** |
+| brand strip | «برندهای موجود» | our layout, placeholder content | see below |
 | footer | «Menu» | 0 of 5 | **template** |
 
-So three blocks are left, not eight: **the offer banner, the brand strip and
-the footer.** The banner still reads BLACK FRIDAY / SPECIAL OFFER over ADIDAS
-SHOES on a stock photograph; the brand strip is forty template logos under an
-English line; the footer carries «Menu», the column headings and an address in
-Germany for a furniture company.
+So two blocks are still wholly the template's: **the offer banner and the
+footer.** The banner reads BLACK FRIDAY / SPECIAL OFFER over ADIDAS SHOES on a
+stock photograph; the footer carries «Menu», the column headings and an address
+in Germany for a furniture company.
+
+**The brand strip is ours in shape and borrowed in content.** The template's
+carousel is gone, replaced by four tiles on one white card — a photo mosaic
+per tile with a glass plate floating in the middle carrying the brand's mark,
+its name and a stock count. The layout is settled and measured. Three things
+in it are stand-ins, each chosen by the client rather than waited for, and all
+three live in one array (`BRANDS`) at the top of the brand block in
+`theme/make-rtl-page.js`:
+
+- **the marks** — `brand_5_2.png` is genuinely the Nike swoosh and sits where
+  it belongs; the other three are the template's own abstract marks. The slot
+  is a fixed 30×30 box rather than sized off the artwork, so a real logo drops
+  in without touching the CSS.
+- **the photographs** — the eight category tiles from the top of the page. We
+  hold one product photograph per brand and this shape wants three, so twelve
+  slots against eight images means four repeat. No two tiles open on the same
+  lead image.
+- **the counts** — invented. There is no inventory behind this page; the
+  Laravel app has the tables, the static page has no data. They are shaped
+  like real numbers and are not real numbers.
 
 **The dark strip at the very top is not done either**, though the "Finished"
 section above covers its geometry. It still shows the template's
