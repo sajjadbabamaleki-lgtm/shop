@@ -4356,11 +4356,16 @@ ul.vp-how-list.is-ticked li:before {
 
    Checked at 1440, 1200 and 992; the plate stays centred and inside the tile
    at all three. */
+/* 40, up from 28 — «۴ تا گوشه بیرونی». These four are the only corners in the
+   tile: the mosaic's internal joins stay square, and the tile's own overflow
+   clip is what rounds the photographs where they meet these. 40 sits under
+   the white card's 50 so the tile still reads as something held by the card
+   rather than as another card. */
 .vp-brand {
   position: relative;
   display: block;
   aspect-ratio: 4 / 3;
-  border-radius: 28px;
+  border-radius: 40px;
   overflow: hidden;
   text-decoration: none;
   box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.06);
@@ -4392,18 +4397,12 @@ ul.vp-how-list.is-ticked li:before {
   background: #FFFFFF;
 }
 
-/* The three photographs get their own corners — «گوشه ها کروتر بشه», asked
-   for in the same breath as the doubled gap, and the two go together: at a
-   3px gap with square corners the cells read as one image cut by lines, and
-   at 6px with rounded ones they read as three photographs sitting side by
-   side, which is what the reference shows.
-
-   14 against the tile's own 28: the cells have to stay visibly tighter than
-   the shape holding them, or the tile's outer corner stops reading as the
-   outer corner. */
+/* The cells stay square. «گوشه ها کروتر بشه» meant the tile's four outer
+   corners, not the joins in the middle — rounding the cells was read wrong
+   once and put a corner on every internal edge, which is the opposite of what
+   was asked. The tile's own radius carries the round; see .vp-brand. */
 .vp-brand-cell {
   overflow: hidden;
-  border-radius: 14px;
 }
 
 .vp-brand-cell.is-lead {
