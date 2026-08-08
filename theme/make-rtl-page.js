@@ -1206,6 +1206,145 @@ html = html.replace('</body>',
   '        }());\n' +
   '    </script>\n</body>');
 
+// The page's scroll work, done once a frame.
+//
+// The client reported the page catching and stepping as it scrolls. Measured
+// at 1440 over a full-page wheel scroll, Chromium spent 1487ms of task time,
+// of which 252ms was style recalculation across 281 recalcs and 75ms was
+// layout across 213 layouts — for a scroll that should cost almost nothing.
+//
+// main.js binds four separate jQuery handlers to window.scroll, none passive,
+// and each of them reads layout on every event:
+//
+//   04. Sticky fix      reads scrollTop, toggles .sticky on the wrapper
+//   05. Scroll To Top    reads $(document).height() and $(window).height()
+//                        every event, then writes strokeDashoffset — through
+//                        a `stroke-dashoffset 10ms linear` transition, so a
+//                        transition starts and finishes on every frame of
+//                        every scroll for a move nobody can see
+//   05. (again)          a second handler for the button's .show class
+//   footer animation     reads $('.th-screen').offset().top and .height()
+//                        every event — and .th-screen is transitioning its
+//                        own `width` over 350ms while it does, so layout is
+//                        dirty and each of those reads forces it again
+//
+// Reading layout from a scroll handler is the classic way to lose frames: the
+// handler runs before the frame's layout, so a read that finds the tree dirty
+// forces the whole document to be laid out synchronously, inside the event.
+// A forced layout of this page measures 40.6ms on its own — two and a half
+// frames, spent before anything has been drawn.
+//
+// So: take those four off, and do the same four jobs here, once per frame in
+// a requestAnimationFrame, from a passive listener. The scroll path itself
+// reads nothing — every measurement it needs is taken in remeasure() and kept
+// here, refreshed by a ResizeObserver, whose callback runs after layout has
+// already been computed and so pays for nothing. What is left in the frame is
+// four writes.
+//
+// off("scroll") is blunt — it takes every jQuery-bound window scroll handler,
+// not just these. That is deliberate and it is checked: the page binds exactly
+// these four (counted through jQuery._data(window,'events')), and all four are
+// reimplemented below, behaviour for behaviour. main.js is a plain IIFE, not a
+// ready callback, so it has already bound by the time this script parses.
+//
+// The one thing this adds rather than preserves is the reserve: the height the
+// island gives up when it leaves the flow, measured and handed to tweaks.css,
+// which is what stops the page stepping at the threshold. See «پریدگی» there.
+html = html.replace('</body>',
+  '    <script>\n' +
+  '        (function () {\n' +
+  '            var $ = window.jQuery;\n' +
+  '            var wrap = document.querySelector(".sticky-wrapper");\n' +
+  '            var header = wrap && wrap.closest(".th-header");\n' +
+  '            var menu = wrap && wrap.querySelector(".menu-area");\n' +
+  '            var catMenu = document.querySelector(".category-menu");\n' +
+  '            var toTop = document.querySelector(".scroll-top");\n' +
+  '            var ring = toTop && toTop.querySelector("path");\n' +
+  '            var screenEl = document.querySelector(".th-screen");\n' +
+  '            if (!$ || !wrap || !header) return;\n' +
+  '\n' +
+  '            $(window).off("scroll");\n' +
+  '\n' +
+  '            var ringLen = 0;\n' +
+  '            if (ring) {\n' +
+  '                ringLen = ring.getTotalLength();\n' +
+  '                ring.style.strokeDasharray = ringLen + " " + ringLen;\n' +
+  '                // The ring is written once a frame; a transition on it only\n' +
+  '                // means every one of those writes is also a transition.\n' +
+  '                ring.style.transition = ring.style.WebkitTransition = "none";\n' +
+  '            }\n' +
+  '\n' +
+  '            // Everything the frame needs to know about the page\'s size.\n' +
+  '            // Taken here so the scroll path never reads layout.\n' +
+  '            var docH = 0, winH = 0, screenTop = 0, screenH = 0, reserve = 0;\n' +
+  '            function remeasure() {\n' +
+  '                winH = window.innerHeight;\n' +
+  '                docH = document.documentElement.scrollHeight;\n' +
+  '                if (screenEl) {\n' +
+  '                    var r = screenEl.getBoundingClientRect();\n' +
+  '                    screenTop = r.top + window.pageYOffset;\n' +
+  '                    screenH = r.height;\n' +
+  '                }\n' +
+  '                // The island\'s flow height: its own box plus the top margin\n' +
+  '                // that collapses through the wrapper. Only meaningful while\n' +
+  '                // it is still in the flow.\n' +
+  '                if (menu && !stuck) {\n' +
+  '                    reserve = menu.offsetHeight +\n' +
+  '                        (parseFloat(getComputedStyle(menu).marginTop) || 0);\n' +
+  '                }\n' +
+  '            }\n' +
+  '\n' +
+  '            var stuck = false;\n' +
+  '            function apply(y) {\n' +
+  '                var nowStuck = y > 500;\n' +
+  '                if (nowStuck !== stuck) {\n' +
+  '                    stuck = nowStuck;\n' +
+  '                    wrap.classList.toggle("sticky", stuck);\n' +
+  '                    if (catMenu) catMenu.classList.toggle("close-category", stuck);\n' +
+  '                    header.style.setProperty("--vp-sticky-reserve",\n' +
+  '                        (stuck ? reserve : 0) + "px");\n' +
+  '                }\n' +
+  '                if (ring) {\n' +
+  '                    var run = docH - winH;\n' +
+  '                    ring.style.strokeDashoffset =\n' +
+  '                        run > 0 ? ringLen - (y * ringLen / run) : ringLen;\n' +
+  '                }\n' +
+  '                if (toTop) toTop.classList.toggle("show", y > 50);\n' +
+  '                if (screenEl) {\n' +
+  '                    // The template\'s own test, unchanged: the footer is left\n' +
+  '                    // alone while it sits whole in the viewport, allowing 200.\n' +
+  '                    var whole = screenTop + screenH - 200 <= y + winH && screenTop >= y;\n' +
+  '                    screenEl.classList.toggle("th-visible", !whole);\n' +
+  '                }\n' +
+  '            }\n' +
+  '\n' +
+  '            var queued = false;\n' +
+  '            window.addEventListener("scroll", function () {\n' +
+  '                if (queued) return;\n' +
+  '                queued = true;\n' +
+  '                requestAnimationFrame(function () {\n' +
+  '                    queued = false;\n' +
+  '                    apply(window.pageYOffset);\n' +
+  '                });\n' +
+  '            }, { passive: true });\n' +
+  '\n' +
+  '            // The page keeps growing after load — images arrive, the footer\n' +
+  '            // animates its own width. A ResizeObserver is told about that\n' +
+  '            // after layout has already run, so keeping the cache fresh this\n' +
+  '            // way costs nothing; polling it from the scroll path would not.\n' +
+  '            window.addEventListener("resize", remeasure);\n' +
+  '            if ("ResizeObserver" in window) {\n' +
+  '                var ro = new ResizeObserver(remeasure);\n' +
+  '                ro.observe(document.body);\n' +
+  '                if (screenEl) ro.observe(screenEl);\n' +
+  '            }\n' +
+  '            window.addEventListener("load", remeasure);\n' +
+  '\n' +
+  '            remeasure();\n' +
+  '            apply(window.pageYOffset);\n' +
+  '        }());\n' +
+  '    </script>\n</body>');
+
 fs.writeFileSync(out, html);
 console.log(`wrote ${path.relative(ROOT, out)} (theme: ${theme || 'none — template colours'})`);
 
