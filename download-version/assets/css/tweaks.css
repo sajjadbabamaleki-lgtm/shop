@@ -2479,13 +2479,21 @@ option:hover {
    the line count change — 46px for a ~250px tile against the hero's 121 for a
    1227px card, and one line instead of two, since there is only room for the
    cut and not a second word under it. */
+/* The same size as the basket on the other corner of the same card — «اون
+   ستاره گوشه راست بالا باید اندازش اندازه سبد خرید تو همون قسمت باشه». It was
+   46 against the basket's 44, close enough to read as a mistake rather than a
+   pair; both are 52.8 now, so the two corners carry one size. The number is
+   .vp-deal-cart's, not a fresh one, for the same reason the strip's is.
+
+   The «٪۳۰» inside needs nothing: it is set in the burst's own 150-unit view
+   box, so it grows with the shape. */
 .vp-deal-burst {
   position: absolute;
   inset-block-start: 8px;
   inset-inline-start: 8px;
   z-index: 2;
-  width: 46px;
-  height: 46px;
+  width: 52.8px;
+  height: 52.8px;
 }
 
 /* Turns in place, same as the hero's — see the keyframes and the reasoning
@@ -2673,6 +2681,9 @@ option:hover {
   .vp-deal-shot { border-radius: 28px; }
   .vp-deal-label { inset-inline-end: 70px; }
   .vp-deal-cart { width: 48px; height: 48px; inset-block-end: 12px; inset-inline-end: 12px; }
+  /* The burst steps down with the basket, or the pair the client asked for
+     only holds above 1200 — measured 52.8 against 48 at 992 before this. */
+  .vp-deal-burst { width: 48px; height: 48px; }
 }
 
 /* --------------------------------------------------------------------------
