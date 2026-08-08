@@ -4379,21 +4379,31 @@ ul.vp-how-list.is-ticked li:before {
    narrow column is column 1 (the right in RTL) and the lead is put explicitly
    in column 2.
 
-   The 3px gap is the reference's hairline between cells, and it is the card's
-   own white showing through rather than a drawn line, so it stays a gap at
-   any size. */
+   The gap is 6, doubled from the 3 this started at at the client's request,
+   and it is the card's own white showing through rather than a drawn line, so
+   it stays a gap at any size. */
 .vp-brand-mosaic {
   position: absolute;
   inset: 0;
   display: grid;
   grid-template-columns: 1fr 1.35fr;
   grid-template-rows: 1fr 1fr;
-  gap: 3px;
+  gap: 6px;
   background: #FFFFFF;
 }
 
+/* The three photographs get their own corners — «گوشه ها کروتر بشه», asked
+   for in the same breath as the doubled gap, and the two go together: at a
+   3px gap with square corners the cells read as one image cut by lines, and
+   at 6px with rounded ones they read as three photographs sitting side by
+   side, which is what the reference shows.
+
+   14 against the tile's own 28: the cells have to stay visibly tighter than
+   the shape holding them, or the tile's outer corner stops reading as the
+   outer corner. */
 .vp-brand-cell {
   overflow: hidden;
+  border-radius: 14px;
 }
 
 .vp-brand-cell.is-lead {
