@@ -483,6 +483,12 @@ const LADDER_STEP_NAME = LADDER_STEPS.find(([, , , state]) => state === 'current
 //
 // price is what it was before the sale. What is shown is that less the live
 // step's cut, worked out here rather than written down twice.
+//
+// The fourth column was the size/scarcity line — «فقط سایزهای ۳۷ و ۳۹» and the
+// like — drawn on the tile as .vp-deal-stock. The client asked for it off the
+// card. It is left in the data rather than deleted: it is the only place those
+// sizes are written down, it costs nothing unused, and putting the pill back
+// is then one line in the template rather than five invented strings.
 const LADDER_DEALS = [
   ['hero/vikyplus-hero-goldengoose.webp', 'کتونی گلدن گوس', 6480000, 'فقط سایزهای ۳۷ و ۳۹'],
   ['hero/vikyplus-deal-cloudtilt.webp', 'کتونی اون کلادتیلت', 4880000, 'فقط سایزهای ۳۸ و ۴۰'],
@@ -569,17 +575,21 @@ const LADDER_TRACK_HTML = LADDER_STEPS.map(([, , , state], i) => {
 // stacked — name, badges, price, stock, a bar, a full-width button — and at
 // four across that made the row the heaviest thing on the page.
 //
-// What is kept on the tile is what the sale is: the cut, the name, the two
-// prices, and how much is left. The step's name and the countdown come off the
-// card, because the ladder above already says both once for all four.
-const LADDER_DEALS_HTML = LADDER_DEALS.map(([file, name, price, stock], i) => {
+// What is kept on the tile is what the sale is: the cut, the name and the two
+// prices. The step's name and the countdown come off the card, because the
+// ladder above already says both once for all four.
+//
+// The size line went the same way at the client's request. The comment on
+// .vp-deal-stock argued it was the scarcity half of the offer and had earned
+// its place; that was our reasoning, not theirs, and they have now said
+// otherwise. The rule is still in tweaks.css, unused, next to that argument.
+const LADDER_DEALS_HTML = LADDER_DEALS.map(([file, name, price], i) => {
   const now = Math.round(price * (100 - LADDER_CUT) / 100);
   return '\n                <div class="col">' +
     '\n                    <div class="vp-deal">' +
     `\n                        <a class="vp-deal-shot" href="shop.html">` +
     `\n                            <img src="assets/img/${file}" alt="" loading="lazy">` +
     `\n                            ${dealBurst(LADDER_CUT, i)}` +
-    `\n                            <span class="vp-deal-stock">${stock}</span>` +
     '\n                            <span class="vp-deal-label">' +
     '\n                                <span class="vp-deal-lines">' +
     `\n                                    <span class="vp-deal-name">${name}</span>` +

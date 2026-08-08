@@ -2479,13 +2479,21 @@ option:hover {
    the line count change — 46px for a ~250px tile against the hero's 121 for a
    1227px card, and one line instead of two, since there is only room for the
    cut and not a second word under it. */
+/* The same size as the basket on the other corner of the same card — «اون
+   ستاره گوشه راست بالا باید اندازش اندازه سبد خرید تو همون قسمت باشه». It was
+   46 against the basket's 44, close enough to read as a mistake rather than a
+   pair; both are 52.8 now, so the two corners carry one size. The number is
+   .vp-deal-cart's, not a fresh one, for the same reason the strip's is.
+
+   The «٪۳۰» inside needs nothing: it is set in the burst's own 150-unit view
+   box, so it grows with the shape. */
 .vp-deal-burst {
   position: absolute;
   inset-block-start: 8px;
   inset-inline-start: 8px;
   z-index: 2;
-  width: 46px;
-  height: 46px;
+  width: 52.8px;
+  height: 52.8px;
 }
 
 /* Turns in place, same as the hero's — see the keyframes and the reasoning
@@ -2673,6 +2681,9 @@ option:hover {
   .vp-deal-shot { border-radius: 28px; }
   .vp-deal-label { inset-inline-end: 70px; }
   .vp-deal-cart { width: 48px; height: 48px; inset-block-end: 12px; inset-inline-end: 12px; }
+  /* The burst steps down with the basket, or the pair the client asked for
+     only holds above 1200 — measured 52.8 against 48 at 992 before this. */
+  .vp-deal-burst { width: 48px; height: 48px; }
 }
 
 /* --------------------------------------------------------------------------
@@ -4469,11 +4480,21 @@ ul.vp-how-list.is-ticked li:before {
   transform: translate(-50%, -50%);
   display: flex;
   align-items: center;
-  gap: 10px;
+  /* 20% up on every measurement the plate is made of, so it grows as one
+     object rather than as a bigger box with the old contents in it: gap
+     10 -> 12, padding 10/16 -> 12/19.2, round 22 -> 26.4, and the mark and
+     both lines with them (see .vp-brand-logo and the two below it). */
+  gap: 12px;
   max-width: calc(100% - 32px);
-  padding: 10px 16px;
-  border-radius: 22px;
-  background: rgba(255, 255, 255, 0.55);
+  padding: 12px 19.2px;
+  border-radius: 26.4px;
+  /* 0.68, up from the 0.55 this and .vp-category-label share — «کمی هم
+     سفیدتر». It is the one place on the page that departs from that value,
+     and it stays a long way short of the mistake «لبه پنهان» records: a
+     near-opaque white was tried on the header island and rejected, because
+     at that point there is nothing left to see through and it stops being
+     glass. At 0.68 the photograph still moves under it. */
+  background: rgba(255, 255, 255, 0.68);
   -webkit-backdrop-filter: blur(12px) saturate(1.2);
   backdrop-filter: blur(12px) saturate(1.2);
   box-shadow:
@@ -4486,8 +4507,8 @@ ul.vp-how-list.is-ticked li:before {
    so the slot has to be the constant, not the artwork. */
 .vp-brand-logo {
   flex: 0 0 auto;
-  width: 30px;
-  height: 30px;
+  width: 36px;
+  height: 36px;
   object-fit: contain;
 }
 
@@ -4500,7 +4521,7 @@ ul.vp-how-list.is-ticked li:before {
   display: block;
   font-family: 'Cairo', var(--title-font);
   font-weight: 700;
-  font-size: 14px;
+  font-size: 16.8px;
   line-height: 1.5;
   color: #101111;
   white-space: nowrap;
@@ -4512,7 +4533,7 @@ ul.vp-how-list.is-ticked li:before {
   display: block;
   font-family: 'Vazirmatn', var(--body-font);
   font-weight: 600;
-  font-size: 11px;
+  font-size: 13.2px;
   line-height: 1.5;
   color: rgba(16, 17, 17, 0.62);
   white-space: nowrap;
