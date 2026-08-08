@@ -1023,6 +1023,64 @@ const HOW_HTML =
 html = html.replace('</body>', HOW_HTML + '</body>');
 
 
+// --- sections the client took off the home page ------------------------------
+//
+// «نظرات مشتریان», «محصولات منتخب», «تازه‌ترین مطالب» and «اینستاگرام» come off.
+// All four were still the template's own — template faces, template products,
+// template posts, template photographs — and HANDOFF.md carried them under
+// "Not finished" waiting for real content.
+//
+// Each is cut by its heading rather than by a class, an id or a position.
+// Three of the four wrappers carry nothing to aim at — `<section class="">`,
+// `<section class="space overflow-hidden overflow-hidden">`, a bare
+// `.gallery-area6` — and line numbers move whenever anything above them
+// changes. The heading is the only thing about these blocks that is about
+// them. From it the cut walks out to the enclosing top-level block, matches
+// tags forward to its close, and takes the template's banner comment above it
+// too, which names the section and would otherwise point at nothing.
+//
+// This runs after the dictionary, so the headings are Persian by now. It
+// throws rather than quietly doing nothing when one stops matching: a removal
+// that no-ops silently puts the section back on the page, and nobody would
+// find out before the client did.
+function dropSection(html, heading) {
+  const at = html.indexOf('>' + heading + '<');
+  if (at < 0) throw new Error(`dropSection: no heading «${heading}» on the page`);
+
+  // the nearest top-level block opening above the heading
+  const openers = /\n {4}<(section|div)\b/g;
+  let start = -1, tag = null, m;
+  while ((m = openers.exec(html)) && m.index < at) { start = m.index + 1; tag = m[1]; }
+  if (start < 0) throw new Error(`dropSection: «${heading}» sits inside no top-level block`);
+
+  const tags = new RegExp(`<${tag}\\b|</${tag}>`, 'g');
+  tags.lastIndex = start;
+  let depth = 0, end = -1;
+  while ((m = tags.exec(html))) {
+    depth += m[0][1] === '/' ? -1 : 1;
+    if (depth === 0) { end = m.index + m[0].length; break; }
+  }
+  if (end < 0) throw new Error(`dropSection: «${heading}»'s <${tag}> never closes`);
+
+  // The template writes a banner comment naming each section immediately
+  // above it, tucked onto the end of the previous section's closing line.
+  // It belongs to the block being removed, so it goes with it.
+  const banner = html.slice(0, start).match(/<!--=+\r?\n[^\n]*\r?\n=+-->\s*$/);
+  const from = banner ? start - banner[0].length : start;
+
+  return html.slice(0, from) + html.slice(end);
+}
+
+for (const heading of [
+  'نظرات مشتریان',
+  'محصولات منتخب',
+  'تازه‌ترین مطالب',
+  'اینستاگرام',
+]) {
+  html = dropSection(html, heading);
+}
+
+
 // The marks behind the hero take the colour of the shoe on the card.
 //
 // Each hue is measured from the photograph itself — its opaque, coloured

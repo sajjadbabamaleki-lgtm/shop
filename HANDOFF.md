@@ -78,17 +78,27 @@ with the template's stock photography:
 | best sellers | Persian heading, template products |
 | offer banner | «BLACK» — English |
 | today's deals | «Today’s Best Deals» — still English |
-| testimonials | Persian heading, template faces |
 | brand strip | «The Official Store of the Amazing Brand» — English |
-| feature products | Persian heading, template products |
-| blog | Persian heading, template posts |
-| instagram | Persian heading, template photographs |
 | footer | «Menu» and the column headings — English |
 
 **Two headings are already in the dictionary and still render English.** The
 template writes them with a curly apostrophe — `Men’s`, `Today’s` — and the
 dictionary in `theme/make-rtl-page.js` has the straight one. Fixing the two
 keys is the first five minutes of the next session.
+
+**Four of these are no longer on the page.** «نظرات مشتریان», «محصولات منتخب»,
+«تازه‌ترین مطالب» and «اینستاگرام» — testimonials, feature products, blog,
+instagram — were taken off the home page at the client's request. They were
+the four that had nothing of ours in them at all, only template faces,
+products, posts and photographs, and no real content was coming for them.
+
+They are cut in `theme/make-rtl-page.js` by `dropSection()`, which finds each
+block by its **heading** and walks out to the enclosing top-level element:
+three of the four wrappers carry no class worth aiming at, so the heading is
+the only durable handle. It throws if a heading stops matching rather than
+silently leaving the section on the page. If any of these is ever wanted back,
+delete its heading from the list — the markup is still in the template's own
+`shoe-shop.html`, untouched.
 
 The hero deck's other four slides still carry the template's grey placeholder
 shoes; only the two slides that hold the real product photograph
