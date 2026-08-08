@@ -4362,6 +4362,13 @@ ul.vp-how-list.is-ticked li:before {
    the white card's 50 so the tile still reads as something held by the card
    rather than as another card. */
 .vp-brand {
+  /* The mosaic's proportions, hoisted here because two rules need them: the
+     grid that draws the columns, and the plate, which is positioned on the
+     seam between them rather than on the tile's centre. Change them here and
+     both follow. */
+  --mosaic-lead: 1.35;
+  --mosaic-small: 1;
+  --mosaic-gap: 6px;
   position: relative;
   display: block;
   aspect-ratio: 4 / 3;
@@ -4391,9 +4398,20 @@ ul.vp-how-list.is-ticked li:before {
   position: absolute;
   inset: 0;
   display: grid;
-  grid-template-columns: 1fr 1.35fr;
+  /* Written as percentages of what is left after the gap, not as fr — `fr` is
+     not allowed inside calc(), so `calc(1.35 * 1fr)` is an invalid value, and
+     an invalid track list drops the whole declaration and leaves the columns
+     to auto-size off the photographs. That happened here: the seam wandered to
+     wherever the images put it, 202px into a 324px tile instead of 186, and
+     the plate that is positioned on it was measured 17px adrift. Percentages
+     take the same three variables and give the same proportions. */
+  grid-template-columns:
+    calc((100% - var(--mosaic-gap)) * var(--mosaic-small) /
+      (var(--mosaic-lead) + var(--mosaic-small)))
+    calc((100% - var(--mosaic-gap)) * var(--mosaic-lead) /
+      (var(--mosaic-lead) + var(--mosaic-small)));
   grid-template-rows: 1fr 1fr;
-  gap: 6px;
+  gap: var(--mosaic-gap);
   background: #FFFFFF;
 }
 
@@ -4430,13 +4448,24 @@ ul.vp-how-list.is-ticked li:before {
    exactly this reason. Ink glass over a photograph reads as a smudge; white
    glass reads as glass.
 
-   Centred with a transform rather than by insets so it does not care which
+   Sat on the seam between the lead photograph and the stacked pair, not on the
+   tile's centre — «اون شیشه ای بیاد راستتر که اون خط عمودی بیفته وسطش». The
+   seam is where the wide column ends, so its middle is that column's width
+   plus half the gap, and this is that expression rather than a percentage
+   somebody measured once: it stays on the seam at every tile width, and it
+   follows if the columns are ever re-proportioned.
+
+   Still centred by transform rather than by insets, so it does not care which
    way the page runs. */
 .vp-brand-plate {
   position: absolute;
   z-index: 2;
   top: 50%;
-  left: 50%;
+  left: calc(
+    (100% - var(--mosaic-gap)) * var(--mosaic-lead) /
+      (var(--mosaic-lead) + var(--mosaic-small))
+    + var(--mosaic-gap) / 2
+  );
   transform: translate(-50%, -50%);
   display: flex;
   align-items: center;
