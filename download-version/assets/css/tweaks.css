@@ -2754,9 +2754,9 @@ option:hover {
   justify-content: center;
   gap: 8px;
   /* Same height as .vp-best-label below — client's own request, one glass
-     pill's height for both jobs. */
-  height: 44px;
-  border-radius: 22px;
+     pill's height for both jobs. It followed that strip from 44 to 52.8. */
+  height: 52.8px;
+  border-radius: 26.4px;
   background: rgba(255, 255, 255, 0.55);
   -webkit-backdrop-filter: blur(12px) saturate(1.2);
   backdrop-filter: blur(12px) saturate(1.2);
@@ -2796,21 +2796,53 @@ option:hover {
   gap: 10px;
 }
 
-/* 44 tall, 16 padding, 22 radius — .vp-deal-label's own numbers, from the
+/* 52.8 tall, 16 padding, 26.4 radius — .vp-deal-label's own numbers, from the
    stepped-sale deals below (same .vp-deal component): client's own request
    to match that price box's shape. The browse circle and the swatch pill
-   go to 44 with it, so all three glass pieces in this card family stay one
-   height. */
+   go to 52.8 with it, so all three glass pieces in this card family stay one
+   height.
+
+   All three were 44 and followed the deal strip up 20% when it went to 52.8,
+   asked for in those terms: «ارتفاع باکس قیمت و اسم کتونی تو بخش پرفروش
+   ترینها هم مث حراج پله ای بشه». The tie to .vp-deal-label is the point of
+   this rule, so the number is not chosen here — it is read off that strip,
+   and if that one moves again these move with it. The padding stays 16: what
+   was asked for is the height. */
 .vp-best-label {
   flex: 1;
   min-width: 0;
   display: flex;
   align-items: center;
-  height: 44px;
+  height: 52.8px;
   padding-inline: 16px;
-  border-radius: 22px;
+  border-radius: 26.4px;
   background: rgba(16, 17, 17, 0.034);
   box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.05);
+}
+
+/* Between 1200 and 1320 this row runs six cards wide and the strip is at its
+   narrowest — 102px at 1200, 115 at 1280. The price is one unbreakable thing
+   («۷٬۹۸۰٬۰۰۰ تومان») and needs about 88px; when it does not get them the
+   currency word wraps to a second line and falls straight out of the bottom of
+   the glass pill, which is as bad as it sounds.
+
+   Growing the browse circle to 52.8 took 8.8px off the strip and pushed 1280
+   over that edge — measured: 0 of 6 prices wrapped there before, 5 of 6 after.
+   The 8.8 comes back out of the strip's own side padding in exactly the band
+   that needs it, 16 -> 12, and the band runs to 1365 because the same 8.8 also
+   ellipsized one name at 1320. Above that the strip is wide enough that the
+   circle's extra width costs nothing, and the 16 stands.
+
+   Checked at 992, 1200, 1240, 1280, 1300, 1320, 1366, 1440 and 1920: with
+   this, both the number of prices falling out of the pill and the number of
+   names ellipsized are identical to what they were before the circle grew.
+
+   It does not rescue 1200-1240, where the strip is too narrow for the price
+   at any padding: 102 - 24 = 78 against the 88 it wants. That band wrapped
+   before any of this and still does. Fixing it means fewer than six cards to
+   the row there, which is a layout decision rather than a padding one. */
+@media (max-width: 1365px) {
+  .vp-best-label { padding-inline: 12px; }
 }
 
 /* Name above price, .vp-deal-lines' own stack — client's "write it in that
@@ -2869,15 +2901,18 @@ option:hover {
    plus glyph now at the client's request. */
 .vp-best-browse {
   flex: 0 0 auto;
-  width: 44px;
-  height: 44px;
+  width: 52.8px;
+  height: 52.8px;
   padding: 0;
   border: 0;
   border-radius: 50%;
   background: rgba(16, 17, 17, 0.034);
   box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.05);
   color: #101111;
-  font-size: 15px;
+  /* 15 scaled by the same 20% the circle took, for the reason the deal
+     card's basket glyph was: a circle that grows and keeps its old mark is
+     a bigger circle with a small glyph rattling in it. */
+  font-size: 18px;
   line-height: 1;
   display: flex;
   align-items: center;
