@@ -8,9 +8,18 @@ lose.
 ## What is being built, and what this HTML is
 
 **The deliverable is the Laravel app in `storefront/`.** It is Laravel 13 on
-PostgreSQL with the data core already standing — brands, categories, products,
-variants, media, inventory, with the invariants pushed into the database. It
-has no storefront views yet: one route, returning `welcome.blade.php`.
+PostgreSQL with the data core standing — brands, categories, products,
+variants, media, inventory, with the invariants pushed into the database — and,
+since the marketplace and franchise work, two more business domains on top of
+it: independent sellers with their own panels and mini stores, and a franchise
+network with tenant-resolved branch stores. `documentation/marketplace-and-franchise.md`
+is the map from the client's architecture document to what exists, what was
+decided, and what is deliberately missing.
+
+**The parent storefront still has no ported views.** The pages that exist on
+the parent host are the ones the marketplace needs — a seller directory, the
+registration flow, sign-in and the three panels. The home page is still
+`welcome.blade.php`.
 
 `download-version/shoe-shop-rtl.html` is **not the product**. It is the
 ThemeForest template with the design decisions layered on top, and it exists
@@ -18,12 +27,19 @@ because settling a look costs a fraction as much on a static page as it does in
 Blade — every argument in this repo's history was settled by rendering that page
 and reading pixels.
 
-**Nothing has been ported yet.** The finished top of the page lives entirely in
-`download-version/assets/css/tweaks.css` and `theme/make-rtl-page.js`, and the
-Laravel app does not render any of it. Porting it — a layout, partials for the
-header, hero and category row, the assets moved under `public/`, the tweaks
-carried over — is the next piece of real work, and it is what turns this
-handoff into a storefront.
+**The design has still not been ported.** The finished top of the page lives
+entirely in `download-version/assets/css/tweaks.css` and
+`theme/make-rtl-page.js`, and the Laravel app does not render any of it.
+Porting it — a layout, partials for the header, hero and category row, the
+assets moved under `public/`, the tweaks carried over — is still the next piece
+of real work on the *storefront*, and it is what turns this handoff into a shop
+customers can look at.
+
+The Blade that does exist takes the settled tokens — the glass tint, the gold,
+the 24px corner, an ink hairline along a pane's foot rather than a drop shadow
+— from `resources/views/partials/tokens.blade.php`, so the port has one place
+to reconcile with rather than a second visual language to undo. Those tokens
+are a summary of the decisions below, not a replacement for them.
 
 The numbers below are what that port has to reproduce. Everything in this file
 is about the HTML page at 1440.
@@ -147,6 +163,33 @@ The deck runs two slides to a view and shows 83px of the neighbouring
 cards at each margin — that is the template working as designed and it is
 wanted. It has now been cut twice and put back twice. See «همسایه» in
 `CLAUDE.md` before touching it.
+
+## The Laravel side: marketplace and franchise
+
+Built to the client's `laravel_marketplace_franchise_architecture_EN.pdf`. The
+full mapping — every section of that document against what implements it, the
+nine open decisions and how each was answered, and an honest list of what is
+missing — is in `documentation/marketplace-and-franchise.md`. Read it before
+touching `storefront/app/Domains/`.
+
+The four things most likely to be broken by accident:
+
+- **Mini-store isolation is structural, not cosmetic.** On a mini store's own
+  hostname the parent's routes are *not registered*
+  (`Domains/Tenancy/TenantRouting`). Do not "simplify" that into one route
+  table with hidden links — the client's requirement was that there is no way
+  through, and `MiniStoreIsolationTest` will fail if it becomes a matter of
+  templating. The cost is that `route:cache` must stay off.
+- **The commission rate is copied onto the order item at sale time.** Never
+  re-derive it from `commission_rules` when settling or refunding; a rate
+  renegotiated later must not rewrite history.
+- **There is no balance column, and there must not be one.** A vendor's payable
+  is a SUM over unsettled ledger entries. `LedgerEntry` throws on update and
+  delete on purpose.
+- **Tests run on PostgreSQL, not SQLite.** The invariants are check
+  constraints; SQLite cannot create them, so a suite that "worked" on SQLite
+  would be testing a database this app never meets. `createdb vikyplus_test`
+  first.
 
 ## How to work on this
 

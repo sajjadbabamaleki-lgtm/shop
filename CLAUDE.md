@@ -8,6 +8,12 @@ An Iranian shoe and bag storefront (vikyplus.ir) built on the ThemeForest
 
 ## Where things are
 
+- `storefront/` — the Laravel app, and the actual deliverable. Its marketplace
+  and franchise domains are documented in
+  `documentation/marketplace-and-franchise.md`; read that before changing
+  anything under `storefront/app/Domains/`. Tests need PostgreSQL
+  (`createdb vikyplus_test && php artisan test`) — the invariants are check
+  constraints and SQLite cannot create them.
 - `download-version/shoe-shop-rtl.html` — **generated**. Never edit it by hand;
   edit `theme/make-rtl-page.js` and re-run `node theme/make-rtl-page.js`.
 - `download-version/assets/css/tweaks.css` — every deliberate deviation from
