@@ -4557,3 +4557,147 @@ ul.vp-how-list.is-ticked li:before {
   .vp-brand-cell img { transition: none; }
   .vp-brand:hover .vp-brand-cell img { transform: none; }
 }
+
+/* ==========================================================================
+   Top of the page — three defects found by measuring, 2026-08-09.
+   Each block below states what was measured before and after. Reverting this
+   whole set is one `git revert` of the commit that added it.
+   ========================================================================== */
+
+/* The search disc is a 34 square — the block above says why, and those 7s on
+   its three sides are worth keeping. But 34 is under the 44 a pointer target
+   is meant to be, and it is the only control in the header that misses: the
+   cart square beside it is 48.
+
+   So the target is grown past the paint rather than the disc being redrawn.
+   A transparent ::after, centred on the button, 44 x 44. Bare .th-btn::after
+   is unused in the template (its ::before is the hover fill, so that one is
+   taken); this does not touch it.
+
+   Measured — hit box 34 x 34 before, 44 x 44 after, gold disc 34 x 34 both
+   times. Nothing painted moves. */
+.th-header .menu-area .box-search .th-btn::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 44px;
+  height: 44px;
+  transform: translate(-50%, -50%);
+}
+
+/* Every one of the eight category names has to be readable, and most of them
+   were not. The pill was `nowrap` with an ellipsis, and the name needs more
+   room than the tile hands it. Name width against the pill's inner width:
+
+     1920   0 of 8 cut
+     1440   1 of 8   «ست کیف و کفش» wants 110.1 into 101
+     1200   3 of 8
+      992   6 of 8   inner width 45 — only «کالج» and «صندل» fit
+
+   At 992 that is six of eight tiles showing a name the reader cannot finish,
+   which is the one thing this row exists to do.
+
+   Two changes, in this order. First the pill gives back what it was spending
+   on itself — inset 10 to 6 a side, padding 10 to 8 — which is 12px more text
+   per tile and takes the 1440 case under the line on its own. Then the
+   ellipsis stops being the answer at all: a name that still does not fit
+   wraps to a second line instead of being cut. A cut name tells the reader
+   nothing; a two-line one tells them the category.
+
+   The pill stays centred on the tile, so a second line grows it about its
+   middle and the row's rhythm holds. */
+.vp-category-label {
+  inset-inline: 6px;
+  padding: 8px 8px;
+  white-space: normal;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+
+/* The tile shrinks with the page well before the 991 breakpoint the block
+   further up uses, and between 992 and 1199 nothing had answered that: the
+   label was still at its full 14px over 1.5 on a tile that had come down to
+   85. «ست کیف و کفش» went to three lines — a pill 79 tall on an 85 tile,
+   covering the photograph it is meant to be laid over rather than sitting on
+   it. 992 is the worst of that range because it is one pixel outside the
+   991 rules and gets none of their relief.
+
+   A step down in type and a tighter leading buy the third line back. Nothing
+   is cut here — the type is smaller so the wrap stops one line earlier.
+
+   Three steps down rather than one, because the tile keeps shrinking: 111 at
+   1199, 85 at 992, 53 at 576. Each is ordered widest-first, since a narrower
+   query also matches every width the wider one does.
+
+   All three carry a `min-width: 576` floor. Without it they would also match
+   below 576 and, sitting later in the file than the 575 block further up,
+   would quietly overwrite the 9px and the 4px inset that block sets for
+   phones. The floor leaves that block the last word on its own range.
+
+   Measured, tallest pill against its tile: 576 59%, 768 54%, 992 52%,
+   1100 45%, 1200 52%, 1440 26%, 1920 23%. Nothing cut at any of them. */
+@media (min-width: 576px) and (max-width: 1199px) {
+  .vp-category-label {
+    padding: 6px 4px;
+    font-size: 12px;
+    line-height: 1.35;
+  }
+}
+
+@media (min-width: 576px) and (max-width: 991px) {
+  .vp-category-label {
+    font-size: 11px;
+  }
+}
+
+/* Under 768 the tile is 53 and two lines of 11px stood taller than the tile
+   itself — 57 on 53, the pill no longer laid over the photograph but hiding
+   it. The phone block's 9px, one step early. */
+@media (min-width: 576px) and (max-width: 767px) {
+  .vp-category-label {
+    padding: 4px 3px;
+    font-size: 9px;
+    line-height: 1.3;
+  }
+}
+
+/* Below 576 the wrap is called off and the ellipsis put back.
+
+   Eight tiles across a phone leaves each one 38 wide at 390, and the pill 26
+   of inner width. Wrapping into that does not produce a readable name, it
+   produces a column of fragments: «ست کیف و کفش» came out eight lines and 124
+   tall on a 38 tile — 326% of it, the photograph gone. 480 was 170%, 575 93%.
+   Truncated is bad; three times the tile is worse, and it is worse than what
+   was there before this set of changes.
+
+   So the trade the rest of this block makes — a second line instead of an
+   ellipsis — is only taken where there is room for a second line. There is
+   none here. Eight-across on a phone is the actual problem underneath this,
+   and it is a layout question (two rows of four would answer it) that the
+   block above deliberately settled the other way, so it is not re-settled
+   from down here. */
+@media (max-width: 575px) {
+  .vp-category-label {
+    white-space: nowrap;
+    overflow-wrap: normal;
+  }
+}
+
+/* The five trust cards sit on one line from 1200 up, and one of them does not
+   end where the others do: «ضمانت بازگشت کالا» is the only title long enough
+   to wrap, so its card grows and hangs below the row's foot.
+
+     1200   114.3 against 88.8 — 25.5 low
+     1440   105.5 against 96   —  9.5 low
+     1920   96 all five, the cards being wide enough that nothing wraps
+      992   84 all five, three and two across, so the question does not arise
+
+   The five are one set and have to end on one line. Bootstrap's columns are
+   already equal height, so the card simply taking that height is the whole
+   fix — the four short ones grow to meet the tall one, rather than the tall
+   one being cut or its title shortened to fit. Nothing about the copy or the
+   card's own padding changes. */
+.vp-trust-row .feature-card {
+  height: 100%;
+}

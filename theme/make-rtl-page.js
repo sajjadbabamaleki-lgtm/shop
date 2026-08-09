@@ -135,9 +135,14 @@ html = html.replace(
 // match the one on the sale cards and because it now sits on gold, where an
 // outline reads as a hole rather than as a bag. fa-solid is already loaded —
 // the sale cards use the same glyph.
+// The button's only text is the count in its badge, so unnamed it announces
+// itself as «۵» — a number with nothing saying what it counts. The name goes
+// on the button and the badge stays visible; a name on the element wins over
+// its contents, so the count no longer stands in for one.
 html = html.replace(
-  /(<button type="button" class="icon-btn sideMenuToggler">)<img[^>]*>/i,
-  '$1<i class="fa-solid fa-bag-shopping" aria-hidden="true"></i>'
+  /<button type="button" class="icon-btn sideMenuToggler"><img[^>]*>/i,
+  '<button type="button" class="icon-btn sideMenuToggler" aria-label="سبد خرید">' +
+    '<i class="fa-solid fa-bag-shopping" aria-hidden="true"></i>'
 );
 
 // FontAwesome's fa-search draws its handle almost as long as the glass
@@ -147,10 +152,24 @@ html = html.replace(
 // it on the button's own white, same as the glyph it replaces.
 html = html.replace(
   /<button type="submit" class="th-btn"><i class="far fa-search"><\/i><\/button>/i,
-  '<button type="submit" class="th-btn"><svg class="vp-search-icon" width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true">' +
+  '<button type="submit" class="th-btn" aria-label="جستجو"><svg class="vp-search-icon" width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true">' +
     '<circle cx="8.5" cy="8.5" r="6" stroke="currentColor" stroke-width="2"/>' +
     '<line x1="12.9" y1="12.9" x2="15.3" y2="15.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>' +
   '</svg></button>'
+);
+
+// The two menu toggles carry a glyph and nothing else, so unnamed they
+// announce as an empty button. They are the only way to the navigation below
+// 992, which is where the page is read most.
+html = html.replace(
+  /<button type="button" class="th-menu-toggle d-block d-lg-none"><i class="far fa-bars"><\/i><\/button>/i,
+  '<button type="button" class="th-menu-toggle d-block d-lg-none" aria-label="باز کردن منو">' +
+    '<i class="far fa-bars" aria-hidden="true"></i></button>'
+);
+html = html.replace(
+  /<button class="th-menu-toggle"><i class="fal fa-times"><\/i><\/button>/i,
+  '<button class="th-menu-toggle" aria-label="بستن منو">' +
+    '<i class="fal fa-times" aria-hidden="true"></i></button>'
 );
 
 // The row under the hero carries eight shoe categories instead of the
