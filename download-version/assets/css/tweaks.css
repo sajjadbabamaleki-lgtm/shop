@@ -2978,7 +2978,15 @@ option:hover {
    opacity (.vp-category / .vp-deal-shot both sit at .18), just scaled up
    in reach for a card this much larger. */
 .vp-best-panel {
-  margin-inline: 18px;
+  /* 20, up from the 18 the header island and the trust row sit at. Those two
+     were asked to stay where they are, so the two big white panes — this one
+     and .vp-brands-panel — are deliberately 2px wider off the sides than the
+     bar above them. Both panes move together; they are one card twice, and
+     the block on .vp-brands-panel says so.
+
+     What the client sees at the side of this section is this edge, not the
+     46 the content starts at: 20 here plus the 28 of padding below. */
+  margin-inline: 20px;
   /* The whole gap above the card — see .vp-best-section, which zeroes the
      section's own top padding — and deliberately the same number as the
      gap between the trust row and the stepped sale above it, so the page's
@@ -4305,11 +4313,14 @@ ul.vp-how-list.is-ticked li:before {
    of each — and asked for four of them «رو یه کارت سفید که از چپ تا راست
    وبسایت کشیده باشه».
 
-   The card is .vp-best-panel's, number for number: 18 to the sides, 100 above,
+   The card is .vp-best-panel's, number for number: 20 to the sides, 100 above,
    28 of padding, 50 of round, the same ring and the same shadow. That is not
    laziness — those numbers are the page's pane rhythm, argued over two rounds
    and recorded on .vp-best-panel and .collection-area, and a fourth pane that
    invented its own would break a decision that already cost a commit to make.
+   The sides were 18 with everything else on the page until the client asked
+   for 20 on the two panes only; it changed here and on .vp-best-panel in the
+   same commit, and it has to keep changing in both.
    -------------------------------------------------------------------------- */
 .vp-brands-section {
   padding-top: 0;
@@ -4317,7 +4328,7 @@ ul.vp-how-list.is-ticked li:before {
 }
 
 .vp-brands-panel {
-  margin-inline: 18px;
+  margin-inline: 20px;
   margin-top: 100px;
   padding: 28px;
   border-radius: 50px;
