@@ -4701,3 +4701,30 @@ ul.vp-how-list.is-ticked li:before {
 .vp-trust-row .feature-card {
   height: 100%;
 }
+
+/* «ضمانت بازگشت کالا» is the only one of the five titles long enough to wrap,
+   and the client wants it back on one line — a little smaller, not a size
+   down. One pixel does it. Measured, longest title against the width the
+   card's content box gives it:
+
+     1440 and up   content box 131.2 — one line at 19px and below, two at 20
+     1300          content box 121.6 — needs 15px, four steps down
+     1200          content box 113.6 — no size from 15 to 20 fits
+
+   The wrap actually clears at 1435, not at the 1400 this is scoped to: the
+   card keeps widening with the page and 1435 is where it first gives the
+   title the room. The rule starts at 1400 anyway, so the whole band the
+   template sets 20px across steps down together rather than changing size at
+   an arbitrary pixel in the middle of it. Between 1400 and 1434 the title is
+   19px and still wraps — smaller type cannot answer a card that narrow, and
+   the equal-height rule above is what keeps the five level there.
+
+   19 over 20 is a 5% step: enough to close the overrun at the width this
+   whole page is measured at, small enough that the title still reads a size
+   above the 16px under it. Anything that fixed 1300 would have to go under
+   that 16 and invert the two. */
+@media (min-width: 1400px) {
+  .vp-trust-row .feature-card .box-title {
+    font-size: 19px;
+  }
+}
