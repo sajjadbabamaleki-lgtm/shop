@@ -4739,3 +4739,46 @@ ul.vp-how-list.is-ticked li:before {
     font-size: 19px;
   }
 }
+
+/* Stuck, the band the header sits in is 94 tall and the island inside it is
+   76, inset 18 from the top and both sides. The island is glass and that is
+   settled — the rule above says why, and what passes behind it is meant to
+   stay visible as colour and movement without being legible. But the three
+   strips around it are not glass and never were: they are bare transparency,
+   and the page runs through them at full contrast. Product cards and their
+   gold discount marks cut clean across the top 18px of the screen, which is
+   what was reported.
+
+   So the strips take the page's own white — #FFFFFF exactly, measured off
+   body — and the island is not touched. Drawn as two boxes rather than one:
+   a bar across the top 18, and a frame whose left and right borders are the
+   two side strips. Both sit at z-index -1, behind the island, so nothing
+   paints over the glass or over the header's own contents.
+
+   The strips stop at 94, which is the island's bottom edge to the pixel, so
+   the white ends where the island ends and «لبه پنهان»'s foot hairline is
+   still the line under the header.
+
+   What this does not do is put white *behind* the island. That would give
+   its backdrop-filter a flat white to sample, and the glass would go back to
+   being the painted bar that was already tried and rejected. */
+.th-header .sticky-wrapper.sticky::before,
+.th-header .sticky-wrapper.sticky::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  background: #FFFFFF;
+}
+
+.th-header .sticky-wrapper.sticky::before {
+  inset-block-start: 0;
+  inset-inline: 0;
+  height: 18px;
+}
+
+.th-header .sticky-wrapper.sticky::after {
+  inset: 0;
+  box-sizing: border-box;
+  border-inline: 18px solid #FFFFFF;
+  background: transparent;
+}
