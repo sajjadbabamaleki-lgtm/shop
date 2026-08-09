@@ -42,7 +42,7 @@ looks fine:
 | dark strip | 48 tall |
 | header island | 76 tall, 18 from the top and both sides, corner 24 |
 | app icon | 52, with equal air on the three sides it touches — 12 |
-| island → hero card | 36 |
+| island → hero card | 40 |
 | hero card | 1227 × 485, corner 72 |
 | the shoe | 80 clear of the card's top edge and 80 of its foot |
 | card → category row | 36 |

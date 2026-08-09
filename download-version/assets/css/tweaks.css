@@ -10,9 +10,20 @@
 
 /* The hero cards sat flush against the header — measured gap was 0px. Space
    below the header, not above the section's own content, so the gap is there
-   whatever the hero slide contains. 30px to start with, now 36. */
+   whatever the hero slide contains. 30px to start with, then 36, now 40.
+
+   40 because it is what the two gaps under it already are, measured edge to
+   edge at 1200, 1440 and 1920:
+
+     header island -> hero card    was 36
+     hero card     -> the eight    40
+     the eight     -> the five     40
+
+   so this was the odd one and the other two needed nothing. The card and
+   everything below it move down 4; nothing inside the card changes, and the
+   two gaps below stay 40. */
 .th-hero-wrapper {
-  padding-block-start: 36px;
+  padding-block-start: 40px;
 }
 
 @media (max-width: 991px) {
