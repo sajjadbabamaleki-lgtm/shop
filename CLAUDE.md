@@ -15,12 +15,18 @@ An Iranian shoe and bag storefront (vikyplus.ir) built on the ThemeForest
   measurements in the comment above it.
 - `theme/make-category-photos.js` — the category tiles. The photographs go
   in exactly as supplied: resize only, no crop, no cut-out.
-- `storefront/resources/views/` — the Laravel app renders the same page. The
-  partials under `partials/` and `home/` are **generated**: never hand-edit
-  them, run `node theme/make-blade.js` after a markup change and
+- `storefront/resources/views/` — the Laravel app renders the same page, and
+  six of its bands come out of the database. The six under `home/` are
+  hand-owned; the rest of `partials/` is **generated** — never hand-edit
+  those, run `node theme/make-blade.js` after a markup change and
   `node theme/sync-storefront-assets.js` after a `tweaks.css` or photograph
-  change. The layout, `home.blade.php` and the controller are hand-written.
-  Serve it with `cd storefront && php artisan serve --port=8812`.
+  change. `make-blade.js` prints which files it left alone.
+  Serve it with `cd storefront && php artisan serve --port=8812`, after
+  `php artisan migrate --seed`.
+- `node theme/check-parity.js` — renders the preview page and the Laravel page
+  at four widths and counts the pixels that differ. **Zero is the expected
+  answer.** Run it after changing either side; it is the only thing that
+  notices when the two copies of this page come apart.
 - Preview server:
   `cd download-version && setsid nohup python3 -m http.server 8811 &`
   It dies often; restart it with `setsid` rather than assuming it is up.

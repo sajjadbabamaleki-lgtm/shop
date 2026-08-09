@@ -30,9 +30,10 @@ class Category extends Model
         return $this->hasMany(Category::class, 'parent_id')->orderBy('position');
     }
 
+    /** @see Product::categories() for why the pivot is named explicitly. */
     public function products(): BelongsToMany
     {
-        return $this->belongsToMany(Product::class);
+        return $this->belongsToMany(Product::class, 'product_category');
     }
 
     public function getRouteKeyName(): string

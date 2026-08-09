@@ -1,55 +1,23 @@
-{{-- Ported from download-version/shoe-shop-rtl.html by theme/make-blade.js. --}}
+{{--
+    The category tiles, and the five trust badges under them.
+
+    The tiles are the catalogue's, right to left in the order the categories
+    carry. The badges are copy — nothing behind them to read — so they stay
+    written out.
+
+    Hand-owned: theme/make-blade.js no longer regenerates this file.
+--}}
 <section class="feature-area2 positive-relative overflow-hidden">
         <div class="container th-container">
             <div class="row vp-category-row">
+                @foreach ($categories as $category)
                 <div class="col">
                     <a class="vp-category" href="{{ page_url('shop.html') }}">
-                        <img src="{{ asset('assets/img/category/majlesi.jpg') }}" alt="" loading="lazy">
-                        <span class="vp-category-label">مجلسی</span>
+                        <img src="{{ asset($category->image_path) }}" alt="" loading="lazy">
+                        <span class="vp-category-label">{{ $category->name }}</span>
                     </a>
                 </div>
-                <div class="col">
-                    <a class="vp-category" href="{{ page_url('shop.html') }}">
-                        <img src="{{ asset('assets/img/category/sneaker.jpg') }}" alt="" loading="lazy">
-                        <span class="vp-category-label">ونس و کتونی</span>
-                    </a>
-                </div>
-                <div class="col">
-                    <a class="vp-category" href="{{ page_url('shop.html') }}">
-                        <img src="{{ asset('assets/img/category/college.jpg') }}" alt="" loading="lazy">
-                        <span class="vp-category-label">کالج</span>
-                    </a>
-                </div>
-                <div class="col">
-                    <a class="vp-category" href="{{ page_url('shop.html') }}">
-                        <img src="{{ asset('assets/img/category/sandal.jpg') }}" alt="" loading="lazy">
-                        <span class="vp-category-label">صندل</span>
-                    </a>
-                </div>
-                <div class="col">
-                    <a class="vp-category" href="{{ page_url('shop.html') }}">
-                        <img src="{{ asset('assets/img/category/boot.jpg') }}" alt="" loading="lazy">
-                        <span class="vp-category-label">بوت و نیم‌بوت</span>
-                    </a>
-                </div>
-                <div class="col">
-                    <a class="vp-category" href="{{ page_url('shop.html') }}">
-                        <img src="{{ asset('assets/img/category/bag-set.jpg') }}" alt="" loading="lazy">
-                        <span class="vp-category-label">ست کیف و کفش</span>
-                    </a>
-                </div>
-                <div class="col">
-                    <a class="vp-category" href="{{ page_url('shop.html') }}">
-                        <img src="{{ asset('assets/img/category/accessory.jpg') }}" alt="" loading="lazy">
-                        <span class="vp-category-label">اکسسوری</span>
-                    </a>
-                </div>
-                <div class="col">
-                    <a class="vp-category" href="{{ page_url('shop.html') }}">
-                        <img src="{{ asset('assets/img/category/sport-set.jpg') }}" alt="" loading="lazy">
-                        <span class="vp-category-label">ست ورزشی</span>
-                    </a>
-                </div>
+                @endforeach
             </div>
         </div>
         <div class="vp-trust-row-wrap">

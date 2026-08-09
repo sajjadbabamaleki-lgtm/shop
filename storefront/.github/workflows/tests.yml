@@ -23,6 +23,25 @@ jobs:
 
     name: PHP ${{ matrix.php }}
 
+    # The catalogue's invariants — stock never negative, a reservation never
+    # above what is on hand, a sale price never above the struck-through one —
+    # are CHECK constraints in PostgreSQL DDL, so the suite needs the real
+    # database rather than SQLite.
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: vikyplus
+          POSTGRES_PASSWORD: vikyplus
+          POSTGRES_DB: vikyplus_testing
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -31,7 +50,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite
+          extensions: dom, curl, intl, libxml, mbstring, zip, pcntl, pdo, pgsql, pdo_pgsql
           coverage: none
 
       - name: Install Composer dependencies
@@ -44,4 +63,7 @@ jobs:
         run: php artisan key:generate
 
       - name: Execute tests
+        env:
+          DB_HOST: 127.0.0.1
+          DB_PASSWORD: vikyplus
         run: php artisan test

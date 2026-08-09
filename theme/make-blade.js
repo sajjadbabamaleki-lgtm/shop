@@ -42,17 +42,23 @@ const html = fs.readFileSync(PAGE, 'utf8');
 // file where the page interleaves them — the modal explaining the ladder is
 // emitted next to the ladder, not left among the script tags where the
 // template's markup happens to put it.
+//
+// `owned` marks the regions that have since been rewritten by hand to render
+// from the catalogue. Those are no longer copies of anything and this script
+// must not overwrite them — it still slices them, so the boundary checks below
+// keep working and the regions after them stay in the right place, but it
+// leaves the files alone. See HANDOFF.md.
 const REGIONS = [
   { name: 'chrome', anchor: '<div class="magic-cursor', into: 'partials/chrome.blade.php' },
   { name: 'mobile-menu', anchor: '<div class="th-menu-wrapper">', into: 'partials/mobile-menu.blade.php' },
   { name: 'header', anchor: '<header class="th-header', into: 'partials/header.blade.php' },
-  { name: 'hero', anchor: '<div class="th-hero-wrapper', into: 'home/hero.blade.php' },
-  { name: 'categories', anchor: '<section class="feature-area2', into: 'home/categories.blade.php' },
-  { name: 'ladder', anchor: '<section class="collection-area vp-ladder-area', into: 'home/ladder.blade.php' },
-  { name: 'best-sellers', anchor: '<section class="space overflow-hidden overflow-hidden vp-best-section"', into: 'home/best-sellers.blade.php' },
+  { name: 'hero', anchor: '<div class="th-hero-wrapper', into: 'home/hero.blade.php', owned: true },
+  { name: 'categories', anchor: '<section class="feature-area2', into: 'home/categories.blade.php', owned: true },
+  { name: 'ladder', anchor: '<section class="collection-area vp-ladder-area', into: 'home/ladder.blade.php', owned: true },
+  { name: 'best-sellers', anchor: '<section class="space overflow-hidden overflow-hidden vp-best-section"', into: 'home/best-sellers.blade.php', owned: true },
   { name: 'offer-banner', anchor: '<section class="overflow-hidden">', into: 'home/offer-banner.blade.php' },
-  { name: 'daily-deal', anchor: '<section class="space overflow-hidden overflow-hidden vp-daily-deal-section"', into: 'home/daily-deal.blade.php' },
-  { name: 'brands', anchor: '<section class="vp-brands-section', into: 'home/brands.blade.php' },
+  { name: 'daily-deal', anchor: '<section class="space overflow-hidden overflow-hidden vp-daily-deal-section"', into: 'home/daily-deal.blade.php', owned: true },
+  { name: 'brands', anchor: '<section class="vp-brands-section', into: 'home/brands.blade.php', owned: true },
   { name: 'footer', anchor: '<footer class="footer-wrapper', into: 'partials/footer.blade.php' },
   { name: 'page-end', anchor: '<!-- Scroll To Top -->', into: 'partials/scripts.blade.php' },
 ];
@@ -187,7 +193,12 @@ function write(rel, body) {
   written.push(`${rel} (${body.split('\n').length} lines)`);
 }
 
+const skipped = [];
 for (const region of marks) {
+  if (region.owned) {
+    skipped.push(region.into);
+    continue;
+  }
   write(region.into, tidy(toBlade(region.text)));
 }
 
@@ -203,3 +214,10 @@ write('partials/head.blade.php', tidy(toBlade(head)));
 
 console.log('Wrote:');
 for (const line of written) console.log('  ' + line);
+
+if (skipped.length) {
+  console.log('\nLeft alone — these render from the catalogue and are hand-owned now:');
+  for (const file of skipped) console.log('  ' + file);
+  console.log('\nA design change to one of those has to be made in the Blade by hand.');
+  console.log('node theme/check-parity.js says whether the two pages still agree.');
+}

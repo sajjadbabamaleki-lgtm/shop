@@ -18,24 +18,52 @@ because settling a look costs a fraction as much on a static page as it does in
 Blade — every argument in this repo's history was settled by rendering that page
 and reading pixels.
 
-**The home page is ported.** `storefront/resources/views` renders it: a layout
-that fixes the order of the regions, one partial per region under `partials/`
-and `home/`, and `home.blade.php` composing the seven sections. `/` goes
-through `HomeController`. The 115 files the page actually reaches — 10.7MB of
-the template's 40 — are under `storefront/public/assets`.
+**The home page is ported, and six of its bands render from the catalogue.**
+`storefront/resources/views` renders the page: a layout that fixes the order
+of the regions, one partial per region under `partials/` and `home/`, and
+`home.blade.php` composing the seven sections. `/` goes through
+`HomeController`. The 115 files the page actually reaches — 10.7MB of the
+template's 40 — are under `storefront/public/assets`.
 
-It is a markup port and nothing else. The copy and the photographs are still
-written into the Blade, no view reads the catalogue, and the models that have
-been standing since the data core went in are still unused by anything the
-browser sees. **Wiring these views to Eloquent is the next piece of real
-work.**
+The category tiles, the hero deck, the stepped sale, the best sellers, the
+daily deal and the brand strip are queried, not written down. The rest —
+header, trust row, offer banner, footer — is copy and stays in the markup.
 
-The port is exact. Rendered at 992, 1200, 1440 and 1920 and compared over the
-full scroll height, the Laravel page and the preview page differ by zero
-pixels at every width. Two things moved in the DOM, both deliberately: the
-modal explaining the ladder now sits next to the ladder rather than after the
-script tags, and its script goes onto a stack the layout empties in the place
-those tags used to sit.
+`CatalogueSeeder` puts what the page has always shown into the tables: eight
+categories, five brands, five shoes with their photographs, and variants
+priced in Rial with the live step's cut as a promotion window. Nothing in it
+is new content — it is the JavaScript arrays out of `theme/make-rtl-page.js`,
+moved. Run `php artisan migrate --seed`; the app is PostgreSQL and so is the
+test suite, because the catalogue's invariants are CHECK constraints in the
+database rather than checks in PHP.
+
+Both ports are exact. Rendered at 992, 1200, 1440 and 1920 and compared over
+the full scroll height, the Laravel page and the preview page differ by zero
+pixels at every width — before the data went in and after. `node
+theme/check-parity.js` is that check, committed. Two things moved in the DOM,
+both deliberately: the modal explaining the ladder now sits next to the ladder
+rather than after the script tags, and its script goes onto a stack the layout
+empties in the place those tags used to sit.
+
+Three things fall out of the wiring that are worth knowing:
+
+- **The page's own numbers now agree with each other by construction.** The
+  cut drawn on a deal card is `Variant::discountPercent()`, and the seeder
+  set that variant's promotion from the same live step the board above the
+  cards reads. Moving the sale on is one number in `config/storefront.php`.
+- **«فقط ۱ عدد باقی مانده» is a count.** It follows `sellable_stock`, and a
+  product whose stock reaches zero leaves the sale rather than being offered.
+- **What is invented did not go into the catalogue.** The brand strip's
+  counts, its mosaic photographs, and the pairing that puts a shoe's price
+  under a category's photograph are all in `config/storefront.php` under
+  `placeholders`. Seeding an invented number into the tables would make it
+  indistinguishable from a counted one, which is the whole thing that block
+  exists to prevent.
+
+**What is still not wired:** nothing on the page needs a customer. There is no
+cart, no product page, no search, no account — `page_url()` sends all
+forty-odd of the template's links to `#` because there is one route. The
+basket buttons on the deal cards and the best-seller tiles are markup.
 
 Everything in this file is about the HTML page at 1440 unless it says
 otherwise.
@@ -191,30 +219,57 @@ wanted. It has now been cut twice and put back twice. See «همسایه» in
 
 ## The preview and the Blade are two copies of the same page
 
-This is the cost of the port and it is worth naming. Until the views start
-reading data, the static page is still the surface the client reviews and the
-Blade is a copy of it. Two scripts carry a change across, and a change is not
-done until both have been run:
+This is the cost of the port and it is worth naming. The static page is still
+the surface the client reviews, and the Blade is a second copy of it. The two
+have to be kept in step, and how depends on which half of the page a change
+lands in.
 
-- `node theme/make-blade.js` — after any change to the markup. It cuts
-  `shoe-shop-rtl.html` at its section boundaries and overwrites every partial
-  under `resources/views/partials/` and `resources/views/home/`.
+**The six data-driven partials are hand-owned.** `home/hero`, `categories`,
+`ladder`, `best-sellers`, `daily-deal` and `brands` are no longer copies of
+anything — they render from the catalogue. `make-blade.js` knows this and
+leaves them alone; it prints which ones it skipped. A design change to any of
+them has to be made in the Blade by hand, and in `theme/make-rtl-page.js` too
+if the preview is to keep showing it.
+
+**Everything else is still generated.** Two scripts carry those changes across:
+
+- `node theme/make-blade.js` — after any change to the markup of the header,
+  the footer, the offer banner or the page's chrome. It cuts
+  `shoe-shop-rtl.html` at its section boundaries and overwrites those
+  partials.
 - `node theme/sync-storefront-assets.js` — after any change to `tweaks.css`,
   and after any new photograph. It walks the page's references, the `url()`s
   inside the stylesheets it finds, and the fonts those name, and copies that
   set into `public/`.
 
 Neither touches a hand-written file: the layout, `home.blade.php`, the
-controller, `config/storefront.php`. Anything hand-edited *inside* a generated
-partial is lost on the next run — markup changes still belong in
-`theme/make-rtl-page.js`.
+controller, `config/storefront.php`, the six above. Anything hand-edited
+*inside* a generated partial is lost on the next run.
 
-The direction reverses the moment a partial starts taking data from Eloquent.
-At that point Blade is the source, `make-blade.js` should be deleted rather
-than run again, and the preview page becomes history.
+**`node theme/check-parity.js` is what says the two have not come apart.** It
+renders both pages at four widths and reports how many pixels differ; zero is
+the expected answer and it exits non-zero on anything else. Run it after a
+change to either side. Both servers have to be up:
 
-`tests/Feature/HomePageTest.php` is the cheap guard on all of this: it names
-every section the page is composed of, and the four that were taken off it.
+```
+cd download-version && setsid nohup python3 -m http.server 8811 &
+cd storefront && php artisan serve --port=8812
+```
+
+When the last generated partial has been taken over by hand, `make-blade.js`
+should be deleted and the preview page becomes history.
+
+`tests/Feature/HomePageTest.php` is the cheap guard underneath: it names every
+section the page is composed of and the four that were taken off it, and it
+holds the data-driven ones to their data — that renaming a category renames a
+tile, that a card prices its own variant, that a sold-out product leaves the
+sale, and that the brand counts are config placeholders rather than anything
+the catalogue claims to know.
+
+The suite needs PostgreSQL (`vikyplus_testing`), for the same reason the app
+does. `storefront/.github/workflows/tests.yml` is set up for that but **does
+not run**: GitHub only reads workflows at the repository root, and that file
+is a level down inside `storefront/`. Moving it up is a loose end.
 
 ## How to work on this
 

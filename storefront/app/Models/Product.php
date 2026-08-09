@@ -36,14 +36,29 @@ class Product extends Model
         return $this->hasMany(Variant::class);
     }
 
+    /**
+     * The variant a listing prices and adds to a basket when the customer has
+     * not chosen a colour or size yet.
+     */
+    public function defaultVariant(): BelongsTo
+    {
+        return $this->belongsTo(Variant::class, 'default_variant_id');
+    }
+
     public function media(): HasMany
     {
         return $this->hasMany(VariantMedia::class)->orderBy('position');
     }
 
+    /**
+     * The pivot is named product_category. Eloquent would infer
+     * category_product from the two model names in alphabetical order, so the
+     * table has to be named here or the relation queries one that was never
+     * created.
+     */
     public function categories(): BelongsToMany
     {
-        return $this->belongsToMany(Category::class);
+        return $this->belongsToMany(Category::class, 'product_category');
     }
 
     public function getRouteKeyName(): string
@@ -80,6 +95,23 @@ class Product extends Model
                 'sizes' => $variants->sortBy('size_value', SORT_NATURAL)->values(),
             ])
             ->values();
+    }
+
+    /**
+     * The one image a card shows. The primary if a colourway has been marked
+     * as such, otherwise whichever comes first by position.
+     */
+    public function primaryMedia(): ?VariantMedia
+    {
+        return $this->media->firstWhere('is_primary', true) ?? $this->media->first();
+    }
+
+    /**
+     * What a listing has left to sell, across every colour and size.
+     */
+    public function sellableStock(): int
+    {
+        return (int) $this->variants->sum('sellable_stock');
     }
 
     /**
