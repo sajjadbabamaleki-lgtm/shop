@@ -4749,11 +4749,18 @@ ul.vp-how-list.is-ticked li:before {
    gold discount marks cut clean across the top 18px of the screen, which is
    what was reported.
 
-   So the strips take the page's own white — #FFFFFF exactly, measured off
-   body — and the island is not touched. Drawn as two boxes rather than one:
-   a bar across the top 18, and a frame whose left and right borders are the
-   two side strips. Both sit at z-index -1, behind the island, so nothing
-   paints over the glass or over the header's own contents.
+   So the top strip takes the page's own white — #FFFFFF exactly, measured
+   off body — and the island is not touched. It sits at z-index -1, behind
+   the island, so nothing paints over the glass or over the header's own
+   contents.
+
+   Only the top strip. The two side strips were white for one pass and were
+   taken out again, and measuring afterwards showed they had never been doing
+   anything: scanned down the outer 18 at each edge at six scroll positions
+   from 400 to 4600, every pixel reads 255. Nothing on the page paints out
+   there — the sections sit 46 from the sides, the island and the trust row
+   18 — so there was never anything to cover. The slit above the island was
+   the whole of it.
 
    The strips stop at 94, which is the island's bottom edge to the pixel, so
    the white ends where the island ends and «لبه پنهان»'s foot hairline is
@@ -4762,23 +4769,12 @@ ul.vp-how-list.is-ticked li:before {
    What this does not do is put white *behind* the island. That would give
    its backdrop-filter a flat white to sample, and the glass would go back to
    being the painted bar that was already tried and rejected. */
-.th-header .sticky-wrapper.sticky::before,
-.th-header .sticky-wrapper.sticky::after {
+.th-header .sticky-wrapper.sticky::before {
   content: '';
   position: absolute;
   z-index: -1;
-  background: #FFFFFF;
-}
-
-.th-header .sticky-wrapper.sticky::before {
   inset-block-start: 0;
   inset-inline: 0;
   height: 18px;
-}
-
-.th-header .sticky-wrapper.sticky::after {
-  inset: 0;
-  box-sizing: border-box;
-  border-inline: 18px solid #FFFFFF;
-  background: transparent;
+  background: #FFFFFF;
 }
