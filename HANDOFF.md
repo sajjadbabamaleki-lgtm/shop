@@ -18,15 +18,27 @@ because settling a look costs a fraction as much on a static page as it does in
 Blade — every argument in this repo's history was settled by rendering that page
 and reading pixels.
 
-**Nothing has been ported yet.** The finished top of the page lives entirely in
-`download-version/assets/css/tweaks.css` and `theme/make-rtl-page.js`, and the
-Laravel app does not render any of it. Porting it — a layout, partials for the
-header, hero and category row, the assets moved under `public/`, the tweaks
-carried over — is the next piece of real work, and it is what turns this
-handoff into a storefront.
+**The home page is ported.** `storefront/resources/views` renders it: a layout
+that fixes the order of the regions, one partial per region under `partials/`
+and `home/`, and `home.blade.php` composing the seven sections. `/` goes
+through `HomeController`. The 115 files the page actually reaches — 10.7MB of
+the template's 40 — are under `storefront/public/assets`.
 
-The numbers below are what that port has to reproduce. Everything in this file
-is about the HTML page at 1440.
+It is a markup port and nothing else. The copy and the photographs are still
+written into the Blade, no view reads the catalogue, and the models that have
+been standing since the data core went in are still unused by anything the
+browser sees. **Wiring these views to Eloquent is the next piece of real
+work.**
+
+The port is exact. Rendered at 992, 1200, 1440 and 1920 and compared over the
+full scroll height, the Laravel page and the preview page differ by zero
+pixels at every width. Two things moved in the DOM, both deliberately: the
+modal explaining the ladder now sits next to the ladder rather than after the
+script tags, and its script goes onto a stack the layout empties in the place
+those tags used to sit.
+
+Everything in this file is about the HTML page at 1440 unless it says
+otherwise.
 
 ---
 
@@ -50,7 +62,29 @@ looks fine:
 | glass | `rgba(16,17,17,0.034)`, blur 10 — composites to 247 on white |
 | gold | `#C0972F → #E3B54A` on the button, the search disc and the burst |
 
-Two of those hold each other up and have to be changed together:
+**Four rows of that table no longer describe the page, and were already wrong
+before the port.** Measured at 1440 on the preview page and on the Laravel
+page, which agree exactly:
+
+| | the table says | 1440 renders | where the old number does appear |
+|---|---|---|---|
+| hero card | 1227 × 485 | 1226.5 × **450.4** | height, when `.hero-style6`'s `padding-block` was still 112 — it is 94 |
+| the shoe | 80 clear top and foot | **41** and 40.9 | 85.5 / 85.4, at 1920 |
+| category tiles | 157.5 each | **141** | 157.5, at 1920 |
+| between the tiles | 48 | **36** | nowhere; 1920 gives 45 |
+
+The tile rows have the plainest explanation: the table, and the sentence about
+"the six category tiles" in `CLAUDE.md`, are both from when the row held six.
+It holds eight. Eight tiles across the same measure are smaller and sit closer
+together, so 157.5/48 became 141/36 without anyone deciding it.
+
+They are left as they were rather than overwritten, because a number in this
+table is a decision somebody argued for and a number off the page is only what
+the page happens to do today. Someone has to say which of these four is a
+regression and which is the intended state; until then, do not judge a change
+against the four rows above.
+
+Two of the table's rows hold each other up and have to be changed together:
 
 - **The card's height is set by the copy column, not by the shot.** The shot is
   sized off the column's width and does not move. So anything added to or taken
@@ -117,6 +151,13 @@ section above covers its geometry. It still shows the template's
 currency list. That is copy, not layout, which is why the measurements above
 still hold.
 
+**Nor is the head.** The `author`, `description` and `keywords` metas still
+say "Erna - Multi-Purpose Modern & Minimal WooCommerce Template". The port
+left them alone for the same reason it left the dark strip alone — replacing
+copy is a separate decision. The `<title>` is the exception: it had to become
+per-page for a layout to be a layout, so it is now
+`@yield('title', config('app.name'))` and reads «VikyPlus».
+
 **The note about two curly-apostrophe dictionary keys is gone with them.**
 `Men’s Collections` and `Today’s Best Deals` do not render anywhere on the
 page any more — the ladder and the daily deal took those two slots — so there
@@ -148,10 +189,41 @@ cards at each margin — that is the template working as designed and it is
 wanted. It has now been cut twice and put back twice. See «همسایه» in
 `CLAUDE.md` before touching it.
 
+## The preview and the Blade are two copies of the same page
+
+This is the cost of the port and it is worth naming. Until the views start
+reading data, the static page is still the surface the client reviews and the
+Blade is a copy of it. Two scripts carry a change across, and a change is not
+done until both have been run:
+
+- `node theme/make-blade.js` — after any change to the markup. It cuts
+  `shoe-shop-rtl.html` at its section boundaries and overwrites every partial
+  under `resources/views/partials/` and `resources/views/home/`.
+- `node theme/sync-storefront-assets.js` — after any change to `tweaks.css`,
+  and after any new photograph. It walks the page's references, the `url()`s
+  inside the stylesheets it finds, and the fonts those name, and copies that
+  set into `public/`.
+
+Neither touches a hand-written file: the layout, `home.blade.php`, the
+controller, `config/storefront.php`. Anything hand-edited *inside* a generated
+partial is lost on the next run — markup changes still belong in
+`theme/make-rtl-page.js`.
+
+The direction reverses the moment a partial starts taking data from Eloquent.
+At that point Blade is the source, `make-blade.js` should be deleted rather
+than run again, and the preview page becomes history.
+
+`tests/Feature/HomePageTest.php` is the cheap guard on all of this: it names
+every section the page is composed of, and the four that were taken off it.
+
 ## How to work on this
 
 - **Never edit the generated HTML.** Edit `theme/make-rtl-page.js` and re-run
-  `node theme/make-rtl-page.js`.
+  `node theme/make-rtl-page.js` — then the two scripts above.
+- **Links go through `page_url()`.** The ported markup still points at the
+  template's demo filenames. `config/storefront.php` maps the ones with a
+  route behind them; everything else resolves to `#`, so no link on the page
+  walks a visitor into a 404. Add a line there as each page gets built.
 - **Every deviation from the template goes in
   `download-version/assets/css/tweaks.css`**, loaded last, one block per
   decision, with the reasoning and the measurement in the comment above it.

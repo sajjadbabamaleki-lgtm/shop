@@ -1,0 +1,4791 @@
+/* ==========================================================================
+   Deliberate deviations from the template.
+
+   The site otherwise renders exactly as the template ships it. This file is
+   where requested changes go, one at a time, so what has been altered stays
+   readable at a glance instead of being buried in a theme layer.
+
+   Loaded last.
+   ========================================================================== */
+
+/* The hero cards sat flush against the header — measured gap was 0px. Space
+   below the header, not above the section's own content, so the gap is there
+   whatever the hero slide contains. 30px to start with, then 36, now 40.
+
+   40 because it is what the two gaps under it already are, measured edge to
+   edge at 1200, 1440 and 1920:
+
+     header island -> hero card    was 36
+     hero card     -> the eight    40
+     the eight     -> the five     40
+
+   so this was the odd one and the other two needed nothing. The card and
+   everything below it move down 4; nothing inside the card changes, and the
+   two gaps below stay 40. */
+.th-hero-wrapper {
+  padding-block-start: 40px;
+}
+
+@media (max-width: 991px) {
+  .th-hero-wrapper { padding-block-start: 22px; }
+}
+
+/* --------------------------------------------------------------------------
+   Accent colour: red -> gold.
+
+   Sampled from the bars of the brand's own tiered-sale chart, in sRGB after
+   the screenshot's Display-P3 profile is converted. The bars are not a flat
+   colour — they run a vertical metallic gradient, dark at the top and light
+   at the foot. Over the 112k pixels in that hue range:
+
+     dark end   (p25) .... #8F7022
+     midpoint   (p50) .... #A47F25   <- the single most common value
+     light end  (p90) .... #CA9A24
+
+   All three sit on the same hue (42-44°), so the three jobs below are the one
+   gold at three points along its own gradient, not three colours.
+
+   Measured against white:
+
+     ink #101111 on #A47F25 ....... 5.08:1   passes AA
+     #A47F25 as text on white ..... 3.72:1   passes AA Large only
+     #8F7022 as text on white ..... 4.66:1   passes AA
+     #CA9A24 on the footer's ink .. 7.35:1   passes AA
+
+   So: the midpoint is the fill everywhere, the light end drives gradients and
+   text on dark grounds, and text on light grounds takes the dark end. The
+   template could use its red for both jobs — 205 declarations as a fill and
+   197 selectors as text — because red cleared 4.00:1 either way.
+   -------------------------------------------------------------------------- */
+
+:root,
+.shoe-shop, .fashion-shop, .electronics-shop, .grocery-shop,
+.coffee-shop, .furniture-shop, .home-electrician {
+  --theme-color: #A47F25;
+  --gr-color2: #CA9A24;
+}
+
+/* Text that took its colour from the accent. The selector list is generated
+   from the template's own stylesheet, so nothing is missed. */
+.about-card .box-desig,
+.blog-box .blog-meta a > i,
+.blog-box .blog-meta span > i,
+.blog-card .blog-meta a > i,
+.blog-card .blog-meta span > i,
+.blog-grid .blog-meta a > i,
+.blog-grid .blog-meta span > i,
+.blog-inner-title i,
+.blog-meta a:hover,
+.blog-navigation .blog-btn:hover,
+.blog-navigation .nav-btn:hover .nav-text,
+.blog-single .blog-img .slider-arrow,
+.blog-title a:hover,
+.box-title a:hover,
+.box-title2 a:hover,
+.breadcumb-menu li:last-child,
+.calendar_wrap #today,
+.call-btn .box-link a:hover,
+.cart_table .remove,
+.cart_totals .order-total .amount,
+.cart_totals .shipping-calculator-button:hover,
+.category-menu .mega-menu ul li a:hover,
+.category-menu li.menu-item-has-children > a:hover:after,
+.check-list li > i,
+.checkout-ordertable .order-total .amount,
+.checkout-ordertable input[type="hidden"] ~ label,
+.collection-category.style10 .box-content .box-text span,
+.collection-category.style10 .text,
+.collection-category.style2 .box-content .box-text span,
+.collection-category.style4 .box-content .offer,
+.collection-category.style5 .box-content .box-text span,
+.collection-category.style5 .text,
+.collection-category.style6 .discount,
+.collection-category.style6 .text,
+.collection-category.style8 .box-content .box-text span,
+.color-scheme .color-switch-btns button,
+.contact-info_link:hover,
+.contact-item_icon,
+.contact-item_text a:hover,
+.contact-media .box-text a:hover,
+.contact-media .icon-btn,
+.contact-media-wrap .box-title,
+.copyright-text a,
+.copyright-wrap .copyright-text a,
+.copyright-wrap .copyright-text i,
+.copyright-wrap.bg-title .copyright-text a:hover,
+.counter-list.style5 li .count-name,
+.counter-list.style5 li .count-number,
+.cta-area.style2 .box-title .discount,
+.cta-sec4 .cta-content4 .subtitle,
+.currency-menu .nice-select .option.selected,
+.dark-theme .blog-card .blog-meta a > i,
+.dark-theme .blog-card .blog-meta span > i,
+.dark-theme .main-menu ul.sub-menu li a:before,
+.dark-theme .th-mobile-menu ul li.th-active > a,
+.dark-theme a:hover,
+.discount-wrapp .discount,
+.footer-contact .box-icon,
+.footer-contact .box-text a:hover,
+.footer-layout3 .copyright-wrap .copyright-text a:hover,
+.footer-layout4 .copyright-wrap .copyright-text a:hover,
+.footer-layout4 .th-social.style2 a,
+.footer-layout6 .copyright-wrap .copyright-text a,
+.footer-links a:hover,
+.footer-widget .form-group > i,
+.footer-widget .recent-post .recent-post-meta a:hover i,
+.footer-widget .recent-post .recent-post-meta i,
+.footer-widget.widget_archive a:hover,
+.footer-widget.widget_categories a:hover,
+.footer-widget.widget_meta a:hover,
+.footer-widget.widget_nav_menu a:hover,
+.footer-widget.widget_pages a:hover,
+.header-call:hover,
+.header-layout1 .category-menu a:hover,
+.header-layout1 .header-right li i,
+.header-layout2 .category-menu a:hover,
+.header-links a:hover,
+.header-links li > i,
+.info-box .box-icon,
+.info-box .box-link:hover,
+.info-list i,
+.langauge .nice-select .option.selected,
+.line-btn:hover,
+.link-btn,
+.link-btn2 i,
+.link-btn2:hover,
+.link-btn:hover,
+.main-menu > ul > li > a:hover,
+.main-menu a:hover,
+.main-menu ul li.menu-item-has-children > a:hover:after,
+.main-menu ul li:has(.mega-menu) > a:hover:after,
+.main-menu ul li:has(.sub-menu) > a:hover:after,
+.main-menu ul.sub-menu li a:before,
+.main-menu ul.sub-menu li a:hover,
+.mega-menu-box .mega-menu-title span,
+.menu-style1 > ul > li > a:hover,
+.offer-text,
+.offter-title,
+.play-btn.style3 > i,
+.popup-search-box button.searchClose,
+.product-box .box-price del,
+.product-box .circle-dot .dot,
+.product-box .rating i,
+.product-box .shape-mockup2 i,
+.product-grid .box-title:hover,
+.product-grid.style2 .product-action a .icon,
+.product-grid.style5 .product-action a .icon,
+.product-grid.style6 .box-price,
+.product-grid.style9 .box-price,
+.product-item.style2 .box-price,
+.product-item.style2 .line-btn:hover,
+.product-item.style3 .box-price,
+.product-item2 .line-btn,
+.product-style1 .box-price,
+.product-title-area.style2 .box-title,
+.product_meta > span a:hover,
+.project-block .box-subtitle,
+.project-element .box-subtitle,
+.recent-post .media-img:after,
+.recent-post .recent-post-meta a:hover,
+.scroll-top svg,
+.scroll-top:after,
+.service-card .box-subtitle,
+.service-gallery .box-btn:hover,
+.service-meta a i,
+.service-meta span i,
+.share-title i,
+.sidebar-gallery .gallery-btn:hover,
+.sidemenu-wrapper .closeButton:hover,
+.slider-arrow,
+.social-links a:hover,
+.sub-title,
+.sub-title2,
+.team-box .box-btn i,
+.team-contact .box-text a:hover,
+.team-grid .th-social a,
+.testi-box .box-review,
+.testi-card .box-review,
+.text-inherit:hover,
+.text-theme,
+.th-btn.style5:hover,
+.th-btn.style6:hover,
+.th-comments-wrap .commented-on i,
+.th-comments-wrap .reply-btn,
+.th-comments-wrap .reply-btn i,
+.th-comments-wrap .reply-btn:hover,
+.th-mobile-menu ul li.th-active > a,
+.th-product .price,
+.th-product .product-category:hover,
+.th-product .product-title a:hover,
+.th-product.list-view .price,
+.th-search .search-grid-title a:hover,
+.th-social.style2 a,
+.th-sort-bar .nav a.active,
+.th-sort-bar .nav a:hover,
+.th-team .box-desig,
+.th-team .team-social a:hover,
+.timer-counter li .count-number,
+.timer-counter li:not(:last-child):before,
+.tinv-wishlist .tinv-modal .icon_big_times,
+.tinv-wishlist td.product-name a:hover,
+.widget-banner .box-link a:hover,
+.widget-call .call:hover,
+.widget_archive a:hover,
+.widget_archive a:hover ~ span,
+.widget_categories a:hover,
+.widget_categories a:hover ~ span,
+.widget_meta a:hover,
+.widget_meta a:hover ~ span,
+.widget_nav_menu a:hover,
+.widget_nav_menu a:hover ~ span,
+.widget_pages a:hover,
+.widget_pages a:hover ~ span,
+.widget_recent_comments a:hover,
+.widget_recent_comments li:before,
+.widget_recent_entries ul li > a:hover,
+.widget_rss a:hover,
+.widget_rss ul .rss-date:before,
+.widget_rss ul a:hover,
+.widget_shopping_cart .cart_list a.remove:hover,
+.widget_shopping_cart .cart_list a:not(.remove):hover,
+.woocommerce-grouped-product-list-item label a:hover,
+.wp-block-calendar #today,
+.wp-block-categories a:hover,
+.wp-block-categories a:hover ~ span,
+.wp-block-latest-comments a:hover,
+.wp-block-latest-comments li:before,
+.wp-block-latest-comments__comment a:hover,
+.wp-block-quote.style-left-icon:before,
+.wp-block-rss a:hover,
+.wp-block-rss ul .rss-date:before,
+.wp-block-rss ul a:hover,
+a,
+blockquote.style-left-icon:before,
+input[type="checkbox"].style2:checked ~ label:before,
+table.variations label a:hover,
+ul.wp-block-latest-posts a:hover {
+  color: #8F7022;
+}
+
+/* On dark grounds the direction reverses: the gradient's light end is the
+   legible one there, 7.35:1 on the footer's ink. */
+.footer-wrapper a:hover,
+.footer-wrapper .footer-links a:hover,
+.header-top a:hover,
+.th-header .header-top a:hover {
+  color: #CA9A24;
+}
+
+/* The template put white type on the accent, which the red carried at 4.00:1
+   and the gold does not — white on the gradient's light foot is 2.46:1. Ink
+   instead, matching the labels on the brand's own chart. Same generated list
+   as the fill below, so type and ground stay in step. */
+.added_to_cart:hover,
+.badge,
+.blog-meta a:not(:last-child):after,
+.blog-meta span:not(:last-child):after,
+.blog-single .blog-img .slider-arrow:hover,
+.blog-single.format-link:before,
+.blog-single.format-quote:before,
+.blog-single.sticky:before,
+.blog-single.tag-sticky-2:before,
+.calendar_wrap caption,
+.cart_table .qty-btn:hover,
+.color-scheme .switchIcon,
+.comparison-img .slider-button,
+.comparison-img p,
+.contact-info_icon:hover,
+.contact-item:hover .contact-item_icon,
+.contact-map .contact-icon i,
+.contact-process .box-number:before,
+.counter-list.style2 li .count-number,
+.counter-list.style7 li,
+.cta-sec2,
+.currency-menu .nice-select .option.focus,
+.currency-menu .nice-select .option.selected,
+.currency-menu .nice-select .option.selected.focus,
+.currency-menu .nice-select .option:hover,
+.customer-box,
+.download-widget-wrap .th-btn.style2:before,
+.elegant-item .play-btn > i,
+.faq-search button,
+.filter-menu .tab-btn.active,
+.filter-menu .tab-btn:before,
+.filter-menu .tab-btn:hover,
+.filter-menu.style2 .th-btn.active,
+.filter-menu.style2 .th-btn:before,
+.filter-menu.style3 .tab-btn.active:after,
+.filter-menu.style3 .tab-btn.active:before,
+.filter-menu.style3 .tab-btn:hover:after,
+.filter-menu.style3 .tab-btn:hover:before,
+.footer-layout4 .th-social.style2 a:hover,
+.footer-layout5 .copyright-wrap,
+.footer-links li:after,
+.footer-wrapper .th-social a:hover,
+.form-submit input[type="submit"],
+.gallery-grid .icon-btn:hover,
+.gallery-slider .swiper-slide .th-btn:before,
+.gallery-slider .swiper-slide .th-btn:hover,
+.gallery-slider .swiper-slide .th-btn:hover:before,
+.header-button .icon-btn .badge,
+.header-button .icon-btn:hover,
+.header-call .icon-btn,
+.header-info .icon-btn:hover,
+.header-layout2 .category-menu .mega-menu .th-btn:hover,
+.header-layout5 .category-menu .mega-menu .th-btn:hover,
+.hero-2 .swiper-pagination-bullets .swiper-pagination-bullet.swiper-pagination-bullet-active,
+.hero-style1 .scroll-down .scroll-wrap,
+.icon-btn.style2,
+.icon-btn.style2:hover,
+.icon-btn:hover,
+.info-box .box-icon:hover,
+.langauge .nice-select .option.focus,
+.langauge .nice-select .option.selected,
+.langauge .nice-select .option.selected.focus,
+.langauge .nice-select .option:hover,
+.langauge.lang-dropdown .gtranslate_wrapper a:hover,
+.line-btn:hover:after,
+.link-btn:before,
+.login-tab button.nav-link.active,
+.main-menu ul.mega-menu > li > a::after,
+.main-menu ul.mega-menu > li > a::before,
+.main-menu ul.mega-menu::-webkit-scrollbar-thumb,
+.menu-expand,
+.newsletter-widget .icon-btn,
+.offer-item .offer,
+.page-links > a.current,
+.page-links > a:hover,
+.page-links > span:not(.page-links-title):not(.screen-reader-text).current,
+.page-links > span:not(.page-links-title):not(.screen-reader-text):hover,
+.play-btn > i,
+.play-btn.style3:hover > i,
+.play-btn.style3:hover:after,
+.play-btn.style3:hover:before,
+.play-btn.style4:hover > i,
+.play-btn:after,
+.play-btn:before,
+.popup-login-register ul li .nav-menu.active:before,
+.post-password-form input[type="submit"],
+.price_slider_wrapper .button:hover,
+.price_slider_wrapper .ui-slider,
+.price_slider_wrapper .ui-slider-range,
+.price_slider_wrapper button:hover,
+.process-box .box-number,
+.process-card .box-number:before,
+.product-about .actions .th-btn:before,
+.product-about .actions .th-btn:focus,
+.product-about .actions .th-btn:hover,
+.product-about .checklist li i,
+.product-about .tinv-wishlist .tinvwl_add_to_wishlist_button.tinvwl-icon-heart-plus.no-txt,
+.product-about .tinv-wishlist .tinvwl_add_to_wishlist_button.tinvwl-icon-heart.no-txt,
+.product-about .tinv-wishlist a:hover,
+.product-box .box-icon:hover,
+.product-details .border-title:before,
+.product-grid .box-discount,
+.product-grid .box-img .product-action a .action-text,
+.product-grid .box-img .product-action a .action-text:before,
+.product-grid .product-action .added_to_cart,
+.product-grid .product-action .icon-btn:after,
+.product-grid .product-action .icon-btn:before,
+.product-grid .product-action .tinv-wishlist a:hover,
+.product-grid .product-tag,
+.product-grid.style2 .box-img .product-action a:hover .icon,
+.product-grid.style5 .box-img .product-action a:hover .icon,
+.product-grid.style8 .product-grid-content .th-icon2:before,
+.product-item.style2 .line-btn:hover:after,
+.product-item2 .line-btn:before,
+.product-item2 .line-btn:hover:before,
+.productSlide .product-tag,
+.project-card .icon-btn,
+.project-info-wrap .box-title:after,
+.project-nav .icon-btn:hover,
+.service-block .icon-btn:hover:after,
+.service-block:hover .box-content,
+.service-box .th-btn:hover,
+.service-box .th-btn:hover:before,
+.service-card .th-btn:before,
+.service-card .th-btn:hover,
+.share-links .tagcloud a:hover,
+.share-links .wp-block-tag-cloud a:hover,
+.sidebar-area .wp-block-group__inner-container h2:after,
+.sidebar-area .wp-block-search__label:after,
+.skill-feature .progress-bar,
+.slider-arrow:hover,
+.summary-content .actions .th-btn:before,
+.summary-content .actions .th-btn:focus,
+.summary-content .actions .th-btn:hover,
+.summary-content .checklist li i,
+.summary-content .tinv-wishlist .tinvwl_add_to_wishlist_button.tinvwl-icon-heart-plus.no-txt,
+.summary-content .tinv-wishlist .tinvwl_add_to_wishlist_button.tinvwl-icon-heart.no-txt,
+.summary-content .tinv-wishlist a:hover,
+.swiper-pagination-bullets .swiper-pagination-bullet.swiper-pagination-bullet-active,
+.tab-menu .th-btn.active,
+.tab-menu .th-btn.active:before,
+.tab-menu .th-btn:hover,
+.tab-menu .th-btn:hover:before,
+.tab-menu.style2 .th-btn.active,
+.tab-menu.style2 .th-btn:before,
+.tab-menu.style2 .th-btn:hover,
+.tab-menu.style4 .tab-btn.active:after,
+.tab-menu.style4 .tab-btn.active:before,
+.tab-menu.style4 .tab-btn:hover:after,
+.tab-menu.style4 .tab-btn:hover:before,
+.tab-menu2 .tab-btn.active .icon,
+.tab-menu2 .tab-btn:hover .icon,
+.tagcloud a:hover,
+.team-block .th-social a,
+.team-box .box-social,
+.team-box .th-social a,
+.team-contact .icon-btn,
+.team-element .arrow-icon:hover,
+.team-element .whatsapp,
+.team-grid .box-btn i,
+.team-grid:hover .box-social,
+.testi-card:before,
+.th-btn.black-btn:before,
+.th-btn.black-btn:hover,
+.th-btn.style2:hover,
+.th-btn.style2:hover:before,
+.th-btn.style4:after,
+.th-btn.style4:before,
+.th-btn.style4:hover,
+.th-btn.style5,
+.th-btn2 .link-effect .effect-1:before,
+.th-btn2.style2,
+.th-btn2:before,
+.th-menu-toggle,
+.th-menu-toggle2,
+.th-menu-wrapper .th-menu-toggle,
+.th-menu-wrapper2 .th-menu-toggle2,
+.th-pagination a.active,
+.th-pagination a:hover,
+.th-pagination span.active,
+.th-pagination span:hover,
+.th-product .actions .icon-btn.tinvwl_add_to_wishlist_button:hover,
+.th-product .actions .icon-btn.woosq-btn:hover,
+.th-product .added_to_cart:hover,
+.th-product .product-action .added_to_cart,
+.th-product .product-action .icon-btn:before,
+.th-product .product-action .tinv-wishlist a:hover,
+.th-product .product-tag,
+.th-product .tinv-wishlist a:hover,
+.th-social a:hover,
+.th-widget-about .about-logo:before,
+.tinv-wishlist .social-buttons li a.social,
+.tinv-wishlist button.button,
+.tinv-wishlist p.return-to-shop .button,
+.title-area .sec-title.style2:after,
+.title-area .sec-title:before,
+.widget .search-form button,
+.widget-call:before,
+.widget.widget_categories.style2 ul li a:hover span,
+.widget_rss ul cite:before,
+.woocommerce-MyAccount-content .btn,
+.woocommerce-form-login-toggle .woocommerce-info,
+.woocommerce-info,
+.woocommerce-notices-wrapper .woocommerce-message,
+.woosc-remove,
+.woosq-product .thumbnails .slick-dots li button,
+.wp-block-button .wp-block-button__link:hover,
+.wp-block-button.is-style-outline .wp-block-button__link:hover,
+.wp-block-calendar caption,
+.wp-block-query-pagination-next.active,
+.wp-block-query-pagination-next:hover,
+.wp-block-query-pagination-numbers a.active,
+.wp-block-query-pagination-numbers a:hover,
+.wp-block-query-pagination-numbers span.active,
+.wp-block-query-pagination-numbers span:hover,
+.wp-block-quote cite,
+.wp-block-quote:after,
+.wp-block-rss ul cite:before,
+.wp-block-search .wp-block-search__button,
+.wp-block-tag-cloud a:hover,
+/* Team Box ---------------------------------- */ .team-box,
+/* cursor area start ---------------------------*/ .cursor-follower,
+/*------------------- 3.2. Buttons -------------------*/ .th-btn,
+/*------------------- 3.7. Background -------------------*/ .bg-theme,
+/*------------------- 4.00. Products -------------------*/ .th-product .product-action .icon-btn:after,
+/*------------------- 4.00. Wocommerce -------------------*/ .woocommerce-message,
+[data-overlay="theme"]:before,
+blockquote cite,
+blockquote:after,
+input[type="checkbox"]:checked ~ label:before,
+input[type="radio"]:checked ~ label::before,
+nav.woocommerce-MyAccount-navigation li a:hover,
+nav.woocommerce-MyAccount-navigation li.is-active a,
+option:checked,
+option:focus,
+option:hover {
+  color: #101111;
+}
+
+/* The last red the accent variable does not reach: a hardcoded #FF0004 on the
+   product-card swatch. Its class is .beige-color, so the template was already
+   rendering it wrong — it is gold here because the request was red to gold,
+   but it stands for a product colour and should carry a real one once the
+   catalogue is real. */
+.product-grid.style14 .beige-color span {
+  background-color: #A47F25;
+}
+
+/* --------------------------------------------------------------------------
+   The gradient.
+
+   The chart's bars are not a flat fill — they run top-dark to bottom-light,
+   #7D6324 to #CE9E29, and the measured midpoint (#A58122) sits within a
+   rounding error of the linear interpolation, so two stops reproduce them.
+
+   Every surface the template filled with the flat accent takes the same
+   gradient. The selector list is generated from the template's own stylesheet
+   by finding each rule that sets background-color: var(--theme-color), so
+   nothing is missed and nothing else is touched. background-color stays on
+   the variable underneath as the flat fallback, and the template's own
+   inline background images (set from data-bg-src at runtime) still win,
+   because inline styles outrank a stylesheet.
+
+   Ink on the gradient, measured down the box: 4.56:1 where a centred label's
+   glyphs begin (35%) rising to 5.87:1 where they end (65%). The band above
+   that is button padding, and carries no text.
+   -------------------------------------------------------------------------- */
+
+.added_to_cart:hover,
+.badge,
+.blog-meta a:not(:last-child):after,
+.blog-meta span:not(:last-child):after,
+.blog-single .blog-img .slider-arrow:hover,
+.blog-single.format-link:before,
+.blog-single.format-quote:before,
+.blog-single.sticky:before,
+.blog-single.tag-sticky-2:before,
+.calendar_wrap caption,
+.cart_table .qty-btn:hover,
+.color-scheme .switchIcon,
+.comparison-img .slider-button,
+.comparison-img p,
+.contact-info_icon:hover,
+.contact-item:hover .contact-item_icon,
+.contact-map .contact-icon i,
+.contact-process .box-number:before,
+.counter-list.style2 li .count-number,
+.counter-list.style7 li,
+.cta-sec2,
+.currency-menu .nice-select .option.focus,
+.currency-menu .nice-select .option.selected,
+.currency-menu .nice-select .option.selected.focus,
+.currency-menu .nice-select .option:hover,
+.customer-box,
+.download-widget-wrap .th-btn.style2:before,
+.elegant-item .play-btn > i,
+.faq-search button,
+.filter-menu .tab-btn.active,
+.filter-menu .tab-btn:before,
+.filter-menu .tab-btn:hover,
+.filter-menu.style2 .th-btn.active,
+.filter-menu.style2 .th-btn:before,
+.filter-menu.style3 .tab-btn.active:after,
+.filter-menu.style3 .tab-btn.active:before,
+.filter-menu.style3 .tab-btn:hover:after,
+.filter-menu.style3 .tab-btn:hover:before,
+.footer-layout4 .th-social.style2 a:hover,
+.footer-layout5 .copyright-wrap,
+.footer-links li:after,
+.footer-wrapper .th-social a:hover,
+.form-submit input[type="submit"],
+.gallery-grid .icon-btn:hover,
+.gallery-slider .swiper-slide .th-btn:before,
+.gallery-slider .swiper-slide .th-btn:hover,
+.gallery-slider .swiper-slide .th-btn:hover:before,
+.header-button .icon-btn .badge,
+.header-button .icon-btn:hover,
+.header-call .icon-btn,
+.header-info .icon-btn:hover,
+.header-layout2 .category-menu .mega-menu .th-btn:hover,
+.header-layout5 .category-menu .mega-menu .th-btn:hover,
+.hero-2 .swiper-pagination-bullets .swiper-pagination-bullet.swiper-pagination-bullet-active,
+.hero-style1 .scroll-down .scroll-wrap,
+.icon-btn.style2,
+.icon-btn.style2:hover,
+.icon-btn:hover,
+.info-box .box-icon:hover,
+.langauge .nice-select .option.focus,
+.langauge .nice-select .option.selected,
+.langauge .nice-select .option.selected.focus,
+.langauge .nice-select .option:hover,
+.langauge.lang-dropdown .gtranslate_wrapper a:hover,
+.line-btn:hover:after,
+.link-btn:before,
+.login-tab button.nav-link.active,
+.main-menu ul.mega-menu > li > a::after,
+.main-menu ul.mega-menu > li > a::before,
+.main-menu ul.mega-menu::-webkit-scrollbar-thumb,
+.menu-expand,
+.newsletter-widget .icon-btn,
+.offer-item .offer,
+.page-links > a.current,
+.page-links > a:hover,
+.page-links > span:not(.page-links-title):not(.screen-reader-text).current,
+.page-links > span:not(.page-links-title):not(.screen-reader-text):hover,
+.play-btn > i,
+.play-btn.style3:hover > i,
+.play-btn.style3:hover:after,
+.play-btn.style3:hover:before,
+.play-btn.style4:hover > i,
+.play-btn:after,
+.play-btn:before,
+.popup-login-register ul li .nav-menu.active:before,
+.post-password-form input[type="submit"],
+.price_slider_wrapper .button:hover,
+.price_slider_wrapper .ui-slider,
+.price_slider_wrapper .ui-slider-range,
+.price_slider_wrapper button:hover,
+.process-box .box-number,
+.process-card .box-number:before,
+.product-about .actions .th-btn:before,
+.product-about .actions .th-btn:focus,
+.product-about .actions .th-btn:hover,
+.product-about .checklist li i,
+.product-about .tinv-wishlist .tinvwl_add_to_wishlist_button.tinvwl-icon-heart-plus.no-txt,
+.product-about .tinv-wishlist .tinvwl_add_to_wishlist_button.tinvwl-icon-heart.no-txt,
+.product-about .tinv-wishlist a:hover,
+.product-box .box-icon:hover,
+.product-details .border-title:before,
+.product-grid .box-discount,
+.product-grid .box-img .product-action a .action-text,
+.product-grid .box-img .product-action a .action-text:before,
+.product-grid .product-action .added_to_cart,
+.product-grid .product-action .icon-btn:after,
+.product-grid .product-action .icon-btn:before,
+.product-grid .product-action .tinv-wishlist a:hover,
+.product-grid .product-tag,
+.product-grid.style2 .box-img .product-action a:hover .icon,
+.product-grid.style5 .box-img .product-action a:hover .icon,
+.product-grid.style8 .product-grid-content .th-icon2:before,
+.product-item.style2 .line-btn:hover:after,
+.product-item2 .line-btn:before,
+.product-item2 .line-btn:hover:before,
+.productSlide .product-tag,
+.project-card .icon-btn,
+.project-info-wrap .box-title:after,
+.project-nav .icon-btn:hover,
+.service-block .icon-btn:hover:after,
+.service-block:hover .box-content,
+.service-box .th-btn:hover,
+.service-box .th-btn:hover:before,
+.service-card .th-btn:before,
+.service-card .th-btn:hover,
+.share-links .tagcloud a:hover,
+.share-links .wp-block-tag-cloud a:hover,
+.sidebar-area .wp-block-group__inner-container h2:after,
+.sidebar-area .wp-block-search__label:after,
+.skill-feature .progress-bar,
+.slider-arrow:hover,
+.summary-content .actions .th-btn:before,
+.summary-content .actions .th-btn:focus,
+.summary-content .actions .th-btn:hover,
+.summary-content .checklist li i,
+.summary-content .tinv-wishlist .tinvwl_add_to_wishlist_button.tinvwl-icon-heart-plus.no-txt,
+.summary-content .tinv-wishlist .tinvwl_add_to_wishlist_button.tinvwl-icon-heart.no-txt,
+.summary-content .tinv-wishlist a:hover,
+.swiper-pagination-bullets .swiper-pagination-bullet.swiper-pagination-bullet-active,
+.tab-menu .th-btn.active,
+.tab-menu .th-btn.active:before,
+.tab-menu .th-btn:hover,
+.tab-menu .th-btn:hover:before,
+.tab-menu.style2 .th-btn.active,
+.tab-menu.style2 .th-btn:before,
+.tab-menu.style2 .th-btn:hover,
+.tab-menu.style4 .tab-btn.active:after,
+.tab-menu.style4 .tab-btn.active:before,
+.tab-menu.style4 .tab-btn:hover:after,
+.tab-menu.style4 .tab-btn:hover:before,
+.tab-menu2 .tab-btn.active .icon,
+.tab-menu2 .tab-btn:hover .icon,
+.tagcloud a:hover,
+.team-block .th-social a,
+.team-box .box-social,
+.team-box .th-social a,
+.team-contact .icon-btn,
+.team-element .arrow-icon:hover,
+.team-element .whatsapp,
+.team-grid .box-btn i,
+.team-grid:hover .box-social,
+.testi-card:before,
+.th-btn.black-btn:before,
+.th-btn.black-btn:hover,
+.th-btn.style2:hover,
+.th-btn.style2:hover:before,
+.th-btn.style4:after,
+.th-btn.style4:before,
+.th-btn.style4:hover,
+.th-btn.style5,
+.th-btn2 .link-effect .effect-1:before,
+.th-btn2.style2,
+.th-btn2:before,
+.th-menu-toggle,
+.th-menu-toggle2,
+.th-menu-wrapper .th-menu-toggle,
+.th-menu-wrapper2 .th-menu-toggle2,
+.th-pagination a.active,
+.th-pagination a:hover,
+.th-pagination span.active,
+.th-pagination span:hover,
+.th-product .actions .icon-btn.tinvwl_add_to_wishlist_button:hover,
+.th-product .actions .icon-btn.woosq-btn:hover,
+.th-product .added_to_cart:hover,
+.th-product .product-action .added_to_cart,
+.th-product .product-action .icon-btn:before,
+.th-product .product-action .tinv-wishlist a:hover,
+.th-product .product-tag,
+.th-product .tinv-wishlist a:hover,
+.th-social a:hover,
+.th-widget-about .about-logo:before,
+.tinv-wishlist .social-buttons li a.social,
+.tinv-wishlist button.button,
+.tinv-wishlist p.return-to-shop .button,
+.title-area .sec-title.style2:after,
+.title-area .sec-title:before,
+.widget .search-form button,
+.widget-call:before,
+.widget.widget_categories.style2 ul li a:hover span,
+.widget_rss ul cite:before,
+.woocommerce-MyAccount-content .btn,
+.woocommerce-form-login-toggle .woocommerce-info,
+.woocommerce-info,
+.woocommerce-notices-wrapper .woocommerce-message,
+.woosc-remove,
+.woosq-product .thumbnails .slick-dots li button,
+.wp-block-button .wp-block-button__link:hover,
+.wp-block-button.is-style-outline .wp-block-button__link:hover,
+.wp-block-calendar caption,
+.wp-block-query-pagination-next.active,
+.wp-block-query-pagination-next:hover,
+.wp-block-query-pagination-numbers a.active,
+.wp-block-query-pagination-numbers a:hover,
+.wp-block-query-pagination-numbers span.active,
+.wp-block-query-pagination-numbers span:hover,
+.wp-block-quote cite,
+.wp-block-quote:after,
+.wp-block-rss ul cite:before,
+.wp-block-search .wp-block-search__button,
+.wp-block-tag-cloud a:hover,
+/* Team Box ---------------------------------- */ .team-box,
+/* cursor area start ---------------------------*/ .cursor-follower,
+/*------------------- 3.2. Buttons -------------------*/ .th-btn,
+/*------------------- 3.7. Background -------------------*/ .bg-theme,
+/*------------------- 4.00. Products -------------------*/ .th-product .product-action .icon-btn:after,
+/*------------------- 4.00. Wocommerce -------------------*/ .woocommerce-message,
+[data-overlay="theme"]:before,
+blockquote cite,
+blockquote:after,
+input[type="checkbox"]:checked ~ label:before,
+input[type="radio"]:checked ~ label::before,
+nav.woocommerce-MyAccount-navigation li a:hover,
+nav.woocommerce-MyAccount-navigation li.is-active a,
+option:checked,
+option:focus,
+option:hover {
+  background-image: linear-gradient(180deg, #7D6324 0%, #CE9E29 100%);
+}
+
+/* The button's arrow is a mask painted with --white-color, so it stayed white
+   when the label went to ink. currentColor follows the button instead: ink at
+   rest on the gold, and back to white on hover, where the template swaps the
+   ground to --title-color and the label to white. */
+.th-btn.th-icon:after,
+.th-btn.th-icon::after {
+  background-color: currentColor;
+}
+
+/* --------------------------------------------------------------------------
+   Hero only: the gold, lifted for a white ground.
+
+   The chart's own numbers sit on a near-black card, where they read luminous.
+   The same values on white read muddy — the ground is doing half the work in
+   the original, so matching the hex exactly does not match the impression.
+   This lifts both stops while holding the hue (42-43 degrees) and the
+   top-dark-to-bottom-light run of the bar.
+
+     box top   #C0972F  ink 6.94:1
+     box foot  #E3B54A  ink 9.88:1
+
+   The search disc in the header takes the same ramp, so the two gold controls
+   on the page are one colour rather than two: it was carrying the sampled
+   #7D6324 to #CE9E29 and read noticeably darker beside the buy button.
+
+   Every button, now, not the hero's two. The scoping said "while the gold is
+   judged" and the judging is done — and leaving it scoped is what made the
+   sale's «خرید با قیمت فعلی» read as dark olive: it was falling through to
+   the sampled ramp, whose top stop is #7D6324. Two golds on one page is a
+   mistake whichever of them is right, and this is the one measured for a
+   white ground.
+
+   The sampled ramp stays where it belongs, on the SVG icons. That is not an
+   oversight: an icon is a small mark that has to hold its shape, and the two
+   ramps measure 5.70:1 and 2.72:1 against white at their top stop. The dark
+   one is the readable one at 32px; the light one is the readable one under
+   ink at button size.
+   -------------------------------------------------------------------------- */
+.th-btn {
+  background-image: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+}
+
+/* --------------------------------------------------------------------------
+   The discount mark on the hero shot.
+
+   A lobed burst rather than a disc, in the buy button's gold, carrying the
+   offer on two lines. The shape and the type are one SVG, so they scale
+   together and the lines stay centred on the burst at any size.
+
+   The template's own box is kept for the placing — it is what sits the mark on
+   the shot — but everything it drew is taken off: the glass, the white
+   hairline, the round corner, the tilt and the ten-second turn. What is left
+   is a box for the burst to fill.
+
+   The type is ink, not the button's white: on this gold white measures 2.6:1
+   and ink 5.1, and at this size that difference is the difference between
+   reading it and not.
+   -------------------------------------------------------------------------- */
+/* 101 was the size the burst was drawn at; 121.2 is the client's 20% on it.
+   The SVG fills this box and everything in it is in the burst's own units, so
+   the shape, the offer and the studs all take the 20% together. */
+.heroSlide6 .discount-tag {
+  box-sizing: border-box;
+  width: 121.2px;
+  height: 121.2px;
+  min-width: 121.2px;
+  min-height: 121.2px;
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  animation: none;
+  transform: none;
+}
+
+/* Along the shot a little, off the template's own 9%. Physical, not logical:
+   this element computes direction: ltr whatever the page does, so the logical
+   start is its left and setting that sends it the wrong way — measured, 160px
+   the wrong way. The flipped sheet has already turned the template's left into
+   a right here, so the right is what to add to. */
+.heroSlide6 .discount-wrapp {
+  right: calc(9% + 41px);
+  left: auto;
+}
+
+.heroSlide6 .discount-tag .vp-burst {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* The burst turns; the offer does not turn with it.
+
+   The shape and the type are separate elements inside the one SVG, so the
+   rotation can go on the path alone and the two <text> lines stay upright and
+   still. The lobes read as moving because they are not radially symmetric —
+   the writing would just be unreadable.
+
+   fill-box makes the origin the path's own centre, so it spins in place rather
+   than around the SVG's corner. 12s linear: slow enough to be a drift rather
+   than a spin, and unvarying, because an eased turn of a symmetric-ish shape
+   reads as a stutter.
+
+   The template turned this box in 10s and that was taken off with everything
+   else it drew; this puts the movement back on the part it belongs to.
+
+   The turn is on the group holding the shape and its studs, not on the path,
+   so the studs keep their places in the notches instead of standing still
+   while the shape moves out from under them. view-box rather than fill-box:
+   the origin then is the middle of the 150 the burst is drawn in, which is
+   the shape's own centre, and it stays there however the group's bounding box
+   changes. */
+.heroSlide6 .discount-tag .vp-burst .vp-burst-star {
+  transform-box: view-box;
+  transform-origin: 50% 50%;
+  animation: vp-burst-turn 12s linear infinite;
+}
+
+@keyframes vp-burst-turn {
+  to { transform: rotate(360deg); }
+}
+
+/* A stud in the mouth of each lobe, and the blink they share.
+
+   All eleven together, out and back in: the client asked for the ring to go
+   off and come on as one, so there is no per-stud offset — the stagger that
+   made a single light travel round the burst is gone, and with it the inline
+   animation-delay each stud used to carry.
+
+   1.2s, not the turn's own 12s. Eleven studs going at once is one event, and
+   at 12s that event would happen far less often than it reads as wanting to.
+   It was 2.4 and the client asked for twice the speed, so 1.2 — still a whole
+   division of the turn, its tenth, which is what keeps the blink landing on
+   the same phase of the turn every time rather than drifting against it.
+
+   Out for a short part of the cycle rather than half of it — on is the
+   resting state and the blink is the departure from it, which is the way
+   round that reads as a mark that blinks rather than one that flashes. */
+.heroSlide6 .discount-tag .vp-burst .vp-burst-stud {
+  fill: #FFFFFF;
+  animation: vp-burst-twinkle 1.2s ease-in-out infinite;
+}
+
+@keyframes vp-burst-twinkle {
+  0%   { opacity: 1; }
+  62%  { opacity: 1; }
+  80%  { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+/* Anyone who has asked the system for less movement gets the burst still, and
+   the studs held at the top of their flash rather than mid-way, so they read
+   as meant rather than as half-drawn. */
+@media (prefers-reduced-motion: reduce) {
+  .heroSlide6 .discount-tag .vp-burst .vp-burst-star,
+  .heroSlide6 .discount-tag .vp-burst .vp-burst-stud,
+  .vp-deal-burst .vp-burst-star,
+  .vp-deal-burst .vp-burst-stud {
+    animation: none;
+  }
+
+  .heroSlide6 .discount-tag .vp-burst .vp-burst-stud,
+  .vp-deal-burst .vp-burst-stud {
+    opacity: 1;
+  }
+}
+
+/* Both lines the same: same size, same weight, white. */
+.heroSlide6 .discount-tag .vp-burst text {
+  fill: #FFFFFF;
+  text-anchor: middle;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 900;
+  /* In the burst's own units, so it scales with the shape. 28.7 against the
+     101px the burst is drawn at puts the type 5% larger on the page than the
+     26 did at 106 — the burst comes down and the writing goes up. */
+  font-size: 28.7px;
+}
+
+/* --------------------------------------------------------------------------
+   Glass: the header band and the hero cards.
+
+   The template already has this effect — .beige-color, the panel that fades
+   in over the small product cards on hover:
+
+     background: rgba(255, 255, 255, 0.5);
+     backdrop-filter: blur(10px);
+     border-radius: 8px;
+
+   That panel reads as glass because it sits over a photograph: you see the
+   image sharp around it and softened under it, and the pane is plainly the
+   thing doing the softening. A pane over a white page has nothing to soften,
+   which is why the card first read as a plain white card.
+
+   So the gold sits on the page itself, behind everything, and stays sharp: it
+   runs through the header band, the gap below it and the card, sharp in the
+   gap and taken apart by the blur under each pane. The same mark, three
+   treatments — that is the pane being seen rather than a tint being applied.
+
+   The marks go on the body rather than the hero section because that section
+   is overflow: hidden in the template and would clip anything reaching up
+   into the header. They are real elements rather than background layers so
+   both ends can be rounded.
+
+   Three bars, sized off the buy button: half its height thick, three times
+   its width long, then trimmed over four passes — 26 x 218, fully rounded.
+   The vertical one runs 20% under that, 174.
+   -------------------------------------------------------------------------- */
+
+.vp-hero-marks {
+  /* The disc is a tenth wider than the 145 it was drawn at. 160 rather than the
+     159.5 a tenth comes to, because the round number halves cleanly. */
+  --fall-size: 160px;
+  /* This box is .slider-area's, which is the card's box vertically and the
+     page's horizontally. So top 0 is the card's top edge, bottom 0 is its foot,
+     and 50% is its centre line — at any width, with no number here that has to
+     be re-measured when the card moves or grows. */
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Built like the circles were before they were faded: solid gold through the
+   middle, falling off at the edge rather than stopping on a line. The circles
+   held #C89A2E to 72% of their radius and faded over the rest; here the fill
+   is that same solid gold and a blur does the falloff, softening the rounded
+   ends and the long sides alike. */
+/* The bars take the shoe's own pink rather than the brand gold. Sampled from
+   the product shot itself: over the 138k pixels in its rose range the median
+   is #CFA2A4, hue 357 at 32% saturation. That hue and saturation held, lifted
+   to 80% lightness, is the pale version below — so it is the shoe's pink, not
+   a pink chosen to sit near it. */
+/* The marks take the colour of the shoe on the card.
+
+   #DDBBBD was the pink they were drawn in, and its hue is 356 — it was the
+   Jordan's pink all along, which is why it stopped belonging the moment the
+   deck carried a tan shoe and a navy one. So the hue now comes off the
+   photograph and the rest does not: each shoe's own hue is measured from its
+   opaque, coloured pixels, then set at this mark's own saturation and
+   lightness, 33% and 80%. The three stay a family and only the hue moves.
+
+     jordan       hue  10   #DDC1BB
+     goldengoose  hue  34   #DDCEBB
+     nb530        hue 204   #BBCFDD
+
+   The fallback is the Jordan's, so a slide whose photograph is not in the map
+   still gets a mark rather than none. The transition is long and eased because
+   the colour changes under a pane of glass while the deck slides — a snap
+   would read as a fault in the glass. */
+.vp-hero-marks i {
+  position: absolute;
+  display: block;
+  background: var(--vp-mark, #DDC1BB);
+  border-radius: 999px;
+  filter: blur(8px);
+  transition: background 700ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vp-hero-marks i { transition: none; }
+}
+
+/* The three marks are placed in the card's own coordinates — see the box above.
+   The gaps quoted below are the ones that were argued for and are unchanged;
+   what has changed is that each is now measured from the card edge it was
+   always about, so it holds at every width instead of only at 1440.
+
+   The top mark is a circle rather than a bar, 161 across.
+
+   Centred on the card. The deck is centred on the page and the card fills it,
+   so the card's centre line is the page's: half the width, less half the disc.
+   It used to be `left: 640px`, which was that same centre line worked out for
+   1440 and frozen — 80px off at 1600 and 240px off at 1920.
+
+   Dropped clear of the header so the whole disc sits on the card, and then
+   some. 24px below the card's top edge: at 9px it read as the disc leaning on
+   the edge, and 24 is enough that the 8px blur's falloff lands on the card
+   rather than against it. The disc's own top is 15 above that, hence 39. */
+.vp-hero-marks .m-fall {
+  top: 39px;
+  left: 50%;
+  margin-left: calc(var(--fall-size) / -2);
+  width: var(--fall-size);
+  height: var(--fall-size);
+}
+
+/* Under the shoe, still crossing the card's near edge so the glass takes it
+   apart. 204 wide, held 29px off the page's edge: the card's edge moves with
+   the width, so how much of the bar the glass gets varies, but it always gets
+   some and the bar always breaks the edge, which is the point.
+
+   Measured up from the card's foot, not down from the page's top. It was
+   `top: 600px`, which is 38 off the foot at 1440 and was right there — but the
+   shot is sized off its column, so a wider page grows the shoe and the card
+   grows with it while 600 stays put. At 1920 that left the bar 137 off the
+   foot and 98px up inside the shot, sitting on the shoe rather than under it.
+   38 off the foot is the gap that was chosen, and now it is the one kept. */
+.vp-hero-marks .m-near {
+  bottom: 38px;
+  left: 29px;
+  width: 204px;
+  height: 26px;
+}
+
+/* Top right, above the small label. Held 29px off the right of the page for
+   the same reason as the near one, and the same 204 wide.
+
+   57 below the card's top edge — the same place `top: 235px` put it, now
+   measured from the edge it was about. It sat 46px above the label and read as
+   adrift between the label and the card's edge; this groups it with the
+   writing instead. */
+.vp-hero-marks .m-far {
+  top: 57px;
+  right: 29px;
+  width: 204px;
+  height: 26px;
+}
+
+/* The header, as an island. The dark strip above it keeps its own ground and
+   its full width; this is the band with the logo, nav and search, and it is
+   now a floating panel rather than a band that runs edge to edge.
+
+   It runs to the sides rather than to a fixed width, with the same air on the
+   left and right as it has on top, so the island sits in even margins.
+
+   Same glass as the hero pane, ink tint and all, so the two read as one
+   material. The sticky wrapper is held transparent: the template repaints it
+   solid white, and any ground on it would put a full-width band back behind
+   the island the moment the page scrolls. */
+.th-header .menu-area,
+.th-header .sticky-wrapper.sticky .menu-area {
+  /* 18 above and to both sides. Nothing below: the gap down to the hero is
+     the hero's own 36px of padding, and a bottom margin here would stack on
+     top of it and break the equal air above and below the deck. */
+  margin: 18px 18px 0;
+  border-radius: 24px;
+  background: rgba(16, 17, 17, 0.034);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  /* The same foot as the hero card, for the same reason — «لبه پنهان» /
+     hidden edge, see CLAUDE.md: the shadow that was
+     here read 244 against the island's own 247 and then climbed back to white
+     over thirty pixels, so the island had no bottom edge and the air between
+     it and the deck was a wash. Ink at a fourteenth ends it instead. */
+  box-shadow: inset 0 -1.4px 0 rgba(16, 17, 17, 0.07);
+}
+
+/* filter: none overrides the template's own -webkit-filter: drop-shadow(...)
+   on this element — the actual reason the frosting further down was doing
+   nothing once stuck, and the reason things kept reading as showing through
+   the bar rather than soft behind it.
+
+   A `filter` on an element puts every descendant's `backdrop-filter` in a new
+   backdrop root scoped to that element's own layer, so .menu-area's blur, one
+   level down, could only ever see the header's own contents, never the page
+   behind it. The trust row's cards and the ladder head were both showing
+   through crisp instead of soft for this reason: there was nothing wrong
+   with the blur itself, it had nothing real to blur. Measured after: a pixel
+   dead centre of trust-row title text went from 17 (bare ink, unblurred) to
+   122 (averaged toward the page behind it) at the same spot.
+
+   The drop-shadow is not lost — .menu-area's own box-shadow two rules down
+   already carries an equivalent `0 10px 30px -24px rgba(16,17,17,0.45)`. */
+.th-header .sticky-wrapper.sticky {
+  background: transparent;
+  filter: none;
+}
+
+/* Stuck, the island frosts harder — but it stays the same glass.
+
+   The first attempt at this put a near-white ground on it, 88% opaque, and
+   that was the wrong instrument: at 88% there is nothing left to see through,
+   so it stopped being glass and became a painted bar that happened to sit
+   where the glass had been. The hero's pane and this island are meant to read
+   as one material, and a material is its tint, not its opacity.
+
+   So the tint is the hero's own, to the third decimal — rgba(16,17,17,0.034),
+   the value five passes went into — and the frosting is done where frosting
+   is actually done, in the blur. 10px is right at rest, where all it has
+   under it is the page's white; over content moving past it, 10px leaves type
+   readable straight through the bar, and 30 does not. The saturation is
+   lifted a little because a heavy blur averages colour towards grey, and
+   glass does not drain what is behind it.
+
+   What that buys is the thing worth having: what passes under the bar is
+   still visibly there, as colour and movement, and none of it is legible. */
+.th-header .sticky-wrapper.sticky .menu-area {
+  background: rgba(16, 17, 17, 0.034);
+  -webkit-backdrop-filter: blur(30px) saturate(1.5);
+  backdrop-filter: blur(30px) saturate(1.5);
+  box-shadow:
+    inset 0 -1.4px 0 rgba(16, 17, 17, 0.07),
+    0 10px 30px -24px rgba(16, 17, 17, 0.45);
+}
+
+/* The row's three groups measured 225 + 592 + 438 = 1255 at their natural
+   widths, which overran the island when it was held to 1230. The island runs
+   full width now, so the pressure is off, but the search keeps a set width:
+   left to itself it takes whatever is going and pushes the nav off centre. */
+.th-header .menu-area .top-search {
+  width: 320px;
+}
+
+/* Below 1400 the island is narrower but the nav is still shown at full width,
+   and the row is held to one line — so the search has to give the difference
+   back or it pushes the row off the side of the page. */
+@media (max-width: 1399px) {
+  .th-header .menu-area .top-search { width: 185px; }
+}
+
+/* The header's height used to be whatever the logo column happened to be —
+   the template's 22px of padding above and below the lockup, and nothing else
+   in the row came close. That left the app icon sitting off centre: measured
+   12px of air above it and 22 below.
+
+   The height is stated on the row instead, and everything in it is centred, so
+   the icon's air above and below is the same by construction rather than by
+   arithmetic on someone else's padding. It was 85 — the 20% cut from the
+   template's 106 — and is now 76. */
+.th-header .menu-area .row {
+  min-height: 76px;
+  align-items: center;
+}
+
+/* The lockup is inline-flex inside a block, which gives the block a line box
+   with descender space under it — 62px tall around a 52px lockup, all ten of
+   them below. That is where the uneven air came from; making the wrapper a
+   flex container drops the line box entirely. */
+.th-header .menu-area .header-logo {
+  padding-block: 0;
+  display: flex;
+  align-items: center;
+}
+
+.vp-logo {
+  display: flex;
+}
+
+/* The row is a wrapping flex row, and once the island narrowed it, it chose to
+   wrap even where the three groups did fit — measured 1180 into 1202. Held to
+   one line explicitly, but only from 1200 up: below that the nav is still
+   shown and genuinely does not fit, and forcing one line there pushed 152px
+   of overflow off the side of the page. */
+@media (min-width: 1200px) {
+  .th-header .menu-area .row {
+    flex-wrap: nowrap;
+  }
+}
+
+/* Content off the rounded corners, and set to the same air the icon has above
+   and below it — (76 - 52) / 2 — so the gap around the app icon is equal on all
+   three sides it touches. It follows the island's height: at 85 this was 16.5.
+   The row's negative margin cancels the columns' own gutter at the outer edges,
+   so this padding is the whole inset. */
+.th-header .menu-area > .container {
+  padding-inline: 12px;
+}
+
+/* The pane. */
+.heroSlide6 .hero-inner,
+.heroSlide6 .swiper-slide:nth-child(2) .hero-inner,
+.heroSlide6 .swiper-slide:nth-child(3) .hero-inner,
+.heroSlide6 .swiper-slide:nth-child(5) .hero-inner,
+.heroSlide6 .swiper-slide:nth-child(6) .hero-inner {
+  background: rgba(255, 255, 255, 0.5);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  /* The edge. On a white page the pane had no boundary at all, so four
+     shadows do the work a border would, without changing the box:
+
+       the pane's own lit edge, inset, which is what a sheet of glass shows
+         where it turns;
+       a brighter top line, the specular catch along the upper edge;
+       a wide, low ambient shadow that lifts the card off the page.
+
+     One shadow does both jobs, and it carries no negative spread. A spread
+     pulls the shadow's own rectangle inward, and the offset then drops its
+     lower edge clear of the card, so the card's edge cuts across the shadow
+     at full strength — which is what left a hard line there. At spread 0 the
+     rectangle sits on the card's own edges, so the blur is already most of
+     the way out by the time it clears the card and the step is a few levels
+     rather than thirty.
+
+     What is left is the floor: a shadow's value at the element's own edge is
+     roughly half its alpha, and the element clips everything above that, so
+     some step is unavoidable. Four settings were rendered and measured at the
+     edge — 17, 13, 10 and 8 levels — and this is the third: soft enough to
+     read as a fade, still present enough to give the card a boundary.
+
+     Each is deliberately faint — together they read as a boundary, and none
+     of them alone reads as a border. */
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.7),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    0 6px 48px rgba(16, 17, 17, 0.07);
+}
+
+/* --------------------------------------------------------------------------
+   The pane, without the refraction.
+
+   What is left of the lens is the part that does not need anything behind it:
+   a nearly clear tint instead of a frosted sheet, and one hairline that is
+   bright where the light would fall and dim where it would not, so the edge
+   reads as a piece of glass turning rather than as a drawn border.
+
+   The displacement is gone. It worked, but it can only bend what is actually
+   behind the card, and on this page that is the three gold bars — so all it
+   produced was those bars smeared along the rim.
+   -------------------------------------------------------------------------- */
+
+.heroSlide6 .hero-inner,
+.heroSlide6 .swiper-slide:nth-child(2) .hero-inner,
+.heroSlide6 .swiper-slide:nth-child(3) .hero-inner,
+.heroSlide6 .swiper-slide:nth-child(5) .hero-inner,
+.heroSlide6 .swiper-slide:nth-child(6) .hero-inner {
+  /* An ink tint rather than a white one, so the pane sits down into the page
+     instead of floating off it. Five passes: 8.5% read as a grey card, 5.5%
+     was still heavier than wanted, 3.5% landed on #F7F7F7, 2.3% went to
+     #FAFAFA and read as white, 3.2% came back to #F8F8F8, and this is a hair
+     under the 3.5. */
+  background: rgba(16, 17, 17, 0.034);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  /* A hairline at the foot instead of a shadow under it. «لبه پنهان» /
+     hidden edge — see CLAUDE.md.
+
+     The shadow could not do this job. A blurred shadow reaches only about half
+     its alpha at the element's own edge — the rest of it falls under the card,
+     where it is clipped away — so the pixel just below the card came out at
+     245 against the card's own 247. Two levels. Whatever it did further down,
+     at the edge it added nothing, and the long climb back to white read as the
+     card dissolving into the page rather than ending on it. Making the shadow
+     heavier fixes the edge and puts a drawn line under the card, which is
+     where this started.
+
+     So the edge is drawn as an edge: ink at a fourteenth, the thickness of the
+     lit hairline that runs round the other three sides. Measured, the foot now
+     steps 247 to 231 to 255 — clearly an ending, and no fade anywhere.
+
+     A card lit from above and resting on a surface is darker where it meets
+     it, so the bright rim stopping short of the foot and the ink taking over
+     there is also what the light would do. */
+  box-shadow: inset 0 -1.4px 0 rgba(16, 17, 17, 0.07);
+}
+
+/* «لبه پنهان» / hidden edge — see CLAUDE.md before changing this or the
+   foot below it.
+
+   The lit hairline, masked to a band with mask-composite and run on a diagonal
+   so it never lines up with the card's own edges.
+
+   Not along the bottom. The band there is white at about half alpha, which put
+   a lighter line than the card itself on the one edge that has to separate the
+   card from a white page — the card read 247, the hairline on its edge 250 and
+   the page 255, so the boundary climbed rather than stepped and the edge
+   disappeared. Zero padding on that side leaves the mask's two boxes touching
+   there, so no band is drawn; the ink hairline below takes that edge instead. */
+.heroSlide6 .hero-inner:after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  padding: 1.4px 1.4px 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(128deg,
+    rgba(255, 255, 255, 0.98) 0%,
+    rgba(255, 255, 255, 0.34) 28%,
+    rgba(255, 255, 255, 0.16) 52%,
+    rgba(255, 255, 255, 0.48) 76%,
+    rgba(255, 255, 255, 0.96) 100%);
+  -webkit-mask-image: linear-gradient(#000 0 0), linear-gradient(#000 0 0);
+  -webkit-mask-clip: content-box, border-box;
+  -webkit-mask-composite: xor;
+  mask-image: linear-gradient(#000 0 0), linear-gradient(#000 0 0);
+  mask-clip: content-box, border-box;
+  mask-composite: exclude;
+}
+
+/* The card's own content sits above the band. */
+.heroSlide6 .hero-inner > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* --------------------------------------------------------------------------
+   The header island's row, out to the island's own edges.
+
+   The island is drawn with an 18px margin off each side of the page, and that
+   margin is the inset the header was designed to; the app icon then takes 12
+   inside it, the same air it has above and below.
+
+   The row inside is a .th-container, and the template caps that at
+   `--main-container: 1620px` above 1300 — 1644 with its gutters. Below an
+   island of that width the cap never bites and the row fills the island; above
+   it the row stops growing and centres, and the difference opens as empty
+   space at both ends. At 1920 the island is 1884 and the row 1644, so 120px
+   sat behind the logo and another 120 behind the cart, and the icon's 12
+   became 132.
+
+   Lifting the cap inside the island only: the row is already bounded by the
+   island, which is bounded by the page, so it needs no second bound. Elsewhere
+   on the page .th-container is what holds the content to a readable measure and
+   is left alone.
+   -------------------------------------------------------------------------- */
+@media (min-width: 1300px) {
+  .th-header .menu-area > .th-container {
+    max-width: 100%;
+  }
+}
+
+/* Every card the same height. The template lets each card size to its own
+   contents, so the slides run 548px or 565px depending on which product image
+   and title they hold, and the deck steps up and down as it moves. Stretching
+   the slides to the wrapper and filling them with the card levels the row on
+   the tallest, which is what the wrapper is already sized to. */
+.heroSlide6 .swiper-wrapper {
+  align-items: stretch;
+}
+
+.heroSlide6 .swiper-slide {
+  height: auto;
+}
+
+.heroSlide6 .hero-inner {
+  height: 100%;
+}
+
+/* Levelling the cards on the tallest leaves the shorter ones' contents sitting
+   at the top of their card, because the row inside is only as tall as what it
+   holds. On the active slide that put the shoe 56px below the card's top edge
+   and 131px above its bottom. The card centres its contents instead, so the
+   shoe sits the same distance from both edges whichever slide is showing. */
+.heroSlide6 .hero-inner {
+  display: flex;
+  align-items: center;
+}
+
+.heroSlide6 .hero-inner > .container {
+  width: 100%;
+}
+
+/* Room between the hero and the row beneath it. This was 36, matched to the
+   36 above the hero so the deck sat in equal air; the client asked for 40
+   between the stacked rows, so the two no longer agree — the gap above the
+   hero is still 36. Worth knowing before reading either as a mistake. The
+   gap below the tiles is set to the same 40, in .vp-trust-row-wrap. */
+.feature-area2 {
+  padding-block-start: 40px;
+}
+
+/* The shot is a cut-out on a transparent ground, so it is fitted rather than
+   filled: contain keeps the whole shoe and lets the glass read right across
+   the card, where cover would have cropped it and walled off half the pane.
+   The column keeps its gutter — there is no opaque rectangle to butt against
+   the card's corner any more. */
+.heroSlide6 .hero-img {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* The shoe's own entrance — the template's slideinrighthero, which the six
+   hero-img elements carry via data-ani — comes in 50% faster. The template
+   sets 1.3s on a shared selector (.slideinrighthero, .slideindown, ...) in
+   style.css, so it is overridden here rather than edited there: 1.3 / 1.5 =
+   0.867s. The delay (0.3s, plus the per-slide 0.8s from data-ani-delay) is
+   untouched — only how long the slide itself takes changes. */
+.heroSlide6 .hero-img.slideinrighthero {
+  animation-duration: 0.867s;
+}
+
+/* 89% of the column, pinned to its far side by the rule further down.
+
+   The box's own shape is stated rather than inherited from whatever
+   photograph is in it. `height: 89%` never resolved — the column has no
+   definite height for a percentage to resolve against — so the box fell back
+   to the image's natural aspect, and since the pane is levelled to its
+   tallest slide, the pane's height was really being set by the aspect of the
+   photographs. Swapping one for a shot of a different shape moved the whole
+   hero: the template's near-square placeholders (617x560, 1.102) held the
+   pane 101px taller at 1920 than the 1.414 shots that replaced them, and the
+   card visibly shrank the moment the last placeholder went.
+
+   1.102 is where the pane stood, so that is what is written down. Held here
+   the height is a decision rather than a side effect, and the next
+   photograph — whatever shape it arrives in — cannot move it. object-fit
+   keeps doing the fitting inside the box, so the shoe itself is unaffected:
+   every shot on the page is wider than 1.102 and so is bound by width, at
+   exactly the size it would have been anyway. */
+.heroSlide6 .hero-img img {
+  width: 89%;
+  height: auto;
+  aspect-ratio: 617 / 560;
+  object-fit: contain;
+  /* The client's 36 off the card's height, the half of it that lands above
+     1700 where this box is the taller of the two columns and so is what the
+     card is levelled to. A negative margin rather than a smaller aspect
+     because it comes off as a flat 36 at every width, where a reshaped box
+     would take a share of its own width and so a different amount at each
+     one — measured, 33.5 at 1800 against 40.7 at 2200.
+
+     Nothing is cropped, and nothing about the shot changes. A negative margin
+     does not shrink the box or what is drawn in it; it only makes the box
+     claim 36px less of the layout, so the card closes up around a box that is
+     unchanged. From 1600 up the box does then reach 18px past the card's own
+     edges, but the shot is bound by width inside it and letterboxed
+     vertically, so what is painted stays well inside: measured, the shoe
+     clears the card by 39.5px at its tightest, at 1600.
+
+     The other 18 of the 36 is on .hero-style6's padding, which is what sets
+     the height below 1700. */
+  margin-block: -18px;
+}
+
+/* The swiper held room below the slides for the card's shadow to fall in,
+   because it clips and the shadow was being cut off against the clip. There is
+   no shadow now — the card's foot is a hairline — so the room goes back and
+   the section below carries the whole gap again. */
+.heroSlide6 {
+  padding-block: 0;
+  margin-block-start: 0;
+}
+
+/* The block the template lays inside the card — a rectangle offset from the
+   card's own edges. Against a flat pastel it read as a subtle tonal shift;
+   against glass it reads as a second pane with a hard edge cutting through
+   the type. Removed on every slide. */
+.heroSlide6 .hero-inner .hero6-shape,
+.heroSlide6 .swiper-slide:nth-child(2) .hero-inner .hero6-shape,
+.heroSlide6 .swiper-slide:nth-child(3) .hero-inner .hero6-shape,
+.heroSlide6 .swiper-slide:nth-child(5) .hero-inner .hero6-shape,
+.heroSlide6 .swiper-slide:nth-child(6) .hero-inner .hero6-shape {
+  display: none;
+}
+
+/* --------------------------------------------------------------------------
+   Hero cards: the writing.
+
+   A display face for the card, heavier than the body. Cairo is variable
+   (200-1000) and ships split by script, so the Arabic and Latin subsets
+   together cost less than the body font and one file per subset covers every
+   weight. Vazirmatn stays the body face everywhere else.
+   -------------------------------------------------------------------------- */
+
+@font-face {
+  font-family: 'Cairo';
+  src: url('../fonts/cairo/cairo-arabic-wght-normal.woff2') format('woff2-variations');
+  font-weight: 200 1000;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+0898-08E1,
+                 U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF,
+                 U+FE70-FE74, U+FE76-FEFC;
+}
+
+@font-face {
+  font-family: 'Cairo';
+  src: url('../fonts/cairo/cairo-latin-wght-normal.woff2') format('woff2-variations');
+  font-weight: 200 1000;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+                 U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122,
+                 U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+.heroSlide6 .hero-inner .hero-title,
+.heroSlide6 .hero-inner .hero-title a {
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 900;
+}
+
+.heroSlide6 .hero-inner .sub-title {
+  font-family: 'Cairo', var(--body-font);
+  font-weight: 700;
+}
+
+/* The button's label a step heavier than the small label above the title. Cairo
+   is variable, so 800 is a real weight and not a synthesised one. */
+.heroSlide6 .hero-inner .th-btn {
+  font-family: 'Cairo', var(--body-font);
+  font-weight: 800;
+}
+
+/* --------------------------------------------------------------------------
+   Hero title: 20% off its darkness, then another 10%, then 5% back.
+
+   The template sets it in --title-color, #101111. Each channel moved a fifth
+   of the way to white for #404141, then a tenth of what was left for #535454,
+   and now 5% of each channel back off for #4F5050 — 28.0% of the way to white
+   becomes 26.3%. Measured against the pane, which composites to #F7F7F7, it
+   goes 7.09:1 to 7.57:1, still well past anything that matters.
+   -------------------------------------------------------------------------- */
+.heroSlide6 .hero-inner .hero-title {
+  color: #4F5050;
+  /* 20% off the 84/94 it computed to. */
+  font-size: 67px;
+  line-height: 75px;
+}
+
+/* --------------------------------------------------------------------------
+   80px from the card's edges.
+
+   The shot was centred in its column, which put it 68px in; it is pinned to
+   the column's far side instead and pushed out to 80. The copy sits 60px
+   inside its own column, which came to 72 from the card, so that padding goes
+   to 68. Both are measured from the card's own edges, not the column's, and
+   hold at any width because the columns start on the card's edges.
+   -------------------------------------------------------------------------- */
+.heroSlide6 .hero-img {
+  justify-content: flex-end;
+  padding-left: 68px;
+}
+
+.heroSlide6 .hero-style6 {
+  padding-right: 68px;
+}
+
+/* And 80px above and below the shoe.
+
+   The card's height is not set by the shot — that is sized off the column's
+   width and does not move — but by the copy beside it: the template pads that
+   column 120px top and bottom, and the tallest slide's copy is what every card
+   is levelled to. At 120 the shoe cleared the card's edges by 93px. Every
+   change to the copy has to be answered here or the shoe's 80 goes with it:
+   107 took off the 26 that closed the original difference, 112.5 gave back
+   half the 10px the buy button lost when it came down a fifth, 112 held for a
+   while, and 94 is the client's 36 off the card's height — 18 from each side.
+   Below 992 the template stacks the two columns and
+   pads them differently, so this stays on the wide layout.
+
+   Taking the 36 here only reaches the widths where this column is the taller
+   of the two. From about 1700 up the image box is, so it carries the same 36
+   itself — see the margin on it above, and change the two together or the
+   card loses 36 at one width and not another. */
+@media (min-width: 992px) {
+  .heroSlide6 .hero-style6 {
+    padding-block: 94px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   The items' entrance.
+
+   Up 14px and in, over 420ms on an ease-out curve — the movement decelerates
+   into place rather than arriving at speed, which is what makes it read as
+   settling rather than as sliding. Rows are staggered 60ms a place, capped at
+   five, and the script sets that per item.
+
+   Only opacity and transform are animated: both are composited, so a row of
+   eight tiles costs nothing on the main thread. will-change is deliberately not
+   set — it would hold a layer for every item on the page for the sake of one
+   transition each.
+
+   Anyone who has asked their system for less motion gets the end state at once.
+   -------------------------------------------------------------------------- */
+/* Where an item comes in from is set per item, in the script, so a row can
+   arrive as a movement rather than as a list. The defaults are the plain rise
+   everything used to do; the category row overrides the x and the trust row
+   the y. translate3d rather than translate so each item is composited on its
+   own layer and the arrival does not repaint the row behind it.
+
+   The duration is the same for all of them: what differs between rows is the
+   direction and the order, not the speed, or they stop reading as one page. */
+.vp-enter {
+  opacity: 0;
+  transform: translate3d(var(--enter-x, 0), var(--enter-y, 14px), 0);
+  transition:
+    opacity 560ms cubic-bezier(0.22, 0.61, 0.36, 1) var(--enter-delay, 0ms),
+    transform 560ms cubic-bezier(0.22, 0.61, 0.36, 1) var(--enter-delay, 0ms);
+}
+
+.vp-entered {
+  opacity: 1;
+  transform: none;
+}
+
+/* The eight category tiles come in from the sides: the four on the right from
+   the right, the four on the left from the left, closing on the middle. The
+   script sets the sign per tile — it is the only thing that knows which half a
+   tile is in — and the distance is here so it can be judged in one place. */
+.vp-category-row .vp-enter {
+  --enter-y: 0;
+}
+
+/* The five badges rise instead, and from further down than the page's default
+   14, so the row reads as a separate movement arriving after the tiles rather
+   than as more of the same. */
+.vp-trust-row .vp-enter {
+  --enter-y: 34px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vp-enter {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* The template's two round slider arrows, one either side of the deck. */
+.th-hero-wrapper .slider-arrow {
+  display: none;
+}
+
+/* --------------------------------------------------------------------------
+   The brand lockup in the header band.
+
+   App icon on the right, the name and the line under it to its left, the whole
+   thing at the right end of the band. RTL order, so the mark leads from the
+   right the way the reading does.
+
+   The icon is the square as supplied: its own white field, uncropped, corners
+   rounded and a shadow under it so the tile reads as a tile against the band's
+   own white. The radius is set as a fraction of the rendered size, so it stays
+   an app-icon corner at any breakpoint rather than drifting to a rectangle
+   with soft edges.
+   -------------------------------------------------------------------------- */
+
+.vp-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 13px;
+  direction: rtl;
+}
+
+/* The tile's own white is #FDFDFD and the header band is #F7F7F7 — six levels
+   apart, which is no edge at all. The three shadows that used to separate it
+   are gone, so a hairline does the job instead: same device as the search
+   field, and not a shadow. */
+.vp-logo img {
+  width: 52px;
+  height: 52px;
+  flex: none;
+  border-radius: 12px;
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.10);
+}
+
+.vp-logo-text {
+  direction: rtl;
+  text-align: right;
+  line-height: 1.2;
+}
+
+.vp-logo-text b,
+.vp-logo-text small {
+  display: block;
+}
+
+.vp-logo-text b {
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 800;
+  font-size: 19px;
+  color: #101111;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+
+/* Smaller and lighter, as asked. 13px against the name's 25. The grey is the
+   lightest one that still passes AA on the band's white: #8A8C8C measured
+   3.38:1 and would have failed, #6E7070 gives 4.98:1 — and it is the same grey
+   the hero's own small label uses, so the page keeps one quiet tone. */
+.vp-logo-text small {
+  font-size: 13px;
+  font-weight: 500;
+  color: #6E7070;
+  /* Cairo sets Persian with a deep descender: the tail of the پ in پلاس was
+     reaching the line below, and at 1px of separation the two runs of ink were
+     half a pixel apart. Measured at the ink rather than at the boxes — this
+     leaves a 5px clear band between them. */
+  margin-block-start: 6px;
+}
+
+@media (max-width: 575px) {
+  .vp-logo img { width: 42px; height: 42px; border-radius: 10px; }
+  .vp-logo-text b { font-size: 20px; }
+  .vp-logo-text small { font-size: 11px; }
+}
+
+/* --------------------------------------------------------------------------
+   The category row under the hero.
+
+   Eight squares in place of the template's four service boxes: a photograph
+   filling each one, and the name on a strip of glass laid over it.
+
+   Square by aspect-ratio rather than a fixed height, so the tiles hold their
+   shape at every width without a media query per breakpoint.
+
+   The columns use Bootstrap's bare "col" (equal flex division), not a
+   numbered col-N: eight does not divide evenly into the 12-column grid the
+   way the original six (col-2) did, and "col" sidesteps that by splitting
+   the row evenly regardless of how many tiles there are.
+
+   Size is capped on the tile itself (max-width: 157.5px below), not on the
+   row. The row used to carry its own separate cap too — 1230px, tuned so six
+   tiles landed at a deliberate 150px with a 55px gap — but that number was
+   picked for six and stayed fixed when the count changed to eight, so it
+   quietly went stale: the tiles shrank to fit within it while
+   .feature-area2 .th-container itself is free to run out to ~1620–1644px,
+   and the gap between the two showed up as dead margin on both sides of the
+   row. Letting the row take the container's own width and leaving the
+   capping to the tile keeps both in step regardless of how many tiles there
+   are or how the container's width changes. */
+
+.vp-category-row {
+  --bs-gutter-x: 36px;
+  --bs-gutter-y: 36px;
+  margin-inline: auto;
+}
+
+.vp-category {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  aspect-ratio: 1;
+  /* A twentieth up from the 150 they were drawn at. The row's width is what
+     sets the pitch, so the tiles take that 7.5px out of the gap between them
+     rather than out of the page. */
+  max-width: 157.5px;
+  margin-inline: auto;
+  border-radius: 30px;
+  /* An off-white grey. Still laid at 80%, so it composites to #F1F1F1 over the
+     page: far enough off white to separate the tile from the page it sits on,
+     and neutral, so it takes nothing away from the colour in the cut-outs the
+     way the gold tint did. */
+  background: rgba(238, 238, 238, 0.8);
+  box-shadow:
+    0 0 0 1px rgba(16, 17, 17, 0.05),
+    0 8px 22px -12px rgba(16, 17, 17, 0.18);
+  transition: transform 0.28s ease, box-shadow 0.28s ease;
+}
+
+.vp-category:hover {
+  transform: translateY(-5px);
+  box-shadow:
+    0 0 0 1px rgba(164, 127, 37, 0.28),
+    0 18px 34px -14px rgba(16, 17, 17, 0.24);
+}
+
+/* The photograph fills the tile edge to edge, background and all, and the
+   tile's own rounded corners clip it. No inset and no contain: both would sit
+   the frame inside a border rather than letting it be the tile. The sources
+   are square and the tile is square, so cover crops nothing. */
+.vp-category img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.vp-category:hover img {
+  transform: scale(1.05);
+}
+
+/* The strip, across the middle of the tile rather than along its foot. Same
+   recipe as the hero pane — a thin white tint over a blur, with a lit inner
+   edge — so the two pieces of glass on the page are the same material. It sits
+   inside the tile's corners, not on them, which is what keeps it reading as
+   something laid over the subject. */
+.vp-category-label {
+  position: absolute;
+  inset-inline: 10px;
+  inset-block-start: 50%;
+  transform: translateY(-50%);
+  padding: 8px 10px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.55);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  backdrop-filter: blur(12px) saturate(1.2);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.65),
+    0 4px 14px -8px rgba(16, 17, 17, 0.35);
+  color: #101111;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1.5;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Eight in one row at every width, so the set is never split across two
+   lines. The gutter and the type come down instead. */
+@media (max-width: 991px) {
+  .vp-category-row { --bs-gutter-x: 16px; --bs-gutter-y: 16px; }
+  .vp-category { border-radius: 22px; max-width: 130px; }
+  .vp-category-label { font-size: 12px; border-radius: 12px; padding: 6px 6px; }
+}
+
+@media (max-width: 575px) {
+  .vp-category-row { --bs-gutter-x: 8px; --bs-gutter-y: 8px; }
+  .vp-category { border-radius: 14px; }
+  .vp-category img { inset: 6px; width: calc(100% - 12px); height: calc(100% - 12px); }
+  .vp-category-label {
+    inset-inline: 4px;
+    padding: 3px 2px;
+    border-radius: 8px;
+    font-size: 9px;
+  }
+}
+
+/* Five trust badges under the category row, run out to the page's edges the
+   same way the header island is: a fixed 18px margin on both sides rather
+   than held to .th-container's width (see .th-header .menu-area above — same
+   "runs to the sides rather than to a fixed width" reasoning). That is why
+   this has its own wrapper outside .th-container instead of living alongside
+   the category row inside it. */
+.vp-trust-row-wrap {
+  margin-inline: 18px;
+  margin-top: 40px;
+}
+
+/* The five icons come from different source sets (feature_card_*, check2,
+   secure) with different native viewBox proportions — 37x25, 33x25, 30x25,
+   14x15, 28x32 — so left to their own width/height attributes they'd render
+   at five different sizes in the same 64px box. Capped to a common box with
+   contain so every icon reads as the same weight regardless of source. */
+.vp-trust-row .box-icon img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+/* The card is the same glass as the hero pane and header island — see «لبه
+   پنهان» in CLAUDE.md before touching this. Same tint, same blur, same ink
+   foot instead of a drop shadow, same masked lit hairline on the other three
+   sides; the template's own border and box-shadow (from .feature-card.style2)
+   are dropped so the glass edge is the only boundary, exactly as it is on the
+   other two panes. Scoped to .vp-trust-row rather than every .feature-card on
+   the site, which the template reuses on pages this pass never touched. */
+.vp-trust-row .feature-card {
+  border: none;
+  background: rgba(16, 17, 17, 0.034);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  box-shadow: inset 0 -1.4px 0 rgba(16, 17, 17, 0.07);
+}
+
+.vp-trust-row .feature-card:after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  padding: 1.4px 1.4px 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(128deg,
+    rgba(255, 255, 255, 0.98) 0%,
+    rgba(255, 255, 255, 0.34) 28%,
+    rgba(255, 255, 255, 0.16) 52%,
+    rgba(255, 255, 255, 0.48) 76%,
+    rgba(255, 255, 255, 0.96) 100%);
+  -webkit-mask-image: linear-gradient(#000 0 0), linear-gradient(#000 0 0);
+  -webkit-mask-clip: content-box, border-box;
+  -webkit-mask-composite: xor;
+  mask-image: linear-gradient(#000 0 0), linear-gradient(#000 0 0);
+  mask-clip: content-box, border-box;
+  mask-composite: exclude;
+}
+
+.vp-trust-row .feature-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* The icon's own tile stays solid white rather than glass, so the gold icon
+   sits on plain ground instead of on the same tinted blur as the card around
+   it — legible first, material second.
+
+   Three classes deep (.vp-trust-row .feature-card.style2 .box-icon), not two:
+   the template's own .feature-card.style2 .box-icon rule is also three
+   classes, and a two-class override here loses that specificity fight
+   regardless of source order, so the background silently stayed #F5F5F5. */
+.vp-trust-row .feature-card.style2 .box-icon {
+  background: #fff;
+}
+
+/* --------------------------------------------------------------------------
+   The stepped sale — «حراج پله‌ای».
+
+   A price that falls a step a week until the thing sells, in place of the
+   template's collections band. The reasoning for the swap is in
+   theme/make-rtl-page.js; this is only how it is drawn.
+
+   The client's reference came in maroon on cream. Nothing of that palette is
+   here: the panel is the same glass as the hero pane and the trust cards, the
+   live step and the buy button are the same gold, and the corner and the face
+   are the page's own. What is kept from the reference is its structure —
+   ladder, track, two notes, four cards, one link out.
+   -------------------------------------------------------------------------- */
+/* The band takes the page's 40 off the row above it, and it is set here rather
+   than on the row inside: a margin-top on a Bootstrap .row overwrites the
+   negative gutter margin the grid puts there, which stops the columns' own
+   padding being cancelled and quietly adds the gutter to the gap — measured,
+   64 where 40 was asked for. The template's own 100px bottom padding on
+   .feature-area2 is on top of whatever is set here, so that goes too: the 40
+   is the whole gap. */
+.feature-area2 {
+  padding-block-end: 0;
+}
+
+/* 40 -> 80 (client's "twice what it is") -> 100, asked for in two passes.
+   This is the whole gap and the only lever for it: .feature-area2's bottom
+   padding above is 0 (see just above), so trust-row bottom to ladder-panel
+   top is exactly this number — measured at each step.
+
+   Its pair is .vp-best-panel's margin-top, which sets the next gap down the
+   page and was moved to the same 100 in the same breath. The two are meant
+   to read as one rhythm between the page's big panes; change one and the
+   other wants the same.
+
+   The 40 above the trust row (.vp-trust-row-wrap margin-top) is not part of
+   that rhythm — it used to match and now deliberately does not. */
+.collection-area {
+  padding-block-start: 100px;
+}
+
+/* The sale lines up with the eight tiles, so it takes their container and
+   their cap. .th-container defaults to 1800 and .feature-area2 narrows its own
+   to 1620; without this the sale ran 1800 wide against the tiles' 1620 and the
+   two bands started 60px apart at 1920.
+
+   This does not agree with the trust row above, which runs to 18 from the
+   page's edges — measured at 1920, the tiles end 173 from the edge and the
+   trust row 18. Those two were never the same width; the sale can only match
+   one of them, and the tiles are the one asked for. */
+.vp-ladder-wrap {
+  --main-container: 1620px;
+}
+
+/* The panel is the glass now, and what stands on it is white — the reverse of
+   what it was, so the section reads as one pane with objects laid on it rather
+   than as a white sheet carrying tinted ones. Two things stay glass on
+   purpose, and are marked where they are set: the rate tiles and the deal
+   cards' name/price strip.
+
+   This takes the page's glass recipe entire: the hero card's tint, its ink
+   foot and its lit hairline. «لبه پنهان» / hidden edge in CLAUDE.md governs
+   the foot and the ring — read it before changing either. */
+.vp-ladder {
+  position: relative;
+  /* Tighter than it was — 34/30 became 26/24 — because the section's job is to
+     be scanned, not dwelt in, and every row of padding here is repeated four
+     times down the page in the eye's memory. */
+  padding: 26px 26px 24px;
+  /* 50, between the 28 this started at and the hero card's 72. The hero's own
+     corner was tried here and read too round: that 72 is cut into a card 450
+     tall, and this panel is 567 and much busier, so the same radius takes a
+     larger bite out of a shape that has more going on near its edges. The lit
+     hairline inherits it. */
+  border-radius: 50px;
+  background: rgba(16, 17, 17, 0.034);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  box-shadow: inset 0 -1.4px 0 rgba(16, 17, 17, 0.07);
+}
+
+/* The lit hairline, masked to a band and stopping short of the foot — same
+   construction as the hero card's, see CLAUDE.md before changing this or the
+   foot above it. */
+.vp-ladder:after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  padding: 1.4px 1.4px 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(128deg,
+    rgba(255, 255, 255, 0.98) 0%,
+    rgba(255, 255, 255, 0.34) 28%,
+    rgba(255, 255, 255, 0.16) 52%,
+    rgba(255, 255, 255, 0.48) 76%,
+    rgba(255, 255, 255, 0.96) 100%);
+  -webkit-mask-image: linear-gradient(#000 0 0), linear-gradient(#000 0 0);
+  -webkit-mask-clip: content-box, border-box;
+  -webkit-mask-composite: xor;
+  mask-image: linear-gradient(#000 0 0), linear-gradient(#000 0 0);
+  mask-clip: content-box, border-box;
+  mask-composite: exclude;
+}
+
+/* The panel's own content sits above the ring. */
+.vp-ladder > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* --- the head, white on the glass --------------------------------------- */
+
+/* Solid white, with a faint ink ring rather than the glass foot: on this page
+   a white object states its edge all the way round, where a glass pane states
+   it only at the foot. */
+.vp-ladder-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 28px;
+  padding: 26px 30px;
+  border-radius: 24px;
+  background: #FFFFFF;
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.05);
+}
+
+.vp-ladder-intro {
+  flex: 0 0 260px;   /* the offer name measures 249 set on one line; this clears it */
+}
+
+.vp-ladder-title {
+  margin: 0 0 4px;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 800;
+  font-size: 24px;
+  line-height: 1.5;
+  color: var(--theme-color);
+}
+
+.vp-ladder-strap {
+  margin: 0 0 8px;
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--body-color);
+}
+
+.vp-ladder-how {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--theme-color);
+  border-block-end: 1px solid currentColor;
+}
+
+.vp-ladder-how:hover {
+  color: var(--title-color);
+}
+
+/* The five steps share the row evenly, so the ladder reads as a scale rather
+   than as five things of different importance.
+
+   It runs left to right, against the page. A ladder of rates is a number line
+   — 15 to 70 — and a number line does not turn round because the words beside
+   it do. So «پله اول» sits at the far left and «پله نهایی» at the right, next
+   to the offer's name, and the track below fills from the left as the weeks
+   go by. The words inside each step are put back to rtl below. */
+.vp-ladder-steps {
+  direction: ltr;
+  display: flex;
+  flex: 1;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* --tile is the rate tile's side, and the tag row below is sized off it, so
+   the two boxes are the same width by construction rather than by a number
+   typed twice. Changing the tile size at a breakpoint moves both. */
+.vp-step {
+  --tile: 58px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Everything that says what the step is, under the tiles, as its own row of
+   small rectangles: the name, the week, and — on the step that is done and the
+   one that is live — how it stands. Nothing sits above the tiles any more.
+
+   Exactly as wide as the three tiles above it and no wider — three tiles plus
+   their two 4px gaps — so the step is one column with a straight edge down
+   both sides instead of a row of type spilling past the board it belongs to.
+
+   The three sit inside that width because the third is a mark rather than a
+   phrase: «مرحله فعلی» set as words needed 194.5px and could not fit in 182,
+   which is what pushed the row wider than the tiles in the first place. A
+   square mark costs the width of one tile's height and the row comes in at
+   152 on the widest step.
+
+   The gap is the tiles' own 4, so the rectangles are spaced the way the
+   squares above them are and the two rows read as one grid.
+
+   direction: rtl puts them back the way the words read — the ladder around
+   them is forced ltr so the scale runs 15 to 70 against the page. */
+.vp-step-tags {
+  /* The row's height, stated rather than left to fall out of the type. The
+     mark at the end is a square and takes its side from this, so the two
+     cannot drift apart when the font or the padding moves. */
+  --tag-h: 25px;
+  direction: rtl;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: stretch;
+  gap: 4px;
+  width: calc(var(--tile) * 3 + 8px);
+}
+
+/* One rectangle each, in the same glass as the tiles above them, so the step
+   reads as one object rather than as tiles with loose type under them. */
+.vp-step-name,
+.vp-step-when,
+.vp-step-flag {
+  padding: 0 7px;
+  border-radius: 8px;
+  background: rgba(16, 17, 17, 0.034);
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.05);
+  font-size: 11px;
+  /* The line box is the whole height, so the row is exactly --tag-h and the
+     mark's square side is the same number. It was 1.7 plus 3px of padding
+     top and bottom, which came to 24.7 — close enough to the mark's fixed 22
+     to look like a square without being one. */
+  line-height: var(--tag-h);
+  color: var(--body-color);
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* The two labels take the whole width between them, so the row's outer edges
+   land on the outer edges of the tiles above rather than sitting inside them.
+   Setting the row's width alone was not enough: the rectangles stayed at their
+   text width and centred, which left the gap at both ends that made the row
+   read as ragged against the board.
+
+   1 1 auto, not 1 1 0: the labels grow from their own widths, so «پس از هفته
+   چهارم» keeps the room it needs and «پله اول» does not get the same share as
+   a label three times its length. min-width 0 lets them shrink below that
+   basis at narrow widths, where the ellipsis takes over rather than the text
+   pushing the row past the tiles. */
+.vp-step-name,
+.vp-step-when {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vp-step-name {
+  font-weight: 700;
+  color: var(--title-color);
+}
+
+/* --- the rate, as a board that flips ------------------------------------ */
+
+.vp-step-rate {
+  display: flex;
+  gap: 4px;
+}
+
+/* Each character on its own tile.
+
+   No seam across the middle. The reference has one — it is drawn as a
+   split-flap board — but the client does not want it, and at our size it read
+   as a line through the digit rather than as the join of two flaps.
+
+   The face is Vazirmatn, not the Cairo the rest of the page's headings take.
+   Cairo's Persian digits are the same weight and width as its letters, so on
+   a tile they read as type set in a box; Vazirmatn's are narrower and more
+   drawn, which is what a rate on a board should look like. It costs nothing
+   to load — it is already the page's body face. */
+.vp-step-rate b {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Square, as the reference draws them. It was 34 wide by 46 tall, which is
+     a different object — a board that flips is made of squares. 58 is what
+     three of them plus their gaps come to inside a step: the ladder is 1060
+     across at 1440, less four 12px gaps between steps is 202 each, less the
+     two 4px gaps inside a step leaves 194 for three tiles, so 64 is the
+     ceiling and 58 keeps air around them. */
+  width: var(--tile);
+  height: var(--tile);
+  flex: none;
+  border-radius: 15px;
+  font-family: 'Vazirmatn', var(--body-font);
+  font-weight: 800;
+  font-size: 27px;
+  line-height: 1;
+  color: var(--title-color);
+  /* Glass, not the white the rest of the head's furniture takes: asked for
+     specifically, and it is the right way round for a board that flips —
+     the tile is a recess in the white pane, not another object on it. 3.4%
+     ink over the head's white composites to 247 against its 255, the same
+     step the panel below has against the page. The ring keeps the corners
+     readable at this size. */
+  background: rgba(16, 17, 17, 0.034);
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.06);
+}
+
+/* The live step in the buy button's own gold, so the thing the visitor can act
+   on now and the thing they act with are the same colour. */
+.vp-step.is-current .vp-step-rate b {
+  /* Ink on the gold, not white — the page settled that question on the
+     burst: white measures 2.6:1 on this gold and ink 5.1. */
+  color: var(--title-color);
+  background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+  box-shadow: none;
+}
+
+/* Steps already gone read back rather than forward: their tiles keep the gold
+   but only as ink, and the ground stays white. */
+.vp-step.is-done .vp-step-rate b {
+  color: var(--theme-color);
+}
+
+.vp-step.is-current .vp-step-name {
+  color: var(--theme-color);
+}
+
+/* --- the mark, the third rectangle under a step -------------------------- */
+
+/* Square, and square by construction rather than by a guessed number: the row
+   stretches every rectangle to the tallest, which is whatever the 11px labels
+   come to, and a fixed 22 against that measured 24.7 — near enough to read as
+   a square without being one. width: auto with aspect-ratio takes the width
+   from the height the stretch already set, so the two stay equal whatever the
+   type does. The words it stands in for are on the element as aria-label. */
+.vp-step-flag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: var(--tag-h);
+  height: var(--tag-h);
+  padding: 0;
+  color: var(--theme-color);
+}
+
+.vp-step-flag svg {
+  width: 13px;
+  height: 13px;
+  display: block;
+}
+
+/* The live one is filled with the buy button's gold, the same as its tiles
+   above it, so the step reads as one thing lit. Ink on the gold, not white —
+   the page settled that on the burst: white measures 2.6:1 here and ink 5.1. */
+.vp-step.is-current .vp-step-flag {
+  color: var(--title-color);
+  background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+  box-shadow: none;
+}
+
+/* The loading ring turns, because that is the whole of what it says: this step
+   is the one running. 1.4s linear, the same unvarying turn the burst takes —
+   an eased spin of a near-symmetric shape reads as a stutter. */
+.vp-step-flag.is-current svg {
+  animation: vp-step-spin 1.4s linear infinite;
+}
+
+@keyframes vp-step-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vp-step-flag.is-current svg { animation: none; }
+}
+
+/* A step already gone reads back rather than forward, so its tick keeps the
+   gold as ink only and the ground stays the glass the other rectangles take. */
+.vp-step-flag.is-done {
+  color: var(--theme-color);
+}
+
+/* Still to come: the clock is the quietest of the three, so it takes the
+   body colour rather than the gold — the gold is for what has happened and
+   what is happening. */
+.vp-step-flag.is-upcoming {
+  color: var(--body-color);
+  opacity: 0.75;
+}
+
+/* --- the track ----------------------------------------------------------- */
+
+.vp-ladder-track {
+  /* Same direction as the ladder above it, so the legs already gone are the
+     left-hand ones. */
+  direction: ltr;
+  display: flex;
+  gap: 14px;
+  margin-block: 22px 16px;
+}
+
+.vp-track-leg {
+  flex: 1;
+  height: 10px;
+  border-radius: 5px;
+  background: rgba(16, 17, 17, 0.07);
+}
+
+.vp-track-leg.is-filled {
+  background: linear-gradient(90deg, #C0972F 0%, #E3B54A 100%);
+}
+
+/* --- the two notes, and the way out beside them --------------------------- */
+
+/* The row is set to the deal grid below it: same gap as the gap between two
+   cards, and the link sized to exactly one card (see .vp-ladder-all). The
+   cards are a Bootstrap row whose gutter is 24 — measured, the visual gap
+   between two cards is 24 at every width — so 24 here puts the two rows on
+   one rhythm.
+
+   --deal-cols is how many cards that row runs, which is what the link's width
+   is worked out from. The grid is row-cols-2 / md-3 / xl-5; below 992 this row
+   stacks anyway, so only the 3 and the 5 matter. */
+.vp-ladder-notes {
+  --deal-cols: 3;
+  display: flex;
+  align-items: stretch;
+  gap: 24px;
+  margin-block-end: 18px;
+}
+
+@media (min-width: 1200px) {
+  .vp-ladder-notes { --deal-cols: 5; }
+}
+
+/* White again. They carried the page's ink wash while the panel under them was
+   white; the panel is now that same wash, so the two would have composited to
+   one flat field and the notes would have had no edge at all. */
+.vp-ladder-notes span {
+  flex: 1;
+  padding: 11px 16px;
+  border-radius: 12px;
+  background: #FFFFFF;
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.05);
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--body-color);
+  text-align: center;
+}
+
+/* --- the four cards, as tiles -------------------------------------------- */
+
+/* One of the eight category tiles, larger. The tall card this replaces stacked
+   the name, two badges, two prices, a stock line, a countdown bar and a
+   full-width button, and four of those across made the row the heaviest thing
+   on the page. Square photograph, glass strip, done — the same object the page
+   already uses to say "here is a thing you can go and look at". */
+.vp-deal {
+  position: relative;
+}
+
+.vp-deal-shot {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  aspect-ratio: 1;
+  /* The tiles' 30 at 157px, kept in proportion at the ~260 five across run
+     at. It was 34 when there were four. */
+  border-radius: 28px;
+  /* White, not the category tiles' off-white. That off-white was chosen
+     against a white panel; on the glass panel it is a grey object on a grey
+     ground and neither edge does any work — which is the exact problem that
+     made the panel white in the first place, now solved from the other side.
+     The cut-outs still get a ground to sit on, it is just a lighter one. */
+  background: #FFFFFF;
+  box-shadow:
+    0 0 0 1px rgba(16, 17, 17, 0.05),
+    0 8px 22px -12px rgba(16, 17, 17, 0.18);
+  transition: transform 0.28s ease, box-shadow 0.28s ease;
+}
+
+.vp-deal:hover .vp-deal-shot {
+  transform: translateY(-5px);
+  box-shadow:
+    0 0 0 1px rgba(164, 127, 37, 0.28),
+    0 18px 34px -14px rgba(16, 17, 17, 0.24);
+}
+
+/* Fitted, not filled: a cut-out cropped to a square would lose the toe or the
+   heel, which on a shoe is the whole silhouette.
+
+   20% smaller than the original fit: 84%/62% become 67.2%/49.6%, kept at the
+   same 16.4% off each side. Down the tile rather than centred: 33% top read
+   as sitting on the floor and came back up to 18%, then down again 5 points
+   to 23%, which puts the shoe's centre at 47.8%. */
+.vp-deal-shot img {
+  position: absolute;
+  inset: 23% 16.4% 27.4%;
+  width: 67.2%;
+  height: 49.6%;
+  object-fit: contain;
+  transition: transform 0.5s ease;
+}
+
+.vp-deal:hover .vp-deal-shot img {
+  transform: scale(1.05);
+}
+
+/* The cut, top corner — the hero shot's own burst, verbatim: same outline,
+   same eleven studs, same turn and blink, same white type. Only the size and
+   the line count change — 46px for a ~250px tile against the hero's 121 for a
+   1227px card, and one line instead of two, since there is only room for the
+   cut and not a second word under it. */
+/* The same size as the basket on the other corner of the same card — «اون
+   ستاره گوشه راست بالا باید اندازش اندازه سبد خرید تو همون قسمت باشه». It was
+   46 against the basket's 44, close enough to read as a mistake rather than a
+   pair; both are 52.8 now, so the two corners carry one size. The number is
+   .vp-deal-cart's, not a fresh one, for the same reason the strip's is.
+
+   The «٪۳۰» inside needs nothing: it is set in the burst's own 150-unit view
+   box, so it grows with the shape. */
+.vp-deal-burst {
+  position: absolute;
+  inset-block-start: 8px;
+  inset-inline-start: 8px;
+  z-index: 2;
+  width: 52.8px;
+  height: 52.8px;
+}
+
+/* Turns in place, same as the hero's — see the keyframes and the reasoning
+   above, under the hero's own discount mark. */
+.vp-deal-burst .vp-burst-star {
+  transform-box: view-box;
+  transform-origin: 50% 50%;
+  animation: vp-burst-turn 12s linear infinite;
+}
+
+.vp-deal-burst .vp-burst-stud {
+  fill: #FFFFFF;
+  animation: vp-burst-twinkle 1.2s ease-in-out infinite;
+}
+
+.vp-deal-burst text {
+  fill: #FFFFFF;
+  text-anchor: middle;
+  font-family: 'Vazirmatn', var(--body-font);
+  font-weight: 800;
+  /* In the burst's own 150-unit space, so it scales with the shape. */
+  font-size: 42px;
+}
+
+/* What is left of it, opposite the cut. It is the scarcity half of the offer —
+   the reason to take this step rather than wait for the next — so it stays on
+   the tile even though the rest of the detail came off. */
+.vp-deal-stock {
+  position: absolute;
+  inset-block-start: 14px;
+  inset-inline-end: 14px;
+  z-index: 2;
+  max-width: 58%;
+  padding: 3px 10px;
+  border-radius: 9px;
+  /* Solid white with a ring, not a tinted blur. It sits on the tile, which is
+     white now too, so the ring is what separates them. */
+  background: #FFFFFF;
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.05);
+  color: var(--title-color);
+  font-size: 12px;
+  line-height: 1.7;
+  text-align: center;
+}
+
+/* The strip: solid white, inside the tile's corners rather than on them. It
+   sits at the foot here rather than across the middle, because it carries two
+   lines and a control instead of one word.
+
+   Glass, asked for specifically, and it keeps its blur — this one does sit
+   over the shot, so there is something real behind it to soften. It is the
+   page's ink tint rather than the category tiles' white one it used to carry,
+   which is why the lit ring goes: that read against a white tint and draws
+   nothing against this. An ink ring takes the edge instead, and the drop
+   shadow stays to lift the strip off the shot.
+
+   Stops short of the basket rather than running full width with padding
+   reserved under it: the basket used to sit in that padding, on top of the
+   strip, which cut into the strip's own rounded corner instead of sitting
+   beside it as its own circle. The strip's inline-end edge now ends where the
+   basket's gap begins, so the two read as two objects, not one lapped over
+   the other.
+
+   52.8 tall, the same as the basket beside it, so the two sit on one line as a
+   matched pair rather than the strip towering over a smaller circle — and
+   26.4px of round on each end, half the height, so both ends are true
+   semicircles rather than the shallower round a taller strip could carry.
+
+   Both were 44 and are now 20% up, asked for together: «ارتفاع باکس اسم محصول
+   و قیمت ۲۰ درصد بیشتر بشه، به همون نسبت دایره هم بیشتر بشه». They have to
+   move together or the pair stops being a pair, which is the whole point of
+   the paragraph above — so the basket, its glyph and the round on the strip's
+   ends all take the same 20%, and the 10px gap between the two objects is
+   left alone, because a gap is not part of either of them.
+
+   The strip's inline-end inset is not a number of its own: it is where the
+   basket's gap begins, 12 (the basket's own inset) + 52.8 (the basket) + 10
+   (the gap) = 74.8. It was 66 on the same arithmetic. */
+.vp-deal-label {
+  position: absolute;
+  inset-inline-start: 12px;
+  inset-inline-end: 74.8px;
+  inset-block-end: 12px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 52.8px;
+  padding-inline: 16px;
+  border-radius: 26.4px;
+  background: rgba(16, 17, 17, 0.034);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  backdrop-filter: blur(12px) saturate(1.2);
+  box-shadow:
+    inset 0 0 0 1px rgba(16, 17, 17, 0.05),
+    0 4px 14px -8px rgba(16, 17, 17, 0.35);
+}
+
+.vp-deal-lines {
+  display: block;
+  min-width: 0;
+}
+
+/* 12, not the 14 this started at. */
+.vp-deal-name {
+  display: block;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #101111;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vp-deal-price {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  line-height: 1.5;
+}
+
+/* 10% down across all three: 11 -> 9.9, 15 -> 13.5. */
+.vp-deal-price del {
+  font-size: 9.9px;
+  color: rgba(16, 17, 17, 0.42);
+}
+
+.vp-deal-price strong {
+  font-family: 'Vazirmatn', var(--body-font);
+  font-weight: 800;
+  font-size: 13.5px;
+  color: #101111;
+}
+
+.vp-deal-price strong span {
+  font-size: 9.9px;
+  font-weight: 600;
+  color: rgba(16, 17, 17, 0.62);
+}
+
+/* The basket, round, on the tile's own corner — the same 12px inset as the
+   strip beside it, so the two sit on one baseline as separate objects rather
+   than one lapping the other. 52.8 plus a 10px gap is the strip's 74.8px
+   inset. It was 44 against a 66px inset before the pair went up 20%. */
+.vp-deal-cart {
+  position: absolute;
+  z-index: 3;
+  inset-block-end: 12px;
+  inset-inline-end: 12px;
+  width: 52.8px;
+  height: 52.8px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+  /* White and solid (fa-solid, not the fa-light this started as) — the
+     client asked for the icon filled and white, not the ink this took from
+     the burst and the ladder's live step. */
+  color: #FFFFFF;
+  /* 17 scaled by the same 20% — a circle that grows and keeps its old glyph
+     is not the same object 20% bigger, it is a bigger circle with a small
+     mark rattling around in it. */
+  font-size: 20.4px;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.vp-deal-cart:hover {
+  transform: scale(1.06);
+  box-shadow: 0 6px 16px -8px rgba(16, 17, 17, 0.55);
+}
+
+.vp-deal-cart:focus-visible {
+  outline: 2px solid var(--title-color);
+  outline-offset: 2px;
+}
+
+/* Below 1200 the tile is narrower and the basket steps down with it. The same
+   20% applies here — 40 -> 48 — and the strip's inset is the same arithmetic
+   as above, 12 + 48 + 10 = 70, where it read 12 + 40 + 10 = 62 before. */
+@media (max-width: 1199px) {
+  .vp-deal-shot { border-radius: 28px; }
+  .vp-deal-label { inset-inline-end: 70px; }
+  .vp-deal-cart { width: 48px; height: 48px; inset-block-end: 12px; inset-inline-end: 12px; }
+  /* The burst steps down with the basket, or the pair the client asked for
+     only holds above 1200 — measured 52.8 against 48 at 992 before this. */
+  .vp-deal-burst { width: 48px; height: 48px; }
+}
+
+/* --------------------------------------------------------------------------
+   Best sellers: six cards, one row, on a white card of their own.
+
+   The same object as the deal cards above — square shot, rounded corners, a
+   glass strip carrying the name — sized for six across instead of five,
+   with a plain glass control beside it instead of the deal's solid gold
+   bag: every card here browses a category (see CATEGORIES in
+   make-rtl-page.js) rather than selling a single product.
+
+   The strip sits under the photograph, not lapped over its foot — client
+   correction, the deal card's own overlay was the wrong half of that object
+   to copy here. It is a second block inside the card rather than an
+   absolutely-positioned layer, and it drops the blur that came with being
+   an overlay: there is nothing left to blur once it is off the photo and
+   onto the page's own near-white ground, so it is a flat tint instead, same
+   move .vp-ladder-notes span already made for the same reason.
+
+   Gutter between the six tiles is the row's own default (24px), not a
+   custom value: measured on both the trust row and the deal row, so "the
+   same gap as those five items" is the same number already sitting in this
+   file. The gap from a shot down to its own strip is set to match it,
+   client's own request — one spacing unit for both jobs, not two. */
+.vp-best {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.vp-best-shot {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  aspect-ratio: 1;
+  border-radius: 28px;
+  background: #FFFFFF;
+  box-shadow:
+    0 0 0 1px rgba(16, 17, 17, 0.05),
+    0 8px 22px -12px rgba(16, 17, 17, 0.18);
+  transition: transform 0.28s ease, box-shadow 0.28s ease;
+}
+
+.vp-best:hover .vp-best-shot {
+  transform: translateY(-5px);
+  box-shadow:
+    0 0 0 1px rgba(164, 127, 37, 0.28),
+    0 18px 34px -14px rgba(16, 17, 17, 0.24);
+}
+
+/* Full-bleed cover, not the deal shot's tuned inset: these are the same
+   real category photographs the category row above uses, already filling
+   their own frame, so there is no silhouette to fit around — the exact
+   treatment the category tiles give them. */
+.vp-best-shot img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.vp-best:hover .vp-best-shot img {
+  transform: scale(1.05);
+}
+
+/* The swatch pill, over the photo, hidden until the photo is hovered. Round
+   on both ends (client's own words) rather than the template's 8px-radius
+   box — same white glass recipe as the category tiles' own label
+   (.vp-category-label) since both sit on top of a photograph. */
+.vp-best-colors {
+  position: absolute;
+  z-index: 2;
+  inset-inline: 12px;
+  inset-block-end: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  /* Same height as .vp-best-label below — client's own request, one glass
+     pill's height for both jobs. It followed that strip from 44 to 52.8. */
+  height: 52.8px;
+  border-radius: 26.4px;
+  background: rgba(255, 255, 255, 0.55);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  backdrop-filter: blur(12px) saturate(1.2);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.65),
+    0 4px 14px -8px rgba(16, 17, 17, 0.35);
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.vp-best-shot:hover .vp-best-colors,
+.vp-best-shot:focus-visible .vp-best-colors {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.vp-best-colors span {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.12);
+}
+
+/* The template's own five, from .beige-color in style.css — not a new
+   palette invented for this tile. */
+.vp-best-colors span:nth-child(1) { background-color: #FF7575; }
+.vp-best-colors span:nth-child(2) { background-color: #9694FF; }
+.vp-best-colors span:nth-child(3) { background-color: #FF8FD2; }
+.vp-best-colors span:nth-child(4) { background-color: #F8E480; }
+.vp-best-colors span:nth-child(5) { background-color: #85FF83; }
+
+/* The strip and the browse circle, side by side under the shot. */
+.vp-best-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* 52.8 tall, 16 padding, 26.4 radius — .vp-deal-label's own numbers, from the
+   stepped-sale deals below (same .vp-deal component): client's own request
+   to match that price box's shape. The browse circle and the swatch pill
+   go to 52.8 with it, so all three glass pieces in this card family stay one
+   height.
+
+   All three were 44 and followed the deal strip up 20% when it went to 52.8,
+   asked for in those terms: «ارتفاع باکس قیمت و اسم کتونی تو بخش پرفروش
+   ترینها هم مث حراج پله ای بشه». The tie to .vp-deal-label is the point of
+   this rule, so the number is not chosen here — it is read off that strip,
+   and if that one moves again these move with it. The padding stays 16: what
+   was asked for is the height. */
+.vp-best-label {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  height: 52.8px;
+  padding-inline: 16px;
+  border-radius: 26.4px;
+  background: rgba(16, 17, 17, 0.034);
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.05);
+}
+
+/* Between 1200 and 1320 this row runs six cards wide and the strip is at its
+   narrowest — 102px at 1200, 115 at 1280. The price is one unbreakable thing
+   («۷٬۹۸۰٬۰۰۰ تومان») and needs about 88px; when it does not get them the
+   currency word wraps to a second line and falls straight out of the bottom of
+   the glass pill, which is as bad as it sounds.
+
+   Growing the browse circle to 52.8 took 8.8px off the strip and pushed 1280
+   over that edge — measured: 0 of 6 prices wrapped there before, 5 of 6 after.
+   The 8.8 comes back out of the strip's own side padding in exactly the band
+   that needs it, 16 -> 12, and the band runs to 1365 because the same 8.8 also
+   ellipsized one name at 1320. Above that the strip is wide enough that the
+   circle's extra width costs nothing, and the 16 stands.
+
+   Checked at 992, 1200, 1240, 1280, 1300, 1320, 1366, 1440 and 1920: with
+   this, both the number of prices falling out of the pill and the number of
+   names ellipsized are identical to what they were before the circle grew.
+
+   It does not rescue 1200-1240, where the strip is too narrow for the price
+   at any padding: 102 - 24 = 78 against the 88 it wants. That band wrapped
+   before any of this and still does. Fixing it means fewer than six cards to
+   the row there, which is a layout decision rather than a padding one. */
+@media (max-width: 1365px) {
+  .vp-best-label { padding-inline: 12px; }
+}
+
+/* Name above price, .vp-deal-lines' own stack — client's "write it in that
+   same shape" — not the single row this briefly went to: each line gets
+   the strip's full width instead of splitting it with the other, which is
+   also what stopped the name ellipsizing down to two or three letters
+   before this. */
+.vp-best-lines {
+  display: block;
+  min-width: 0;
+}
+
+.vp-best-name {
+  display: block;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 700;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: #101111;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* A test price, at the client's request — not "مشاهده دسته" any more. */
+.vp-best-cta {
+  display: block;
+  line-height: 1.5;
+  /* The line boxes already touch at 0; the visual gap between the name's
+     ink and the price's is the two lines' own leading, measured at 9.25px
+     by pixel-scanning a screenshot of the strip, not eyeballed. 30% less is
+     6.475px; -2.5px pixel-scanned back out at 6.25px, the closest this
+     line-height's own rendering steps land to that target. */
+  margin-top: -2.5px;
+}
+
+.vp-best-cta strong {
+  font-family: 'Vazirmatn', var(--body-font);
+  font-weight: 800;
+  font-size: 14px;
+  color: #101111;
+}
+
+.vp-best-cta strong span {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: rgba(16, 17, 17, 0.62);
+}
+
+/* The browse control, glass rather than solid: same tint and ring as the
+   strip beside it, so the two read as one material instead of a control
+   borrowed from the deal cards next door. Ink icon on it for the same
+   reason the strip's own text is ink: this tint reads close to white,
+   where ink is what separates. An <a>, not a <button> — every card here
+   browses a category, nothing is being added to a cart, even carrying a
+   plus glyph now at the client's request. */
+.vp-best-browse {
+  flex: 0 0 auto;
+  width: 52.8px;
+  height: 52.8px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(16, 17, 17, 0.034);
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.05);
+  color: #101111;
+  /* 15 scaled by the same 20% the circle took, for the reason the deal
+     card's basket glyph was: a circle that grows and keeps its old mark is
+     a bigger circle with a small glyph rattling in it. */
+  font-size: 18px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  /* An <a> would otherwise pick up the template's underline-on-hover link
+     styling. */
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.vp-best-browse:hover {
+  transform: scale(1.06);
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.05);
+}
+
+.vp-best-browse:focus-visible {
+  outline: 2px solid var(--title-color);
+  outline-offset: 2px;
+}
+
+/* The big white card the row sits on. Solid white with a hairline ring
+   rather than glass — .vp-ladder-head's own recipe, the page's established
+   "white object on this page states its edge all the way round" move —
+   and the same 50 the ladder panel itself rounds at, since both are the
+   page's big-card object. The padding is what makes the six tiles read
+   smaller and tidier: nothing on a tile changed, the row dividing six ways
+   just has less width to do it in.
+
+   margin-inline: 18px is the trust row's own edge margin (see
+   .vp-trust-row-wrap) — the client's "same distance as those five items,"
+   applied to the card itself now that the card is what sits at the row's
+   old outer edge.
+
+   The ring on its own read as no edge at all — white on the page's own
+   white, at 1px and 5% — so it goes to 1.5 and 12%, and a drop shadow is
+   added under the card rather than asking the ring to do both jobs: an
+   inset ring states an edge but can't lift the card off the page the way a
+   shadow does. First pass at the shadow overshot — client's "not much
+   volume" — so it is pulled back to the tiles' own established shadow
+   opacity (.vp-category / .vp-deal-shot both sit at .18), just scaled up
+   in reach for a card this much larger. */
+.vp-best-panel {
+  /* 20, up from the 18 the header island and the trust row sit at. Those two
+     were asked to stay where they are, so the two big white panes — this one
+     and .vp-brands-panel — are deliberately 2px wider off the sides than the
+     bar above them. Both panes move together; they are one card twice, and
+     the block on .vp-brands-panel says so.
+
+     What the client sees at the side of this section is this edge, not the
+     46 the content starts at: 20 here plus the 28 of padding below. */
+  margin-inline: 20px;
+  /* The whole gap above the card — see .vp-best-section, which zeroes the
+     section's own top padding — and deliberately the same number as the
+     gap between the trust row and the stepped sale above it, so the page's
+     big panes sit at one rhythm rather than at two. That number went 40 ->
+     100 across two rounds of the client asking; both moved together, and
+     both live one comment apart (the other is .collection-area's
+     padding-block-start). */
+  margin-top: 100px;
+  padding: 28px;
+  border-radius: 50px;
+  background: #FFFFFF;
+  box-shadow:
+    inset 0 0 0 1.5px rgba(16, 17, 17, 0.12),
+    0 18px 32px -22px rgba(16, 17, 17, 0.18);
+}
+
+/* Cancels .space's own 120px padding-top on this specific section (same
+   specificity, this file loads last) — see .vp-best-panel's margin-top. */
+.vp-best-section {
+  padding-top: 0;
+}
+
+/* The card's own header: title at its own top-right (reading start in
+   RTL), filters and the way out opposite it on the left — wraps to a
+   second line rather than overflowing on narrow cards. */
+.vp-best-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+/* Small — client's own word — against the section's usual sec-title, which
+   this replaced: the row it sits over now says what it is well enough on
+   its own that the heading is a label, not a headline. 19.2 is the 16 it
+   started at, plus the client's own 20%. */
+.vp-best-title {
+  margin: 0;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 800;
+  font-size: 19.2px;
+  line-height: 1.4;
+  color: #101111;
+}
+
+.vp-best-filters {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.vp-best-filter {
+  border: 0;
+  padding: 6px 14px;
+  border-radius: 14px;
+  background: rgba(16, 17, 17, 0.04);
+  color: rgba(16, 17, 17, 0.62);
+  font-family: 'Vazirmatn', var(--body-font);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.6;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* The one gold this file has, not var(--theme-color) — that accent
+   variable is a different, older sample from earlier in this file and
+   using it here was the exact mistake already made once on this page (the
+   header cart icon, before it got fixed) and was not supposed to happen a
+   second time on the same page. This is .th-btn's own ramp, #C0972F to
+   #E3B54A, and ink on it rather than white for the same measured reason
+   every button label on this page is ink on this ramp (6.94:1–9.88:1 vs
+   white's 2.46:1, documented at the top of this file). */
+.vp-best-filter.active,
+.vp-best-filter:hover {
+  background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+  color: #101111;
+}
+
+/* Ink-gold on white, same pairing the header search icon and the trust
+   icons already use for gold text on a light ground (4.66:1, AA). */
+.vp-best-all {
+  margin-inline-start: 6px;
+  font-family: 'Vazirmatn', var(--body-font);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.6;
+  color: #8F7022;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.vp-best-all:hover {
+  color: #101111;
+}
+
+/* --------------------------------------------------------------------------
+   The daily deal — the client's own reference photo, mirrored for RTL.
+   -------------------------------------------------------------------------- */
+/* Two numbers have to come out right here at once, and they were argued
+   about separately for long enough to be worth writing down together.
+
+   The section's page footprint is .space's own padding (120px each side)
+   plus the banner — not the banner alone, which "shorten this section" got
+   mistaken for once already. It started at 120+534+120 = 774, and 25% less
+   is 580.5.
+
+   The banner is 400.5 (see .vp-daily-deal-shot for where that comes from),
+   which is the height the client pointed at in their own screenshot. So the
+   padding is (580.5-400.5)/2 = 90 each side — both the asked-for total and
+   the asked-for banner, rather than one bought with the other. */
+.vp-daily-deal-section {
+  padding-top: 90px;
+  padding-bottom: 90px;
+}
+
+/* Glass, not the light-gold wash this started at — the page's own ink tint
+   (0.034, the same value the hero pane, header island and ladder panel all
+   carry) rather than a fourth colour. No backdrop-filter: this panel sits
+   on the page's own white with nothing behind it to blur, same reasoning
+   already applied to .vp-ladder. The ring is 1.5px at 10%, not a thin
+   hairline — a subtler one already read as no edge at all on .vp-best-panel
+   before that got the same fix. */
+/* Matches the ladder sale's band exactly, which is what the client asked
+   for: .th-container is 1800 above 1300, the same --main-container: 1620
+   override .vp-ladder-wrap carries brings both to 1620. Below 1300 the two
+   containers are identical anyway, which is why this only shows above it —
+   at 1920 the deal stood 250 off each edge against the ladder's 150, and at
+   1440 they already agreed at 12. */
+.vp-daily-deal-wrap {
+  --main-container: 1620px;
+}
+
+/* 28, down from 40 — the client's own comparison with the best-seller
+   panel, which stands its photos 28 off its left and right edges (measured)
+   and is the pane this one is meant to read alongside. The white card's own
+   40 is a separate number and stays: that one is the shoe's clearance from
+   the card edge, asked for in those words. */
+.vp-daily-deal {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  padding: 28px;
+  border-radius: 40px;
+  background: rgba(16, 17, 17, 0.034);
+  box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.1);
+}
+
+.vp-daily-deal-copy {
+  flex: 1;
+  min-width: 0;
+}
+
+/* This column's text, ~15% up too — client's "make those right-side texts
+   bigger as well." The badge and the sub then took a second, separate pass
+   at 30% and 20% on top of that (19.5 from 15, 20.4 from 17), asked for one
+   by one rather than as one move across the column — the title in between
+   them is deliberately still 39. */
+.vp-daily-deal-badge {
+  display: block;
+  margin-block-end: 10px;
+  font-family: 'Vazirmatn', var(--body-font);
+  font-weight: 800;
+  font-size: 19.5px;
+  letter-spacing: 0.02em;
+  /* Text on a light ground takes the accent ramp's dark end — same pairing
+     as .vp-best-all and the header search icon, not a fresh value. */
+  color: #8F7022;
+}
+
+.vp-daily-deal-title {
+  margin: 0 0 10px;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 800;
+  font-size: 39px;
+  line-height: 1.3;
+  color: var(--title-color);
+}
+
+.vp-daily-deal-sub {
+  margin: 0 0 24px;
+  font-size: 20.4px;
+  line-height: 1.8;
+  color: var(--body-color);
+}
+
+.vp-daily-deal-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 30px;
+  border-radius: 48px;
+  background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+  font-family: 'Vazirmatn', var(--body-font);
+  font-weight: 700;
+  font-size: 17px;
+  /* Ink, not white — this ramp's own measured pairing (6.94:1–9.88:1),
+     documented at the top of this file, same as every other button label
+     on the page. */
+  color: #101111;
+  text-decoration: none;
+}
+
+.vp-daily-deal-cta i { font-size: 15px; }
+
+.vp-daily-deal-cta:hover { color: #101111; }
+
+/* The white card: photo and info, photo last in source so RTL's own flow —
+   first child at the row's right, last at its left — puts it at the card's
+   left edge without needing the internal order mirrored, which would have
+   left it stranded in the middle of the banner instead. */
+/* 775, the 620 this started at plus the client's own 25%. */
+/* Padding 24 to 40 — client's own "40px from the card's edge" for the
+   photo, which the card's uniform padding already gives every edge
+   without a one-off margin just for the shot. */
+.vp-daily-deal-card {
+  flex: 0 1 775px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 40px;
+  border-radius: 32px;
+  background: #FFFFFF;
+  box-shadow:
+    inset 0 0 0 1px rgba(16, 17, 17, 0.05),
+    0 24px 48px -28px rgba(16, 17, 17, 0.22);
+}
+
+/* Shrinks to its own content's width now, rather than stretching to fill
+   whatever the card doesn't give the shot — the timer row is what sets
+   that width in practice (232px, wider than the name/price lines), and the
+   stock bar below matches it for the same reason at 100%. What this frees
+   up goes to the photo instead. */
+.vp-daily-deal-info {
+  flex: 0 0 auto;
+  min-width: 0;
+}
+
+/* This column's text, ~15% up across the board — client's "make the texts
+   and the timer bigger" once the wider card and the shrunk-to-content info
+   column left room for it. */
+.vp-daily-deal-cat {
+  display: block;
+  margin-block-end: 4px;
+  font-size: 14.4px;
+  color: var(--body-color);
+}
+
+.vp-daily-deal-name {
+  margin: 0 0 10px;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 700;
+  font-size: 19.5px;
+  line-height: 1.5;
+  color: var(--title-color);
+}
+
+.vp-daily-deal-price {
+  display: block;
+  margin-block-end: 16px;
+  font-family: 'Vazirmatn', var(--body-font);
+  font-weight: 800;
+  font-size: 23px;
+  color: var(--title-color);
+}
+
+.vp-daily-deal-price span {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(16, 17, 17, 0.62);
+}
+
+.vp-daily-deal-stock {
+  margin-block-end: 18px;
+  font-size: 14.4px;
+  font-weight: 600;
+  color: var(--title-color);
+}
+
+.vp-daily-deal-stock span:first-child {
+  display: block;
+  margin-block-end: 6px;
+}
+
+.vp-daily-deal-bar {
+  display: block;
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  background: rgba(16, 17, 17, 0.07);
+  overflow: hidden;
+}
+
+/* 8%, not the reference's near-full bar: the stock line above it says one
+   item left, and a bar drawn comfortably full would contradict its own
+   caption. */
+.vp-daily-deal-bar-fill {
+  display: block;
+  height: 100%;
+  width: 8%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #C0972F 0%, #E3B54A 100%);
+}
+
+/* Overrides the template's own .timer-counter: a divided strip of plain
+   numbers becomes four boxes, one per unit, each a small version of the
+   white-card-on-light-ground pairing the rest of this page's chips use. The
+   countdown logic itself is untouched — main.js still finds .day/.hour/
+   .minute/.seconds inside .counter-list and fills them in every second. */
+.vp-daily-deal-timer {
+  display: flex;
+  gap: 8px;
+  padding: 0;
+  margin: 0;
+  /* Dropping .timer-counter (see the markup note in make-rtl-page.js) also
+     dropped the reset that class carried, so the <ul>'s own bullets need
+     doing here instead. */
+  list-style: none;
+  background: none;
+  border-radius: 0;
+}
+
+/* Square and smaller, client's own words — fixed 52 rather than flex:1's
+   94x65, which stretched to fill the row instead of sizing to its own
+   content. */
+.vp-daily-deal-timer li {
+  flex: 0 0 58px;
+  width: 58px;
+  height: 58px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border-radius: 12px;
+  background: rgba(16, 17, 17, 0.045);
+  text-align: center;
+}
+
+.vp-daily-deal-timer li:not(:last-child):before {
+  content: none;
+}
+
+.vp-daily-deal-timer .count-number {
+  font-family: 'Vazirmatn', var(--body-font);
+  font-weight: 800;
+  font-size: 19.5px;
+  line-height: 1.3;
+  color: var(--title-color);
+  margin: 0;
+}
+
+/* The gap to the number above it, still halved from its own unpressed
+   value — re-measured after the type grew, not left at the old font
+   size's number. */
+.vp-daily-deal-timer .count-name {
+  font-size: 12px;
+  color: var(--body-color);
+  margin-top: -7.4px;
+  display: block;
+}
+
+/* No background of its own — the photo is a real transparent cutout
+   (checked: corner pixel alpha 0), so a filled box behind it drew a visible
+   square the client didn't ask for. It sits directly on the card's own
+   white now. */
+
+/* This box used to be `aspect-ratio: 1; max-width: 374px`, and that square
+   is what made the banner too tall — the two are the same argument.
+
+   The photo is 1400x990, so it draws at 1.414:1. Letterboxed into a 374
+   square (346 after the old 14px inset) it came out 346x244.7 and left
+   101px of empty box above and below it. That dead space, not the shoe, is
+   what the client was looking at when they asked why the height had grown.
+
+   So the box is sized to the photo instead of to itself. Height is the
+   lever, and it is set to hold the banner at the 400.5 in the client's
+   screenshot: 264.5 + the card's 40px padding twice + the banner's 28px
+   twice = 400.5. It was 240.5 while the banner's padding was 40; dropping
+   that to 28 freed 24px, and the 24 went into the photo rather than out of
+   the banner, so the height the client pinned survives the padding change.
+
+   Width is whatever the row has left (415 at 1440: the card's 695 of
+   content, less the info column's 256 and the 24 gap), and 415/264.5 = 1.57
+   is wider than the photo's 1.414, so the height is what limits it and the
+   photo draws 374x264.5, centred.
+
+   Measured against what it replaces: 374 wide against the 346 on screen
+   before any of this, and against 212.5 in the 400.5-tall version the
+   client rejected for having shrunk it. The height came out of the empty
+   box, which is the only place it could come from without taking it back
+   off the shoe again.
+
+   No inset on the img: the box's own edges are already the card's 40px
+   clearance, so padding here would be a second inset inside the first and
+   would come straight off the photo, since height is the binding limit. */
+.vp-daily-deal-shot {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 264.5px;
+}
+
+.vp-daily-deal-shot img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  box-sizing: border-box;
+}
+
+@media (max-width: 1199px) {
+  .vp-daily-deal { flex-direction: column; align-items: stretch; gap: 28px; padding: 28px; }
+  .vp-daily-deal-card { flex-basis: auto; }
+}
+
+@media (max-width: 575px) {
+  .vp-daily-deal-card { flex-direction: column; }
+  .vp-daily-deal-shot { width: 100%; height: 200px; }
+  .vp-daily-deal-title { font-size: 26px; }
+}
+
+/* --- the way out --------------------------------------------------------- */
+
+/* Exactly one deal card wide, so it sits directly over the card beneath it
+   rather than at whatever width its own text happens to want. The cards
+   divide the row's width between them with a 24px gutter, so one card is
+   (100% - (n-1) * 24) / n, and the row it lives in is the same width as the
+   deals row — both are the panel's content box, measured equal at 1364 at
+   1440. It still does not share the row evenly with the two conditions: it is
+   a way out, not a third condition. */
+.vp-ladder-all {
+  flex: 0 0 calc((100% - (var(--deal-cols) - 1) * 24px) / var(--deal-cols));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 18px;
+  border-radius: 12px;
+  background: rgba(164, 127, 37, 0.10);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.7;
+  /* Both needed for the basis above to actually bind. A flex item will not go
+     below its content width while min-width is auto, and this label sets 274
+     against a card of 253.6 at 1440 and 193.6 at 1200 — so it simply ignored
+     the basis and stayed 274 at both. min-width: 0 lets it shrink, and the
+     wrap lets the words take a second line rather than spilling out of the
+     box. The row is align-items: stretch, so the two conditions beside it grow
+     to match and the three stay one band. */
+  min-width: 0;
+  text-align: center;
+  color: var(--theme-color);
+}
+
+/* Physical borders again, and pointing left because that is where the page
+   continues in RTL — the logical pair would resolve to the right and send the
+   chevron back the way the reader came. */
+.vp-ladder-all:after {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-left: 1.6px solid currentColor;
+  border-bottom: 1.6px solid currentColor;
+  transform: rotate(45deg);
+}
+
+.vp-ladder-all:hover {
+  background: rgba(164, 127, 37, 0.16);
+  color: var(--title-color);
+}
+
+/* --- narrower ------------------------------------------------------------ */
+
+/* Below 1200 the five steps and the intro cannot share one line and stay
+   legible, so the intro goes above the ladder and the ladder keeps the width
+   to itself. */
+@media (max-width: 1199px) {
+  .vp-ladder-head {
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .vp-ladder-intro {
+    flex: none;
+    padding-block-start: 0;
+  }
+
+  .vp-ladder-steps { width: 100%; }
+}
+
+@media (max-width: 991px) {
+  .vp-ladder { padding: 26px 20px 24px; }
+  /* The tag row under the tiles is sized off --tile, so it narrows with them
+     rather than needing its own number here. */
+  .vp-step { --tile: 44px; }
+  .vp-step-rate b { font-size: 21px; }
+  .vp-step-name, .vp-step-when { font-size: 12px; }
+  /* Stacked, so there is no card beside the link to match — it goes back to
+     filling the line like the two conditions above it. */
+  .vp-ladder-notes { flex-direction: column; gap: 10px; }
+  .vp-ladder-all { flex: none; }
+}
+
+/* The ladder is a scale, so it is never allowed to wrap — under 700 it scrolls
+   sideways instead, which keeps the five steps in one line and in order. */
+@media (max-width: 700px) {
+  .vp-ladder-steps {
+    overflow-x: auto;
+    padding-block-end: 6px;
+  }
+
+  .vp-step { flex: 0 0 116px; }
+}
+
+/* The field's own input carries the template's fixed 350px width and a 280px
+   min-width, so narrowing the field left the input hanging off the side of the
+   page — and the min-width alone kept it 95px wider than its box even after
+   the width followed. Both have to go for the input to fit what holds it. */
+.th-header .menu-area .top-search input {
+  width: 100%;
+  min-width: 0;
+}
+
+/* The search suggestions panel is a fixed 400px wide and hangs off the field.
+   Once the field narrowed to fit the island, the panel was wider than what it
+   hangs from and ran 113px off the side of the page — real scroll, measured,
+   not a phantom: the document scrolled to -113 at 1300px. Matching it to the
+   field keeps it inside whatever width the field ends up with. */
+.th-header .menu-area .top-search .search-suggestions,
+.th-header .menu-area .top-search .box-suggestions {
+  width: 100%;
+  min-width: 0;
+}
+
+/* The two off-canvas panels — the mobile menu and the side cart — are parked
+   outside the viewport until opened. Both are position:fixed, which is why the
+   body's own overflow:hidden never clipped them: it does not apply to fixed
+   descendants. In the LTR template they park off the left, where an overhang
+   costs nothing; the RTL flip moved them to the right, where it becomes real
+   horizontal scroll. Each wrapper is fixed and viewport-sized, so clipping it
+   parks the panel without touching how it slides in. */
+.th-menu-wrapper,
+.sidemenu-wrapper {
+  overflow: hidden;
+}
+
+/* --------------------------------------------------------------------------
+   The hero's buy button.
+
+   White type instead of ink, a corner that is rounded rather than a full pill,
+   and the arrow turned to face the product.
+
+   The template's arrow is a mask of arrow-right.svg with no transform, so it
+   points away from the shoe on this slide — the shoe sits to its left. A
+   scaleX flip turns it without needing a second asset.
+   -------------------------------------------------------------------------- */
+.heroSlide6 .hero-inner .th-btn {
+  color: #FFFFFF;
+  /* A fifth off the whole button, not just its type: every measure the
+     template gives it is multiplied by 0.8, so the proportions hold and it
+     shrinks as one thing. 18 → 14.4 type, 16.5/24 → 13.2/19.2 padding,
+     14 → 11.2 corner, 8 → 6.4 between the label and the arrow. It measured
+     161x51 and comes out 129x41. The arrow takes the type's size, so it
+     follows on its own. */
+  font-size: 14.4px;
+  padding: 13.2px 19.2px;
+  border-radius: 11.2px;
+  gap: 6.4px;
+}
+
+.heroSlide6 .hero-inner .th-btn.th-icon:after {
+  transform: scaleX(-1);
+}
+
+/* --------------------------------------------------------------------------
+   The search bar.
+
+   White field, and the magnifier moved into a gold disc tucked inside the
+   field's own corner rather than filling the end of it as a half-pill.
+
+   Physical left/right rather than logical properties: the field is laid out
+   RTL, so inset-inline-start would put the disc on the far side from where the
+   template's button sits.
+   -------------------------------------------------------------------------- */
+/* The disc is positioned against this box, so it has to follow the field's
+   width rather than keep the template's fixed 320 — otherwise the disc lands
+   100px inside the field at the narrower breakpoints. */
+.th-header .menu-area .box-search {
+  position: relative;
+  width: 100%;
+}
+
+.th-header .menu-area .box-search input {
+  background-color: #FFFFFF;
+  /* The field is white on a band that is nearly white, so it needs a line to
+     have an edge at all. */
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.08);
+  padding-left: 54px;
+  /* A rounded rectangle, not a pill: the field is 48 tall, and 18 is the same
+     ratio (0.375) the cart square next to it now rounds at, so the two keep
+     reading as one set after both got rounder. */
+  border-radius: 18px;
+}
+
+.th-header .menu-area .box-search .th-btn {
+  position: absolute;
+  /* 7px on every side it has one: matches the 7px top and bottom the 34
+     square already gets from centering in the 48-tall field (7 = (48-34)/2),
+     so the gap reads the same on all three edges instead of tighter on the
+     left than top and bottom. */
+  left: 7px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 34px;
+  height: 34px;
+  min-width: 0;
+  padding: 0;
+  /* Same 0.375 ratio as the field around it, on the smaller box: 34 * 0.375
+     rounds to 13. */
+  border-radius: 13px;
+  /* .th-btn is in the site-wide list that swapped button labels to ink
+     (measured at the top of this file, for the lighter button ramp) — but
+     this button carries a shape, not a word, and the client asked for it
+     back to white. */
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* The lens icon, sized to the disc — a little larger than the first pass,
+   at the client's word. */
+.th-header .menu-area .box-search .th-btn .vp-search-icon {
+  width: 19px;
+  height: 19px;
+}
+
+/* The basket, white to match the search field beside it, with the bag and
+   the count carrying the gold instead of the square itself. A gold square
+   is what forced the count onto a dark ground of its own in the first
+   place — nothing gold reads on gold — so white removes the problem rather
+   than working around it, and it is what puts the field and the basket
+   back to reading as one set.
+
+   The one gold on the page, not a second one: the button ramp — #C0972F to
+   #E3B54A, the same pair the buy button and the discount mark use — on the
+   badge's fill, and its darker stop flat as the icon's colour so the two
+   read as the one metal instead of two different golds sitting next to
+   each other in the same row. Ink on the ramp is the pairing already
+   measured at the top of this file (6.94:1 / 9.88:1, both AA). The
+   template's own .icon-btn rules are two classes deep, so these are three. */
+.th-header .header-button .icon-btn.sideMenuToggler {
+  width: 48px;
+  height: 48px;
+  border-radius: 18px;
+  background: #FFFFFF;
+  /* The square is white on a header band that is nearly white too, so it
+     needs the same hairline the search field uses to have an edge at all. */
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.08);
+  border: 0;
+  color: #C0972F;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.th-header .header-button .icon-btn.sideMenuToggler i {
+  font-size: 20px;
+  line-height: 1;
+  color: #C0972F;
+}
+
+.th-header .header-button .icon-btn.sideMenuToggler .badge {
+  background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+  color: #101111;
+}
+
+/* The hero cards' corners, a little rounder than the template's 60. */
+.heroSlide6 .hero-inner {
+  border-radius: 72px;
+}
+
+/* --------------------------------------------------------------------------
+   Blur only where there is something to blur.
+
+   A backdrop-filter is one of the most expensive things a page can ask for,
+   and it buys nothing over a flat ground: blurring one uniform colour returns
+   that same colour. Measured, the page was asking for it 46 times over
+   5.2 megapixels a frame, and scrolling averaged 45.8fps with a worst frame
+   of 54ms.
+
+   The hero panes keep theirs — the gold marks run behind them and being taken
+   apart by the pane is the whole effect — and so do the header island and the
+   category labels, which sit over photographs. These three sat over the
+   page's own white:
+
+     .vp-ladder                    0.92 Mpx
+     .beige-color x24              0.74 Mpx   (hidden until hover, blurring
+                                               the whole time)
+     .vp-trust-row .feature-card   0.13 Mpx
+
+   The tint stays on all of them, so nothing changes on screen.
+
+   This follows the glass. It named .vp-ladder-head while the head was the
+   pane and the panel around it was white; the two swapped materials, so it
+   names the panel again — the head is solid white now and has no filter to
+   drop.
+   -------------------------------------------------------------------------- */
+.vp-ladder,
+.vp-trust-row .feature-card {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+/* The template's colour panel is opacity 0 and visibility hidden until its
+   card is hovered, but it carried the filter the whole time — twenty-four
+   layers for a panel nobody is looking at. It gets it when it is shown. */
+.beige-color {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+.product-grid:hover .beige-color {
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+/* Half the hero's blur is spent on panes nobody can see. The deck runs six
+   slides and shows three — measured, the other three sit between 1168 and
+   3645 pixels outside the viewport — and every one of them was painting a
+   1227x450 filter. Swiper already names the three that are on screen, so the
+   filter follows those names. The tint stays on all six, which is all an
+   off-screen pane needs, and a slide is given the class before it travels in,
+   so the blur is never seen switching on. */
+.heroSlide6 .swiper-slide:not(.swiper-slide-active):not(.swiper-slide-prev):not(.swiper-slide-next) .hero-inner {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+/* --------------------------------------------------------------------------
+   «نحوه کار» — the how-it-works dialog.
+
+   A wide landscape board, laid out as the client's reference is: the title
+   between two asides, five podiums across the middle, one strip of conditions
+   under them, and the prose in columns beside each other. Nothing stacks that
+   the reference has side by side.
+
+   The reference is purple on cream; this is the page's own gold and ink, for
+   the same reason the ladder itself is not maroon.
+   -------------------------------------------------------------------------- */
+
+.vp-how-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+/* [hidden] alone does not beat the display above, so the two are stated
+   together. */
+.vp-how-modal[hidden] {
+  display: none;
+}
+
+.vp-how-veil {
+  position: absolute;
+  inset: 0;
+  background: rgba(16, 17, 17, 0.45);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  animation: vp-how-fade 220ms ease-out;
+}
+
+@keyframes vp-how-fade { from { opacity: 0; } }
+
+/* Landscape: as wide as the viewport allows, and no taller than it has to be.
+   The sale panel's own 50px corner, so the dialog reads as that panel opened
+   up rather than as a new surface. */
+/* 40, the 50 this started at less the client's 20%. */
+.vp-how-panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: min(1240px, 100%);
+  max-height: min(90vh, 860px);
+  border-radius: 40px;
+  background: #FBFAF8;
+  box-shadow: 0 40px 90px -40px rgba(16, 17, 17, 0.55);
+  overflow: hidden;
+  animation: vp-how-rise 260ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+@keyframes vp-how-rise {
+  from { opacity: 0; transform: translateY(16px) scale(0.985); }
+}
+
+/* Physical left: a close button belongs on the far side from the reading
+   start, and the logical pair resolves to the right on this page. */
+.vp-how-close {
+  position: absolute;
+  inset-block-start: 20px;
+  left: 20px;
+  z-index: 3;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  background: rgba(16, 17, 17, 0.05);
+  color: var(--title-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.vp-how-close:hover { background: rgba(16, 17, 17, 0.10); }
+.vp-how-close svg { width: 15px; height: 15px; }
+.vp-how-close:focus-visible { outline: 2px solid var(--theme-color); outline-offset: 2px; }
+
+.vp-how-scroll {
+  overflow-y: auto;
+  padding: 30px 44px 34px;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* --- the head: aside, title, aside — one row ----------------------------- */
+
+.vp-how-head {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 30px;
+  margin-block-end: 26px;
+}
+
+.vp-how-titles { text-align: center; }
+
+.vp-how-title {
+  margin: 0 0 8px;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 800;
+  font-size: 30px;
+  line-height: 1.4;
+  color: var(--theme-color);
+}
+
+/* The strap is ruled either side, as the reference draws it. The rules are
+   drawn on the span rather than the paragraph so they meet the words rather
+   than the column. */
+.vp-how-strap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.8;
+  color: var(--body-color);
+}
+
+.vp-how-strap:before,
+.vp-how-strap:after {
+  content: '';
+  width: 54px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(164, 127, 37, 0.55));
+}
+
+.vp-how-strap:after { transform: scaleX(-1); }
+
+.vp-how-aside {
+  margin: 0;
+  font-size: 13px;
+  line-height: 2;
+  color: var(--body-color);
+}
+
+/* The first aside is ruled on its inner edge, the way the reference rules it;
+   the second is the warning and takes the gold instead. */
+.vp-how-head .vp-how-aside:first-child {
+  padding-inline-end: 18px;
+  border-inline-end: 2px solid rgba(164, 127, 37, 0.35);
+  text-align: end;
+}
+
+.vp-how-aside.is-warn {
+  padding-inline-start: 18px;
+  border-inline-start: 2px solid rgba(164, 127, 37, 0.35);
+  text-align: start;
+}
+
+.vp-how-aside b {
+  display: block;
+  font-weight: 800;
+  color: var(--theme-color);
+}
+
+/* --- the board: five podiums across ------------------------------------- */
+
+.vp-how-board {
+  /* Left to right, against the page — the same decision the ladder in the
+     section takes: a run of rates is a number line, 15 to 70, and a number
+     line does not turn round because the words beside it do. So پله اول sits
+     at the far left, پله نهایی at the right, and the stopwatch after it. The
+     Persian inside each card is put back to rtl below. */
+  direction: ltr;
+  display: flex;
+  align-items: flex-end;
+  gap: 18px;
+  margin-block-end: 26px;
+}
+
+.vp-how-step-no,
+.vp-how-when,
+.vp-how-off small {
+  direction: rtl;
+}
+
+.vp-how-steps {
+  display: flex;
+  align-items: flex-end;
+  gap: 26px;
+  flex: 1;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.vp-how-step {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.vp-how-step-no {
+  margin-block-end: 10px;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 800;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--title-color);
+  white-space: nowrap;
+}
+
+/* The card: the drawing on one side, the offer on the other. --box is the
+   height of both, so the frame beside the chip is a true square and not a
+   fixed number that happens to be near the chip's content height. */
+.vp-how-card {
+  --box: 64px;
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 12px 12px 10px;
+  border-radius: 18px;
+  background: #FFFFFF;
+  box-shadow:
+    inset 0 0 0 1px rgba(16, 17, 17, 0.06),
+    0 12px 26px -18px rgba(16, 17, 17, 0.4);
+}
+
+/* A lined square, not a ring: the drawing inside it is a diagram in a frame,
+   and a circle round a shoe reads as a product thumbnail. Square by
+   construction — the same --box drives the width here and the height of the
+   chip beside it. */
+.vp-how-shot {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--box);
+  height: var(--box);
+  border-radius: 14px;
+  box-shadow: inset 0 0 0 1.4px rgba(164, 127, 37, 0.32);
+  color: var(--theme-color);
+}
+
+.vp-how-shot svg {
+  width: 40px;
+  height: auto;
+  display: block;
+}
+
+/* The offer, in ink until its step is the live one. It takes the rest of the
+   card and sets the row's height, which is what makes the frame beside it
+   square. */
+.vp-how-off {
+  flex: 1;
+  min-width: 0;
+  height: var(--box);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  padding: 7px 8px;
+  border-radius: 12px;
+  /* Light grey until its step is the live one, not the ink this started as:
+     five near-black chips in a row were the heaviest thing in the dialog and
+     read as the subject rather than as the thing waiting its turn. The type
+     went ink-at-both-states before the motion existed; now the live step's
+     own number goes white (client's request) and a step that already had
+     its turn keeps a gold number after the ground fades back to grey — see
+     .is-lit and .is-done below. */
+  background: rgba(16, 17, 17, 0.07);
+  color: var(--title-color);
+  transition: background 0.35s ease, color 0.35s ease;
+}
+
+.vp-how-off b {
+  font-family: 'Vazirmatn', var(--body-font);
+  font-weight: 800;
+  font-size: 20px;
+  line-height: 1.15;
+}
+
+.vp-how-off small { font-size: 10.5px; font-weight: 700; line-height: 1.5; }
+
+/* Under the podium, where it says when that step runs rather than reading as
+   another fact on the card. */
+.vp-how-when {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  margin-block-start: 10px;
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: var(--body-color);
+  white-space: nowrap;
+}
+
+.vp-how-when svg { width: 13px; height: 13px; flex: none; }
+
+/* The podium under the card: a cylinder, drawn as a wide ellipse with a lit
+   top face, so the row reads as five stands rather than five boxes. */
+.vp-how-podium {
+  position: relative;
+  width: 100%;
+  height: 26px;
+  margin-block-start: -6px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #DFDCD6 0%, #C7C3BB 100%);
+  transition: background 0.35s ease;
+}
+
+.vp-how-podium:before {
+  content: '';
+  position: absolute;
+  inset: 0 0 7px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #F0EEEA 0%, #DFDCD6 100%);
+  transition: background 0.35s ease;
+}
+
+/* The steps light in turn now (see the modal's own script) rather than one
+   staying lit — a step is the live one for 3s, then hands off to the next.
+   The gold is the hero burst's own: #C0972F to #E3B54A, the same pair the
+   discount mark on the hero shot takes — this page's one gold, not a
+   second one. White on it here, not the ink the rest of the page's type
+   takes on this ramp: client's own request, and the number is a large bold
+   mark rather than a sentence, closer to the icon case this file's own
+   contrast table already carries an exception for than to a button label. */
+.vp-how-step.is-lit .vp-how-off {
+  background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+  color: #FFFFFF;
+}
+
+.vp-how-step.is-lit .vp-how-podium {
+  background: linear-gradient(180deg, #C0972F 0%, #A07C22 100%);
+}
+
+.vp-how-step.is-lit .vp-how-podium:before {
+  background: linear-gradient(180deg, #E3B54A 0%, #C0972F 100%);
+}
+
+/* A step that already had its turn: the ground fades back to the default
+   grey with the rest, but the number keeps the gold the light left behind
+   — text on light grounds takes the dark end of this file's own accent
+   ramp (4.66:1 on white, AA), not a fresh colour. */
+.vp-how-step.is-done .vp-how-off {
+  color: #8F7022;
+}
+
+/* --- the conditions, one strip ------------------------------------------- */
+
+.vp-how-rules {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+  margin: 0 0 26px;
+  padding: 16px 12px;
+  border-radius: 22px;
+  background: rgba(16, 17, 17, 0.034);
+  list-style: none;
+}
+
+.vp-how-rule {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-inline: 6px;
+}
+
+.vp-how-rule + .vp-how-rule {
+  border-inline-end: 1px solid rgba(16, 17, 17, 0.08);
+}
+
+.vp-how-rule-icon {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  color: var(--theme-color);
+  box-shadow: inset 0 0 0 1px rgba(164, 127, 37, 0.18);
+}
+
+.vp-how-rule-icon svg { width: 17px; height: 17px; }
+
+.vp-how-rule-text {
+  font-size: 11.5px;
+  line-height: 1.7;
+  color: var(--body-color);
+}
+
+/* --- the prose, in columns beside each other ----------------------------- */
+
+.vp-how-cols {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 26px;
+}
+
+.vp-how-cols h3 {
+  margin: 0 0 10px;
+  padding-block-end: 10px;
+  border-block-end: 1px solid rgba(16, 17, 17, 0.10);
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 800;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--title-color);
+}
+
+.vp-how-cols p {
+  margin: 0 0 10px;
+  font-size: 12.5px;
+  line-height: 2;
+  color: var(--body-color);
+}
+
+.vp-how-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: vp-how;
+}
+
+.vp-how-list li {
+  position: relative;
+  padding-inline-start: 26px;
+  margin-block-end: 7px;
+  font-size: 12.5px;
+  line-height: 1.9;
+  color: var(--body-color);
+}
+
+/* Drawn as a counter so the markup stays an ordered list and the digits come
+   out Persian without being written that way in the source. */
+ol.vp-how-list li:before {
+  counter-increment: vp-how;
+  content: counter(vp-how, persian);
+  position: absolute;
+  inset-inline-start: 0;
+  inset-block-start: 3px;
+  width: 19px;
+  height: 19px;
+  border-radius: 6px;
+  background: rgba(164, 127, 37, 0.10);
+  color: var(--theme-color);
+  font-family: 'Vazirmatn', var(--body-font);
+  font-weight: 800;
+  font-size: 10.5px;
+  line-height: 19px;
+  text-align: center;
+}
+
+/* Physical borders: a tick is a shape, not a direction, and the logical pair
+   draws it mirrored on this page. */
+ul.vp-how-list.is-ticked li:before {
+  content: '';
+  position: absolute;
+  inset-inline-start: 2px;
+  inset-block-start: 9px;
+  width: 9px;
+  height: 5px;
+  border-left: 1.8px solid var(--theme-color);
+  border-bottom: 1.8px solid var(--theme-color);
+  transform: rotate(-45deg);
+}
+
+.vp-how-note {
+  margin: 24px 0 0;
+  padding: 14px 20px;
+  border-radius: 16px;
+  background: rgba(164, 127, 37, 0.09);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.9;
+  color: var(--title-color);
+  text-align: center;
+}
+
+/* Anyone who asked for less movement gets the board as a still, with the live
+   step lit — the same step the ladder on the page is on. */
+@media (prefers-reduced-motion: reduce) {
+  .vp-how-panel,
+  .vp-how-veil,
+  .vp-how-step,
+  .vp-how-off,
+  .vp-how-podium,
+  .vp-how-podium:before {
+    animation: none !important;
+  }
+
+  .vp-how-step:nth-child(2) .vp-how-off { background: #C29A31; color: var(--title-color); }
+  .vp-how-step:nth-child(2) .vp-how-podium { background: linear-gradient(180deg, #C29A31 0%, #8C6E1F 100%); }
+  .vp-how-step:nth-child(2) .vp-how-podium:before { background: linear-gradient(180deg, #E3B54A 0%, #C29A31 100%); }
+}
+
+/* --- narrower ------------------------------------------------------------ */
+
+@media (max-width: 1199px) {
+  .vp-how-scroll { padding: 26px 26px 30px; }
+  .vp-how-cols { grid-template-columns: repeat(2, 1fr); }
+  .vp-how-rules { grid-template-columns: repeat(3, 1fr); row-gap: 14px; }
+  .vp-how-rule:nth-child(3n + 1) { border-inline-end: 0; }
+}
+
+@media (max-width: 991px) {
+  .vp-how-head { grid-template-columns: 1fr; gap: 14px; }
+  .vp-how-head .vp-how-aside:first-child,
+  .vp-how-aside.is-warn {
+    padding: 0;
+    border: 0;
+    text-align: center;
+  }
+  /* Below this the five podiums cannot share a line and stay legible, so the
+     row scrolls sideways rather than shrinking the cards to nothing. */
+  .vp-how-board { overflow-x: auto; padding-block-end: 6px; }
+  .vp-how-steps { flex: none; }
+  .vp-how-step { flex: none; width: 168px; }
+}
+
+@media (max-width: 767px) {
+  .vp-how-modal { padding: 10px; }
+  .vp-how-panel { border-radius: 22.4px; max-height: 94vh; }
+  .vp-how-scroll { padding: 22px 18px 26px; }
+  .vp-how-title { font-size: 22px; }
+  .vp-how-cols { grid-template-columns: 1fr; gap: 18px; }
+  .vp-how-rules { grid-template-columns: repeat(2, 1fr); }
+  .vp-how-rule { border-inline-end: 0 !important; }
+}
+
+/* --------------------------------------------------------------------------
+   The step at the sticky threshold — the client's «پریدگی».
+
+   The template makes the header island `position: fixed` once the page is
+   500px down. That takes it out of the flow, so the document becomes exactly
+   the island's flow height shorter in the frame the class lands, and every
+   section below leaps up by that much at once. Measured across the threshold,
+   scrolling 500 -> 505:
+
+     992    document 10273 -> 10149    the hero stepped up 124px
+     1200   document  7572 ->  7478    ...                  94px
+     1440   document  7230 ->  7136    ...                  94px
+     1920   document  7453 ->  7359    ...                  94px
+
+   This is not the stutter and it is not a repaint: it is a single hard step,
+   at one scroll position, every time the page passes it in either direction.
+   It is what «یه پریدگی داره» describes.
+
+   The space has to be given back where the island was standing, and it cannot
+   be a constant — the island's row is one line taller at 992, so the loss is
+   124 there and 94 above it. What the document loses is `.menu-area`'s own
+   height plus the 18 it is held off the top by: that top margin collapses
+   through the wrapper, which is why the wrapper measures 76 while the
+   document loses 94. The scroll controller injected at the foot of the page
+   measures exactly that pair and writes it here; this rule only spends it,
+   and only while the island is actually out of the flow.
+
+   `.th-header` has no padding of its own at any width — checked at all four
+   — so this claims the property rather than fighting the template for it.
+   With no script the custom property is unset, the reserve is 0, and the
+   header behaves exactly as the template wrote it.
+   -------------------------------------------------------------------------- */
+.th-header {
+  padding-top: var(--vp-sticky-reserve, 0px);
+}
+
+/* --------------------------------------------------------------------------
+   The brand strip, rebuilt: four tiles on one white card.
+
+   The template had a three-up carousel of «The Official Store of the Amazing
+   Brand» with Adidas cards and stock products. The client sent a reference —
+   tiles built from a photo mosaic with a rounded plate floating in the middle
+   of each — and asked for four of them «رو یه کارت سفید که از چپ تا راست
+   وبسایت کشیده باشه».
+
+   The card is .vp-best-panel's, number for number: 20 to the sides, 100 above,
+   28 of padding, 50 of round, the same ring and the same shadow. That is not
+   laziness — those numbers are the page's pane rhythm, argued over two rounds
+   and recorded on .vp-best-panel and .collection-area, and a fourth pane that
+   invented its own would break a decision that already cost a commit to make.
+   The sides were 18 with everything else on the page until the client asked
+   for 20 on the two panes only; it changed here and on .vp-best-panel in the
+   same commit, and it has to keep changing in both.
+   -------------------------------------------------------------------------- */
+.vp-brands-section {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.vp-brands-panel {
+  margin-inline: 20px;
+  margin-top: 100px;
+  padding: 28px;
+  border-radius: 50px;
+  background: #FFFFFF;
+  box-shadow:
+    inset 0 0 0 1.5px rgba(16, 17, 17, 0.12),
+    0 18px 32px -22px rgba(16, 17, 17, 0.18);
+}
+
+/* Title at the reading start, the way out opposite it — .vp-best-head's own
+   arrangement, so the two cards open the same way. */
+.vp-brands-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.vp-brands-title {
+  margin: 0;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 1.4;
+  color: #101111;
+}
+
+.vp-brands-all {
+  font-family: 'Vazirmatn', var(--body-font);
+  font-weight: 600;
+  font-size: 13.5px;
+  color: #A47F25;
+  text-decoration: none;
+}
+
+.vp-brands-all:hover {
+  color: #8A6A2A;
+  text-decoration: underline;
+}
+
+.vp-brands-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+
+/* The tile. 4:3, and the ratio is the whole argument here.
+
+   The reference shows two cards to a row; this shows four, so each tile is
+   about half the width the reference's are and the mosaic's cells shrink with
+   it. At 5:3 — tried first — a tile at 1440 came out 324x194 and the two
+   stacked cells were 95px tall each: too small to read as photographs, and
+   the plate at 58 tall filled a third of the tile instead of floating in it.
+   4:3 puts the same tile at 324x243, which is where the two-up rendering at
+   992 already reads correctly.
+
+   Checked at 1440, 1200 and 992; the plate stays centred and inside the tile
+   at all three. */
+/* 40, up from 28 — «۴ تا گوشه بیرونی». These four are the only corners in the
+   tile: the mosaic's internal joins stay square, and the tile's own overflow
+   clip is what rounds the photographs where they meet these. 40 sits under
+   the white card's 50 so the tile still reads as something held by the card
+   rather than as another card. */
+.vp-brand {
+  /* The mosaic's proportions, hoisted here because two rules need them: the
+     grid that draws the columns, and the plate, which is positioned on the
+     seam between them rather than on the tile's centre. Change them here and
+     both follow. */
+  --mosaic-lead: 1.35;
+  --mosaic-small: 1;
+  --mosaic-gap: 6px;
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 3;
+  border-radius: 40px;
+  overflow: hidden;
+  text-decoration: none;
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.06);
+}
+
+/* One lead photograph, two stacked small ones opposite it — the reference's
+   own arrangement, and the sides are the reference's too: **lead on the left,
+   the small pair on the right**.
+
+   This does not follow the page's direction, and that is deliberate. The
+   mosaic is a picture, not a line of content: it is `aria-hidden`, it holds no
+   text, and nothing in it reads in an order. Left to itself in an RTL document
+   the first grid column lands on the right, which put the lead on the right
+   and mirrored the reference — «طرحو فلیپ کن اون کوچولوها بیفته راست مث همون
+   عکسی که بهت دادم». So the placement is stated rather than inherited: the
+   narrow column is column 1 (the right in RTL) and the lead is put explicitly
+   in column 2.
+
+   The gap is 6, doubled from the 3 this started at at the client's request,
+   and it is the card's own white showing through rather than a drawn line, so
+   it stays a gap at any size. */
+.vp-brand-mosaic {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  /* Written as percentages of what is left after the gap, not as fr — `fr` is
+     not allowed inside calc(), so `calc(1.35 * 1fr)` is an invalid value, and
+     an invalid track list drops the whole declaration and leaves the columns
+     to auto-size off the photographs. That happened here: the seam wandered to
+     wherever the images put it, 202px into a 324px tile instead of 186, and
+     the plate that is positioned on it was measured 17px adrift. Percentages
+     take the same three variables and give the same proportions. */
+  grid-template-columns:
+    calc((100% - var(--mosaic-gap)) * var(--mosaic-small) /
+      (var(--mosaic-lead) + var(--mosaic-small)))
+    calc((100% - var(--mosaic-gap)) * var(--mosaic-lead) /
+      (var(--mosaic-lead) + var(--mosaic-small)));
+  grid-template-rows: 1fr 1fr;
+  gap: var(--mosaic-gap);
+  background: #FFFFFF;
+}
+
+/* The cells stay square. «گوشه ها کروتر بشه» meant the tile's four outer
+   corners, not the joins in the middle — rounding the cells was read wrong
+   once and put a corner on every internal edge, which is the opposite of what
+   was asked. The tile's own radius carries the round; see .vp-brand. */
+.vp-brand-cell {
+  overflow: hidden;
+}
+
+.vp-brand-cell.is-lead {
+  grid-column: 2;
+  grid-row: 1 / 3;
+}
+
+.vp-brand-cell img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.5s ease;
+}
+
+.vp-brand:hover .vp-brand-cell img {
+  transform: scale(1.05);
+}
+
+/* The plate, floating dead centre of the mosaic.
+
+   White glass, not the page's ink tint: this sits on photographs, and the
+   established recipe for glass over a photograph here is the category tiles'
+   own label — .vp-category-label, which .vp-best-colors already borrowed for
+   exactly this reason. Ink glass over a photograph reads as a smudge; white
+   glass reads as glass.
+
+   Sat on the seam between the lead photograph and the stacked pair, not on the
+   tile's centre — «اون شیشه ای بیاد راستتر که اون خط عمودی بیفته وسطش». The
+   seam is where the wide column ends, so its middle is that column's width
+   plus half the gap, and this is that expression rather than a percentage
+   somebody measured once: it stays on the seam at every tile width, and it
+   follows if the columns are ever re-proportioned.
+
+   Still centred by transform rather than by insets, so it does not care which
+   way the page runs. */
+.vp-brand-plate {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  left: calc(
+    (100% - var(--mosaic-gap)) * var(--mosaic-lead) /
+      (var(--mosaic-lead) + var(--mosaic-small))
+    + var(--mosaic-gap) / 2
+  );
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  /* 20% up on every measurement the plate is made of, so it grows as one
+     object rather than as a bigger box with the old contents in it: gap
+     10 -> 12, padding 10/16 -> 12/19.2, round 22 -> 26.4, and the mark and
+     both lines with them (see .vp-brand-logo and the two below it). */
+  gap: 12px;
+  max-width: calc(100% - 32px);
+  padding: 12px 19.2px;
+  border-radius: 26.4px;
+  /* 0.68, up from the 0.55 this and .vp-category-label share — «کمی هم
+     سفیدتر». It is the one place on the page that departs from that value,
+     and it stays a long way short of the mistake «لبه پنهان» records: a
+     near-opaque white was tried on the header island and rejected, because
+     at that point there is nothing left to see through and it stops being
+     glass. At 0.68 the photograph still moves under it. */
+  background: rgba(255, 255, 255, 0.68);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  backdrop-filter: blur(12px) saturate(1.2);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.65),
+    0 4px 14px -8px rgba(16, 17, 17, 0.35);
+}
+
+/* Held to a box rather than sized by the file: the marks in here are the
+   template's placeholders and the real ones will not share their proportions,
+   so the slot has to be the constant, not the artwork. */
+.vp-brand-logo {
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+}
+
+.vp-brand-lines {
+  display: block;
+  min-width: 0;
+}
+
+.vp-brand-name {
+  display: block;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 700;
+  font-size: 16.8px;
+  line-height: 1.5;
+  color: #101111;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vp-brand-stock {
+  display: block;
+  font-family: 'Vazirmatn', var(--body-font);
+  font-weight: 600;
+  font-size: 13.2px;
+  line-height: 1.5;
+  color: rgba(16, 17, 17, 0.62);
+  white-space: nowrap;
+}
+
+/* Four across needs the page's full width. Below 1200 they go two up, which
+   makes each tile wider than it is at 1440 — the plate has more room, not
+   less, so nothing inside it has to change. */
+@media (max-width: 1199px) {
+  .vp-brands-row { grid-template-columns: repeat(2, 1fr); }
+  .vp-brands-panel { border-radius: 40px; padding: 22px; }
+}
+
+@media (max-width: 575px) {
+  .vp-brands-row { grid-template-columns: 1fr; }
+  .vp-brands-panel { margin-top: 70px; border-radius: 32px; padding: 16px; }
+  .vp-brands-title { font-size: 20px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vp-brand-cell img { transition: none; }
+  .vp-brand:hover .vp-brand-cell img { transform: none; }
+}
+
+/* ==========================================================================
+   Top of the page — three defects found by measuring, 2026-08-09.
+   Each block below states what was measured before and after. Reverting this
+   whole set is one `git revert` of the commit that added it.
+   ========================================================================== */
+
+/* The search disc is a 34 square — the block above says why, and those 7s on
+   its three sides are worth keeping. But 34 is under the 44 a pointer target
+   is meant to be, and it is the only control in the header that misses: the
+   cart square beside it is 48.
+
+   So the target is grown past the paint rather than the disc being redrawn.
+   A transparent ::after, centred on the button, 44 x 44. Bare .th-btn::after
+   is unused in the template (its ::before is the hover fill, so that one is
+   taken); this does not touch it.
+
+   Measured — hit box 34 x 34 before, 44 x 44 after, gold disc 34 x 34 both
+   times. Nothing painted moves. */
+.th-header .menu-area .box-search .th-btn::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 44px;
+  height: 44px;
+  transform: translate(-50%, -50%);
+}
+
+/* Every one of the eight category names has to be readable, and most of them
+   were not. The pill was `nowrap` with an ellipsis, and the name needs more
+   room than the tile hands it. Name width against the pill's inner width:
+
+     1920   0 of 8 cut
+     1440   1 of 8   «ست کیف و کفش» wants 110.1 into 101
+     1200   3 of 8
+      992   6 of 8   inner width 45 — only «کالج» and «صندل» fit
+
+   At 992 that is six of eight tiles showing a name the reader cannot finish,
+   which is the one thing this row exists to do.
+
+   Two changes, in this order. First the pill gives back what it was spending
+   on itself — inset 10 to 6 a side, padding 10 to 8 — which is 12px more text
+   per tile and takes the 1440 case under the line on its own. Then the
+   ellipsis stops being the answer at all: a name that still does not fit
+   wraps to a second line instead of being cut. A cut name tells the reader
+   nothing; a two-line one tells them the category.
+
+   The pill stays centred on the tile, so a second line grows it about its
+   middle and the row's rhythm holds. */
+.vp-category-label {
+  inset-inline: 6px;
+  padding: 8px 8px;
+  white-space: normal;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+
+/* The tile shrinks with the page well before the 991 breakpoint the block
+   further up uses, and between 992 and 1199 nothing had answered that: the
+   label was still at its full 14px over 1.5 on a tile that had come down to
+   85. «ست کیف و کفش» went to three lines — a pill 79 tall on an 85 tile,
+   covering the photograph it is meant to be laid over rather than sitting on
+   it. 992 is the worst of that range because it is one pixel outside the
+   991 rules and gets none of their relief.
+
+   A step down in type and a tighter leading buy the third line back. Nothing
+   is cut here — the type is smaller so the wrap stops one line earlier.
+
+   Three steps down rather than one, because the tile keeps shrinking: 111 at
+   1199, 85 at 992, 53 at 576. Each is ordered widest-first, since a narrower
+   query also matches every width the wider one does.
+
+   All three carry a `min-width: 576` floor. Without it they would also match
+   below 576 and, sitting later in the file than the 575 block further up,
+   would quietly overwrite the 9px and the 4px inset that block sets for
+   phones. The floor leaves that block the last word on its own range.
+
+   Measured, tallest pill against its tile: 576 59%, 768 54%, 992 52%,
+   1100 45%, 1200 52%, 1440 26%, 1920 23%. Nothing cut at any of them. */
+@media (min-width: 576px) and (max-width: 1199px) {
+  .vp-category-label {
+    padding: 6px 4px;
+    font-size: 12px;
+    line-height: 1.35;
+  }
+}
+
+@media (min-width: 576px) and (max-width: 991px) {
+  .vp-category-label {
+    font-size: 11px;
+  }
+}
+
+/* Under 768 the tile is 53 and two lines of 11px stood taller than the tile
+   itself — 57 on 53, the pill no longer laid over the photograph but hiding
+   it. The phone block's 9px, one step early. */
+@media (min-width: 576px) and (max-width: 767px) {
+  .vp-category-label {
+    padding: 4px 3px;
+    font-size: 9px;
+    line-height: 1.3;
+  }
+}
+
+/* Below 576 the wrap is called off and the ellipsis put back.
+
+   Eight tiles across a phone leaves each one 38 wide at 390, and the pill 26
+   of inner width. Wrapping into that does not produce a readable name, it
+   produces a column of fragments: «ست کیف و کفش» came out eight lines and 124
+   tall on a 38 tile — 326% of it, the photograph gone. 480 was 170%, 575 93%.
+   Truncated is bad; three times the tile is worse, and it is worse than what
+   was there before this set of changes.
+
+   So the trade the rest of this block makes — a second line instead of an
+   ellipsis — is only taken where there is room for a second line. There is
+   none here. Eight-across on a phone is the actual problem underneath this,
+   and it is a layout question (two rows of four would answer it) that the
+   block above deliberately settled the other way, so it is not re-settled
+   from down here. */
+@media (max-width: 575px) {
+  .vp-category-label {
+    white-space: nowrap;
+    overflow-wrap: normal;
+  }
+}
+
+/* The five trust cards sit on one line from 1200 up, and one of them does not
+   end where the others do: «ضمانت بازگشت کالا» is the only title long enough
+   to wrap, so its card grows and hangs below the row's foot.
+
+     1200   114.3 against 88.8 — 25.5 low
+     1440   105.5 against 96   —  9.5 low
+     1920   96 all five, the cards being wide enough that nothing wraps
+      992   84 all five, three and two across, so the question does not arise
+
+   The five are one set and have to end on one line. Bootstrap's columns are
+   already equal height, so the card simply taking that height is the whole
+   fix — the four short ones grow to meet the tall one, rather than the tall
+   one being cut or its title shortened to fit. Nothing about the copy or the
+   card's own padding changes. */
+.vp-trust-row .feature-card {
+  height: 100%;
+}
+
+/* «ضمانت بازگشت کالا» is the only one of the five titles long enough to wrap,
+   and the client wants it back on one line — a little smaller, not a size
+   down. One pixel does it. Measured, longest title against the width the
+   card's content box gives it:
+
+     1440 and up   content box 131.2 — one line at 19px and below, two at 20
+     1300          content box 121.6 — needs 15px, four steps down
+     1200          content box 113.6 — no size from 15 to 20 fits
+
+   The wrap actually clears at 1435, not at the 1400 this is scoped to: the
+   card keeps widening with the page and 1435 is where it first gives the
+   title the room. The rule starts at 1400 anyway, so the whole band the
+   template sets 20px across steps down together rather than changing size at
+   an arbitrary pixel in the middle of it. Between 1400 and 1434 the title is
+   19px and still wraps — smaller type cannot answer a card that narrow, and
+   the equal-height rule above is what keeps the five level there.
+
+   19 over 20 is a 5% step: enough to close the overrun at the width this
+   whole page is measured at, small enough that the title still reads a size
+   above the 16px under it. Anything that fixed 1300 would have to go under
+   that 16 and invert the two. */
+@media (min-width: 1400px) {
+  .vp-trust-row .feature-card .box-title {
+    font-size: 19px;
+  }
+}
+
+/* Stuck, the band the header sits in is 94 tall and the island inside it is
+   76, inset 18 from the top and both sides. The island is glass and that is
+   settled — the rule above says why, and what passes behind it is meant to
+   stay visible as colour and movement without being legible. But the three
+   strips around it are not glass and never were: they are bare transparency,
+   and the page runs through them at full contrast. Product cards and their
+   gold discount marks cut clean across the top 18px of the screen, which is
+   what was reported.
+
+   So the top strip takes the page's own white — #FFFFFF exactly, measured
+   off body — and the island is not touched. It sits at z-index -1, behind
+   the island, so nothing paints over the glass or over the header's own
+   contents.
+
+   Only the top strip. The two side strips were white for one pass and were
+   taken out again, and measuring afterwards showed they had never been doing
+   anything: scanned down the outer 18 at each edge at six scroll positions
+   from 400 to 4600, every pixel reads 255. Nothing on the page paints out
+   there — the sections sit 46 from the sides, the island and the trust row
+   18 — so there was never anything to cover. The slit above the island was
+   the whole of it.
+
+   The strips stop at 94, which is the island's bottom edge to the pixel, so
+   the white ends where the island ends and «لبه پنهان»'s foot hairline is
+   still the line under the header.
+
+   What this does not do is put white *behind* the island. That would give
+   its backdrop-filter a flat white to sample, and the glass would go back to
+   being the painted bar that was already tried and rejected. */
+.th-header .sticky-wrapper.sticky::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset-block-start: 0;
+  inset-inline: 0;
+  height: 18px;
+  background: #FFFFFF;
+}

@@ -13,8 +13,14 @@ An Iranian shoe and bag storefront (vikyplus.ir) built on the ThemeForest
 - `download-version/assets/css/tweaks.css` — every deliberate deviation from
   the template, loaded last. One block per decision, with the reasoning and the
   measurements in the comment above it.
-- `theme/make-category-photos.js` — the six category tiles. The photographs go
+- `theme/make-category-photos.js` — the category tiles. The photographs go
   in exactly as supplied: resize only, no crop, no cut-out.
+- `storefront/resources/views/` — the Laravel app renders the same page. The
+  partials under `partials/` and `home/` are **generated**: never hand-edit
+  them, run `node theme/make-blade.js` after a markup change and
+  `node theme/sync-storefront-assets.js` after a `tweaks.css` or photograph
+  change. The layout, `home.blade.php` and the controller are hand-written.
+  Serve it with `cd storefront && php artisan serve --port=8812`.
 - Preview server:
   `cd download-version && setsid nohup python3 -m http.server 8811 &`
   It dies often; restart it with `setsid` rather than assuming it is up.
