@@ -23,6 +23,27 @@ jobs:
 
     name: PHP ${{ matrix.php }}
 
+    # The suite runs on PostgreSQL, not SQLite. The invariants this
+    # application is built on are check constraints — stock cannot go
+    # negative, commission plus payable must equal the line, an order item
+    # must name exactly one seller — and SQLite supports none of the
+    # ALTER TABLE ... ADD CONSTRAINT statements that create them, so the
+    # migrations do not even run there.
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: vikyplus
+          POSTGRES_PASSWORD: vikyplus
+          POSTGRES_DB: vikyplus_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -31,7 +52,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, pgsql, pdo_pgsql
           coverage: none
 
       - name: Install Composer dependencies
@@ -44,4 +65,11 @@ jobs:
         run: php artisan key:generate
 
       - name: Execute tests
+        env:
+          DB_CONNECTION: pgsql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 5432
+          DB_DATABASE: vikyplus_test
+          DB_USERNAME: vikyplus
+          DB_PASSWORD: vikyplus
         run: php artisan test
