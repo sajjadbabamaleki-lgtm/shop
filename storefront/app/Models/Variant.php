@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use App\Domains\Franchise\Models\FranchiseInventory;
+use App\Domains\Franchise\Models\FranchiseOffer;
+use App\Domains\Marketplace\Models\VendorOffer;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -44,6 +47,27 @@ class Variant extends Model
     public function movements(): HasMany
     {
         return $this->hasMany(InventoryMovement::class);
+    }
+
+    /**
+     * The marketplace sellers offering this variant, and the branches carrying
+     * it. The variant stays the platform's — its identity, colour and size are
+     * canonical — while price, stock and availability hang off these
+     * (architecture §10).
+     */
+    public function vendorOffers(): HasMany
+    {
+        return $this->hasMany(VendorOffer::class);
+    }
+
+    public function franchiseOffers(): HasMany
+    {
+        return $this->hasMany(FranchiseOffer::class);
+    }
+
+    public function franchiseStock(): HasMany
+    {
+        return $this->hasMany(FranchiseInventory::class);
     }
 
     /**

@@ -23,8 +23,19 @@
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="BROADCAST_CONNECTION" value="null"/>
         <env name="CACHE_STORE" value="array"/>
-        <env name="DB_CONNECTION" value="sqlite"/>
-        <env name="DB_DATABASE" value=":memory:"/>
+        <!--
+            Tests run on PostgreSQL, not SQLite in memory.
+
+            The invariants this application is built on are check constraints:
+            stock cannot go negative, commission plus payable must equal the
+            line, an order item must name exactly one seller. SQLite supports
+            none of the ALTER TABLE … ADD CONSTRAINT statements that create
+            them, so the migrations do not even run there — and a suite that
+            skipped them would be testing a database the application never
+            meets.
+        -->
+        <env name="DB_CONNECTION" value="pgsql"/>
+        <env name="DB_DATABASE" value="vikyplus_test"/>
         <env name="DB_URL" value=""/>
         <env name="MAIL_MAILER" value="array"/>
         <env name="QUEUE_CONNECTION" value="sync"/>

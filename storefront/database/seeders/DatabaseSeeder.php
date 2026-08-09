@@ -2,24 +2,24 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
     /**
      * Seed the application's database.
+     *
+     * `WithoutModelEvents` is deliberately not used here. The marketplace
+     * relies on model events — the tenant column is filled by a `creating`
+     * hook, and the ledger refuses updates through one — so a seeder that
+     * muted them would produce rows the application itself could not have
+     * written.
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        $this->call([
+            RoleSeeder::class,
+            DemoNetworkSeeder::class,
         ]);
     }
 }
