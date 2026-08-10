@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\ResolveAdminTenant;
 use App\Http\Middleware\ResolveTenant;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -39,9 +40,31 @@ return Application::configure(basePath: dirname(__DIR__))
          * from the signed-in user and never from the URL (§18). This only says
          * that wherever it *is* applied, it runs first.
          */
+        /*
+         * There is no route called `login`. The only sign-in on this site is
+         * the staff one at /admin/login, and Laravel's `auth` middleware would
+         * otherwise redirect to a route name that does not exist and produce a
+         * routing exception instead of a login page.
+         *
+         * Customers are not affected: they have no accounts yet, and when they
+         * do they will have a guard of their own (§21).
+         */
+        $middleware->redirectGuestsTo(fn () => route('admin.login'));
+        $middleware->redirectUsersTo(fn () => route('admin.dashboard'));
+
         $middleware->prependToPriorityList(
             before: SubstituteBindings::class,
             prepend: ResolveTenant::class,
+        );
+
+        // The same rule for the panel, which resolves its branch from the
+        // signed-in user rather than from the address. It has to land after
+        // authentication (it needs a user) and before binding (Order is
+        // branch-scoped), and this puts it exactly there: Laravel's default
+        // priority already has authentication ahead of SubstituteBindings.
+        $middleware->prependToPriorityList(
+            before: SubstituteBindings::class,
+            prepend: ResolveAdminTenant::class,
         );
     })
     ->withExceptions(function (Exceptions $exceptions): void {

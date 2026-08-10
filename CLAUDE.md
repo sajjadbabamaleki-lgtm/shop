@@ -46,7 +46,11 @@ An Iranian shoe and bag storefront (vikyplus.ir) built on the ThemeForest
   that writes `branch_inventory` is a bug waiting to be an oversell. Every
   movement is also a row in `inventory_movements`, so a shelf can explain
   itself.
-- **`ResolveTenant` must run before `SubstituteBindings`** — set in
+- The panel is at `/admin`, hand-built (no Filament, at the client's request)
+  in the storefront's own materials — `resources/views/admin/` and
+  `layouts/admin.blade.php`. Its branch comes from the **signed-in user**, not
+  the URL; `php artisan staff:invite` makes an account.
+- **`ResolveTenant` and `ResolveAdminTenant` must run before `SubstituteBindings`** — set in
   `bootstrap/app.php`'s priority list. Branch-scoped models fail closed, so a
   binding resolved before the tenant finds nothing and the page 404s for
   everybody. Tests can hide this by leaving a branch bound in the container;

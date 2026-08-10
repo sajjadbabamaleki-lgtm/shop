@@ -66,6 +66,14 @@ $storefront = function (): void {
     Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('order.cancel');
 };
 
+/*
+ * The panel goes on before the storefront, because the storefront's branch
+ * group is a bare {branch} segment that would otherwise swallow /admin — and
+ * Laravel matches in registration order. ("admin" is also in
+ * Branch::RESERVED_SLUGS, so no franchise can ever be named it.)
+ */
+Route::prefix('admin')->name('admin.')->group(base_path('routes/admin.php'));
+
 Route::middleware(ResolveTenant::class)->group($storefront);
 
 Route::prefix('{branch}')

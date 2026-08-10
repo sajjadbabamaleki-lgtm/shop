@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Collection;
 
 /**
  * Staff: the people who run the platform, a branch or a vendor.
@@ -125,5 +126,28 @@ class User extends Authenticatable
         $role = $this->branchRoleAt($branch);
 
         return $role?->scope === Role::SCOPE_BRANCH && $role->grants($permission);
+    }
+
+    /**
+     * The branches the panel may offer this user to switch between.
+     *
+     * Platform-wide authority means every branch; anybody else means the ones
+     * they are actually staff of. The switcher is built from this rather than
+     * from `Branch::all()` filtered in a view, so a branch nobody may open can
+     * never appear in the list to be tried.
+     *
+     * @return Collection<int, Branch>
+     */
+    public function administrableBranches(): Collection
+    {
+        if ($this->hasPermissionTo('branch.view')) {
+            return Branch::orderByRaw("type = 'central' desc")->orderBy('name')->get();
+        }
+
+        return $this->branchRoles
+            ->map(fn (BranchUser $membership) => $membership->branch)
+            ->filter()
+            ->sortBy('name')
+            ->values();
     }
 }

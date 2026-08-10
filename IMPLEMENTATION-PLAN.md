@@ -449,5 +449,33 @@ The three §40 questions have been answered by the client:
   «۵». Making it live means changing `theme/make-rtl-page.js` as well, since
   the preview page and the Laravel page have to keep agreeing pixel for pixel.
 
-- Phases 5–7: not started. Next is §19's franchise panel, which is the first
-  screen a person who is not a customer ever sees.
+- **Phase 5 — the branch panel.** §19, hand-built in the storefront's own
+  materials: staff sign-in, a dashboard, orders with the moves that make sense
+  from where each one is, stock counting, per-branch pricing, and the branch's
+  own record. *Done.*
+
+  The whole point of it is one rule: **the branch comes from the signed-in
+  user, never from the address.** On the storefront the address decides,
+  because a customer choosing which shop to browse is what the address is for;
+  here that would be §18's nightmare, so `ResolveAdminTenant` reads the user's
+  branch membership and a platform administrator's choice lives in their
+  session. A posted branch id is refused unless the user genuinely has
+  authority there.
+
+  Two shapes worth keeping. **A stock correction is a movement, not an edit** —
+  the panel asks what the shelf actually holds and writes the difference to
+  the ledger with a reason, so stock stays the sum of its own history. And
+  **order transitions are written out** rather than inferred, because "any
+  status to any status" is how an order already paid for gets marked paid
+  again and sells the same pair twice.
+
+  `php artisan staff:invite <email> <name> --role= --branch=` makes the first
+  account. There is no sign-up for staff and there should not be.
+
+  A third instance of the ordering rule from phases 3 and 4:
+  `ResolveAdminTenant` also has to run before `SubstituteBindings`, or a
+  branch-scoped Order binds to nothing and every order screen 404s.
+
+- Phases 6–7: not started. The marketplace — vendors, their offers against the
+  same canonical products, approval, and then commission, ledger and
+  settlements.
