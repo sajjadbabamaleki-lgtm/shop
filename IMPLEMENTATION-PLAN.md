@@ -385,4 +385,33 @@ The three §40 questions have been answered by the client:
   with central's catalogue at its own prices. It exists because §19's panel
   does not yet; when that panel arrives it calls the same `BranchOpener`.
 
-- Phases 3–7: not started.
+  The upgrade was rehearsed on a copy of the old schema before it was
+  committed: old-shaped rows in, migrate, and every price total, cost price,
+  promotion window, stock figure and ledger row came out the other side
+  unchanged — and `migrate:rollback --step=2` put them all back. That is the
+  only way to find out whether a destructive migration is destructive.
+
+- **Phase 3 — the shop.** A listing at `/products` with category, brand, size,
+  colour and price filters, three sorts, search and pagination; a page per
+  product at `/products/{slug}`; a page per category. All of them the
+  branch's, all of them registered once and mounted twice, so
+  `/shiraz/products` is Shiraz's catalogue at Shiraz's prices. *Done.*
+
+  Cheapest-first is a subquery over the branch's own offers, not a PHP sort —
+  the cheapest twelve of two hundred products are not the cheapest twelve of
+  the page you are on.
+
+  The design is second-hand deliberately: the pane is `.vp-best-panel`'s and
+  a card in the grid is the stepped sale's `.vp-deal`, unchanged. What is new
+  is only the filter rail, the sort control, the pagination and the product
+  page.
+
+  One bug found here worth remembering: **`{branch}` must be forgotten from
+  the route's parameters** once the tenant is resolved. Laravel passes route
+  parameters to a controller by position, so while it was still there every
+  page with a parameter worked at the main store and broke at every
+  franchise — `/shiraz/products/nb-530` handed `'shiraz'` to a controller
+  expecting a Product.
+
+- Phases 4–7: not started. Next is the cart, which is where money starts
+  moving and where the overselling defence has to be built.

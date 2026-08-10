@@ -26,7 +26,21 @@ An Iranian shoe and bag storefront (vikyplus.ir) built on the ThemeForest
 - `node theme/check-parity.js` — renders the preview page and the Laravel page
   at four widths and counts the pixels that differ. **Zero is the expected
   answer.** Run it after changing either side; it is the only thing that
-  notices when the two copies of this page come apart.
+  notices when the two copies of this page come apart. It compares the *home*
+  page only — the catalogue pages below exist in Laravel and nowhere else, and
+  nothing checks their pixels.
+- The storefront is more than that one page now. `/products`, `/products/{slug}`,
+  `/categories/{slug}` and `/search` are Blade written by hand under
+  `resources/views/shop/`, in the home page's own materials — the pane is
+  `.vp-best-panel`'s and a product card is the stepped sale's `.vp-deal`. If
+  either of those changes, these change with it.
+- **Price and stock belong to a branch, not to a variant.** `variants` has no
+  price column; `branch_offers` and `branch_inventory` do, and every read goes
+  through the branch bound for the request. `$variant->offer`, `$variant->stock`
+  and `$product->offerHere()` are the way in. A query with no branch bound
+  returns nothing rather than everything, on purpose.
+  `php artisan branch:open <slug> <name> --markup= --stock=` opens a franchise
+  at `/<slug>` with the central catalogue at its own prices.
 - Preview server:
   `cd download-version && setsid nohup python3 -m http.server 8811 &`
   It dies often; restart it with `setsid` rather than assuming it is up.
