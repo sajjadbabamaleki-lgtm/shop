@@ -16,7 +16,9 @@ class VariantMedia extends Model
 
     protected $table = 'variant_media';
 
-    protected $guarded = [];
+    protected $fillable = [
+        'product_id', 'color_family', 'display_color', 'path', 'alt', 'position', 'is_primary',
+    ];
 
     protected function casts(): array
     {

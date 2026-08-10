@@ -19,9 +19,18 @@ class Variant extends Model
 {
     use HasFactory;
 
-    // sellable_stock is a generated column: the database derives it from
-    // stock_on_hand - stock_reserved, so writing to it is always a mistake.
-    protected $guarded = ['sellable_stock'];
+    // Every column a caller may set, listed rather than guarded. Under
+    // spec §30 these become writable from vendor and branch forms, and an
+    // open $guarded there is how a posted field nobody thought about ends
+    // up in the database. sellable_stock is absent because the database
+    // generates it from stock_on_hand - stock_reserved; writing to it is
+    // always a mistake.
+    protected $fillable = [
+        'product_id', 'sku', 'barcode', 'display_color', 'color_family',
+        'size_system', 'size_value', 'width', 'price', 'compare_at_price',
+        'cost_price', 'stock_on_hand', 'stock_reserved', 'status',
+        'promotion_starts_at', 'promotion_ends_at', 'weight_grams',
+    ];
 
     protected function casts(): array
     {

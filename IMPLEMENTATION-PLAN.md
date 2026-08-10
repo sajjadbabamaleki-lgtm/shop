@@ -307,12 +307,24 @@ phase 1 and phase 2 the schema is in a half-moved state.
 
 ---
 
-## What is being asked for now
+## Decisions taken
 
-§40 says to stop here and wait. The decisions that would change the plan
-materially, and that are cheaper to make now than to unpick later:
+The three §40 questions have been answered by the client:
 
-1. **Is the main store the central branch?** (§E) Recommended: yes.
-2. **Filament, or hand-built admin?** (§L) This changes the size of phases 5–7
-   substantially.
-3. **Which phase starts?** Recommended: phase 0, then 1 and 2 without a gap.
+1. **The main store is the central branch.** One row in `branches` with
+   `type = 'central'`, one pricing and inventory mechanism for everything.
+   Franchise governance — §15's price policies, §19's panel — applies only to
+   rows with `type = 'franchise'`. Vendors stay a separate domain entirely.
+2. **The admin surfaces are hand-built**, in the same design language as the
+   storefront, rather than on Filament. This makes phases 5–7 substantially
+   larger and that is accepted; the panels will look like the shop rather than
+   like an admin framework.
+3. **Phase 0 first, then 1 and 2 without a gap**, since the schema is
+   half-moved between 1 and 2.
+
+## Progress
+
+- **Phase 0 — foundation.** Roles and permissions, customers separated from
+  staff users, an audit trail, and a real `$fillable` on every model.
+  *Done.*
+- Phases 1–7: not started.

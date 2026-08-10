@@ -13,7 +13,10 @@ class Category extends Model
 {
     use HasFactory;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'parent_id', 'slug', 'name', 'description', 'image_path', 'position',
+        'is_active', 'show_in_nav', 'seo_title', 'seo_description',
+    ];
 
     protected function casts(): array
     {

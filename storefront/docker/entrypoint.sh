@@ -44,6 +44,9 @@ php artisan migrate --force
 # price back over an edited one. Pass --force by hand to reseed deliberately.
 php artisan catalogue:seed
 
+# Structure rather than content, so this one runs every time.
+php artisan db:seed --class=RolesAndPermissionsSeeder --force
+
 # After the environment exists, never at build time: a config cache baked into
 # an image would carry the builder's environment into production.
 php artisan config:cache

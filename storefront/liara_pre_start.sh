@@ -33,6 +33,12 @@ php artisan migrate --force
 # `php artisan catalogue:seed --force` from the app's console.
 php artisan catalogue:seed
 
+# Roles and permissions are structure rather than content, so unlike the
+# catalogue they are re-synced on every deploy — that is how a permission
+# added in code reaches production at all. Grants made by hand to non-system
+# roles are left alone.
+php artisan db:seed --class=RolesAndPermissionsSeeder --force
+
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache

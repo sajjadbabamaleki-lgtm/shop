@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Customer;
 use App\Models\User;
 
 return [
@@ -38,9 +39,19 @@ return [
     */
 
     'guards' => [
+        // Staff. Everything with a permission over other people's data.
         'web' => [
             'driver' => 'session',
             'provider' => 'users',
+        ],
+
+        // Shoppers. A separate guard rather than a role on 'web', so a
+        // customer session can never satisfy a staff authorization check —
+        // spec §21 wants one customer identity across every storefront, and
+        // §24 wants staff authorization that a shopper cannot reach.
+        'customer' => [
+            'driver' => 'session',
+            'provider' => 'customers',
         ],
     ],
 
@@ -67,10 +78,10 @@ return [
             'model' => env('AUTH_MODEL', User::class),
         ],
 
-        // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
-        // ],
+        'customers' => [
+            'driver' => 'eloquent',
+            'model' => Customer::class,
+        ],
     ],
 
     /*

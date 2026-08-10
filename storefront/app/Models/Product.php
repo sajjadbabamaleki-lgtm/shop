@@ -19,7 +19,11 @@ class Product extends Model
 {
     use HasFactory;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'slug', 'title', 'short_title', 'brand_id', 'description', 'material',
+        'care_instructions', 'use_case', 'status', 'default_variant_id',
+        'seo_title', 'seo_description', 'canonical_url', 'published_at',
+    ];
 
     protected function casts(): array
     {

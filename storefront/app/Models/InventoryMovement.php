@@ -16,7 +16,9 @@ class InventoryMovement extends Model
 {
     use HasFactory;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'variant_id', 'type', 'quantity', 'reference_type', 'reference_id', 'note', 'user_id',
+    ];
 
     protected function casts(): array
     {
