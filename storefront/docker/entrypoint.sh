@@ -40,6 +40,11 @@ done
 
 php artisan migrate --force
 
+# The main store has to exist before any page can be served: every request
+# resolves to a branch, and without this one there is nothing for the site's
+# own address to resolve to. Structural and idempotent, so it runs every time.
+php artisan db:seed --class=BranchSeeder --force
+
 # Seeds only when the catalogue is empty, so a restart never puts a seeded
 # price back over an edited one. Pass --force by hand to reseed deliberately.
 php artisan catalogue:seed

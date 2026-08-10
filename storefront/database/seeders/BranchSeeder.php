@@ -32,7 +32,7 @@ class BranchSeeder extends Seeder
                 'is_active' => true,
             ])->save();
 
-            foreach (config('storefront.tenancy.central_hosts') as $i => $host) {
+            foreach ($this->centralHosts() as $i => $host) {
                 try {
                     BranchDomain::firstOrCreate(
                         ['host' => strtolower($host)],
@@ -45,5 +45,33 @@ class BranchSeeder extends Seeder
                 }
             }
         });
+    }
+
+    /**
+     * Every host the main store should answer on.
+     *
+     * The configured list, plus **the host the application says it is**. That
+     * second part is what stops the most likely first-deploy failure there is:
+     * a platform hands the app an address of its own — something.liara.run —
+     * and if nothing has told the storefront that address belongs to a branch,
+     * every single page returns 404 and the site looks completely broken for
+     * a reason nobody would guess from the symptom.
+     *
+     * APP_URL has to be set correctly anyway, so deriving from it costs
+     * nothing and removes a whole class of that failure.
+     *
+     * @return list<string>
+     */
+    private function centralHosts(): array
+    {
+        $hosts = config('storefront.tenancy.central_hosts', []);
+
+        $appHost = parse_url((string) config('app.url'), PHP_URL_HOST);
+
+        if (is_string($appHost) && $appHost !== '') {
+            $hosts[] = $appHost;
+        }
+
+        return array_values(array_unique(array_map('strtolower', $hosts)));
     }
 }

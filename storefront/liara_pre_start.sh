@@ -28,6 +28,13 @@ fi
 
 php artisan migrate --force
 
+# The main store has to exist before any page can be served: every request
+# resolves to a branch, and without this one there is nothing for the site's
+# own address to resolve to — the symptom is a 404 on every page at once, for
+# a reason nobody would guess from the symptom. Structural and idempotent, so
+# it runs on every deploy.
+php artisan db:seed --class=BranchSeeder --force
+
 # Seeds only when the catalogue is empty, so a redeploy never puts a seeded
 # price back over an edited one. To reseed on purpose, run
 # `php artisan catalogue:seed --force` from the app's console.

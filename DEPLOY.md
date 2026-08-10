@@ -178,10 +178,18 @@ Render, a plain VM. Set these, and nothing else is required:
 | `APP_KEY` | `php artisan key:generate --show`. Never commit it. |
 | `APP_ENV` | `production` |
 | `APP_DEBUG` | `false` |
-| `APP_URL` | the real https:// address |
+| `APP_URL` | the real https:// address — see below; this one breaks the whole site when it is wrong |
 | `DB_CONNECTION` | `pgsql` |
 | `DB_HOST` `DB_PORT` `DB_DATABASE` `DB_USERNAME` `DB_PASSWORD` | the managed database's |
 | `LOG_CHANNEL` | `stderr`, so the platform collects the logs |
+
+**`APP_URL` decides whether the site answers at all.** Every request resolves
+to a branch before anything renders, so a host the application does not
+recognise gets a 404 — on every page, not one. `BranchSeeder` registers
+`APP_URL`'s own host for the main store precisely so a platform-assigned
+address like `something.liara.run` works without anyone thinking about it. Set
+`CENTRAL_HOSTS` (comma-separated) when more than one host should reach the
+main store.
 
 `SESSION_DRIVER`, `CACHE_STORE` and `QUEUE_CONNECTION` can all be `database`:
 the migrations already create every table those need, so nothing else has to be
