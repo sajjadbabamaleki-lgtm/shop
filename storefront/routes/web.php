@@ -1,6 +1,9 @@
 <?php
 
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ShopController;
 use App\Http\Middleware\ResolveTenant;
@@ -44,6 +47,23 @@ $storefront = function (): void {
     Route::get('/categories/{category}', ShopController::class)->name('category');
 
     Route::get('/products/{product}', ProductController::class)->name('product');
+
+    // The basket. Everything that changes it is a POST, so a refresh cannot
+    // add a second pair of shoes.
+    Route::get('/cart', [CartController::class, 'show'])->name('cart');
+    Route::post('/cart', [CartController::class, 'add'])->name('cart.add');
+    Route::post('/cart/update', [CartController::class, 'update'])->name('cart.update');
+    Route::post('/cart/remove', [CartController::class, 'remove'])->name('cart.remove');
+
+    Route::get('/checkout', [CheckoutController::class, 'show'])->name('checkout');
+    Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.place');
+
+    // Tracking is registered before the order page so that /orders is the
+    // lookup form and /orders/VP-XXXX is one order — the fixed path has to
+    // win, and Laravel matches in registration order.
+    Route::get('/orders', [OrderController::class, 'track'])->name('orders.track');
+    Route::get('/orders/{order}', [OrderController::class, 'show'])->name('order');
+    Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('order.cancel');
 };
 
 Route::middleware(ResolveTenant::class)->group($storefront);

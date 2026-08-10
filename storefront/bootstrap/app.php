@@ -5,6 +5,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Middleware\SubstituteBindings;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -22,14 +23,26 @@ return Application::configure(basePath: dirname(__DIR__))
         // its headers is trusting the platform.
         $middleware->trustProxies(at: '*');
 
-        // Every storefront request belongs to a branch, resolved from its
-        // host before anything else runs — spec §17. Administration routes
-        // are deliberately not in this group: they resolve the branch from
-        // the signed-in user instead, because a URL must never be able to
-        // choose which branch's data is being edited (§18).
-        $middleware->web(append: [
-            ResolveTenant::class,
-        ]);
+        /*
+         * The tenant has to be resolved before route model binding, not after.
+         *
+         * Every branch-owned model carries a global scope that returns nothing
+         * when no branch is bound — deliberately, so a forgotten middleware is
+         * an empty page rather than a leak. SubstituteBindings runs inside the
+         * web group, so with ResolveTenant merely appended to that group, the
+         * binding for /orders/VP-XXXX ran while nothing was bound: the scope
+         * did its job, the order was invisible, and every page that binds a
+         * branch-owned model answered 404 no matter who asked.
+         *
+         * The middleware itself is applied per route group in routes/web.php,
+         * not globally, because administration routes must resolve the branch
+         * from the signed-in user and never from the URL (§18). This only says
+         * that wherever it *is* applied, it runs first.
+         */
+        $middleware->prependToPriorityList(
+            before: SubstituteBindings::class,
+            prepend: ResolveTenant::class,
+        );
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

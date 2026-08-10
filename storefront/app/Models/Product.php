@@ -145,13 +145,37 @@ class Product extends Model
     }
 
     /**
+     * The size a card's basket button adds.
+     *
+     * The default variant when this branch can supply it, and otherwise the
+     * first size it can — a listing shows a product while *any* of its sizes
+     * is sellable, so the default one is often the one that has just sold out,
+     * and a button that adds it would put a line in the basket that the
+     * checkout then refuses.
+     */
+    public function addableVariant(): ?Variant
+    {
+        $default = $this->defaultVariant;
+
+        if ($default?->isSellable()) {
+            return $default;
+        }
+
+        return $this->variants->first(fn (Variant $variant) => $variant->isSellable());
+    }
+
+    /**
      * The price a listing card shows: the default variant's, at the branch
      * this request belongs to.
      *
-     * Null when the branch does not sell it — which the purchasable scope
-     * already excludes from any list a customer sees, so a null here means a
-     * caller reached past that scope and should handle it rather than print
-     * a zero.
+     * Falls back off the default variant when this branch does not list it.
+     * `purchasable()` promises that *some* size is sellable here, not that the
+     * default one is — so a shop that has stopped stocking the default size
+     * still has a price to show, and a card for it does not render a blank
+     * where the money goes.
+     *
+     * Null only when the branch lists none of the sizes at all, which the
+     * purchasable scope already keeps out of every list a customer sees.
      *
      * Named for where it applies, and not `offer()`, because Variant::offer is
      * an Eloquent relation and two methods of one name doing two different
@@ -160,7 +184,8 @@ class Product extends Model
      */
     public function offerHere(): ?BranchOffer
     {
-        return $this->defaultVariant?->offer;
+        return $this->defaultVariant?->offer
+            ?? $this->variants->map(fn (Variant $variant) => $variant->offer)->filter()->sortBy('price')->first();
     }
 
     /**

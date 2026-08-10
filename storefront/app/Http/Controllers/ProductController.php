@@ -66,7 +66,7 @@ class ProductController extends Controller
             ->pricedHere()
             ->whereKeyNot($product->id)
             ->whereHas('categories', fn (Builder $c) => $c->whereIn('categories.id', $categories))
-            ->with(['brand', 'media', 'defaultVariant.offer'])
+            ->with(['brand', 'media', 'variants.offer', 'variants.stock', 'defaultVariant.offer'])
             ->orderByDesc('published_at')
             ->limit(4)
             ->get();

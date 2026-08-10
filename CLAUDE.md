@@ -41,6 +41,16 @@ An Iranian shoe and bag storefront (vikyplus.ir) built on the ThemeForest
   returns nothing rather than everything, on purpose.
   `php artisan branch:open <slug> <name> --markup= --stock=` opens a franchise
   at `/<slug>` with the central catalogue at its own prices.
+- **Stock only ever moves in two places**: `PlaceOrder` reserves it and
+  `SettleOrder` sells or releases it, both under `FOR UPDATE`. Anything else
+  that writes `branch_inventory` is a bug waiting to be an oversell. Every
+  movement is also a row in `inventory_movements`, so a shelf can explain
+  itself.
+- **`ResolveTenant` must run before `SubstituteBindings`** — set in
+  `bootstrap/app.php`'s priority list. Branch-scoped models fail closed, so a
+  binding resolved before the tenant finds nothing and the page 404s for
+  everybody. Tests can hide this by leaving a branch bound in the container;
+  forget it before the request when testing a page that binds one.
 - Preview server:
   `cd download-version && setsid nohup python3 -m http.server 8811 &`
   It dies often; restart it with `setsid` rather than assuming it is up.

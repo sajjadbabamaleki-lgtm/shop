@@ -190,6 +190,33 @@ class CataloguePagesTest extends TestCase
         $this->assertStringNotContainsString('کتونی اون کلادتیلت', $latin);
     }
 
+    /**
+     * `purchasable()` promises some size is sellable here, not that the
+     * default one is. A shop that has stopped stocking the default size still
+     * has to show a price, and its card has to add a size it actually has.
+     */
+    public function test_a_card_still_prices_and_adds_when_the_default_size_is_gone(): void
+    {
+        $product = Product::where('slug', 'golden-goose')->firstOrFail();
+        $default = $product->defaultVariant;
+        $other = $product->variants()->whereKeyNot($default->id)->firstOrFail();
+
+        $this->tenant->forBranch(Branch::central(), function () use ($default, $product, $other) {
+            BranchInventory::where('variant_id', $default->id)->update(['stock_on_hand' => 0]);
+
+            $product = $product->fresh(['variants.offer', 'variants.stock', 'defaultVariant.offer']);
+
+            $this->assertFalse($default->fresh()->isSellable());
+            $this->assertSame($other->id, $product->addableVariant()?->id);
+            $this->assertNotNull($product->offerHere());
+        });
+
+        $this->get('/products')
+            ->assertOk()
+            ->assertSee('کتونی گلدن گوس', false)
+            ->assertSee('name="variant" value="'.$other->id.'"', false);
+    }
+
     public function test_the_size_filter_only_returns_shoes_in_that_size(): void
     {
         $this->get('/products?size=40')

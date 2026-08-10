@@ -26,5 +26,11 @@
             </span>
         </span>
     </a>
-    <button type="button" class="vp-deal-cart" aria-label="افزودن {{ $product->title }} به سبد خرید"><i class="fa-solid fa-bag-shopping" aria-hidden="true"></i></button>
+    {{-- Adds a size this branch can actually supply. A card has no room to ask
+         which, and the basket is where a size is changed anyway. --}}
+    <form method="post" action="{{ storefront_route('cart.add') }}">
+        @csrf
+        <input type="hidden" name="variant" value="{{ $product->addableVariant()?->id }}">
+        <button type="submit" class="vp-deal-cart" aria-label="افزودن {{ $product->title }} به سبد خرید"><i class="fa-solid fa-bag-shopping" aria-hidden="true"></i></button>
+    </form>
 </div>

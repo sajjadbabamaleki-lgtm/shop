@@ -74,28 +74,42 @@
                         </div>
                     @endif
 
-                    <div class="vp-pdp-choice">
-                        <h2 class="vp-pdp-choice-title">سایز</h2>
+                    {{-- The size is part of the form rather than a decoration beside
+                         it: a basket line is a size, not a shoe, and choosing one has
+                         to be the same action as adding it. --}}
+                    <form method="post" action="{{ storefront_route('cart.add') }}">
+                        @csrf
+
+                        <div class="vp-pdp-choice">
+                            <h2 class="vp-pdp-choice-title">سایز</h2>
+                            @if ($sizes->isEmpty())
+                                <p class="vp-pdp-out">فعلاً موجود نیست.</p>
+                            @else
+                                <div class="vp-pdp-options">
+                                    @foreach ($sizes as $variant)
+                                        <label class="vp-size vp-pdp-size">
+                                            <input type="radio" name="variant" value="{{ $variant->id }}" @checked($loop->first) required>
+                                            <span>{{ fa_number((int) $variant->size_value) }}</span>
+                                        </label>
+                                    @endforeach
+                                </div>
+                            @endif
+                        </div>
+
+                        <p class="vp-pdp-stock">
+                            @if ($product->sellableStock() > 0)
+                                {{ fa_number($product->sellableStock()) }} عدد در این شعبه موجود است
+                            @else
+                                در این شعبه موجود نیست
+                            @endif
+                        </p>
+
                         @if ($sizes->isEmpty())
-                            <p class="vp-pdp-out">فعلاً موجود نیست.</p>
+                            <button type="button" class="vp-pdp-buy" disabled>موجود نیست</button>
                         @else
-                            <div class="vp-pdp-options">
-                                @foreach ($sizes as $variant)
-                                    <span class="vp-pdp-option">{{ fa_number((int) $variant->size_value) }}</span>
-                                @endforeach
-                            </div>
+                            <button type="submit" class="vp-pdp-buy">افزودن به سبد خرید</button>
                         @endif
-                    </div>
-
-                    <p class="vp-pdp-stock">
-                        @if ($product->sellableStock() > 0)
-                            {{ fa_number($product->sellableStock()) }} عدد در این شعبه موجود است
-                        @else
-                            در این شعبه موجود نیست
-                        @endif
-                    </p>
-
-                    <button type="button" class="vp-pdp-buy" disabled>افزودن به سبد خرید — به‌زودی</button>
+                    </form>
 
                     @if ($product->description)
                         <div class="vp-pdp-desc"><p>{{ $product->description }}</p></div>

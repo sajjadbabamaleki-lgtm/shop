@@ -87,9 +87,11 @@ class HomePageTest extends TestCase
         $this->assertSame(route('shop'), page_url('shop.html'));
         $this->assertSame(route('home'), page_url('shoe-shop.html'));
 
+        $this->assertSame(route('cart'), page_url('cart.html'));
+
         // Still unbuilt, so still '#'.
-        $this->assertSame('#', page_url('cart.html'));
         $this->assertSame('#', page_url('blog.html'));
+        $this->assertSame('#', page_url('my-account.html'));
     }
 
     /**

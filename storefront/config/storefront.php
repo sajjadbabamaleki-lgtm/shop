@@ -31,6 +31,30 @@ return [
         'shop-grid-left-sidebar.html' => 'shop',
         'shop-grid-right-sidebar.html' => 'shop',
         'search-product.html' => 'search',
+        'cart.html' => 'cart',
+        'checkout.html' => 'checkout',
+        'order-tracking.html' => 'orders.track',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Checkout
+    |--------------------------------------------------------------------------
+    |
+    | Delivery, flat and free over a threshold, in integer Rial like every
+    | other price in this application.
+    |
+    | Both numbers are PLACEHOLDERS. Nobody has said what the shop charges to
+    | deliver, and rather than leave the checkout unable to add up, it charges
+    | 50,000 Toman and delivers free over 5,000,000. They are here, in one
+    | place, so that the real numbers are one edit — and so that nobody
+    | mistakes them for a decision that was made.
+    |
+    */
+
+    'checkout' => [
+        'shipping_flat' => 500_000,
+        'free_shipping_above' => 50_000_000,
     ],
 
     /*

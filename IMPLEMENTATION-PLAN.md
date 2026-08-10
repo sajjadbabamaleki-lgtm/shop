@@ -413,5 +413,41 @@ The three §40 questions have been answered by the client:
   franchise — `/shiraz/products/nb-530` handed `'shiraz'` to a controller
   expecting a Product.
 
-- Phases 4–7: not started. Next is the cart, which is where money starts
-  moving and where the overselling defence has to be built.
+- **Phase 4 — the shop can take an order.** A basket, a checkout, orders, and
+  the reservation that makes overselling impossible. *Done.*
+
+  The shape of it: **a basket line stores a quantity and nothing else**, so a
+  total is always computed from the branch's live offers and there is no
+  cached number anywhere to go stale; **an order line stores everything** —
+  title, SKU, size, unit price — because an order is a record of a day in the
+  past and must not move when a product is renamed.
+
+  The overselling defence is one transaction: rows locked with `FOR UPDATE`
+  in ascending variant id (so two baskets holding the same two shoes cannot
+  deadlock), checked and written under that lock, with the `stock_reserved <=
+  stock_on_hand` CHECK as the last word. Stock is *reserved* rather than sold
+  until the money arrives, which is what makes cancelling a matter of putting
+  it back rather than of inventing it. Both sides live in one small pair of
+  methods, because a reservation nobody releases is stock the shop can never
+  sell again and it is invisible until somebody counts the shelf.
+
+  A second ordering bug of the same family as phase 3's: **ResolveTenant has
+  to run before SubstituteBindings**. Every branch-owned model fails closed, so
+  binding `/orders/VP-XXXX` while nothing was bound found nothing and answered
+  404 for everybody — and every test passed, because the tests had left a
+  branch bound in the container from their own setUp. The middleware priority
+  list now says it explicitly, and the regression test forgets the tenant
+  first so that it is testing a request that looks like a real one.
+
+  Two things are deliberately named rather than faked. Payment is
+  cash-on-delivery only — there is no gateway, and an enum pretending
+  otherwise would be the checkout lying about the next screen. Delivery is a
+  flat rate with a free threshold, both placeholders in
+  `config/storefront.php` waiting on the client.
+
+  **Known gap:** the header's basket badge still shows the template's static
+  «۵». Making it live means changing `theme/make-rtl-page.js` as well, since
+  the preview page and the Laravel page have to keep agreeing pixel for pixel.
+
+- Phases 5–7: not started. Next is §19's franchise panel, which is the first
+  screen a person who is not a customer ever sees.

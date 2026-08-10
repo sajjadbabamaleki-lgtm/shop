@@ -43,6 +43,36 @@ if (! function_exists('fa_number')) {
     }
 }
 
+if (! function_exists('fa_date')) {
+    /**
+     * A date as it is read here: Jalali, in Persian digits, Tehran time.
+     *
+     * ICU carries the Persian calendar, so this is a conversion the platform
+     * already knows how to do correctly — including the leap years, which is
+     * the part every hand-rolled Jalali function eventually gets wrong.
+     *
+     * Showing a customer 2026/08/10 would not be a formatting preference; it
+     * would be a date they have to convert in their head to know whether their
+     * order was yesterday.
+     */
+    function fa_date(DateTimeInterface $when, bool $withTime = false): string
+    {
+        static $formatters = [];
+
+        $key = $withTime ? 'long' : 'short';
+
+        $formatters[$key] ??= new IntlDateFormatter(
+            'fa_IR@calendar=persian',
+            IntlDateFormatter::MEDIUM,
+            $withTime ? IntlDateFormatter::SHORT : IntlDateFormatter::NONE,
+            'Asia/Tehran',
+            IntlDateFormatter::TRADITIONAL,
+        );
+
+        return $formatters[$key]->format($when);
+    }
+}
+
 if (! function_exists('toman')) {
     /**
      * Money for display.
