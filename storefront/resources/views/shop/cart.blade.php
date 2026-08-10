@@ -100,9 +100,29 @@
 
                         <div class="vp-cart-row"><span>جمع کالاها</span><span>{{ toman($cart->subtotal()) }} تومان</span></div>
 
+                        @if ($discount['amount'] > 0)
+                            <div class="vp-cart-row"><span>تخفیف ({{ $discount['code']->code }})</span><span>− {{ toman($discount['amount']) }}</span></div>
+                        @endif
+
                         {{-- Delivery is not decided here and the page says so rather than
                              quoting a number that the checkout might then change. --}}
                         <div class="vp-cart-row"><span>هزینه ارسال</span><span>در مرحله بعد</span></div>
+
+                        {{-- The code is text the customer typed; whether it applies is
+                             worked out again on every page and once more when the order
+                             is placed. --}}
+                        <form class="vp-code" method="post" action="{{ storefront_route('cart.discount') }}">
+                            @csrf
+                            <label class="visually-hidden" for="vp-code">کد تخفیف</label>
+                            <input id="vp-code" name="code" value="{{ $discount['code']?->code }}" placeholder="کد تخفیف" maxlength="32">
+                            <button type="submit">اعمال</button>
+                        </form>
+
+                        @if ($discount['problem'])
+                            <p class="vp-code-note">{{ $discount['problem'] }}</p>
+                        @elseif ($discount['amount'] > 0)
+                            <p class="vp-code-note is-good">{{ $discount['code']->describe() }} اعمال شد.</p>
+                        @endif
 
                         @if ($cart->problems()->isNotEmpty())
                             <p class="vp-note is-bad">اول ردیف‌های مشخص‌شده را درست کن.</p>

@@ -39,10 +39,17 @@
                 <a href="{{ route('admin.inventory') }}" @class(['is-on' => request()->routeIs('admin.inventory*')])>موجودی</a>
                 @if (auth()->user()->hasPermissionToAt($branch, 'branch.pricing.manage'))
                     <a href="{{ route('admin.pricing') }}" @class(['is-on' => request()->routeIs('admin.pricing*')])>قیمت‌ها</a>
+                    <a href="{{ route('admin.discounts') }}" @class(['is-on' => request()->routeIs('admin.discounts*')])>تخفیف‌ها</a>
+                @endif
+                @if (auth()->user()->hasPermissionToAt($branch, 'report.view'))
+                    <a href="{{ route('admin.reports') }}" @class(['is-on' => request()->routeIs('admin.reports')])>گزارش</a>
                 @endif
             @endif
             {{-- The marketplace is not a branch's business, so these appear
                  only for the platform-wide permissions that own them. --}}
+            @if (auth()->user()->hasPermissionTo('report.view'))
+                <a href="{{ route('admin.reports.platform') }}" @class(['is-on' => request()->routeIs('admin.reports.platform')])>گزارش پلتفرم</a>
+            @endif
             @if (auth()->user()->hasPermissionTo('vendor.view'))
                 <a href="{{ route('admin.vendors') }}" @class(['is-on' => request()->routeIs('admin.vendor*')])>فروشندگان</a>
             @endif

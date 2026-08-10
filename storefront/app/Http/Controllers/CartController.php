@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Variant;
 use App\Models\Vendor;
 use App\Support\Checkout\CartManager;
+use App\Support\Checkout\Discounts;
 use App\Support\Marketplace\Sellers;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -23,13 +24,39 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  */
 class CartController extends Controller
 {
-    public function __construct(private CartManager $carts, private Sellers $sellers) {}
+    public function __construct(
+        private CartManager $carts,
+        private Sellers $sellers,
+        private Discounts $discounts,
+    ) {}
 
     public function show(): View
     {
-        $cart = $this->carts->current()->load('items.variant.product', 'items.variant.offer', 'items.variant.stock');
+        $cart = $this->carts->current()->load('items.variant.product', 'items.variant.offer', 'items.variant.stock', 'items.vendor');
 
-        return view('shop.cart', ['cart' => $cart]);
+        return view('shop.cart', [
+            'cart' => $cart,
+            'discount' => $this->discounts->on($cart),
+        ]);
+    }
+
+    /**
+     * Type a code, or clear it.
+     *
+     * Only the *text* is kept. Whether it applies, and for how much, is worked
+     * out again on every page and once more inside the transaction that places
+     * the order — a code that expires while somebody shops has to stop working,
+     * and a number written into the basket could not do that.
+     */
+    public function discount(Request $request): RedirectResponse
+    {
+        $code = trim((string) $request->input('code'));
+
+        $code === ''
+            ? $this->discounts->forget()
+            : $this->discounts->remember(mb_substr($code, 0, 32));
+
+        return redirect()->to(storefront_route('cart'));
     }
 
     public function add(Request $request): RedirectResponse

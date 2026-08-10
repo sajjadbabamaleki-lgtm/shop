@@ -6,6 +6,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ShopController;
+use App\Http\Controllers\VendorApplicationController;
 use App\Http\Middleware\ResolveTenant;
 use Illuminate\Support\Facades\Route;
 
@@ -54,6 +55,7 @@ $storefront = function (): void {
     Route::post('/cart', [CartController::class, 'add'])->name('cart.add');
     Route::post('/cart/update', [CartController::class, 'update'])->name('cart.update');
     Route::post('/cart/remove', [CartController::class, 'remove'])->name('cart.remove');
+    Route::post('/cart/discount', [CartController::class, 'discount'])->name('cart.discount');
 
     Route::get('/checkout', [CheckoutController::class, 'show'])->name('checkout');
     Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.place');
@@ -61,6 +63,14 @@ $storefront = function (): void {
     // Tracking is registered before the order page so that /orders is the
     // lookup form and /orders/VP-XXXX is one order — the fixed path has to
     // win, and Laravel matches in registration order.
+    // «فروشنده شوید». Public, rate-limited, and it creates a pending vendor
+    // and nothing else — §4's approval is not weakened by letting people
+    // apply without being phoned first.
+    Route::get('/vendors/apply', [VendorApplicationController::class, 'show'])->name('vendors.apply');
+    Route::post('/vendors/apply', [VendorApplicationController::class, 'store'])
+        ->middleware('throttle:6,60')
+        ->name('vendors.apply.store');
+
     Route::get('/orders', [OrderController::class, 'track'])->name('orders.track');
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('order');
     Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('order.cancel');

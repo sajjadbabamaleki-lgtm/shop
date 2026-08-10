@@ -56,6 +56,11 @@ An Iranian shoe and bag storefront (vikyplus.ir) built on the ThemeForest
   `RequirePlatformPermission`. A vendor's money is `ledger_entries`, which is
   append-only: the model throws on update and delete, and a balance is
   `SUM(amount)`, never a column. `php artisan vendor:invite` registers one.
+- **Two kinds of promotion, kept apart.** The stepped sale is a price on an
+  offer; a discount code is `discount_codes` + `discount_redemptions`, typed
+  into the basket, and applies to the branch's own lines only — never to a
+  vendor's price. Whether it applies is recomputed on every page and again
+  inside the order transaction; nothing about it is stored on the basket.
 - **`ResolveTenant` and `ResolveAdminTenant` must run before `SubstituteBindings`** — set in
   `bootstrap/app.php`'s priority list. Branch-scoped models fail closed, so a
   binding resolved before the tenant finds nothing and the page 404s for

@@ -513,8 +513,34 @@ The three §40 questions have been answered by the client:
   company and its first user. It starts pending: letting somebody else sell on
   your platform is a decision, not a piece of setup.
 
-- The seven phases the plan set out are built. What is *not* built, and should
-  be said plainly: no payment gateway (cash on delivery only), no customer
-  accounts or order history behind a login, no shipping integration, no
-  promotions engine beyond the stepped sale, no vendor self-registration, and
-  no reporting beyond the panel's four figures.
+- **Beyond the plan, at the client's request:** discount codes, a public way
+  for a vendor to apply, and reports. *Done.*
+
+  **Discount codes** are a second kind of promotion and deliberately not
+  expressed as the first. The stepped sale is a *price* that falls on a
+  schedule and lives on the offer; a code is typed by a customer, applies to a
+  basket, and has to be counted, limited and expired. A code discounts the
+  **branch's own lines only** — a vendor's price is theirs, and discounting it
+  would be the platform spending somebody else's money. Every use is a row, so
+  "fifty uses" and "once per customer" are true rather than approximately
+  true, and a campaign's cost can be asked for afterwards. Whether a code
+  applies is recomputed on every page and once more inside the transaction
+  that places the order, for the same reason prices are.
+
+  **Vendor applications** are public at `/vendors/apply`, rate-limited, and
+  create the company pending. §4 is not weakened by letting people apply
+  without being phoned first — it is the approval that matters, not the door.
+
+  **Reports** come in two, and the split is not cosmetic. A branch report is
+  branch-scoped, so a franchise manager reading it sees nobody else's. The
+  platform report compares branches and vendors and needs platform authority
+  precisely because comparing shops is what one shop must not be able to do.
+  Paid orders only, everywhere: a placed order is a hope, and counting it as
+  revenue is how a shop believes it had a good month. The bars are thirty divs
+  with a height percentage — a charting library would be a few hundred
+  kilobytes of JavaScript to draw thirty rectangles nobody clicks.
+
+- What is still *not* built, said plainly: no payment gateway (cash on
+  delivery only), no customer accounts or order history behind a login, no
+  shipping integration, no automatic promotions beyond codes and the stepped
+  sale, and the template's own footer is still in English.

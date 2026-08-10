@@ -7,6 +7,7 @@ use App\Models\BranchInventory;
 use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Customer;
+use App\Models\DiscountRedemption;
 use App\Models\InventoryMovement;
 use App\Models\Order;
 use App\Models\Variant;
@@ -46,6 +47,7 @@ class PlaceOrder
         private TenantContext $tenant,
         private CartManager $carts,
         private Sellers $sellers,
+        private Discounts $discounts,
     ) {}
 
     /**
@@ -81,17 +83,27 @@ class PlaceOrder
                 $subtotal += $line['line_total'];
             }
 
+            $customer = $this->customer($contact);
+
+            // The code is resolved *here*, inside the transaction that is
+            // taking the stock, and not from anything the browser posted. A
+            // code that expired or ran out while somebody was typing their
+            // address stops applying at exactly this moment, which is the only
+            // moment where the answer is worth anything.
+            $discount = $this->discounts->on($cart, $customer->id);
+
             $shipping = $this->shipping($subtotal);
+            $off = $discount['amount'];
 
             $order = Order::create([
                 'branch_id' => $branch->id,
-                'customer_id' => $this->customer($contact)->id,
+                'customer_id' => $customer->id,
                 'number' => Order::newNumber(),
                 'status' => Order::PLACED,
                 'subtotal' => $subtotal,
-                'discount_total' => 0,
+                'discount_total' => $off,
                 'shipping_total' => $shipping,
-                'grand_total' => $subtotal + $shipping,
+                'grand_total' => $subtotal - $off + $shipping,
                 'payment_method' => 'cash_on_delivery',
                 'payment_status' => 'unpaid',
                 'contact_name' => $contact['name'],
@@ -126,7 +138,20 @@ class PlaceOrder
                 ]);
             }
 
+            if ($discount['code'] !== null && $off > 0) {
+                // One row per use — this is what makes "fifty uses" and "once
+                // per customer" true rather than approximately true, and what
+                // lets somebody afterwards ask what the campaign cost.
+                DiscountRedemption::create([
+                    'discount_code_id' => $discount['code']->id,
+                    'order_id' => $order->id,
+                    'customer_id' => $customer->id,
+                    'amount' => $off,
+                ]);
+            }
+
             $this->carts->clear();
+            $this->discounts->forget();
 
             return $order;
         });

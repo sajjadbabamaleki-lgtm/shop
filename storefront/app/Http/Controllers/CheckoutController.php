@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Customer;
 use App\Support\Checkout\CannotFulfil;
 use App\Support\Checkout\CartManager;
+use App\Support\Checkout\Discounts;
 use App\Support\Checkout\PlaceOrder;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -23,7 +24,7 @@ use Illuminate\Http\Request;
  */
 class CheckoutController extends Controller
 {
-    public function __construct(private CartManager $carts) {}
+    public function __construct(private CartManager $carts, private Discounts $discounts) {}
 
     public function show(): View|RedirectResponse
     {
@@ -33,7 +34,10 @@ class CheckoutController extends Controller
             return redirect()->to(storefront_route('cart'));
         }
 
-        return view('shop.checkout', ['cart' => $cart]);
+        return view('shop.checkout', [
+            'cart' => $cart,
+            'discount' => $this->discounts->on($cart),
+        ]);
     }
 
     public function store(Request $request, PlaceOrder $place): RedirectResponse

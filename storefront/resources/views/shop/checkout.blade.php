@@ -81,6 +81,7 @@
 
                 @php
                     $subtotal = $cart->subtotal();
+                    $off = $discount['amount'];
                     $free = (int) config('storefront.checkout.free_shipping_above');
                     $shipping = $free > 0 && $subtotal >= $free ? 0 : (int) config('storefront.checkout.shipping_flat');
                 @endphp
@@ -96,11 +97,14 @@
                     @endforeach
 
                     <div class="vp-cart-row"><span>جمع کالاها</span><span>{{ toman($subtotal) }} تومان</span></div>
+                    @if ($off > 0)
+                        <div class="vp-cart-row"><span>تخفیف ({{ $discount['code']->code }})</span><span>− {{ toman($off) }}</span></div>
+                    @endif
                     <div class="vp-cart-row">
                         <span>هزینه ارسال</span>
                         <span>{{ $shipping === 0 ? 'رایگان' : toman($shipping).' تومان' }}</span>
                     </div>
-                    <div class="vp-cart-row is-total"><span>قابل پرداخت</span><span>{{ toman($subtotal + $shipping) }} تومان</span></div>
+                    <div class="vp-cart-row is-total"><span>قابل پرداخت</span><span>{{ toman($subtotal - $off + $shipping) }} تومان</span></div>
                 </aside>
             </div>
         </div>

@@ -50,6 +50,9 @@
                 <aside class="vp-cart-sum">
                     <h2 class="vp-filter-title">جمع سفارش</h2>
                     <div class="vp-cart-row"><span>جمع کالاها</span><span>{{ toman($order->subtotal) }}</span></div>
+                    @if ($order->discount_total > 0)
+                        <div class="vp-cart-row"><span>تخفیف</span><span>− {{ toman($order->discount_total) }}</span></div>
+                    @endif
                     <div class="vp-cart-row"><span>هزینه ارسال</span><span>{{ $order->shipping_total === 0 ? 'رایگان' : toman($order->shipping_total) }}</span></div>
                     <div class="vp-cart-row is-total"><span>قابل پرداخت</span><span>{{ toman($order->grand_total) }} تومان</span></div>
 

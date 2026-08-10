@@ -1,10 +1,12 @@
 <?php
 
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\DiscountController;
 use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Admin\MarketplaceController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\PricingController;
+use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\SessionController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Middleware\RequirePermission;
@@ -62,6 +64,21 @@ Route::middleware(['auth', ResolveAdminTenant::class])->group(function (): void 
         ->middleware(RequirePermission::class.':branch.pricing.manage')
         ->name('pricing.update');
 
+    // A discount is pricing, so it needs the pricing permission.
+    Route::get('/discounts', [DiscountController::class, 'index'])
+        ->middleware(RequirePermission::class.':branch.pricing.manage')
+        ->name('discounts');
+    Route::post('/discounts', [DiscountController::class, 'store'])
+        ->middleware(RequirePermission::class.':branch.pricing.manage')
+        ->name('discounts.store');
+    Route::post('/discounts/{code}/toggle', [DiscountController::class, 'toggle'])
+        ->middleware(RequirePermission::class.':branch.pricing.manage')
+        ->name('discounts.toggle');
+
+    Route::get('/reports', [ReportController::class, 'branch'])
+        ->middleware(RequirePermission::class.':report.view')
+        ->name('reports');
+
     Route::get('/settings', [SettingsController::class, 'edit'])
         ->middleware(RequirePermission::class.':branch.settings.manage')
         ->name('settings');
@@ -80,6 +97,10 @@ Route::middleware(['auth', ResolveAdminTenant::class])->group(function (): void 
  * shown somebody else's company.
  */
 Route::middleware('auth')->group(function (): void {
+    Route::get('/reports/platform', [ReportController::class, 'platform'])
+        ->middleware(RequirePlatformPermission::class.':report.view')
+        ->name('reports.platform');
+
     Route::get('/vendors', [MarketplaceController::class, 'vendors'])
         ->middleware(RequirePlatformPermission::class.':vendor.view')
         ->name('vendors');

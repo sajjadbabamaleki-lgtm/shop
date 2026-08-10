@@ -6252,3 +6252,99 @@ ul.vp-how-list.is-ticked li:before {
 .vp-ledger-out {
   color: #B3261E;
 }
+
+/* ---------------------------------------------------------------------------
+   Discount codes, and the report bars
+   ---------------------------------------------------------------------------
+   The code box is the basket summary's own field, one size smaller, sitting
+   under the totals it changes.
+
+   The bars are thirty divs with a height percentage. A charting library would
+   arrive as a few hundred kilobytes of JavaScript to draw thirty rectangles
+   that nobody clicks, and this page already knows every number it needs.
+   -------------------------------------------------------------------------- */
+
+.vp-code {
+  display: flex;
+  gap: 6px;
+  margin-top: 14px;
+  padding-top: 14px;
+  box-shadow: inset 0 1px 0 rgba(16, 17, 17, 0.08);
+}
+
+.vp-code input {
+  flex: 1;
+  min-width: 0;
+  height: 36px;
+  padding-inline: 12px;
+  border: 0;
+  border-radius: 12px;
+  background: #FFFFFF;
+  box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.12);
+  font-size: 14px;
+}
+
+.vp-code input:focus {
+  outline: none;
+  box-shadow: inset 0 0 0 1.5px rgba(164, 127, 37, 0.55);
+}
+
+.vp-code button {
+  flex: none;
+  height: 36px;
+  padding-inline: 14px;
+  border: 0;
+  border-radius: 12px;
+  background: rgba(16, 17, 17, 0.06);
+  font-size: 13px;
+}
+
+.vp-code button:hover {
+  background: rgba(164, 127, 37, 0.16);
+}
+
+/* A refusal is a sentence, not a red box: it is usually the customer being
+   told a rule, not the customer having made a mistake. */
+.vp-code-note {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: var(--body-color);
+}
+
+.vp-code-note.is-good {
+  color: var(--theme-color);
+}
+
+/* --- the report bars ------------------------------------------------------ */
+
+.vp-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 160px;
+  margin-block: 16px;
+  padding: 12px;
+  border-radius: 20px;
+  background: rgba(16, 17, 17, 0.022);
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.06);
+}
+
+.vp-bar {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  height: 100%;
+  min-width: 0;
+}
+
+.vp-bar-fill {
+  display: block;
+  width: 100%;
+  border-radius: 6px 6px 3px 3px;
+  background: linear-gradient(180deg, var(--gr-color2), var(--theme-color));
+  transition: opacity 0.2s ease;
+}
+
+.vp-bar:hover .vp-bar-fill {
+  opacity: 0.75;
+}
