@@ -2008,9 +2008,12 @@ option:hover {
    other wants the same.
 
    The 40 above the trust row (.vp-trust-row-wrap margin-top) is not part of
-   that rhythm — it used to match and now deliberately does not. */
+   that rhythm — it used to match and now deliberately does not.
+
+   100 -> 150: the client asked for every gap down the page to be 150. See
+   the rhythm block further down for the other five. */
 .collection-area {
-  padding-block-start: 100px;
+  padding-block-start: 150px;
 }
 
 /* The sale lines up with the eight tiles, so it takes their container and
@@ -2993,8 +2996,8 @@ option:hover {
      big panes sit at one rhythm rather than at two. That number went 40 ->
      100 across two rounds of the client asking; both moved together, and
      both live one comment apart (the other is .collection-area's
-     padding-block-start). */
-  margin-top: 100px;
+     padding-block-start). Both are 150 now, with the rest of the page. */
+  margin-top: 150px;
   padding: 28px;
   border-radius: 50px;
   background: #FFFFFF;
@@ -3003,10 +3006,38 @@ option:hover {
     0 18px 32px -22px rgba(16, 17, 17, 0.18);
 }
 
+/* ---------------------------------------------------------------------------
+   The page's rhythm: 150 between every band
+   ---------------------------------------------------------------------------
+   The client asked for all six gaps down the page to be the same 150 —
+   trust row to stepped sale, sale to best sellers, best sellers to the
+   banner, banner to the daily deal, daily deal to the brands, brands to the
+   footer's first card.
+
+   Every one of them is carried by exactly ONE property, with the other side
+   zeroed, so a gap can be read off a single number instead of being the sum
+   of two paddings nobody remembers. Which side carries it differs only
+   because of what is already there: a section that paints nothing carries it
+   as padding, a floating white pane carries it as its own margin.
+
+     trust row  -> sale        .collection-area padding-block-start
+     sale       -> best        .vp-best-panel margin-top
+     best       -> banner      .vp-best-section padding-bottom
+     banner     -> daily deal  .vp-daily-deal-section padding-top
+     daily deal -> brands      .vp-brands-panel margin-top
+     brands     -> footer      .vp-brands-section padding-bottom
+
+   Measured after at 992, 1200, 1440 and 1920: all six are exactly 150 at
+   every one of them.
+   --------------------------------------------------------------------------- */
+
 /* Cancels .space's own 120px padding-top on this specific section (same
-   specificity, this file loads last) — see .vp-best-panel's margin-top. */
+   specificity, this file loads last) — see .vp-best-panel's margin-top,
+   which carries the gap above instead. The bottom is .space's 120 raised to
+   the page's 150 and is the whole gap down to the offer banner. */
 .vp-best-section {
   padding-top: 0;
+  padding-bottom: 150px;
 }
 
 /* The card's own header: title at its own top-right (reading start in
@@ -3101,9 +3132,17 @@ option:hover {
    which is the height the client pointed at in their own screenshot. So the
    padding is (580.5-400.5)/2 = 90 each side — both the asked-for total and
    the asked-for banner, rather than one bought with the other. */
+/* The 90/90 above was symmetric to make this section 580.5 tall around a
+   400.5 banner. The client has since asked for every gap on the page to be
+   150, and a gap and a section height cannot both be chosen — the gap wins,
+   because it is what is actually looked at. The banner itself is untouched
+   at 400.5 (see .vp-daily-deal-shot); only the air around it moved.
+
+   The bottom is 0 because the brands panel's own margin carries that gap,
+   the same way .vp-best-panel carries the one above it. */
 .vp-daily-deal-section {
-  padding-top: 90px;
-  padding-bottom: 90px;
+  padding-top: 150px;
+  padding-bottom: 0;
 }
 
 /* Glass, not the light-gold wash this started at — the page's own ink tint
@@ -4322,14 +4361,21 @@ ul.vp-how-list.is-ticked li:before {
    for 20 on the two panes only; it changed here and on .vp-best-panel in the
    same commit, and it has to keep changing in both.
    -------------------------------------------------------------------------- */
+/* The bottom is the last gap on the page: brands pane to the footer's first
+   card. Deliberately here rather than as padding inside the footer, so it is
+   150 of the page's own white like the five above it, instead of 150 of the
+   footer's grey. */
 .vp-brands-section {
   padding-top: 0;
-  padding-bottom: 0;
+  padding-bottom: 150px;
 }
 
 .vp-brands-panel {
   margin-inline: 20px;
-  margin-top: 100px;
+  /* The whole gap up to the daily deal, whose own padding-bottom is 0 for
+     this reason. 100 -> 150 with the rest of the page's rhythm, and still
+     the same number as .vp-best-panel's, as that comment requires. */
+  margin-top: 150px;
   padding: 28px;
   border-radius: 50px;
   background: #FFFFFF;
@@ -4571,7 +4617,12 @@ ul.vp-how-list.is-ticked li:before {
 
 @media (max-width: 575px) {
   .vp-brands-row { grid-template-columns: 1fr; }
-  .vp-brands-panel { margin-top: 70px; border-radius: 32px; padding: 16px; }
+  /* The margin-top override that used to sit here is gone: it was this
+     gap's phone-sized version of the old 100, and none of the other five
+     gaps ever had one. With all six at 150 it would have been the only
+     one at 70 on a phone, which reads as a mistake rather than as a
+     choice. The pane's own radius and padding still shrink. */
+  .vp-brands-panel { border-radius: 32px; padding: 16px; }
   .vp-brands-title { font-size: 20px; }
 }
 
