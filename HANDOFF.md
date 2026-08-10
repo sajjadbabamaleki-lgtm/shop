@@ -65,6 +65,11 @@ cart, no product page, no search, no account — `page_url()` sends all
 forty-odd of the template's links to `#` because there is one route. The
 basket buttons on the deal cards and the best-seller tiles are markup.
 
+**It is not deployed anywhere.** The link the client reviews is Netlify, which
+publishes `download-version/` and cannot run PHP. `DEPLOY.md` has the
+container, the environment it needs, and a plain account of which parts of it
+were tested and which could not be.
+
 Everything in this file is about the HTML page at 1440 unless it says
 otherwise.
 
