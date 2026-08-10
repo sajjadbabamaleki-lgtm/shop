@@ -83,6 +83,28 @@ class Product extends Model
     }
 
     /**
+     * Adds `branch_price` — the cheapest sellable offer this branch has for
+     * the product — as a column on the row.
+     *
+     * A listing sorted by price cannot sort in PHP: the cheapest twelve of two
+     * hundred products are not the cheapest twelve of the page you happen to
+     * be on. So the price the sort uses has to be in the query, and it is the
+     * branch's price, through the branch's own scope. With nothing bound the
+     * subquery matches nothing and every product prices at null — the same
+     * failing-closed as everywhere else.
+     */
+    public function scopePricedHere(Builder $query): Builder
+    {
+        $cheapest = BranchOffer::query()
+            ->selectRaw('min(branch_offers.price)')
+            ->join('variants', 'variants.id', '=', 'branch_offers.variant_id')
+            ->whereColumn('variants.product_id', 'products.id')
+            ->where('branch_offers.status', 'active');
+
+        return $query->select('products.*')->selectSub($cheapest, 'branch_price');
+    }
+
+    /**
      * The colourways offered by the product page's colour selector, each
      * carrying its own sizes. Changing colour must update media, price and
      * availability together (spec 16.1), so they travel as one structure.

@@ -19,6 +19,18 @@ return [
         // cut from. Both are this site's front page.
         'electronics-shop.html' => 'home',
         'shoe-shop.html' => 'home',
+
+        // The listing, under every name the template links to it by. Only
+        // routes that need no parameters can be mapped here: page_url() takes
+        // a filename and nothing else, so a product page — which needs to know
+        // which product — is linked with storefront_route('product', $product)
+        // from the view that has one.
+        'shop.html' => 'shop',
+        'shop-grid.html' => 'shop',
+        'shop-list.html' => 'shop',
+        'shop-grid-left-sidebar.html' => 'shop',
+        'shop-grid-right-sidebar.html' => 'shop',
+        'search-product.html' => 'search',
     ],
 
     /*

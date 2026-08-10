@@ -12,7 +12,7 @@
             <div class="row vp-category-row">
                 @foreach ($categories as $category)
                 <div class="col">
-                    <a class="vp-category" href="{{ page_url('shop.html') }}">
+                    <a class="vp-category" href="{{ storefront_route('category', $category) }}">
                         <img src="{{ asset($category->image_path) }}" alt="" loading="lazy">
                         <span class="vp-category-label">{{ $category->name }}</span>
                     </a>

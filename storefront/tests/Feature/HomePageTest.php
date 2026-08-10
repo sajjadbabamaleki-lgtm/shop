@@ -72,16 +72,38 @@ class HomePageTest extends TestCase
     }
 
     /**
-     * The markup links to the template's demo filenames. page_url() sends the
-     * ones with no route behind them to '#', so no link on the page can walk a
-     * visitor into a 404.
+     * The markup links to the template's demo filenames. page_url() maps the
+     * ones that now have a page behind them and sends the rest to '#', so no
+     * link on the page can walk a visitor into a 404.
+     *
+     * shop.html is the one that changed: it was '#' until the listing existed,
+     * and mapping it is the whole of what "building a page" costs the views —
+     * one line in config, nothing in the markup.
      */
-    public function test_no_link_points_at_a_template_page(): void
+    public function test_every_link_either_goes_somewhere_or_goes_nowhere(): void
     {
         $this->get('/')->assertDontSee('href="shop.html"', false);
 
-        $this->assertSame('#', page_url('shop.html'));
+        $this->assertSame(route('shop'), page_url('shop.html'));
         $this->assertSame(route('home'), page_url('shoe-shop.html'));
+
+        // Still unbuilt, so still '#'.
+        $this->assertSame('#', page_url('cart.html'));
+        $this->assertSame('#', page_url('blog.html'));
+    }
+
+    /**
+     * The cards on the front page open the thing they are a picture of.
+     *
+     * They pointed at the listing while there was nowhere else to go. A card
+     * that shows one shoe's name and price and opens a page of everything is
+     * the kind of small lie that is never worth keeping.
+     */
+    public function test_the_cards_open_the_thing_they_show(): void
+    {
+        $this->get('/')
+            ->assertSee(route('product', 'new-balance-530'), false)
+            ->assertSee(route('category', 'sneaker'), false);
     }
 
     /**

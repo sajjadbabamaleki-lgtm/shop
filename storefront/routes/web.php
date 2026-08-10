@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ShopController;
 use App\Http\Middleware\ResolveTenant;
 use Illuminate\Support\Facades\Route;
 
@@ -32,6 +34,16 @@ use Illuminate\Support\Facades\Route;
 
 $storefront = function (): void {
     Route::get('/', HomeController::class)->name('home');
+
+    // The listing, three ways in. One controller, because a category page and
+    // a search result are the same page with a different opening filter, and
+    // three controllers rendering three product grids is how the three stop
+    // agreeing about what "in stock" means.
+    Route::get('/products', ShopController::class)->name('shop');
+    Route::get('/search', ShopController::class)->name('search');
+    Route::get('/categories/{category}', ShopController::class)->name('category');
+
+    Route::get('/products/{product}', ProductController::class)->name('product');
 };
 
 Route::middleware(ResolveTenant::class)->group($storefront);

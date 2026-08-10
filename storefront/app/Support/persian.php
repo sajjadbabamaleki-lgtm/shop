@@ -1,5 +1,29 @@
 <?php
 
+if (! function_exists('latin_digits')) {
+    /**
+     * Persian and Arabic-Indic digits folded to ASCII.
+     *
+     * Anything a customer types on a Persian keyboard arrives in Persian
+     * digits — a phone number, a price in a filter box, a size. Every one of
+     * those has to become a number eventually, and a value that does not fold
+     * is not a validation error the customer can see: it is a filter that
+     * silently matches nothing, or a second account nobody can explain.
+     *
+     * Both sets, because the two look alike and keyboards disagree: ۰-۹ is
+     * Persian (U+06F0), ٠-٩ is Arabic-Indic (U+0660).
+     */
+    function latin_digits(string $value): string
+    {
+        return strtr($value, [
+            '۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4',
+            '۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9',
+            '٠' => '0', '١' => '1', '٢' => '2', '٣' => '3', '٤' => '4',
+            '٥' => '5', '٦' => '6', '٧' => '7', '٨' => '8', '٩' => '9',
+        ]);
+    }
+}
+
 if (! function_exists('fa_number')) {
     /**
      * A number as this page writes numbers: Persian digits, grouped with the

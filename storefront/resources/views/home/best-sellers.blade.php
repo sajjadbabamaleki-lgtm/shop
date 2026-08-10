@@ -33,7 +33,7 @@
                 @foreach ($bestSellers as $tile)
                 <div class="col">
                     <div class="vp-best">
-                        <a class="vp-best-shot" href="{{ page_url('shop.html') }}">
+                        <a class="vp-best-shot" href="{{ storefront_route('category', $tile['category']) }}">
                             <img src="{{ asset($tile['category']->image_path) }}" alt="" loading="lazy">
                             <div class="vp-best-colors" aria-hidden="true">
                                 <span></span><span></span><span></span><span></span><span></span>
@@ -46,7 +46,7 @@
                                     <span class="vp-best-cta"><strong>{{ toman($tile['product']->offerHere()->compare_at_price) }} <span>تومان</span></strong></span>
                                 </span>
                             </div>
-                            <a class="vp-best-browse" href="{{ page_url('shop.html') }}" aria-label="افزودن {{ $tile['product']->short_title }} به سبد خرید"><i class="fa-solid fa-plus" aria-hidden="true"></i></a>
+                            <a class="vp-best-browse" href="{{ storefront_route('product', $tile['product']) }}" aria-label="افزودن {{ $tile['product']->short_title }} به سبد خرید"><i class="fa-solid fa-plus" aria-hidden="true"></i></a>
                         </div>
                     </div>
                 </div>

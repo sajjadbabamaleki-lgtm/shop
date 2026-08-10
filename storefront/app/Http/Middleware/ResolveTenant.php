@@ -54,6 +54,19 @@ class ResolveTenant
 
         app(TenantContext::class)->set($branch);
 
+        // Take {branch} back out of the route's parameters now that it has
+        // done its job.
+        //
+        // Controllers are written once and mounted twice — at the site root
+        // and again under /{branch} — so their signatures cannot know about
+        // the prefix. Laravel hands route parameters to a controller by
+        // position, so with {branch} still present /shiraz/products/nb-530
+        // passes 'shiraz' where the Product belongs and every page with a
+        // parameter breaks at the franchise and works at the main store. The
+        // branch is in TenantContext, and URL::defaults() below puts it back
+        // into generated links, so nothing downstream needs the parameter.
+        $request->route()?->forgetParameter('branch');
+
         // So route('branch.home') and everything like it keep the branch they
         // are already in without every call site passing it.
         if (! $branch->isCentral()) {

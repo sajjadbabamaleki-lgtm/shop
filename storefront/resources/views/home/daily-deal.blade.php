@@ -20,7 +20,7 @@
                     <span class="vp-daily-deal-badge">پیشنهاد امروز</span>
                     <h2 class="vp-daily-deal-title">قبل از<br>تمام شدن بخرش!</h2>
                     <p class="vp-daily-deal-sub">عجله کن؛ موجودی محدوده.</p>
-                    <a href="{{ page_url('shop-details.html') }}" class="vp-daily-deal-cta">خرید کنید<i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+                    <a href="{{ storefront_route('product', $dailyDeal['product']) }}" class="vp-daily-deal-cta">خرید کنید<i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
                 </div>
                 <div class="vp-daily-deal-card">
                     <div class="vp-daily-deal-info">

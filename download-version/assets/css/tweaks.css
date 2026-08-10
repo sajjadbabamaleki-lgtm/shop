@@ -4840,3 +4840,596 @@ ul.vp-how-list.is-ticked li:before {
   height: 18px;
   background: #FFFFFF;
 }
+
+/* ---------------------------------------------------------------------------
+   The catalogue pages: the listing, and one shoe
+   ---------------------------------------------------------------------------
+   Phase 3. Everything here is second-hand on purpose. The pane is
+   .vp-best-panel's — 20 off the sides, 28 of padding, 50 of radius, the same
+   1.5px ring — because the page already has a material for "a big card
+   holding a section", and a second one that was nearly the same would read as
+   a mistake rather than as a choice. The product card in the grid is the
+   stepped sale's .vp-deal, unchanged, so a card means the same thing wherever
+   it appears.
+
+   What is new is only what these pages need and the home page never did: a
+   filter rail, a sort control, pagination, and the two columns of a product
+   page. Those are drawn from the same three decisions the rest of the page
+   makes — Cairo for headings, --theme-color for anything active, and an inset
+   hairline instead of a border, so nothing gains a pixel when it lights up.
+   -------------------------------------------------------------------------- */
+
+.vp-shop-section {
+  /* Clear of the header, and the same 150 down to the footer that every band
+     of the home page now sits at. */
+  padding-block: 40px 150px;
+  overflow: hidden;
+}
+
+.vp-shop-panel {
+  /* .vp-best-panel's, quoted. If that one moves, this moves with it. */
+  margin-inline: 20px;
+  padding: 28px;
+  border-radius: 50px;
+  background: #FFFFFF;
+  box-shadow:
+    inset 0 0 0 1.5px rgba(16, 17, 17, 0.12),
+    0 18px 32px -22px rgba(16, 17, 17, 0.18);
+}
+
+.vp-shop-panel + .vp-shop-panel {
+  margin-top: 40px;
+}
+
+.vp-shop-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.vp-shop-title {
+  margin: 0;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 1.4;
+}
+
+.vp-shop-count {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: var(--body-color);
+  opacity: 0.7;
+}
+
+/* The search box. One field and one button, sharing a pill, with the ring
+   drawn inset so focus does not move the field by a pixel. */
+.vp-shop-search {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 260px;
+  padding: 6px 6px 6px 6px;
+  border-radius: 999px;
+  background: #FFFFFF;
+  box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.12);
+}
+
+.vp-shop-search:focus-within {
+  box-shadow: inset 0 0 0 1.5px rgba(164, 127, 37, 0.55);
+}
+
+.vp-shop-search input {
+  flex: 1;
+  min-width: 0;
+  height: 36px;
+  padding-inline: 14px;
+  border: 0;
+  background: transparent;
+  font-size: 14px;
+  color: var(--title-color);
+}
+
+.vp-shop-search input:focus {
+  outline: none;
+}
+
+.vp-shop-search button {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--theme-color);
+  color: #FFFFFF;
+  font-size: 13px;
+  transition: background 0.2s ease;
+}
+
+.vp-shop-search button:hover {
+  background: var(--gr-color2);
+}
+
+/* --- the two columns ------------------------------------------------------ */
+
+.vp-shop-body {
+  display: grid;
+  /* The rail is first in the DOM, so on this RTL page it lands on the right —
+     the reading start, where a filter list belongs. */
+  grid-template-columns: 240px minmax(0, 1fr);
+  gap: 28px;
+  align-items: start;
+}
+
+@media (max-width: 991px) {
+  .vp-shop-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.vp-shop-rail {
+  padding: 20px;
+  border-radius: 28px;
+  /* The faintest possible ground: enough to read as a panel inside a panel
+     without introducing a second white. */
+  background: rgba(16, 17, 17, 0.022);
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.06);
+}
+
+.vp-filter + .vp-filter,
+.vp-filter + .vp-filter-actions {
+  margin-top: 20px;
+  padding-top: 20px;
+  box-shadow: inset 0 1px 0 rgba(16, 17, 17, 0.08);
+}
+
+.vp-filter-title {
+  margin: 0 0 10px;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.vp-filter-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.vp-filter-list li + li {
+  margin-top: 6px;
+}
+
+.vp-filter-list label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.vp-filter-list input {
+  accent-color: var(--theme-color);
+}
+
+/* Sizes are buttons rather than a list: a size is a short token and a column
+   of them wastes the rail's width, where a wrapped row of them does not. */
+.vp-filter-sizes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.vp-size {
+  margin: 0;
+  cursor: pointer;
+}
+
+.vp-size input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.vp-size span {
+  display: grid;
+  place-items: center;
+  min-width: 40px;
+  height: 34px;
+  padding-inline: 8px;
+  border-radius: 12px;
+  background: #FFFFFF;
+  box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.12);
+  font-size: 14px;
+  transition: box-shadow 0.2s ease, color 0.2s ease;
+}
+
+.vp-size:hover span {
+  box-shadow: inset 0 0 0 1.5px rgba(164, 127, 37, 0.45);
+}
+
+.vp-size.is-on span {
+  color: var(--theme-color);
+  box-shadow: inset 0 0 0 1.5px var(--theme-color);
+}
+
+.vp-size input:focus-visible + span {
+  outline: 2px solid var(--theme-color);
+  outline-offset: 2px;
+}
+
+.vp-filter-price {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.vp-filter-price input {
+  min-width: 0;
+  flex: 1;
+  height: 36px;
+  padding-inline: 10px;
+  border: 0;
+  border-radius: 12px;
+  background: #FFFFFF;
+  box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.12);
+  font-size: 13px;
+}
+
+.vp-filter-price input:focus {
+  outline: none;
+  box-shadow: inset 0 0 0 1.5px rgba(164, 127, 37, 0.55);
+}
+
+.vp-filter-price span {
+  font-size: 13px;
+  opacity: 0.7;
+}
+
+.vp-filter-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.vp-filter-apply {
+  flex: 1;
+  height: 40px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--theme-color);
+  color: #FFFFFF;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 700;
+  font-size: 14px;
+  transition: background 0.2s ease;
+}
+
+.vp-filter-apply:hover {
+  background: var(--gr-color2);
+}
+
+.vp-filter-clear {
+  font-size: 13px;
+  color: var(--body-color);
+  text-decoration: underline;
+}
+
+/* --- the results ---------------------------------------------------------- */
+
+.vp-shop-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-bottom: 18px;
+}
+
+.vp-shop-sort {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.vp-shop-sort select {
+  height: 36px;
+  padding-inline: 12px;
+  border: 0;
+  border-radius: 12px;
+  background: #FFFFFF;
+  box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.12);
+  font-size: 14px;
+  color: var(--title-color);
+}
+
+.vp-shop-empty {
+  margin: 40px 0;
+  text-align: center;
+  font-size: 15px;
+}
+
+.vp-shop-empty a {
+  color: var(--theme-color);
+  text-decoration: underline;
+}
+
+.vp-shop-pages {
+  margin-top: 32px;
+}
+
+.vp-pages {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.vp-page {
+  display: grid;
+  place-items: center;
+  min-width: 38px;
+  height: 38px;
+  padding-inline: 8px;
+  border-radius: 12px;
+  background: #FFFFFF;
+  box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.12);
+  font-size: 14px;
+  color: var(--title-color);
+  transition: box-shadow 0.2s ease, color 0.2s ease;
+}
+
+.vp-page:hover {
+  color: var(--theme-color);
+  box-shadow: inset 0 0 0 1.5px rgba(164, 127, 37, 0.45);
+}
+
+.vp-page.is-on {
+  color: #FFFFFF;
+  background: var(--theme-color);
+  box-shadow: none;
+}
+
+.vp-page.is-off {
+  opacity: 0.4;
+}
+
+.vp-page.is-gap {
+  box-shadow: none;
+  opacity: 0.6;
+}
+
+/* --- one shoe ------------------------------------------------------------- */
+
+.vp-pdp-crumbs {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+  font-size: 13px;
+  color: var(--body-color);
+}
+
+.vp-pdp-crumbs a:hover {
+  color: var(--theme-color);
+}
+
+.vp-pdp-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 36px;
+  align-items: start;
+}
+
+@media (max-width: 991px) {
+  .vp-pdp-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* The photograph gets the card's own treatment: white ground, square, and the
+   shoe fitted inside it rather than cropped to it — a cut-out cropped square
+   loses the toe or the heel, which on a shoe is the whole silhouette. The
+   inset is .vp-deal-shot's, at this size. */
+.vp-pdp-shot {
+  position: relative;
+  /* Capped. Half of a 1440 page is 640, and a 640px square photograph of one
+     shoe is a poster: it pushes everything you need in order to decide down
+     past the fold for no gain. */
+  max-width: 520px;
+  margin-inline: auto;
+  aspect-ratio: 1;
+  border-radius: 40px;
+  background: #FFFFFF;
+  box-shadow:
+    0 0 0 1px rgba(16, 17, 17, 0.05),
+    0 8px 22px -12px rgba(16, 17, 17, 0.18);
+}
+
+.vp-pdp-shot img {
+  position: absolute;
+  inset: 18% 12% 18%;
+  width: 76%;
+  height: 64%;
+  object-fit: contain;
+}
+
+.vp-pdp-thumbs {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.vp-pdp-thumb {
+  position: relative;
+  width: 76px;
+  height: 76px;
+  border-radius: 18px;
+  background: #FFFFFF;
+  box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.1);
+}
+
+.vp-pdp-thumb img {
+  position: absolute;
+  inset: 16%;
+  width: 68%;
+  height: 68%;
+  object-fit: contain;
+}
+
+.vp-pdp-brand {
+  display: inline-block;
+  margin-bottom: 8px;
+  font-size: 13px;
+  color: var(--theme-color);
+}
+
+.vp-pdp-title {
+  margin: 0 0 14px;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 700;
+  font-size: 30px;
+  line-height: 1.35;
+}
+
+.vp-pdp-price {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.vp-pdp-price strong {
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 700;
+  font-size: 26px;
+  color: var(--title-color);
+}
+
+.vp-pdp-price strong span {
+  font-size: 15px;
+  font-weight: 400;
+}
+
+.vp-pdp-price del {
+  font-size: 16px;
+  color: var(--body-color);
+  opacity: 0.65;
+}
+
+.vp-pdp-cut {
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--theme-color);
+  color: #FFFFFF;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.vp-pdp-choice + .vp-pdp-choice {
+  margin-top: 18px;
+}
+
+.vp-pdp-choice-title {
+  margin: 0 0 8px;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.vp-pdp-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Not buttons. Until there is a cart there is nothing for choosing a size to
+   do, and a control that looks pressable and is not is worse than a label. */
+.vp-pdp-option {
+  display: grid;
+  place-items: center;
+  min-width: 44px;
+  height: 38px;
+  padding-inline: 10px;
+  border-radius: 12px;
+  background: #FFFFFF;
+  box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.12);
+  font-size: 14px;
+}
+
+.vp-pdp-option.is-out {
+  opacity: 0.45;
+  text-decoration: line-through;
+}
+
+.vp-pdp-stock,
+.vp-pdp-out {
+  margin: 18px 0 0;
+  font-size: 14px;
+  color: var(--body-color);
+}
+
+.vp-pdp-buy {
+  width: 100%;
+  height: 52px;
+  margin-top: 20px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--theme-color);
+  color: #FFFFFF;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.vp-pdp-buy:disabled {
+  background: rgba(16, 17, 17, 0.14);
+  color: rgba(16, 17, 17, 0.55);
+  cursor: not-allowed;
+}
+
+.vp-pdp-desc {
+  margin-top: 24px;
+  font-size: 15px;
+  line-height: 1.9;
+}
+
+.vp-pdp-facts {
+  margin: 20px 0 0;
+}
+
+.vp-pdp-facts > div {
+  display: flex;
+  gap: 10px;
+  padding-block: 10px;
+  box-shadow: inset 0 -1px 0 rgba(16, 17, 17, 0.08);
+  font-size: 14px;
+}
+
+.vp-pdp-facts dt {
+  min-width: 96px;
+  font-weight: 700;
+}
+
+.vp-pdp-facts dd {
+  margin: 0;
+}
+
+@media (max-width: 575px) {
+  .vp-shop-panel {
+    margin-inline: 12px;
+    padding: 18px;
+    border-radius: 32px;
+  }
+
+  .vp-pdp-title {
+    font-size: 24px;
+  }
+}

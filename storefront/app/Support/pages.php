@@ -1,6 +1,7 @@
 <?php
 
 use App\Support\Tenancy\TenantContext;
+use Illuminate\Contracts\Routing\UrlRoutable;
 use Illuminate\Support\Facades\Route;
 
 if (! function_exists('storefront_route')) {
@@ -16,9 +17,12 @@ if (! function_exists('storefront_route')) {
      * The branch segment itself is filled in by URL::defaults(), set when the
      * request was resolved, so no call site has to carry it.
      *
-     * @param  array<string, mixed>  $parameters
+     * Takes whatever `route()` takes — an array, a single value, or a model,
+     * which is what a link to a product or a category is written as.
+     *
+     * @param  array<string, mixed>|string|int|UrlRoutable  $parameters
      */
-    function storefront_route(string $name, array $parameters = []): string
+    function storefront_route(string $name, mixed $parameters = []): string
     {
         $tenant = app(TenantContext::class);
 
