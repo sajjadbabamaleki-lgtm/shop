@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Category;
 use App\Models\Product;
+use Database\Seeders\BranchSeeder;
 use Database\Seeders\CatalogueSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -16,7 +17,10 @@ class HomePageTest extends TestCase
     {
         parent::setUp();
 
-        $this->seed(CatalogueSeeder::class);
+        // The storefront now resolves a branch from the request's host
+        // before it renders anything, and the seeder is what makes the host
+        // the tests use — localhost — reach the central branch.
+        $this->seed([BranchSeeder::class, CatalogueSeeder::class]);
     }
 
     public function test_the_front_page_renders(): void

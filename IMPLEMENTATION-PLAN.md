@@ -5,9 +5,9 @@ before any large change: an assessment of what exists, what has to be built,
 what breaks, and in what order. It is written against the spec's own headings
 A–Q.
 
-Nothing in this document has been built yet. §40 says to wait for approval
-first, and the reasons to wait are real — one of the changes below moves the
-column the whole storefront currently prices itself from.
+The plan was approved and phases 0 and 1 are built — see **Progress** at the
+end. Phase 2 is the destructive one and has not started: it moves the column
+the whole storefront currently prices itself from.
 
 ---
 
@@ -327,4 +327,16 @@ The three §40 questions have been answered by the client:
 - **Phase 0 — foundation.** Roles and permissions, customers separated from
   staff users, an audit trail, and a real `$fillable` on every model.
   *Done.*
-- Phases 1–7: not started.
+- **Phase 1 — tenancy.** Branches with the main store as the central one,
+  `branch_domains`, `branch_users`, host-based tenant resolution, a request
+  -scoped `TenantContext`, the `BelongsToBranch` global scope, and the §18
+  isolation tests. *Done.*
+
+  Two things about it are worth knowing before phase 2 leans on them. The
+  scope **fails closed**: with no branch bound a branch-scoped query returns
+  nothing rather than everything, so a forgotten middleware is an empty page
+  and not a leak. And an unknown host is a **404**, not a fall-back to the main
+  store — falling back would serve one branch's prices under another branch's
+  name to anyone who sends a Host header.
+
+- Phases 2–7: not started. Phase 2 is the destructive one.

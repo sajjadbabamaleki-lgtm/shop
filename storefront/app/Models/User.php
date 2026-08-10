@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -77,5 +78,52 @@ class User extends Authenticatable
         return $this->roles
             ->where('scope', Role::SCOPE_PLATFORM)
             ->contains(fn (Role $role) => $role->grants($permission));
+    }
+
+    /**
+     * The branches this user works at, and what they are there.
+     *
+     * Read across all branches deliberately: this answers "where does this
+     * person work", which is a question about the person, and scoping it to
+     * the branch currently being viewed would make it unanswerable.
+     */
+    public function branchRoles(): HasMany
+    {
+        return $this->hasMany(BranchUser::class)->acrossAllBranches();
+    }
+
+    public function branchRoleAt(Branch $branch): ?Role
+    {
+        return $this->branchRoles
+            ->firstWhere('branch_id', $branch->id)
+            ?->role;
+    }
+
+    public function worksAt(Branch $branch): bool
+    {
+        return $this->branchRoleAt($branch) !== null;
+    }
+
+    /**
+     * Whether this user may do something **at one particular branch**.
+     *
+     * This is spec §24 in full for the franchise side: the role says what,
+     * the branch_users row says where, and both have to agree. A platform
+     * administrator passes too — their authority covers every branch — which
+     * is why the platform check comes first.
+     *
+     * Every franchise authorization decision should go through this rather
+     * than through hasPermissionTo(), which cannot see a branch and would
+     * therefore answer for all of them.
+     */
+    public function hasPermissionToAt(Branch $branch, string $permission): bool
+    {
+        if ($this->hasPermissionTo($permission)) {
+            return true;
+        }
+
+        $role = $this->branchRoleAt($branch);
+
+        return $role?->scope === Role::SCOPE_BRANCH && $role->grants($permission);
     }
 }

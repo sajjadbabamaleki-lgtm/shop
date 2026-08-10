@@ -23,6 +23,29 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Tenancy
+    |--------------------------------------------------------------------------
+    |
+    | Which hosts reach the main store. Every host that reaches this
+    | application is a row in `branch_domains`; these are the ones seeded for
+    | the central branch, so the site answers on its own name and on whatever
+    | a developer happens to be using locally.
+    |
+    | Franchise subdomains are not here. A branch's hosts belong to the branch
+    | and are created with it — nothing in the code may decide which host is
+    | Shiraz (§34).
+    |
+    */
+
+    'tenancy' => [
+        'central_hosts' => array_values(array_filter(array_map('trim', explode(',', (string) env(
+            'CENTRAL_HOSTS',
+            'vikyplus.ir,www.vikyplus.ir,localhost,127.0.0.1'
+        ))))),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | The front page's editorial choices
     |--------------------------------------------------------------------------
     |
