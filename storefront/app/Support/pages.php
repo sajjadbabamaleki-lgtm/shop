@@ -1,6 +1,34 @@
 <?php
 
+use App\Support\Tenancy\TenantContext;
 use Illuminate\Support\Facades\Route;
+
+if (! function_exists('storefront_route')) {
+    /**
+     * A storefront URL that stays inside the branch the visitor is browsing.
+     *
+     * The storefront's routes are registered twice — once at the site root for
+     * the main store and once under /{branch} for every franchise — so a
+     * visitor in Shiraz following an ordinary link must land on
+     * vikyplus.ir/shiraz/… rather than being tipped out into the central
+     * store's prices without noticing.
+     *
+     * The branch segment itself is filled in by URL::defaults(), set when the
+     * request was resolved, so no call site has to carry it.
+     *
+     * @param  array<string, mixed>  $parameters
+     */
+    function storefront_route(string $name, array $parameters = []): string
+    {
+        $tenant = app(TenantContext::class);
+
+        if ($tenant->has() && ! $tenant->isCentral() && Route::has("branch.{$name}")) {
+            return route("branch.{$name}", $parameters);
+        }
+
+        return route($name, $parameters);
+    }
+}
 
 if (! function_exists('page_url')) {
     /**
@@ -23,6 +51,6 @@ if (! function_exists('page_url')) {
             return '#';
         }
 
-        return route($route);
+        return storefront_route($route);
     }
 }

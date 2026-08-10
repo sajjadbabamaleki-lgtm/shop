@@ -8,8 +8,18 @@ use Database\Seeders\BranchSeeder;
 use Database\Seeders\CatalogueSeeder;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use InvalidArgumentException;
 use Tests\TestCase;
 
+/**
+ * A branch is reached at its own path — vikyplus.ir/shiraz — not at a
+ * subdomain.
+ *
+ * The specification asks for subdomains (§11, §17). This is a deliberate
+ * departure at the client's instruction: a subdomain costs a DNS record and a
+ * TLS certificate every time a franchise opens, and a path costs nothing. The
+ * domain mapping is kept for the main store and for §34's custom domains.
+ */
 class TenantResolutionTest extends TestCase
 {
     use RefreshDatabase;
@@ -21,74 +31,130 @@ class TenantResolutionTest extends TestCase
         $this->seed([RolesAndPermissionsSeeder::class, BranchSeeder::class, CatalogueSeeder::class]);
     }
 
-    public function test_the_main_store_answers_on_its_own_name(): void
+    public function test_the_site_root_is_the_main_store(): void
     {
-        $this->get('http://vikyplus.ir/')->assertOk();
+        $this->get('/')->assertOk();
 
         $this->assertTrue(app(TenantContext::class)->isCentral());
     }
 
-    public function test_a_franchise_subdomain_resolves_to_that_branch(): void
+    public function test_a_branch_is_reached_at_its_own_path(): void
     {
-        $shiraz = Branch::factory()->reachableAt('shiraz.vikyplus.ir')->create(['slug' => 'shiraz']);
+        $shiraz = Branch::factory()->create(['slug' => 'shiraz', 'name' => 'ویکی پلاس شیراز']);
 
-        $this->get('http://shiraz.vikyplus.ir/')->assertOk();
+        $this->get('/shiraz')->assertOk();
 
         $this->assertSame($shiraz->id, app(TenantContext::class)->id());
         $this->assertFalse(app(TenantContext::class)->isCentral());
     }
 
     /**
-     * Falling back to the main store would be friendlier and is exactly the
-     * bug: a typo'd or spoofed Host would quietly serve one branch's prices
-     * under another branch's name.
+     * Branches are franchisees, not only cities — «ویکی پلاس محسن» is a
+     * person's shop, and nothing in the resolution cares which it is.
      */
-    public function test_an_unknown_host_is_not_quietly_served_by_the_main_store(): void
+    public function test_a_branch_can_be_named_after_a_person(): void
     {
-        $this->get('http://not-a-branch.vikyplus.ir/')->assertNotFound();
+        Branch::factory()->create(['slug' => 'mohsen', 'name' => 'ویکی پلاس محسن', 'city' => null]);
+
+        $this->get('/mohsen')->assertOk();
+
+        $this->assertSame('ویکی پلاس محسن', app(TenantContext::class)->branch()->name);
+    }
+
+    /** Opening a branch takes a row. No DNS, no certificate, no deploy. */
+    public function test_a_branch_needs_no_domain_of_its_own(): void
+    {
+        $branch = Branch::factory()->create(['slug' => 'mohsen']);
+
+        $this->assertSame(0, $branch->domains()->count());
+
+        $this->get('/mohsen')->assertOk();
+    }
+
+    public function test_an_unknown_path_is_not_quietly_served_by_the_main_store(): void
+    {
+        $this->get('/not-a-branch')->assertNotFound();
     }
 
     public function test_a_deactivated_branch_stops_answering(): void
     {
-        $branch = Branch::factory()->reachableAt('tabriz.vikyplus.ir')->create();
+        $branch = Branch::factory()->create(['slug' => 'tabriz']);
 
-        $this->get('http://tabriz.vikyplus.ir/')->assertOk();
+        $this->get('/tabriz')->assertOk();
 
         $branch->update(['is_active' => false]);
 
-        $this->get('http://tabriz.vikyplus.ir/')->assertNotFound();
-    }
-
-    /** DNS does not care about case, and neither may the lookup. */
-    public function test_the_host_matches_whatever_case_it_arrives_in(): void
-    {
-        Branch::factory()->reachableAt('shiraz.vikyplus.ir')->create();
-
-        $this->get('http://SHIRAZ.VikyPlus.ir/')->assertOk();
-    }
-
-    public function test_a_second_host_can_point_at_the_same_branch(): void
-    {
-        $shiraz = Branch::factory()->reachableAt('shiraz.vikyplus.ir')->create();
-        $shiraz->domains()->create(['host' => 'shirazshoes.example', 'is_primary' => false]);
-
-        $this->get('http://shirazshoes.example/')->assertOk();
-
-        $this->assertSame($shiraz->id, app(TenantContext::class)->id());
-        $this->assertSame('shiraz.vikyplus.ir', $shiraz->fresh()->primaryDomain()->host);
+        $this->get('/tabriz')->assertNotFound();
     }
 
     /**
-     * Nothing in the code may decide which host is Shiraz — §34 wants the
-     * mapping to be data so a custom domain costs a row, not a release.
+     * The main store is the root and only the root. Answering at /central too
+     * would put one page on two addresses for nothing.
      */
-    public function test_a_branch_is_reached_by_a_host_that_says_nothing_about_its_name(): void
+    public function test_the_main_store_does_not_also_answer_on_a_path(): void
     {
-        Branch::factory()->reachableAt('kafsh.example.com')->create(['slug' => 'mashhad']);
+        $this->get('/central')->assertNotFound();
+    }
 
-        $this->get('http://kafsh.example.com/')->assertOk();
+    /**
+     * Links inside a branch stay inside it. A visitor in Shiraz following an
+     * ordinary link must not be tipped out into the central store's prices
+     * without noticing.
+     */
+    public function test_links_on_a_branch_page_keep_the_branch(): void
+    {
+        Branch::factory()->create(['slug' => 'shiraz']);
 
-        $this->assertSame('mashhad', app(TenantContext::class)->branch()->slug);
+        $this->get('/shiraz')->assertSee('/shiraz', false);
+
+        $this->assertStringContainsString('/shiraz', page_url('shoe-shop.html'));
+    }
+
+    public function test_links_on_the_main_store_carry_no_branch(): void
+    {
+        $this->get('/');
+
+        $this->assertSame(route('home'), page_url('shoe-shop.html'));
+        $this->assertStringNotContainsString('/shiraz', page_url('shoe-shop.html'));
+    }
+
+    /**
+     * A branch called "cart" would be shadowed by the cart page and never
+     * reachable — a failure a franchisee would find, not us.
+     */
+    public function test_a_branch_cannot_take_an_address_the_site_already_uses(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        Branch::factory()->create(['slug' => 'cart']);
+    }
+
+    // --- the domain mapping, kept for the main store and for §34 ----------
+
+    public function test_the_main_store_still_answers_on_its_own_domain(): void
+    {
+        $this->get('http://vikyplus.ir/')->assertOk();
+
+        $this->assertTrue(app(TenantContext::class)->isCentral());
+    }
+
+    public function test_an_unknown_host_is_refused(): void
+    {
+        $this->get('http://somewhere-else.example/')->assertNotFound();
+    }
+
+    /**
+     * §34 stays open: a branch that later wants its own domain gets it with a
+     * row, not a release.
+     */
+    public function test_a_branch_may_still_be_given_a_domain_later(): void
+    {
+        $shiraz = Branch::factory()->create(['slug' => 'shiraz']);
+        $shiraz->domains()->create(['host' => 'vikyplusshiraz.ir', 'is_primary' => true]);
+
+        $this->get('http://vikyplusshiraz.ir/')->assertOk();
+
+        $this->assertSame($shiraz->id, app(TenantContext::class)->id());
     }
 
     public function test_there_can_only_ever_be_one_central_branch(): void

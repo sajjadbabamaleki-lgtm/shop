@@ -164,16 +164,39 @@ Product ─┬─ Variant ─┬─ BranchInventory   Order ─┬─ OrderItem 
 
 ## G. Tenant resolution strategy
 
-Subdomain first, but resolved through data so custom domains cost nothing
-later (§34):
+**This departs from the specification, at the client's instruction.** §11 and
+§17 ask for subdomains — `shiraz.vikyplus.ir`. A branch is reached at a path
+instead — `vikyplus.ir/shiraz` — because a subdomain costs a DNS record and a
+TLS certificate every time a franchise opens, and on the chosen host that is a
+real operation and a real bill per branch. A path costs a row.
 
-1. Middleware reads the request host.
-2. Looks it up in `branch_domains`. Apex `vikyplus.ir` resolves to the central
-   branch; an unknown host is a 404, never a silent fallback.
-3. Binds a `TenantContext` singleton for the request — the branch, its
-   settings, its feature flags.
-4. Global query scopes on every branch-scoped model read that context, so a
+It also fits what a branch turns out to be: «ویکی پلاس محسن» is a franchisee,
+not a city, and there is no useful subdomain for a person's shop.
+
+Nothing else in the design changes. The branch is still resolved once, into
+the same `TenantContext`, before anything else runs, and the domain mapping is
+kept — it is how the bare domain finds the main store, and it is how §34's
+custom domains stay one row rather than a rewrite if a branch ever wants one.
+
+How it resolves:
+
+1. If the address names a branch — `/shiraz` — that name decides, **or
+   nothing does**. Falling through to the hostname here would resolve
+   `/not-a-branch` to the main store and serve central prices under an address
+   the visitor believes is a franchise.
+2. Otherwise the host is looked up in `branch_domains`, which is how the bare
+   domain finds the main store.
+3. Anything unresolved is a 404, never a silent fallback.
+4. Binds a `TenantContext` singleton for the request — the branch, its
+   settings, its feature flags — and a URL default, so an ordinary link on a
+   branch page stays inside that branch.
+5. Global query scopes on every branch-scoped model read that context, so a
    query that forgets the tenant returns nothing rather than everything.
+
+A branch's slug and a top-level page share one namespace, so `Branch` refuses
+the slugs the storefront already answers on. A branch called `cart` would be
+shadowed by the cart page and never reachable — a failure a franchisee would
+find rather than us.
 
 Storefront routes get the tenant middleware. Admin routes resolve the tenant
 from the authenticated staff user's branch instead, never from the URL.
@@ -332,11 +355,15 @@ The three §40 questions have been answered by the client:
   -scoped `TenantContext`, the `BelongsToBranch` global scope, and the §18
   isolation tests. *Done.*
 
-  Two things about it are worth knowing before phase 2 leans on them. The
+  **A branch is reached at a path, not a subdomain** — a departure from §11
+  and §17 at the client's instruction, so that opening one costs a row rather
+  than a DNS record and a certificate. See §G.
+
+  Two more things about it are worth knowing before phase 2 leans on them. The
   scope **fails closed**: with no branch bound a branch-scoped query returns
   nothing rather than everything, so a forgotten middleware is an empty page
-  and not a leak. And an unknown host is a **404**, not a fall-back to the main
-  store — falling back would serve one branch's prices under another branch's
-  name to anyone who sends a Host header.
+  and not a leak. And an unresolved address is a **404**, not a fall-back to
+  the main store — falling back would serve central prices under a franchise's
+  address.
 
 - Phases 2–7: not started. Phase 2 is the destructive one.

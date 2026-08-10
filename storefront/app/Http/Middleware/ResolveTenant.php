@@ -2,38 +2,81 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Branch;
 use App\Models\BranchDomain;
 use App\Support\Tenancy\TenantContext;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\URL;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
- * Works out which branch a storefront request belongs to, from its host.
+ * Works out which branch a storefront request belongs to.
  *
- * Spec §17. The host is looked up in branch_domains — never parsed, never
- * matched against a franchise's name — so §34's custom domains cost a row
- * rather than a release.
+ * Two ways in, in this order:
  *
- * An unknown host is a 404. It would be friendlier to fall back to the main
- * store, and that friendliness is exactly the bug: a typo'd or spoofed Host
- * header would quietly serve one branch's prices under another branch's name.
+ * 1. **The path.** vikyplus.ir/shiraz is Shiraz. This is how every franchise
+ *    is reached, and it is why opening one costs a row rather than a DNS
+ *    record and a certificate.
+ * 2. **The host.** Whatever is left resolves through branch_domains, which is
+ *    how the bare domain finds the main store — and how a branch that one day
+ *    wants vikyplusshiraz.ir gets it without a code change (§34).
+ *
+ * An unresolved request is a 404. Falling back to the main store would be
+ * friendlier and is exactly the bug: a mistyped branch would quietly serve the
+ * central store's prices under a franchise's address.
+ *
+ * Note what this does *not* do: nothing here reads a branch id from a form, a
+ * query string or a JSON body. A customer choosing which shop to browse from
+ * the address bar is the point; an administrator choosing whose data to edit
+ * from a URL is §18's nightmare, which is why administration routes are not in
+ * this group and resolve the branch from the signed-in user instead.
  */
 class ResolveTenant
 {
     public function handle(Request $request, Closure $next): Response
     {
-        $host = strtolower($request->getHost());
+        $slug = $request->route('branch');
 
-        $domain = BranchDomain::with('branch')->where('host', $host)->first();
+        // When the address names a branch, that name decides — or nothing
+        // does. Falling through to the host here is the bug this whole
+        // middleware exists to avoid: /not-a-branch would resolve by hostname
+        // to the main store and serve central prices under an address the
+        // visitor believes is a franchise.
+        $branch = is_string($slug) && $slug !== ''
+            ? $this->fromPath($slug)
+            : $this->fromHost($request);
 
-        if ($domain === null || ! $domain->branch->is_active) {
-            throw new NotFoundHttpException("No active branch answers for {$host}.");
+        if ($branch === null || ! $branch->is_active) {
+            throw new NotFoundHttpException('No active branch answers for this address.');
         }
 
-        app(TenantContext::class)->set($domain->branch);
+        app(TenantContext::class)->set($branch);
+
+        // So route('branch.home') and everything like it keep the branch they
+        // are already in without every call site passing it.
+        if (! $branch->isCentral()) {
+            URL::defaults(['branch' => $branch->slug]);
+        }
 
         return $next($request);
+    }
+
+    /**
+     * Franchises only. The main store is the site root, and letting it also
+     * answer at /central would put one page on two addresses for nothing.
+     */
+    private function fromPath(string $slug): ?Branch
+    {
+        return Branch::where('slug', $slug)->where('type', Branch::FRANCHISE)->first();
+    }
+
+    private function fromHost(Request $request): ?Branch
+    {
+        return BranchDomain::with('branch')
+            ->where('host', strtolower($request->getHost()))
+            ->first()
+            ?->branch;
     }
 }
