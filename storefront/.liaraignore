@@ -1,6 +1,13 @@
 # Liara installs these itself.
-vendor/
-node_modules/
+#
+# Anchored with a leading slash on purpose. Without it these match a directory
+# of that name at ANY depth — and public/assets/js/vendor holds jQuery, so an
+# unanchored "vendor/" silently drops it from the upload. main.js then dies on
+# its first $ and nothing on the page initialises: the preloader never lifts,
+# the hero deck never slides. The site looks broken for a reason that is
+# nowhere near where it appears.
+/vendor/
+/node_modules/
 
 # Never upload an environment. Set these in the panel, or with `liara env:set`.
 .env
