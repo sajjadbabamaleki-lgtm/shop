@@ -4,6 +4,10 @@
 laptop, and — as honestly as it can — which parts of that have been tested and
 which have not.
 
+**If you are not a programmer, read `DEPLOY-FA.md` instead.** It is the same
+deployment written as a click-by-click guide in Persian, with no command line
+in it at all. This file assumes you can read a Dockerfile.
+
 ## What Netlify can and cannot do
 
 The link the client has been reviewing is Netlify, and `netlify.toml` publishes
@@ -96,10 +100,28 @@ Three files carry it, all in `storefront/`:
 **Deploy from `storefront/`, not from the repository root** — that directory is
 the application.
 
+Normally nobody does that by hand. `.github/workflows/deploy-liara.yml` runs
+the suite on every push and pull request and deploys on a push to a deploy
+branch, only if the tests passed — so a red suite cannot reach the site. It
+needs two things set once on the GitHub repository:
+
+| | |
+|---|---|
+| secret `LIARA_API_TOKEN` | from <https://console.liara.ir/API> |
+| variable `LIARA_APP` | only if the app is not named `vikyplus` |
+
+By hand, if it ever comes to that:
+
 ```bash
 cd storefront
 liara deploy
 ```
+
+`APP_KEY` is the one variable that cannot be set before the first deploy,
+because it is generated from the running app's own console
+(`php artisan key:generate --show`). `liara_pre_start.sh` warns loudly in the
+log when it is missing rather than failing — a container that refuses to start
+is a container whose console cannot be opened to generate the key.
 
 ### What `liara.json` says, and why
 
