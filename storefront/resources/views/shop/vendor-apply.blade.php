@@ -12,7 +12,7 @@
 @section('content')
 <section class="vp-shop-section">
     <div class="container th-container">
-        <div class="vp-shop-panel vp-track">
+        <div class="vp-shop-panel vp-track vp-apply">
 
             @if (session('applied'))
                 <h1 class="vp-shop-title">درخواست «{{ session('applied') }}» ثبت شد</h1>
@@ -36,7 +36,7 @@
                 <form class="vp-checkout" method="post" action="{{ storefront_route('vendors.apply.store') }}">
                     @csrf
 
-                    <div class="vp-field">
+                    <div class="vp-field is-wide">
                         <label for="va-name">نام فروشگاه</label>
                         <input id="va-name" name="name" value="{{ old('name') }}" required maxlength="120">
                     </div>
@@ -63,12 +63,12 @@
                         </div>
                     </div>
 
-                    <div class="vp-field">
+                    <div class="vp-field is-wide">
                         <label for="va-address">نشانی (اختیاری)</label>
                         <textarea id="va-address" name="address" rows="2" maxlength="500">{{ old('address') }}</textarea>
                     </div>
 
-                    <div class="vp-field">
+                    <div class="vp-field is-wide">
                         <label for="va-email">ایمیل — با همین وارد می‌شوی</label>
                         <input id="va-email" type="email" name="email" value="{{ old('email') }}" required maxlength="160" autocomplete="username">
                     </div>

@@ -26,12 +26,26 @@
         $peak = max(1, $best_day);
     @endphp
 
-    <div class="vp-bars">
-        @foreach ($daily as $day)
-            <div class="vp-bar" title="{{ fa_date($day['date']) }} — {{ toman($day['revenue']) }}">
-                <span class="vp-bar-fill" style="height: {{ max(2, (int) round($day['revenue'] / $peak * 100)) }}%"></span>
-            </div>
-        @endforeach
+    <div class="vp-chart">
+        {{-- The ceiling, drawn once. Thirty bars with no line above them are
+             thirty heights nobody can put a number to. --}}
+        <span class="vp-chart-top">{{ toman($best_day) }}</span>
+
+        <div class="vp-bars">
+            @foreach ($daily as $day)
+                <div class="vp-bar" title="{{ fa_date($day['date']) }} — {{ toman($day['revenue']) }} تومان، {{ fa_number($day['orders']) }} سفارش">
+                    <span class="vp-bar-fill" style="height: {{ max(2, (int) round($day['revenue'] / $peak * 100)) }}%"></span>
+                </div>
+            @endforeach
+        </div>
+
+        {{-- A date under every fifth bar. Thirty labels would be unreadable and
+             none at all makes the row a shape rather than a month. --}}
+        <div class="vp-chart-days">
+            @foreach ($daily as $day)
+                <span class="vp-chart-day">{{ $loop->index % 5 === 0 ? fa_date($day['date']) : '' }}</span>
+            @endforeach
+        </div>
     </div>
 </section>
 

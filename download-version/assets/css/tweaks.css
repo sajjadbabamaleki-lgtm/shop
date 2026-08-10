@@ -6348,3 +6348,393 @@ ul.vp-how-list.is-ticked li:before {
 .vp-bar:hover .vp-bar-fill {
   opacity: 0.75;
 }
+
+/* ===========================================================================
+   Second pass over the pages built after the home page
+   ===========================================================================
+   The client's note was that the new sections could look better, and they
+   were right. Everything below is that pass. Nothing here touches the home
+   page: every selector is one of the classes introduced with the catalogue,
+   the basket, the panels or the reports, and `check-parity.js` is still zero.
+
+   What was actually weak, in the order it was fixed:
+
+   1. Empty states were a sentence in the middle of a large white panel, which
+      reads as a page that failed rather than as an answer.
+   2. The product page had a price with no hierarchy — one size of type for
+      the price, the old price and the cut — and seller rows that gave no help
+      choosing between them.
+   3. The listing repeated its count twice and put nothing in the bar above
+      the grid, so the bar looked like a stray control.
+   4. Panel tables had no ground under their headers and no banding, so a
+      thirty-row inventory screen was thirty identical lines.
+   5. The report bars were a shape: no ceiling, no dates, nothing to read a
+      number off.
+   =========================================================================== */
+
+/* --- 1. empty states ------------------------------------------------------ */
+
+.vp-empty {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  padding-block: 56px 48px;
+  text-align: center;
+}
+
+.vp-empty-mark {
+  display: grid;
+  place-items: center;
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  background: rgba(164, 127, 37, 0.08);
+  color: var(--theme-color);
+}
+
+.vp-empty-mark svg {
+  width: 34px;
+  height: 34px;
+}
+
+.vp-empty-say {
+  margin: 0;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 700;
+  font-size: 17px;
+  color: var(--title-color);
+}
+
+.vp-empty-out {
+  height: 40px;
+  padding-inline: 22px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--theme-color);
+  color: #FFFFFF;
+  font-size: 14px;
+}
+
+.vp-empty-out:hover {
+  background: var(--gr-color2);
+  color: #FFFFFF;
+}
+
+/* --- 2. the product page -------------------------------------------------- */
+
+/* The price leads at 34, the old price follows at 15 struck through, and the
+   cut is a filled chip. Three sizes rather than one, because they are three
+   different pieces of information and the old block made them look like one. */
+.vp-pdp-price {
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.vp-pdp-price strong {
+  font-size: 34px;
+  line-height: 1.1;
+}
+
+.vp-pdp-price strong span {
+  font-size: 16px;
+}
+
+.vp-pdp-price del {
+  font-size: 15px;
+}
+
+.vp-pdp-from {
+  margin: 0 0 22px;
+  font-size: 13px;
+  color: var(--body-color);
+  opacity: 0.8;
+}
+
+.vp-pdp-sizes-title {
+  margin: 0 0 4px;
+  font-size: 16px;
+}
+
+/* Each size is its own card rather than a rule with rows under it: a shoe with
+   four sizes and three sellers each was one long undifferentiated column. */
+.vp-sellers {
+  margin-top: 12px;
+  padding: 14px 16px 16px;
+  border-radius: 22px;
+  background: rgba(16, 17, 17, 0.022);
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.06);
+}
+
+.vp-sellers-title {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin: 0 0 10px;
+  font-size: 16px;
+}
+
+.vp-sellers-title span {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--body-color);
+  opacity: 0.7;
+}
+
+.vp-seller {
+  padding: 12px 14px;
+  border-radius: 16px;
+}
+
+/* The cheapest row, marked rather than merely first: a list ordered by price
+   still makes somebody read three numbers to find that out.
+   
+   And the shop's own row goes back to a plain hairline. It had a gold ring of
+   its own, which meant two golds on one card and neither reading as the
+   emphasis — the row's name already says whose it is. */
+.vp-seller.is-ours {
+  box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.1);
+}
+
+.vp-seller.is-best,
+.vp-seller.is-best.is-ours {
+  box-shadow: inset 0 0 0 1.5px var(--theme-color);
+}
+
+.vp-seller-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.vp-seller-tag {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--theme-color);
+  color: #FFFFFF;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 400;
+}
+
+.vp-seller-stock.is-low {
+  color: #B3261E;
+  opacity: 1;
+}
+
+.vp-seller-price em {
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 400;
+  opacity: 0.75;
+}
+
+.vp-seller-add {
+  height: 38px;
+  padding-inline: 18px;
+  font-size: 14px;
+}
+
+@media (max-width: 575px) {
+  .vp-seller {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .vp-seller-buy {
+    justify-content: space-between;
+  }
+}
+
+/* --- 3. the listing's bar ------------------------------------------------- */
+
+.vp-shop-bar {
+  justify-content: space-between;
+  padding-bottom: 14px;
+  box-shadow: inset 0 -1px 0 rgba(16, 17, 17, 0.08);
+}
+
+.vp-shop-bar-count {
+  font-size: 14px;
+  color: var(--body-color);
+}
+
+/* The rail follows down a long list instead of ending a screen above it. */
+@media (min-width: 992px) {
+  .vp-shop-rail {
+    position: sticky;
+    top: 20px;
+  }
+}
+
+/* A gold rule under each filter's name, so the rail reads as four groups
+   rather than as one column of controls. */
+.vp-filter-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.vp-filter-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(164, 127, 37, 0.25);
+}
+
+/* --- the basket ----------------------------------------------------------- */
+
+.vp-cart-shot {
+  width: 96px;
+  height: 96px;
+  border-radius: 22px;
+}
+
+.vp-cart-line {
+  grid-template-columns: 96px minmax(0, 1fr) auto auto 32px;
+  padding-block: 18px;
+}
+
+@media (max-width: 575px) {
+  .vp-cart-line {
+    grid-template-columns: 72px minmax(0, 1fr) 32px;
+  }
+
+  .vp-cart-shot {
+    width: 72px;
+    height: 72px;
+  }
+}
+
+.vp-cart-money strong {
+  font-size: 17px;
+}
+
+/* The line that is actually being paid, in the shop's own gold. */
+.vp-cart-row.is-total {
+  color: var(--theme-color);
+}
+
+/* --- 4. panel tables ------------------------------------------------------ */
+
+.vp-admin-table thead th {
+  background: rgba(16, 17, 17, 0.03);
+}
+
+.vp-admin-table thead th:first-child {
+  border-start-start-radius: 12px;
+  border-end-start-radius: 12px;
+}
+
+.vp-admin-table thead th:last-child {
+  border-start-end-radius: 12px;
+  border-end-end-radius: 12px;
+}
+
+/* Banding rather than a line per row: forty rows of hairlines is a grid, and
+   a grid is harder to read across than alternating grounds. */
+.vp-admin-table tbody tr:nth-child(even) td {
+  background: rgba(16, 17, 17, 0.016);
+}
+
+.vp-admin-table tbody tr:hover td {
+  background: rgba(164, 127, 37, 0.07);
+}
+
+/* Figures line up under each other when they are tabular, which is the whole
+   reason to put numbers in a column. */
+.vp-admin-table td,
+.vp-admin-figure-num,
+.vp-cart-money strong,
+.vp-seller-price {
+  font-feature-settings: 'tnum' 1;
+}
+
+/* A gold cap on each figure, so the row of four reads as a set. */
+.vp-admin-figure {
+  position: relative;
+  overflow: hidden;
+}
+
+.vp-admin-figure::before {
+  content: '';
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--theme-color), var(--gr-color2));
+}
+
+/* --- 5. the report chart -------------------------------------------------- */
+
+.vp-chart {
+  position: relative;
+  margin-block: 16px;
+  padding: 26px 12px 8px;
+  border-radius: 20px;
+  background: rgba(16, 17, 17, 0.022);
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.06);
+}
+
+/* The ceiling, drawn as a line with its own number on it. Without it the bars
+   are a shape: relative heights nobody can put a figure to. */
+.vp-chart-top {
+  position: absolute;
+  inset-block-start: 6px;
+  inset-inline: 12px;
+  padding-inline-end: 4px;
+  font-size: 11px;
+  color: var(--body-color);
+  /* The reading start, which on this page is the right. A number at the far
+     end of a dashed line is a number nobody's eye arrives at. */
+  text-align: start;
+  border-bottom: 1px dashed rgba(16, 17, 17, 0.16);
+}
+
+.vp-bars {
+  height: 150px;
+  margin: 0;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.vp-chart-days {
+  display: flex;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.vp-chart-day {
+  flex: 1;
+  min-width: 0;
+  font-size: 10px;
+  color: var(--body-color);
+  opacity: 0.7;
+  white-space: nowrap;
+}
+
+/* --- forms that are long ------------------------------------------------- */
+
+/* The vendor application is eleven fields. As one column it is a ribbon; the
+   pane is wide enough for two on anything but a phone. */
+@media (min-width: 768px) {
+  .vp-track.vp-apply {
+    max-width: 720px;
+  }
+
+  .vp-apply .vp-checkout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 14px;
+  }
+
+  .vp-apply .vp-checkout > .vp-field-row,
+  .vp-apply .vp-checkout > button,
+  .vp-apply .vp-checkout > .vp-field.is-wide {
+    grid-column: 1 / -1;
+  }
+}

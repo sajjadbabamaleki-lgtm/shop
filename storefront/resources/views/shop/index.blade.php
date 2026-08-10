@@ -20,8 +20,9 @@
 
             <div class="vp-shop-head">
                 <div class="vp-shop-heading">
+                    {{-- The count lives in the bar above the grid and nowhere
+                         else: it was printed twice, three centimetres apart. --}}
                     <h1 class="vp-shop-title">{{ $heading }}</h1>
-                    <p class="vp-shop-count">{{ fa_number($products->total()) }} کالا</p>
                 </div>
 
                 <form class="vp-shop-search" action="{{ storefront_route('search') }}" method="get" role="search">
@@ -37,6 +38,11 @@
                 <div class="vp-shop-main">
 
                     <div class="vp-shop-bar">
+                        {{-- The count sits with the control that changes the order,
+                             because "۵ کالا" and "ترتیب" are one thought: what is
+                             in this list, and in what order. --}}
+                        <span class="vp-shop-bar-count">{{ fa_number($products->total()) }} کالا</span>
+
                         <form class="vp-shop-sort" method="get" action="{{ storefront_route('shop') }}">
                             {{-- Sorting must not throw the other filters away, so they ride along hidden. --}}
                             @foreach (['q' => $filters['q'], 'brand' => $filters['brand'], 'size' => $filters['size'], 'color' => $filters['color']] as $name => $value)
@@ -55,10 +61,13 @@
                     </div>
 
                     @if ($products->isEmpty())
-                        <p class="vp-shop-empty">
-                            چیزی با این مشخصات پیدا نشد.
-                            <a href="{{ storefront_route('shop') }}">همه محصولات</a>
-                        </p>
+                        <div class="vp-empty">
+                            <span class="vp-empty-mark" aria-hidden="true">
+                                <svg viewBox="0 0 48 48"><circle cx="21" cy="21" r="13" fill="none" stroke="currentColor" stroke-width="3"></circle><path d="M31 31 L42 42" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"></path></svg>
+                            </span>
+                            <p class="vp-empty-say">چیزی با این مشخصات پیدا نشد.</p>
+                            <a class="vp-empty-out" href="{{ storefront_route('shop') }}">دیدن همه محصولات</a>
+                        </div>
                     @else
                         <div class="row gy-4 row-cols-2 row-cols-md-3 row-cols-xxl-4 vp-shop-grid">
                             @foreach ($products as $product)

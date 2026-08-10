@@ -55,6 +55,17 @@
                     {{-- The price leads, then what it was, then the cut. On an RTL
                          page the first child is the rightmost, so this is the order
                          the eye takes them in. --}}
+                    @php
+                        // How many different sellers can supply this shoe, across
+                        // every size. The headline price is the cheapest of them,
+                        // and saying so is the difference between a price and a
+                        // number that looks arbitrary next to the rows below.
+                        $sellerCount = $sellers->flatten(1)
+                            ->map(fn (array $seller) => $seller['vendor']?->id ?? 0)
+                            ->unique()
+                            ->count();
+                    @endphp
+
                     <div class="vp-pdp-price">
                         <strong>{{ toman($offer->price) }} <span>تومان</span></strong>
                         @if ($offer->discountPercent())
@@ -62,6 +73,10 @@
                             <span class="vp-pdp-cut">٪{{ fa_number($offer->discountPercent()) }}</span>
                         @endif
                     </div>
+
+                    @if ($sellerCount > 1)
+                        <p class="vp-pdp-from">ارزان‌ترین قیمت از میان {{ fa_number($sellerCount) }} فروشنده</p>
+                    @endif
 
                     @if ($colorways->count() > 1)
                         <div class="vp-pdp-choice">
@@ -78,31 +93,42 @@
                          A basket line is a size *from a seller*, so choosing both has
                          to be the same action as adding it — which is why every row
                          is its own little form rather than a radio somewhere else. --}}
-                    <div class="vp-pdp-choice">
-                        <h2 class="vp-pdp-choice-title">سایز و فروشنده</h2>
+                    <h2 class="vp-pdp-choice-title vp-pdp-sizes-title">سایز و فروشنده</h2>
 
-                        @if ($sizes->isEmpty())
-                            <p class="vp-pdp-out">فعلاً موجود نیست.</p>
-                        @endif
-                    </div>
+                    @if ($sizes->isEmpty())
+                        <p class="vp-pdp-out">فعلاً موجود نیست.</p>
+                    @endif
 
                     @foreach ($sizes as $variant)
                         <div class="vp-sellers">
-                            <h3 class="vp-sellers-title">سایز {{ fa_number((int) $variant->size_value) }}</h3>
+                            <h3 class="vp-sellers-title"><span>سایز</span> {{ fa_number((int) $variant->size_value) }}</h3>
 
                             @foreach ($sellers[$variant->id] as $seller)
-                                <div @class(['vp-seller', 'is-ours' => $seller['vendor'] === null])>
+                                <div @class([
+                                    'vp-seller',
+                                    'is-ours' => $seller['vendor'] === null,
+                                    'is-best' => $loop->first && $sellers[$variant->id]->count() > 1,
+                                ])>
                                     <span class="vp-seller-who">
-                                        <span class="vp-seller-name">{{ $seller['vendor']?->name ?? 'ویکی پلاس' }}</span>
-                                        <span class="vp-seller-stock">{{ fa_number($seller['available']) }} عدد موجود</span>
+                                        <span class="vp-seller-name">
+                                            {{ $seller['vendor']?->name ?? 'ویکی پلاس' }}
+                                            @if ($loop->first && $sellers[$variant->id]->count() > 1)
+                                                <em class="vp-seller-tag">ارزان‌ترین</em>
+                                            @endif
+                                        </span>
+                                        {{-- Two or fewer left is worth saying differently: it is the
+                                             difference between "in stock" and "decide now". --}}
+                                        <span @class(['vp-seller-stock', 'is-low' => $seller['available'] <= 2])>
+                                            {{ fa_number($seller['available']) }} عدد موجود
+                                        </span>
                                     </span>
                                     <span class="vp-seller-buy">
-                                        <span class="vp-seller-price">{{ toman($seller['offer']->price) }} تومان</span>
+                                        <span class="vp-seller-price">{{ toman($seller['offer']->price) }} <em>تومان</em></span>
                                         <form method="post" action="{{ storefront_route('cart.add') }}">
                                             @csrf
                                             <input type="hidden" name="variant" value="{{ $variant->id }}">
                                             @if ($seller['vendor'])<input type="hidden" name="vendor" value="{{ $seller['vendor']->id }}">@endif
-                                            <button type="submit" class="vp-seller-add">افزودن</button>
+                                            <button type="submit" class="vp-seller-add">افزودن به سبد</button>
                                         </form>
                                     </span>
                                 </div>

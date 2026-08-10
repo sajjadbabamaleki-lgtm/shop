@@ -34,10 +34,13 @@
             @endforeach
 
             @if ($cart->isEmpty())
-                <p class="vp-shop-empty">
-                    سبد خریدت خالی است.
-                    <a href="{{ storefront_route('shop') }}">رفتن به فروشگاه</a>
-                </p>
+                <div class="vp-empty">
+                    <span class="vp-empty-mark" aria-hidden="true">
+                        <svg viewBox="0 0 48 48"><path d="M10 16 h28 l-3 22 a3 3 0 0 1 -3 3 h-16 a3 3 0 0 1 -3 -3 z" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"></path><path d="M18 16 a6 6 0 0 1 12 0" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"></path></svg>
+                    </span>
+                    <p class="vp-empty-say">سبد خریدت خالی است.</p>
+                    <a class="vp-empty-out" href="{{ storefront_route('shop') }}">رفتن به فروشگاه</a>
+                </div>
             @else
                 @php $lines = $cart->lines(); @endphp
 
