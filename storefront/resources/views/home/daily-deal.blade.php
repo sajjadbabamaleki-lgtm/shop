@@ -1,7 +1,7 @@
 {{--
     The daily-deal banner: one product, its category, and what is left of it.
 
-    The stock line is the variant's real sellable stock, so «فقط ۱ عدد باقی
+    The stock line is what this branch actually has left, so «فقط ۱ عدد باقی
     مانده» is a count and not a claim — and the bar beside it is drawn near
     empty because one left is not a comfortable stock level.
 
@@ -26,7 +26,7 @@
                     <div class="vp-daily-deal-info">
                         <span class="vp-daily-deal-cat">{{ $dailyDeal['category']?->name }}</span>
                         <h3 class="vp-daily-deal-name">{{ $dailyDeal['product']->title }}</h3>
-                        <strong class="vp-daily-deal-price">{{ toman($dailyDeal['product']->defaultVariant->compare_at_price) }} <span>تومان</span></strong>
+                        <strong class="vp-daily-deal-price">{{ toman($dailyDeal['product']->offerHere()->compare_at_price) }} <span>تومان</span></strong>
                         <div class="vp-daily-deal-stock">
                             <span>فقط {{ fa_number($dailyDeal['product']->sellableStock()) }} عدد باقی مانده</span>
                             <span class="vp-daily-deal-bar"><span class="vp-daily-deal-bar-fill"></span></span>

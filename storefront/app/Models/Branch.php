@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\RecordsAudits;
+use App\Support\Tenancy\BranchScope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -94,6 +95,25 @@ class Branch extends Model
     public function staff(): HasMany
     {
         return $this->hasMany(BranchUser::class);
+    }
+
+    /**
+     * What this branch sells, and what it has.
+     *
+     * The branch scope is lifted on both: reaching these through a Branch
+     * means the branch has already been named, so re-asking which branch is
+     * bound would only answer "not this one" whenever central administration
+     * looks at a franchise. Authorization decides who may hold the Branch in
+     * the first place; that is the check that belongs here.
+     */
+    public function offers(): HasMany
+    {
+        return $this->hasMany(BranchOffer::class)->withoutGlobalScope(BranchScope::class);
+    }
+
+    public function inventory(): HasMany
+    {
+        return $this->hasMany(BranchInventory::class)->withoutGlobalScope(BranchScope::class);
     }
 
     public function getRouteKeyName(): string

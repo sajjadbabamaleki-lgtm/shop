@@ -366,4 +366,23 @@ The three §40 questions have been answered by the client:
   the main store — falling back would serve central prices under a franchise's
   address.
 
-- Phases 2–7: not started. Phase 2 is the destructive one.
+- **Phase 2 — price and stock move to the branch.** `branch_offers` and
+  `branch_inventory`, the central branch backfilled from the columns that were
+  on `variants`, and those columns dropped. `inventory_movements` belongs to a
+  branch too. The storefront reads the offer of the branch the request arrived
+  at, and `check-parity.js` is still zero at all four widths — the main store's
+  page did not move a pixel while the thing under it changed completely.
+  *Done.*
+
+  Two shapes worth knowing. **A branch that does not list a variant has no row
+  for it**, so delisting is an absence rather than a flag and a franchise's
+  catalogue is what it chose rather than everything minus what it hid. And
+  **price and stock are two tables, not one**: a price is an occasional
+  audited decision, stock moves on every sale under a row lock, and one row
+  for both would put the till in contention with the price list.
+
+  `php artisan branch:open <slug> <name> --markup= --stock=` opens a franchise
+  with central's catalogue at its own prices. It exists because §19's panel
+  does not yet; when that panel arrives it calls the same `BranchOpener`.
+
+- Phases 3–7: not started.

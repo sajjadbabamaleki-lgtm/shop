@@ -43,7 +43,7 @@
                             <div class="vp-best-label">
                                 <span class="vp-best-lines">
                                     <span class="vp-best-name">{{ $tile['product']->short_title }}</span>
-                                    <span class="vp-best-cta"><strong>{{ toman($tile['product']->defaultVariant->compare_at_price) }} <span>تومان</span></strong></span>
+                                    <span class="vp-best-cta"><strong>{{ toman($tile['product']->offerHere()->compare_at_price) }} <span>تومان</span></strong></span>
                                 </span>
                             </div>
                             <a class="vp-best-browse" href="{{ page_url('shop.html') }}" aria-label="افزودن {{ $tile['product']->short_title }} به سبد خرید"><i class="fa-solid fa-plus" aria-hidden="true"></i></a>

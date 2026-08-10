@@ -86,6 +86,10 @@ class Product extends Model
      * The colourways offered by the product page's colour selector, each
      * carrying its own sizes. Changing colour must update media, price and
      * availability together (spec 16.1), so they travel as one structure.
+     *
+     * `from_price` is the cheapest size **at the branch this request belongs
+     * to**, and null where the branch lists none of them — a shop that does
+     * not stock a colour has no price to quote for it.
      */
     public function colorways(): Collection
     {
@@ -95,7 +99,7 @@ class Product extends Model
                 'display_color' => $variants->first()->display_color,
                 'color_family' => $variants->first()->color_family,
                 'sellable' => $variants->contains(fn (Variant $v) => $v->isSellable()),
-                'from_price' => $variants->min('price'),
+                'from_price' => $variants->map(fn (Variant $v) => $v->offer?->price)->filter()->min(),
                 'sizes' => $variants->sortBy('size_value', SORT_NATURAL)->values(),
             ])
             ->values();
@@ -111,11 +115,30 @@ class Product extends Model
     }
 
     /**
-     * What a listing has left to sell, across every colour and size.
+     * What this branch has left to sell, across every colour and size.
      */
     public function sellableStock(): int
     {
-        return (int) $this->variants->sum('sellable_stock');
+        return (int) $this->variants->sum(fn (Variant $variant) => $variant->sellableStock());
+    }
+
+    /**
+     * The price a listing card shows: the default variant's, at the branch
+     * this request belongs to.
+     *
+     * Null when the branch does not sell it — which the purchasable scope
+     * already excludes from any list a customer sees, so a null here means a
+     * caller reached past that scope and should handle it rather than print
+     * a zero.
+     *
+     * Named for where it applies, and not `offer()`, because Variant::offer is
+     * an Eloquent relation and two methods of one name doing two different
+     * kinds of thing is how a template ends up writing `$product->offer` and
+     * getting an exception it cannot read.
+     */
+    public function offerHere(): ?BranchOffer
+    {
+        return $this->defaultVariant?->offer;
     }
 
     /**

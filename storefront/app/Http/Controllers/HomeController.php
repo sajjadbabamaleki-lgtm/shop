@@ -65,10 +65,17 @@ class HomeController extends Controller
     {
         return Product::query()
             ->purchasable()
-            ->with(['brand', 'categories', 'media', 'variants', 'defaultVariant'])
+            ->with([
+                'brand', 'categories', 'media',
+                // Price and stock belong to the branch this request arrived
+                // at, so both come along with the variants. Without them the
+                // page would ask the database once per card for each.
+                'variants.offer', 'variants.stock',
+                'defaultVariant.offer',
+            ])
             ->orderByDesc('published_at')
             ->get()
-            ->filter(fn (Product $product) => $product->defaultVariant?->hasActivePromotion())
+            ->filter(fn (Product $product) => $product->offerHere()?->hasActivePromotion())
             ->keyBy('slug');
     }
 

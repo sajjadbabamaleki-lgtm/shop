@@ -2,12 +2,16 @@
 
 namespace Database\Seeders;
 
+use App\Models\Branch;
+use App\Models\BranchInventory;
+use App\Models\BranchOffer;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\InventoryMovement;
 use App\Models\Product;
 use App\Models\Variant;
 use App\Models\VariantMedia;
+use App\Support\Tenancy\TenantContext;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -136,7 +140,18 @@ class CatalogueSeeder extends Seeder
         DB::transaction(function () {
             $categories = $this->seedCategories();
             $brands = $this->seedBrands();
-            $this->seedProducts($brands, $categories['sneaker']);
+
+            // Prices, stock and the ledger belong to a branch now, and this
+            // catalogue is the main store's. Binding the central branch makes
+            // the branch-scoped reads below find the rows they are matching
+            // against — without it a re-seed would see nothing and try to
+            // insert a second offer for every variant.
+            $central = Branch::central();
+
+            app(TenantContext::class)->forBranch(
+                $central,
+                fn () => $this->seedProducts($brands, $categories['sneaker'], $central),
+            );
         });
     }
 
@@ -183,7 +198,7 @@ class CatalogueSeeder extends Seeder
     /**
      * @param  array<string, Brand>  $brands
      */
-    private function seedProducts(array $brands, Category $sneakers): void
+    private function seedProducts(array $brands, Category $sneakers, Branch $central): void
     {
         // The live step's cut, taken from the same place the board above the
         // cards reads it, so a seeded price and a drawn badge cannot disagree.
@@ -238,20 +253,41 @@ class CatalogueSeeder extends Seeder
                         'sku' => strtoupper(str_replace('-', '', $spec['slug']))."-{$size}",
                         'color_family' => self::UNKNOWN_COLOUR['family'],
                         'size_system' => 'EU',
+                        'status' => 'active',
+                    ]
+                );
+
+                // The price is the central branch's, not the variant's. The
+                // bound tenant fills branch_id in, and the unique index on
+                // (branch_id, variant_id) is what updateOrCreate matches on.
+                // branch_id is written rather than left to BelongsToBranch to
+                // fill from the bound tenant: seeders run under
+                // WithoutModelEvents, so the creating hook that normally does
+                // it never fires here.
+                BranchOffer::updateOrCreate(
+                    ['branch_id' => $central->id, 'variant_id' => $variant->id],
+                    [
                         'price' => $now,
                         'compare_at_price' => $was,
-                        'stock_on_hand' => $onHand,
-                        'stock_reserved' => 0,
                         'status' => 'active',
                         'promotion_starts_at' => $startedAt,
                         'promotion_ends_at' => $endsAt,
                     ]
                 );
 
+                // Stock is only ever created here, never updated: a re-seed on
+                // a live database must not quietly restock a shelf that has
+                // been selling. What is on hand is the ledger's business.
+                $stock = BranchInventory::firstOrCreate(
+                    ['branch_id' => $central->id, 'variant_id' => $variant->id],
+                    ['stock_on_hand' => $onHand, 'stock_reserved' => 0],
+                );
+
                 // Stock is meant to be explainable from its ledger, so the
                 // seeded units arrive as a receipt rather than appearing.
-                if ($variant->movements()->doesntExist()) {
+                if ($stock->wasRecentlyCreated) {
                     InventoryMovement::create([
+                        'branch_id' => $central->id,
                         'variant_id' => $variant->id,
                         'type' => 'receipt',
                         'quantity' => $onHand,

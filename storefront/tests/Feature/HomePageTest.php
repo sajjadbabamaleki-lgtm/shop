@@ -2,8 +2,11 @@
 
 namespace Tests\Feature;
 
+use App\Models\Branch;
+use App\Models\BranchInventory;
 use App\Models\Category;
 use App\Models\Product;
+use App\Support\Tenancy\TenantContext;
 use Database\Seeders\BranchSeeder;
 use Database\Seeders\CatalogueSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -21,6 +24,12 @@ class HomePageTest extends TestCase
         // before it renders anything, and the seeder is what makes the host
         // the tests use — localhost — reach the central branch.
         $this->seed([BranchSeeder::class, CatalogueSeeder::class]);
+
+        // The test itself reads prices and stock, and those are branch-owned
+        // now: outside a request nothing is bound and a branch-scoped query
+        // correctly returns nothing. The middleware binds the same branch
+        // again when the request runs, so this only affects the assertions.
+        app(TenantContext::class)->set(Branch::central());
     }
 
     public function test_the_front_page_renders(): void
@@ -94,22 +103,22 @@ class HomePageTest extends TestCase
     }
 
     /**
-     * A deal card's price is the variant's, and its badge is the variant's
-     * discount — so the cut drawn on a card is the one the board above it
-     * says is live, without either being told about the other.
+     * A deal card's price is this branch's offer, and its badge is that
+     * offer's discount — so the cut drawn on a card is the one the board above
+     * it says is live, without either being told about the other.
      */
-    public function test_a_deal_card_prices_its_own_variant(): void
+    public function test_a_deal_card_prices_its_own_offer(): void
     {
         $ladder = config('storefront.ladder');
         $cut = $ladder['steps'][$ladder['live'] - 1]['cut'];
 
-        $product = Product::with('defaultVariant')->where('slug', 'new-balance-530')->firstOrFail();
-        $variant = $product->defaultVariant;
+        $product = Product::with('defaultVariant.offer')->where('slug', 'new-balance-530')->firstOrFail();
+        $offer = $product->offerHere();
 
-        $this->assertSame($cut, $variant->discountPercent());
+        $this->assertSame($cut, $offer->discountPercent());
 
         $this->get('/')->assertSee(
-            '<del>'.toman($variant->compare_at_price).'</del><strong>'.toman($variant->price).' <span>تومان</span></strong>',
+            '<del>'.toman($offer->compare_at_price).'</del><strong>'.toman($offer->price).' <span>تومان</span></strong>',
             false
         );
     }
@@ -121,10 +130,7 @@ class HomePageTest extends TestCase
     {
         $this->get('/')->assertSee('فقط ۱ عدد باقی مانده', false);
 
-        Product::where('slug', 'new-balance-530')
-            ->firstOrFail()
-            ->variants()
-            ->update(['stock_on_hand' => 4]);
+        $this->restock('new-balance-530', 4);
 
         $this->get('/')->assertSee('فقط ۴ عدد باقی مانده', false);
     }
@@ -149,11 +155,19 @@ class HomePageTest extends TestCase
     {
         $this->get('/')->assertSee('کتونی جردن وان ایر', false);
 
-        Product::where('slug', 'jordan-one-air')
-            ->firstOrFail()
-            ->variants()
-            ->update(['stock_on_hand' => 0]);
+        $this->restock('jordan-one-air', 0);
 
         $this->get('/')->assertDontSee('کتونی جردن وان ایر', false);
+    }
+
+    /**
+     * Sets what the bound branch has of every size of one shoe. Stock is the
+     * branch's, not the variant's, so this writes where the page reads.
+     */
+    private function restock(string $slug, int $onHand): void
+    {
+        $variants = Product::where('slug', $slug)->firstOrFail()->variants()->pluck('id');
+
+        BranchInventory::whereIn('variant_id', $variants)->update(['stock_on_hand' => $onHand]);
     }
 }
