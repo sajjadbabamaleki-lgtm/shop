@@ -5,6 +5,8 @@ namespace App\Support\Checkout;
 use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Variant;
+use App\Models\Vendor;
+use App\Support\Marketplace\Sellers;
 use App\Support\Tenancy\TenantContext;
 use Illuminate\Contracts\Session\Session;
 use Illuminate\Support\Str;
@@ -28,6 +30,7 @@ class CartManager
     public function __construct(
         private TenantContext $tenant,
         private Session $session,
+        private Sellers $sellers,
     ) {}
 
     /**
@@ -71,9 +74,9 @@ class CartManager
      * this and the checkout somebody else can buy the last pair, which is why
      * the real guard is the lock in PlaceOrder.
      */
-    public function add(Variant $variant, int $quantity = 1): ?CartItem
+    public function add(Variant $variant, int $quantity = 1, ?Vendor $vendor = null): ?CartItem
     {
-        $available = $variant->sellableStock();
+        $available = $this->sellers->availableFrom($variant, $vendor?->id);
 
         if ($available < 1) {
             return null;
@@ -81,7 +84,10 @@ class CartManager
 
         $cart = $this->current();
 
-        $item = $cart->items()->firstOrNew(['variant_id' => $variant->id]);
+        // A line is a size *from a seller*: the same shoe from the branch and
+        // from a vendor are two lines at two prices, not one line that has to
+        // pick.
+        $item = $cart->items()->firstOrNew(['variant_id' => $variant->id, 'vendor_id' => $vendor?->id]);
 
         $item->quantity = min(($item->quantity ?? 0) + max(1, $quantity), $available);
         $item->save();
@@ -94,25 +100,28 @@ class CartManager
      * quantity box set to nothing means — and so does a size that has since
      * sold out, because there is no quantity of it to hold.
      */
-    public function setQuantity(Variant $variant, int $quantity): void
+    public function setQuantity(Variant $variant, int $quantity, ?Vendor $vendor = null): void
     {
         $cart = $this->current();
-        $available = $variant->sellableStock();
+        $available = $this->sellers->availableFrom($variant, $vendor?->id);
 
         if ($quantity <= 0 || $available < 1) {
-            $cart->items()->where('variant_id', $variant->id)->delete();
+            $this->remove($variant, $vendor);
 
             return;
         }
 
-        $item = $cart->items()->firstOrNew(['variant_id' => $variant->id]);
+        $item = $cart->items()->firstOrNew(['variant_id' => $variant->id, 'vendor_id' => $vendor?->id]);
         $item->quantity = min($quantity, $available);
         $item->save();
     }
 
-    public function remove(Variant $variant): void
+    public function remove(Variant $variant, ?Vendor $vendor = null): void
     {
-        $this->current()->items()->where('variant_id', $variant->id)->delete();
+        $this->current()->items()
+            ->where('variant_id', $variant->id)
+            ->where(fn ($q) => $vendor ? $q->where('vendor_id', $vendor->id) : $q->whereNull('vendor_id'))
+            ->delete();
     }
 
     public function clear(): void

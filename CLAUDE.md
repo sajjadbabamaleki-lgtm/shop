@@ -50,6 +50,12 @@ An Iranian shoe and bag storefront (vikyplus.ir) built on the ThemeForest
   in the storefront's own materials — `resources/views/admin/` and
   `layouts/admin.blade.php`. Its branch comes from the **signed-in user**, not
   the URL; `php artisan staff:invite` makes an account.
+- The marketplace is at `/vendor` (a vendor's own panel) and under `/admin`
+  for the platform's side. **Nothing in it is branch-scoped** — a vendor sells
+  across the platform, so those screens sit outside the branch group and use
+  `RequirePlatformPermission`. A vendor's money is `ledger_entries`, which is
+  append-only: the model throws on update and delete, and a balance is
+  `SUM(amount)`, never a column. `php artisan vendor:invite` registers one.
 - **`ResolveTenant` and `ResolveAdminTenant` must run before `SubstituteBindings`** — set in
   `bootstrap/app.php`'s priority list. Branch-scoped models fail closed, so a
   binding resolved before the tenant finds nothing and the page 404s for

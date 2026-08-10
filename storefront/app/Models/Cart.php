@@ -48,8 +48,11 @@ class Cart extends Model
         return $this->items
             ->sortBy('id')
             ->map(function (CartItem $item) {
-                $offer = $item->variant?->offer;
-                $available = $item->variant?->sellableStock() ?? 0;
+                // Who is selling it decides the price and the shelf. Null is
+                // the branch; a vendor id is somebody else's stock at
+                // somebody else's price.
+                $offer = $item->offer();
+                $available = $item->available();
 
                 return [
                     'item' => $item,

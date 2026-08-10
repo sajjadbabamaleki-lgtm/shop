@@ -476,6 +476,45 @@ The three §40 questions have been answered by the client:
   `ResolveAdminTenant` also has to run before `SubstituteBindings`, or a
   branch-scoped Order binds to nothing and every order screen 404s.
 
-- Phases 6–7: not started. The marketplace — vendors, their offers against the
-  same canonical products, approval, and then commission, ledger and
-  settlements.
+- **Phases 6 and 7 — the marketplace.** Vendors, their offers against the same
+  canonical products, §4's approval, a vendor panel, and then commission, an
+  append-only ledger and settlements. *Done.*
+
+  **Nothing in it is branch-scoped**, and that absence is the design: §1 says a
+  Vendor and a Franchise are different things, and a vendor with a branch_id
+  would be a shop of ours rather than somebody else's business. Where the two
+  halves meet is one nullable column — `order_items.vendor_id`. The order
+  belongs to the storefront that took it; each line may belong to a vendor, who
+  fulfils it from their own shelf and is owed for it (§9).
+
+  A basket line therefore had to grow a seller too: the same shoe in the same
+  size can be on sale from the branch and from two vendors at three prices, so
+  «add to basket» is a choice of seller as well as of size. The unique index is
+  `NULLS NOT DISTINCT`, because the one duplicate it has to prevent is the
+  branch's own line.
+
+  **Money is a ledger, not a balance column.** `LedgerEntry` refuses updates
+  and deletes the way `Audit` does; a vendor's balance is `SUM(amount)` and is
+  never stored. Cancelling a paid order posts reversals rather than deleting
+  the rows it is undoing — four rows netting to nothing, not two rows removed.
+
+  A settlement **claims the exact entries it discharges**, one row each with a
+  unique index on the entry, so two overlapping requests cannot be paid for the
+  same sale twice — and cannot in the database rather than in whichever code
+  path runs. Requested → approved → paid, three steps, because the person who
+  approves a payment and the person who makes it are not always the same.
+
+  Commission resolves most-specific-first: product, then category, then vendor,
+  then the platform default. **No rule at all means no commission** — a
+  marketplace with nothing configured should take nothing rather than invent a
+  rate.
+
+  `php artisan vendor:invite <slug> <name> <email> <contact>` registers a
+  company and its first user. It starts pending: letting somebody else sell on
+  your platform is a decision, not a piece of setup.
+
+- The seven phases the plan set out are built. What is *not* built, and should
+  be said plainly: no payment gateway (cash on delivery only), no customer
+  accounts or order history behind a login, no shipping integration, no
+  promotions engine beyond the stepped sale, no vendor self-registration, and
+  no reporting beyond the panel's four figures.

@@ -2,11 +2,13 @@
 
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\InventoryController;
+use App\Http\Controllers\Admin\MarketplaceController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\PricingController;
 use App\Http\Controllers\Admin\SessionController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Middleware\RequirePermission;
+use App\Http\Middleware\RequirePlatformPermission;
 use App\Http\Middleware\ResolveAdminTenant;
 use Illuminate\Support\Facades\Route;
 
@@ -66,4 +68,39 @@ Route::middleware(['auth', ResolveAdminTenant::class])->group(function (): void 
     Route::post('/settings', [SettingsController::class, 'update'])
         ->middleware(RequirePermission::class.':branch.settings.manage')
         ->name('settings.update');
+});
+
+/*
+ * The marketplace, outside the branch group on purpose.
+ *
+ * None of it belongs to a branch — a vendor sells across the whole platform —
+ * so there is no tenant to resolve, and a marketplace manager legitimately has
+ * no branch at all. Every route names the platform permission it needs, so a
+ * franchise manager reaching one of these addresses is refused rather than
+ * shown somebody else's company.
+ */
+Route::middleware('auth')->group(function (): void {
+    Route::get('/vendors', [MarketplaceController::class, 'vendors'])
+        ->middleware(RequirePlatformPermission::class.':vendor.view')
+        ->name('vendors');
+    Route::post('/vendors/{vendor}', [MarketplaceController::class, 'vendorStatus'])
+        ->middleware(RequirePlatformPermission::class.':vendor.approve')
+        ->name('vendor.status');
+    Route::post('/vendor-offers/{offer}', [MarketplaceController::class, 'offerStatus'])
+        ->middleware(RequirePlatformPermission::class.':vendor.offers.manage')
+        ->name('vendor.offer.status');
+
+    Route::get('/commissions', [MarketplaceController::class, 'commissions'])
+        ->middleware(RequirePlatformPermission::class.':marketplace.commission.manage')
+        ->name('commissions');
+    Route::post('/commissions', [MarketplaceController::class, 'storeCommission'])
+        ->middleware(RequirePlatformPermission::class.':marketplace.commission.manage')
+        ->name('commissions.store');
+
+    Route::get('/settlements', [MarketplaceController::class, 'settlements'])
+        ->middleware(RequirePlatformPermission::class.':marketplace.settlement.view')
+        ->name('settlements');
+    Route::post('/settlements/{settlement}', [MarketplaceController::class, 'settlementAction'])
+        ->middleware(RequirePlatformPermission::class.':marketplace.settlement.view')
+        ->name('settlement.action');
 });

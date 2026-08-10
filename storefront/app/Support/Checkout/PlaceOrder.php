@@ -10,6 +10,8 @@ use App\Models\Customer;
 use App\Models\InventoryMovement;
 use App\Models\Order;
 use App\Models\Variant;
+use App\Models\VendorOffer;
+use App\Support\Marketplace\Sellers;
 use App\Support\Tenancy\TenantContext;
 use Illuminate\Support\Facades\DB;
 
@@ -25,9 +27,14 @@ use Illuminate\Support\Facades\DB;
  * holds the final line: branch_inventory carries a CHECK that a reservation
  * can never exceed what is on hand, so even a bug here cannot oversell.
  *
- * Everything is locked in one order — ascending variant id — because two
- * baskets containing the same two shoes in opposite orders would otherwise
- * deadlock, and a deadlock under load looks exactly like the site being down.
+ * Everything is locked in one order — ascending variant id, then vendor —
+ * because two baskets containing the same two shoes in opposite orders would
+ * otherwise deadlock, and a deadlock under load looks exactly like the site
+ * being down.
+ *
+ * A line may be the branch's or a vendor's, and the only difference is which
+ * shelf is locked: branch_inventory, or the vendor's own offer. Both carry the
+ * same CHECK that a reservation cannot exceed what is on hand.
  *
  * Stock is *reserved*, not sold. The units leave the sellable pool but stay on
  * hand until the order is actually paid for, which is what makes cancelling
@@ -38,6 +45,7 @@ class PlaceOrder
     public function __construct(
         private TenantContext $tenant,
         private CartManager $carts,
+        private Sellers $sellers,
     ) {}
 
     /**
@@ -50,7 +58,14 @@ class PlaceOrder
         $branch = $this->tenant->branch();
 
         return DB::transaction(function () use ($cart, $contact, $branch) {
-            $items = $cart->items()->with('variant.product')->get()->sortBy('variant_id')->values();
+            $items = $cart->items()
+                ->with('variant.product', 'vendor')
+                ->get()
+                // Locked in one order, always, so two baskets holding the same
+                // two shoes cannot deadlock. Vendor id breaks the tie when the
+                // same variant is being bought from two sellers at once.
+                ->sortBy(fn (CartItem $item) => [$item->variant_id, $item->vendor_id ?? 0])
+                ->values();
 
             if ($items->isEmpty()) {
                 throw new \RuntimeException('An empty basket cannot become an order.');
@@ -92,6 +107,14 @@ class PlaceOrder
             foreach ($lines as $line) {
                 $order->items()->create($line['attributes']);
 
+                // inventory_movements is the *branch's* stock ledger. A vendor
+                // line moves nothing on the branch's shelf, so it writes
+                // nothing here — the vendor's own count lives on their offer,
+                // and what they are owed lives in ledger_entries.
+                if ($line['attributes']['vendor_id'] !== null) {
+                    continue;
+                }
+
                 InventoryMovement::create([
                     'branch_id' => $branch->id,
                     'variant_id' => $line['variant']->id,
@@ -112,6 +135,10 @@ class PlaceOrder
     /**
      * Take one line's units out of the sellable pool, or refuse the order.
      *
+     * Which pool depends on who is selling: the branch's shelf, or the
+     * vendor's own. Both are locked the same way and checked under the lock,
+     * and both have the same CHECK constraint behind them.
+     *
      * @return array{variant: Variant, quantity: int, line_total: int, attributes: array<string, mixed>}
      *
      * @throws CannotFulfil
@@ -122,26 +149,26 @@ class PlaceOrder
 
         // Read the price inside the transaction too. A basket holds no prices,
         // so this is the first and only time this order's money is decided,
-        // and it is decided from the branch's own offer.
-        $offer = $variant?->offer;
+        // and it is decided from the seller's own offer.
+        $offer = $variant === null ? null : $this->sellers->offerFor($variant, $item->vendor_id);
 
-        if ($variant === null || $offer === null || $offer->status !== 'active' || $variant->status !== 'active') {
+        if ($variant === null || $offer === null || $variant->status !== 'active') {
             throw CannotFulfil::notSold($variant ?? $item->variant, $item->quantity);
         }
 
-        $inventory = BranchInventory::where('branch_id', $branch->id)
-            ->where('variant_id', $variant->id)
-            ->lockForUpdate()
-            ->first();
+        if ($item->vendor_id === null) {
+            if ($offer->status !== 'active') {
+                throw CannotFulfil::notSold($variant, $item->quantity);
+            }
 
-        if ($inventory === null || $inventory->sellable_stock < $item->quantity) {
-            throw CannotFulfil::soldOut($variant, $item->quantity, $inventory?->sellable_stock ?? 0);
+            $this->holdBranchStock($branch, $variant, $item->quantity);
+        } else {
+            if (! $offer->isSellable()) {
+                throw CannotFulfil::notSold($variant, $item->quantity);
+            }
+
+            $this->holdVendorStock($offer, $variant, $item->quantity);
         }
-
-        // The row is locked, so nothing can have moved between the check above
-        // and this write. The CHECK constraint is still the last word.
-        $inventory->stock_reserved += $item->quantity;
-        $inventory->save();
 
         return [
             'variant' => $variant,
@@ -149,6 +176,7 @@ class PlaceOrder
             'line_total' => $offer->price * $item->quantity,
             'attributes' => [
                 'variant_id' => $variant->id,
+                'vendor_id' => $item->vendor_id,
                 'product_title' => $variant->product?->title ?? $variant->sku,
                 'sku' => $variant->sku,
                 'size_value' => $variant->size_value,
@@ -159,6 +187,41 @@ class PlaceOrder
                 'line_total' => $offer->price * $item->quantity,
             ],
         ];
+    }
+
+    /**
+     * @throws CannotFulfil
+     */
+    private function holdBranchStock(Branch $branch, Variant $variant, int $quantity): void
+    {
+        $inventory = BranchInventory::where('branch_id', $branch->id)
+            ->where('variant_id', $variant->id)
+            ->lockForUpdate()
+            ->first();
+
+        if ($inventory === null || $inventory->sellable_stock < $quantity) {
+            throw CannotFulfil::soldOut($variant, $quantity, $inventory?->sellable_stock ?? 0);
+        }
+
+        // The row is locked, so nothing can have moved between the check above
+        // and this write. The CHECK constraint is still the last word.
+        $inventory->stock_reserved += $quantity;
+        $inventory->save();
+    }
+
+    /**
+     * @throws CannotFulfil
+     */
+    private function holdVendorStock(VendorOffer $offer, Variant $variant, int $quantity): void
+    {
+        $locked = VendorOffer::whereKey($offer->id)->lockForUpdate()->firstOrFail();
+
+        if ($locked->sellable_stock < $quantity) {
+            throw CannotFulfil::soldOut($variant, $quantity, $locked->sellable_stock);
+        }
+
+        $locked->stock_reserved += $quantity;
+        $locked->save();
     }
 
     /**

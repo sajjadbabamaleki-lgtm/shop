@@ -87,6 +87,18 @@ class BranchOffer extends Model
     }
 
     /**
+     * What this branch has left of the variant.
+     *
+     * Here so that a BranchOffer and a VendorOffer answer the same three
+     * questions — price, promotion, stock — and a template holding one does
+     * not have to know which kind of seller it came from.
+     */
+    public function sellableStock(): int
+    {
+        return $this->status === 'active' ? ($this->variant?->sellableStock() ?? 0) : 0;
+    }
+
+    /**
      * Null when no valid promotion is running, so a template cannot render a
      * struck-through price without one.
      */

@@ -6124,3 +6124,131 @@ ul.vp-how-list.is-ticked li:before {
 .vp-admin-remember input {
   accent-color: var(--theme-color);
 }
+
+/* ---------------------------------------------------------------------------
+   The marketplace: sellers on a product page, and the vendor panel
+   ---------------------------------------------------------------------------
+   Phase 6 and 7. Again, almost nothing new: the vendor panel is the branch
+   panel's shell with a different nav, because the two are the same kind of
+   screen for two different kinds of business and looking alike is correct.
+
+   The only genuinely new object is the row of sellers under a product's price
+   — one line per seller, name on one side, price and a button on the other,
+   ordered cheapest first.
+   -------------------------------------------------------------------------- */
+
+.vp-sellers {
+  margin-top: 22px;
+  padding-top: 18px;
+  box-shadow: inset 0 1px 0 rgba(16, 17, 17, 0.1);
+}
+
+.vp-sellers-title {
+  margin: 0 0 10px;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.vp-seller {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 14px;
+  border-radius: 18px;
+  background: #FFFFFF;
+  box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.1);
+}
+
+.vp-seller + .vp-seller {
+  margin-top: 8px;
+}
+
+/* The shop's own line, marked by its edge rather than by a badge: it is the
+   default, not a promotion. */
+.vp-seller.is-ours {
+  box-shadow: inset 0 0 0 1.5px rgba(164, 127, 37, 0.4);
+}
+
+.vp-seller-who {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.vp-seller-name {
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--title-color);
+}
+
+.vp-seller-stock {
+  font-size: 12px;
+  color: var(--body-color);
+  opacity: 0.75;
+}
+
+.vp-seller-buy {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.vp-seller-price {
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 700;
+  font-size: 16px;
+  white-space: nowrap;
+}
+
+.vp-seller-add {
+  height: 36px;
+  padding-inline: 16px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--theme-color);
+  color: #FFFFFF;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.vp-seller-add:hover {
+  background: var(--gr-color2);
+}
+
+/* --- the vendor panel ----------------------------------------------------- */
+
+.vp-vendor-pending {
+  color: #B3261E;
+}
+
+.vp-vendor-add {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) repeat(3, minmax(0, 1fr)) auto;
+  gap: 12px;
+  align-items: end;
+  margin-top: 14px;
+}
+
+@media (max-width: 991px) {
+  .vp-vendor-add {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: stretch;
+  }
+}
+
+.vp-admin-inline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Money leaving the account, so the direction is visible without reading the
+   word beside it. */
+.vp-ledger-out {
+  color: #B3261E;
+}

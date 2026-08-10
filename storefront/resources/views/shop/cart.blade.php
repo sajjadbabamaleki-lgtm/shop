@@ -57,7 +57,7 @@
 
                                 <div class="vp-cart-what">
                                     <a class="vp-cart-name" href="{{ storefront_route('product', $variant->product) }}">{{ $variant->product?->title }}</a>
-                                    <span class="vp-cart-meta">سایز {{ fa_number((int) $variant->size_value) }}</span>
+                                    <span class="vp-cart-meta">سایز {{ fa_number((int) $variant->size_value) }} — فروشنده: {{ $line['item']->sellerName() }}</span>
                                     @if ($line['offer'] === null)
                                         <span class="vp-cart-warn">این کالا دیگر در این شعبه فروخته نمی‌شود</span>
                                     @elseif ($line['available'] < $line['quantity'])
@@ -68,8 +68,9 @@
                                 <form class="vp-cart-qty" method="post" action="{{ storefront_route('cart.update') }}">
                                     @csrf
                                     <input type="hidden" name="variant" value="{{ $variant->id }}">
-                                    <label class="visually-hidden" for="qty-{{ $variant->id }}">تعداد</label>
-                                    <input id="qty-{{ $variant->id }}" type="number" name="quantity" value="{{ $line['quantity'] }}" min="0" max="{{ max(1, $line['available']) }}" inputmode="numeric">
+                                    <input type="hidden" name="vendor" value="{{ $line['item']->vendor_id }}">
+                                    <label class="visually-hidden" for="qty-{{ $line['item']->id }}">تعداد</label>
+                                    <input id="qty-{{ $line['item']->id }}" type="number" name="quantity" value="{{ $line['quantity'] }}" min="0" max="{{ max(1, $line['available']) }}" inputmode="numeric">
                                     <button type="submit">به‌روزرسانی</button>
                                 </form>
 
@@ -87,6 +88,7 @@
                                 <form method="post" action="{{ storefront_route('cart.remove') }}">
                                     @csrf
                                     <input type="hidden" name="variant" value="{{ $variant->id }}">
+                                    <input type="hidden" name="vendor" value="{{ $line['item']->vendor_id }}">
                                     <button type="submit" class="vp-cart-drop" aria-label="حذف {{ $variant->product?->title }}">&times;</button>
                                 </form>
                             </div>

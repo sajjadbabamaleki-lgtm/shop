@@ -19,7 +19,7 @@ class OrderItem extends Model
     use HasFactory;
 
     protected $fillable = [
-        'order_id', 'variant_id', 'product_title', 'sku', 'size_value',
+        'order_id', 'variant_id', 'vendor_id', 'product_title', 'sku', 'size_value',
         'display_color', 'unit_price', 'compare_at_price', 'quantity', 'line_total',
     ];
 
@@ -41,5 +41,18 @@ class OrderItem extends Model
     public function variant(): BelongsTo
     {
         return $this->belongsTo(Variant::class);
+    }
+
+    /**
+     * Who fulfils it and is owed for it. Null is the branch (§9).
+     */
+    public function vendor(): BelongsTo
+    {
+        return $this->belongsTo(Vendor::class);
+    }
+
+    public function sellerName(): string
+    {
+        return $this->vendor?->name ?? 'ویکی پلاس';
     }
 }

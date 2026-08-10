@@ -93,6 +93,40 @@ class User extends Authenticatable
         return $this->hasMany(BranchUser::class)->acrossAllBranches();
     }
 
+    /**
+     * The vendors this user works for. The vendor half of branchRoles, and
+     * kept separate for the same reason the tables are: a vendor is not a
+     * branch, and one list holding both would need every reader to ask which
+     * kind it is looking at.
+     */
+    public function vendorRoles(): HasMany
+    {
+        return $this->hasMany(VendorUser::class);
+    }
+
+    public function worksFor(Vendor $vendor): bool
+    {
+        return $this->vendorRoles->contains('vendor_id', $vendor->id);
+    }
+
+    /**
+     * Whether this user may do something **for one particular vendor**.
+     *
+     * §24 again, on the marketplace side: the role says what, the vendor_users
+     * row says for whom. Platform-wide authority passes, which is how a
+     * marketplace manager can act on a vendor's behalf when they have to.
+     */
+    public function hasPermissionToFor(Vendor $vendor, string $permission): bool
+    {
+        if ($this->hasPermissionTo($permission)) {
+            return true;
+        }
+
+        $role = $this->vendorRoles->firstWhere('vendor_id', $vendor->id)?->role;
+
+        return $role?->scope === Role::SCOPE_VENDOR && $role->grants($permission);
+    }
+
     public function branchRoleAt(Branch $branch): ?Role
     {
         return $this->branchRoles

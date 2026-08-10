@@ -18,6 +18,11 @@
 @include('partials.head')
 </head>
 
+@php
+    // The marketplace screens have no branch — a vendor sells across the whole
+    // platform — so the shell has to hold that without falling over.
+    $branch = $branch ?? null;
+@endphp
 <body class="shoe-shop vp-admin-body">
 
 <header class="vp-admin-bar">
@@ -28,13 +33,26 @@
         </a>
 
         <nav class="vp-admin-nav">
-            <a href="{{ route('admin.dashboard') }}" @class(['is-on' => request()->routeIs('admin.dashboard')])>خانه</a>
-            <a href="{{ route('admin.orders') }}" @class(['is-on' => request()->routeIs('admin.order*')])>سفارش‌ها</a>
-            <a href="{{ route('admin.inventory') }}" @class(['is-on' => request()->routeIs('admin.inventory*')])>موجودی</a>
-            @if (auth()->user()->hasPermissionToAt($branch, 'branch.pricing.manage'))
-                <a href="{{ route('admin.pricing') }}" @class(['is-on' => request()->routeIs('admin.pricing*')])>قیمت‌ها</a>
+            @if ($branch)
+                <a href="{{ route('admin.dashboard') }}" @class(['is-on' => request()->routeIs('admin.dashboard')])>خانه</a>
+                <a href="{{ route('admin.orders') }}" @class(['is-on' => request()->routeIs('admin.order*')])>سفارش‌ها</a>
+                <a href="{{ route('admin.inventory') }}" @class(['is-on' => request()->routeIs('admin.inventory*')])>موجودی</a>
+                @if (auth()->user()->hasPermissionToAt($branch, 'branch.pricing.manage'))
+                    <a href="{{ route('admin.pricing') }}" @class(['is-on' => request()->routeIs('admin.pricing*')])>قیمت‌ها</a>
+                @endif
             @endif
-            @if (auth()->user()->hasPermissionToAt($branch, 'branch.settings.manage'))
+            {{-- The marketplace is not a branch's business, so these appear
+                 only for the platform-wide permissions that own them. --}}
+            @if (auth()->user()->hasPermissionTo('vendor.view'))
+                <a href="{{ route('admin.vendors') }}" @class(['is-on' => request()->routeIs('admin.vendor*')])>فروشندگان</a>
+            @endif
+            @if (auth()->user()->hasPermissionTo('marketplace.settlement.view'))
+                <a href="{{ route('admin.settlements') }}" @class(['is-on' => request()->routeIs('admin.settlement*')])>تسویه‌ها</a>
+            @endif
+            @if (auth()->user()->hasPermissionTo('marketplace.commission.manage'))
+                <a href="{{ route('admin.commissions') }}" @class(['is-on' => request()->routeIs('admin.commissions*')])>کارمزد</a>
+            @endif
+            @if ($branch && auth()->user()->hasPermissionToAt($branch, 'branch.settings.manage'))
                 <a href="{{ route('admin.settings') }}" @class(['is-on' => request()->routeIs('admin.settings*')])>تنظیمات</a>
             @endif
         </nav>
@@ -42,7 +60,7 @@
         <div class="vp-admin-who">
             @php $branches = auth()->user()->administrableBranches(); @endphp
 
-            @if ($branches->count() > 1)
+            @if ($branch && $branches->count() > 1)
                 <form method="post" action="{{ route('admin.branch.switch') }}" class="vp-admin-switch">
                     @csrf
                     <label class="visually-hidden" for="vp-branch">شعبه</label>
@@ -53,7 +71,7 @@
                     </select>
                     <noscript><button type="submit">برو</button></noscript>
                 </form>
-            @else
+            @elseif ($branch)
                 <span class="vp-admin-branch">{{ $branch->name }}</span>
             @endif
 

@@ -73,6 +73,7 @@ $storefront = function (): void {
  * Branch::RESERVED_SLUGS, so no franchise can ever be named it.)
  */
 Route::prefix('admin')->name('admin.')->group(base_path('routes/admin.php'));
+Route::prefix('vendor')->name('vendor.')->group(base_path('routes/vendor.php'));
 
 Route::middleware(ResolveTenant::class)->group($storefront);
 

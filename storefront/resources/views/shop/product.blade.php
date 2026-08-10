@@ -74,42 +74,41 @@
                         </div>
                     @endif
 
-                    {{-- The size is part of the form rather than a decoration beside
-                         it: a basket line is a size, not a shoe, and choosing one has
-                         to be the same action as adding it. --}}
-                    <form method="post" action="{{ storefront_route('cart.add') }}">
-                        @csrf
-
-                        <div class="vp-pdp-choice">
-                            <h2 class="vp-pdp-choice-title">سایز</h2>
-                            @if ($sizes->isEmpty())
-                                <p class="vp-pdp-out">فعلاً موجود نیست.</p>
-                            @else
-                                <div class="vp-pdp-options">
-                                    @foreach ($sizes as $variant)
-                                        <label class="vp-size vp-pdp-size">
-                                            <input type="radio" name="variant" value="{{ $variant->id }}" @checked($loop->first) required>
-                                            <span>{{ fa_number((int) $variant->size_value) }}</span>
-                                        </label>
-                                    @endforeach
-                                </div>
-                            @endif
-                        </div>
-
-                        <p class="vp-pdp-stock">
-                            @if ($product->sellableStock() > 0)
-                                {{ fa_number($product->sellableStock()) }} عدد در این شعبه موجود است
-                            @else
-                                در این شعبه موجود نیست
-                            @endif
-                        </p>
+                    {{-- One block per size, each listing everybody who can supply it.
+                         A basket line is a size *from a seller*, so choosing both has
+                         to be the same action as adding it — which is why every row
+                         is its own little form rather than a radio somewhere else. --}}
+                    <div class="vp-pdp-choice">
+                        <h2 class="vp-pdp-choice-title">سایز و فروشنده</h2>
 
                         @if ($sizes->isEmpty())
-                            <button type="button" class="vp-pdp-buy" disabled>موجود نیست</button>
-                        @else
-                            <button type="submit" class="vp-pdp-buy">افزودن به سبد خرید</button>
+                            <p class="vp-pdp-out">فعلاً موجود نیست.</p>
                         @endif
-                    </form>
+                    </div>
+
+                    @foreach ($sizes as $variant)
+                        <div class="vp-sellers">
+                            <h3 class="vp-sellers-title">سایز {{ fa_number((int) $variant->size_value) }}</h3>
+
+                            @foreach ($sellers[$variant->id] as $seller)
+                                <div @class(['vp-seller', 'is-ours' => $seller['vendor'] === null])>
+                                    <span class="vp-seller-who">
+                                        <span class="vp-seller-name">{{ $seller['vendor']?->name ?? 'ویکی پلاس' }}</span>
+                                        <span class="vp-seller-stock">{{ fa_number($seller['available']) }} عدد موجود</span>
+                                    </span>
+                                    <span class="vp-seller-buy">
+                                        <span class="vp-seller-price">{{ toman($seller['offer']->price) }} تومان</span>
+                                        <form method="post" action="{{ storefront_route('cart.add') }}">
+                                            @csrf
+                                            <input type="hidden" name="variant" value="{{ $variant->id }}">
+                                            @if ($seller['vendor'])<input type="hidden" name="vendor" value="{{ $seller['vendor']->id }}">@endif
+                                            <button type="submit" class="vp-seller-add">افزودن</button>
+                                        </form>
+                                    </span>
+                                </div>
+                            @endforeach
+                        </div>
+                    @endforeach
 
                     @if ($product->description)
                         <div class="vp-pdp-desc"><p>{{ $product->description }}</p></div>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\Variant;
+use App\Support\Marketplace\Sellers;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
@@ -18,7 +19,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  */
 class ProductController extends Controller
 {
-    public function __invoke(Product $product): View
+    public function __invoke(Product $product, Sellers $sellers): View
     {
         $product->load([
             'brand', 'categories', 'media',
@@ -26,20 +27,34 @@ class ProductController extends Controller
             'defaultVariant.offer', 'defaultVariant.stock',
         ]);
 
-        // Route model binding finds the product by slug across the whole
-        // catalogue — products are not branch-owned, only their prices are.
-        // So the branch's own question gets asked here.
-        if ($product->status !== 'active' || $product->offerHere() === null) {
-            throw new NotFoundHttpException('This branch does not sell that.');
+        // Who can supply each size, cheapest first: the branch, then every
+        // approved vendor with stock. Worked out once and passed to the view,
+        // which needs it twice.
+        $bySize = $product->variants
+            ->mapWithKeys(fn (Variant $variant) => [$variant->id => $sellers->for($variant)])
+            ->filter(fn ($offers) => $offers->isNotEmpty());
+
+        // Reachable when *somebody* here sells it. A shoe the branch has
+        // dropped but a vendor still stocks is still a page — that is the
+        // whole point of a marketplace.
+        if ($product->status !== 'active' || $bySize->isEmpty()) {
+            throw new NotFoundHttpException('Nobody here sells that.');
         }
 
-        $sellable = $product->variants->filter(fn (Variant $v) => $v->isSellable())->values();
+        $sizes = $product->variants
+            ->filter(fn (Variant $variant) => $bySize->has($variant->id))
+            ->sortBy('size_value', SORT_NATURAL)
+            ->values();
 
         return view('shop.product', [
             'product' => $product,
-            'offer' => $product->offerHere(),
+            // The headline price is the cheapest anybody here charges, which
+            // is not always the branch's — and is never null, because a page
+            // with no seller never got this far.
+            'offer' => $bySize->flatten(1)->sortBy(fn (array $seller) => $seller['offer']->price)->first()['offer'],
             'colorways' => $product->colorways(),
-            'sizes' => $sellable->sortBy('size_value', SORT_NATURAL)->values(),
+            'sizes' => $sizes,
+            'sellers' => $bySize,
             'gallery' => $product->media,
             'related' => $this->related($product),
         ]);
