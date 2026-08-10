@@ -78,10 +78,78 @@ docker compose up --build
 
 Then `http://localhost:8080`.
 
-## On a platform
+## Liara
 
-Anything that builds a Dockerfile will take this: Liara, Arvan, Fly.io,
-Railway, Render, a plain VM. Set these, and nothing else is required:
+This is the one it is going on, and it does **not** use the Dockerfile. Liara
+has a native Laravel platform, and everything this app needs is on it — PHP
+8.4, `intl` and `pdo_pgsql` — so the runtime is theirs to maintain and the
+untested image stays out of the path entirely.
+
+Three files carry it, all in `storefront/`:
+
+| | |
+|---|---|
+| `liara.json` | the platform, the PHP version, the timezone |
+| `liara_pre_start.sh` | migrations, seeding and the caches |
+| `.liaraignore` | what not to upload |
+
+**Deploy from `storefront/`, not from the repository root** — that directory is
+the application.
+
+```bash
+cd storefront
+liara deploy
+```
+
+### What `liara.json` says, and why
+
+- `"buildAssets": false` — the page loads the template's own stylesheets out of
+  `public/assets` and no view carries a `@vite` directive. There is also no
+  `package-lock.json`. Letting Liara run `npm run build` would be a build step
+  for nothing, and one more thing that can fail.
+- `"installDevDependencies": false` — nothing in `require-dev` is needed to
+  serve a request.
+- `"build": {"location": "germany"}` with `"composerMirror": false` — Packagist
+  is reached directly. If that build is slow or blocked, the other combination
+  is the Iranian location with the mirror on.
+- `"configCache": false`, `"routeCache": false` — **deliberately off here and
+  done in the hook instead.** Of Liara's three hooks, only `liara_pre_start.sh`
+  is documented to have the environment variables. A config cache written
+  before the environment exists is a config cache with no database credentials
+  in it, and the failure that produces looks nothing like its cause. Same end
+  state, no ambiguity about ordering.
+
+### The database
+
+Create a PostgreSQL database in the Liara panel; it hands you a host, a port, a
+name and a password. Set them on the app together with the rest of the table
+below — panel, or `liara env:set`. Nothing else has to be running: the
+migrations already create the tables that `SESSION_DRIVER=database` and
+`CACHE_STORE=database` need.
+
+On the first deploy the hook migrates and seeds, and the page comes up with the
+catalogue on it. On every deploy after that `catalogue:seed` finds products and
+leaves them alone.
+
+### HTTPS
+
+Liara puts a reverse proxy in front of every app, and `bootstrap/app.php`
+already trusts its forwarded headers. Liara's own documentation still describes
+the older `config/trustedproxy.php` file — that is the Laravel 10 way; this app
+is on Laravel 13, where the same thing is `$middleware->trustProxies(at: '*')`
+in `bootstrap/app.php`. It is done. Do not add the config file as well.
+
+### What was tested
+
+`liara.json` parses, and `liara_pre_start.sh` was run end to end against a real
+PostgreSQL — migrate, seed-if-empty, and all three caches — and exited clean.
+What could not be tested from here is Liara itself: the upload, the build and
+the platform's own runtime.
+
+## On any other platform
+
+Anything that builds a Dockerfile will take this: Arvan, Fly.io, Railway,
+Render, a plain VM. Set these, and nothing else is required:
 
 | | |
 |---|---|
