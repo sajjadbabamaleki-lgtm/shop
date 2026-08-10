@@ -9,12 +9,6 @@
     <!-- slider drag cursor -->
     <div class="slider-drag-cursor"><img src="{{ asset('assets/img/icon/arrow.svg') }}" alt=""></div>
 
-    <div class="preloader ">
-        <button class="th-btn preloaderCls">Cancel Preloader </button>
-        <div class="preloader-inner">
-            <div class="loader">
-                <img src="{{ asset('assets/img/theme-img/shopping-loader.gif') }}" alt="">
-            </div>
         </div>
     </div>    <div id="QuickView" class="white-popup mfp-hide">
         <div class="container bg-white rounded-20">

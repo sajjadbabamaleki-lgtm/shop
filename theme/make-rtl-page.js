@@ -29,6 +29,28 @@ let html = fs.readFileSync(src, 'utf8');
 // --- direction and language -------------------------------------------------
 html = html.replace(/<html[^>]*>/i, '<html class="no-js" lang="fa" dir="rtl">');
 
+// --- the preloader comes off ------------------------------------------------
+//
+// The template covers the whole page with a white curtain and lifts it in
+// main.js on the browser's `load` event:
+//
+//     $(window).on("load", function () { $(".preloader").fadeOut(); });
+//
+// `load` waits for every single subresource. One request that never finishes —
+// not a 404, which resolves, but one that hangs — and the event never fires and
+// the curtain never lifts. The entire shop is then held hostage by a decorative
+// animation, which is exactly what happened on the first deployment: the site
+// was up, serving correctly, and every visitor saw a blank white page.
+//
+// It buys nothing. Our page has no flash of unstyled content worth hiding, and
+// the cost of being wrong about that is the whole site. So it goes, on both
+// copies of the page, and the failure mode goes with it.
+const PRELOADER = /[ \t]*<!--=+\s*\n\s*Preloader\s*\n\s*=+-->\s*\n[ \t]*<div class="preloader[\s\S]*?\n[ \t]*<\/div>\n/;
+if (!PRELOADER.test(html)) {
+  throw new Error('the preloader is not where it was — check before assuming it is gone');
+}
+html = html.replace(PRELOADER, '');
+
 // --- swap in the flipped stylesheets ---------------------------------------
 const SHEETS = [
   ['assets/css/style.css', 'assets/css/style.rtl.css'],
