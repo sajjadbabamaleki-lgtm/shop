@@ -41,15 +41,23 @@ return Application::configure(basePath: dirname(__DIR__))
          * that wherever it *is* applied, it runs first.
          */
         /*
-         * There is no route called `login`. The only sign-in on this site is
-         * the staff one at /admin/login, and Laravel's `auth` middleware would
-         * otherwise redirect to a route name that does not exist and produce a
-         * routing exception instead of a login page.
+         * There is no route called `login`, and there are two sign-ins: staff
+         * at /admin/login and shoppers at /account/enter. Laravel's `auth`
+         * middleware would otherwise redirect to a route name that does not
+         * exist and produce a routing exception instead of a login page.
          *
-         * Customers are not affected: they have no accounts yet, and when they
-         * do they will have a guard of their own (§21).
+         * Which one a guest is sent to is decided by where they were going. A
+         * customer bounced off /account onto the staff sign-in would be shown a
+         * form their account cannot satisfy, and told it is «برای مدیران و
+         * کارکنان شعبه است» — a dead end that looks like a mistake they made.
+         *
+         * `storefront_route` rather than `route`, so a franchise's customer
+         * lands on that franchise's sign-in and not the main store's.
          */
-        $middleware->redirectGuestsTo(fn () => route('admin.login'));
+        $middleware->redirectGuestsTo(fn (Request $request) => $request->routeIs('*account*')
+            ? storefront_route('account.enter')
+            : route('admin.login'));
+
         $middleware->redirectUsersTo(fn () => route('admin.dashboard'));
 
         $middleware->prependToPriorityList(

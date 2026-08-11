@@ -17,7 +17,7 @@
                             <div class="header-links">
                                 <ul>
                                     <li><a href="{{ page_url('order-tracking.html') }}">پیگیری سفارش </a></li>
-                                    <li><a href="{{ page_url('my-account.html') }}" class="d-none d-xl-block"><img src="{{ asset('assets/img/icon/user4.svg') }}" alt="">ورود / ثبت‌نام</a></li>
+                                    <li><a href="{{ page_url('my-account.html') }}" class="d-none d-xl-block"><img src="{{ asset('assets/img/icon/user4.svg') }}" alt="">{{ auth('customer')->check() ? 'حساب من' : 'ورود / ثبت‌نام' }}</a></li>
                                 </ul>
                             </div>
                             <div class="currency-menu">

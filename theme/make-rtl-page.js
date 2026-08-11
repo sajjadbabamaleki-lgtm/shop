@@ -213,6 +213,26 @@ const CATEGORIES = [
   ['sport-set', 'ست ورزشی'],
 ];
 
+// The mark beside a category in the phone drawer. The same map as
+// storefront/config/storefront.php's `category_icons`, and the two have to
+// agree — check-parity.js compares the two pages but not the drawer, which is
+// parked off-screen, so PhoneDrawerTest is what notices if they drift.
+//
+// All eight drawn for this, in one hand: the shop sells five kinds of footwear
+// and the template ships one shoe, and the template's own icons are
+// multi-coloured line art that would not have sat beside anything drawn to fill
+// the gaps.
+const CATEGORY_ICONS = {
+  'majlesi': 'vp-cat-heel.svg',
+  'sneaker': 'vp-cat-sneaker.svg',
+  'college': 'vp-cat-college.svg',
+  'sandal': 'vp-cat-sandal.svg',
+  'boot': 'vp-cat-boot.svg',
+  'bag-set': 'vp-cat-bagset.svg',
+  'accessory': 'vp-cat-watch.svg',
+  'sport-set': 'vp-cat-sport.svg',
+};
+
 // The name is real text on the tile, so it is also the link's own name and
 // needs no aria-label.
 const CATEGORY_ROW =
@@ -287,11 +307,11 @@ const DRAWER =
   '                        <a class="vp-drawer-all" href="shop.html">همه محصولات</a>\n' +
   '                    </div>\n' +
   '                    <ul class="vp-drawer-cats">\n' +
-  CATEGORIES.map(([file, name]) =>
+  CATEGORIES.map(([slug, name]) =>
     '                        <li>\n' +
     '                            <a href="shop.html">\n' +
-    `                                <img src="assets/img/category/${file}.jpg" alt="" loading="lazy">\n` +
-    `                                <span>${name}</span>\n` +
+    `                                <img class="vp-cat-icon" src="assets/img/icon/${CATEGORY_ICONS[slug]}" alt="" loading="lazy">\n` +
+    `                                <span class="vp-cat-name">${name}</span>\n` +
     '                                <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>\n' +
     '                            </a>\n' +
     '                        </li>\n'
@@ -308,11 +328,14 @@ const DRAWER =
   ).join('') +
   '                    </ul>\n' +
   '                </div>\n' +
+  // «ورود / ثبت‌نام», as the shop's previous menu had it and as the client
+  // asked for again. It was the basket for one round, on the grounds that this
+  // shop had no accounts and a login button would go nowhere — so accounts were
+  // built rather than the button changed back.
   '                <div class="vp-drawer-foot">\n' +
-  '                    <a class="vp-drawer-cta" href="cart.html">\n' +
-  '                        <i class="fa-solid fa-bag-shopping" aria-hidden="true"></i>\n' +
-  '                        <span>سبد خرید</span>\n' +
-  '                        <span class="vp-drawer-count">۰</span>\n' +
+  '                    <a class="vp-drawer-cta" href="my-account.html">\n' +
+  '                        <i class="fa-solid fa-user" aria-hidden="true"></i>\n' +
+  '                        <span>ورود / ثبت‌نام</span>\n' +
   '                    </a>\n' +
   '                </div>\n' +
   '            </div>\n' +

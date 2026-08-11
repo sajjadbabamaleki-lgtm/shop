@@ -52,6 +52,14 @@ An Iranian shoe and bag storefront (vikyplus.ir) built on the ThemeForest
   that writes `branch_inventory` is a bug waiting to be an oversell. Every
   movement is also a row in `inventory_movements`, so a shelf can explain
   itself.
+- **Two sign-ins, two guards.** Staff are `web` at `/admin/login`; shoppers are
+  `customer` at `/account/enter`. Every staff route says `auth:web` explicitly —
+  the bare `auth` means "whichever guard is default", which is a runtime value.
+  Registration is the interesting part: checkout has always created `customers`
+  rows keyed on a phone number, so most people who register already have one,
+  with an order history on it. Claiming one asks for the number off one of their
+  own orders, because there is no SMS provider to send a code with. See
+  `AccountController`.
 - The panel is at `/admin`, hand-built (no Filament, at the client's request)
   in the storefront's own materials — `resources/views/admin/` and
   `layouts/admin.blade.php`. Its branch comes from the **signed-in user**, not

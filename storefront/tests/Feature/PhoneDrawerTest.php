@@ -130,7 +130,7 @@ class PhoneDrawerTest extends TestCase
         preg_match_all('~<span class="vp-category-label">([^<]+)</span>~', $page, $tiles);
 
         $rows = [];
-        preg_match_all('~<span>([^<]+)</span>~', $this->drawer(), $rows);
+        preg_match_all('~<span class="vp-cat-name">([^<]+)</span>~', $this->drawer(), $rows);
 
         $this->assertNotEmpty($tiles[1]);
         $this->assertSame($tiles[1], array_values(array_intersect($rows[1], $tiles[1])));
@@ -163,7 +163,7 @@ class PhoneDrawerTest extends TestCase
         $drawer = $this->drawer('/shiraz');
 
         $this->assertStringContainsString('/shiraz/categories/sneaker', $drawer);
-        $this->assertStringContainsString('/shiraz/cart', $drawer);
+        $this->assertStringContainsString('/shiraz/account/enter', $drawer);
 
         // And not one link back to the main store — that is how a franchise's
         // visitor ends up browsing somebody else's prices without noticing
@@ -185,7 +185,7 @@ class PhoneDrawerTest extends TestCase
             $drawer = $this->drawer($path);
 
             $this->assertStringContainsString('vp-drawer-cats', $drawer, "No drawer categories on {$path}");
-            $this->assertStringContainsString('سبد خرید', $drawer);
+            $this->assertStringContainsString('ورود / ثبت‌نام', $drawer, "No way in on {$path}");
         }
     }
 
@@ -208,7 +208,7 @@ class PhoneDrawerTest extends TestCase
         $names = function (string $html): array {
             $open = strpos($html, '<ul class="vp-drawer-cats">');
             $slice = substr($html, $open, strpos($html, '</ul>', $open) - $open);
-            preg_match_all('~<span>([^<]+)</span>~', $slice, $m);
+            preg_match_all('~<span class="vp-cat-name">([^<]+)</span>~', $slice, $m);
 
             return $m[1];
         };

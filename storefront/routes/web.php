@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AccountController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\HomeController;
@@ -70,6 +71,28 @@ $storefront = function (): void {
     Route::post('/vendors/apply', [VendorApplicationController::class, 'store'])
         ->middleware('throttle:6,60')
         ->name('vendors.apply.store');
+
+    /*
+     * A shopper's own account. The `customer` guard, never `web` — a shopper's
+     * session must not satisfy a staff authorization check (§21).
+     *
+     * Registered inside the branch group like everything else, so a franchise's
+     * customer signs in on that franchise's site. The identity behind it is one
+     * identity across all of them; what is per-branch is which orders the
+     * account page can show.
+     *
+     * Both forms are throttled. They take a phone number and say whether it
+     * signs in, which is exactly the shape of thing that gets walked through a
+     * list of numbers if nothing stops it.
+     */
+    Route::get('/account/enter', [AccountController::class, 'show'])->name('account.enter');
+    Route::post('/account/login', [AccountController::class, 'login'])
+        ->middleware('throttle:10,10')->name('account.login');
+    Route::post('/account/register', [AccountController::class, 'register'])
+        ->middleware('throttle:10,60')->name('account.register');
+    Route::post('/account/logout', [AccountController::class, 'logout'])->name('account.logout');
+    Route::get('/account', [AccountController::class, 'index'])
+        ->middleware('auth:customer')->name('account');
 
     Route::get('/orders', [OrderController::class, 'track'])->name('orders.track');
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('order');

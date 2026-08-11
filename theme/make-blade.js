@@ -140,6 +140,18 @@ const LIVE = [
     find: '<span class="badge">۰</span>',
     put: '<span class="badge">{{ fa_number($basketCount ?? 0) }}</span>',
   },
+  {
+    region: 'header',
+    // The top bar's account link, which has to say the same thing the drawer's
+    // own button says: offering «ثبت‌نام» to somebody who is signed in is how a
+    // page tells them it has not noticed them.
+    find: '>ورود / ثبت‌نام</a>',
+    // An expression rather than `@auth … @else … @endauth`: a Blade directive
+    // needs whitespace after it, and that space is emitted — the link rendered
+    // as `> ورود / ثبت‌نام</a>`, with air inside the anchor and therefore inside
+    // its underline.
+    put: '>{{ auth(\'customer\')->check() ? \'حساب من\' : \'ورود / ثبت‌نام\' }}</a>',
+  },
 ];
 
 for (const { region, find, put } of LIVE) {

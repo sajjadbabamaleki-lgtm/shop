@@ -89,9 +89,12 @@ class HomePageTest extends TestCase
 
         $this->assertSame(route('cart'), page_url('cart.html'));
 
+        // The account, which was '#' until shoppers had one.
+        $this->assertSame(route('account.enter'), page_url('my-account.html'));
+
         // Still unbuilt, so still '#'.
         $this->assertSame('#', page_url('blog.html'));
-        $this->assertSame('#', page_url('my-account.html'));
+        $this->assertSame('#', page_url('faq.html'));
     }
 
     /**

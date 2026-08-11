@@ -41,6 +41,9 @@ return [
         'cart.html' => 'cart',
         'checkout.html' => 'checkout',
         'order-tracking.html' => 'orders.track',
+        // The template's account link, in the top bar and at the foot of the
+        // phone drawer. It went to '#' until customers had accounts.
+        'my-account.html' => 'account.enter',
         // Its own filename so that only the footer's «فروشنده شوید» points
         // here — every other footer item still shares contact.html.
         'vendor-register.html' => 'vendors.apply',
@@ -143,6 +146,48 @@ return [
             ['name' => 'پله چهارم', 'cut' => 60, 'when' => 'هفته چهارم'],
             ['name' => 'پله نهایی', 'cut' => 70, 'when' => 'پس از هفته چهارم'],
         ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | The mark beside a category in the phone drawer
+    |--------------------------------------------------------------------------
+    |
+    | The drawer showed each category's own photograph. At 32px a photograph of
+    | a shoe is a brown smudge, and eight of them down one edge of the panel is
+    | noise rather than navigation — so the client asked for icons, and these
+    | are them.
+    |
+    | All eight were drawn for this. The template does ship category icons, and
+    | half of them nearly fit — but it sells five kinds of footwear against the
+    | template's one shoe, and the template's are multi-coloured line art that
+    | would have arrived in three different reds beside whatever was drawn to
+    | fill the gaps. One hand, one weight, one gold.
+    |
+    | The gold is baked into the file rather than applied in CSS. Painting an
+    | SVG from a stylesheet means `mask-image`, and a `url()` in a custom
+    | property resolves against **the stylesheet that reads it**, not the page —
+    | so `assets/img/icon/x.svg` set in the markup became
+    | `/assets/css/assets/img/icon/x.svg` and every one of the eight 404'd.
+    |
+    | Keyed by category slug, with a fallback: a category added later gets a
+    | plain bag rather than no mark at all, and adding a line here is what gives
+    | it its own. This lives in config rather than on the row because nothing
+    | can edit a category yet; it moves onto `categories` the day something can.
+    |
+    */
+
+    'category_icons' => [
+        'default' => 'assets/img/icon/vp-cat-bagset.svg',
+
+        'majlesi' => 'assets/img/icon/vp-cat-heel.svg',
+        'sneaker' => 'assets/img/icon/vp-cat-sneaker.svg',
+        'college' => 'assets/img/icon/vp-cat-college.svg',
+        'sandal' => 'assets/img/icon/vp-cat-sandal.svg',
+        'boot' => 'assets/img/icon/vp-cat-boot.svg',
+        'bag-set' => 'assets/img/icon/vp-cat-bagset.svg',
+        'accessory' => 'assets/img/icon/vp-cat-watch.svg',
+        'sport-set' => 'assets/img/icon/vp-cat-sport.svg',
     ],
 
     /*

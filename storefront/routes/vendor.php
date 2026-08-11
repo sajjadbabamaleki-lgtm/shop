@@ -24,7 +24,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware(['auth', ResolveVendor::class])->group(function (): void {
+Route::middleware(['auth:web', ResolveVendor::class])->group(function (): void {
     Route::get('/', [OfferController::class, 'index'])->name('offers');
     Route::post('/offers', [OfferController::class, 'store'])->name('offers.store');
     Route::post('/offers/update', [OfferController::class, 'update'])->name('offers.update');

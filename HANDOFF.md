@@ -418,3 +418,72 @@ Two things the listing could not answer before, both added with it:
   `order_items` rather than off the catalogue, and off *this branch's* orders.
   `coalesce` to 0, because a null sorts first on a descending order and would
   put everything that has never sold at the top of the best-seller list.
+
+
+## Customer accounts, and the drawer's button
+
+The drawer's foot was the basket, on the reasoning that this shop had no
+accounts and «ورود / ثبت‌نام» would go nowhere. The client asked for the button
+their previous site had, so the accounts were built rather than the button
+changed back.
+
+Almost all of it was already there: `customers` has been `Authenticatable` since
+the first migration, with a nullable hashed password and a normalised phone
+number, and `config/auth.php` has always carried a `customer` guard with nothing
+signing into it. What was missing was four routes and two pages.
+
+**The one real difficulty is registration.** `PlaceOrder` has been creating
+`customers` rows all along, keyed on the phone typed at checkout — so most
+people who would register already have a row, and that row carries their name,
+their address and everything they have bought. Setting a password on it is
+therefore handing that over, and a phone number is not a secret. The usual
+answer is a one-time code by SMS and this shop has no SMS provider.
+
+So claiming an existing customer asks for the number off one of their own
+orders. It is the same proof `/orders` already accepts from somebody not signed
+in, and it is a receipt, which a stranger with a phone number does not have. A
+row with no orders has nothing to protect and is claimed without one. When SMS
+arrives, that check becomes a code.
+
+Two smaller things fell out of it:
+
+- **Every staff route now says `auth:web`, never bare `auth`.** The bare form
+  means "whichever guard is default", and the default is a runtime value. With a
+  second guard in the application that is the last thing the panel's
+  authentication should depend on.
+- **`actingAs()` signs a user in on a guard and leaves the others alone.**
+  Signing a customer in and then a staff user in inside one test leaves both
+  signed in — a state no browser can produce, and it reported the panel's guard
+  as broken when the test was what was broken. Two tests, one each.
+
+## What «تمیز» turned out to mean
+
+The drawer was rebuilt once for structure and then twice more for feel, and the
+second of those is the one worth recording, because the fault was invisible
+until it was measured against the client's own screenshot as *fractions of the
+panel's width* — the only comparison that survives two different screen sizes:
+
+| | their menu | ours, before |
+|---|---|---|
+| icon tile ÷ panel width | 0.067 | **0.096** |
+| type size ÷ panel width | 0.046 | **0.040** |
+| type weight | regular | **600** |
+| filled surfaces in the panel | 2 | **6** |
+
+The tiles were half again as large in a tint twice as dark, and the words beside
+them were smaller and heavier — so the marks shouted and the names whispered,
+which is the hierarchy backwards. And six different fills (a grey head band,
+grey shortcut tiles, grey chips, two golds and white) meant nothing in a panel
+whose whole quality is that it reads as white paper.
+
+The fix was mostly subtraction: the head band and the shortcut tiles and the
+chips became white with hairlines, the icon tiles came down to 28px at half the
+tint with the SVG strokes thinned from 1.5 to 1.2, the names went up to 15px at
+regular, and the gold moved off the tiles and onto the two section labels, where
+it is the only colour on the panel and does the sorting by itself.
+
+**`.vp-enter` was already taken** — it is this file's scroll-reveal class,
+`opacity: 0` until a script adds `.vp-entered` — so the sign-in page's wrapper,
+named `.vp-enter`, rendered as a heading, a footnote, and 325px of nothing. Every
+element was present and measured its correct size. The family is `vp-signin-`
+now. Check the class list before naming a block.

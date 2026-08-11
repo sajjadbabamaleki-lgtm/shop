@@ -57,8 +57,8 @@
                         @foreach ($drawerCategories as $category)
                         <li>
                             <a href="{{ storefront_route('category', $category) }}">
-                                <img src="{{ asset($category->image_path) }}" alt="" loading="lazy">
-                                <span>{{ $category->name }}</span>
+                                <img class="vp-cat-icon" src="{{ asset(config('storefront.category_icons.'.$category->slug, config('storefront.category_icons.default'))) }}" alt="" loading="lazy">
+                                <span class="vp-cat-name">{{ $category->name }}</span>
                                 <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
                             </a>
                         </li>
@@ -82,12 +82,22 @@
                         </li>
                     </ul>
                 </div>
+                {{-- «ورود / ثبت‌نام» while nobody is signed in, and the account
+                     once somebody is — the same button, saying the thing that
+                     is true. A signed-in customer being offered «ثبت‌نام» is
+                     how a menu tells somebody it has not noticed them. --}}
                 <div class="vp-drawer-foot">
-                    <a class="vp-drawer-cta" href="{{ page_url('cart.html') }}">
-                        <i class="fa-solid fa-bag-shopping" aria-hidden="true"></i>
-                        <span>سبد خرید</span>
-                        <span class="vp-drawer-count">{{ fa_number($basketCount ?? 0) }}</span>
-                    </a>
+                    @auth('customer')
+                        <a class="vp-drawer-cta" href="{{ storefront_route('account') }}">
+                            <i class="fa-solid fa-user" aria-hidden="true"></i>
+                            <span>حساب من</span>
+                        </a>
+                    @else
+                        <a class="vp-drawer-cta" href="{{ storefront_route('account.enter') }}">
+                            <i class="fa-solid fa-user" aria-hidden="true"></i>
+                            <span>ورود / ثبت‌نام</span>
+                        </a>
+                    @endauth
                 </div>
             </div>
         </div>

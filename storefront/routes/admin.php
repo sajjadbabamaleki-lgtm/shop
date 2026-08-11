@@ -36,14 +36,24 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('guest')->group(function (): void {
+/*
+ * `auth:web` and `guest:web` throughout, never the bare form.
+ *
+ * The bare one means "the default guard", and the default is a runtime value —
+ * a config change, or anything that calls `shouldUse()`, moves it. Now that
+ * shoppers have a guard of their own, "whichever guard is currently default" is
+ * the last thing this stack should be asking: a customer session must never be
+ * able to satisfy the panel's authentication, and naming the guard is what
+ * makes that true by construction rather than by what config happens to say.
+ */
+Route::middleware('guest:web')->group(function (): void {
     Route::get('/login', [SessionController::class, 'show'])->name('login');
     Route::post('/login', [SessionController::class, 'store'])->name('login.store');
 });
 
-Route::post('/logout', [SessionController::class, 'destroy'])->middleware('auth')->name('logout');
+Route::post('/logout', [SessionController::class, 'destroy'])->middleware('auth:web')->name('logout');
 
-Route::middleware(['auth', ResolveAdminTenant::class])->group(function (): void {
+Route::middleware(['auth:web', ResolveAdminTenant::class])->group(function (): void {
     Route::get('/', DashboardController::class)->name('dashboard');
 
     Route::post('/branch', [SettingsController::class, 'switchBranch'])->name('branch.switch');
@@ -153,7 +163,7 @@ Route::middleware(['auth', ResolveAdminTenant::class])->group(function (): void 
  * franchise manager reaching one of these addresses is refused rather than
  * shown somebody else's company.
  */
-Route::middleware('auth')->group(function (): void {
+Route::middleware('auth:web')->group(function (): void {
     Route::get('/reports/platform', [ReportController::class, 'platform'])
         ->middleware(RequirePlatformPermission::class.':report.view')
         ->name('reports.platform');
