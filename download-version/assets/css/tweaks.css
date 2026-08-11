@@ -26,8 +26,16 @@
   padding-block-start: 40px;
 }
 
+/* Below 992 the header island keeps its 18px inset but the card goes edge to
+   edge, so the desktop 40 read as too much air and the gap has been 22 here.
+   The client asked for half as much again on the phone: 22 → 33. Measured
+   island foot to card top at 390, 575, 767 and 991 — 22 before, 33 after, at
+   all four, since neither box's height enters into it.
+
+   Only the stacked layout. From 992 up the gap is still 40, which is the
+   number the two gaps under it also carry — see the block above. */
 @media (max-width: 991px) {
-  .th-hero-wrapper { padding-block-start: 22px; }
+  .th-hero-wrapper { padding-block-start: 33px; }
 }
 
 /* --------------------------------------------------------------------------
@@ -1719,15 +1727,48 @@ option:hover {
 }
 
 /* The tile's own white is #FDFDFD and the header band is #F7F7F7 — six levels
-   apart, which is no edge at all. The three shadows that used to separate it
-   are gone, so a hairline does the job instead: same device as the search
-   field, and not a shadow. */
+   apart, which is no edge at all. A hairline was put here to answer that; the
+   client does not want a line drawn round the mark, they want it lifted, so
+   the edge comes from a shadow under the tile instead. The cart square further
+   down takes the same pair — the two are one set and change together.
+
+   The hairline that was here was never drawing anything, which is worth
+   knowing before one is reached for again: an `inset` box-shadow on an <img>
+   paints behind the replaced content, and the artwork's own white field is
+   opaque, so the tile covered its own line. Measured across the tile's left
+   edge with it in place, 247 (band) 247 247 | 253 (tile) — no line, no step
+   but the six levels the two whites differ by.
+
+   «لبه پنهان» in CLAUDE.md is why this is two shadows and not one. A blurred
+   shadow reaches only about half its alpha at the element's own edge, because
+   the other half falls under the element and is clipped away, so one soft
+   shadow gives a 52px tile no boundary — it only fades the ground around it.
+   So the work is split:
+
+     0 1px 2px at 0.06    the contact shadow, tight under the foot, which is
+                          what actually ends the tile against the band;
+     0 3px 10px at 0.10   the ambient one, wide and low, which is what makes
+                          the tile read as lifted rather than drawn.
+
+   Measured at 1440, tile outwards. Under the foot 253 | 220 229 234 236 238
+   240 242 243 244 245 → 247; across the left edge 253 | 234 238 240 242 243
+   244 245 246 → 247. Darker at the foot than at the sides, because the offset
+   is downward — a tile lit from above and standing off the band. Both recover
+   to the band over about nine pixels, so there is a definite edge and no
+   width at which it reads as a drawn line.
+
+   Four alphas on the contact shadow were rendered and read at the foot — 213,
+   215, 220 and 222 at their darkest. This is the third. 213 was darker than
+   the header island's own foot hairline (230), which put a heavier mark under
+   a 52px tile than under the whole header. */
 .vp-logo img {
   width: 52px;
   height: 52px;
   flex: none;
   border-radius: 12px;
-  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.10);
+  box-shadow:
+    0 1px 2px rgba(16, 17, 17, 0.06),
+    0 3px 10px rgba(16, 17, 17, 0.10);
 }
 
 .vp-logo-text {
@@ -3646,9 +3687,21 @@ option:hover {
   height: 48px;
   border-radius: 18px;
   background: #FFFFFF;
-  /* The square is white on a header band that is nearly white too, so it
-     needs the same hairline the search field uses to have an edge at all. */
-  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.08);
+  /* The square is white on a header band that is nearly white too, so it needs
+     something to have an edge at all. That was the search field's hairline,
+     and unlike the logo tile's it did draw: measured across the left edge,
+     247 (band) | 236 | 255 (square) — one flat pixel of line. The client does
+     not want a line round the basket either, so it takes the same two shadows
+     the logo tile does. Read the reasoning there and change the two together;
+     they are the same white at nearly the same size on the same band, so they
+     want one pair of shadows and not a tuned copy each.
+
+     Measured at 1440 after, square outwards. Under the foot 255 | 217 227 233
+     236 238 240 242 243 244 245 246 → 247; across the left edge 255 | 232 238
+     240 242 243 245 245 246 → 247. */
+  box-shadow:
+    0 1px 2px rgba(16, 17, 17, 0.06),
+    0 3px 10px rgba(16, 17, 17, 0.10);
   border: 0;
   color: #C0972F;
   display: flex;
@@ -4788,4 +4841,93 @@ ul.vp-how-list.is-ticked li:before {
   inset-inline: 0;
   height: 18px;
   background: #FFFFFF;
+}
+
+/* ==========================================================================
+   The hero on the stacked layout, 2026-08-11.
+
+   Below 992 the template stops laying the card as two columns and stacks the
+   copy over the shot, so every number the desktop hero was measured to stops
+   applying and none of these rules reach above 991.
+   ========================================================================== */
+
+/* The shoe's name, a tenth smaller and a tenth lighter.
+
+   The size the desktop card carries — 67/75, set further up — was reaching
+   the phone untouched: the tweak's selector is three classes deep and the
+   template's own 54px and 44px steps are two, so they never won. So 67 was
+   being set on a 390 screen, where «کتونی نیوبالانس» takes two lines 150 tall
+   inside a card 607 tall — a quarter of the hero given to two words.
+
+   67 → 60.3 and 75 → 67.5 is the tenth off the size, and the leading with it
+   so the two lines keep their proportion rather than opening up as the type
+   shrinks. Cairo is a variable font from 200 to 1000, so 900 → 810 is a real
+   weight the file interpolates and not a synthesised one.
+
+   Measured at 390: two lines 150.0 tall before, 135.0 after. The heading's
+   own margin-top is -0.17em, so it gives 1.1px back as the type shrinks —
+   the name's block comes off 13.9 in total, not 15. */
+@media (max-width: 991px) {
+  .heroSlide6 .hero-inner .hero-title,
+  .heroSlide6 .hero-inner .hero-title a {
+    font-weight: 810;
+  }
+
+  .heroSlide6 .hero-inner .hero-title {
+    font-size: 60.3px;
+    line-height: 67.5px;
+  }
+}
+
+/* A tenth off the card's height, out of the dead space above the copy.
+
+   The card stacks as a copy column of a fixed 402.4 — 120 of padding above
+   the sub-title, 20 below the button — over a shot whose height is set by how
+   wide the column is. So the card's height is one constant plus one term that
+   grows with the page, and a fixed number of pixels cannot be a fixed
+   percentage of it. Measured, card height and the tenth that has to come off:
+
+     360    582.9    58.3
+     390    607.1    60.7
+     430    639.4    63.9
+     575    756.5    75.7
+     767    728.3    72.8
+     991    873.7    87.4
+
+   The name above gives 13.9 of that at every width. The rest comes off the
+   120, and because what is left to cut grows with the page, the padding has
+   to shrink with it: 46.8 at 390 and 73.5 at 991 is a straight line through
+   the two ends, which is `29.5px + 4.44vw` off the 120.
+
+   It comes out of the top padding alone. That is where the card is actually
+   empty — 120px of nothing above the first word, against 20 under the button
+   — and the bottom 20 is the only thing holding the button off the shot.
+
+   The shot does not change. It sits in its own column below and is bound by
+   that column's width, so taking the copy's padding moves the shoe up the
+   page without resizing it, and its position relative to the card's foot is
+   the same as it was.
+
+   Measured after, card height and what came off:
+
+     360    523.5    10.2%
+     390    546.4    10.0%
+     430    577.0     9.8%
+     575    687.6     9.1%
+     767    650.8    10.6%
+     991    786.3    10.0%
+
+   Exact at the two ends by construction, and the phone widths between 360 and
+   430 all land within a fifth of a point of the tenth. The 575 and 767
+   readings sit either side of it because Bootstrap's container jumps from
+   fluid to a fixed 540 at 576 — the card is genuinely shorter at 767 than at
+   575 — and a straight line cannot follow a step. Both are inside a point.
+
+   Nothing above 991 moves: measured at 992, 1200, 1440 and 1920 the card is
+   450.4, 450.4, 450.4 and 551.6 before and after, and the shot is the same
+   size at every one of the ten widths checked. */
+@media (max-width: 991px) {
+  .heroSlide6 .hero-style6 {
+    padding-block-start: calc(90.5px - 4.44vw);
+  }
 }
