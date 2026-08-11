@@ -331,12 +331,11 @@ it — the same lockup, `.vp-logo`, differing only in how it is arranged:
 
 Two things worth knowing before touching any of it:
 
-- **The hairline round the tile has to be a `border`, not an inset shadow.**
-  An inset box-shadow on a replaced element paints *underneath* its content, so
-  on an opaque PNG it is invisible. It was written as a shadow for a long time
-  and never rendered once: measured across the tile's edge the band stepped
-  `247 247 247 253 253` straight into the tile with no line anywhere. As a
-  border it reads `247 223 253`. `box-sizing: border-box` keeps the tile 52px.
+- **The tile has a drop shadow now, not a line round it** — see «سایه، نه خط»
+  below. What is left of the old note still matters: an *inset* box-shadow on a
+  replaced element paints underneath its content, so on an opaque PNG it is
+  invisible, and the tile was written that way for a long time without rendering
+  once. `box-sizing: border-box` keeps the tile 52px if a border ever returns.
 - **The mark links to `index.html`**, which has to stay mapped in
   `config/storefront.php`. It was not, and so every copy of the logo resolved
   to `'#'` — the most obvious link on the page is the last one anybody clicks.
@@ -525,6 +524,54 @@ in.
 demo's mega-menu — «Electronics فروشگاه», the six demo shops with screenshots,
 ten blog layouts. It is the same content the phone drawer carried until it was
 rebuilt, and it has the same problem. It is the next thing in that row.
+
+
+## «سایه، نه خط» — the mark and the basket, unlined
+
+«چه تو نسخه موبایل چه دستاپ نمیخوام دور لوگو و سبد خرید خط کشیده باشه ترجیح
+میدم دورشون سایه باشه برای مشخصتر شدنشون». **This is the one instruction in this
+run that names both breakpoints**, so it was written on the base rules rather
+than inside `max-width: 991.98px` like everything above it. The standing
+«به هیچ عنوان به نسخه دستاپ دست نزنی» still governs every other line.
+
+Three rules, one shadow between them:
+
+- `.vp-logo img` — the tile, in all three lockups.
+- `.icon-btn.sideMenuToggler` and `.icon-btn.vp-account-btn` — the basket and
+  the account icon, which had an inset 1px ring for the same reason.
+- `.vp-logo-foot:hover img` — the footer's hover, which used to deepen the
+  border's colour and now lifts the tile instead.
+
+```
+0 1px 2px  rgba(16, 17, 17, 0.10)     the edge
+0 3px 8px -2px rgba(16, 17, 17, 0.14)  the lift
+```
+
+Two stops because one is not enough: the tight one gives the tile a defined foot
+and the wide one is what stops the result reading as a grey outline at one
+remove — which is the thing being asked against.
+
+Measured across the tile's left edge, identical at 390 and 1440:
+
+```
+247 247 247 247 246 245 244 242 240 232 | 253 253 253 253 253
+```
+
+A soft approach into a 21-level step at the tile itself. The border read
+`247 247 247 223 253` — a single dark pixel, which is the line the client did not
+want. Rendered at 3× at both widths and confirmed by eye as well, because a
+step this shape is exactly what a screenshot settles and a column of numbers
+does not.
+
+**This is not «لبه پنهان» being reopened.** That codename is about
+`.heroSlide6 .hero-inner` and `.th-header .menu-area` — the two big panes, where
+a drop shadow was tried, rejected in the client's own words and removed for
+reasons that are still true. A 52px tile inside the band is a different element
+against a different ground. Read the codename before putting any shadow back on
+the panes.
+
+Parity zero at all four widths; heights unchanged (7454 / 5059 / 4588 / 4892).
+226 tests green, no page overflows.
 
 
 ## The star, and two traps under it

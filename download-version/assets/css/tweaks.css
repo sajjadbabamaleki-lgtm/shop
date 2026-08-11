@@ -1752,22 +1752,37 @@ option:hover {
    are gone, so a hairline does the job instead: same device as the search
    field, and not a shadow.
 
-   It has to be a *border*, and this was wrong for a long time. An inset
-   box-shadow is painted underneath a replaced element's own content, so on an
-   `<img>` with an opaque photograph it is completely hidden — measured across
-   the tile's left edge it read `247 247 247 253 253 253`, the band stepping
-   straight into the tile with no line anywhere. A border paints above the image
-   and is the only one of the two that is actually visible here.
+   **A shadow, at the client's word: «ترجیح میدم دورشون سایه باشه».** It was a
+   1px border for most of this session, and before that an inset box-shadow that
+   never rendered at all — an inset shadow is painted underneath a replaced
+   element's own content, so on an `<img>` with an opaque photograph it is
+   invisible. Measured then, the band stepped straight into the tile:
+   `247 247 247 253 253 253`, no line anywhere.
 
-   `box-sizing: border-box` so the tile stays 52px rather than becoming 54: the
-   header band's height is arithmetic on this number. */
+   A *drop* shadow is outside the element, so it has none of that problem, and
+   it separates the tile without drawing a line around it. Two stops: a tight
+   one for the edge and a wider one for the lift, which is what stops it reading
+   as a grey outline at one remove.
+
+   **Not the panes.** «لبه پنهان» in CLAUDE.md is about the hero card and the
+   header island, where a drop shadow was tried, rejected in the client's own
+   words and removed — this is the small tile inside the band, which is a
+   different element and a different problem. Do not read this as licence to put
+   the panes' shadows back.
+
+   `box-sizing: border-box` stays: it is doing nothing now that the border is
+   gone, but the tile is 52 and the band's height is arithmetic on that, so the
+   property is left where the next border would need it. */
 .vp-logo img {
   width: 52px;
   height: 52px;
   flex: none;
   box-sizing: border-box;
-  border: 1px solid rgba(16, 17, 17, 0.10);
+  border: 0;
   border-radius: 12px;
+  box-shadow:
+    0 1px 2px rgba(16, 17, 17, 0.10),
+    0 3px 8px -2px rgba(16, 17, 17, 0.14);
 }
 
 .vp-logo-text {
@@ -3850,9 +3865,13 @@ option:hover {
   height: 48px;
   border-radius: 18px;
   background: #FFFFFF;
-  /* The square is white on a header band that is nearly white too, so it
-     needs the same hairline the search field uses to have an edge at all. */
-  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.08);
+  /* The square is white on a header band that is nearly white too, so it needs
+     something to have an edge at all. It was an inset hairline; it is the mark's
+     own drop shadow now, at the client's word, so the two controls and the
+     lockup between them are lit the same way. */
+  box-shadow:
+    0 1px 2px rgba(16, 17, 17, 0.10),
+    0 3px 8px -2px rgba(16, 17, 17, 0.14);
   border: 0;
   color: #C0972F;
   display: flex;
@@ -7066,8 +7085,8 @@ ul.vp-how-list.is-ticked li:before {
 }
 
 /* The header band is #F7F7F7 and the footer is #F5F5F5 — two levels apart,
-   against a tile whose own ground is #FEFEFE. So the hairline that separates
-   the tile from the band separates it from the footer by very nearly the same
+   against a tile whose own ground is #FEFEFE. So the shadow that separates the
+   tile from the band separates it from the footer by very nearly the same
    amount, and is left alone.
 
    What the header does not need is a hover: there the lockup is the only thing
@@ -7075,15 +7094,18 @@ ul.vp-how-list.is-ticked li:before {
    it sits in a column of links that all light up under the cursor, so a mark
    that did nothing would read as not being a link. It gets the same treatment
    the footer's own links get — a shift towards the page's ink — carried on the
-   hairline rather than on text, since the name is already at full ink and the
-   line under it is the footer's own grey. 0.10 → 0.22 is the smallest step that
-   is visible at a hairline's width. */
+   shadow rather than on text, since the name is already at full ink and the
+   line under it is the footer's own grey. The tile lifts: both stops deepen and
+   the wide one reaches from 8px to 12, which is the smallest change that is
+   legible as a hover rather than as a repaint. */
 .vp-logo-foot img {
-  transition: border-color 0.3s ease;
+  transition: box-shadow 0.3s ease;
 }
 
 .vp-logo-foot:hover img {
-  border-color: rgba(16, 17, 17, 0.22);
+  box-shadow:
+    0 1px 3px rgba(16, 17, 17, 0.16),
+    0 5px 12px -2px rgba(16, 17, 17, 0.20);
 }
 
 /* --------------------------------------------------------------------------
