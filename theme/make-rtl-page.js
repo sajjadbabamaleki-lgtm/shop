@@ -1536,6 +1536,80 @@ html = html.replace('</body>',
   '        }());\n' +
   '    </script>\n</body>');
 
+// --- the footer, in Persian -------------------------------------------------
+//
+// The template's footer arrived in English and was left that way through every
+// round of work on the page above it, so the shop ends in another language and
+// somebody else's company. The words are generic shop labels, so translating
+// them invents nothing.
+//
+// The contact block is *removed* rather than translated. It carried a German
+// company, a Californian street and a +00 telephone number — the template's
+// own fiction. A footer with no address is ordinary; a footer with a false one
+// is a lie the shop tells on every page. It comes back when the real details
+// arrive; see HANDOFF.md.
+// Anchored on the *next* column rather than on a run of closing divs: the
+// info-boxes inside this one end in three of them too, so a lazy match stops
+// in the middle and leaves the row one </div> heavy — which is exactly what
+// happened, and the page grew 434px at 992 before the parity check caught it.
+html = html.replace(
+  /<div class="col-md-6 col-xl-3">\s*<div class="widget footer-widget">\s*<div class="th-widget-about">[\s\S]*?(?=<div class="col-md-6 col-xl-auto">)/,
+  '<div class="col-md-6 col-xl-3">\n' +
+  '                            <div class="widget footer-widget">\n' +
+  '                                <div class="th-widget-about">\n' +
+  '                                    <div class="about-logo2 mb-25">\n' +
+  '                                        <a href="shoe-shop.html"><img src="assets/img/logo-red2-gold.svg" alt="ویکی پلاس"></a>\n' +
+  '                                    </div>\n' +
+  '                                    <p class="about-text">ویکی پلاس، فروشگاه کیف و کفش زنانه.</p>\n' +
+  '                                </div>\n' +
+  '                            </div>\n' +
+  '                        </div>\n' +
+  '                        '
+);
+
+// The four menu columns, replaced with their whole tag rather than by word:
+// a bare "Menu" also appears inside `sideMenuToggler`, and a loose
+// find-and-replace across a page is how a class name quietly becomes Persian.
+//
+// «فروشنده شوید» gets a filename of its own so that config/storefront.php can
+// point it at the application form — every other item shares contact.html and
+// still resolves to '#'.
+[
+  ['<h3 class="widget_title">Menu</h3>', '<h3 class="widget_title">ویکی پلاس</h3>'],
+  ['<h3 class="widget_title">Customer Support</h3>', '<h3 class="widget_title">پشتیبانی</h3>'],
+  ['<h3 class="widget_title">فروشگاه on The Go</h3>', '<h3 class="widget_title">ویکی پلاس روی موبایل</h3>'],
+  ['<a href="contact.html">Become a Vendor</a>', '<a href="vendor-register.html">فروشنده شوید</a>'],
+  ['<a href="contact.html">Affiliate Program</a>', '<a href="contact.html">همکاری در فروش</a>'],
+  ['<a href="course.html">Privacy Policy</a>', '<a href="course.html">حریم خصوصی</a>'],
+  ['<a href="course.html">Our Suppliers</a>', '<a href="course.html">تأمین‌کنندگان</a>'],
+  ['<a href="contact.html">Extended Plan</a>', '<a href="contact.html">خدمات پس از فروش</a>'],
+  ['<a href="contact.html">Community</a>', '<a href="contact.html">درباره ما</a>'],
+  ['<a href="contact.html">Help Center</a>', '<a href="contact.html">راهنما</a>'],
+  ['<a href="contact.html">Report Abuse</a>', '<a href="contact.html">گزارش تخلف</a>'],
+  ['<a href="contact.html">Submit and Dispute</a>', '<a href="contact.html">ثبت شکایت</a>'],
+  ['<a href="contact.html">Policies & Rules</a>', '<a href="contact.html">قوانین</a>'],
+  ['<a href="contact.html">Online فروشگاهping</a>', '<a href="contact.html">خرید اینترنتی</a>'],
+  ['<a href="contact.html">Order History</a>', '<a href="contact.html">سفارش‌های من</a>'],
+  ['<a href="course.html">فروشگاهing سبد خرید</a>', '<a href="cart.html">سبد خرید</a>'],
+  ['<a href="course.html">Compare</a>', '<a href="course.html">مقایسه</a>'],
+  ['<a href="contact.html">Help Ticket</a>', '<a href="contact.html">پشتیبانی</a>'],
+  ['From App Store or Google Play App is available. Get it now', 'اپلیکیشن ویکی پلاس به‌زودی روی کافه‌بازار و اپ‌استور.'],
+].forEach(([from, to]) => {
+  if (!html.includes(from)) {
+    throw new Error(`the footer no longer contains ${from.slice(0, 40)} — check before assuming it is gone`);
+  }
+  html = html.split(from).join(to);
+});
+
+// The basket's badge starts at nothing. It was the template's «5» — a number
+// that never moved however full the basket was, which is worse than no number
+// at all. The Laravel page renders the real count in its place; both read ۰
+// with an empty basket, which is what the parity check compares.
+html = html.replace(
+  /(<button type="button" class="icon-btn sideMenuToggler"[\s\S]*?)<span class="badge">5<\/span>/,
+  '$1<span class="badge">۰</span>'
+);
+
 fs.writeFileSync(out, html);
 console.log(`wrote ${path.relative(ROOT, out)} (theme: ${theme || 'none — template colours'})`);
 

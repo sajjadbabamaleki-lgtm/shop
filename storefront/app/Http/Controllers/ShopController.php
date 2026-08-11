@@ -7,6 +7,7 @@ use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\Variant;
+use App\Support\Search;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -152,14 +153,22 @@ class ShopController extends Controller
         }
 
         if ($filters['q']) {
-            $query->where(function (Builder $q) use ($filters): void {
-                foreach (['title', 'short_title', 'description'] as $column) {
-                    $q->orWhere($column, 'ilike', '%'.$filters['q'].'%');
+            // Both sides folded to one spelling. Persian is typed three ways by
+            // three keyboards and none of them is wrong: ي and ی are different
+            // code points that look identical, a zero-width non-joiner is
+            // invisible, and copied text carries harakat. Folding the needle
+            // and not the column would fail for exactly the rows somebody
+            // typed on a different keyboard — and nobody could see why.
+            $needle = '%'.fold_persian($filters['q']).'%';
+
+            $query->where(function (Builder $q) use ($needle): void {
+                foreach (['products.title', 'products.short_title', 'products.description'] as $column) {
+                    $q->orWhere(Search::fold($column), 'ilike', $needle);
                 }
 
                 $q->orWhereHas('brand', fn (Builder $b) => $b
-                    ->where('name', 'ilike', '%'.$filters['q'].'%')
-                    ->orWhere('name_latin', 'ilike', '%'.$filters['q'].'%'));
+                    ->where(Search::fold('brands.name'), 'ilike', $needle)
+                    ->orWhere(Search::fold('brands.name_latin'), 'ilike', $needle));
             });
         }
 

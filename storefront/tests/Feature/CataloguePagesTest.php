@@ -191,6 +191,38 @@ class CataloguePagesTest extends TestCase
     }
 
     /**
+     * Persian is typed three ways and none of them is wrong. The Arabic ي and
+     * the Persian ی are different code points that look identical; a
+     * zero-width non-joiner is invisible; copied text carries harakat. All
+     * three have to find the same shoe.
+     */
+    public function test_search_survives_how_persian_is_actually_typed(): void
+    {
+        foreach ([
+            'نیوبالانس',            // as the catalogue spells it
+            'نيوبالانس',            // Arabic ye
+            "نیو\u{200C}بالانس",    // split by a zero-width non-joiner
+            'نِیوبالانس',            // with a kasra somebody copied in
+        ] as $typed) {
+            $this->get('/search?q='.urlencode($typed))
+                ->assertOk()
+                ->assertSee('کتونی نیوبالانس ۵۳۰', false);
+        }
+    }
+
+    /**
+     * And the digits, in either script: ۵۳۰ and 530 are the same shoe.
+     */
+    public function test_search_matches_persian_and_latin_digits_alike(): void
+    {
+        foreach (['۵۳۰', '530'] as $typed) {
+            $this->get('/search?q='.urlencode($typed))
+                ->assertOk()
+                ->assertSee('کتونی نیوبالانس ۵۳۰', false);
+        }
+    }
+
+    /**
      * `purchasable()` promises some size is sellable here, not that the
      * default one is. A shop that has stopped stocking the default size still
      * has to show a price, and its card has to add a size it actually has.

@@ -64,6 +64,25 @@ class CartManager
     }
 
     /**
+     * How many items are in the basket, without making one.
+     *
+     * The header asks this on every page, including for visitors who never
+     * add anything — so it must not be `current()`, which would write a cart
+     * row for every person who ever loads the home page.
+     */
+    public function count(): int
+    {
+        $branch = $this->tenant->branchOrNull();
+        $token = $branch ? $this->session->get("cart.{$branch->id}") : null;
+
+        if (! is_string($token) || $token === '') {
+            return 0;
+        }
+
+        return (int) Cart::where('token', $token)->withCount('items')->first()?->items()->sum('quantity');
+    }
+
+    /**
      * Add units of one size, or raise the line that is already there.
      *
      * Returns null when the branch has none of that size — a basket line for

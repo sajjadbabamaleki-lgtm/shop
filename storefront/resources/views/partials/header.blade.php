@@ -293,7 +293,7 @@
                                         </div>
                                     </form>
                                 </div>
-                                <button type="button" class="icon-btn sideMenuToggler" aria-label="سبد خرید"><i class="fa-solid fa-bag-shopping" aria-hidden="true"></i><span class="badge">5</span></button>
+                                <button type="button" class="icon-btn sideMenuToggler" aria-label="سبد خرید"><i class="fa-solid fa-bag-shopping" aria-hidden="true"></i><span class="badge">{{ fa_number($basketCount ?? 0) }}</span></button>
                                 <button type="button" class="th-menu-toggle d-block d-lg-none" aria-label="باز کردن منو"><i class="far fa-bars" aria-hidden="true"></i></button>
                             </div>
                         </div>

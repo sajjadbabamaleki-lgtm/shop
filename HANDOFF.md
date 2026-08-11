@@ -294,3 +294,21 @@ is a level down inside `storefront/`. Moving it up is a loose end.
   has broken onto three lines and overflowed the document twice.
 - **The preview server dies constantly.** Restart it with `setsid` rather than
   assuming it is up.
+
+
+## The footer's contact block, removed
+
+The template's footer carried a German company, a street in California and a
+`+00 123 456 789` telephone number. Everything else in it has been translated —
+the labels are generic shop words, so translating them invented nothing — but
+those three could not be, because the shop's real address, telephone number and
+email address are facts nobody has supplied.
+
+A footer with no address is ordinary. A footer with a false one is a lie the
+shop tells on every page, so the block was removed rather than translated. It
+is one edit in `theme/make-rtl-page.js` to put back once the real details
+arrive, and the central branch's own record (`/admin/settings`) already has
+fields for all three.
+
+The logo in that column is still the template's ERNA mark, for the same reason:
+there is no VikyPlus logo file in the repository.

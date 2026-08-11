@@ -43,6 +43,42 @@ if (! function_exists('fa_number')) {
     }
 }
 
+if (! function_exists('fold_persian')) {
+    /**
+     * One spelling of a Persian word, for matching against another.
+     *
+     * Persian is typed three ways by three keyboards and none of them is
+     * wrong. The Arabic ي and ك look like the Persian ی and ک and are a
+     * different code point; a zero-width non-joiner is invisible and splits
+     * «نیوبالانس» from «نیو‌بالانس»; and Arabic diacritics arrive from copied
+     * text and match nothing.
+     *
+     * So both sides of a search are folded to one spelling before they are
+     * compared. Without this, a shop where half the catalogue was typed on one
+     * keyboard and half on another is a shop where search works for half of
+     * it — and nobody can see why, because the two strings look identical.
+     *
+     * Only for *matching*. What is stored and shown stays exactly as it was
+     * written.
+     */
+    function fold_persian(string $value): string
+    {
+        $folded = strtr(latin_digits($value), [
+            'ي' => 'ی', 'ك' => 'ک', 'ﻙ' => 'ک', 'ﻚ' => 'ک',
+            'ة' => 'ه', 'ۀ' => 'ه',
+            'أ' => 'ا', 'إ' => 'ا', 'آ' => 'ا', 'ٱ' => 'ا',
+            'ؤ' => 'و', 'ئ' => 'ی',
+            // The invisible ones: a zero-width non-joiner, a zero-width
+            // joiner, and the Arabic tatweel that stretches a word.
+            "\u{200C}" => '', "\u{200D}" => '', 'ـ' => '',
+        ]);
+
+        // Harakat — the marks above and below letters. Copied text carries
+        // them and a keyboard does not type them.
+        return preg_replace('/[\x{064B}-\x{0652}\x{0670}]/u', '', $folded) ?? $folded;
+    }
+}
+
 if (! function_exists('fa_date')) {
     /**
      * A date as it is read here: Jalali, in Persian digits, Tehran time.

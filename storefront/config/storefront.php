@@ -34,6 +34,9 @@ return [
         'cart.html' => 'cart',
         'checkout.html' => 'checkout',
         'order-tracking.html' => 'orders.track',
+        // Its own filename so that only the footer's «فروشنده شوید» points
+        // here — every other footer item still shares contact.html.
+        'vendor-register.html' => 'vendors.apply',
     ],
 
     /*

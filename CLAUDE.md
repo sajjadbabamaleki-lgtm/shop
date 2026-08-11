@@ -66,6 +66,17 @@ An Iranian shoe and bag storefront (vikyplus.ir) built on the ThemeForest
   binding resolved before the tenant finds nothing and the page 404s for
   everybody. Tests can hide this by leaving a branch bound in the container;
   forget it before the request when testing a page that binds one.
+- `node theme/check-overflow.js` — loads every page at 390/768/1200/1920 and
+  fails if any of them scrolls sideways, naming the outermost element that
+  sticks out. The pages after the home page have no pixel baseline to compare
+  against, so this checks the one thing that is objectively wrong rather than a
+  matter of taste. `VP_LOGIN=email:password` and `VP_PAGES=/a,/b` reach the
+  panel.
+- **Persian is typed three ways.** `fold_persian()` in PHP and
+  `App\Support\Search::fold()` in SQL fold ي/ی, ك/ک, zero-width joiners,
+  harakat and both sets of digits to one spelling. Search folds *both* sides;
+  folding one and not the other fails for exactly the rows somebody typed on a
+  different keyboard, and nobody can see why.
 - Preview server:
   `cd download-version && setsid nohup python3 -m http.server 8811 &`
   It dies often; restart it with `setsid` rather than assuming it is up.
