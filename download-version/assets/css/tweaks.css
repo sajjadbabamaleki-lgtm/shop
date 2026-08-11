@@ -7790,3 +7790,83 @@ ul.vp-how-list.is-ticked li:before {
     border-radius: 10px;
   }
 }
+
+/* --------------------------------------------------------------------------
+   The hero card, on a phone only.
+
+   Every number below is inside `max-width: 991.98px` and the desktop card is
+   not touched by any of it — its 72px corner, its 67px title and its 94px of
+   `padding-block` are the measured decisions HANDOFF records, and they stand.
+   Below 992 the template stacks the two columns and the card becomes a tall
+   portrait panel where none of those numbers were ever judged.
+   -------------------------------------------------------------------------- */
+
+/* The corner, forty per cent off 72. */
+@media (max-width: 991.98px) {
+  .heroSlide6 .hero-inner {
+    border-radius: 43.2px;
+  }
+}
+
+/* The shoe's name, half the size and thicker with it.
+
+   67px is a number for a 1227-wide card. On a 390 one it set «کتونی نیوبالانس»
+   across two lines at 150px tall — a quarter of the whole card given to two
+   words. Half is 33.5, and the line box halves with it or the space the type
+   used to need stays behind.
+
+   The weight cannot answer the «۳۰ درصد ضخیم‌تر» on its own: this is Vazirmatn
+   (the rule names Cairo first and Cairo is not loaded) and it is already at
+   900, the top of the variable axis. So the extra comes from the stroke, which
+   is measured rather than guessed — see the number below. */
+@media (max-width: 991.98px) {
+  .heroSlide6 .hero-inner .hero-title {
+    font-size: 33.5px;
+    line-height: 37.5px;
+    /* Measured, not guessed: at 33.5/900 the stems read 5.75px across a 4x
+       render, and thirty per cent of that is 1.7. A centred stroke puts half
+       its width outside the outline on each side, so the number below is what
+       adds 1.7 to the stem. Re-measure if the size moves again — the stroke
+       does not scale with the type. */
+    -webkit-text-stroke-width: 1.7px;
+    -webkit-text-stroke-color: currentColor;
+    paint-order: stroke fill;
+  }
+}
+
+/* Twenty-five per cent off the card's height.
+
+   The height is the copy column's, not the shot's — the template pads that
+   column 120 above and 20 below on a phone, and the card is whatever that
+   plus the type comes to. Halving the title took it 607 → 538 on its own;
+   the rest comes off the top padding, 120 → 37, for 455.
+
+   Any further change to the copy lands here. That is the same rule the desktop
+   card has always had, written in its own comment: the shot is sized off the
+   column and does not move, so the padding is the only thing that answers. */
+@media (max-width: 991.98px) {
+  .heroSlide6 .hero-style6 {
+    padding-block: 37px 20px;
+  }
+}
+
+/* The shoe to the left and the discount star to the right.
+
+   The image column is `direction: rtl`, so its two children lay out from the
+   right: the photograph first in the DOM took the right and the star was left
+   with the left. `direction: ltr` on that one box swaps them without moving
+   either by hand — and it is the box's own writing direction, not the page's,
+   so nothing else in the card is affected.
+
+   The star's `right: calc(9% + 41px)` was placing it against the photograph in
+   the old order and pulls it the wrong way in the new one, so it goes. */
+@media (max-width: 991.98px) {
+  .heroSlide6 .hero-img {
+    direction: ltr;
+  }
+
+  .heroSlide6 .discount-wrapp {
+    right: auto;
+    left: auto;
+  }
+}

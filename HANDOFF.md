@@ -527,6 +527,44 @@ ten blog layouts. It is the same content the phone drawer carried until it was
 rebuilt, and it has the same problem. It is the next thing in that row.
 
 
+## The hero card on a phone
+
+Four changes, **all inside `max-width: 991.98px`, and the desktop card is not
+touched by any of them.** Its 72px corner, its 67px title and its 94px of
+`padding-block` are the decisions this file records above and they stand —
+verified rather than asserted: `check-parity.js` renders at 992 and up and the
+four page heights did not move by a pixel.
+
+| | desktop | phone, before | phone, now |
+|---|---|---|---|
+| card height | 450 | 607 | **455** |
+| corner | 72 | 72 | **43.2** |
+| the shoe's name | 67 | 67 | **33.5** |
+| its stem | — | 5.75 | **7.50** |
+| the star | — | left | **right** |
+
+**The height is the copy column's, not the shot's** — the same rule the desktop
+card has always had. The template pads that column 120 above and 20 below on a
+phone and the card is whatever that plus the type comes to. Halving the title
+took 607 to 538 on its own; the rest is the top padding, 120 → 37. Any further
+change to the copy lands there.
+
+**«۳۰ درصد ضخیم‌تر» could not come from the weight.** This is Vazirmatn — the
+rule names Cairo first and Cairo is not loaded — and it was already at 900, the
+top of the variable axis. It comes from a stroke instead, and the number was
+measured rather than reasoned: the stems read 5.75px across a 4× render at
+33.5/900, and `-webkit-text-stroke-width: 1.7px` puts them at 7.50, which is
++30.4%. **The stroke does not scale with the type**, so re-measure if the size
+moves again.
+
+**The swap is one property.** The image column is `direction: rtl`, so its two
+children lay out from the right — the photograph is first in the DOM and took
+the right, leaving the star the left. `direction: ltr` on that one box swaps
+them without either being moved by hand, and it is that box's own writing
+direction, so nothing else in the card is affected. The star's
+`right: calc(9% + 41px)` was placing it against the photograph in the old order
+and pulled the wrong way in the new one, so it is cleared on the phone.
+
 ## The phone header's final numbers
 
 The band has been through four rounds with the client and these are where it
