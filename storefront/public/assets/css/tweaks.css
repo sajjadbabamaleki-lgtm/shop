@@ -8247,3 +8247,114 @@ ul.vp-how-list.is-ticked li:before {
     display: none;
   }
 }
+
+/* ==========================================================================
+   The category row on a phone: four in view, the other four a swipe away.
+
+   «اون ۸ تایی پایین نسخه دستاپو پیاده سازی کنم ولی ۴ تاش تو تصویر باشه باقیش
+   اسکرول به راست بشن و از چپ بیان داخل از راست برن بیرون».
+
+   This settles a question this file has been working around for a long time.
+   Eight tiles across a phone leaves each one 38 wide at 390, and the block
+   above says so in as many words: the pill's inner width came to 26, «ست کیف و
+   کفش» wrapped to eight lines and 326% of its own tile, so the wrap was called
+   off below 576 and the ellipsis put back — six of eight names showing as
+   fragments. That block ends by naming the real cause, "eight-across on a
+   phone", and says it is a layout question deliberately settled the other way
+   and not to be re-settled from down there. This is the client settling it.
+
+   Four in view makes the tile 78 at 390 instead of 38, which is what gives the
+   names their room back — so the ellipsis goes and the wrap returns, on the
+   same reasoning the desktop row uses.
+
+   **The direction needs no code.** The page is RTL, so the strip already lays
+   the first tile at the right edge and runs the rest off to the left, and the
+   browser opens it scrolled to that end. Swiping through it brings tiles in at
+   the left and takes them out at the right, which is the client's sentence
+   exactly. Anything written to force it would be fighting the page.
+
+   Bootstrap's own row/column machinery is switched off here rather than
+   worked with: the gutter is padding *inside* each column and the row cancels
+   it with negative margins, which in a scroll container puts half a gutter of
+   scrollable dead space at each end. A flex `gap` and zero padding give the
+   same 12 between tiles with nothing at the ends, and 12 is the number the
+   header band already uses at both of its edges.
+
+   Snap on each tile so a swipe settles on a tile boundary rather than
+   half-way through one, and `overscroll-behavior-inline: contain` so reaching
+   the end of the strip does not hand the gesture to the page and start a
+   back-navigation.
+
+   Measured, strip width and tile: 336/75 at 360, 366/82.5 at 390, 406/92.5 at
+   430, 551/128.8 at 575, 967/232.8 at 991. Four in view at every one of them,
+   the gap exactly 12.0, and the fourth tile ending on the strip's edge. At 390
+   the strip runs 744 against a 366 window, so the other four are 378 of scroll
+   away. `scrollLeft` counts *down* from 0 to -378 there rather than up, which
+   is the RTL convention and worth knowing before writing an assertion about
+   it: at rest it is 0 and showing tiles 1-4, and -378 is the end, showing 5-8.
+
+   And the names, which is what this was for: **0 of 8 cut at any width**,
+   against 6 of 8 before. The tallest pill is 53% of its tile at 360, 48% at
+   390, 43% at 430 and 11-19% from 575 up — laid over the photograph, which is
+   what it is for, rather than hiding it.
+   ========================================================================== */
+@media (max-width: 991.98px) {
+  .vp-category-row {
+    --vp-cat-gap: 12px;
+    --bs-gutter-x: 0;
+    --bs-gutter-y: 0;
+    margin-inline: 0;
+    display: flex;
+    flex-wrap: nowrap;
+    gap: var(--vp-cat-gap);
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scroll-snap-type: x mandatory;
+    /* The strip is its own control and the tiles are the affordance; a bar
+       under them on a 78px tile is more furniture than information. */
+    scrollbar-width: none;
+  }
+
+  .vp-category-row::-webkit-scrollbar {
+    display: none;
+  }
+
+  .vp-category-row > .col {
+    flex: 0 0 calc((100% - 3 * var(--vp-cat-gap)) / 4);
+    max-width: none;
+    padding: 0;
+    scroll-snap-align: start;
+  }
+
+  /* The caps the eight-across layout needed are all off. 130 and 157.5 were
+     ceilings on a tile that had to share the width with seven others; the
+     column is the ceiling now. */
+  .vp-category {
+    max-width: none;
+    border-radius: 18px;
+  }
+
+  /* And the photograph fills the tile again. The 6px inset below 576 was there
+     to keep a 38px tile from reading as a solid block of photograph; at 78 it
+     is a tile again and the inset only ate the subject. */
+  .vp-category img {
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* The name, at the size the room now allows, and wrapping rather than cut.
+     Written after the three stepped-down blocks above so it is the last word
+     below 992 — those steps were sized for a tile that shrank with the page
+     and this one does not. */
+  .vp-category-label {
+    inset-inline: 5px;
+    padding: 5px 4px;
+    border-radius: 10px;
+    font-size: 11px;
+    line-height: 1.35;
+    white-space: normal;
+    text-wrap: balance;
+    overflow-wrap: anywhere;
+  }
+}
