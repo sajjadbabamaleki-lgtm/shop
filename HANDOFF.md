@@ -527,6 +527,34 @@ ten blog layouts. It is the same content the phone drawer carried until it was
 rebuilt, and it has the same problem. It is the next thing in that row.
 
 
+## The star, and two traps under it
+
+The client circled where the star should sit. Getting it there took three
+attempts and both of the reasons are worth keeping:
+
+- **`.discount-wrapp` is 325px tall.** An SVG inside it overflows a long way
+  below, so the wrapper's centre is 120px from the star anybody can see.
+  `.discount-tag` is the 85×85 box that draws — measure that one.
+- **`.hero-inner` is `overflow: hidden`.** A star pushed above the card's top
+  edge does not sit there, it disappears — while `getBoundingClientRect` still
+  cheerfully reports the box exactly where it was asked to be. The screenshot is
+  the check, not the rectangle.
+
+The numbers were bisected against the star's rendered centre, not derived:
+`top: 31px; left: 220px` puts it at (283, 157), which is where the circle is.
+They are tied to the card's height, which the copy sets — if the copy changes,
+re-measure.
+
+The shoe's toe points **left** in this photograph; the high right end is the
+heel. I put the star over the toe first because «پوزه» is the toe, and had the
+end wrong.
+
+**And one the parity check cannot catch.** The lockup's gap came down a quarter,
+13 → 9.75, and the first version changed the base rule — which moved the desktop
+with it. `check-parity.js` renders the two *copies of this page* against each
+other, so a change that lands on both is still zero difference. It is not a
+guard against changing the desktop. Only reading the desktop is.
+
 ## The hero card on a phone, second pass
 
 - **The shoe and the star are above the words.** The template stacks the copy

@@ -1733,6 +1733,20 @@ option:hover {
   direction: rtl;
 }
 
+/* A quarter off it on a phone, where the mark and the name were reading as two
+   things placed near each other rather than one lockup.
+
+   Below 992 only. The first version of this changed the 13 above and moved the
+   desktop's lockup with it — and **the parity check cannot catch that**: it
+   renders the two copies of the page against each other, and a change that
+   lands on both is still zero difference. The desktop is guarded by reading it,
+   not by the check. */
+@media (max-width: 991.98px) {
+  .vp-logo {
+    gap: 9.75px;
+  }
+}
+
 /* The tile's own white is #FDFDFD and the header band is #F7F7F7 — six levels
    apart, which is no edge at all. The three shadows that used to separate it
    are gone, so a hairline does the job instead: same device as the search
@@ -7155,7 +7169,10 @@ ul.vp-how-list.is-ticked li:before {
    line under it. If those change, these change with them. */
 .vp-logo-drawer {
   min-width: 0;
-  gap: 8px;
+  /* Inherited from `.vp-logo` rather than set here — the drawer's lockup is the
+     header's lockup and the two have to be one number, not two that happen to
+     agree today. */
+  min-height: 0;
 }
 
 .vp-logo-drawer img {
@@ -7896,5 +7913,115 @@ ul.vp-how-list.is-ticked li:before {
 @media (max-width: 991.98px) {
   .heroSlide6 .hero-inner {
     margin-inline: 9px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   The hero card on a phone, third pass. All below 992.
+   -------------------------------------------------------------------------- */
+
+/* The card sits under the header at the header's own distance from the top.
+
+   `.th-hero-wrapper` pads 22 above. The island is 9 from the top of the page,
+   so 9 is what the gap under it should be as well — three sides of the band and
+   the space beneath it, one number. */
+@media (max-width: 991.98px) {
+  .th-hero-wrapper {
+    padding-top: 9px;
+  }
+}
+
+/* The words, actually centred.
+
+   The copy block is `text-align: center` and every line in it sat 34px left of
+   the card's centre. `.hero-style6` carries `padding-right: 68px` with no media
+   query on it — a number for the wide layout, where the copy is a column beside
+   the shot and that padding is what holds it off the card's edge. Stacked, it
+   is 68px of one-sided padding inside a centred block, and half of it is
+   exactly the 34 every line was out by. */
+@media (max-width: 991.98px) {
+  .heroSlide6 .hero-style6 {
+    padding-right: 0;
+  }
+
+  /* And its mirror on the image column, `padding-left: 68px`, for the same
+     reason and with a second consequence: the image's own `max-width: 100%` is
+     a percentage of the *content* box, so 68px of padding capped the shoe at
+     280 however wide it was asked to be, and left `margin: auto` nothing to
+     centre with. Both of these are the wide layout's gutters and neither means
+     anything once the two columns are stacked. */
+  .heroSlide6 .hero-img {
+    padding-left: 0;
+  }
+
+  /* And the eyebrow's own, `margin-right: 60px`. Same wide-layout gutter, same
+     halving inside a centred block: it was the 30 that line was out by. */
+  .heroSlide6 .hero-inner .sub-title {
+    margin-right: 0;
+  }
+}
+
+/* The shoe: down 20, up a fifth, and on the card's centre line.
+
+   It was 249 wide sitting 35px left of centre, because it is an inline image in
+   a text-aligned box and its own whitespace was doing the placing. A block with
+   automatic side margins puts it on the centre line by construction, and the
+   width is stated so the fifth is a number rather than a guess.
+
+   The 20 is a transform rather than a margin: the column is only as tall as
+   what it holds, so a margin would push the card 20px taller and undo the
+   height that was just settled. */
+@media (max-width: 991.98px) {
+  .heroSlide6 .hero-img {
+    position: relative;
+    text-align: center;
+  }
+
+  .heroSlide6 .hero-img > img {
+    display: block;
+    width: 299px;
+    height: auto;
+    margin-inline: auto;
+    transform: translateY(20px);
+  }
+}
+
+/* The star, over the shoe's toe.
+
+   Out of the flow and pinned, so it sits where the photograph's toe is rather
+   than wherever the line box happens to leave it. Both numbers are read off the
+   rendered shoe: at 299 wide and centred in the 348 column it spans 24.5 to
+   323.5, and the toe is the right third of it. */
+@media (max-width: 991.98px) {
+  .heroSlide6 .discount-wrapp {
+    position: absolute;
+    /* Where the client circled it: the clear air above the shoe's heel, on the
+       right. I put it over the toe first — «پوزه» — and had the toe on the
+       wrong end: in this photograph the shoe faces left, so its toe is the low
+       left end and the high right end is the heel.
+       
+       Both numbers are read off the circle in their screenshot against a known
+       landmark in the same image. The header island is 372 CSS wide and
+       measured 1072px there, so the shot is at 2.882; the circle's centre sits
+       at (815, 452) in it, which is (283, 157) in CSS pixels on the page.
+
+       Both were bisected against the **star's own** rendered centre rather
+       than derived, and that distinction cost a round: `.discount-wrapp` is
+       325px tall — an SVG inside it overflows a long way below — so measuring
+       the wrapper's centre reports something 120px away from the star anybody
+       can see. `.discount-tag` is the 85x85 box that draws. Measure that one.
+
+       The other trap is above it: `.hero-inner` is `overflow: hidden`, so a
+       star pushed above the card's top edge does not sit there — it disappears
+       entirely, while `getBoundingClientRect` still cheerfully reports the box
+       exactly where it was asked to be.
+
+       These numbers are tied to the card's height, which the copy sets. If the
+       copy changes, re-measure rather than re-derive. */
+    top: 31px;
+    left: 220px;
+    right: auto;
+    margin: 0;
+    z-index: 2;
   }
 }
