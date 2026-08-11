@@ -254,7 +254,7 @@
                                         </div>
                                     </form>
                                 </div>
-                                <a href="{{ page_url('my-account.html') }}" class="icon-btn vp-account-btn" aria-label="{{ auth('customer')->check() ? 'حساب من' : 'ورود / ثبت‌نام' }}"><i class="fa-solid fa-user" aria-hidden="true"></i></a><button type="button" class="icon-btn sideMenuToggler" aria-label="سبد خرید"><i class="fa-solid fa-bag-shopping" aria-hidden="true"></i><span class="badge">{{ fa_number($basketCount ?? 0) }}</span></button>
+                                <a href="{{ page_url('search-product.html') }}" class="icon-btn vp-search-btn d-lg-none" aria-label="جستجو"><svg class="vp-search-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="8.5" cy="8.5" r="6" stroke="currentColor" stroke-width="2"/><line x1="12.9" y1="12.9" x2="15.3" y2="15.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></a><a href="{{ page_url('my-account.html') }}" class="icon-btn vp-account-btn" aria-label="{{ auth('customer')->check() ? 'حساب من' : 'ورود / ثبت‌نام' }}"><i class="fa-solid fa-user" aria-hidden="true"></i></a><button type="button" class="icon-btn sideMenuToggler" aria-label="سبد خرید"><i class="fa-solid fa-bag-shopping" aria-hidden="true"></i><span class="badge">{{ fa_number($basketCount ?? 0) }}</span></button>
                                 <button type="button" class="th-menu-toggle d-block d-lg-none" aria-label="باز کردن منو"><i class="far fa-bars" aria-hidden="true"></i></button>
                             </div>
                         </div>

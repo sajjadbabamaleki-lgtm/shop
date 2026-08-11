@@ -1781,8 +1781,8 @@ option:hover {
   border: 0;
   border-radius: 12px;
   box-shadow:
-    0 1px 2px rgba(16, 17, 17, 0.10),
-    0 3px 8px -2px rgba(16, 17, 17, 0.14);
+    0 0 2px rgba(16, 17, 17, 0.10),
+    0 0 8px -2px rgba(16, 17, 17, 0.14);
 }
 
 .vp-logo-text {
@@ -3865,7 +3865,8 @@ option:hover {
    measured at the top of this file (6.94:1 / 9.88:1, both AA). The
    template's own .icon-btn rules are two classes deep, so these are three. */
 .th-header .header-button .icon-btn.sideMenuToggler,
-.th-header .header-button .icon-btn.vp-account-btn {
+.th-header .header-button .icon-btn.vp-account-btn,
+.th-header .header-button .icon-btn.vp-search-btn {
   width: 48px;
   height: 48px;
   border-radius: 18px;
@@ -3875,8 +3876,8 @@ option:hover {
      own drop shadow now, at the client's word, so the two controls and the
      lockup between them are lit the same way. */
   box-shadow:
-    0 1px 2px rgba(16, 17, 17, 0.10),
-    0 3px 8px -2px rgba(16, 17, 17, 0.14);
+    0 0 2px rgba(16, 17, 17, 0.10),
+    0 0 8px -2px rgba(16, 17, 17, 0.14);
   border: 0;
   color: #C0972F;
   display: flex;
@@ -3885,7 +3886,8 @@ option:hover {
 }
 
 .th-header .header-button .icon-btn.sideMenuToggler i,
-.th-header .header-button .icon-btn.vp-account-btn i {
+.th-header .header-button .icon-btn.vp-account-btn i,
+.th-header .header-button .icon-btn.vp-search-btn .vp-search-icon {
   font-size: 20px;
   line-height: 1;
   color: #C0972F;
@@ -7192,9 +7194,10 @@ ul.vp-how-list.is-ticked li:before {
    It had its own — a 36px tile, 14px name, 10px line under — which meant the
    shop's sign was one size at the top of the page and another the moment the
    menu opened over it. These are the phone header's, copied deliberately: 42
-   and radius 11.5 on the tile, 14.52 at weight 900 on the name, 9.35 and one
-   line under it. If those change, these change with them — and they have once:
-   the radius was 10 until the client asked for fifteen per cent rounder. */
+   and radius 12.65 on the tile, 14.52 at weight 900 on the name, 9.35 and one
+   line under it. If those change, these change with them — and they have
+   twice: the radius was 10, then 11.5, then 12.65, as the client asked for
+   fifteen per cent rounder and then ten per cent more. */
 .vp-logo-drawer {
   min-width: 0;
   /* Inherited from `.vp-logo` rather than set here — the drawer's lockup is the
@@ -7798,12 +7801,17 @@ ul.vp-how-list.is-ticked li:before {
    Written twice because the mark itself is two sizes: 42 below 576 and 52
    above it, which is the template's own breakpoint for this band.
 
-   **The corners are fifteen per cent rounder than that ratio now**, at the
-   client's word — «گوشه های آیکون اپ سبد خرید و منو ۱۵ درصد کروتر بشن». 12 →
-   13.8 above 576 and 10 → 11.5 below it, and the mark takes the same two so
+   **The corners are rounder than that ratio now**, at the client's word, in
+   two steps: «۱۵ درصد کروتر» took 12 → 13.8 and 10 → 11.5, and «۱۰ درصد دیگه
+   کرو بشه» took those to **15.18 and 12.65**. The mark takes the same pair so
    the three stay one set: that is the whole point of the ratio, and rounding
    two of the three would break it. The mark's rule is the one immediately
    below this block, and the drawer's copy of the mark follows both.
+
+   The ratio is 0.292 of the box now, against the 0.238 it started at. A square
+   is 0.5, so there is room yet, but the corners are past the point where they
+   read as an app icon's and are heading for a pill — worth saying out loud if
+   a third step is asked for.
 
    Below 992 only. The instruction names no breakpoint and the standing one —
    «به هیچ عنوان به نسخه دستاپ دست نزنی» — decides it. On the desktop the mark
@@ -7818,10 +7826,11 @@ ul.vp-how-list.is-ticked li:before {
    -------------------------------------------------------------------------- */
 @media (max-width: 991.98px) {
   .th-header .header-button .icon-btn.sideMenuToggler,
+  .th-header .header-button .icon-btn.vp-search-btn,
   .th-header .th-menu-toggle.d-block {
     width: 52px;
     height: 52px;
-    border-radius: 13.8px;
+    border-radius: 15.18px;
   }
 
   /* The mark, with them. Its 12 is the base rule nine hundred lines above and
@@ -7830,7 +7839,7 @@ ul.vp-how-list.is-ticked li:before {
      file. It reaches the footer's mark too, which is right: one lockup, one
      corner, wherever it appears on a phone. */
   .vp-logo img {
-    border-radius: 13.8px;
+    border-radius: 15.18px;
   }
 
   /* The drawer's copy of the mark is 42 at every width the drawer opens at, so
@@ -7839,20 +7848,21 @@ ul.vp-how-list.is-ticked li:before {
      hundred lines up: the two selectors are the same specificity and this
      element matches both, so source order is the only thing deciding it. */
   .vp-logo-drawer img {
-    border-radius: 11.5px;
+    border-radius: 12.65px;
   }
 }
 
 @media (max-width: 575px) {
   .th-header .header-button .icon-btn.sideMenuToggler,
+  .th-header .header-button .icon-btn.vp-search-btn,
   .th-header .th-menu-toggle.d-block {
     width: 42px;
     height: 42px;
-    border-radius: 11.5px;
+    border-radius: 12.65px;
   }
 
   .vp-logo img {
-    border-radius: 11.5px;
+    border-radius: 12.65px;
   }
 }
 
@@ -8169,5 +8179,71 @@ ul.vp-how-list.is-ticked li:before {
     right: auto;
     margin: 0;
     z-index: 2;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   The phone's search, and the air between the three controls.
+
+   «یه آیکون مربع سفید سرچ بیاد کنار اون دوتا فاصله بینشون هم بشه اندازه فاصله
+   آیکون منو با لبه کارت».
+
+   The square itself needs almost nothing: it is `.icon-btn.vp-search-btn` and
+   it was added to the basket's own selector lists rather than given rules of
+   its own, so it is the same white, the same size at both phone sizes, the
+   same corner and the same shadow by construction and not by agreement. Only
+   the glyph is its own — the field's button carries the same SVG at 19, and on
+   a 42 square that is too big for the box the bag and the user icon sit in.
+
+   The gap. The band's air is 12: the container pads 12 a side, so the menu
+   button stands 12 from the island's edge, and the mark stands 12 from the
+   other. Between the controls the template's `.header-button` was spending 16,
+   so the row read as two different measures — 12 at the ends, 16 in the
+   middle. 12 throughout is what was asked for and it is the number the band
+   already had.
+
+   Measured at 390, island 9 to 381:
+
+     before   menu 21..63   basket 79..121                 12 | 16 | —
+     after    menu 21..63   basket 75..117   search 129..171   12 | 12 | 12
+
+   and the same three 12s at 991 on the 52 squares. Below 992 only: above it
+   the field is there, the search square is `d-lg-none`, and the desktop band's
+   16 is not this instruction's to change.
+   -------------------------------------------------------------------------- */
+@media (max-width: 991.98px) {
+  .th-header .header-button {
+    gap: 12px;
+  }
+
+  /* Sized to the square rather than to the field's disc: 17 on the 42 box and
+     the same glyph as the field, so the three controls carry three marks of
+     one weight. */
+  .th-header .header-button .icon-btn.vp-search-btn .vp-search-icon {
+    width: 17px;
+    height: 17px;
+  }
+}
+
+/* The empty column between the lockup and the controls.
+
+   The band is three Bootstrap columns: the lockup, the navigation, the
+   buttons. Below 992 the navigation inside the middle one is `d-none` — but
+   the *column* is not, and a Bootstrap column is 12px of padding a side
+   whether or not anything is in it. So 24px of the band went to a column
+   holding nothing.
+
+   That was affordable with two square controls and stopped being affordable
+   with three: at 390 the row came to 379.3 in a 372 band and wrapped onto
+   three lines, the lockup on one, the empty column on the next and the
+   buttons on a third — the band 84 tall instead of 66. Measured, not guessed,
+   which is the only way this is ever visible: `d-none` on the nav makes the
+   column look empty in the inspector while it is still spending the width.
+
+   Below 992 only. Above it the column holds the navigation and carries
+   `me-xl-auto`, which is what pushes the buttons to the far end of the band. */
+@media (max-width: 991.98px) {
+  .th-header .menu-area .row > .col-auto.me-xl-auto {
+    display: none;
   }
 }

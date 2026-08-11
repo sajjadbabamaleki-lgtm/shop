@@ -181,9 +181,13 @@ if (html.includes('cursor-follower')) {
 // --- the drawer's search field ----------------------------------------------
 //
 // Removed at the client's word, and the second time of asking: they meant the
-// field, not only its button. Nothing takes its place — the header's own field
-// is hidden below 992, so a phone has no search now. Said plainly rather than
-// worked around, because it is a decision and not an oversight.
+// field, not only its button. The phone had no search at all for a while after
+// that, which was said plainly here rather than worked around.
+//
+// It has one again, and the shape is the point: «یه آیکون مربع سفید سرچ بیاد
+// کنار اون دوتا» — a square, beside the basket and the menu, not a field. The
+// objection was to a text field taking a row of the drawer, and a button that
+// goes to the search page is not that.
 
 // The basket takes a filled icon rather than the template's outline SVG, to
 // match the one on the sale cards and because it now sits on gold, where an
@@ -195,6 +199,25 @@ if (html.includes('cursor-follower')) {
 // its contents, so the count no longer stands in for one.
 html = html.replace(
   /<button type="button" class="icon-btn sideMenuToggler"><img[^>]*>/i,
+  // The phone's search, at the right-hand end of the button group — which is
+  // where the desktop's search field sits, so the two layouts order the same
+  // controls the same way. `d-lg-none` because above 992 the field itself is
+  // there and a second search beside it would be two ways to the same page.
+  //
+  // The same two-shape SVG the field's own button carries, rather than
+  // FontAwesome's fa-search, whose handle is nearly as long as the glass. It
+  // is sized by the CSS rather than by this markup's width/height, which the
+  // viewBox makes safe to override.
+  //
+  // `search-product.html` is the template's search page and is mapped in
+  // `config/storefront.php`, so make-blade turns this into the `search` route
+  // rather than leaving a dead .html link in the Blade.
+  '<a href="search-product.html" class="icon-btn vp-search-btn d-lg-none" aria-label="جستجو">' +
+    '<svg class="vp-search-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true">' +
+      '<circle cx="8.5" cy="8.5" r="6" stroke="currentColor" stroke-width="2"/>' +
+      '<line x1="12.9" y1="12.9" x2="15.3" y2="15.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>' +
+    '</svg>' +
+  '</a>' +
   // The account, beside the basket. It lived in the dark strip above the
   // header until that strip was removed, and on a desktop the drawer — which
   // carries the other copy — never opens. `.vp-account-btn` so the two are the
