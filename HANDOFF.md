@@ -527,6 +527,36 @@ ten blog layouts. It is the same content the phone drawer carried until it was
 rebuilt, and it has the same problem. It is the next thing in that row.
 
 
+## Five off one message
+
+- **The island's top margin follows its sides.** 18 above against 9 either side
+  on a phone, which is the thing the island exists to avoid. 9 on all three now;
+  still nothing below, because the gap down to the hero is the hero's own
+  padding and a margin here would stack on it. Desktop stays 18.
+- **The cursor follower is gone**, desktop and phone. There were *three*
+  elements, not two: the `.magic-cursor` wrapper with its pair inside, and a
+  loose `.cursor-follower` sitting under it — the guard on the second removal is
+  what found that. `main.js` needs no change; it wraps the whole block in
+  `if ($('.cursor-follower').length > 0)`.
+- **The drawer's search is out.** The client meant the field, not only its
+  button, and said so twice. **The phone now has no search anywhere** — the
+  header's own field is `display: none` below 992 — which is a decision rather
+  than an oversight, and is written here so nobody re-adds it by accident.
+- **The drawer's lockup is the header's lockup.** It had a 36px tile and a 14px
+  name of its own, so the shop's sign was one size at the top of the page and
+  another the moment the menu opened over it. It now carries the phone header's
+  numbers exactly — 42/10, 14.52 at 900, 9.35 on one line — and they move
+  together.
+- **The close button's cross is centred by its box**, the same fix the header's
+  three bars needed. Measured after: 11 above / 10 below, 10 left / 11 right. A
+  9px glyph in a 30px box cannot be better than half a pixel off on an integer
+  grid.
+
+**`make-blade.js`'s first region was anchored on `<div class="magic-cursor`.**
+Removing the element threw the anchor rather than silently swallowing the whole
+chrome region into the one after it — which is exactly what that assertion is
+for. It anchors on `<div class="slider-drag-cursor">` now.
+
 ## The hero card on a phone
 
 Four changes, **all inside `max-width: 991.98px`, and the desktop card is not

@@ -1839,6 +1839,12 @@ option:hover {
   .th-header .menu-area,
   .th-header .sticky-wrapper.sticky .menu-area {
     margin-inline: 9px;
+    /* And the same above. The desktop's 18 is one number on three sides and the
+       phone's should be too — it was 18 above against 9 either side, which is
+       the thing the island was set up to avoid in the first place. Still
+       nothing below: the gap down to the hero is the hero's own padding, and a
+       margin here would stack on top of it. */
+    margin-top: 9px;
     /* Twenty per cent off 24. The corner follows the panel: a smaller inset
        with the same radius reads rounder than it did, because the curve is a
        larger fraction of what is left. */
@@ -7140,26 +7146,33 @@ ul.vp-how-list.is-ticked li:before {
 /* The header band's lockup, smaller. 52px is arithmetic on the header band's
    height and there is no band here — what sets the size is the close button
    beside it and the 270px it has to share with it. */
+/* The header band's lockup, at the header band's numbers.
+
+   It had its own — a 36px tile, 14px name, 10px line under — which meant the
+   shop's sign was one size at the top of the page and another the moment the
+   menu opened over it. These are the phone header's, copied deliberately: 42
+   and radius 10 on the tile, 14.52 at weight 900 on the name, 9.35 and one
+   line under it. If those change, these change with them. */
 .vp-logo-drawer {
   min-width: 0;
-  gap: 9px;
+  gap: 8px;
 }
 
 .vp-logo-drawer img {
-  width: 36px;
-  height: 36px;
-  /* The header's radius is 12 of 52; this keeps the same corner rather than
-     becoming a rounded rectangle at a smaller size. */
-  border-radius: 8px;
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
 }
 
 .vp-logo-drawer .vp-logo-text b {
-  font-size: 14px;
+  font-size: 14.52px;
+  font-weight: 900;
 }
 
 .vp-logo-drawer .vp-logo-text small {
-  font-size: 10px;
-  margin-block-start: 2px;
+  font-size: 9.35px;
+  margin-block-start: 4px;
+  white-space: nowrap;
 }
 
 /* Static rather than the template's absolute -16.5px, and quiet: a gold
@@ -7168,9 +7181,16 @@ ul.vp-how-list.is-ticked li:before {
 .th-menu-wrapper .th-menu-toggle {
   position: static;
   flex: none;
+  /* Centred by the box, not by a line-height — the same fault the header's
+     three bars had. A line-height only centres a glyph if the glyph happens to
+     sit in the middle of its em box, and none of them do. */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
   width: 30px;
   height: 30px;
-  line-height: 30px;
+  line-height: 1;
   border-radius: 10px;
   background: transparent;
   box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.10);
@@ -7197,40 +7217,6 @@ ul.vp-how-list.is-ticked li:before {
   overflow-y: auto;
   overscroll-behavior: contain;
   padding: 14px 16px;
-}
-
-/* The drawer's search, and the only one a phone has. The header's field is
-   hidden below 992 — its contents collapse to nothing there anyway, and the
-   width it went on reserving is what wrapped the header's controls onto a
-   second row. Drawn like everything else on this panel: a hairline, no fill. */
-.vp-drawer-search {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 16px;
-  padding: 0 12px;
-  border-radius: 14px;
-  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.09);
-}
-
-.vp-drawer-search input {
-  flex: 1;
-  min-width: 0;
-  height: 40px;
-  padding: 0 6px;
-  border: 0;
-  background: transparent;
-  font-family: 'Vazirmatn', var(--body-font);
-  font-size: 13px;
-  color: #101111;
-}
-
-.vp-drawer-search input::placeholder {
-  color: #9A9C9C;
-}
-
-.vp-drawer-search input:focus {
-  outline: none;
 }
 
 /* The section label, with the short gold rule the old menu had beside it —
@@ -7576,8 +7562,6 @@ ul.vp-how-list.is-ticked li:before {
   .vp-drawer-head { padding: 10px 14px; }
   .vp-logo-drawer img { width: 32px; height: 32px; }
   .vp-drawer-body { padding: 11px 14px; }
-  .vp-drawer-search { margin-bottom: 11px; }
-  .vp-drawer-search input { height: 36px; }
   .vp-quick { padding: 8px 3px 7px; }
   .vp-quick-mark { width: 26px; height: 26px; font-size: 11px; }
   .vp-drawer-cats { gap: 1px; margin-top: 6px; }

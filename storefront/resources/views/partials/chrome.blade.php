@@ -1,13 +1,5 @@
 {{-- Ported from download-version/shoe-shop-rtl.html by theme/make-blade.js. --}}
-<div class="magic-cursor relative z-10">
-        <div class="cursor"></div>
-        <div class="cursor-follower"></div>
-    </div>
-
-    <div class="cursor-follower"></div>
-
-    <!-- slider drag cursor -->
-    <div class="slider-drag-cursor"><img src="{{ asset('assets/img/icon/arrow.svg') }}" alt=""></div>
+<div class="slider-drag-cursor"><img src="{{ asset('assets/img/icon/arrow.svg') }}" alt=""></div>
 
         </div>
     </div>    <div id="QuickView" class="white-popup mfp-hide">

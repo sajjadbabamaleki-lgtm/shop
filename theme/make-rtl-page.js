@@ -153,6 +153,38 @@ html = html.replace(
   '                            </div>'
 );
 
+// --- the circle that follows the mouse --------------------------------------
+//
+// «اون دایره گردانی که با موس حرکت میکنه». The template's cursor follower: two
+// divs the size of a coin that trail the pointer across every page. On a phone
+// there is no pointer to follow and it sits in a corner doing nothing; on a
+// desktop it is the template's flourish and not this shop's.
+//
+// The markup goes and the script does not have to: main.js guards the whole
+// block with `if ($('.cursor-follower').length > 0)`, so with the element gone
+// it never runs.
+if (!html.includes('cursor-follower')) {
+  throw new Error('the cursor follower is already gone — check what replaced it');
+}
+// Two of them: the wrapper with its pair of divs, and a *third*
+// `.cursor-follower` sitting loose in the markup underneath it. The guard
+// below is what noticed the second one.
+html = html.replace(
+  /<div class="magic-cursor[^"]*">[\s\S]*?<\/div>\s*<\/div>\s*/,
+  ''
+);
+html = html.replace(/<div class="cursor-follower"><\/div>\s*/g, '');
+if (html.includes('cursor-follower')) {
+  throw new Error('the cursor follower replacement did not match');
+}
+
+// --- the drawer's search field ----------------------------------------------
+//
+// Removed at the client's word, and the second time of asking: they meant the
+// field, not only its button. Nothing takes its place — the header's own field
+// is hidden below 992, so a phone has no search now. Said plainly rather than
+// worked around, because it is a decision and not an oversight.
+
 // The basket takes a filled icon rather than the template's outline SVG, to
 // match the one on the sale cards and because it now sits on gold, where an
 // outline reads as a hole rather than as a bag. fa-solid is already loaded —
@@ -328,15 +360,6 @@ const DRAWER =
   '                    <button type="button" class="th-menu-toggle" aria-label="بستن منو"><i class="fal fa-times" aria-hidden="true"></i></button>\n' +
   '                </div>\n' +
   '                <div class="vp-drawer-body">\n' +
-  // The only search a phone gets. The header's field is hidden below 992 —
-  // its contents collapse to nothing there anyway — so without this one the
-  // shop has no search on a phone at all.
-  '                    <form class="vp-drawer-search" method="get" action="search-product.html" role="search">\n' +
-  // No submit button. The field is the control — Enter searches, and a phone's
-  // own keyboard puts a search key where the return key would be. The gold
-  // block that used to sit in it was a third gold in a panel that has one.
-  '                        <input type="search" name="q" placeholder="دنبال چی می‌گردی؟" aria-label="جست‌وجو در محصولات">\n' +
-  '                    </form>\n' +
   '                    <p class="vp-drawer-label">دسترسی سریع</p>\n' +
   '                    <div class="vp-drawer-quick">\n' +
   QUICK_LINKS.map(([icon, name, lit]) =>

@@ -49,7 +49,10 @@ const html = fs.readFileSync(PAGE, 'utf8');
 // keep working and the regions after them stay in the right place, but it
 // leaves the files alone. See HANDOFF.md.
 const REGIONS = [
-  { name: 'chrome', anchor: '<div class="magic-cursor', into: 'partials/chrome.blade.php' },
+  // Was `<div class="magic-cursor` until the cursor follower was taken out of
+  // the page — the anchor threw rather than silently swallowing the region,
+  // which is the whole reason it insists the string exists exactly once.
+  { name: 'chrome', anchor: '<div class="slider-drag-cursor">', into: 'partials/chrome.blade.php' },
   { name: 'mobile-menu', anchor: '<div class="th-menu-wrapper">', into: 'partials/mobile-menu.blade.php', owned: true },
   { name: 'header', anchor: '<header class="th-header', into: 'partials/header.blade.php' },
   { name: 'hero', anchor: '<div class="th-hero-wrapper', into: 'home/hero.blade.php', owned: true },
