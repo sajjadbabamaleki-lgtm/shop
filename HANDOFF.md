@@ -527,6 +527,31 @@ ten blog layouts. It is the same content the phone drawer carried until it was
 rebuilt, and it has the same problem. It is the next thing in that row.
 
 
+## The hero card on a phone, second pass
+
+- **The shoe and the star are above the words.** The template stacks the copy
+  column first, which put two lines of heading and a button between the top of
+  the card and the thing the card is selling. Done with `order` on the two
+  columns, not `flex-direction: column-reverse` — the row is a *wrapping* flex
+  row, and reversing its direction fights the wrap instead of reordering the two
+  lines it makes.
+- **The star is 30% off 121.2, so 84.84.**
+- **The card sits in the header's margins, 9 a side.** The band is 9 in and the
+  card ran edge to edge, so the two biggest things on the screen disagreed about
+  where the page's margin was.
+
+**The card is 440 now, not the 455 the 25% cut landed on**, and that is the
+star: 46px came off its height and the image column is only as tall as what it
+holds. It was not padded back, because that would be adding empty space to hit
+a number the content no longer needs.
+
+Above 992 none of this applies, and the margin in particular must not: the deck
+runs `margin: 0 -36%` with two slides to a view so the neighbouring cards show
+past the page's margins — «همسایه», cut by mistake twice — and a margin on the
+card would eat into that rather than into the page. At 390 the deck's own margin
+computes to 0 and one card fills the width, so there is nothing there to
+disturb.
+
 ## Five off one message
 
 - **The island's top margin follows its sides.** 18 above against 9 either side

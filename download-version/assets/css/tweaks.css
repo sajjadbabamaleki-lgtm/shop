@@ -7854,3 +7854,47 @@ ul.vp-how-list.is-ticked li:before {
     left: auto;
   }
 }
+
+/* --------------------------------------------------------------------------
+   The hero card on a phone, second pass. All below 992; the desktop card is
+   untouched by every rule here.
+   -------------------------------------------------------------------------- */
+
+/* The shoe and the star above, the words below.
+
+   The template stacks the copy column first and the image second, which put
+   two lines of heading and a button between the top of the card and the thing
+   the card is actually selling. `order` rather than `column-reverse`: the row
+   is a wrapping flex row and reversing its direction would fight the wrap
+   rather than reorder the two lines it makes. */
+@media (max-width: 991.98px) {
+  .heroSlide6 .hero-inner .row > .col-lg-6:first-child { order: 2; }
+  .heroSlide6 .hero-inner .row > .col-lg-6:last-child { order: 1; }
+}
+
+/* The discount star, thirty per cent off 121.2. */
+@media (max-width: 991.98px) {
+  .heroSlide6 .discount-tag {
+    width: 84.84px;
+    height: 84.84px;
+    min-width: 84.84px;
+    min-height: 84.84px;
+  }
+}
+
+/* And the card sits in the header's own margins.
+
+   The band is 9 from each side on a phone and the card ran edge to edge, so
+   the two biggest things on the screen disagreed about where the page's margin
+   is. 9 here as well.
+
+   Only below 992. Above it the deck runs `margin: 0 -36%` with two slides to a
+   view so the neighbouring cards show past the page's margins — «همسایه», which
+   has been cut by mistake twice — and a margin on the card would eat into that
+   rather than into the page. At 390 the deck's margin computes to 0 and one
+   card fills the width, so there is nothing here to disturb. */
+@media (max-width: 991.98px) {
+  .heroSlide6 .hero-inner {
+    margin-inline: 9px;
+  }
+}
