@@ -1,5 +1,11 @@
 # Putting the storefront on a URL
 
+**The deploy is Liara, app `vikyplus`, driven by
+`.github/workflows/deploy-liara.yml` — pushing to a branch that workflow names,
+and nothing else. Netlify is the static preview, not the shop.** The full
+version of that rule is at the top of `CLAUDE.md`; it is written there because
+a session once sent a build to Netlify and the client saw an old page.
+
 `HANDOFF.md` says what is built. This says how to run it somewhere other than a
 laptop, and — as honestly as it can — which parts of that have been tested and
 which have not.

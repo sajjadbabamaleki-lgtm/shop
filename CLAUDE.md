@@ -6,6 +6,34 @@ finished part is not allowed to lose. Read it after this.**
 An Iranian shoe and bag storefront (vikyplus.ir) built on the ThemeForest
 "Erna" HTML template. The page being worked on is the RTL Persian preview.
 
+## The build goes to Liara. It does not go to Netlify.
+
+**The deliverable is the Laravel app in `storefront/`, and the only place a
+change is «فرستاده شده» is Liara.** One session sent a build to Netlify instead;
+the client saw an old page and had no way to tell why. So, plainly:
+
+- **Deploy target: Liara**, app `vikyplus`, at <https://vikyplus.liara.run>,
+  eventually vikyplus.ir. It is driven by
+  `.github/workflows/deploy-liara.yml` — tests, then Pint, then
+  `liara deploy` — and by nothing else. Nobody runs a deploy by hand.
+- **The only trigger is a push to a branch named in that workflow's `on.push`
+  list.** Right now that is `main` and
+  `claude/wiki-plus-latest-work-enpjl1`. Working on any other branch and
+  pushing deploys *nothing*, silently, and the workflow is where that gets
+  fixed — add the branch to the list. A pull request runs the tests and is
+  explicitly barred from deploying.
+- **After a push, say what happened.** The client asks «بیلد تغییراتو بفرست»
+  after every change and means the Liara deploy specifically. Read the run's
+  two jobs (Tests, Deploy to Liara) and report the conclusion of both. Note
+  that this container's proxy returns 403 for vikyplus.liara.run, so the run's
+  own result is the check — curl is not available as a second opinion.
+- **`netlify.toml` is not the deploy.** It publishes `download-version/` — the
+  static design preview, which is a *copy* of the home page and has no PHP, no
+  database and none of the catalogue pages. It is kept because the design is
+  still argued on it and three scripts in `theme/` read from it. Publishing it
+  is not shipping the shop, and a change that only reaches Netlify has not
+  reached the client's site.
+
 ## Where things are
 
 - `download-version/shoe-shop-rtl.html` — **generated**. Never edit it by hand;
