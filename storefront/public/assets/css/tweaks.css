@@ -1791,6 +1791,26 @@ option:hover {
   margin-block-start: 6px;
 }
 
+/* Half, on a phone. «لوگو باید سایزش نصف بشه».
+   Measured: the lockup was 170 x 45 in a 354px island — a fifth of the band's
+   whole width given to a mark that is repeated at the foot of the page and at
+   the head of the drawer. It is 93 x 26 now, which is 55% of its width and 58%
+   of its height.
+
+   The strapline goes rather than shrinking. Halving 11px puts it at 5.5, which
+   is not small type but a grey smudge — rendered, it stops being legible at
+   all. It is still under the mark in the drawer's head and in the footer, and
+   both of those have the room this band does not.
+
+   Above 992 nothing changes: the desktop band has the width for the full
+   lockup and never had the complaint. */
+@media (max-width: 991.98px) {
+  .th-header .vp-logo { gap: 8px; }
+  .th-header .vp-logo img { width: 26px; height: 26px; border-radius: 7px; }
+  .th-header .vp-logo-text b { font-size: 11px; }
+  .th-header .vp-logo-text small { display: none; }
+}
+
 @media (max-width: 575px) {
   .vp-logo img { width: 42px; height: 42px; border-radius: 10px; }
   .vp-logo-text b { font-size: 20px; }
