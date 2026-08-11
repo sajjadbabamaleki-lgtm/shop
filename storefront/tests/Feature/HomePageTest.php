@@ -95,6 +95,31 @@ class HomePageTest extends TestCase
     }
 
     /**
+     * The shop's own mark leads home, in all three places it appears.
+     *
+     * It did not. The brand lockup links to `index.html` — the file the static
+     * preview is served as — and that filename was not in the map, so every
+     * copy of the logo resolved to '#'. Nobody noticed because the most obvious
+     * link on a page is the last one anybody clicks.
+     *
+     * The count is asserted too: header, footer, and the drawer that opens on a
+     * phone. If a fourth appears, or one goes, this says so.
+     */
+    public function test_the_brand_mark_leads_home_everywhere_it_appears(): void
+    {
+        $this->assertSame(route('home'), page_url('index.html'));
+
+        $page = $this->get('/')->assertOk()->getContent();
+
+        $this->assertSame(3, substr_count($page, 'vikyplus-appicon.png'));
+        $this->assertSame(3, substr_count($page, 'href="'.route('home').'" class="vp-logo'));
+
+        // And the template's own marks are gone with its company.
+        $this->assertStringNotContainsString('logo-red2-gold.svg', $page);
+        $this->assertStringNotContainsString('logo-gold.svg', $page);
+    }
+
+    /**
      * The cards on the front page open the thing they are a picture of.
      *
      * They pointed at the listing while there was nowhere else to go. A card

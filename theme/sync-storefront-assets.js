@@ -112,6 +112,24 @@ for (const file of collected) {
 console.log(
   `${collected.length} files reachable from the page (${(bytes / 1e6).toFixed(1)}MB), ${copied} written.`
 );
+
+// One file nothing links to and every browser asks for. `/favicon.ico` is
+// requested before any markup has been read, and Laravel ships a zero-byte one
+// at the public root — so the tab was blank on the first paint of every page,
+// no matter what the <link> tags in the head said. It is not reachable by the
+// crawl above precisely because it is a convention rather than a reference, so
+// it is copied by name.
+// It goes to the public root, where the browser looks, and to the icon set it
+// belongs to, so the set on the server is the set on disk rather than the
+// twenty of it that happen to be linked.
+const ico = fs.readFileSync(path.join(FROM, 'assets/img/favicons/favicon.ico'));
+for (const rel of ['favicon.ico', 'assets/img/favicons/favicon.ico']) {
+  const dest = path.join(TO, rel);
+  if (fs.existsSync(dest) && fs.readFileSync(dest).equals(ico)) continue;
+  fs.mkdirSync(path.dirname(dest), { recursive: true });
+  fs.writeFileSync(dest, ico);
+  console.log('  +', rel, ' (asked for by convention, so no link names it)');
+}
 if (missing.length) {
   console.log(`\n${missing.length} reference(s) point at files that are not in the bundle:`);
   for (const { rel, by } of missing) console.log(`  ? ${rel}  (named by ${by})`);

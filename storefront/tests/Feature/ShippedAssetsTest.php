@@ -71,6 +71,30 @@ class ShippedAssetsTest extends TestCase
     }
 
     /**
+     * The icon a browser asks for before it has read a word of the page.
+     *
+     * `/favicon.ico` is requested by convention, not by a link, so the crawl
+     * above cannot see it and neither can theme/sync-storefront-assets.js's.
+     * Laravel ships a zero-byte one, which is what was there: the tab was blank
+     * on first paint on every page of the site, whatever the <link> tags said.
+     *
+     * Asserted byte-for-byte against the preview's, so it cannot drift back to
+     * empty or to somebody else's mark.
+     */
+    public function test_the_site_root_carries_the_shops_own_favicon(): void
+    {
+        $ico = public_path('favicon.ico');
+
+        $this->assertFileExists($ico);
+        $this->assertGreaterThan(0, filesize($ico), 'favicon.ico is empty — run theme/sync-storefront-assets.js.');
+        $this->assertFileEquals(public_path('assets/img/favicons/favicon.ico'), $ico);
+
+        // An ICO begins 00 00 01 00 — reserved, then type 1. A PNG renamed
+        // .ico is a file some browsers refuse, and it would look fine on disk.
+        $this->assertSame("\x00\x00\x01\x00", file_get_contents($ico, false, null, 0, 4));
+    }
+
+    /**
      * No deployment ignore rule may match anything under public/.
      *
      * This is the one that would have caught it. An unanchored directory

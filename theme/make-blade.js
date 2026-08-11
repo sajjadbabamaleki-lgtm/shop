@@ -122,6 +122,35 @@ function tidy(text) {
   return text.replace(BANNER, '').replace(/\n{3,}/g, '\n\n').replace(/\s+$/, '') + '\n';
 }
 
+// --- the numbers that are not the page's ------------------------------------
+//
+// A handful of strings in the static page are figures, and in Laravel they come
+// from somewhere. Rewriting them here rather than by hand after every run: the
+// basket badge was re-typed into the generated header four separate times,
+// because a regeneration is exactly the moment nobody remembers there was a
+// hand edit to put back.
+//
+// Each entry is asserted, so a template change that moves one of these stops
+// the port instead of silently going back to the printed number.
+const LIVE = [
+  {
+    region: 'header',
+    // The bag's count. `??` rather than a bare variable so a page that never
+    // composed one — an error page, say — still renders its header.
+    find: '<span class="badge">۰</span>',
+    put: '<span class="badge">{{ fa_number($basketCount ?? 0) }}</span>',
+  },
+];
+
+for (const { region, find, put } of LIVE) {
+  const target = marks.find((m) => m.name === region);
+  if (!target) throw new Error(`no region named ${region}`);
+  if (!target.text.includes(find)) {
+    throw new Error(`the ${region} region no longer contains ${find} — it cannot be made live`);
+  }
+  target.text = target.text.split(find).join(put);
+}
+
 // --- the how-it-works modal --------------------------------------------------
 //
 // The template drops it after the script tags. It belongs with the section

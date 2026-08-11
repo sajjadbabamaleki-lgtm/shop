@@ -310,5 +310,44 @@ is one edit in `theme/make-rtl-page.js` to put back once the real details
 arrive, and the central branch's own record (`/admin/settings`) already has
 fields for all three.
 
-The logo in that column is still the template's ERNA mark, for the same reason:
-there is no VikyPlus logo file in the repository.
+
+## The shop's own mark, in all three places
+
+The template put a logo in three places and each one was a different file of
+somebody else's: `logo-red2-gold.svg` in the footer, `logo-gold.svg` in the
+drawer that opens on a phone, and its own wordmark in the header band. All three
+are now `assets/img/vikyplus-appicon.png` with the shop's name in text beside
+it — the same lockup, `.vp-logo`, differing only in how it is arranged:
+
+- **header** — a row, tile leading from the right, 52px because the band's
+  height is arithmetic on that number.
+- **footer** — the same row with `.vp-logo-foot`, which adds only a hover
+  (the column it sits in is all links, so a mark that did nothing would not
+  read as one) and makes `.th-widget-about` a flex container, without which the
+  column started 3px below the four beside it.
+- **drawer** — `.vp-logo-stack`, the tile above the name rather than beside it,
+  and larger at 68px: on a phone the band is down to the tile and the icons, so
+  the drawer is the only place the shop's *name* is read.
+
+Two things worth knowing before touching any of it:
+
+- **The hairline round the tile has to be a `border`, not an inset shadow.**
+  An inset box-shadow on a replaced element paints *underneath* its content, so
+  on an opaque PNG it is invisible. It was written as a shadow for a long time
+  and never rendered once: measured across the tile's edge the band stepped
+  `247 247 247 253 253` straight into the tile with no line anywhere. As a
+  border it reads `247 223 253`. `box-sizing: border-box` keeps the tile 52px.
+- **The mark links to `index.html`**, which has to stay mapped in
+  `config/storefront.php`. It was not, and so every copy of the logo resolved
+  to `'#'` — the most obvious link on the page is the last one anybody clicks.
+  A test asserts all three lead home.
+
+The icon set was regenerated from the same file by `theme/make-favicons.js`,
+including `favicon.ico`, which Laravel ships as a zero-byte file at the public
+root — so the tab was blank on first paint of every page whatever the `<link>`
+tags said. `theme/sync-storefront-assets.js` copies it by name, since nothing
+links to it and the crawl therefore cannot see it.
+
+`manifest.json` and `browserconfig.xml` were regenerated with it. The template's
+manifest said `"name": "App"` and pointed every icon at the domain root, where
+none of them are.

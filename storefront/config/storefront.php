@@ -15,10 +15,17 @@ return [
     */
 
     'pages' => [
-        // The template's own home link, and the demo page this storefront was
-        // cut from. Both are this site's front page.
+        // The template's own home link, the demo page this storefront was cut
+        // from, and the file the static preview is actually served as. All
+        // three are this site's front page.
+        //
+        // `index.html` is the one the brand mark links to, in all three places
+        // it appears — and until it was listed here, clicking the shop's own
+        // logo went to '#'. A link that is the most obvious thing on the page
+        // is the last one anybody thinks to test.
         'electronics-shop.html' => 'home',
         'shoe-shop.html' => 'home',
+        'index.html' => 'home',
 
         // The listing, under every name the template links to it by. Only
         // routes that need no parameters can be mapped here: page_url() takes

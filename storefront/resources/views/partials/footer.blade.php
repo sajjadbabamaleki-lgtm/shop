@@ -7,10 +7,13 @@
                         <div class="col-md-6 col-xl-3">
                             <div class="widget footer-widget">
                                 <div class="th-widget-about">
-                                    <div class="about-logo2 mb-25">
-                                        <a href="{{ page_url('shoe-shop.html') }}"><img src="{{ asset('assets/img/logo-red2-gold.svg') }}" alt="ویکی پلاس"></a>
-                                    </div>
-                                    <p class="about-text">ویکی پلاس، فروشگاه کیف و کفش زنانه.</p>
+                                    <a href="{{ page_url('index.html') }}" class="vp-logo vp-logo-foot">
+                                        <img src="{{ asset('assets/img/vikyplus-appicon.png') }}" alt="ویکی پلاس">
+                                        <span class="vp-logo-text">
+                                            <b>ویکی پلاس</b>
+                                            <small>فروشگاه کیف و کفش زنانه</small>
+                                        </span>
+                                    </a>
                                 </div>
                             </div>
                         </div>

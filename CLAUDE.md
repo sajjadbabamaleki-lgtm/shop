@@ -15,6 +15,11 @@ An Iranian shoe and bag storefront (vikyplus.ir) built on the ThemeForest
   measurements in the comment above it.
 - `theme/make-category-photos.js` — the category tiles. The photographs go
   in exactly as supplied: resize only, no crop, no cut-out.
+- `theme/make-favicons.js` — the whole icon set, `favicon.ico`, `manifest.json`
+  and `browserconfig.xml`, all from `assets/img/vikyplus-appicon.png`. Same rule
+  as the category photographs: resize only. Re-run it if the mark ever changes.
+  The shop's mark appears in three places (header, footer, phone drawer) and all
+  three are the same lockup — see HANDOFF.md before adjusting any of them.
 - `storefront/resources/views/` — the Laravel app renders the same page, and
   six of its bands come out of the database. The six under `home/` are
   hand-owned; the rest of `partials/` is **generated** — never hand-edit

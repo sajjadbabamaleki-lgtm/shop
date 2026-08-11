@@ -3,7 +3,13 @@
         <div class="th-menu-area text-center">
             <button class="th-menu-toggle" aria-label="بستن منو"><i class="fal fa-times" aria-hidden="true"></i></button>
             <div class="mobile-logo">
-                <a href="{{ page_url('electronics-shop.html') }}"><img src="{{ asset('assets/img/logo-gold.svg') }}" alt="Erna"></a>
+                <a href="{{ page_url('index.html') }}" class="vp-logo vp-logo-stack">
+                    <img src="{{ asset('assets/img/vikyplus-appicon.png') }}" alt="ویکی پلاس">
+                    <span class="vp-logo-text">
+                        <b>ویکی پلاس</b>
+                        <small>فروشگاه کیف و کفش زنانه</small>
+                    </span>
+                </a>
             </div>
             <div class="th-mobile-menu">
                 <ul>

@@ -153,6 +153,30 @@ html = html.replace(
   '                            </div>'
 );
 
+// The same mark again, in the drawer that opens on a phone. This is the third
+// and last place the template put a logo, and it is the one a phone visitor
+// actually reads — the header band hides its name below 575, so on a phone the
+// drawer is where the shop says who it is. It carried `logo-gold.svg` with
+// `alt="Erna"` until now.
+//
+// `.vp-logo-stack` rather than the header's row: the drawer is centred and
+// narrow, so the mark goes above the name instead of beside it.
+if (!/<div class="mobile-logo">[\s\S]*?logo-gold\.svg/.test(html)) {
+  throw new Error('the mobile drawer no longer carries the template logo — check what it has instead');
+}
+html = html.replace(
+  /<div class="mobile-logo">\s*<a[^>]*>\s*<img[^>]*>\s*<\/a>\s*<\/div>/i,
+  '<div class="mobile-logo">\n' +
+  '                <a href="index.html" class="vp-logo vp-logo-stack">\n' +
+  '                    <img src="assets/img/vikyplus-appicon.png" alt="ویکی پلاس">\n' +
+  '                    <span class="vp-logo-text">\n' +
+  '                        <b>ویکی پلاس</b>\n' +
+  '                        <small>فروشگاه کیف و کفش زنانه</small>\n' +
+  '                    </span>\n' +
+  '                </a>\n' +
+  '            </div>'
+);
+
 // The basket takes a filled icon rather than the template's outline SVG, to
 // match the one on the sale cards and because it now sits on gold, where an
 // outline reads as a hole rather than as a bag. fa-solid is already loaded —
@@ -1557,10 +1581,17 @@ html = html.replace(
   '<div class="col-md-6 col-xl-3">\n' +
   '                            <div class="widget footer-widget">\n' +
   '                                <div class="th-widget-about">\n' +
-  '                                    <div class="about-logo2 mb-25">\n' +
-  '                                        <a href="shoe-shop.html"><img src="assets/img/logo-red2-gold.svg" alt="ویکی پلاس"></a>\n' +
-  '                                    </div>\n' +
-  '                                    <p class="about-text">ویکی پلاس، فروشگاه کیف و کفش زنانه.</p>\n' +
+  // The header's own mark and name, verbatim — the same object at the foot of
+  // the page as at the head of it. The template's ERNA wordmark is gone with
+  // the rest of its company. `.vp-logo-text` already carries the strapline, so
+  // the paragraph that used to repeat it is gone too.
+  '                                    <a href="index.html" class="vp-logo vp-logo-foot">\n' +
+  '                                        <img src="assets/img/vikyplus-appicon.png" alt="ویکی پلاس">\n' +
+  '                                        <span class="vp-logo-text">\n' +
+  '                                            <b>ویکی پلاس</b>\n' +
+  '                                            <small>فروشگاه کیف و کفش زنانه</small>\n' +
+  '                                        </span>\n' +
+  '                                    </a>\n' +
   '                                </div>\n' +
   '                            </div>\n' +
   '                        </div>\n' +

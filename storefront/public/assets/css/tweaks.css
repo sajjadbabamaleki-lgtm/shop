@@ -1721,13 +1721,24 @@ option:hover {
 /* The tile's own white is #FDFDFD and the header band is #F7F7F7 — six levels
    apart, which is no edge at all. The three shadows that used to separate it
    are gone, so a hairline does the job instead: same device as the search
-   field, and not a shadow. */
+   field, and not a shadow.
+
+   It has to be a *border*, and this was wrong for a long time. An inset
+   box-shadow is painted underneath a replaced element's own content, so on an
+   `<img>` with an opaque photograph it is completely hidden — measured across
+   the tile's left edge it read `247 247 247 253 253 253`, the band stepping
+   straight into the tile with no line anywhere. A border paints above the image
+   and is the only one of the two that is actually visible here.
+
+   `box-sizing: border-box` so the tile stays 52px rather than becoming 54: the
+   header band's height is arithmetic on this number. */
 .vp-logo img {
   width: 52px;
   height: 52px;
   flex: none;
+  box-sizing: border-box;
+  border: 1px solid rgba(16, 17, 17, 0.10);
   border-radius: 12px;
-  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.10);
 }
 
 .vp-logo-text {
@@ -6854,4 +6865,97 @@ ul.vp-how-list.is-ticked li:before {
   letter-spacing: 1px;
   direction: ltr;
   text-align: center;
+}
+
+/* --------------------------------------------------------------------------
+   The same mark at the foot of the page.
+
+   The footer carried the template's ERNA wordmark — an SVG of somebody else's
+   company on a shop that is not theirs. It is now the header's own lockup,
+   markup and all, with one class added: the same object at both ends of the
+   page, so a visitor who scrolls the whole way sees the shop sign twice rather
+   than two different shops.
+
+   Everything about its size, spacing and colour therefore comes from `.vp-logo`
+   already and is deliberately not restated here. Two things do differ, and both
+   are about the ground it stands on rather than the mark itself.
+   -------------------------------------------------------------------------- */
+
+/* The lockup is inline-flex, and an inline box inside a block gets a line box
+   with descender space under it — exactly what cost the header its even air.
+   Here it cost alignment instead: measured, the column started 3px below the
+   four beside it, because the neighbours begin with a heading and this one
+   began with a line box. Making the wrapper a flex container drops the line box
+   and the five columns start on the same pixel. */
+.th-widget-about {
+  display: flex;
+}
+
+/* The header band is #F7F7F7 and the footer is #F5F5F5 — two levels apart,
+   against a tile whose own ground is #FEFEFE. So the hairline that separates
+   the tile from the band separates it from the footer by very nearly the same
+   amount, and is left alone.
+
+   What the header does not need is a hover: there the lockup is the only thing
+   in its row and obviously the way home, and the whole band is quiet. Down here
+   it sits in a column of links that all light up under the cursor, so a mark
+   that did nothing would read as not being a link. It gets the same treatment
+   the footer's own links get — a shift towards the page's ink — carried on the
+   hairline rather than on text, since the name is already at full ink and the
+   line under it is the footer's own grey. 0.10 → 0.22 is the smallest step that
+   is visible at a hairline's width. */
+.vp-logo-foot img {
+  transition: border-color 0.3s ease;
+}
+
+.vp-logo-foot:hover img {
+  border-color: rgba(16, 17, 17, 0.22);
+}
+
+/* --------------------------------------------------------------------------
+   And once more in the drawer that opens on a phone.
+
+   The third place the template put a logo, and — measured — the only one that
+   shows the shop's *name* on a phone: below 575 the header band is down to the
+   tile and the icons, so a visitor on a phone never reads «ویکی پلاس» until
+   they open the menu. It had `logo-gold.svg`, alt="Erna", until now.
+
+   The drawer is a narrow centred column, so the lockup stacks rather than
+   sitting in a row: the mark above, the name under it, both centred on the
+   drawer's own axis.
+   -------------------------------------------------------------------------- */
+.vp-logo-stack {
+  flex-direction: column;
+  gap: 10px;
+  text-align: center;
+}
+
+.vp-logo-stack .vp-logo-text {
+  text-align: center;
+}
+
+/* The tile is the drawer's one piece of colour and it has the room, so it is
+   larger here than in the band — where 52 is arithmetic on the band's height
+   and this is not. The radius keeps the same ratio to the size, 12/52, so it
+   stays an app-icon corner rather than becoming a soft-edged rectangle. */
+.vp-logo-stack img {
+  width: 68px;
+  height: 68px;
+  border-radius: 16px;
+}
+
+/* The drawer's ground is white, not the band's #F7F7F7, so the hairline that
+   separates the tile from a grey has two levels to work with instead of eight.
+   Doubled, which measures the same distance from its ground that the header's
+   does from its own. */
+.vp-logo-stack img {
+  border-color: rgba(16, 17, 17, 0.20);
+}
+
+@media (max-width: 575px) {
+  /* The band's rule shrinks every `.vp-logo img` to 42; the drawer has the
+     same room on a phone as anywhere else, so it keeps its own size. */
+  .vp-logo-stack img { width: 68px; height: 68px; border-radius: 16px; }
+  .vp-logo-stack .vp-logo-text b { font-size: 22px; }
+  .vp-logo-stack .vp-logo-text small { font-size: 12px; }
 }
