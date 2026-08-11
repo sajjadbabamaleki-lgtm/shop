@@ -7841,23 +7841,34 @@ ul.vp-how-list.is-ticked li:before {
    The weight cannot answer the «۳۰ درصد ضخیم‌تر» on its own: this is Vazirmatn
    (the rule names Cairo first and Cairo is not loaded) and it is already at
    900, the top of the variable axis. So the extra comes from the stroke, which
-   is measured rather than guessed — see the number below. */
+   is measured rather than guessed — see the number below.
+
+   Second pass, «اسم کفش سایزش ده درصد کوچیکتر و ضخامتش ده درصد کمتر بشه»: a
+   tenth off both, so 33.5 → 30.15 with the line box following it, 37.5 →
+   33.75. The two are one number and move together, or the space the type used
+   to need stays behind — the same reason the halving took the line box with
+   it. */
 @media (max-width: 991.98px) {
   .heroSlide6 .hero-inner .hero-title {
-    font-size: 33.5px;
-    line-height: 37.5px;
-    /* Measured, not guessed: at 33.5/900 the stems read 5.75px across a 4x
-       render, and thirty per cent of that is 1.7. A centred stroke puts half
-       its width outside the outline on each side, so the number below is what
-       adds 1.7 to the stem. Re-measure if the size moves again — the stroke
-       does not scale with the type. */
-    -webkit-text-stroke-width: 1.7px;
+    font-size: 30.15px;
+    line-height: 33.75px;
+    /* Measured, not guessed, and re-measured for the tenth: the stroke does
+       not scale with the type, so it cannot be left where it was when the size
+       moves. Method is the one that set 1.7 — render at 4x, take every run of
+       ink across every row of the heading, and read the median as the stem.
+
+       At 33.5/900 with 1.7 the stem read 7.50. A tenth off that is 6.75, which
+       is what this is set against: 1.53 lands it on 6.75 exactly. The type
+       coming down a tenth carries most of the way there on its own (the
+       untouched stem falls to about 5.18) and the stroke supplies the rest, so
+       both halves of the client's sentence are in one number. */
+    -webkit-text-stroke-width: 1.53px;
     -webkit-text-stroke-color: currentColor;
     paint-order: stroke fill;
   }
 }
 
-/* Twenty-five per cent off the card's height.
+/* Twenty-five per cent off the card's height, and then a tenth more.
 
    The height is the copy column's, not the shot's — the template pads that
    column 120 above and 20 below on a phone, and the card is whatever that
@@ -7866,10 +7877,60 @@ ul.vp-how-list.is-ticked li:before {
 
    Any further change to the copy lands here. That is the same rule the desktop
    card has always had, written in its own comment: the shot is sized off the
-   column and does not move, so the padding is the only thing that answers. */
+   column and does not move, so the padding is the only thing that answers.
+
+   ── «ارتفاع هیرو باید ده درصد دیگه کوتاه بشه» ──────────────────────────────
+
+   The card measures 485.5 now, not the 455 recorded when this block was
+   written — the three passes after it (the shoe above the words, the star at
+   84.84, the card inset 9 a side) each moved it. Measured, not carried
+   forward. A tenth of 485.5 is 48.55 and the card has to land on 436.95.
+
+   And it is 485.5 at 375, 390, 430, 575, 767 and 991 alike, which the card on
+   `main` never was: the shot is stated at 299px wide on a phone rather than
+   sized off the column, so neither half of the card follows the viewport any
+   more and one number is a tenth at every width.
+
+   Where the 48.55 comes from, and where it does not:
+
+   - **Not the shot.** The shoe is 299 wide and the star is pinned to it at
+     (283, 157) — numbers read off a screenshot the client marked up, bisected
+     against the star's own rendered centre over three rounds. Narrowing the
+     shoe moves the heel out from under the star and reopens all of it. The
+     photograph is also the thing the card is selling.
+   - **Not the type.** The name gives 6.93 by coming down a tenth (75 → 67.5
+     on the line box, and the heading's -0.17em margin hands 0.57 back as the
+     type shrinks) and the eyebrow and the button are left alone.
+   - **The rest — 41.62 — off the copy's four gaps**, all four by the same
+     factor, 112 → 70.38. That is 0.6284 on each, so the block keeps its own
+     proportions exactly and is closed up rather than re-spaced:
+
+       padding above the eyebrow    37 → 23.25
+       eyebrow to the name          25 → 15.71
+       name to the button           30 → 18.85
+       padding below the button     20 → 12.57
+
+   Measured after, at all six widths: 436.9, against 436.95 asked.
+
+   The desktop was read rather than assumed, which is the only thing that
+   catches a phone rule leaking upward — the parity check cannot, since it
+   renders the two copies of this page against each other and a change landing
+   on both is still zero difference. The whole page was screenshotted at 992,
+   1200, 1440 and 1920 before and after and diffed pixel by pixel: 0 differing
+   out of 992x7454, 1200x5059, 1440x4588 and 1920x4892. The card is 450.4, the
+   gap 40, the name 67/75 with no stroke and the padding 94 at all four, as
+   they were. */
 @media (max-width: 991.98px) {
   .heroSlide6 .hero-style6 {
-    padding-block: 37px 20px;
+    padding-block: 23.25px 12.57px;
+  }
+
+  .heroSlide6 .hero-inner .sub-title {
+    margin-bottom: 15.71px;
+  }
+
+  .heroSlide6 .hero-inner .hero-title {
+    margin-bottom: 18.85px;
   }
 }
 
@@ -7946,10 +8007,20 @@ ul.vp-how-list.is-ticked li:before {
 
    `.th-hero-wrapper` pads 22 above. The island is 9 from the top of the page,
    so 9 is what the gap under it should be as well — three sides of the band and
-   the space beneath it, one number. */
+   the space beneath it, one number.
+
+   «فاصله هدر با هیرو ۵۰ درصد بیشتر بشه» — half as much again, so 13.5. That
+   breaks the one-number rule above deliberately, at the client's word: the gap
+   under the band is now wider than the air at its three other sides. The three
+   sides are unchanged at 9, so if this ever wants putting back it is this
+   number alone.
+
+   Measured island foot to card top at 375, 390, 430, 575, 767 and 991 — 9
+   before, 13.5 after, at all six. Neither box's height enters into it. The
+   desktop gap is 40 and no rule here reaches it. */
 @media (max-width: 991.98px) {
   .th-hero-wrapper {
-    padding-top: 9px;
+    padding-top: 13.5px;
   }
 }
 
@@ -8039,7 +8110,18 @@ ul.vp-how-list.is-ticked li:before {
        exactly where it was asked to be.
 
        These numbers are tied to the card's height, which the copy sets. If the
-       copy changes, re-measure rather than re-derive. */
+       copy changes, re-measure rather than re-derive.
+
+       The copy has changed once since — a tenth off the card — and neither
+       number moved, because the star is pinned inside the image column and the
+       image column is `order: 1`, so it sits at the card's top edge whatever
+       the copy below it does. Measured after: the star's centre 31 from the
+       card's top and the shoe still spanning 45.5 to 344.5.
+
+       Its page coordinate did move, 157 → 161.9, and that is the header gap
+       going 9 → 13.5 carrying the whole card down 4.5. The circle was drawn
+       around a place on the shoe, not a place on the screen, and the star is
+       still on it. */
     top: 31px;
     left: 220px;
     right: auto;

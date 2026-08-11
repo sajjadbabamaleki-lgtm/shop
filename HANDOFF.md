@@ -667,17 +667,73 @@ four page heights did not move by a pixel.
 
 | | desktop | phone, before | phone, now |
 |---|---|---|---|
-| card height | 450 | 607 | **455** |
+| card height | 450.4 | 607 | **436.9** |
 | corner | 72 | 72 | **43.2** |
-| the shoe's name | 67 | 67 | **33.5** |
-| its stem | — | 5.75 | **7.50** |
+| the shoe's name | 67 | 67 | **30.15** |
+| its stem | — | 5.75 | **6.75** |
 | the star | — | left | **right** |
+| gap under the band | 40 | 22 | **13.5** |
+
+The last column is after the tenth described below. It was 455 / 33.5 / 7.50 /
+9 when this section was first written; the client asked for another tenth off
+the card, a tenth off the name in both size and stem, and half as much again
+under the band, and the table is the current numbers rather than the first
+ones.
 
 **The height is the copy column's, not the shot's** — the same rule the desktop
 card has always had. The template pads that column 120 above and 20 below on a
 phone and the card is whatever that plus the type comes to. Halving the title
 took 607 to 538 on its own; the rest is the top padding, 120 → 37. Any further
 change to the copy lands there.
+
+### The tenth, and where it came from
+
+**Measure the card before taking a percentage of it.** It was 485.5 when this
+was asked, not the 455 recorded above — the three passes after that number was
+written (the shoe above the words, the star at 84.84, the card inset 9 a side)
+each moved it and none updated the table. A tenth of 485.5 is 48.55.
+
+It is also 485.5 at 375, 390, 430, 575, 767 and 991 alike, which the card on
+`main` never was. The shot is stated at `width: 299px` on a phone rather than
+sized off its column, so neither half of the card follows the viewport and one
+number is a tenth at every width.
+
+Where the 48.55 came from, and where it deliberately did not:
+
+- **Not the shot, and not the star.** The shoe is 299 wide and the star is
+  pinned to it at (283, 157), read off a screenshot the client marked up and
+  bisected against the star's own rendered centre over three rounds. Narrowing
+  the shoe moves the heel out from under the star and reopens all of it.
+- **6.93 from the name** coming down a tenth — the line box 75 → 67.5, and the
+  heading's `-0.17em` margin handing 0.57 back as the type shrinks.
+- **41.62 off the copy's four gaps, all four by the same factor** — 112 →
+  70.38, which is 0.6284 on each, so the block keeps its proportions and is
+  closed up rather than re-spaced: 37 → 23.25 above the eyebrow, 25 → 15.71 to
+  the name, 30 → 18.85 to the button, 20 → 12.57 below it.
+
+**The stroke had to be re-measured, not scaled.** It does not follow the type,
+so a tenth off the size alone would have left the name *thicker* in proportion.
+Same method as the 1.7: render at 4×, take every run of ink across every row of
+the heading, read the median as the stem. 7.50 before, a tenth off is 6.75, and
+`-webkit-text-stroke-width: 1.53px` lands it on 6.75 exactly.
+
+**The star did not move and did not need to.** It is pinned inside the image
+column and that column is `order: 1`, so it sits at the card's top edge whatever
+the copy below it does: 31 from the card's top before and after, the shoe still
+spanning 45.5 to 344.5. Its *page* coordinate went 157 → 161.9, which is the
+band gap going 9 → 13.5 carrying the whole card down 4.5. The circle was drawn
+around a place on the shoe, not a place on the screen.
+
+**The gap under the band is now the one number that is not 9.** The band sits 9
+from the top and both sides and the gap beneath it was 9 to match; «فاصله هدر
+با هیرو ۵۰ درصد بیشتر بشه» takes it to 13.5 on its own. The other three sides
+are untouched, so this is one line to change if it is ever wanted back.
+
+Verified: `check-parity.js` identical at all four widths; the whole desktop page
+screenshotted and diffed pixel by pixel before and after at 992, 1200, 1440 and
+1920 — 0 differing, which is the check parity cannot make, since a change
+landing on both copies is still zero difference; `check-overflow.js` clean;
+226 tests, 879 assertions green.
 
 **«۳۰ درصد ضخیم‌تر» could not come from the weight.** This is Vazirmatn — the
 rule names Cairo first and Cairo is not loaded — and it was already at 900, the
