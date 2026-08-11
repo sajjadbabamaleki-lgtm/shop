@@ -31,8 +31,9 @@
                          hidden below 992, where its contents collapse to
                          nothing anyway. --}}
                     <form class="vp-drawer-search" method="get" action="{{ storefront_route('search') }}" role="search">
+                        {{-- No submit button: Enter searches, and a phone's own
+                             keyboard puts a search key where return would be. --}}
                         <input type="search" name="q" placeholder="دنبال چی می‌گردی؟" aria-label="جست‌وجو در محصولات">
-                        <button type="submit" aria-label="جست‌وجو"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></button>
                     </form>
                     <p class="vp-drawer-label">دسترسی سریع</p>
                     <div class="vp-drawer-quick">

@@ -332,8 +332,10 @@ const DRAWER =
   // its contents collapse to nothing there anyway — so without this one the
   // shop has no search on a phone at all.
   '                    <form class="vp-drawer-search" method="get" action="search-product.html" role="search">\n' +
+  // No submit button. The field is the control — Enter searches, and a phone's
+  // own keyboard puts a search key where the return key would be. The gold
+  // block that used to sit in it was a third gold in a panel that has one.
   '                        <input type="search" name="q" placeholder="دنبال چی می‌گردی؟" aria-label="جست‌وجو در محصولات">\n' +
-  '                        <button type="submit" aria-label="جست‌وجو"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></button>\n' +
   '                    </form>\n' +
   '                    <p class="vp-drawer-label">دسترسی سریع</p>\n' +
   '                    <div class="vp-drawer-quick">\n' +

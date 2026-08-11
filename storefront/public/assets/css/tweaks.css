@@ -1791,24 +1791,43 @@ option:hover {
   margin-block-start: 6px;
 }
 
-/* Half, on a phone. «لوگو باید سایزش نصف بشه».
-   Measured: the lockup was 170 x 45 in a 354px island — a fifth of the band's
-   whole width given to a mark that is repeated at the foot of the page and at
-   the head of the drawer. It is 93 x 26 now, which is 55% of its width and 58%
-   of its height.
+/* --------------------------------------------------------------------------
+   The header band on a phone.
 
-   The strapline goes rather than shrinking. Halving 11px puts it at 5.5, which
-   is not small type but a grey smudge — rendered, it stops being legible at
-   all. It is still under the mark in the drawer's head and in the footer, and
-   both of those have the room this band does not.
+   Four things the client asked for, and the first of them corrects me: **the
+   writing gets smaller, not the mark**. I had halved the whole lockup, tile
+   included, and that was not what was asked — the mark is the shop's sign and
+   it keeps its size. Both lines stay too: «ویکی پلاس» and «فروشگاه کیف و کفش
+   زنانه» are the sign, and a sign missing half of itself is not a smaller sign.
 
-   Above 992 nothing changes: the desktop band has the width for the full
-   lockup and never had the complaint. */
+   So only the type moves: 20 → 11 on the name, 11 → 8.5 on the line under it.
+   That is as near half as the second line can go and still be read — rendered
+   at 5.5 it stops being type at all and becomes a grey smudge.
+   -------------------------------------------------------------------------- */
 @media (max-width: 991.98px) {
-  .th-header .vp-logo { gap: 8px; }
-  .th-header .vp-logo img { width: 26px; height: 26px; border-radius: 7px; }
   .th-header .vp-logo-text b { font-size: 11px; }
-  .th-header .vp-logo-text small { display: none; }
+
+  .th-header .vp-logo-text small {
+    font-size: 8.5px;
+    /* The descender clearance scales with the type: 6px was measured for 13px
+       Cairo, and at 8.5 the same proportion is 4. */
+    margin-block-start: 4px;
+  }
+}
+
+/* And the menu button's gold is the page's gold.
+
+   It was carrying `#7D6324 → #CE9E29` — the ramp sampled off the template's
+   chart, which this file deliberately keeps for SVG icons and nowhere else.
+   Beside the basket and the buy button it read as dark olive, which is exactly
+   the fault «خرید با قیمت فعلی» had and for exactly the same reason: falling
+   through to the sampled ramp instead of the one measured for a white ground.
+   Two golds on one page is a mistake whichever of them is right. */
+.th-header .th-menu-toggle.d-block {
+  background-image: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+  background-color: transparent;
+  border: 0;
+  color: #101111;
 }
 
 @media (max-width: 575px) {
@@ -7110,7 +7129,7 @@ ul.vp-how-list.is-ticked li:before {
   align-items: center;
   gap: 6px;
   margin-bottom: 16px;
-  padding: 0 6px 0 4px;
+  padding: 0 12px;
   border-radius: 14px;
   box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.09);
 }
@@ -7133,19 +7152,6 @@ ul.vp-how-list.is-ticked li:before {
 
 .vp-drawer-search input:focus {
   outline: none;
-}
-
-/* The one filled thing in the field, so the submit reads as the action rather
-   than as a second piece of furniture. */
-.vp-drawer-search button {
-  flex: none;
-  width: 32px;
-  height: 32px;
-  border: 0;
-  border-radius: 10px;
-  background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
-  color: #101111;
-  font-size: 13px;
 }
 
 /* The section label, with the short gold rule the old menu had beside it —
@@ -7493,7 +7499,6 @@ ul.vp-how-list.is-ticked li:before {
   .vp-drawer-body { padding: 11px 14px; }
   .vp-drawer-search { margin-bottom: 11px; }
   .vp-drawer-search input { height: 36px; }
-  .vp-drawer-search button { width: 30px; height: 30px; }
   .vp-quick { padding: 8px 3px 7px; }
   .vp-quick-mark { width: 26px; height: 26px; font-size: 11px; }
   .vp-drawer-cats { gap: 1px; margin-top: 6px; }
@@ -7669,4 +7674,40 @@ ul.vp-how-list.is-ticked li:before {
   justify-content: center;
   margin-top: 14px;
   padding-inline: 22px;
+}
+
+/* --------------------------------------------------------------------------
+   The basket and the menu, in squares the size of the mark beside them.
+
+   They were 48 to the mark's 42, and the menu was a *circle* — three controls
+   in one band at two sizes and two shapes. One shape, one size, and the radius
+   follows the tile's own ratio (10 of 42), so the three read as one set rather
+   than as a logo with two buttons near it.
+
+   Written twice because the mark itself is two sizes: 42 below 576 and 52
+   above it, which is the template's own breakpoint for this band.
+
+   **At the end of the file on purpose.** `.th-header .header-button
+   .icon-btn.sideMenuToggler` is already set to 48/18 nine hundred lines above,
+   at exactly this specificity — so the only thing that decides between them is
+   which comes last. Put this block up with the rest of the header's rules and
+   the basket silently stays 48 while the menu beside it goes to 42, which is
+   what happened on the first attempt.
+   -------------------------------------------------------------------------- */
+@media (max-width: 991.98px) {
+  .th-header .header-button .icon-btn.sideMenuToggler,
+  .th-header .th-menu-toggle.d-block {
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+  }
+}
+
+@media (max-width: 575px) {
+  .th-header .header-button .icon-btn.sideMenuToggler,
+  .th-header .th-menu-toggle.d-block {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+  }
 }

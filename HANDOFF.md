@@ -527,6 +527,35 @@ ten blog layouts. It is the same content the phone drawer carried until it was
 rebuilt, and it has the same problem. It is the next thing in that row.
 
 
+## The header on a phone, corrected
+
+I read «لوگو باید سایزش نصف بشه» as the whole lockup and halved the mark with
+it. It was the **writing** that was meant, and both of its lines are the sign:
+«ویکی پلاس» and «فروشگاه کیف و کفش زنانه». The mark is back at full size, and
+only the type moved — 20 → 11 on the name, 11 → 8.5 on the line under it, which
+is as near half as the second line goes and still reads. At 5.5 it is not small
+type, it is a grey smudge.
+
+Three more, from the same pass:
+
+- **The basket and the menu are squares the size of the mark.** They were 48 to
+  the mark's 42, and the menu was a *circle* — three controls in one band at two
+  sizes and two shapes. The radius follows the tile's own ratio, 10 of 42.
+- **The menu button's gold is the page's gold.** It carried `#7D6324 → #CE9E29`,
+  the ramp sampled off the template's chart, which this repo keeps for SVG icons
+  and nowhere else. Beside the basket it read dark olive — the same fault
+  «خرید با قیمت فعلی» had, for the same reason.
+- **The drawer's search has no submit button.** Enter searches, and a phone's own
+  keyboard puts a search key where return would be. The gold block in the field
+  was a third gold on a panel that has one.
+
+**The sizing block lives at the end of `tweaks.css` on purpose.** `.th-header
+.header-button .icon-btn.sideMenuToggler` is already set to 48/18 nine hundred
+lines above at exactly that specificity, so the only thing deciding between them
+is which comes last. Put it up with the rest of the header's rules and the
+basket silently stays 48 while the menu beside it goes to 42 — which is what
+happened on the first attempt.
+
 ## The header on a phone
 
 «هدر نسخه موبایل به هم ریخته است», with a photograph: the shop's name broken
