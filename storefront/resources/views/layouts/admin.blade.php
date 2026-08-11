@@ -44,9 +44,15 @@
                 @if (auth()->user()->hasPermissionToAt($branch, 'report.view'))
                     <a href="{{ route('admin.reports') }}" @class(['is-on' => request()->routeIs('admin.reports')])>گزارش</a>
                 @endif
+                @if (auth()->user()->hasPermissionToAt($branch, 'branch.staff.manage'))
+                    <a href="{{ route('admin.staff') }}" @class(['is-on' => request()->routeIs('admin.staff*')])>کارکنان</a>
+                @endif
             @endif
             {{-- The marketplace is not a branch's business, so these appear
                  only for the platform-wide permissions that own them. --}}
+            @if (auth()->user()->hasPermissionTo('catalogue.manage'))
+                <a href="{{ route('admin.catalogue') }}" @class(['is-on' => request()->routeIs('admin.catalogue') || request()->routeIs('admin.product.*')])>کاتالوگ</a>
+            @endif
             @if (auth()->user()->hasPermissionTo('report.view'))
                 <a href="{{ route('admin.reports.platform') }}" @class(['is-on' => request()->routeIs('admin.reports.platform')])>گزارش پلتفرم</a>
             @endif

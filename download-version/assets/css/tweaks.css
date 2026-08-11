@@ -6738,3 +6738,120 @@ ul.vp-how-list.is-ticked li:before {
     grid-column: 1 / -1;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Managing the catalogue and the staff
+   ---------------------------------------------------------------------------
+   Two screens that are mostly the panel's existing parts. What is new: a grid
+   of photographs with the primary one marked, a compact row of fields for
+   adding a size, and a password shown once.
+   -------------------------------------------------------------------------- */
+
+.vp-media {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 12px;
+  margin-block: 14px;
+}
+
+.vp-media-one {
+  position: relative;
+  margin: 0;
+  padding: 8px;
+  border-radius: 18px;
+  background: #FFFFFF;
+  box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.1);
+}
+
+/* The one a card will use, marked at its edge. A grid of identical squares
+   with no mark is a grid where nobody knows which one the shop shows. */
+.vp-media-one.is-primary {
+  box-shadow: inset 0 0 0 2px var(--theme-color);
+}
+
+.vp-media-one img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: contain;
+}
+
+.vp-media-one figcaption {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 6px;
+  font-size: 12px;
+}
+
+.vp-media-one figcaption button,
+.vp-media-one figcaption span {
+  border: 0;
+  background: transparent;
+  font-size: 12px;
+  color: var(--theme-color);
+}
+
+.vp-media-one figcaption button.is-off {
+  color: #B3261E;
+}
+
+.vp-media-add input[type="file"] {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+}
+
+/* Adding a size is six short fields and a button; as one column it would be
+   taller than the table it sits under. */
+.vp-variant-add {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  align-items: end;
+  margin-top: 16px;
+  padding-top: 16px;
+  box-shadow: inset 0 1px 0 rgba(16, 17, 17, 0.08);
+}
+
+.vp-variant-add > button {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 575px) {
+  .vp-variant-add {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.vp-admin-drop {
+  height: 34px;
+  padding-inline: 12px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px rgba(179, 38, 30, 0.3);
+  color: #B3261E;
+  font-size: 13px;
+}
+
+.vp-admin-drop:hover {
+  background: rgba(179, 38, 30, 0.06);
+}
+
+/* Shown once, and meant to be copied — so it is a block of its own rather
+   than a word inside a sentence. */
+.vp-password {
+  display: block;
+  margin-top: 8px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: #FFFFFF;
+  box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.12);
+  font-family: monospace;
+  font-size: 16px;
+  letter-spacing: 1px;
+  direction: ltr;
+  text-align: center;
+}

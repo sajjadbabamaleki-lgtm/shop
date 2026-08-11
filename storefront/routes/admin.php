@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\CatalogueController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DiscountController;
 use App\Http\Controllers\Admin\InventoryController;
@@ -9,6 +10,7 @@ use App\Http\Controllers\Admin\PricingController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\SessionController;
 use App\Http\Controllers\Admin\SettingsController;
+use App\Http\Controllers\Admin\StaffController;
 use App\Http\Middleware\RequirePermission;
 use App\Http\Middleware\RequirePlatformPermission;
 use App\Http\Middleware\ResolveAdminTenant;
@@ -74,6 +76,61 @@ Route::middleware(['auth', ResolveAdminTenant::class])->group(function (): void 
     Route::post('/discounts/{code}/toggle', [DiscountController::class, 'toggle'])
         ->middleware(RequirePermission::class.':branch.pricing.manage')
         ->name('discounts.toggle');
+
+    /*
+     * The catalogue is not a branch's: a product, its sizes and its
+     * photographs are the same everywhere, and it is the price and the stock
+     * that belong to a shop. So it needs `catalogue.manage`, and a franchise
+     * manager cannot rename the brand's products for everybody.
+     *
+     * Adding a size is the one place the two meet — it opens that size for
+     * sale at the branch the person is standing in.
+     */
+    Route::get('/catalogue', [CatalogueController::class, 'index'])
+        ->middleware(RequirePlatformPermission::class.':catalogue.manage')
+        ->name('catalogue');
+    Route::get('/catalogue/new', [CatalogueController::class, 'create'])
+        ->middleware(RequirePlatformPermission::class.':catalogue.manage')
+        ->name('product.create');
+    Route::post('/catalogue', [CatalogueController::class, 'store'])
+        ->middleware(RequirePlatformPermission::class.':catalogue.manage')
+        ->name('product.store');
+    Route::get('/catalogue/{product}', [CatalogueController::class, 'edit'])
+        ->middleware(RequirePlatformPermission::class.':catalogue.manage')
+        ->name('product.edit');
+    Route::post('/catalogue/{product}', [CatalogueController::class, 'update'])
+        ->middleware(RequirePlatformPermission::class.':catalogue.manage')
+        ->name('product.update');
+    Route::post('/catalogue/{product}/variants', [CatalogueController::class, 'storeVariant'])
+        ->middleware(RequirePlatformPermission::class.':catalogue.manage')
+        ->name('product.variants.store');
+    Route::post('/catalogue/{product}/variants/{variant}', [CatalogueController::class, 'retireVariant'])
+        ->middleware(RequirePlatformPermission::class.':catalogue.manage')
+        ->name('product.variants.retire');
+    Route::post('/catalogue/{product}/media', [CatalogueController::class, 'storeMedia'])
+        ->middleware(RequirePlatformPermission::class.':catalogue.manage')
+        ->name('product.media.store');
+    Route::post('/catalogue/{product}/media/{media}/primary', [CatalogueController::class, 'primaryMedia'])
+        ->middleware(RequirePlatformPermission::class.':catalogue.manage')
+        ->name('product.media.primary');
+    Route::post('/catalogue/{product}/media/{media}/delete', [CatalogueController::class, 'deleteMedia'])
+        ->middleware(RequirePlatformPermission::class.':catalogue.manage')
+        ->name('product.media.delete');
+
+    // Staff, on the other hand, are entirely the branch's — the bound tenant
+    // scopes every row, and no form carries a branch id to edit.
+    Route::get('/staff', [StaffController::class, 'index'])
+        ->middleware(RequirePermission::class.':branch.staff.manage')
+        ->name('staff');
+    Route::post('/staff', [StaffController::class, 'store'])
+        ->middleware(RequirePermission::class.':branch.staff.manage')
+        ->name('staff.store');
+    Route::post('/staff/{membership}', [StaffController::class, 'update'])
+        ->middleware(RequirePermission::class.':branch.staff.manage')
+        ->name('staff.update');
+    Route::post('/staff/{membership}/remove', [StaffController::class, 'destroy'])
+        ->middleware(RequirePermission::class.':branch.staff.manage')
+        ->name('staff.remove');
 
     Route::get('/reports', [ReportController::class, 'branch'])
         ->middleware(RequirePermission::class.':report.view')
