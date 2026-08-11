@@ -525,3 +525,26 @@ in.
 demo's mega-menu — «Electronics فروشگاه», the six demo shops with screenshots,
 ten blog layouts. It is the same content the phone drawer carried until it was
 rebuilt, and it has the same problem. It is the next thing in that row.
+
+
+## The header on a phone
+
+«هدر نسخه موبایل به هم ریخته است», with a photograph: the shop's name broken
+across two lines, the basket and the menu adrift on a second row under it, the
+band 93 tall instead of 76.
+
+One cause. The header's search field is given a fixed width — 320, and 185 below
+1400 — because left to itself it takes whatever is going and pushes the
+navigation off centre. Below 992 its *contents* collapse to nothing (measured:
+the field is 0 tall on a phone) but the element went on claiming its 185px, and
+185 plus two 48px buttons plus the lockup does not cross a 354px island.
+Bootstrap did the only thing it could and wrapped the row.
+
+Width with no height is the worst of both — room reserved for something nobody
+can see or use. It is `display: none` below 992 now, and the island measures 76
+on a phone, the same as at 1440 and the same as the number this file records.
+
+That left the phone with no search at all, so **the drawer has one**:
+`.vp-drawer-search`, at the top of its body, posting to the same `/search` the
+header's field does. It cost 6px more than a 375×667 screen had, which came back
+off the short-screen block — the drawer still fits with nothing scrolling.

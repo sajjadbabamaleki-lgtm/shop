@@ -328,6 +328,13 @@ const DRAWER =
   '                    <button type="button" class="th-menu-toggle" aria-label="بستن منو"><i class="fal fa-times" aria-hidden="true"></i></button>\n' +
   '                </div>\n' +
   '                <div class="vp-drawer-body">\n' +
+  // The only search a phone gets. The header's field is hidden below 992 —
+  // its contents collapse to nothing there anyway — so without this one the
+  // shop has no search on a phone at all.
+  '                    <form class="vp-drawer-search" method="get" action="search-product.html" role="search">\n' +
+  '                        <input type="search" name="q" placeholder="دنبال چی می‌گردی؟" aria-label="جست‌وجو در محصولات">\n' +
+  '                        <button type="submit" aria-label="جست‌وجو"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></button>\n' +
+  '                    </form>\n' +
   '                    <p class="vp-drawer-label">دسترسی سریع</p>\n' +
   '                    <div class="vp-drawer-quick">\n' +
   QUICK_LINKS.map(([icon, name, lit]) =>

@@ -27,6 +27,13 @@
                     <button type="button" class="th-menu-toggle" aria-label="بستن منو"><i class="fal fa-times" aria-hidden="true"></i></button>
                 </div>
                 <div class="vp-drawer-body">
+                    {{-- The only search a phone gets: the header's field is
+                         hidden below 992, where its contents collapse to
+                         nothing anyway. --}}
+                    <form class="vp-drawer-search" method="get" action="{{ storefront_route('search') }}" role="search">
+                        <input type="search" name="q" placeholder="دنبال چی می‌گردی؟" aria-label="جست‌وجو در محصولات">
+                        <button type="submit" aria-label="جست‌وجو"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></button>
+                    </form>
                     <p class="vp-drawer-label">دسترسی سریع</p>
                     <div class="vp-drawer-quick">
                         {{-- The sale is the lit one, and it is the listing's own

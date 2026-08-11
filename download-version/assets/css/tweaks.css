@@ -1200,6 +1200,21 @@ option:hover {
   .th-header .menu-area .top-search { width: 185px; }
 }
 
+/* And below 992 it goes entirely.
+   Its contents are already collapsed there — measured, the field is 0 tall on a
+   phone — but the element still claimed its 185px of width, and 185 plus the
+   two 48px buttons plus the lockup does not fit across a 354px island. Bootstrap
+   did the only thing it could and wrapped the controls onto a second line, which
+   is the «به هم ریخته» the client photographed: the shop's name on two lines and
+   the basket and the menu adrift under it, the band 93 tall instead of 76.
+
+   Width with no height is the worst of both — it reserves room for something
+   nobody can see or use. The drawer carries a search field of its own now, so
+   nothing is lost by taking this one out of the row. */
+@media (max-width: 991.98px) {
+  .th-header .menu-area .top-search { display: none; }
+}
+
 /* The header's height used to be whatever the logo column happened to be —
    the template's 22px of padding above and below the lockup, and nothing else
    in the row came close. That left the app icon sitting off centre: measured
@@ -7066,6 +7081,53 @@ ul.vp-how-list.is-ticked li:before {
   padding: 14px 16px;
 }
 
+/* The drawer's search, and the only one a phone has. The header's field is
+   hidden below 992 — its contents collapse to nothing there anyway, and the
+   width it went on reserving is what wrapped the header's controls onto a
+   second row. Drawn like everything else on this panel: a hairline, no fill. */
+.vp-drawer-search {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 16px;
+  padding: 0 6px 0 4px;
+  border-radius: 14px;
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.09);
+}
+
+.vp-drawer-search input {
+  flex: 1;
+  min-width: 0;
+  height: 40px;
+  padding: 0 6px;
+  border: 0;
+  background: transparent;
+  font-family: 'Vazirmatn', var(--body-font);
+  font-size: 13px;
+  color: #101111;
+}
+
+.vp-drawer-search input::placeholder {
+  color: #9A9C9C;
+}
+
+.vp-drawer-search input:focus {
+  outline: none;
+}
+
+/* The one filled thing in the field, so the submit reads as the action rather
+   than as a second piece of furniture. */
+.vp-drawer-search button {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+  color: #101111;
+  font-size: 13px;
+}
+
 /* The section label, with the short gold rule the old menu had beside it —
    drawn rather than typed, so it cannot end up on a line of its own. */
 .vp-drawer-label {
@@ -7409,14 +7471,17 @@ ul.vp-how-list.is-ticked li:before {
   .vp-drawer-head { padding: 10px 14px; }
   .vp-logo-drawer img { width: 32px; height: 32px; }
   .vp-drawer-body { padding: 11px 14px; }
+  .vp-drawer-search { margin-bottom: 11px; }
+  .vp-drawer-search input { height: 36px; }
+  .vp-drawer-search button { width: 30px; height: 30px; }
   .vp-quick { padding: 8px 3px 7px; }
   .vp-quick-mark { width: 26px; height: 26px; font-size: 11px; }
-  .vp-drawer-cats { gap: 2px; margin-top: 7px; }
+  .vp-drawer-cats { gap: 1px; margin-top: 6px; }
   /* Down a step in size only. The weight is the look and it holds at any
      size, so nothing here goes back to semibold. */
   .vp-drawer-cats a { padding: 4px 9px; font-size: 13.5px; }
   .vp-cat-icon { width: 25px; height: 25px; padding: 5.5px; border-radius: 8px; }
-  .vp-drawer-links { margin-top: 10px; }
+  .vp-drawer-links { margin-top: 8px; }
   .vp-drawer-links a { padding: 7px 9px; }
   .vp-drawer-foot { padding: 10px 14px 13px; }
   .vp-drawer-cta { height: 42px; }
