@@ -384,11 +384,22 @@ name, in this one's materials rather than that one's:
 
 Two things to know before touching it:
 
-- **It is sized to fit.** The first build measured 1,024px of content on an
-  844px phone, so the basket was below the fold on the screen you open the menu
-  to reach it. It is 519px now and fits a 375×667 screen — the shortest still in
-  service — with room. `.vp-drawer-body` scrolls, so growing past the screen is
-  silent; measure it, do not look at it.
+- **It is sized to fit, on both screens, and the sizes are not free.** The
+  first build measured 1,024px of content on an 844px phone, so the basket was
+  below the fold on the screen you open the menu to reach it. The second fit
+  with 199px to spare, which read as a menu that stopped halfway. It now fills
+  to 14px above the basket on a 390×844 and 11px on a 375×667 — the shortest
+  screen still in service — and neither scrolls.
+
+  Three things hold that together and have to move as a set: the panel is
+  `min(86vw, 400px)`, the width of the shop's previous menu measured off the
+  client's screenshot; `.vp-drawer-cats` is `flex: 1` with `space-between`, so
+  the leftover height becomes the gaps between rows rather than a blank third
+  at the bottom; and a `max-height: 730px` block brings every size down a step
+  for short screens. **Height, not width, triggers that block** — two phones can
+  share a width and want different rows, and only one of those is a width.
+
+  `.vp-drawer-body` scrolls, so growing past the screen is silent. Measure it.
 - **`partials/mobile-menu.blade.php` is hand-owned.** `make-blade.js` prints it
   in the left-alone list. A markup change made in `theme/make-rtl-page.js` has
   to be made in the Blade by hand as well, and `PhoneDrawerTest` asserts the two

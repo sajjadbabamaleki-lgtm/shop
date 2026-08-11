@@ -6942,10 +6942,18 @@ ul.vp-how-list.is-ticked li:before {
 /* A column: head and foot fixed, the middle scrolling. The template centred
    everything in here (`text-center` on the area, which is gone from the
    markup) and gave it no layout at all, so a list longer than the phone simply
-   ran off the bottom with no way to reach the end of it. */
+   ran off the bottom with no way to reach the end of it.
+
+   Wider than the template's 270. That number is what a phone-width media query
+   in the template's own sheet narrows its 310 to, and at 270 a category row is
+   a 28px photograph and two words with a third of the panel empty beside them.
+   86vw is the shop's previous menu, measured off the screenshot the client sent
+   — 780 of 923 — and the 400 cap is for the tablet widths where this drawer is
+   still the menu but the screen is not a phone's. */
 .th-menu-wrapper .th-menu-area {
   display: flex;
   flex-direction: column;
+  max-width: min(86vw, 400px);
 }
 
 .vp-drawer {
@@ -7021,12 +7029,18 @@ ul.vp-how-list.is-ticked li:before {
 
 /* --- the body ------------------------------------------------------------ */
 
+/* A column too, so the list of sections can be told to take what is left.
+   Without that the drawer packed to its natural height and left a third of the
+   panel blank between the last section and the basket — which is what the
+   client meant by asking for it to reach down to the button. */
 .vp-drawer-body {
   flex: 1;
   min-height: 0;
+  display: flex;
+  flex-direction: column;
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding: 13px 14px;
+  padding: 14px 16px;
 }
 
 /* The section label, with the short gold rule the old menu had beside it —
@@ -7146,9 +7160,11 @@ ul.vp-how-list.is-ticked li:before {
 .vp-quick-name {
   font-family: 'Vazirmatn', var(--body-font);
   font-weight: 600;
-  /* 10.5px, because «پرفروش‌ترین‌ها» is thirteen characters into a third of a
-     270px panel. Measured: 11 wraps it at 270 and 10.5 does not. */
-  font-size: 10.5px;
+  /* «پرفروش‌ترین‌ها» is thirteen characters into a third of the panel, and it is
+     the one that decides this number. It was 10.5 while the panel was 270 wide;
+     at 86vw it holds one line at 11.5, measured at 375 — the narrowest screen
+     this has to survive. */
+  font-size: 11.5px;
   line-height: 1.5;
   color: #101111;
   text-align: center;
@@ -7156,21 +7172,35 @@ ul.vp-how-list.is-ticked li:before {
 
 /* --- the categories ------------------------------------------------------ */
 
+/* The list takes whatever height is left over and spreads its rows through it,
+   so the sections run down to the basket instead of stopping halfway and
+   leaving the rest of the panel blank. `space-between` rather than a fixed gap
+   because the leftover is different on every screen — 199px on an iPhone 14,
+   almost none on an SE — and a number that suits one is wrong on the other.
+   `flex-basis: auto` keeps each row its natural height, so on a short screen
+   the list simply packs and the body scrolls as before. */
 .vp-drawer-cats {
   list-style: none;
-  margin: 7px 0 0;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  /* The row's own height plus a floor for the gaps, so a tall screen spreads
+     and a short one still has air between the rows rather than none. */
+  gap: 3px;
+  margin: 9px 0 0;
   padding: 0;
 }
 
 .vp-drawer-cats a {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 4px 8px;
-  border-radius: 11px;
+  gap: 11px;
+  padding: 5px 10px;
+  border-radius: 12px;
   font-family: 'Vazirmatn', var(--body-font);
   font-weight: 500;
-  font-size: 12.5px;
+  font-size: 13.5px;
   color: #101111;
   text-decoration: none;
   transition: background-color 0.2s ease;
@@ -7187,13 +7217,13 @@ ul.vp-how-list.is-ticked li:before {
    be drawn or guessed. 28px: the row's whole height is this number, and eight
    of them is what decides whether the basket at the foot is on the screen. */
 .vp-drawer-cats img {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   flex: none;
   object-fit: cover;
   box-sizing: border-box;
   border: 1px solid rgba(16, 17, 17, 0.08);
-  border-radius: 9px;
+  border-radius: 10px;
 }
 
 .vp-drawer-cats span {
@@ -7216,9 +7246,10 @@ ul.vp-how-list.is-ticked li:before {
    the drawer did not have. */
 .vp-drawer-links {
   list-style: none;
+  flex: none;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 7px;
+  gap: 8px;
   margin: 14px 0 0;
   padding: 0;
 }
@@ -7226,14 +7257,15 @@ ul.vp-how-list.is-ticked li:before {
 .vp-drawer-links a {
   display: flex;
   align-items: center;
-  gap: 7px;
-  padding: 7px 9px;
-  border-radius: 11px;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 12px;
   background: rgba(16, 17, 17, 0.034);
   box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.05);
   font-family: 'Vazirmatn', var(--body-font);
   font-weight: 600;
-  font-size: 10.5px;
+  font-size: 11.5px;
   color: #101111;
   text-decoration: none;
   transition: background-color 0.2s ease;
@@ -7300,4 +7332,29 @@ ul.vp-how-list.is-ticked li:before {
   font-weight: 600;
   line-height: 20px;
   text-align: center;
+}
+
+/* Short screens.
+   The sizes above are measured for a phone about 844 tall, where the sections
+   run down to the basket with 14px to spare. An iPhone SE is 667 — the
+   shortest screen still in service — and the same drawer overflows it by 54px,
+   which `.vp-drawer-body` would absorb by scrolling. It should not have to:
+   the whole point of this menu is that the basket is on the screen you opened
+   it to reach. So on a short screen everything comes down a step, and the
+   height is what triggers it rather than the width — a 375-wide phone and a
+   375-wide phone with a taller screen want different rows, and only one of
+   those is a width. */
+@media (max-height: 730px) {
+  .vp-drawer-head { padding: 9px 14px; }
+  .vp-logo-drawer img { width: 32px; height: 32px; }
+  .vp-drawer-body { padding: 11px 14px; }
+  .vp-quick { padding: 7px 3px 6px; }
+  .vp-quick-mark { width: 26px; height: 26px; font-size: 11px; }
+  .vp-drawer-cats { gap: 2px; margin-top: 7px; }
+  .vp-drawer-cats a { padding: 4px 9px; font-size: 12.5px; }
+  .vp-drawer-cats img { width: 27px; height: 27px; border-radius: 9px; }
+  .vp-drawer-links { margin-top: 10px; }
+  .vp-drawer-links a { padding: 6px 9px; }
+  .vp-drawer-foot { padding: 9px 14px 12px; }
+  .vp-drawer-cta { height: 42px; }
 }
