@@ -328,20 +328,49 @@ class CustomerAccountTest extends TestCase
     }
 
     /**
-     * The top bar's account link too. It is in the generated header, so it is a
-     * `LIVE` rewrite in theme/make-blade.js rather than a hand edit — the last
-     * hand edit to that file was re-typed four times before it was taught to
-     * the generator.
+     * The header's account icon too.
+     *
+     * It has no text — the label *is* the accessible name, and the only way a
+     * screen reader learns which of the two states the control is in. It lives
+     * in the generated header, so it is a `LIVE` rewrite in
+     * theme/make-blade.js rather than a hand edit; the last hand edit to that
+     * file was re-typed four times before it was taught to the generator.
      */
-    public function test_the_top_bars_account_link_follows_the_same_state(): void
+    public function test_the_headers_account_icon_follows_the_same_state(): void
     {
-        $this->get('/')->assertOk()->assertSee('>ورود / ثبت‌نام</a>', false);
+        $this->get('/')->assertOk()->assertSee('aria-label="ورود / ثبت‌نام"', false);
 
         $customer = Customer::create(['name' => 'مریم', 'phone' => '09123456789', 'password' => 'password-1234']);
 
         $this->actingAs($customer, 'customer')->get('/')
             ->assertOk()
-            ->assertSee('>حساب من</a>', false)
-            ->assertDontSee('>ورود / ثبت‌نام</a>', false);
+            ->assertSee('aria-label="حساب من"', false)
+            ->assertDontSee('aria-label="ورود / ثبت‌نام"', false);
+    }
+
+    /**
+     * The dark strip above the header is gone, and so is everything false it
+     * carried: a German company's telephone number, `helloerna@mail.com`, and
+     * two select menus offering English/Spanish/Hindi and USD/Euro/GBP on a
+     * shop written in Persian that prices everything in Toman. Neither picker
+     * had a handler behind it.
+     *
+     * The two links in it that were real are kept, and this says where.
+     */
+    public function test_the_templates_dark_strip_is_gone_and_its_real_links_are_not(): void
+    {
+        $page = $this->get('/')->assertOk()->getContent();
+
+        foreach (['helloerna', '123 456 789', 'header-top', 'currency-menu', 'Spanish', 'Euro'] as $leftover) {
+            $this->assertStringNotContainsString($leftover, $page, "«{$leftover}» survived the strip.");
+        }
+
+        // The account, now an icon beside the basket.
+        $this->assertStringContainsString('vp-account-btn', $page);
+        $this->assertStringContainsString(route('account.enter'), $page);
+
+        // Order tracking, now the footer's «سفارش‌های من» as well as a chip in
+        // the phone drawer.
+        $this->assertStringContainsString(route('orders.track'), $page);
     }
 }

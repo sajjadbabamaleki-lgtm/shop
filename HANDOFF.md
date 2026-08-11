@@ -84,7 +84,7 @@ looks fine:
 
 | | |
 |---|---|
-| dark strip | 48 tall |
+| ~~dark strip~~ | ~~48 tall~~ — **removed**, see below |
 | header island | 76 tall, 18 from the top and both sides, corner 24 |
 | app icon | 52, with equal air on the three sides it touches — 12 |
 | island → hero card | 40 |
@@ -487,3 +487,41 @@ it is the only colour on the panel and does the sorting by itself.
 named `.vp-enter`, rendered as a heading, a footnote, and 325px of nothing. Every
 element was present and measured its correct size. The family is `vp-signin-`
 now. Check the class list before naming a block.
+
+
+## The dark strip above the header, removed
+
+«این هدر تیره رو حذف کن», with a red cross drawn through it. It was the
+template's, entire: a German company's telephone number, `helloerna@mail.com`,
+and two select menus offering English/Spanish/Hindi and USD/Euro/GBP on a shop
+written in Persian that prices everything in Toman. Neither picker had a handler
+behind it — no second locale, no second currency — so the strip's whole content
+was either false or inert.
+
+It carried two links that were real, and both survive:
+
+- **«پیگیری سفارش»** is a chip in the phone drawer, and is now the footer's
+  «سفارش‌های من» as well — that item pointed at `contact.html` and therefore at
+  `'#'`, and the strip was the only other way to the page.
+- **«ورود / ثبت‌نام»** is an icon beside the basket in the header island,
+  `.vp-account-btn`, sharing every rule with `.sideMenuToggler` so the two read
+  as one control twice. It exists from `lg` up only: below that the drawer is
+  what a visitor opens and the drawer's foot is the same link, so a third icon
+  in the island bought nothing and cost 17px of the band's height.
+
+The page is **48px shorter** at every width, which is exactly the strip and
+nothing else — 7502→7454 at 992, 5107→5059 at 1200, 4636→4588 at 1440,
+4892 at 1920 — and the two copies still differ by zero pixels. The island itself
+is untouched at 76.
+
+`theme/make-blade.js` caught the one thing that would otherwise have gone quiet:
+its `LIVE` list rewrote the strip's account link to follow the signed-in state,
+and with the strip gone the rewrite had nothing to match. It threw rather than
+skipping. That rule now targets the icon's `aria-label`, which is the control's
+only text and the only way a screen reader learns which of the two states it is
+in.
+
+**Still the template's, and visible on a desktop:** the main navigation is the
+demo's mega-menu — «Electronics فروشگاه», the six demo shops with screenshots,
+ten blog layouts. It is the same content the phone drawer carried until it was
+rebuilt, and it has the same problem. It is the next thing in that row.

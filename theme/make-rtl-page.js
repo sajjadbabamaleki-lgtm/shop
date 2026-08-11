@@ -163,9 +163,44 @@ html = html.replace(
 // its contents, so the count no longer stands in for one.
 html = html.replace(
   /<button type="button" class="icon-btn sideMenuToggler"><img[^>]*>/i,
+  // The account, beside the basket. It lived in the dark strip above the
+  // header until that strip was removed, and on a desktop the drawer — which
+  // carries the other copy — never opens. `.vp-account-btn` so the two are the
+  // same control at the two ends of the page and neither can be styled alone.
+  '<a href="my-account.html" class="icon-btn vp-account-btn" aria-label="ورود / ثبت‌نام">' +
+    '<i class="fa-solid fa-user" aria-hidden="true"></i>' +
+  '</a>' +
   '<button type="button" class="icon-btn sideMenuToggler" aria-label="سبد خرید">' +
     '<i class="fa-solid fa-bag-shopping" aria-hidden="true"></i>'
 );
+
+// --- the dark strip above the header ----------------------------------------
+//
+// «این هدر تیره رو حذف کن». It was the template's, entire: a German company's
+// telephone number, `helloerna@mail.com`, and two select menus offering
+// English/Spanish/Hindi and USD/Euro/GBP on a shop that is written in Persian
+// and prices everything in Toman. The two pickers did nothing — no handler, no
+// second locale, no second currency — so the strip's whole content was either
+// false or inert.
+//
+// It carried two links that are real, and both are kept: «پیگیری سفارش» is in
+// the phone drawer and is now the footer's «سفارش‌های من» as well, and
+// «ورود / ثبت‌نام» has just become an icon beside the basket. Nothing else in
+// the strip survives, because nothing else in it was true.
+//
+// Anchored on the next sibling rather than on a run of closing divs — the same
+// trap the footer's contact block set, where a lazy match stopped inside the
+// info-boxes and left the row one </div> heavy.
+if (!html.includes('helloerna@mail.com')) {
+  throw new Error('the header-top is not the template\'s any more — read it before deleting it');
+}
+html = html.replace(
+  /<div class="header-top">[\s\S]*?(?=<div class="sticky-wrapper">)/,
+  ''
+);
+if (html.includes('helloerna@mail.com')) {
+  throw new Error('the header-top replacement did not match');
+}
 
 // FontAwesome's fa-search draws its handle almost as long as the glass
 // itself, which read cramped once the header disc shrank. A two-shape inline
@@ -1722,7 +1757,9 @@ html = html.replace(
   ['<a href="contact.html">Submit and Dispute</a>', '<a href="contact.html">ثبت شکایت</a>'],
   ['<a href="contact.html">Policies & Rules</a>', '<a href="contact.html">قوانین</a>'],
   ['<a href="contact.html">Online فروشگاهping</a>', '<a href="contact.html">خرید اینترنتی</a>'],
-  ['<a href="contact.html">Order History</a>', '<a href="contact.html">سفارش‌های من</a>'],
+  // The real tracking page, not contact.html. The top bar carried the only
+  // other link to it and the top bar is gone.
+  ['<a href="contact.html">Order History</a>', '<a href="order-tracking.html">سفارش‌های من</a>'],
   ['<a href="course.html">فروشگاهing سبد خرید</a>', '<a href="cart.html">سبد خرید</a>'],
   ['<a href="course.html">Compare</a>', '<a href="course.html">مقایسه</a>'],
   ['<a href="contact.html">Help Ticket</a>', '<a href="contact.html">پشتیبانی</a>'],

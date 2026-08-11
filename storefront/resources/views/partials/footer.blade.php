@@ -53,7 +53,7 @@
                                 <div class="menu-all-pages-container">
                                     <ul class="menu">
                                         <li><a href="{{ page_url('contact.html') }}">حساب کاربری</a></li>
-                                        <li><a href="{{ page_url('contact.html') }}">سفارش‌های من</a></li>
+                                        <li><a href="{{ page_url('order-tracking.html') }}">سفارش‌های من</a></li>
                                         <li><a href="{{ page_url('cart.html') }}">سبد خرید</a></li>
                                         <li><a href="{{ page_url('course.html') }}">مقایسه</a></li>
                                         <li><a href="{{ page_url('contact.html') }}">پشتیبانی</a></li>

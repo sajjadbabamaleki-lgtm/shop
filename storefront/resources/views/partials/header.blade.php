@@ -1,44 +1,5 @@
 {{-- Ported from download-version/shoe-shop-rtl.html by theme/make-blade.js. --}}
 <header class="th-header header-layout1 header-layout6">
-        <div class="header-top">
-            <div class="container th-container">
-                <div class="row justify-content-center justify-content-lg-between align-items-center gy-2">
-                    <div class="col-lg-4">
-                        <div class="header-links">
-                            <ul>
-                                <li><img src="{{ asset('assets/img/icon/phone8-gold.svg') }}" alt=""><a href="tel:+00123456789">+00 123 456
-                                        789</a></li>
-                                <li><i class="fa-sharp fa-solid fa-envelope"></i><a href="mailto:helloerna@mail.com">helloerna@mail.com</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="col-lg-8">
-                        <div class="header-right">
-                            <div class="header-links">
-                                <ul>
-                                    <li><a href="{{ page_url('order-tracking.html') }}">پیگیری سفارش </a></li>
-                                    <li><a href="{{ page_url('my-account.html') }}" class="d-none d-xl-block"><img src="{{ asset('assets/img/icon/user4.svg') }}" alt="">{{ auth('customer')->check() ? 'حساب من' : 'ورود / ثبت‌نام' }}</a></li>
-                                </ul>
-                            </div>
-                            <div class="currency-menu">
-                                <select class="form-select nice-select">
-                                    <option selected="">English</option>
-                                    <option>Spanish</option>
-                                    <option>Hindi</option>
-                                </select>
-                            </div>
-                            <div class="currency-menu">
-                                <select class="form-select nice-select">
-                                    <option selected="">USD</option>
-                                    <option>Euro</option>
-                                    <option>GBP</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
         <div class="sticky-wrapper">
             <!-- Main Menu Area -->
             <div class="menu-area">
@@ -293,7 +254,7 @@
                                         </div>
                                     </form>
                                 </div>
-                                <button type="button" class="icon-btn sideMenuToggler" aria-label="سبد خرید"><i class="fa-solid fa-bag-shopping" aria-hidden="true"></i><span class="badge">{{ fa_number($basketCount ?? 0) }}</span></button>
+                                <a href="{{ page_url('my-account.html') }}" class="icon-btn vp-account-btn" aria-label="{{ auth('customer')->check() ? 'حساب من' : 'ورود / ثبت‌نام' }}"><i class="fa-solid fa-user" aria-hidden="true"></i></a><button type="button" class="icon-btn sideMenuToggler" aria-label="سبد خرید"><i class="fa-solid fa-bag-shopping" aria-hidden="true"></i><span class="badge">{{ fa_number($basketCount ?? 0) }}</span></button>
                                 <button type="button" class="th-menu-toggle d-block d-lg-none" aria-label="باز کردن منو"><i class="far fa-bars" aria-hidden="true"></i></button>
                             </div>
                         </div>

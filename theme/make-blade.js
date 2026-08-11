@@ -142,15 +142,19 @@ const LIVE = [
   },
   {
     region: 'header',
-    // The top bar's account link, which has to say the same thing the drawer's
-    // own button says: offering «ثبت‌نام» to somebody who is signed in is how a
-    // page tells them it has not noticed them.
-    find: '>ورود / ثبت‌نام</a>',
+    // The account icon beside the basket, which has to say the same thing the
+    // drawer's own button says: offering «ثبت‌نام» to somebody who is signed in
+    // is how a page tells them it has not noticed them. It is the button's
+    // accessible name — the control has no text — so this is the only place a
+    // screen reader learns which of the two it is.
+    //
+    // This was the dark strip's text link until the strip was removed, and the
+    // guard below is what said so rather than letting the rewrite go quiet.
+    find: 'aria-label="ورود / ثبت‌نام"',
     // An expression rather than `@auth … @else … @endauth`: a Blade directive
-    // needs whitespace after it, and that space is emitted — the link rendered
-    // as `> ورود / ثبت‌نام</a>`, with air inside the anchor and therefore inside
-    // its underline.
-    put: '>{{ auth(\'customer\')->check() ? \'حساب من\' : \'ورود / ثبت‌نام\' }}</a>',
+    // needs whitespace after it and that space is emitted, which inside an
+    // attribute value would become part of the name.
+    put: 'aria-label="{{ auth(\'customer\')->check() ? \'حساب من\' : \'ورود / ثبت‌نام\' }}"',
   },
 ];
 

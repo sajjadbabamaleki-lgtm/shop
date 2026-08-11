@@ -3691,7 +3691,8 @@ option:hover {
    each other in the same row. Ink on the ramp is the pairing already
    measured at the top of this file (6.94:1 / 9.88:1, both AA). The
    template's own .icon-btn rules are two classes deep, so these are three. */
-.th-header .header-button .icon-btn.sideMenuToggler {
+.th-header .header-button .icon-btn.sideMenuToggler,
+.th-header .header-button .icon-btn.vp-account-btn {
   width: 48px;
   height: 48px;
   border-radius: 18px;
@@ -3706,10 +3707,30 @@ option:hover {
   justify-content: center;
 }
 
-.th-header .header-button .icon-btn.sideMenuToggler i {
+.th-header .header-button .icon-btn.sideMenuToggler i,
+.th-header .header-button .icon-btn.vp-account-btn i {
   font-size: 20px;
   line-height: 1;
   color: #C0972F;
+}
+
+/* The account, the same white square as the basket beside it — one control
+   twice, not two things that happen to be next to each other.
+
+   It only exists from `lg` up. Below that the drawer is what a visitor opens,
+   and the drawer's own foot is this same link; a third icon in the island on a
+   phone bought nothing and cost 17px of the band's height, which is a number
+   HANDOFF records. `inline-flex` rather than the utility's `block`, because
+   the glyph is centred by the flex rule above. */
+.th-header .header-button .icon-btn.vp-account-btn {
+  display: none;
+  text-decoration: none;
+}
+
+@media (min-width: 992px) {
+  .th-header .header-button .icon-btn.vp-account-btn {
+    display: inline-flex;
+  }
 }
 
 .th-header .header-button .icon-btn.sideMenuToggler .badge {
