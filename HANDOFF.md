@@ -527,6 +527,37 @@ ten blog layouts. It is the same content the phone drawer carried until it was
 rebuilt, and it has the same problem. It is the next thing in that row.
 
 
+## The phone header's final numbers
+
+The band has been through four rounds with the client and these are where it
+landed. Everything below 992 unless it says otherwise; the desktop is untouched
+at 18 / 24 / 76 and never had a complaint against it.
+
+| | desktop | phone |
+|---|---|---|
+| island margin, both sides | 18 | **9** |
+| island corner | 24 | **19.2** |
+| band height | 76 | **66** |
+| air round the mark, all three sides | 12 | **12** |
+| mark, basket, menu | 52 / 48 / — | **42 each, square, radius 10** |
+| «ویکی پلاس» | 19, weight 800 | **14.52, weight 900** |
+| the line under it | 13 | **9.35, `nowrap`** |
+
+Two of those hold each other up. **The band's height is arithmetic on the
+mark**: air is `(height − mark) / 2` and has to equal the container's
+`padding-inline`, which is 12. Change the mark and the height changes with it or
+the air stops being equal on the three sides it touches.
+
+**The strapline's single line is why the margins halved.** «فروشگاه کیف و کفش
+زنانه» was breaking after «و» — and the break point moves with the phone's
+width, so it read differently on every screen. `nowrap` needs the room, and 9 a
+side rather than 18 is where the room came from. Measured at 375, the narrowest
+screen still in service.
+
+The name's weight is real, not synthetic: `font-family` names Cairo first and
+Cairo is not loaded, so this is Vazirmatn — a variable font, where 900 is a
+weight the file actually carries.
+
 ## Equal air, and the three bars
 
 The band states its own height and centres everything in it, so the air above

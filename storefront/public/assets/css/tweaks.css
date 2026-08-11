@@ -1805,14 +1805,44 @@ option:hover {
    at 5.5 it stops being type at all and becomes a grey smudge.
    -------------------------------------------------------------------------- */
 @media (max-width: 991.98px) {
-  /* 11 and 8.5 a round ago; ten per cent up on both, as asked. */
-  .th-header .vp-logo-text b { font-size: 12.1px; }
+  /* 11, then 12.1, and twenty per cent up again — with the weight going with
+     it. `font-family` here names Cairo first and Cairo is not loaded, so this
+     is Vazirmatn, and Vazirmatn is a variable font: 900 is a real weight and
+     not a browser's synthetic bolding of 800. */
+  .th-header .vp-logo-text b {
+    font-size: 14.52px;
+    font-weight: 900;
+  }
 
   .th-header .vp-logo-text small {
     font-size: 9.35px;
-    /* The descender clearance scales with the type: 6px was measured for 13px
-       Cairo, and at this size the same proportion is 4. */
+    /* The descender clearance scales with the type: 6px was measured for 13px,
+       and at this size the same proportion is 4. */
     margin-block-start: 4px;
+    /* One line. «فروشگاه کیف و کفش زنانه» was breaking after «و», which reads
+       as two lines of something rather than one line of a strapline — and the
+       break point moves with the phone's width, so it is different on every
+       screen. The band has the room now that the island's own margins have
+       halved; measured at 375, the narrowest screen this has to survive. */
+    white-space: nowrap;
+  }
+}
+
+/* The island's own margins, halved on a phone.
+
+   18 on both sides is the desktop's, and there it is the same number as the air
+   above it, so the panel sits in even margins. On a 390px screen 18 a side is
+   nine per cent of the whole width spent on nothing, twice — and it is the
+   width the lockup needed to put its strapline on one line. Above 992 it stays
+   18: the desktop has the room and never had the complaint. */
+@media (max-width: 991.98px) {
+  .th-header .menu-area,
+  .th-header .sticky-wrapper.sticky .menu-area {
+    margin-inline: 9px;
+    /* Twenty per cent off 24. The corner follows the panel: a smaller inset
+       with the same radius reads rounder than it did, because the curve is a
+       larger fraction of what is left. */
+    border-radius: 19.2px;
   }
 }
 
