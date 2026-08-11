@@ -1945,7 +1945,12 @@ option:hover {
 }
 
 @media (max-width: 575px) {
-  .vp-logo img { width: 42px; height: 42px; border-radius: 10px; }
+  /* The corner is not here. It is at the end of the file with the basket's and
+     the menu's, because all three are one set and the rule that sets it has to
+     come after this one to win — see that block for the reasoning and the
+     scope. Setting it here as well would read as the live number and not be
+     one. */
+  .vp-logo img { width: 42px; height: 42px; }
   .vp-logo-text b { font-size: 20px; }
   .vp-logo-text small { font-size: 11px; }
 }
@@ -7187,8 +7192,9 @@ ul.vp-how-list.is-ticked li:before {
    It had its own — a 36px tile, 14px name, 10px line under — which meant the
    shop's sign was one size at the top of the page and another the moment the
    menu opened over it. These are the phone header's, copied deliberately: 42
-   and radius 10 on the tile, 14.52 at weight 900 on the name, 9.35 and one
-   line under it. If those change, these change with them. */
+   and radius 11.5 on the tile, 14.52 at weight 900 on the name, 9.35 and one
+   line under it. If those change, these change with them — and they have once:
+   the radius was 10 until the client asked for fifteen per cent rounder. */
 .vp-logo-drawer {
   min-width: 0;
   /* Inherited from `.vp-logo` rather than set here — the drawer's lockup is the
@@ -7200,7 +7206,10 @@ ul.vp-how-list.is-ticked li:before {
 .vp-logo-drawer img {
   width: 42px;
   height: 42px;
-  border-radius: 10px;
+  /* Corner at the end of the file, with the other three. `.vp-logo-drawer img`
+     and `.vp-logo img` are the same specificity and this element matches both,
+     so a corner written here loses to any later `.vp-logo img` rule — which is
+     exactly what happened when the phone corner was first added. */
 }
 
 .vp-logo-drawer .vp-logo-text b {
@@ -7789,6 +7798,17 @@ ul.vp-how-list.is-ticked li:before {
    Written twice because the mark itself is two sizes: 42 below 576 and 52
    above it, which is the template's own breakpoint for this band.
 
+   **The corners are fifteen per cent rounder than that ratio now**, at the
+   client's word — «گوشه های آیکون اپ سبد خرید و منو ۱۵ درصد کروتر بشن». 12 →
+   13.8 above 576 and 10 → 11.5 below it, and the mark takes the same two so
+   the three stay one set: that is the whole point of the ratio, and rounding
+   two of the three would break it. The mark's rule is the one immediately
+   below this block, and the drawer's copy of the mark follows both.
+
+   Below 992 only. The instruction names no breakpoint and the standing one —
+   «به هیچ عنوان به نسخه دستاپ دست نزنی» — decides it. On the desktop the mark
+   is still 52/12 and the basket 48/18.
+
    **At the end of the file on purpose.** `.th-header .header-button
    .icon-btn.sideMenuToggler` is already set to 48/18 nine hundred lines above,
    at exactly this specificity — so the only thing that decides between them is
@@ -7801,7 +7821,25 @@ ul.vp-how-list.is-ticked li:before {
   .th-header .th-menu-toggle.d-block {
     width: 52px;
     height: 52px;
-    border-radius: 12px;
+    border-radius: 13.8px;
+  }
+
+  /* The mark, with them. Its 12 is the base rule nine hundred lines above and
+     that one is the desktop's, so this is a phone-scoped override rather than
+     an edit to it — the same reason the two rules above sit at the end of the
+     file. It reaches the footer's mark too, which is right: one lockup, one
+     corner, wherever it appears on a phone. */
+  .vp-logo img {
+    border-radius: 13.8px;
+  }
+
+  /* The drawer's copy of the mark is 42 at every width the drawer opens at, so
+     it takes the 42 corner across the whole range rather than the 52 one. It
+     has to be written after the rule above and not beside its own width nine
+     hundred lines up: the two selectors are the same specificity and this
+     element matches both, so source order is the only thing deciding it. */
+  .vp-logo-drawer img {
+    border-radius: 11.5px;
   }
 }
 
@@ -7810,7 +7848,11 @@ ul.vp-how-list.is-ticked li:before {
   .th-header .th-menu-toggle.d-block {
     width: 42px;
     height: 42px;
-    border-radius: 10px;
+    border-radius: 11.5px;
+  }
+
+  .vp-logo img {
+    border-radius: 11.5px;
   }
 }
 
