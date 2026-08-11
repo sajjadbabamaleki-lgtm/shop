@@ -527,6 +527,32 @@ ten blog layouts. It is the same content the phone drawer carried until it was
 rebuilt, and it has the same problem. It is the next thing in that row.
 
 
+## Equal air, and the three bars
+
+The band states its own height and centres everything in it, so the air above
+and below the mark is `(height − mark) / 2` and the air beside it is the
+container's `padding-inline`. That padding is 12, derived from (76 − 52) / 2 when
+the mark was 52 — and 12 on all three sides is the number the desktop band has
+had since the beginning.
+
+On a phone the mark is 42 in the same 76: 17 above and below against 12 at the
+side. The band is **66** below 576 now — (66 − 42) / 2 = 12 — and the three are
+one number again. The basket and the menu are 42 there too, so they take the
+same 12 with them. This is the whole reason the height is stated once rather
+than falling out of somebody's padding.
+
+**Centring a glyph's box is not centring its ink.** The menu button's three bars
+were nine from the top and fifteen from the foot — `display: block` with a 26px
+line-height in a 42px button. Flex centring fixed the box and left the ink 14/16,
+because FontAwesome's `fa-bars` sits high in its own em box; one pixel of
+`translateY` makes it 15/15. Read off the rendered pixels, because the element
+was already exactly where it should be.
+
+The bars are white, as asked. Noting rather than arguing: this file measured
+white on this gold at 2.6:1 and ink at 5.1, and chose ink everywhere else it
+fills the ramp. 2.6:1 is under the 3:1 WCAG asks of a graphical control, so if
+it ever reads faint in daylight, that is why and ink is the fix.
+
 ## The header on a phone, corrected
 
 I read «لوگو باید سایزش نصف بشه» as the whole lockup and halved the mark with

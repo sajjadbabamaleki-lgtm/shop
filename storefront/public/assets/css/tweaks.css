@@ -1805,13 +1805,37 @@ option:hover {
    at 5.5 it stops being type at all and becomes a grey smudge.
    -------------------------------------------------------------------------- */
 @media (max-width: 991.98px) {
-  .th-header .vp-logo-text b { font-size: 11px; }
+  /* 11 and 8.5 a round ago; ten per cent up on both, as asked. */
+  .th-header .vp-logo-text b { font-size: 12.1px; }
 
   .th-header .vp-logo-text small {
-    font-size: 8.5px;
+    font-size: 9.35px;
     /* The descender clearance scales with the type: 6px was measured for 13px
-       Cairo, and at 8.5 the same proportion is 4. */
+       Cairo, and at this size the same proportion is 4. */
     margin-block-start: 4px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Equal air on the three sides the mark touches, on a phone too.
+
+   The band states its own height and centres everything in it, so the air above
+   and below the mark is `(height − mark) / 2` and the air to its right is the
+   container's `padding-inline`. That padding is 12, derived from (76 − 52) / 2
+   when the mark was 52 — and it is the number the desktop band still measures
+   on all three sides.
+
+   On a phone the mark is 42 in the same 76, which gives 17 above and below
+   against 12 at the side. So the band comes down to **66**: (66 − 42) / 2 = 12,
+   and the three are one number again.
+
+   The basket and the menu are 42 here too, so they take the same 12 with it —
+   this is the whole point of the height being stated once rather than falling
+   out of somebody's padding.
+   -------------------------------------------------------------------------- */
+@media (max-width: 575px) {
+  .th-header .menu-area .row {
+    min-height: 66px;
   }
 }
 
@@ -1827,7 +1851,32 @@ option:hover {
   background-image: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
   background-color: transparent;
   border: 0;
-  color: #101111;
+  /* White, as asked. Noted rather than argued: this file measured white on
+     this gold at 2.6:1 and ink at 5.1, and chose ink everywhere else it fills
+     the ramp. A 16px mark at 2.6:1 is under the 3:1 that WCAG asks of a
+     graphical control, so if it ever reads faint outdoors, that is why and ink
+     is the fix. */
+  color: #FFFFFF;
+  /* Centred by the box rather than by a line-height. `display: block` plus
+     `line-height: 26px` in a 42px button put the three bars 9 from the top and
+     15 from the foot — six pixels high, and no arithmetic on a line-height
+     survives the button changing size. Flex centres both axes at any size. */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  line-height: 1;
+}
+
+/* And one pixel down, because centring the box is not centring the ink.
+   FontAwesome's `fa-bars` sits high in its own em box: with the box exactly
+   centred the three bars measured 14 above and 16 below inside a 42px button.
+   Read off the rendered pixels, not off the element — the element was already
+   where it should be. 15 and 15 now. */
+.th-header .th-menu-toggle.d-block i {
+  color: inherit;
+  line-height: 1;
+  transform: translateY(1px);
 }
 
 @media (max-width: 575px) {
