@@ -49,6 +49,7 @@
                                 @if ($value)<input type="hidden" name="{{ $name }}" value="{{ $value }}">@endif
                             @endforeach
                             @if ($filters['category'])<input type="hidden" name="category" value="{{ $filters['category']->slug }}">@endif
+                            @if ($filters['sale'])<input type="hidden" name="sale" value="1">@endif
 
                             <label for="vp-sort">ترتیب</label>
                             <select id="vp-sort" name="sort" onchange="this.form.submit()">

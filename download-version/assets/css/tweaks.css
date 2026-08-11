@@ -6913,49 +6913,391 @@ ul.vp-how-list.is-ticked li:before {
 }
 
 /* --------------------------------------------------------------------------
-   And once more in the drawer that opens on a phone.
+   The drawer that opens on a phone.
 
-   The third place the template put a logo, and — measured — the only one that
-   shows the shop's *name* on a phone: below 575 the header band is down to the
-   tile and the icons, so a visitor on a phone never reads «ویکی پلاس» until
-   they open the menu. It had `logo-gold.svg`, alt="Erna", until now.
+   The template's mobile menu was a directory of its own demo — «Electronics
+   فروشگاه», «About Style 1», ten spellings of blog-grid — and because nobody
+   opens it on a desktop it survived the whole port. It is also the only menu a
+   phone visitor ever gets, and below 575 it is the only place on the site that
+   says the shop's name in words.
 
-   The drawer is a narrow centred column, so the lockup stacks rather than
-   sitting in a row: the mark above, the name under it, both centred on the
-   drawer's own axis.
+   Rebuilt from the shop's previous site, which the client asked for by name,
+   in this one's materials. The old menu colour-coded its three shortcuts pink,
+   blue and orange; this page has one accent, so the tiles are the page's own
+   quiet tint with gold marks, and the one with urgency is lit the way the
+   running step of the stepped sale is lit — same gradient, ink on the gold.
+
+   **Everything in here is sized to fit.** The first build read «خیلی دراز» —
+   too long — and it was: 38px thumbnails and 14px rows made a menu of eight
+   sections 1,024px tall on an 844px phone, so the shop's own basket was below
+   the fold on the screen where you open the menu to find it. It now measures
+   inside the viewport with the categories complete. Anything added here has to
+   be measured again, not eyeballed: `.vp-drawer-body` scrolls, so growing past
+   the screen is silent.
+
+   The panel itself stays the template's: 270px wide, sliding from the right,
+   with its gold edge. Only what is inside it is ours.
    -------------------------------------------------------------------------- */
-.vp-logo-stack {
+
+/* A column: head and foot fixed, the middle scrolling. The template centred
+   everything in here (`text-center` on the area, which is gone from the
+   markup) and gave it no layout at all, so a list longer than the phone simply
+   ran off the bottom with no way to reach the end of it. */
+.th-menu-wrapper .th-menu-area {
+  display: flex;
   flex-direction: column;
+}
+
+.vp-drawer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  text-align: right;
+}
+
+/* --- the head ------------------------------------------------------------ */
+
+/* On the page's own smoke rather than white, so the head reads as a band the
+   way the header island does, and the body below it as the paper. The close
+   button comes inside the panel: the template hangs it 16.5px off the left
+   edge, which on a 270px panel puts a gold square over the page behind it. */
+.vp-drawer-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: 10px;
+  flex: none;
+  padding: 11px 14px;
+  background: #F7F7F7;
+  box-shadow: inset 0 -1px 0 rgba(16, 17, 17, 0.07);
+}
+
+/* The header band's lockup, smaller. 52px is arithmetic on the header band's
+   height and there is no band here — what sets the size is the close button
+   beside it and the 270px it has to share with it. */
+.vp-logo-drawer {
+  min-width: 0;
+  gap: 9px;
+}
+
+.vp-logo-drawer img {
+  width: 36px;
+  height: 36px;
+  /* The header's radius is 12 of 52; this keeps the same corner rather than
+     becoming a rounded rectangle at a smaller size. */
+  border-radius: 8px;
+}
+
+.vp-logo-drawer .vp-logo-text b {
+  font-size: 14px;
+}
+
+.vp-logo-drawer .vp-logo-text small {
+  font-size: 10px;
+  margin-block-start: 2px;
+}
+
+/* Static rather than the template's absolute -16.5px, and quiet: a gold
+   filled square is the loudest thing in the drawer, and it is the control you
+   press when you are done with it. */
+.th-menu-wrapper .th-menu-toggle {
+  position: static;
+  flex: none;
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
+  border-radius: 10px;
+  background: rgba(16, 17, 17, 0.05);
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.06);
+  color: #101111;
+  font-size: 15px;
+}
+
+.th-menu-wrapper .th-menu-toggle:hover {
+  background: rgba(16, 17, 17, 0.10);
+  color: #101111;
+}
+
+/* --- the body ------------------------------------------------------------ */
+
+.vp-drawer-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 13px 14px;
+}
+
+/* The section label, with the short gold rule the old menu had beside it —
+   drawn rather than typed, so it cannot end up on a line of its own. */
+.vp-drawer-label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0 0 9px;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 700;
+  font-size: 11.5px;
+  color: #101111;
+}
+
+.vp-drawer-label::after {
+  content: '';
+  flex: 1;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(270deg, #C0972F 0%, rgba(192, 151, 47, 0) 100%);
+}
+
+.vp-drawer-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.vp-drawer-heading .vp-drawer-label {
+  margin: 0;
+}
+
+.vp-drawer-heading .vp-drawer-label::after {
+  display: none;
+}
+
+/* «همه محصولات» — the brand strip's own see-all, at the drawer's size. */
+.vp-drawer-all {
+  flex: none;
+  padding: 4px 9px;
+  border-radius: 10px;
+  background: rgba(192, 151, 47, 0.10);
+  font-family: 'Vazirmatn', var(--body-font);
+  font-weight: 600;
+  font-size: 11px;
+  color: #8F7022;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+.vp-drawer-all:hover {
+  background: rgba(192, 151, 47, 0.18);
+  color: #7D6324;
+}
+
+/* --- the three shortcuts ------------------------------------------------- */
+
+.vp-drawer-quick {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 7px;
+}
+
+.vp-quick {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 3px 8px;
+  border-radius: 13px;
+  background: rgba(16, 17, 17, 0.034);
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.05);
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+.vp-quick:hover {
+  background: rgba(16, 17, 17, 0.06);
+}
+
+/* The lit one is the sale, and it is lit exactly the way the running step of
+   the stepped sale is: the same gradient, and ink on it rather than white —
+   the page settled that on the hero's burst, where white measured 2.6:1 and
+   ink 5.1. */
+.vp-quick.is-lit {
+  background: rgba(192, 151, 47, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(192, 151, 47, 0.28);
+}
+
+.vp-quick.is-lit:hover {
+  background: rgba(192, 151, 47, 0.2);
+}
+
+.vp-quick-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+  color: #101111;
+  font-size: 12px;
+}
+
+/* The two that are not the sale carry the mark unfilled — one lit tile in a
+   row of three is a hierarchy; three lit tiles are wallpaper. */
+.vp-quick:not(.is-lit) .vp-quick-mark {
+  background: #FFFFFF;
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.10);
+  color: #A47F25;
+}
+
+.vp-quick-name {
+  font-family: 'Vazirmatn', var(--body-font);
+  font-weight: 600;
+  /* 10.5px, because «پرفروش‌ترین‌ها» is thirteen characters into a third of a
+     270px panel. Measured: 11 wraps it at 270 and 10.5 does not. */
+  font-size: 10.5px;
+  line-height: 1.5;
+  color: #101111;
   text-align: center;
 }
 
-.vp-logo-stack .vp-logo-text {
+/* --- the categories ------------------------------------------------------ */
+
+.vp-drawer-cats {
+  list-style: none;
+  margin: 7px 0 0;
+  padding: 0;
+}
+
+.vp-drawer-cats a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 8px;
+  border-radius: 11px;
+  font-family: 'Vazirmatn', var(--body-font);
+  font-weight: 500;
+  font-size: 12.5px;
+  color: #101111;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+.vp-drawer-cats a:hover {
+  background: rgba(16, 17, 17, 0.04);
+  color: #101111;
+}
+
+/* The category's own photograph rather than an invented icon. The site holds
+   one per category already — it is what the eight tiles under the hero are —
+   so this row is the same material at a smaller size, and nothing here had to
+   be drawn or guessed. 28px: the row's whole height is this number, and eight
+   of them is what decides whether the basket at the foot is on the screen. */
+.vp-drawer-cats img {
+  width: 28px;
+  height: 28px;
+  flex: none;
+  object-fit: cover;
+  box-sizing: border-box;
+  border: 1px solid rgba(16, 17, 17, 0.08);
+  border-radius: 9px;
+}
+
+.vp-drawer-cats span {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Pointing the way the reading goes. */
+.vp-drawer-cats .fa-chevron-left {
+  flex: none;
+  font-size: 10px;
+  color: rgba(16, 17, 17, 0.28);
+}
+
+/* --- the two that are not sections --------------------------------------- */
+
+/* Order tracking and the seller sign-up are errands, not parts of the shop, so
+   they are a pair of chips rather than two more full-width rows under a
+   heading of their own. That heading and its two rows were 96px of the height
+   the drawer did not have. */
+.vp-drawer-links {
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+  margin: 14px 0 0;
+  padding: 0;
+}
+
+.vp-drawer-links a {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 9px;
+  border-radius: 11px;
+  background: rgba(16, 17, 17, 0.034);
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.05);
+  font-family: 'Vazirmatn', var(--body-font);
+  font-weight: 600;
+  font-size: 10.5px;
+  color: #101111;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+.vp-drawer-links a:hover {
+  background: rgba(16, 17, 17, 0.06);
+  color: #101111;
+}
+
+.vp-drawer-links a i {
+  flex: none;
+  color: #A47F25;
+  font-size: 12px;
+}
+
+.vp-drawer-links span {
+  min-width: 0;
+}
+
+/* --- the foot ------------------------------------------------------------ */
+
+/* The basket, and not «ورود / ثبت‌نام» as the old menu had it: this shop has
+   no customer accounts — an order is found by its number — so a login button
+   would be the one control in here that goes nowhere. It swaps back the day
+   accounts exist. */
+.vp-drawer-foot {
+  flex: none;
+  padding: 10px 14px 14px;
+  background: #FFFFFF;
+  box-shadow: inset 0 1px 0 rgba(16, 17, 17, 0.07);
+}
+
+.vp-drawer-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  height: 44px;
+  border-radius: 13px;
+  background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 700;
+  font-size: 13.5px;
+  /* Ink on the gold, the page's settled answer everywhere gold is filled. */
+  color: #101111;
+  text-decoration: none;
+  transition: filter 0.2s ease;
+}
+
+.vp-drawer-cta:hover {
+  filter: brightness(1.04);
+  color: #101111;
+}
+
+.vp-drawer-count {
+  min-width: 20px;
+  height: 20px;
+  padding-inline: 5px;
+  border-radius: 10px;
+  background: rgba(16, 17, 17, 0.12);
+  font-family: 'Vazirmatn', var(--body-font);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 20px;
   text-align: center;
-}
-
-/* The tile is the drawer's one piece of colour and it has the room, so it is
-   larger here than in the band — where 52 is arithmetic on the band's height
-   and this is not. The radius keeps the same ratio to the size, 12/52, so it
-   stays an app-icon corner rather than becoming a soft-edged rectangle. */
-.vp-logo-stack img {
-  width: 68px;
-  height: 68px;
-  border-radius: 16px;
-}
-
-/* The drawer's ground is white, not the band's #F7F7F7, so the hairline that
-   separates the tile from a grey has two levels to work with instead of eight.
-   Doubled, which measures the same distance from its ground that the header's
-   does from its own. */
-.vp-logo-stack img {
-  border-color: rgba(16, 17, 17, 0.20);
-}
-
-@media (max-width: 575px) {
-  /* The band's rule shrinks every `.vp-logo img` to 42; the drawer has the
-     same room on a phone as anywhere else, so it keeps its own size. */
-  .vp-logo-stack img { width: 68px; height: 68px; border-radius: 16px; }
-  .vp-logo-stack .vp-logo-text b { font-size: 22px; }
-  .vp-logo-stack .vp-logo-text small { font-size: 12px; }
 }

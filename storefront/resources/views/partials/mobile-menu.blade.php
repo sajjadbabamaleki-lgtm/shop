@@ -1,86 +1,94 @@
-{{-- Ported from download-version/shoe-shop-rtl.html by theme/make-blade.js. --}}
-<div class="th-menu-wrapper">
-        <div class="th-menu-area text-center">
-            <button class="th-menu-toggle" aria-label="بستن منو"><i class="fal fa-times" aria-hidden="true"></i></button>
-            <div class="mobile-logo">
-                <a href="{{ page_url('index.html') }}" class="vp-logo vp-logo-stack">
-                    <img src="{{ asset('assets/img/vikyplus-appicon.png') }}" alt="ویکی پلاس">
-                    <span class="vp-logo-text">
-                        <b>ویکی پلاس</b>
-                        <small>فروشگاه کیف و کفش زنانه</small>
-                    </span>
-                </a>
-            </div>
-            <div class="th-mobile-menu">
-                <ul>
-                    <li class="menu-item-has-children">
-                        <a href="{{ page_url('electronics-shop.html') }}">خانه</a>
-                        <ul class="sub-menu">
-                            <li><a href="{{ page_url('electronics-shop.html') }}">Electronics فروشگاه</a></li>
-                            <li><a href="{{ page_url('fashion-shop.html') }}">fashion-shop</a></li>
-                            <li><a href="{{ page_url('grocery-shop.html') }}">Grocery-shop</a></li>
-                            <li><a href="{{ page_url('coffee-shop.html') }}">Coffee فروشگاه</a></li>
-                            <li><a href="{{ page_url('furniture-shop.html') }}">Furniture فروشگاه</a></li>
-                            <li><a href="{{ page_url('shoe-shop.html') }}">Shoe فروشگاه</a></li>
-                        </ul>
-                    </li>
-                    <li class="menu-item-has-children">
-                        <a href="#">فروشگاه</a>
-                        <ul class="sub-menu">
-                            <li><a href="{{ page_url('shop-grid.html') }}">فروشگاه</a></li>
-                            <li><a href="{{ page_url('shop-grid-left-sidebar.html') }}">فروشگاه با سایدبار راست</a></li>
-                            <li><a href="{{ page_url('shop-grid-right-sidebar.html') }}">فروشگاه با سایدبار چپ</a></li>
-                            <li><a href="{{ page_url('shop-list.html') }}">لیست محصولات</a></li>
-                            <li><a href="{{ page_url('shop.html') }}">فروشگاه Full Width</a></li>
-                            <li><a href="{{ page_url('shop-details.html') }}">جزئیات محصول</a></li>
-                            <li><a href="{{ page_url('cart.html') }}">سبد خرید Page</a></li>
-                            <li><a href="{{ page_url('checkout.html') }}">تسویه حساب</a></li>
-                            <li><a href="{{ page_url('wishlist.html') }}">علاقه‌مندی‌ها</a></li>
-                            <li><a href="{{ page_url('my-account.html') }}">حساب کاربری</a></li>
-                            <li><a href="{{ page_url('search-product.html') }}">Search Result for Product</a></li>
+{{--
+    The drawer that opens on a phone.
 
-                        </ul>
-                    </li>
-                    <li class="menu-item-has-children">
-                        <a href="#">درباره ما</a>
-                        <ul class="sub-menu">
-                            <li><a href="{{ page_url('about.html') }}">About Style 1</a></li>
-                            <li><a href="{{ page_url('about-2.html') }}">About Style 2</a></li>
-                            <li><a href="{{ page_url('about-3.html') }}">About Style 3</a></li>
-                        </ul>
-                    </li>
-                    <li class="menu-item-has-children">
-                        <a href="#">صفحات</a>
-                        <ul class="sub-menu">
-                            <li><a href="{{ page_url('order-tracking.html') }}">پیگیری سفارش</a></li>
-                            <li><a href="{{ page_url('faq.html') }}">Faq Page</a></li>
-                            <li><a href="{{ page_url('error.html') }}">Error Page</a></li>
-                        </ul>
-                    </li>
-                    <li class="menu-item-has-children">
-                        <a href="#">وبلاگ</a>
-                        <ul class="sub-menu">
-                            <li><a href="{{ page_url('blog-grid.html') }}">وبلاگ Grid</a></li>
-                            <li><a href="{{ page_url('blog-grid-left-sidebar.html') }}">وبلاگ Grid With Left Sidebar</a></li>
-                            <li><a href="{{ page_url('blog-grid-right-sidebar.html') }}">وبلاگ Grid With Right Sidebar</a></li>
-                            <li><a href="{{ page_url('blog-list.html') }}">وبلاگ List</a></li>
-                            <li><a href="{{ page_url('blog-left-sidebar.html') }}">وبلاگ Left Sidebar</a></li>
-                            <li><a href="{{ page_url('blog-right-sidebar.html') }}">وبلاگ Right Sidebar</a></li>
-                            <li><a href="{{ page_url('blog.html') }}">وبلاگ No Sidebar</a></li>
-                            <li><a href="{{ page_url('blog-details-left-sidebar.html') }}">وبلاگ Left Sidebar</a></li>
-                            <li><a href="{{ page_url('blog-details-right-sidebar.html') }}">وبلاگ Right Sidebar</a></li>
-                            <li><a href="{{ page_url('blog-details.html') }}">وبلاگ Details Without Sidebar</a></li>
-                        </ul>
-                    </li>
-                    <li class="menu-item-has-children">
-                        <a href="#">تماس با ما</a>
-                        <ul class="sub-menu">
-                            <li><a href="{{ page_url('contact.html') }}">Contact Style 1</a></li>
-                            <li><a href="{{ page_url('contact-2.html') }}">Contact Style 2</a></li>
-                            <li><a href="{{ page_url('contact-3.html') }}">Contact Style 3</a></li>
-                        </ul>
-                    </li>
-                </ul>
+    Hand-owned. It began as a port of the static page like everything else in
+    partials/, and stopped being one the moment its categories came from the
+    catalogue: theme/make-blade.js leaves it alone now, and a markup change made
+    in download-version has to be made here too. The static preview still holds
+    the same drawer with the eight seeded categories typed into it, so
+    check-parity.js compares like with like.
+
+    Every destination here is a page that exists. `page_url()` sends the
+    template's filenames somewhere real or to '#'; the three shortcuts and the
+    categories need query strings and parameters that a filename cannot carry,
+    so those are built from named routes directly.
+--}}
+<div class="th-menu-wrapper">
+        <div class="th-menu-area">
+            <div class="vp-drawer">
+                <div class="vp-drawer-head">
+                    <a href="{{ page_url('index.html') }}" class="vp-logo vp-logo-drawer">
+                        <img src="{{ asset('assets/img/vikyplus-appicon.png') }}" alt="ویکی پلاس">
+                        <span class="vp-logo-text">
+                            <b>ویکی پلاس</b>
+                            <small>فروشگاه کیف و کفش زنانه</small>
+                        </span>
+                    </a>
+                    <button type="button" class="th-menu-toggle" aria-label="بستن منو"><i class="fal fa-times" aria-hidden="true"></i></button>
+                </div>
+                <div class="vp-drawer-body">
+                    <p class="vp-drawer-label">دسترسی سریع</p>
+                    <div class="vp-drawer-quick">
+                        {{-- The sale is the lit one, and it is the listing's own
+                             `sale` filter rather than a page of its own — one
+                             grid, opened on a different question. --}}
+                        <a class="vp-quick is-lit" href="{{ storefront_route('shop') }}?sale=1">
+                            <span class="vp-quick-mark"><i class="fa-solid fa-tag" aria-hidden="true"></i></span>
+                            <span class="vp-quick-name">تخفیف‌دارها</span>
+                        </a>
+                        <a class="vp-quick" href="{{ storefront_route('shop') }}?sort=newest">
+                            <span class="vp-quick-mark"><i class="fa-solid fa-clock" aria-hidden="true"></i></span>
+                            <span class="vp-quick-name">جدیدترین‌ها</span>
+                        </a>
+                        <a class="vp-quick" href="{{ storefront_route('shop') }}?sort=bestselling">
+                            <span class="vp-quick-mark"><i class="fa-solid fa-arrow-trend-up" aria-hidden="true"></i></span>
+                            <span class="vp-quick-name">پرفروش‌ترین‌ها</span>
+                        </a>
+                    </div>
+                    <div class="vp-drawer-heading">
+                        <p class="vp-drawer-label">فروشگاه</p>
+                        <a class="vp-drawer-all" href="{{ storefront_route('shop') }}">همه محصولات</a>
+                    </div>
+                    {{-- The shop's sections, from the composer in
+                         AppServiceProvider — the same query the row of tiles
+                         under the hero uses, so the drawer and the front page
+                         cannot describe two different shops. --}}
+                    <ul class="vp-drawer-cats">
+                        @foreach ($drawerCategories as $category)
+                        <li>
+                            <a href="{{ storefront_route('category', $category) }}">
+                                <img src="{{ asset($category->image_path) }}" alt="" loading="lazy">
+                                <span>{{ $category->name }}</span>
+                                <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+                            </a>
+                        </li>
+                        @endforeach
+                    </ul>
+                    {{-- Two chips rather than two more full-width rows: they
+                         are not sections of the shop and reading as though they
+                         were made the drawer a page and a half long. --}}
+                    <ul class="vp-drawer-links">
+                        <li>
+                            <a href="{{ page_url('order-tracking.html') }}">
+                                <i class="fa-solid fa-truck-fast" aria-hidden="true"></i>
+                                <span>پیگیری سفارش</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ page_url('vendor-register.html') }}">
+                                <i class="fa-solid fa-store" aria-hidden="true"></i>
+                                <span>فروشنده شوید</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="vp-drawer-foot">
+                    <a class="vp-drawer-cta" href="{{ page_url('cart.html') }}">
+                        <i class="fa-solid fa-bag-shopping" aria-hidden="true"></i>
+                        <span>سبد خرید</span>
+                        <span class="vp-drawer-count">{{ fa_number($basketCount ?? 0) }}</span>
+                    </a>
+                </div>
             </div>
         </div>
     </div>

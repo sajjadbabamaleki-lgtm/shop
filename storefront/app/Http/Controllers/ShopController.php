@@ -48,6 +48,7 @@ class ShopController extends Controller
      */
     private const SORTS = [
         'newest' => ['تازه‌ترین', 'published_at', 'desc'],
+        'bestselling' => ['پرفروش‌ترین', 'units_sold', 'desc'],
         'cheapest' => ['ارزان‌ترین', 'branch_price', 'asc'],
         'dearest' => ['گران‌ترین', 'branch_price', 'desc'],
     ];
@@ -77,7 +78,7 @@ class ShopController extends Controller
      * types into the box, and become Rial here — the one place the conversion
      * happens on the way in.
      *
-     * @return array{category: ?Category, brand: ?string, size: ?string, color: ?string, min: ?int, max: ?int, sort: string, q: ?string}
+     * @return array{category: ?Category, brand: ?string, size: ?string, color: ?string, min: ?int, max: ?int, sale: bool, sort: string, q: ?string}
      */
     private function filters(Request $request, ?Category $category): array
     {
@@ -94,6 +95,7 @@ class ShopController extends Controller
             'color' => $this->slugOrNull($request->query('color')),
             'min' => $toman($request->query('min')),
             'max' => $toman($request->query('max')),
+            'sale' => $request->boolean('sale'),
             'sort' => array_key_exists((string) $request->query('sort'), self::SORTS)
                 ? (string) $request->query('sort')
                 : 'newest',
@@ -124,6 +126,7 @@ class ShopController extends Controller
         $query = Product::query()
             ->purchasable()
             ->pricedHere()
+            ->countingSales()
             ->with(['brand', 'media', 'variants.offer', 'variants.stock', 'defaultVariant.offer']);
 
         if ($filters['category']) {
@@ -150,6 +153,16 @@ class ShopController extends Controller
                 $query->whereHas('variants', fn (Builder $v) => $v->sellable()
                     ->whereHas('offer', fn (Builder $o) => $o->where('price', $operator, $filters[$bound])));
             }
+        }
+
+        // Only what is actually on sale *here*, and only inside the promotion's
+        // own window — `promoted()` is the SQL twin of the rule a card uses to
+        // decide whether to strike a price through, so this listing and the
+        // badges on it cannot disagree. Asked of the sellable variants, so a
+        // shoe discounted in a size the branch has none of is not an answer.
+        if ($filters['sale']) {
+            $query->whereHas('variants', fn (Builder $v) => $v->sellable()
+                ->whereHas('offer', fn (Builder $o) => $o->promoted()));
         }
 
         if ($filters['q']) {
@@ -222,12 +235,24 @@ class ShopController extends Controller
     }
 
     /**
+     * What the page calls itself.
+     *
+     * The sale reads as a qualifier on whatever else was asked for — «صندل، با
+     * تخفیف» — rather than replacing it, so arriving from the drawer's
+     * «تخفیف‌دارها» and then picking a category still says both things.
+     *
      * @param  array<string, mixed>  $filters
      */
     private function heading(array $filters): string
     {
         if ($filters['q']) {
             return "نتیجه جست‌وجو برای «{$filters['q']}»";
+        }
+
+        if ($filters['sale']) {
+            return $filters['category']
+                ? $filters['category']->name.'، با تخفیف'
+                : 'تخفیف‌دارها';
         }
 
         return $filters['category']?->name ?? 'همه محصولات';

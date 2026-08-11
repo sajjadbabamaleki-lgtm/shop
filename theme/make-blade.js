@@ -50,7 +50,7 @@ const html = fs.readFileSync(PAGE, 'utf8');
 // leaves the files alone. See HANDOFF.md.
 const REGIONS = [
   { name: 'chrome', anchor: '<div class="magic-cursor', into: 'partials/chrome.blade.php' },
-  { name: 'mobile-menu', anchor: '<div class="th-menu-wrapper">', into: 'partials/mobile-menu.blade.php' },
+  { name: 'mobile-menu', anchor: '<div class="th-menu-wrapper">', into: 'partials/mobile-menu.blade.php', owned: true },
   { name: 'header', anchor: '<header class="th-header', into: 'partials/header.blade.php' },
   { name: 'hero', anchor: '<div class="th-hero-wrapper', into: 'home/hero.blade.php', owned: true },
   { name: 'categories', anchor: '<section class="feature-area2', into: 'home/categories.blade.php', owned: true },

@@ -351,3 +351,59 @@ links to it and the crawl therefore cannot see it.
 `manifest.json` and `browserconfig.xml` were regenerated with it. The template's
 manifest said `"name": "App"` and pointed every icon at the domain root, where
 none of them are.
+
+## The phone drawer
+
+The template's mobile menu survived the entire port. It was a directory of the
+ThemeForest demo — «Electronics فروشگاه», «About Style 1», ten spellings of
+blog-grid, `error.html` — and every row of it went to a page this shop does not
+have. Nothing caught it: nobody opens the mobile menu on a desktop, the panel is
+parked off-screen so the parity check renders it and sees nothing, and the
+overflow check cannot reach it either. It was the only menu a phone visitor got.
+
+It is now built from the shop's previous site, which the client asked for by
+name, in this one's materials rather than that one's:
+
+- **three shortcuts** — تخفیف‌دارها, جدیدترین‌ها, پرفروش‌ترین‌ها — each opening
+  the listing on a real filter (`?sale=1`, `?sort=newest`, `?sort=bestselling`),
+  none of them a page of its own. The old site colour-coded them pink, blue and
+  orange; this page has one accent, so the tiles are its quiet tint with gold
+  marks and only the sale is lit — the same gradient the running step of the
+  stepped sale uses, ink on the gold.
+- **the shop's sections**, from the same query the tiles under the hero use.
+  Deliberately *not* the listing's stricter "only what has something in it":
+  seven of the eight categories hold no products yet, so the strict rule would
+  offer one section in the drawer and eight on the front page. A test asserts
+  the two agree. It resolves itself as the catalogue fills.
+- **two chips** — order tracking and the seller sign-up — rather than rows under
+  a heading of their own, which cost 96px the drawer did not have.
+- **the basket** at the foot, and not «ورود / ثبت‌نام» as the old site had it:
+  this shop has no customer accounts, an order is found by its number, so a
+  login button would be the one control in there that goes nowhere. It swaps
+  back the day accounts exist.
+
+Two things to know before touching it:
+
+- **It is sized to fit.** The first build measured 1,024px of content on an
+  844px phone, so the basket was below the fold on the screen you open the menu
+  to reach it. It is 519px now and fits a 375×667 screen — the shortest still in
+  service — with room. `.vp-drawer-body` scrolls, so growing past the screen is
+  silent; measure it, do not look at it.
+- **`partials/mobile-menu.blade.php` is hand-owned.** `make-blade.js` prints it
+  in the left-alone list. A markup change made in `theme/make-rtl-page.js` has
+  to be made in the Blade by hand as well, and `PhoneDrawerTest` asserts the two
+  still name the same categories.
+
+## What the drawer needed underneath it
+
+Two things the listing could not answer before, both added with it:
+
+- **`?sale=1`** — `BranchOffer::scopePromoted()`, the SQL twin of
+  `hasActivePromotion()`. One rule written twice is a rule that will disagree
+  with itself: if they drift, the sale page shows cards with no sale badge, or a
+  badge on a card the sale page will not show, and nothing errors. A test walks
+  both over the window's boundaries.
+- **`?sort=bestselling`** — `Product::scopeCountingSales()`, counted off paid
+  `order_items` rather than off the catalogue, and off *this branch's* orders.
+  `coalesce` to 0, because a null sorts first on a descending order and would
+  put everything that has never sold at the top of the best-seller list.

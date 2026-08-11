@@ -21,8 +21,9 @@ An Iranian shoe and bag storefront (vikyplus.ir) built on the ThemeForest
   The shop's mark appears in three places (header, footer, phone drawer) and all
   three are the same lockup — see HANDOFF.md before adjusting any of them.
 - `storefront/resources/views/` — the Laravel app renders the same page, and
-  six of its bands come out of the database. The six under `home/` are
-  hand-owned; the rest of `partials/` is **generated** — never hand-edit
+  six of its bands come out of the database. The six under `home/` and
+  `partials/mobile-menu.blade.php` are hand-owned; the rest of `partials/` is
+  **generated** — never hand-edit
   those, run `node theme/make-blade.js` after a markup change and
   `node theme/sync-storefront-assets.js` after a `tweaks.css` or photograph
   change. `make-blade.js` prints which files it left alone.
@@ -71,6 +72,14 @@ An Iranian shoe and bag storefront (vikyplus.ir) built on the ThemeForest
   binding resolved before the tenant finds nothing and the page 404s for
   everybody. Tests can hide this by leaving a branch bound in the container;
   forget it before the request when testing a page that binds one.
+- **The phone drawer is invisible to every check we have.** It is parked
+  off-screen, so `check-parity.js` cannot see it and `check-overflow.js` cannot
+  either — which is how the template's demo menu («About Style 1», ten
+  blog-grids) survived the whole port as the only menu a phone visitor gets.
+  `PhoneDrawerTest` is what watches it now, including that the static preview
+  and the Blade still list the same categories. It is also sized to fit a
+  375×667 screen with no scrolling; anything added there has to be measured
+  again, because growing past the screen is silent.
 - `node theme/check-overflow.js` — loads every page at 390/768/1200/1920 and
   fails if any of them scrolls sideways, naming the outermost element that
   sticks out. The pages after the home page have no pixel baseline to compare

@@ -54,6 +54,29 @@ class BranchOffer extends Model
     }
 
     /**
+     * The same rule as `hasActivePromotion()`, asked of the database.
+     *
+     * One rule written twice is a rule that will disagree with itself, so this
+     * is the pair to watch: `hasActivePromotion()` decides whether a card draws
+     * a struck-through price, and this decides whether the offer appears in the
+     * «تخفیف‌دارها» listing. If they drift, the shop shows a sale page whose
+     * cards have no sale badge on them, and no error anywhere says so.
+     *
+     * A test asserts the two agree, over every combination of window and price
+     * that matters. Change one and change the other, or that test will say so.
+     */
+    public function scopePromoted(Builder $query): Builder
+    {
+        $now = now();
+
+        return $query
+            ->whereNotNull('compare_at_price')
+            ->whereColumn('compare_at_price', '>', 'price')
+            ->where(fn (Builder $q) => $q->whereNull('promotion_starts_at')->orWhere('promotion_starts_at', '<=', $now))
+            ->where(fn (Builder $q) => $q->whereNull('promotion_ends_at')->orWhere('promotion_ends_at', '>', $now));
+    }
+
+    /**
      * A promotion counts only inside its own window. A compare_at_price left
      * behind after the campaign ended is not a discount (§14) — it is a
      * struck-through number that makes the shop look like it is lying.

@@ -153,30 +153,6 @@ html = html.replace(
   '                            </div>'
 );
 
-// The same mark again, in the drawer that opens on a phone. This is the third
-// and last place the template put a logo, and it is the one a phone visitor
-// actually reads — the header band hides its name below 575, so on a phone the
-// drawer is where the shop says who it is. It carried `logo-gold.svg` with
-// `alt="Erna"` until now.
-//
-// `.vp-logo-stack` rather than the header's row: the drawer is centred and
-// narrow, so the mark goes above the name instead of beside it.
-if (!/<div class="mobile-logo">[\s\S]*?logo-gold\.svg/.test(html)) {
-  throw new Error('the mobile drawer no longer carries the template logo — check what it has instead');
-}
-html = html.replace(
-  /<div class="mobile-logo">\s*<a[^>]*>\s*<img[^>]*>\s*<\/a>\s*<\/div>/i,
-  '<div class="mobile-logo">\n' +
-  '                <a href="index.html" class="vp-logo vp-logo-stack">\n' +
-  '                    <img src="assets/img/vikyplus-appicon.png" alt="ویکی پلاس">\n' +
-  '                    <span class="vp-logo-text">\n' +
-  '                        <b>ویکی پلاس</b>\n' +
-  '                        <small>فروشگاه کیف و کفش زنانه</small>\n' +
-  '                    </span>\n' +
-  '                </a>\n' +
-  '            </div>'
-);
-
 // The basket takes a filled icon rather than the template's outline SVG, to
 // match the one on the sale cards and because it now sits on gold, where an
 // outline reads as a hole rather than as a bag. fa-solid is already loaded —
@@ -250,6 +226,109 @@ const CATEGORY_ROW =
     '\n                </div>'
   ).join('') +
   '\n            </div>';
+
+// --- the drawer that opens on a phone ---------------------------------------
+//
+// The template's mobile menu was a directory of its own demo: «Electronics
+// فروشگاه», «About Style 1», ten spellings of blog-grid, every one of them a
+// page this shop does not have. Nobody saw it on a desktop, so it survived the
+// whole port — and it is the *only* menu a phone visitor gets.
+//
+// Rebuilt from the shop's previous site, which the client asked for by name,
+// in this one's materials rather than that one's: the old menu colour-coded
+// its three shortcuts pink, blue and orange, and this page has one accent. So
+// the tiles are the page's own quiet tint with gold marks on them, and the one
+// with urgency — the sale — is lit the way the running step of the stepped
+// sale is lit. Same device, same gradient, ink on the gold.
+//
+// Every destination here is a page that exists. The old menu's «ورود / ثبت‌نام»
+// is not among them: this shop has no customer accounts — an order is found by
+// its number — so the foot of the drawer is the basket instead. That swaps back
+// the day accounts exist and not before.
+const QUICK_LINKS = [
+  ['fa-tag', 'تخفیف‌دارها', 'is-lit'],
+  ['fa-clock', 'جدیدترین‌ها', ''],
+  ['fa-arrow-trend-up', 'پرفروش‌ترین‌ها', ''],
+];
+
+const DRAWER_LINKS = [
+  ['fa-truck-fast', 'پیگیری سفارش', 'order-tracking.html'],
+  ['fa-store', 'فروشنده شوید', 'vendor-register.html'],
+];
+
+const DRAWER =
+  '<div class="th-menu-wrapper">\n' +
+  '        <div class="th-menu-area">\n' +
+  '            <div class="vp-drawer">\n' +
+  '                <div class="vp-drawer-head">\n' +
+  '                    <a href="index.html" class="vp-logo vp-logo-drawer">\n' +
+  '                        <img src="assets/img/vikyplus-appicon.png" alt="ویکی پلاس">\n' +
+  '                        <span class="vp-logo-text">\n' +
+  '                            <b>ویکی پلاس</b>\n' +
+  '                            <small>فروشگاه کیف و کفش زنانه</small>\n' +
+  '                        </span>\n' +
+  '                    </a>\n' +
+  // The class the template's plugin binds to. It is what closes the drawer,
+  // so it stays whatever else changes around it.
+  '                    <button type="button" class="th-menu-toggle" aria-label="بستن منو"><i class="fal fa-times" aria-hidden="true"></i></button>\n' +
+  '                </div>\n' +
+  '                <div class="vp-drawer-body">\n' +
+  '                    <p class="vp-drawer-label">دسترسی سریع</p>\n' +
+  '                    <div class="vp-drawer-quick">\n' +
+  QUICK_LINKS.map(([icon, name, lit]) =>
+    `                        <a class="vp-quick${lit ? ' ' + lit : ''}" href="shop.html">\n` +
+    `                            <span class="vp-quick-mark"><i class="fa-solid ${icon}" aria-hidden="true"></i></span>\n` +
+    `                            <span class="vp-quick-name">${name}</span>\n` +
+    '                        </a>\n'
+  ).join('') +
+  '                    </div>\n' +
+  '                    <div class="vp-drawer-heading">\n' +
+  '                        <p class="vp-drawer-label">فروشگاه</p>\n' +
+  '                        <a class="vp-drawer-all" href="shop.html">همه محصولات</a>\n' +
+  '                    </div>\n' +
+  '                    <ul class="vp-drawer-cats">\n' +
+  CATEGORIES.map(([file, name]) =>
+    '                        <li>\n' +
+    '                            <a href="shop.html">\n' +
+    `                                <img src="assets/img/category/${file}.jpg" alt="" loading="lazy">\n` +
+    `                                <span>${name}</span>\n` +
+    '                                <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>\n' +
+    '                            </a>\n' +
+    '                        </li>\n'
+  ).join('') +
+  '                    </ul>\n' +
+  '                    <ul class="vp-drawer-links">\n' +
+  DRAWER_LINKS.map(([icon, name, page]) =>
+    '                        <li>\n' +
+    `                            <a href="${page}">\n` +
+    `                                <i class="fa-solid ${icon}" aria-hidden="true"></i>\n` +
+    `                                <span>${name}</span>\n` +
+    '                            </a>\n' +
+    '                        </li>\n'
+  ).join('') +
+  '                    </ul>\n' +
+  '                </div>\n' +
+  '                <div class="vp-drawer-foot">\n' +
+  '                    <a class="vp-drawer-cta" href="cart.html">\n' +
+  '                        <i class="fa-solid fa-bag-shopping" aria-hidden="true"></i>\n' +
+  '                        <span>سبد خرید</span>\n' +
+  '                        <span class="vp-drawer-count">۰</span>\n' +
+  '                    </a>\n' +
+  '                </div>\n' +
+  '            </div>\n' +
+  '        </div>\n' +
+  '    </div>';
+
+if (!html.includes('logo-gold.svg')) {
+  throw new Error('the mobile drawer is not the template\'s any more — check what replaced it before replacing it again');
+}
+html = html.replace(
+  /<div class="th-menu-wrapper">[\s\S]*?<\/div>\s*<\/div>\s*<\/div>(?=<!--)/,
+  DRAWER
+);
+if (html.includes('logo-gold.svg')) {
+  throw new Error('the drawer replacement did not match');
+}
 
 // Five trust badges under the category row: the template's own feature-card
 // markup and CSS (feature-card.style2), just with gold icons in place of its

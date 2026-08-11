@@ -105,6 +105,43 @@ class Product extends Model
     }
 
     /**
+     * Adds `units_sold` — how many of the product this branch has actually
+     * sold — as a column on the row.
+     *
+     * Same reason as `pricedHere()`: the ten best sellers of two hundred
+     * products are not the ten best sellers of whichever page you are on, so
+     * the count has to be in the query.
+     *
+     * Counted off **paid** orders only, and off `order_items` rather than the
+     * catalogue: what sold is a fact about orders, and a basket somebody
+     * abandoned is not a sale. `Order` is branch-scoped, so this is what this
+     * shop sold and not what the chain did — a franchise's best sellers are its
+     * own. `coalesce` so a product nobody has bought sorts as 0 and not as
+     * null, which in Postgres would sort *first* on a descending order and put
+     * the things that have never sold at the top of the best-seller list.
+     *
+     * Composes with `pricedHere()` in either order. That needs saying, because
+     * `select()` replaces the column list rather than adding to it: two scopes
+     * that both opened with `select('products.*')` would leave whichever ran
+     * second having quietly dropped the other's column, and the only symptom
+     * would be a sort that does nothing.
+     */
+    public function scopeCountingSales(Builder $query): Builder
+    {
+        $sold = OrderItem::query()
+            ->selectRaw('coalesce(sum(order_items.quantity), 0)')
+            ->join('variants', 'variants.id', '=', 'order_items.variant_id')
+            ->whereColumn('variants.product_id', 'products.id')
+            ->whereIn('order_items.order_id', Order::query()->select('id')->where('status', Order::PAID));
+
+        if (empty($query->getQuery()->columns)) {
+            $query->select('products.*');
+        }
+
+        return $query->selectSub($sold, 'units_sold');
+    }
+
+    /**
      * The colourways offered by the product page's colour selector, each
      * carrying its own sizes. Changing colour must update media, price and
      * availability together (spec 16.1), so they travel as one structure.

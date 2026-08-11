@@ -5,7 +5,10 @@ namespace Tests\Feature;
 use App\Models\Branch;
 use App\Models\BranchInventory;
 use App\Models\BranchOffer;
+use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\Variant;
 use App\Support\Branches\BranchOpener;
 use App\Support\Tenancy\TenantContext;
 use Database\Seeders\BranchSeeder;
@@ -255,5 +258,169 @@ class CataloguePagesTest extends TestCase
             ->assertOk()
             ->assertSee('کتونی نیوبالانس ۵۳۰', false)
             ->assertDontSee('کتونی جردن وان ایر', false);
+    }
+
+    // --- the two the phone drawer opens ----------------------------------
+
+    /**
+     * One promotion rule, written twice — once in PHP for the badge on a card
+     * and once in SQL for this listing — and they have to agree.
+     *
+     * The failure this guards against is quiet: a sale page whose cards carry
+     * no sale badge, or a badge on a card the sale page will not show. Nothing
+     * errors either way.
+     *
+     * The window's boundaries are the interesting part. A promotion that has
+     * not started and one that ended a second ago are both *not* running, and
+     * both look exactly like one that is, in the database.
+     */
+    public function test_the_sale_listing_agrees_with_the_badge_on_a_card(): void
+    {
+        $offer = $this->tenant->forBranch(Branch::central(), fn () => BranchOffer::query()->firstOrFail());
+
+        // A compare_at_price at or below the price is not in this list because
+        // the database refuses to store one — `branch_offers_compare_at_above_price`.
+        // Both rules still check for it, since neither should depend on a
+        // constraint in another file to be correct, but the case cannot be
+        // reached from here.
+        $cases = [
+            'no compare price' => [null, null, null, false],
+            'compare above, no window' => [$offer->price * 2, null, null, true],
+            'inside the window' => [$offer->price * 2, now()->subDay(), now()->addDay(), true],
+            'not started yet' => [$offer->price * 2, now()->addDay(), now()->addWeek(), false],
+            'already over' => [$offer->price * 2, now()->subWeek(), now()->subSecond(), false],
+        ];
+
+        foreach ($cases as $name => [$compare, $from, $until, $running]) {
+            $this->tenant->forBranch(Branch::central(), function () use ($offer, $compare, $from, $until, $running, $name) {
+                $offer->update([
+                    'compare_at_price' => $compare,
+                    'promotion_starts_at' => $from,
+                    'promotion_ends_at' => $until,
+                ]);
+
+                $fresh = $offer->fresh();
+
+                $this->assertSame($running, $fresh->hasActivePromotion(), "PHP disagreed: {$name}");
+                $this->assertSame(
+                    $running,
+                    BranchOffer::promoted()->whereKey($offer->id)->exists(),
+                    "SQL disagreed: {$name}"
+                );
+            });
+        }
+    }
+
+    /**
+     * `?sale=1` narrows to what is actually discounted here, and the heading
+     * says so.
+     *
+     * The whole seeded catalogue carries the stepped sale, so the narrowing
+     * has to be created: one shoe is taken off the sale and then must be the
+     * one shoe missing from the page.
+     */
+    public function test_the_sale_listing_shows_only_discounted_shoes(): void
+    {
+        $central = Branch::central();
+        $full = Product::where('slug', 'golden-goose')->firstOrFail();
+
+        $this->tenant->forBranch($central, fn () => BranchOffer::query()
+            ->whereIn('variant_id', $full->variants()->select('id'))
+            ->update(['compare_at_price' => null]));
+
+        $onSale = $this->tenant->forBranch($central, fn () => BranchOffer::promoted()
+            ->with('variant.product')
+            ->get()
+            ->map(fn (BranchOffer $o) => $o->variant->product->title)
+            ->unique()
+            ->values());
+
+        $this->assertNotEmpty($onSale, 'Nothing is on sale, so this test proves nothing.');
+        $this->assertNotContains($full->title, $onSale->all());
+
+        $response = $this->get('/products?sale=1')->assertOk()->assertSee('تخفیف‌دارها', false);
+
+        foreach ($onSale as $title) {
+            $response->assertSee($title, false);
+        }
+
+        // The one at full price is the one that is not there.
+        $response->assertDontSee($full->title, false);
+        $this->get('/products')->assertOk()->assertSee($full->title, false);
+    }
+
+    /**
+     * Best sellers are counted off paid orders, not off the catalogue — and
+     * off *this branch's* orders. A product nobody has bought sorts as zero
+     * rather than as null, which on a descending order would put it first.
+     */
+    public function test_best_selling_sorts_by_what_this_branch_actually_sold(): void
+    {
+        $this->get('/products?sort=bestselling')->assertOk()->assertSee('پرفروش‌ترین', false);
+
+        $central = Branch::central();
+
+        // Nothing has sold yet, so every count is a real 0 rather than a null
+        // that happens to sort first.
+        $counts = $this->tenant->forBranch($central, fn () => Product::purchasable()
+            ->countingSales()->pluck('units_sold')->map(fn ($n) => (int) $n));
+
+        $this->assertNotEmpty($counts);
+        $this->assertSame([0], $counts->unique()->values()->all());
+
+        // Sell three of the last product in the catalogue's own order, so
+        // "best selling" cannot be satisfied by the default ordering.
+        $last = Product::purchasable()->orderByDesc('id')->firstOrFail();
+        $variant = $this->tenant->forBranch($central, fn () => $last->variants()->firstOrFail());
+
+        $this->sell($central, $variant, 3);
+
+        $this->assertSame(3, $this->tenant->forBranch($central, fn () => (int) Product::query()
+            ->countingSales()->whereKey($last->id)->firstOrFail()->units_sold));
+
+        $this->get('/products?sort=bestselling')
+            ->assertOk()
+            ->assertSeeInOrder([$last->title, Product::purchasable()->orderBy('id')->firstOrFail()->title], false);
+
+        // And it is this branch's count, not the chain's: Shiraz sold none of
+        // it, so at Shiraz the same product is back to zero.
+        $this->assertSame(0, $this->tenant->forBranch($this->shiraz, fn () => (int) Product::query()
+            ->countingSales()->whereKey($last->id)->firstOrFail()->units_sold));
+    }
+
+    /** A paid order for one variant, written straight in — this is about the count, not the checkout. */
+    private function sell(Branch $branch, Variant $variant, int $quantity): void
+    {
+        $this->tenant->forBranch($branch, function () use ($branch, $variant, $quantity) {
+            $price = $variant->offer->price;
+
+            $order = Order::create([
+                'branch_id' => $branch->id,
+                'number' => 'VP-'.mt_rand(100000, 999999),
+                'status' => Order::PAID,
+                'subtotal' => $price * $quantity,
+                'discount_total' => 0,
+                'shipping_total' => 0,
+                'grand_total' => $price * $quantity,
+                'payment_status' => 'paid',
+                'contact_name' => 'خریدار',
+                'contact_phone' => '09120000000',
+                'address' => 'نشانی آزمایشی',
+                'placed_at' => now(),
+                'paid_at' => now(),
+            ]);
+
+            OrderItem::create([
+                'order_id' => $order->id,
+                'variant_id' => $variant->id,
+                'product_title' => $variant->product->title,
+                'sku' => $variant->sku,
+                'size_value' => $variant->size_value,
+                'display_color' => $variant->display_color,
+                'unit_price' => $price,
+                'quantity' => $quantity,
+                'line_total' => $price * $quantity,
+            ]);
+        });
     }
 }
