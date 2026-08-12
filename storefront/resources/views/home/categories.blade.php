@@ -80,7 +80,7 @@
                 <div class="col">
                     <div class="feature-card style2">
                         <div class="box-icon">
-                            <img src="{{ asset('assets/img/icon/bag-gold.svg') }}" alt="">
+                            <i class="fa-solid fa-boxes-stacked vp-trust-glyph" aria-hidden="true"></i>
                         </div>
                         <div class="box-content">
                             <h3 class="box-title">خرید تکی و عمده</h3>

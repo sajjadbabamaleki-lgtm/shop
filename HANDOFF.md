@@ -723,14 +723,29 @@ added a sixth so the grid comes out even — three rows of two, no odd card.
   the next round can undo it in one rule if the client would rather the desktop
   carried six.
 
+- **The sixth badge's mark is a FontAwesome glyph, and it had to be.** It was
+  `bag.svg` first, picked because it came from the same folder as the other
+  five — and it read as a wire drawing beside five solid ones: «اون آیکون هم
+  باید مث اون ۵ تا توپر باشه». `bag.svg` has no `stroke` attribute, so a check
+  for one passes it; it is an *outline drawn as a filled path*. **Look at an
+  icon, do not test it for strokes.**
+
+  Every icon in that folder was rendered and looked at afterwards. The
+  genuinely solid ones are the five already in use plus a credit card, three
+  flames and some user silhouettes — the template's set is line art, and it has
+  no filled box or bag at all. FontAwesome 6 is already shipped and the phone
+  drawer's marks already come out of it, so `fa-solid fa-boxes-stacked` is the
+  sixth. It matches because it is painted with the same `#7D6324 → #CE9E29`
+  ramp the SVGs carry, clipped to the glyph, at the same 32px the five files are
+  capped to.
+
 - **The badges' gold icons are reproducible now.** `theme/recolor-svg.js` only
   ever recoloured what the *template's* own page referenced in one of three
   reds; the trust row's icons carry #FD5B44 and #0077FF and their gold siblings
-  had been made by hand, so six files in the repo were produced by no command.
+  had been made by hand, so five files in the repo were produced by no command.
   The script now carries an explicit `EXTRAS` list naming each source and its
   colour, and re-running it rewrites the five that already existed **byte for
   byte** — which is the check that the list describes what was done by hand.
-  The sixth badge's `bag-gold.svg` comes out of the same list.
 
 ## The drawer as an island, and two heights that had drifted
 

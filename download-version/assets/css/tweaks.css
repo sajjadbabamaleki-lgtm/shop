@@ -2103,6 +2103,44 @@ option:hover {
   object-fit: contain;
 }
 
+/* The sixth badge's mark is a glyph, not a file, and it has to read as the same
+   ink as the five files beside it.
+
+   «اون آیکون هم باید مث اون ۵ تا توپر باشه». The template's icon folder was
+   rendered in full and looked at: apart from the five already in use it holds a
+   credit card, three flames and some user silhouettes: no filled box, no filled
+   bag. `bag.svg` looked like a candidate and is not — it is an outline drawn as
+   a filled path, so it carries no `stroke` attribute and still reads as wire.
+
+   FontAwesome 6's solid family is shipped with this page already and the phone
+   drawer's marks come out of it, so the sixth badge takes `fa-boxes-stacked`
+   from there. What makes it match is the paint: the five SVGs are filled with a
+   `linearGradient` running `#7D6324` at the top to `#CE9E29` at the bottom
+   (theme/recolor-svg.js injects it), and `180deg` clipped to the glyph is the
+   same ramp in the same direction. 32px because that is what the block above
+   caps the five files to — the glyph is measured to the same box, not to a
+   size that happens to look near it.
+
+   `color: transparent` needs the clip to have worked. Every browser this page
+   supports does `background-clip: text` behind the `-webkit-` prefix, which is
+   why both are written; a browser that did neither would show nothing at all,
+   so the fallback colour is the gradient's own dark end rather than the
+   inherited body ink. */
+.vp-trust-row .box-icon .vp-trust-glyph {
+  font-size: 32px;
+  line-height: 64px;
+  color: #7D6324;
+  background-image: linear-gradient(180deg, #7D6324 0%, #CE9E29 100%);
+}
+
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .vp-trust-row .box-icon .vp-trust-glyph {
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+}
+
 /* The card is the same glass as the hero pane and header island — see «لبه
    پنهان» in CLAUDE.md before touching this. Same tint, same blur, same ink
    foot instead of a drop shadow, same masked lit hairline on the other three

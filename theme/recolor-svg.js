@@ -34,9 +34,10 @@ const FILL = `url(#${GRADIENT_ID})`;
 // it references in one of the three template reds. The trust row's badges are
 // neither: they were picked out of the template's wider icon set rather than
 // off that page, and they carry #FD5B44 and #0077FF. Their gold siblings were
-// made once, by hand, and for a long time nothing could rebuild them — six
+// made once, by hand, and for a long time nothing could rebuild them — five
 // files in the repo that no command produced, which is the state this list
-// exists to end.
+// exists to end. (The sixth badge's mark is a FontAwesome glyph, not a file,
+// so it is not here — see the trust row in theme/make-rtl-page.js.)
 //
 // Each entry is a source icon and the one colour it is drawn in. The colour is
 // named rather than detected because these are single-colour glyphs and a
@@ -52,10 +53,6 @@ const EXTRAS = [
   ['assets/img/icon/feature_card_4.svg', '#FD5B44'],
   ['assets/img/icon/secure.svg', '#FD5B44'],
   ['assets/img/icon/check2.svg', '#0077FF'],
-  // The sixth badge's, «خرید تکی و عمده». A filled bag, from the template's own
-  // set — solid like the truck and the note beside it rather than one of the
-  // outlined feature_2_* icons.
-  ['assets/img/icon/bag.svg', '#101111'],
 ];
 
 const page = fs.readFileSync(path.join(SITE, 'shoe-shop.html'), 'utf8');
@@ -84,7 +81,7 @@ for (const rel of [...referenced].sort()) {
   rewritten.push([rel, goldRel]);
 }
 
-// The trust row's six, by name and by their own colour. Same gradient, same
+// The trust row's files, by name and by their own colour. Same gradient, same
 // injected def, same `-gold` sibling — only the colour being replaced differs.
 for (const [rel, colour] of EXTRAS) {
   const abs = path.join(SITE, rel);

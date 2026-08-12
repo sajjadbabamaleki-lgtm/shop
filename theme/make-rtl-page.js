@@ -452,9 +452,24 @@ if (html.includes('logo-gold.svg')) {
 // red ones and Persian copy. row-cols-* rather than col-N, same reason as the
 // category row: six is a clean fraction of twelve but five was not, and the
 // row has been both.
-// Solid-fill icons (feature_card_*, check2, secure, bag), not the outlined
-// feature_2_* set — the client wants every icon in the same filled style as
-// the payment shield.
+// Solid-fill icons, not the outlined feature_2_* set — the client wants every
+// icon in the same filled style as the payment shield, and said so twice.
+//
+// The sixth is a FontAwesome glyph rather than one of the template's SVGs, and
+// that is the second time. It was `bag.svg` first, on the reasoning that it
+// came from the same folder as the other five — but the template's icon set is
+// almost entirely line art, and `bag.svg` is an outline drawn as a filled path,
+// so it passed a "no stroke attribute" check and still read as a wire bag
+// beside five solid glyphs: «اون آیکون هم باید مث اون ۵ تا توپر باشه».
+//
+// Every icon in that folder was rendered and looked at. The genuinely solid
+// ones are the five already in use plus a credit card, three flames and some
+// user silhouettes — there is no filled box or bag anywhere in it. FontAwesome
+// 6 is already shipped and already used for the phone drawer's marks, its solid
+// family is solid by definition, and `fa-boxes-stacked` is the subject. It is
+// painted with the same `#7D6324 → #CE9E29` ramp the SVGs carry, so the row
+// stays one material — see tweaks.css.
+const TRUST_GLYPH = 'fa-boxes-stacked';
 //
 // The sixth is «خرید تکی و عمده», and it is here to make the phone's two-up
 // grid come out even: «بنظرم یه آیتم تکراری بزار ۶ تایی بشه». What was asked
@@ -471,7 +486,7 @@ const TRUST_ITEMS = [
   ['secure-gold.svg', 'پرداخت امن', 'پرداخت آنلاین مطمئن'],
   ['check2-gold.svg', 'تضمین اصالت', 'گارانتی اصل بودن کالا'],
   ['feature_card_4-gold.svg', 'پشتیبانی آنلاین', 'پاسخگویی ۲۴ ساعته'],
-  ['bag-gold.svg', 'خرید تکی و عمده', 'امکان سفارش عمده'],
+  [TRUST_GLYPH, 'خرید تکی و عمده', 'امکان سفارش عمده'],
 ];
 
 const TRUST_ROW =
@@ -480,7 +495,9 @@ const TRUST_ROW =
     '\n                <div class="col">' +
     '\n                    <div class="feature-card style2">' +
     '\n                        <div class="box-icon">' +
-    `\n                            <img src="assets/img/icon/${icon}" alt="">` +
+    (icon.startsWith('fa-')
+      ? `\n                            <i class="fa-solid ${icon} vp-trust-glyph" aria-hidden="true"></i>`
+      : `\n                            <img src="assets/img/icon/${icon}" alt="">`) +
     '\n                        </div>' +
     '\n                        <div class="box-content">' +
     `\n                            <h3 class="box-title">${title}</h3>` +
