@@ -8506,8 +8506,13 @@ ul.vp-how-list.is-ticked li:before {
     width: 50%;
   }
 
-  .vp-ladder-deals > *:nth-child(n + 5),
-  .vp-best-row > *:nth-child(n + 5) {
+  /* Six to a section, up from four. The best sellers hold exactly six and now
+     show all of them. The stepped sale holds five — every product with a live
+     promotion, which is what the catalogue has — so it shows five and this cap
+     is not what is stopping it. A sixth needs a sixth promoted product, which
+     is data and not a rule here. */
+  .vp-ladder-deals > *:nth-child(n + 7),
+  .vp-best-row > *:nth-child(n + 7) {
     display: none;
   }
 }
@@ -8575,5 +8580,101 @@ ul.vp-how-list.is-ticked li:before {
      needed against 126 available, and 41px tall. */
   .vp-deal-price {
     white-space: nowrap;
+  }
+}
+
+/* The hero card's corner, a quarter off.
+
+   «کرو گوشه های هیرو ۲۵ درصد کمتر بشه» — 43.2 → 32.4 on a phone. The desktop
+   card's 72 is one of the numbers HANDOFF records and is not touched.
+
+   The 43.2 was itself «چهل درصد off 72»; a quarter off that lands on 32.4,
+   which is 45% of the desktop's. Worth saying because the two corners have
+   moved apart twice now and neither move was a mistake. */
+@media (max-width: 991.98px) {
+  .heroSlide6 .hero-inner {
+    border-radius: 32.4px;
+  }
+}
+
+/* The stepped sale's head, at the page's own side gap.
+
+   «اون فضای داخلی که تو قسمت حراج پله ای گذاشته شده اندازه فاصله بغلا بشه».
+   The head is the white card carrying the title, the note and the row of step
+   chips, and it was spending 30 a side inside a section that stands 9 from the
+   page. The client marked both of those edges on a screenshot: the chip track
+   is `overflow: auto` and starts where that padding ends, so the 30 was
+   showing as a chip cut off at each end.
+
+   9 a side, the number everything else in this section uses. The 26 top and
+   bottom stays — «بغلا» is the sides, and the head's vertical rhythm is not
+   what was asked about. Measured at 390: the track ran 39..351 inside a
+   9..381 section, and runs 18..372 now.
+
+   Below 992; the desktop head keeps its 30. */
+@media (max-width: 991.98px) {
+  .vp-ladder-head {
+    padding-inline: 9px;
+  }
+}
+
+/* The daily deal and the brand strip, out of their frames.
+
+   «قسمت پیشنهاد امروز هم از تو قاب دربیاد … قسمت برندهای موجود هم همینطور» —
+   the same thing already done to the stepped sale and the best sellers, on the
+   last two bands that still sit in a pane.
+
+   The daily deal's frame is the glass pane, not the white card inside it: the
+   card is the deal — the photograph, the price, the timer — and it stays. What
+   goes is the pane around it, its 28 of padding and the 12 the wrap held, so
+   the card stands at the page's 9 like everything above it.
+
+   The brand strip's is the white panel, the same construction as the best
+   sellers' and taken off the same way.
+
+   Measured at 390, every band against the header island's own span:
+
+     header island   9..381
+     hero card       9..381
+     stepped sale    9..381
+     best sellers    9..381
+     daily deal      9..381
+     brand strip     9..381
+     category strip  12..378   ← the one that is not
+
+   The category strip is still on the page's own container padding of 12, and
+   it is left there deliberately: nothing has asked for it to move, and it is
+   the only band whose inset was never part of one of these instructions. It
+   is 3px off the rest, which is noted here rather than quietly fixed so that
+   whoever reads this row of numbers next does not take it for an oversight.
+
+   Below 992. Above it all three panes are intact. */
+@media (max-width: 991.98px) {
+  /* `max-width: none` for the same reason the stepped sale's container needed
+     it: a Bootstrap container is fluid only below 576 and fixed above it, so
+     the padding alone left the daily deal at 144.5..846.5 in a 991 window —
+     correct at 390 and snapped to the middle of the page from 576 up. This is
+     the second time that one has been caught by measuring at 991 rather than
+     at 390, so: measure both ends of the phone range, always. */
+  .vp-daily-deal-wrap {
+    max-width: none;
+    padding-inline: 9px;
+  }
+
+  .vp-daily-deal {
+    padding: 0;
+    border-radius: 0;
+    background: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    box-shadow: none;
+  }
+
+  .vp-brands-panel {
+    margin-inline: 9px;
+    padding: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
   }
 }
