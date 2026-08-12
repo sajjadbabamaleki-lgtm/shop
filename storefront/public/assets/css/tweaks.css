@@ -8413,3 +8413,32 @@ ul.vp-how-list.is-ticked li:before {
     text-overflow: ellipsis;
   }
 }
+
+/* The two product rows, one card to a line on a phone, four to a section.
+
+   «حراج پله ای و پر فروش ترین ها باید محصولاتشون بجای جفت کنار هم تکی بشن زیر
+   هم و هر بخش ۴ محصول».
+
+   Both rows are Bootstrap's `row-cols-2 row-cols-md-3 row-cols-xl-5` (the
+   ladder) and `-xl-6` (the best sellers), so below 768 they run two up and
+   between 768 and 991 three up. One card to a line replaces both of those, and
+   the fifth card onward comes off — the ladder holds five and the best sellers
+   six, so this hides one and two.
+
+   Hidden rather than dropped from the markup: both sections are data-driven
+   Blade — the catalogue decides how many cards there are, and the desktop still
+   wants all five and all six. A count in the query would have to be a phone
+   count in a place that cannot see the viewport.
+
+   Below 992, which is where every other rule in this run sits. */
+@media (max-width: 991.98px) {
+  .vp-ladder-deals > *,
+  .vp-best-row > * {
+    width: 100%;
+  }
+
+  .vp-ladder-deals > *:nth-child(n + 5),
+  .vp-best-row > *:nth-child(n + 5) {
+    display: none;
+  }
+}
