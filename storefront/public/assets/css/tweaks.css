@@ -7977,22 +7977,38 @@ ul.vp-how-list.is-ticked li:before {
    tenth off both, so 33.5 → 30.15 with the line box following it, 37.5 →
    33.75. The two are one number and move together, or the space the type used
    to need stays behind — the same reason the halving took the line box with
-   it. */
+   it.
+
+   Third pass, «زخامت اون اسم بزرگ ۱۰ درصد و سایزش هم ۱۰ درصد کوچیکتر بشه»:
+   the same tenth again. 30.15 → 27.135, line box 33.75 → 30.375, and the stem
+   6.75 → 6.075. */
 @media (max-width: 991.98px) {
   .heroSlide6 .hero-inner .hero-title {
-    font-size: 30.15px;
-    line-height: 33.75px;
-    /* Measured, not guessed, and re-measured for the tenth: the stroke does
+    font-size: 27.135px;
+    line-height: 30.375px;
+    /* Measured, not guessed, and re-measured on every pass: the stroke does
        not scale with the type, so it cannot be left where it was when the size
        moves. Method is the one that set 1.7 — render at 4x, take every run of
        ink across every row of the heading, and read the median as the stem.
 
-       At 33.5/900 with 1.7 the stem read 7.50. A tenth off that is 6.75, which
-       is what this is set against: 1.53 lands it on 6.75 exactly. The type
-       coming down a tenth carries most of the way there on its own (the
-       untouched stem falls to about 5.18) and the stroke supplies the rest, so
-       both halves of the client's sentence are in one number. */
-    -webkit-text-stroke-width: 1.53px;
+       That method was re-run from scratch here and reproduces both numbers on
+       the record exactly: 33.5 with 1.7 reads 7.50, and 30.15 with 1.53 reads
+       6.75. **Take the title off the active slide.** The hero runs two slides
+       to a view with the deck at `margin: 0 -36%`, so the first `.hero-title`
+       in the DOM belongs to a neighbour parked off-screen and screenshots
+       blank — measure `.swiper-slide-active .hero-title` or measure nothing.
+
+       A tenth off 6.75 is 6.075, and 1.377 lands the stem on 6.0625 — the
+       closest the raster gets. The median is quantised to 1/SCALE of a pixel,
+       so 4x can only say 6.00 or 6.25 here; this was read at 8x and again at
+       16x to choose between them, and 1.34 (6.000) is 0.075 low against
+       1.377's 0.0125 high.
+
+       1.377 is also exactly 0.9 × 1.53, which is how the last tenth was taken.
+       That the arithmetic and the measurement agree is worth one line and no
+       more: they did not agree at the halving, and the measurement is what
+       decides. */
+    -webkit-text-stroke-width: 1.377px;
     -webkit-text-stroke-color: currentColor;
     paint-order: stroke fill;
   }
