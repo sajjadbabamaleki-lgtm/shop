@@ -8678,3 +8678,59 @@ ul.vp-how-list.is-ticked li:before {
     box-shadow: none;
   }
 }
+
+/* The sale card's name-and-price strip, a tenth shorter.
+
+   «ارتفاع باکس قیمت و اسم کفش ها در قسمت حراج پله ای ۱۰ درصد کوتاهتر بشه».
+   52.8 → 47.52, and the corner with it: that 26.4 is not a number of its own,
+   it is half the height, which is what makes both ends true semicircles rather
+   than the shallower round a taller strip would carry. A tenth off one and not
+   the other would flatten them. 23.76.
+
+   The height the tenth comes off is itself the client's — «ارتفاع باکس اسم
+   محصول و قیمت ۲۰ درصد بیشتر بشه» took 44 to 52.8 — so this lands on 47.52,
+   still above where it started.
+
+   The price line is 20 tall and centred in the strip, so it has the room; the
+   strip carries no padding-block to give back. Below 992; the desktop strip
+   and its basket are unchanged at 52.8 and 26.4. */
+@media (max-width: 991.98px) {
+  .vp-deal-label {
+    height: 47.52px;
+    border-radius: 23.76px;
+  }
+}
+
+/* The shoe names, in the page's own face.
+
+   «اسم کفش ها در باکسها با همون فونت معمولی و رسمی که در سایت هست نوشته بشه نه
+   فونت فعلی». Both name rules name Cairo first — the display face the hero
+   card uses — with Vazirmatn behind it. The page is set in Vazirmatn
+   everywhere else, `--body-font` and `--title-font` both, so the names step
+   out of it and into a second face on the two bands that carry the most of
+   them.
+
+   `var(--body-font)` rather than spelling Vazirmatn out, so a change to the
+   page's face carries these with it instead of leaving two names behind.
+
+   Both boxes, because the instruction says «باکسها» and the two are the same
+   object twice. Below 992; above it both keep Cairo. */
+@media (max-width: 991.98px) {
+  .vp-deal-name,
+  .vp-best-name {
+    font-family: var(--body-font);
+  }
+}
+
+/* The best seller's plus and its strip, half as far apart.
+
+   «فاصله بین دایره بعلاوه و باکس اسمو قیمت نصف بشه» — the row's own flex gap,
+   10 → 5. It is the only thing between the two, so there is one number to
+   halve and nothing else moves: measured at 390, the strip runs 262.3..381.0
+   before and 257.3..381.0 after, the plus staying where it is and the strip
+   taking the 5. */
+@media (max-width: 991.98px) {
+  .vp-best-info {
+    gap: 5px;
+  }
+}
