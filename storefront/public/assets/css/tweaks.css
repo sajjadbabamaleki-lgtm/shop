@@ -8414,27 +8414,96 @@ ul.vp-how-list.is-ticked li:before {
   }
 }
 
-/* The two product rows, one card to a line on a phone, four to a section.
+/* The two product rows on a phone: no frame, two up, four to a section.
 
-   «حراج پله ای و پر فروش ترین ها باید محصولاتشون بجای جفت کنار هم تکی بشن زیر
-   هم و هر بخش ۴ محصول».
+   «بیا از رو قاب سفید و قاب شیشه ای بردار این ۲ بخشو و ۲ تا دوتا بزارشون کنار
+   هم … وقتی از رو قاب شیشه ای برداری فضای بیشتری دارن … فضای فاصلشون از بغل و
+   از وسط هم همون اندازه فاصله هدر از بغلا باشه».
 
-   Both rows are Bootstrap's `row-cols-2 row-cols-md-3 row-cols-xl-5` (the
-   ladder) and `-xl-6` (the best sellers), so below 768 they run two up and
-   between 768 and 991 three up. One card to a line replaces both of those, and
-   the fifth card onward comes off — the ladder holds five and the best sellers
-   six, so this hides one and two.
+   One card to a line was the first answer to «تکی بشن زیر هم» and the client
+   did not like it — 326 x 326 of card, four of them, is a lot of page for four
+   products. This is the second: two up, but with the frames off so the pair is
+   as wide as the page allows.
 
-   Hidden rather than dropped from the markup: both sections are data-driven
-   Blade — the catalogue decides how many cards there are, and the desktop still
-   wants all five and all six. A count in the query would have to be a phone
-   count in a place that cannot see the viewport.
+   **The frames.** The stepped sale sits in the glass panel and the best
+   sellers in the white one, and each spends twice: its own padding, and the
+   inset it stands at. At 390 the ladder's cards started 32 from the page edge
+   (12 of container plus 20 of panel) and the best sellers' 48 (20 of margin
+   plus 28 of padding). Off, both of them, and everything they carry with them —
+   the radius, the tint, the blur, the hairline, the shadow, and the lit
+   `:after` ring on the glass one.
 
-   Below 992, which is where every other rule in this run sits. */
+   **The three gaps are the header's.** The island stands 9 from each side of
+   the page, so the cards do too, and the gap down the middle is 9 as well: the
+   Bootstrap gutter goes 24 to 9, which is what puts it there, since the gutter
+   is what separates two columns and the row's own negative margin cancels it
+   at the ends.
+
+   Measured, the island's span against the two rows' at every phone width —
+   all three the same, and the middle gap 9.0 in both rows:
+
+     360   9..351     390   9..381     575   9..566
+     767   9..758     991   9..982
+
+   The card comes out 181.5 wide at 390 against the 151 it had inside the
+   frames at two up — a fifth more card, and that fifth is exactly what the
+   frames were spending. At 992 and above nothing moves: island 18, gutters 24,
+   five cards and six.
+
+   Four to a section still: the fifth card onward is hidden, which the previous
+   pass introduced and the client did not ask back. The ladder holds five and
+   the best sellers six, so this hides one and two, and hides rather than cuts
+   because both sections are data-driven Blade and the desktop still wants all
+   of them.
+
+   Below 992. The desktop keeps both frames and both counts. */
 @media (max-width: 991.98px) {
+  .vp-ladder {
+    padding: 0;
+    border-radius: 0;
+    background: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    box-shadow: none;
+  }
+
+  /* The lit ring is the frame's edge and goes with it. */
+  .vp-ladder:after {
+    display: none;
+  }
+
+  /* The container the panel sat in was holding the page's 12; the cards are
+     the edge now, so it holds the header's 9. Scoped to this section's own
+     container rather than to `.th-container`, which the whole page uses.
+
+     `max-width: none` with it, and that one is not decoration: a Bootstrap
+     container is fluid only below 576 and takes a fixed width above it — 540,
+     then 720. Measured with the padding alone, the ladder came out 9..566 at
+     575 and then 123..645 at 767, a section that had snapped to the middle of
+     the page while the best sellers beside it — which is not in a container —
+     stayed at 9. Two of the six phone widths were right and four were not, and
+     the 575 reading was the one that looked like proof. */
+  .vp-ladder-area > .container.th-container {
+    max-width: none;
+    padding-inline: 9px;
+  }
+
+  .vp-best-panel {
+    margin-inline: 9px;
+    padding: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+  }
+
+  .vp-ladder-deals,
+  .vp-best-row {
+    --bs-gutter-x: 9px;
+  }
+
   .vp-ladder-deals > *,
   .vp-best-row > * {
-    width: 100%;
+    width: 50%;
   }
 
   .vp-ladder-deals > *:nth-child(n + 5),
