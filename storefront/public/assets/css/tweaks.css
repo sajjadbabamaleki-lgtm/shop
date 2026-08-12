@@ -8511,3 +8511,69 @@ ul.vp-how-list.is-ticked li:before {
     display: none;
   }
 }
+
+/* The best seller's photograph and the strip under it, at the row's own gap.
+
+   «تو قسمت پر فروش ترین ها باید فاصله بین هر عکس با اطلاعاتش اندازه فاصله عکس
+   ها از بغلا باشه». The cards stand 9 from the sides of the page and 9 from
+   each other, so the strip stands 9 under its photograph: one number in all
+   three directions instead of 9 across and 24 down.
+
+   Below 992. The desktop card keeps its 24 — the cards are wider and further
+   apart there, and 9 under a 254px photograph would read as a different card.
+
+   Measured at 390: photo foot to strip top, 24.0 before and 9.0 after, and the
+   card 258.3 tall against 273.3. */
+@media (max-width: 991.98px) {
+  .vp-best {
+    gap: 9px;
+  }
+}
+
+/* The stepped sale's card, without the basket beside the price.
+
+   «تو قسمت حراج پله ای باید سبد خرید کنار اسم و قیمت حذف بشه». The whole card
+   is already a link to the product, so the button was the only thing on it
+   that went somewhere else, and it was taking a third of the card's foot to do
+   it.
+
+   Taking it off gives the strip that third back, and that is what settles the
+   thing flagged in the last round: the strip's `inset-inline-end` was not a
+   number of its own but the basket's arithmetic — 12 of inset, 52.8 of button
+   and 10 of gap. With the button gone the strip runs to the card's own 12, so
+   its inner width goes 68 → 158 at 390, and the price with its struck old
+   price needs 129. Measured after, every one of the four cards: the price is
+   20 tall — one line — at 360, 375, 390, 430, 575 and 991, and the name is no
+   longer cut at any of them. 360 is the tightest, with 143 of strip against
+   the 129 the price wants.
+
+   Nothing about the type or the strip's own height had to be touched, which is
+   what makes this the right fix rather than any of the three that were offered
+   last round — all of which would have undone a number the client set.
+
+   `display: none` rather than removing it from the markup: the button is in
+   the hand-owned Blade and in the preview's generator both, and the desktop
+   card still carries it.
+
+   Below 992, like everything else in this run — the instruction names no
+   breakpoint and «به هیچ عنوان به نسخه دستاپ دست نزنی» decides those. */
+@media (max-width: 991.98px) {
+  .vp-deal-cart {
+    display: none;
+  }
+
+  .vp-deal-label {
+    inset-inline-end: 12px;
+  }
+
+  /* And the price on one line, which the width alone did not give. The strip
+     was wide enough after the button went, but `.vp-deal-price` is a flex row
+     whose `strong` holds «۴٬۵۳۶٬۰۰۰ تومان» as one text run — and a flex item
+     that is allowed to shrink wraps its own text rather than overflowing, so
+     the line broke inside the item while the row itself reported no overflow
+     at all. That is why the first measurement looked like it fitted: 126
+     needed against 126 available, and 41px tall. */
+  .vp-deal-price {
+    white-space: nowrap;
+  }
+}
