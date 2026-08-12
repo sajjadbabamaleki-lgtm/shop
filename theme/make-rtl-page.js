@@ -447,6 +447,41 @@ if (html.includes('logo-gold.svg')) {
   throw new Error('the drawer replacement did not match');
 }
 
+// Five story circles between the header and the hero.
+//
+// «۵ تا حالت استوری دایره ای بزار بالای هیرو و زیر هدر ببینیم چطور میشه» — a
+// look, asked for as one. It is phone-only: the strip is `display: none` above
+// 991.98 so the desktop page does not gain a band it was never designed with,
+// and so the desktop stays pixel-identical, which is the standing rule.
+//
+// The five are the catalogue's own first five sections, with the photographs
+// the tiles under the hero already use and the names they already carry.
+// Nothing here is invented — same rule as the trust badges. In the Blade they
+// come out of `$categories` so the strip and the tiles cannot describe two
+// different shops; here they are typed, the way the preview types everything
+// the storefront queries.
+const STORY_ROW =
+  '<section class="vp-stories" aria-label="دسته‌بندی‌ها">\n' +
+  '        <div class="vp-stories-row">' +
+  CATEGORIES.slice(0, 5).map(([file, name]) =>
+    // No caption under the circle — «نباید زیر عنوان داشته باشن استوری ها».
+    // The name moves onto the link as its accessible name rather than being
+    // deleted: a link whose whole content is a decorative photograph announces
+    // itself as nothing at all.
+    `\n            <a class="vp-story" href="shop.html" aria-label="${name}">` +
+    '\n                <span class="vp-story-ring">' +
+    `\n                    <img src="assets/img/category/${file}.jpg" alt="" loading="lazy">` +
+    '\n                </span>' +
+    '\n            </a>'
+  ).join('') +
+  '\n        </div>\n' +
+  '    </section>\n    ';
+
+html = html.replace(
+  '<div class="th-hero-wrapper hero-6 slider-area" id="hero">',
+  STORY_ROW + '<div class="th-hero-wrapper hero-6 slider-area" id="hero">'
+);
+
 // Six trust badges under the category row: the template's own feature-card
 // markup and CSS (feature-card.style2), just with gold icons in place of its
 // red ones and Persian copy. row-cols-* rather than col-N, same reason as the

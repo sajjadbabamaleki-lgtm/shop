@@ -8068,15 +8068,15 @@ ul.vp-how-list.is-ticked li:before {
    they were. */
 @media (max-width: 991.98px) {
   .heroSlide6 .hero-style6 {
-    padding-block: 23.25px 12.57px;
+    padding-block: 20.76px 11.224px;
   }
 
   .heroSlide6 .hero-inner .sub-title {
-    margin-bottom: 15.71px;
+    margin-bottom: 14.028px;
   }
 
   .heroSlide6 .hero-inner .hero-title {
-    margin-bottom: 18.85px;
+    margin-bottom: 16.831px;
   }
 }
 
@@ -8218,7 +8218,13 @@ ul.vp-how-list.is-ticked li:before {
 
   .heroSlide6 .hero-img > img {
     display: block;
-    width: 299px;
+    /* «سایز محصول تو هیرو ۵ درصد کوچیکتر بشه» — 299 → 284.05. The height
+       follows on its own (`height: auto` against a stated aspect ratio), so
+       269.85 → 256.36 and the column loses 13.49 of the card's height before
+       anything is asked of the copy. **The star has to be re-pinned when this
+       moves** — see the block below, and HANDOFF's warning that narrowing the
+       shoe walks the heel out from under it. */
+    width: 284.05px;
     height: auto;
     margin-inline: auto;
     transform: translateY(20px);
@@ -8267,9 +8273,30 @@ ul.vp-how-list.is-ticked li:before {
        Its page coordinate did move, 157 → 161.9, and that is the header gap
        going 9 → 13.5 carrying the whole card down 4.5. The circle was drawn
        around a place on the shoe, not a place on the screen, and the star is
-       still on it. */
-    top: 31px;
-    left: 220px;
+       still on it.
+
+       **Re-pinned for the shoe's 5%.** The rule above took the photograph
+       299 → 284.05, which is exactly the move this block warns about: the
+       heel walks left and up out from under the star. So the star's place was
+       taken as a *fraction of the shoe's own box* before the resize — 0.7991
+       across and 0.2632 down, which is where (220, 31) had put it — and the
+       new numbers are that fraction read back off the resized photograph
+       rather than re-derived from the screenshot. Measured after, at 390: the
+       star's centre sits on 0.7991 / 0.2632 of the shoe again, to four
+       decimals.
+
+       **Measure this card with motion disabled.** The photograph carries the
+       template's `slideinrighthero`, which transforms it, so a reading taken
+       while that is in flight reports a shoe 282 or 270 wide instead of the
+       284.05 it is set to — and pinning against one of those puts the star a
+       pixel and a half off. `emulateMedia({reducedMotion:'reduce'})` and a
+       wait, the same as `check-parity.js` does.
+
+       Keep taking it as a fraction if the shoe moves again. The screenshot the
+       original numbers came from is a picture of a 299-wide shoe and cannot be
+       re-read against any other. */
+    top: 27.449px;
+    left: 215.548px;
     right: auto;
     margin: 0;
     z-index: 2;
@@ -9722,5 +9749,107 @@ ul.vp-how-list.is-ticked li:before {
 @media (max-width: 991.98px) {
   .heroSlide6 .hero-inner .sub-title {
     display: none;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Five story circles, between the header and the hero. Phone only.
+
+   «۵ تا حالت استوری دایره ای بزار بالای هیرو و زیر هدر ببینیم چطور میشه» —
+   asked for as something to look at, so it is built to be looked at and to be
+   removed in one line if it does not earn its place.
+
+   **It does not exist above 991.98.** `display: none` is the default and the
+   phone turns it on, not the other way round: the desktop page has a settled
+   rhythm from the island down to the hero and a band it was never designed
+   with does not get to appear there while nobody is looking. The desktop
+   before-and-after diff is the check, and it is zero.
+
+   The five are the catalogue's own first five sections — the photographs the
+   tiles under the hero already use, the names they already carry. Nothing
+   invented, same rule as the trust badges.
+
+   Sizing, at the page's own margins. The strip stands 10 from each side like
+   everything else on this phone, which leaves 370 at 390. Five rings of 64 is
+   320, so the four gaps are 12.5 — and the row is `space-between` rather than
+   a stated gap, so the arithmetic holds at any width instead of only at 390.
+
+   The ring is drawn, not bordered: a gold gradient on the outer circle, 2.5 of
+   it showing, then the photograph inset by a 2px white border. A `border` in
+   the gold would have been one flat colour, and this page's gold is a ramp
+   everywhere else it appears — the burst, the buy button, the search disc.
+
+   **No caption under the circles** — «نباید زیر عنوان داشته باشن استوری ها».
+   The name is not deleted, it moves onto the link as `aria-label`: the whole
+   content of each link is a photograph carrying `alt=""`, so without it the
+   link announces itself as nothing to anybody not looking at it.
+
+   The gap above is 13.5, the same one the hero card takes from the island
+   («فاصله هدر با هیرو ۵۰ درصد بیشتر بشه»), and the hero keeps its own 13.5
+   below the strip. So the strip sits in the header-to-hero gap at that gap's
+   own rhythm rather than inventing a third number. Measured at 390: island
+   foot 13.5 to the ring, ring foot 13.5 to the card.
+   -------------------------------------------------------------------------- */
+.vp-stories {
+  display: none;
+}
+
+@media (max-width: 991.98px) {
+  .vp-stories {
+    display: block;
+    margin: 13.5px 10px 0;
+  }
+
+  .vp-stories-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  /* Each column takes an equal share and no more, so a long name ellipsizes
+     inside its own column instead of pushing the ring out of line with the
+     others. */
+  .vp-story {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    justify-content: center;
+    text-decoration: none;
+  }
+
+  /* 64 is the cap, not the width. Five 64s and four gaps need 352 and a 320
+     screen offers 300, so a stated 64 overflowed its column and the rings
+     overlapped by 2.4 with the outer two hanging past the page's 10. Fluid to
+     the column with 64 as the ceiling: 53.6 at 320, 64 from 375 up. */
+  .vp-story-ring {
+    display: block;
+    flex: none;
+    width: 100%;
+    max-width: 64px;
+    aspect-ratio: 1 / 1;
+    padding: 2.5px;
+    border-radius: 50%;
+    background: linear-gradient(160deg, #C0972F 0%, #E3B54A 100%);
+  }
+
+  .vp-story-ring img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    border: 2px solid #FFFFFF;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+}
+
+/* Under 376 the five 64s and their gaps want 352 against the 300 the page
+   offers, so the row closes up and the rings take what is left — 55.2 at 320,
+   still round and still clear of each other. */
+@media (max-width: 375.98px) {
+  .vp-stories-row {
+    gap: 6px;
   }
 }

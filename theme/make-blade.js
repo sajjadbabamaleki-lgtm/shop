@@ -55,6 +55,12 @@ const REGIONS = [
   { name: 'chrome', anchor: '<div class="slider-drag-cursor">', into: 'partials/chrome.blade.php' },
   { name: 'mobile-menu', anchor: '<div class="th-menu-wrapper">', into: 'partials/mobile-menu.blade.php', owned: true },
   { name: 'header', anchor: '<header class="th-header', into: 'partials/header.blade.php' },
+  // The story strip sits between the header and the hero, so it needs a region
+  // of its own or the header's runs on into it: without this line the five
+  // circles were written into partials/header.blade.php *and* rendered again
+  // from home/stories.blade.php, twice on the page. `owned` because the Blade
+  // reads its five out of $categories rather than having them typed in.
+  { name: 'stories', anchor: '<section class="vp-stories"', into: 'home/stories.blade.php', owned: true },
   { name: 'hero', anchor: '<div class="th-hero-wrapper', into: 'home/hero.blade.php', owned: true },
   { name: 'categories', anchor: '<section class="feature-area2', into: 'home/categories.blade.php', owned: true },
   { name: 'ladder', anchor: '<section class="collection-area vp-ladder-area', into: 'home/ladder.blade.php', owned: true },

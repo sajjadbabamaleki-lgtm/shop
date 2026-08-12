@@ -9,6 +9,7 @@
 --}}
 
 @section('content')
+    @include('home.stories')
     @include('home.hero')
     @include('home.categories')
     @include('home.ladder')

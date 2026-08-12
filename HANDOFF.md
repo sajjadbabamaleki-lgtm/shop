@@ -631,6 +631,29 @@ with it. `check-parity.js` renders the two *copies of this page* against each
 other, so a change that lands on both is still zero difference. It is not a
 guard against changing the desktop. Only reading the desktop is.
 
+## The hero, fifth pass: the shoe 5% down and the card 5% shorter
+
+«سایز محصول تو هیرو ۵ درصد کوچیکتر بشه ارتفاع هیرو هم ۵ درصد کوتاهتر بشه».
+
+- **The shoe is 299 → 284.05**, its height following on its own, 269.85 →
+  256.36. That takes 13.49 off the card by itself; the remaining 5.86 of the 5%
+  comes off the copy's gaps, all scaled by one factor (0.8929) exactly as the
+  earlier tenth was taken. Card 386.95 → 367.52 against 367.60 asked, at 375,
+  390, 430, 575, 767 and 991 alike.
+- **The star had to be re-pinned, and this is the case the block warns about.**
+  Narrowing the shoe walks the heel out from under it. Its place was taken as a
+  *fraction of the shoe's own box* first — 0.7991 across, 0.2632 down, which is
+  where (220, 31) had put it — and the new (215.548, 27.449) is that fraction
+  read back off the resized photograph. Keep doing it that way: the screenshot
+  the original numbers came from is a picture of a 299-wide shoe and cannot be
+  re-read against any other.
+- **Measure this card with motion disabled.** The photograph carries the
+  template's `slideinrighthero`, which transforms it, so a reading taken while
+  that is in flight reports the shoe 282 or 270 wide instead of 284.05 — and
+  the first pin computed off one of those landed the star a pixel and a half
+  out. `emulateMedia({reducedMotion:'reduce'})` and a wait, as
+  `check-parity.js` does.
+
 ## The hero card on a phone, second pass
 
 - **The shoe and the star are above the words.** The template stacks the copy
@@ -691,6 +714,32 @@ disturb.
 Removing the element threw the anchor rather than silently swallowing the whole
 chrome region into the one after it — which is exactly what that assertion is
 for. It anchors on `<div class="slider-drag-cursor">` now.
+
+## Five story circles, and a region that had to be cut for them
+
+«۵ تا حالت استوری دایره ای بزار بالای هیرو و زیر هدر ببینیم چطور میشه» — asked
+for as a look to try, so it is built to be removed in one line if it does not
+earn its place.
+
+- **Phone only.** `display: none` is the default and the phone turns it on. The
+  desktop has a settled rhythm from the island to the hero and does not gain a
+  band while nobody is looking; before-and-after over the full scroll height at
+  992, 1200, 1440 and 1920 is zero differing pixels.
+- **The five are the catalogue's own first five sections**, the photographs the
+  tiles already use and the names they already carry — `$categories->take(5)`
+  in the Blade, so the strip and the tiles cannot describe two different shops.
+- **No caption under the circles** («نباید زیر عنوان داشته باشن استوری ها»).
+  The name moved onto the link as `aria-label` rather than being deleted: each
+  link's whole content is a photograph with `alt=""`, so without it the link
+  announces itself as nothing.
+- **It needed a region in `make-blade.js`, and the failure was silent.** The
+  strip sits between the header and the hero, and the header's region ran to
+  the hero's anchor — so the five circles were written into
+  `partials/header.blade.php` *as well as* being rendered from
+  `home/stories.blade.php`, twice on the page. Nothing threw: the anchors were
+  all still unique and still in order. **Anything inserted between two existing
+  regions needs its own entry in `REGIONS`**, and the tell is `git status`
+  showing a generated partial modified when you did not touch its markup.
 
 ## The trust row is six on a phone and five above it
 
