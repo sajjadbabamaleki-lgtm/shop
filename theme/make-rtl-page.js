@@ -447,23 +447,35 @@ if (html.includes('logo-gold.svg')) {
   throw new Error('the drawer replacement did not match');
 }
 
-// Five trust badges under the category row: the template's own feature-card
+// Six trust badges under the category row: the template's own feature-card
 // markup and CSS (feature-card.style2), just with gold icons in place of its
 // red ones and Persian copy. row-cols-* rather than col-N, same reason as the
-// category row: five is not a clean fraction of Bootstrap's 12 columns.
-// Solid-fill icons (feature_card_* and check2), not the outlined feature_2_*
-// set — the client wants every icon in the same filled style as the payment
-// shield.
+// category row: six is a clean fraction of twelve but five was not, and the
+// row has been both.
+// Solid-fill icons (feature_card_*, check2, secure, bag), not the outlined
+// feature_2_* set — the client wants every icon in the same filled style as
+// the payment shield.
+//
+// The sixth is «خرید تکی و عمده», and it is here to make the phone's two-up
+// grid come out even: «بنظرم یه آیتم تکراری بزار ۶ تایی بشه». What was asked
+// for was a repeat of one of the five, which on a live shop reads as a mistake
+// rather than as a sixth promise — so it is a real one instead, and its words
+// are not invented either. The page already carries «تضمین کیفیت، ارسال سریع و
+// امکان خرید تکی و عمده»; this is the half of that sentence the row did not
+// already say. The strapline restates the claim rather than extending it,
+// because a trust badge is a promise to a customer and this repository does
+// not write those — see HANDOFF on copy.
 const TRUST_ITEMS = [
   ['feature_card_1-gold.svg', 'ارسال سریع', 'ارسال به سراسر کشور'],
   ['feature_card_2-gold.svg', 'ضمانت بازگشت کالا', 'بازگشت و تعویض آسان'],
   ['secure-gold.svg', 'پرداخت امن', 'پرداخت آنلاین مطمئن'],
   ['check2-gold.svg', 'تضمین اصالت', 'گارانتی اصل بودن کالا'],
   ['feature_card_4-gold.svg', 'پشتیبانی آنلاین', 'پاسخگویی ۲۴ ساعته'],
+  ['bag-gold.svg', 'خرید تکی و عمده', 'امکان سفارش عمده'],
 ];
 
 const TRUST_ROW =
-  '<div class="row gy-4 row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-5 vp-trust-row">' +
+  '<div class="row gy-4 row-cols-2 row-cols-lg-3 row-cols-xl-5 vp-trust-row">' +
   TRUST_ITEMS.map(([icon, title, text]) =>
     '\n                <div class="col">' +
     '\n                    <div class="feature-card style2">' +

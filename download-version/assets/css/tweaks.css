@@ -9350,48 +9350,108 @@ ul.vp-how-list.is-ticked li:before {
   }
 }
 
-/* The five trust badges, still one line each under 376.
+/* The six trust badges on a phone: two to a line, in the stacked shape.
 
-   «چرا اون ۵ آیتمو اینجوری کردی؟ خراب شدن» — with a screenshot of the icon
-   tiles floating over the copy and each card's second line printed inside the
-   card below it.
+   «ببین اون پنج آیتمو به این شکل ولی ۲ تا دوتا کنار هم بنظرم میشه گذاشت» —
+   the shape in the screenshot is the tile above the copy with everything
+   centred, and the ask is two of those side by side instead of one to a line.
 
-   Not a phone-wide fault and not the glass: it is one template rule meeting
-   one of ours. `style.css` has a `max-width: 375px` band that gives up on the
-   badge's row layout entirely —
+   This replaces the round before it, which answered «خراب شدن» by holding the
+   row layout (tile beside copy) at every width. That was the right fix for the
+   fault — the copy was overflowing a stated height and printing inside the next
+   card — but the shape the client wants back is the stacked one, so the height
+   is what gives way now rather than the shape. Nothing here relies on the
+   template's own `max-width: 375px` band any more: that band is neutralised
+   below and the stacked shape is written out for the whole phone range, so 375
+   and 430 draw the same card instead of two that happen to look alike.
 
-     .feature-card          { display: block; margin: auto; text-align: center }
-     .feature-card .box-icon { display: block; max-width: 64px;
-                               margin: auto auto 20px auto }
+   `row-cols-2` in the markup, in place of `row-cols-1 row-cols-sm-2`. The sm
+   step is gone because 2 is now the answer at every width below `lg` — it said
+   1 below 576 and 2 above it, and both are 2. `row-cols-lg-3` and
+   `row-cols-xl-5` above it are untouched.
 
-   — which stacks a 64px tile above the copy and centres both. That wants about
-   138px of card. The block above states `height: 75.6px` on these five, so the
-   copy is pushed straight out of the bottom of the glass and lands over the
-   next card, and the tile sits across the seam between the two. Every phone at
-   376 and up was fine, which is why it survived: 390, 430 and 575 all keep the
-   row layout and measure 75.6 exactly.
+   **There is a sixth badge, and that is why.** Two to a line left the fifth
+   alone on the last row; it was centred there for one round and «بنظرم یه آیتم
+   تکراری بزار ۶ تایی بشه» closed it properly instead — three full rows of two,
+   no odd card and no rule needed to place one. The badge itself is «خرید تکی و
+   عمده» rather than the repeat that was asked for, and the generator says why.
 
-   The row layout is the right one at 320 as well — it is five one-line badges,
-   not five posters — so the band is answered rather than the height given up.
-   Three classes to beat the template's two, and only the two declarations that
-   do the damage are undone: the tile goes back to sitting beside the copy with
-   no auto margins, and the card goes back to a flex row reading from the start
-   edge.
+   **The sixth is a phone badge, and the rule below is the whole of why the
+   desktop did not move.** Five across cannot hold six: `row-cols-xl-5` would
+   put the sixth alone on a second line, and six across wraps «ضمانت بازگشت
+   کالا» at every width under 1750, so a sixth item on the desktop means
+   redesigning a band that is finished and approved. It was redesigned for one
+   round — three across, two rows — and «ما داریم در مورد نسخه گوشی حرف میزنیم
+   چرااااا میری سراغ دستاپ» ended that, correctly: the request was about the
+   phone.
 
-   Measured after at 320, 360 and 375, all five cards: 75.6 tall, 10 from both
-   sides, tile 64 on the reading edge, and no card's content box overflowing its
-   glass. 320 is the tightest — 236 of copy against the 226 the longest pair of
-   lines wants — and nothing wraps there. */
-@media (max-width: 375px) {
+   So the badge is shown where it was asked for and hidden from 992 up, and the
+   desktop row is the five it has always been, to the pixel. This is content
+   that differs by width, which is a real cost and is not the usual kind of
+   `display: none` in this file — the sale card's basket is a control the
+   desktop still has, this is a claim the desktop does not make. It is written
+   here so it is a decision on the record rather than something discovered
+   later. Undoing it is one rule; making the desktop carry six is not.
+
+   **`min-height`, not `height`.** The six carry identical structure — tile,
+   one title line, one line of copy — so they come out the same height on their
+   own; 135.2 is that natural height, measured, and stating it as a floor is
+   what keeps them level if one of them ever loses a line. What it deliberately
+   does not do is cap them. A stated `height` is exactly what made «خراب شدن»:
+   copy that grew past it did not make the card taller, it printed outside the
+   glass and into the card below. A floor cannot do that — the worst a longer
+   title can do here is make one card taller than its neighbours, which is a
+   thing you can see rather than a thing that breaks.
+
+   The type comes down with the card's width. A 180px card at 390 leaves 160 of
+   content against the 335 the one-to-a-line card had, so the template's 18/16
+   pair would wrap. 14.5 and 11.5 hold every one of the six titles and every
+   one of the six straplines on a single line — «ضمانت بازگشت کالا» and «پرداخت
+   آنلاین مطمئن» are the two that decide it — down to 320, where the card is
+   150 wide.
+
+   Measured at 320, 360, 375, 390, 430 and 575: six cards, all 135.2 tall,
+   three rows of two, 10 from both sides, every gap 10.0, one line of title and
+   one of copy on all six, and nothing overflowing its glass. */
+@media (max-width: 575.98px) {
   .vp-trust-row .feature-card {
     display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    /* The template's own 375 band sets `margin: auto` and `text-align: center`
+       on the card and `margin: auto auto 20px auto` on the tile. The centring
+       is wanted; the margins are not — they are how a block-mode card centres
+       itself, and in a flex column they push the tile off the middle of the
+       gap. Stated here so the two halves of the range are one card. */
     margin: 0;
-    text-align: start;
+    min-height: 135.2px;
+    padding: 14px 10px;
+    text-align: center;
   }
 
   .vp-trust-row .feature-card .box-icon {
     margin: 0;
     max-width: none;
+  }
+
+  .vp-trust-row .feature-card .box-title {
+    font-size: 14.5px;
+  }
+
+  .vp-trust-row .feature-card .box-text {
+    font-size: 11.5px;
+  }
+}
+
+/* The sixth badge, below 992 only — see the block above. `nth-child` rather
+   than `last-child` so it names the sixth card specifically: the row is
+   generated from a list, and a seventh added to that list should appear rather
+   than silently take the sixth's place in hiding. */
+@media (min-width: 992px) {
+  .vp-trust-row > .col:nth-child(6) {
+    display: none;
   }
 }
 

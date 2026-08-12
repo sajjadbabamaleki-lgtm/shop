@@ -692,6 +692,46 @@ Removing the element threw the anchor rather than silently swallowing the whole
 chrome region into the one after it — which is exactly what that assertion is
 for. It anchors on `<div class="slider-drag-cursor">` now.
 
+## The trust row is six on a phone and five above it
+
+«ببین اون پنج آیتمو به این شکل ولی ۲ تا دوتا کنار هم» put the badges two to a
+line in the stacked shape below 576, and «بنظرم یه آیتم تکراری بزار ۶ تایی بشه»
+added a sixth so the grid comes out even — three rows of two, no odd card.
+
+- **The sixth badge is real, not the repeat that was asked for.** Two identical
+  cards side by side on a live shop read as a mistake. «خرید تکی و عمده» is the
+  half of the page's own «تضمین کیفیت، ارسال سریع و امکان خرید تکی و عمده» that
+  the row did not already say, and the strapline restates the claim rather than
+  extending it. **No trust badge in this row invents a promise** — a badge is a
+  commitment to a customer and this repository does not write those.
+
+- **It is hidden from 992 up, and that is deliberate.** Five across cannot hold
+  six without leaving one alone on a second line, and six across wraps «ضمانت
+  بازگشت کالا» at every width below 1750 — so a sixth badge on the desktop means
+  redesigning a band that is finished. That redesign was done for one round
+  (three across, two rows) and the client stopped it in the sharpest terms:
+  «ما داریم در مورد نسخه گوشی حرف میزنیم چرااااا میری سراغ دستاپ؟». **A phone
+  request is not licence to touch the desktop**, even when the phone change
+  makes the desktop awkward — hide the difference and say so.
+
+  Verified rather than asserted: the whole `.feature-area2` band rendered before
+  and after this round at 992, 1200, 1440 and 1920 is pixel-identical.
+
+  The cost is content that differs by width — the desktop does not make the
+  wholesale claim. That is a heavier kind of `display: none` than the sale
+  card's basket (a control the desktop still has) and is on the record here so
+  the next round can undo it in one rule if the client would rather the desktop
+  carried six.
+
+- **The badges' gold icons are reproducible now.** `theme/recolor-svg.js` only
+  ever recoloured what the *template's* own page referenced in one of three
+  reds; the trust row's icons carry #FD5B44 and #0077FF and their gold siblings
+  had been made by hand, so six files in the repo were produced by no command.
+  The script now carries an explicit `EXTRAS` list naming each source and its
+  colour, and re-running it rewrites the five that already existed **byte for
+  byte** — which is the check that the list describes what was done by hand.
+  The sixth badge's `bag-gold.svg` comes out of the same list.
+
 ## The drawer as an island, and two heights that had drifted
 
 - **The panel is an island, at the header island's numbers.** «منو بجای اینکه از

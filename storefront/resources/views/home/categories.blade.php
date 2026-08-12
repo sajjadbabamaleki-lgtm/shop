@@ -21,7 +21,7 @@
             </div>
         </div>
         <div class="vp-trust-row-wrap">
-            <div class="row gy-4 row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-5 vp-trust-row">
+            <div class="row gy-4 row-cols-2 row-cols-lg-3 row-cols-xl-5 vp-trust-row">
                 <div class="col">
                     <div class="feature-card style2">
                         <div class="box-icon">
@@ -74,6 +74,17 @@
                         <div class="box-content">
                             <h3 class="box-title">پشتیبانی آنلاین</h3>
                             <p class="box-text">پاسخگویی ۲۴ ساعته</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="feature-card style2">
+                        <div class="box-icon">
+                            <img src="{{ asset('assets/img/icon/bag-gold.svg') }}" alt="">
+                        </div>
+                        <div class="box-content">
+                            <h3 class="box-title">خرید تکی و عمده</h3>
+                            <p class="box-text">امکان سفارش عمده</p>
                         </div>
                     </div>
                 </div>
