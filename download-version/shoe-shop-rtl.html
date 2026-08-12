@@ -1562,6 +1562,11 @@ Brand Area
         (function () {
             var items = document.querySelectorAll(".vp-category, .vp-trust-row .feature-card, .th-product, .vp-deal, .vp-best, .blog-card, .sec-title");
             if (!items.length || !("IntersectionObserver" in window)) return;
+            var phone = window.matchMedia("(max-width: 991.98px)").matches;
+            items = Array.prototype.filter.call(items, function (el) {
+                return !(phone && el.classList.contains("vp-category"));
+            });
+            if (!items.length) return;
             items.forEach(function (el) {
                 el.classList.add("vp-enter");
                 var row = el.closest(".row") || el.parentElement;
@@ -1588,6 +1593,32 @@ Brand Area
                 });
             }, { rootMargin: "0px 0px -80px 0px", threshold: 0.12 });
             items.forEach(function (el) { seen.observe(el); });
+        }());
+    </script>
+    <script>
+        (function () {
+            var strip = document.querySelector(".vp-category-row");
+            if (!strip) return;
+            if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+            var tiles = strip.querySelectorAll(".col");
+            if (tiles.length < 2) return;
+            var touched = 0;
+            ["pointerdown", "touchstart", "wheel", "keydown"].forEach(function (ev) {
+                strip.addEventListener(ev, function () { touched = Date.now(); }, { passive: true });
+            });
+            function step() {
+                var room = strip.scrollWidth - strip.clientWidth;
+                if (room < 4) return;
+                if (Date.now() - touched < 6000) return;
+                if (document.hidden) return;
+                var a = tiles[0].getBoundingClientRect();
+                var b = tiles[1].getBoundingClientRect();
+                var pitch = Math.abs(a.left - b.left);
+                if (!pitch) return;
+                var atEnd = strip.scrollLeft <= -(room - pitch / 2);
+                strip.scrollTo({ left: atEnd ? 0 : strip.scrollLeft - pitch, behavior: "smooth" });
+            }
+            setInterval(step, 6000);
         }());
     </script>
     <script>

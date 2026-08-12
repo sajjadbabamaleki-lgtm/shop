@@ -187,11 +187,17 @@ ladder.text += '\n' + modal + '\n';
 
 // --- the inline scripts ------------------------------------------------------
 //
-// Four of them run after main.js. Two are page-wide and stay with the script
+// Five of them run after main.js. Three are page-wide and stay with the script
 // tags; two drive one section each and move to that section's partial, pushed
 // onto a stack the layout empties in the same place the tags used to sit. All
-// four are independent IIFEs, so their order relative to each other does not
+// five are independent IIFEs, so their order relative to each other does not
 // matter — only that they still run after main.js, which the stack preserves.
+//
+// The fifth is the category strip's auto-scroll. It stays page-wide rather
+// than moving to the categories partial, and not by preference: that partial
+// is one of the six hand-owned ones this script deliberately does not write,
+// so there is nowhere for it to be pushed to. It finds its strip by selector,
+// which the hand-written Blade renders under the same class.
 const SECTION_SCRIPTS = [
   { owns: '.vp-hero-marks', region: 'hero' },
   { owns: 'vp-ladder-how', region: 'ladder' },
@@ -199,8 +205,8 @@ const SECTION_SCRIPTS = [
 
 const INLINE = /[ \t]*<script>\n[\s\S]*?<\/script>\n?/g;
 const inlineScripts = pageEnd.text.match(INLINE) || [];
-if (inlineScripts.length !== 4) {
-  throw new Error(`expected 4 inline scripts after main.js, found ${inlineScripts.length}`);
+if (inlineScripts.length !== 5) {
+  throw new Error(`expected 5 inline scripts after main.js, found ${inlineScripts.length}`);
 }
 
 for (const { owns, region } of SECTION_SCRIPTS) {

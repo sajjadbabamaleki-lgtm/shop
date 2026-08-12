@@ -8358,3 +8358,58 @@ ul.vp-how-list.is-ticked li:before {
     overflow-wrap: anywhere;
   }
 }
+
+/* The hero and the strip beneath it, at the header's own distance.
+
+   «فاصله بین هیرو و اون ۸ آیتم پایین باید اندازه فاصله هیرو با هدر باشه». The
+   band stands 13.5 above the card; the strip stands 13.5 below it. One gap
+   above the hero and one below, the same number, so the card sits in equal air
+   on a phone.
+
+   `.feature-area2`'s 40 is the desktop's and stays: this only reaches below
+   992, where the two gaps it has to agree with are the phone's. */
+@media (max-width: 991.98px) {
+  .feature-area2 {
+    padding-block-start: 13.5px;
+  }
+}
+
+/* The names on the glass: smaller, heavier, and none of them on two lines.
+
+   «متن رو قسمت های شیشه ای مربع ها ۵ درصد کوچیکتر و ده درصد بولدتر بشن که هیچ
+   مورد ۲ خطی نداشته باشم». 11 → 10.45 and 700 → 770; Vazirmatn is variable, so
+   770 is a weight the file carries and not a synthesised one.
+
+   The one line is the hard half of that, and it is not bought with the type —
+   the client fixed the size. It is bought with what the pill spends on itself,
+   which is the same lever the desktop row used when its own names were being
+   cut: inset 5 → 2 a side and padding 4 → 2, which is 6px of text per tile.
+
+   Measured after — every pill 24 tall at every width, so **nothing is on two
+   lines anywhere**, which is what was asked. The longest name, «ست کیف و کفش»,
+   needs 87:
+
+     360   inner 71   cut
+     375   inner 75   cut
+     390   inner 79   cut
+     430   inner 89   fits
+     575+  inner 125 and up, all eight fit with room
+
+   So one name of the eight is still ellipsised on a phone narrower than about
+   400. It is not a two-line item — the requirement — but it is a cut one, and
+   this file has said before that a cut name tells the reader nothing. It
+   cannot be fixed from here without going against the instruction: 87 into 79
+   needs the type at 9.5, which is 13.7% off 11 rather than the 5% asked for.
+   The other ways out are the client's to pick — a shorter name for that one
+   category, or the extra 8.7%. Flagged rather than quietly done either way. */
+@media (max-width: 991.98px) {
+  .vp-category-label {
+    inset-inline: 2px;
+    padding: 5px 2px;
+    font-size: 10.45px;
+    font-weight: 770;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}

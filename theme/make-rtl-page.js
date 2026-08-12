@@ -1497,6 +1497,22 @@ html = html.replace('</body>',
   '        (function () {\n' +
   '            var items = document.querySelectorAll(".vp-category, .vp-trust-row .feature-card, .th-product, .vp-deal, .vp-best, .blog-card, .sec-title");\n' +
   '            if (!items.length || !("IntersectionObserver" in window)) return;\n' +
+  // «اون ۸ آیتم باید از اول که صفحه هوم لود میشه باشن و منتظر اسکرول نباشن».
+  // Below 992 the eight tiles are a horizontal strip, and a strip that is
+  // waiting for the page to be scrolled is a strip the reader may never see
+  // move: it sits one screen down, and the reveal is `opacity: 0` until then.
+  // So on a phone they are simply there, and the observer never touches them.
+  //
+  // Read once, before the loop, because it decides two things — whether the
+  // tiles are in `items` at all, and whether the closing-on-the-middle
+  // movement below is set up. A resize past 992 does not re-run this, which is
+  // the right trade: nobody resizes a phone across the breakpoint, and the
+  // desktop still gets the entrance it was drawn with.
+  '            var phone = window.matchMedia("(max-width: 991.98px)").matches;\n' +
+  '            items = Array.prototype.filter.call(items, function (el) {\n' +
+  '                return !(phone && el.classList.contains("vp-category"));\n' +
+  '            });\n' +
+  '            if (!items.length) return;\n' +
   '            items.forEach(function (el) {\n' +
   '                el.classList.add("vp-enter");\n' +
   '                var row = el.closest(".row") || el.parentElement;\n' +
@@ -1526,6 +1542,59 @@ html = html.replace('</body>',
   '                });\n' +
   '            }, { rootMargin: "0px 0px -80px 0px", threshold: 0.12 });\n' +
   '            items.forEach(function (el) { seen.observe(el); });\n' +
+  '        }());\n' +
+  '    </script>\n</body>');
+
+// The category strip carries itself along, and stops while it is being used.
+//
+// «۸ آیتم باید مث هیرو خود اسکرول هم باشن و قابل اسکرول دستی هم باشن» — like
+// the hero, which means the hero's own numbers: main.js gives every .th-slider
+// `delay: 6000` and `speed: 1000` with `disableOnInteraction: false`, so this
+// waits six seconds between moves, takes about a second over each one, and
+// comes back after a hand has been on it rather than giving up for good.
+//
+// It moves by one tile — the tile's width plus the strip's gap, read off the
+// first two tiles rather than assumed — so it always lands on a snap point and
+// never leaves a tile half in view.
+//
+// Nothing here decides whether the strip exists. Above 992 the row is an
+// ordinary Bootstrap row with no overflow, so `scrollWidth` and `clientWidth`
+// agree and every tick returns early; below it they do not. That is one test
+// instead of a media query kept in step with the stylesheet, and it follows a
+// resize for free.
+//
+// RTL: `scrollLeft` runs from 0 at the right-hand end down to a negative
+// number at the left, so a step forward is a *subtraction*, and the end of the
+// strip is the most negative value. Getting that sign wrong does nothing
+// visible on the first tick — 0 is already the start — which is exactly the
+// kind of bug that reaches a client.
+html = html.replace('</body>',
+  '    <script>\n' +
+  '        (function () {\n' +
+  '            var strip = document.querySelector(".vp-category-row");\n' +
+  '            if (!strip) return;\n' +
+  '            if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;\n' +
+  '            var tiles = strip.querySelectorAll(".col");\n' +
+  '            if (tiles.length < 2) return;\n' +
+  '            var touched = 0;\n' +
+  '            ["pointerdown", "touchstart", "wheel", "keydown"].forEach(function (ev) {\n' +
+  '                strip.addEventListener(ev, function () { touched = Date.now(); }, { passive: true });\n' +
+  '            });\n' +
+  '            function step() {\n' +
+  '                var room = strip.scrollWidth - strip.clientWidth;\n' +
+  '                if (room < 4) return;\n' +
+  '                if (Date.now() - touched < 6000) return;\n' +
+  '                if (document.hidden) return;\n' +
+  '                var a = tiles[0].getBoundingClientRect();\n' +
+  '                var b = tiles[1].getBoundingClientRect();\n' +
+  '                var pitch = Math.abs(a.left - b.left);\n' +
+  '                if (!pitch) return;\n' +
+  // One tile of tolerance: the end is -room, and a strip that is within a
+  // tile of it has nothing left to show, so it rewinds instead of nudging.
+  '                var atEnd = strip.scrollLeft <= -(room - pitch / 2);\n' +
+  '                strip.scrollTo({ left: atEnd ? 0 : strip.scrollLeft - pitch, behavior: "smooth" });\n' +
+  '            }\n' +
+  '            setInterval(step, 6000);\n' +
   '        }());\n' +
   '    </script>\n</body>');
 
