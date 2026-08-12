@@ -52,9 +52,28 @@
                     <span>انتقال پله فقط در صورت باقی‌ماندن موجودی</span>
                     <span>پله بعدی در ۲۲ روز و ۱۴ ساعت</span>
                 </div>
+                @php
+                    // «یک محصول تکراری در حراج پله ای بزار که ۶ تایی بشه». The
+                    // phone shows six cards and the catalogue holds five — every
+                    // product with a live promotion, which is what the sale is —
+                    // so the sixth is the first one again.
+                    //
+                    // `d-lg-none` on it, so the desktop row is still the five it
+                    // was drawn for: `row-cols-xl-5` puts five on one line, and a
+                    // sixth would wrap it onto two. If a sixth product is ever
+                    // promoted this pads nothing and the repeat disappears on its
+                    // own.
+                    $deals = $ladderDeals->values()
+                        ->map(fn ($deal) => ['deal' => $deal, 'phoneOnly' => false]);
+
+                    if ($deals->isNotEmpty() && $deals->count() < 6) {
+                        $deals = $deals->push(['deal' => $deals->first()['deal'], 'phoneOnly' => true]);
+                    }
+                @endphp
                 <div class="row gy-4 row-cols-2 row-cols-md-3 row-cols-xl-5 vp-ladder-deals">
-                @foreach ($ladderDeals as $deal)
-                <div class="col">
+                @foreach ($deals as $card)
+                @php($deal = $card['deal'])
+                <div class="col{{ $card['phoneOnly'] ? ' d-lg-none' : '' }}">
                     <div class="vp-deal">
                         <a class="vp-deal-shot" href="{{ storefront_route('product', $deal) }}">
                             <img src="{{ asset($deal->primaryMedia()->path) }}" alt="" loading="lazy">

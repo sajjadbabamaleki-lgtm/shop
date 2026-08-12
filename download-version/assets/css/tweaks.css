@@ -8661,21 +8661,23 @@ ul.vp-how-list.is-ticked li:before {
     padding-inline: 9px;
   }
 
+  /* ── and then back into them, at the new proportion ──────────────────────
+     «قسمت پیشنهاد امروز و برندهای موجود باید برن تو قاب اما با نسبت های جدید
+     یعنی فاصله داخلیشون از کارتی که روش قرار میگیرن اندازه فاصلشون از بغلا
+     باشه». So the panes return with everything they had — the tint, the blur,
+     the radius, the shadow — and only what they spend inside changes: 28 and
+     16 become 9, the same 9 they stand from the page. The frame is a frame
+     again and its air is the page's air.
+
+     Both keep the margins the block above gave them, so the pane's outer edge
+     is at 9 and its inner edge at 18. */
   .vp-daily-deal {
-    padding: 0;
-    border-radius: 0;
-    background: none;
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
-    box-shadow: none;
+    padding: 9px;
   }
 
   .vp-brands-panel {
     margin-inline: 9px;
-    padding: 0;
-    border-radius: 0;
-    background: none;
-    box-shadow: none;
+    padding: 9px;
   }
 }
 
@@ -8732,5 +8734,51 @@ ul.vp-how-list.is-ticked li:before {
 @media (max-width: 991.98px) {
   .vp-best-info {
     gap: 5px;
+  }
+}
+
+/* The best seller's name and price, at the stepped sale's numbers.
+
+   «اندازه اسم و قیمت و فاصله بین این دوتا در قسمت پرفروش ترین ها باید متابق
+   قسمت حراج پله ای باشه». The two strips were drawn a round apart and drifted:
+
+                      stepped sale      best sellers, before
+     name             12 / 700          13.5 / 700
+     price            13.5 / 800        14 / 800
+     currency word    9.9 / 600         10.5 / 600
+     name to price    0                 -2.5
+
+   The last row is the one worth naming. The sale's two lines simply stack and
+   their line boxes touch; the best seller's carried a -2.5 margin, measured
+   into place a while ago against a leading this file pixel-scanned at 9.25.
+   Matching means 0, not a smaller negative — the instruction is that the two
+   strips read the same, and the sale's is the one being matched to.
+
+   And «اسم کتونی باید ۵ درصد بولدتر بشه از حالت فعلی» on top of that: 700 →
+   735 on both names, so they stay one thing after being made one thing.
+   Vazirmatn is variable, so 735 is a weight the file carries.
+
+   Below 992. Above it both strips keep what they had — the desktop numbers in
+   the left column above are the phone's now, not the desktop's. */
+@media (max-width: 991.98px) {
+  .vp-best-name {
+    font-size: 12px;
+  }
+
+  .vp-best-cta {
+    margin-top: 0;
+  }
+
+  .vp-best-cta strong {
+    font-size: 13.5px;
+  }
+
+  .vp-best-cta strong span {
+    font-size: 9.9px;
+  }
+
+  .vp-deal-name,
+  .vp-best-name {
+    font-weight: 735;
   }
 }

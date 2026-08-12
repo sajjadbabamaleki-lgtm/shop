@@ -840,9 +840,19 @@ const LADDER_TRACK_HTML = LADDER_STEPS.map(([, , , state], i) => {
 // .vp-deal-stock argued it was the scarcity half of the offer and had earned
 // its place; that was our reasoning, not theirs, and they have now said
 // otherwise. The rule is still in tweaks.css, unused, next to that argument.
-const LADDER_DEALS_HTML = LADDER_DEALS.map(([file, name, price], i) => {
+// «یک محصول تکراری در حراج پله ای بزار که ۶ تایی بشه». The phone shows six
+// cards and the sale holds five, so the sixth is the first one again — and it
+// carries `d-lg-none`, because `row-cols-xl-5` puts five on one line above 992
+// and a sixth would wrap that row onto two. The Blade does the same thing from
+// the catalogue's side; see home/ladder.blade.php, and change the two together.
+const LADDER_DEALS_HTML = LADDER_DEALS
+  .map((deal, i) => ({ deal, i, phoneOnly: false }))
+  .concat(LADDER_DEALS.length < 6
+    ? [{ deal: LADDER_DEALS[0], i: 0, phoneOnly: true }]
+    : [])
+  .map(({ deal: [file, name, price], i, phoneOnly }) => {
   const now = Math.round(price * (100 - LADDER_CUT) / 100);
-  return '\n                <div class="col">' +
+  return '\n                <div class="col' + (phoneOnly ? ' d-lg-none' : '') + '">' +
     '\n                    <div class="vp-deal">' +
     `\n                        <a class="vp-deal-shot" href="shop.html">` +
     `\n                            <img src="assets/img/${file}" alt="" loading="lazy">` +
