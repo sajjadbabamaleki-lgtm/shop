@@ -42,7 +42,6 @@
                             <li><a href="{{ page_url('shop.html') }}">کفش زنانه</a></li>
                             <li><a href="{{ page_url('shop.html') }}">کیف زنانه</a></li>
                             <li><a href="{{ page_url('shop.html') }}">پرفروش‌ترین‌ها</a></li>
-                            <li><a href="{{ page_url('shop.html') }}">جدیدترین‌ها</a></li>
                             <li><a href="{{ page_url('shop.html') }}">تخفیف‌دارها</a></li>
                         </ul>
                     </div>

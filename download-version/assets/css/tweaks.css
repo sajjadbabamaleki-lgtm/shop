@@ -9114,3 +9114,122 @@ ul.vp-how-list.is-ticked li:before {
     padding-inline: 10px;
   }
 }
+
+/* The grey line under the hero card and the header island, off.
+
+   «در لبه ی پایینی هیرو و هدر یه حالت خط خاکستری هست که باید حذف بشه». That
+   line is «لبه پنهان»'s whole remedy — `inset 0 -1.4px 0` at 7%, the ink foot
+   that replaced a drop shadow which had dissolved the card into the page.
+   CLAUDE.md's entry is the reading before touching this.
+
+   Taken off on the phone at the client's word, and only there: the desktop
+   keeps it, and the entry's reasoning still holds for the desktop card, which
+   is what that reasoning was measured on.
+
+   **What this costs, so it is not rediscovered.** Measured after, down the
+   hero card's foot at 390: 247 (pane) → 255 (page) in one step, which is a
+   boundary the pane's own tint gives it — eight levels rather than the
+   seventeen the ink gave. It is the tint doing the work now. If the card's
+   foot ever reads soft again on a phone, this is the rule that was removed and
+   the entry explains what a drop shadow will and will not do about it. */
+@media (max-width: 991.98px) {
+  .heroSlide6 .hero-inner,
+  .th-header .menu-area,
+  .th-header .sticky-wrapper.sticky .menu-area {
+    box-shadow: none;
+  }
+}
+
+/* The shoe's name, thick enough to see it.
+
+   «چند بار بهت گفتم اسم کتونی ها در باکس اسم و قیمت باید زخیمتر بشه اما همچنان
+   نیست» — and they are right that it did not show, and wrong that nothing
+   happened. 700 → 735 → 808.5 all applied; the ink grew 16596 → 16880 → 17883
+   pixels across a 8x render. What did not move is the *stem*, which quantised
+   to 1.625px at every one of those weights and only reached 1.75 at 900. A
+   tenth of an axis on 12px type is a fraction of a pixel, and a fraction of a
+   pixel is not a thing anybody can see. Three rounds were spent on numbers that
+   were real and invisible.
+
+   So this stops asking the weight axis for it and does what the hero's own
+   heading does — the axis to its top and a stroke on top of that, measured
+   rather than guessed. At 900 the stem is 1.75; the stroke below puts it at
+   2.125, which is 30.8% thicker than the 1.625 that was shipping, and the ink
+   goes 17883 → 22688, up 27%.
+
+   Measured the same way the hero's 1.7 was: render at 8x, take every run of
+   ink across every row of the name, read the median as the stem. Re-measure if
+   the size moves — the stroke does not scale with the type. */
+@media (max-width: 991.98px) {
+  .vp-deal-name,
+  .vp-best-name {
+    font-weight: 900;
+    -webkit-text-stroke-width: 0.3px;
+    -webkit-text-stroke-color: currentColor;
+    paint-order: stroke fill;
+  }
+}
+
+/* Half the air between a best seller's name and its price.
+
+   «فاصله بین اسم کتونی و قیمتش در قسمت پرفروش ترین ها باید نصف بشه». The two
+   line boxes already touch — the box gap is 0 — so what is being halved is the
+   two lines' own leading, which is ink to ink and has to be pixel-scanned
+   rather than read off a rule. Measured at 8x: 9.75, so half is 4.875.
+
+   It cannot land on 4.875, and the reason is worth writing down: the gap
+   quantises. Bisected against the rendered ink, -4.875px gives 5.5, -5px gives
+   4.5, and -5.5, -6 and -6.5 all give 3.5 — the two line boxes snap, so the
+   ink gap only steps in whole pixels however finely the margin is stated. 4.5
+   is the step nearer half than 5.5 is, so this is -5px.
+
+   The strip's height does not move: it is a stated 52.8 with its contents
+   centred, so the pair simply closes up inside it. */
+@media (max-width: 991.98px) {
+  .vp-best-cta {
+    margin-top: -5px;
+  }
+}
+
+/* The stepped sale's two materials, swapped.
+
+   «کارت سفیدی که تو قسمت حراج پله ای هست باید شیشه ای بشه و خود پله ها و
+   مواردی که داخلش شیشه ای هستن سفید بشن». The head was a white card carrying
+   glass chips; it is a glass card carrying white chips now. Same two materials,
+   the other way round — and it puts the section's largest surface on the same
+   glass as the hero card and the daily deal's pane, which is the material this
+   page is built from.
+
+   The glass is the page's own recipe, not a new one: `rgba(16,17,17,0.035)`
+   over `blur(10px)`, which is what `.heroSlide6 .hero-inner` and
+   `.vp-daily-deal` carry. The chips take plain white.
+
+   The notes below the steps were already white and are left alone — «مواردی که
+   داخلش شیشه‌ای هستن» is the glass ones, and they were the only glass ones. */
+@media (max-width: 991.98px) {
+  .vp-ladder-head {
+    background: rgba(16, 17, 17, 0.035);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+  }
+
+  .vp-step-rate b,
+  .vp-step-name,
+  .vp-step-when,
+  .vp-step-flag {
+    background: #FFFFFF;
+  }
+}
+
+/* The daily deal's pane and the brand panel, at the hero's corner.
+
+   «کرو کارت پیشنهاد امروز و برندهای موجود باید هم اندازه هیرو بشه» — the hero
+   card is 32.4 on a phone, so these are, from 40 and 32. Three of the page's
+   four big panes now turn at one radius; the fourth is the stepped sale's head
+   at 24, which nothing has asked about. */
+@media (max-width: 991.98px) {
+  .vp-daily-deal,
+  .vp-brands-panel {
+    border-radius: 32.4px;
+  }
+}

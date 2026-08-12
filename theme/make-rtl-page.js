@@ -1914,7 +1914,8 @@ const FOOT_COLS = [
     ['shop.html', 'کفش زنانه'],
     ['shop.html', 'کیف زنانه'],
     ['shop.html', 'پرفروش\u200cترین\u200cها'],
-    ['shop.html', 'جدیدترین\u200cها'],
+    // «جدیدترین‌ها» came off so this column is four items like the two beside
+    // it — «تعداد با بغلی ها برابر بشه».
     ['shop.html', 'تخفیف\u200cدارها'],
   ]],
 ];
