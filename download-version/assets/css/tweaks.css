@@ -9673,3 +9673,38 @@ ul.vp-how-list.is-ticked li:before {
 .th-menu-wrapper .th-menu-area {
   transition: all ease 0.5s;
 }
+
+/* The hero's eyebrow, off on a phone.
+
+   «میتونیم تو نسخه موبایل اون اسم کوچیک رو هیرو حذف کنیم؟ ولی رو نسخه دستاپ
+   باشدش؟» — the small name above the heading. It is «کتونی نیوبالانس ۵۳۰» and
+   so is the heading under it: on a phone the card said the same six words
+   twice, one size apart, in a column that had already been closed up by a
+   tenth to fit.
+
+   `display: none` below 992 and nothing else. The desktop keeps it, which is
+   the whole request.
+
+   **The copy block's top padding is on the block, not on the eyebrow**
+   (`.hero-style6` carries `padding-block: 23.25px 12.57px`), so the heading
+   still has its 23.25 above it rather than landing against the card's edge —
+   which is what would have happened had that number lived on the eyebrow's
+   margin, and is worth saying because the two are one line apart in the block
+   above.
+
+   The card gets shorter by exactly what the eyebrow occupied: its 28px line
+   box and the 15.71 under it, so 436.9 → 393.2. Nothing is re-spaced to hold
+   the old height — the four gaps are the client's own numbers, scaled together
+   from the template's, and padding one of them out to keep 436.9 would break
+   the proportion they were measured to keep.
+
+   The shoe and the star do not move. They are pinned inside the image column,
+   which is `order: 1` and sits above the copy, so the card's top edge to the
+   star is untouched at 31 and the shoe still spans 45.5 to 344.5 — only the
+   card's foot comes up. Measured at 375, 390, 430, 575, 767 and 991: card
+   393.2 at all six, star and shoe unmoved. */
+@media (max-width: 991.98px) {
+  .heroSlide6 .hero-inner .sub-title {
+    display: none;
+  }
+}
