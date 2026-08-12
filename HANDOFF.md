@@ -303,6 +303,26 @@ is a level down inside `storefront/`. Moving it up is a loose end.
   client found it on their own phone. Sweep 320, 360, **375**, 390, 430, 575.
 - **The preview server dies constantly.** Restart it with `setsid` rather than
   assuming it is up.
+- **`check-parity.js` is not reliably zero any more, and the noise is not
+  yours.** On an eleven-width sweep roughly every second run reports exactly one
+  width differing: a few hundred pixels, worst channel gap around 18, the
+  bounding box always inside a `.vp-deal-shot` photograph in the stepped sale,
+  and a different width each time. Re-running clears it, which is what makes it
+  dangerous — it is a guard whose failure looks like its noise. **Before
+  believing a parity failure, run it again and check whether the bbox lands on
+  a deal card's shot.** A real regression repeats at the same width with the
+  same bbox.
+
+  One cause was found and fixed: the reduced-motion guard for `.vp-deal-burst`
+  was written above the rules it overrides, at the same specificity, so the six
+  sale bursts kept rotating under `prefers-reduced-motion: reduce` and were
+  caught at different angles on the two pages. The guard is now repeated below
+  those rules and the bursts measure `animation: none`, `transform: none` on
+  both. **The flake survived that fix**, so there is at least one more cause,
+  and the remaining bbox is the photograph rather than the burst beside it — a
+  sub-pixel settling difference is the obvious suspect and has not been proven.
+  It is not the drawer work of this round: with that whole branch stashed, the
+  same signature appeared at 375.
 
 
 ## The footer's contact block, removed

@@ -2707,6 +2707,45 @@ option:hover {
   animation: vp-burst-twinkle 1.2s ease-in-out infinite;
 }
 
+/* The reduced-motion guard, repeated here because the one nine hundred lines
+   above cannot reach these two.
+
+   That block names `.vp-deal-burst .vp-burst-star` and
+   `.vp-deal-burst .vp-burst-stud` already, and it is written where the *hero's*
+   burst is defined — above the hero's own rules, which is why it wins for the
+   hero. These two rules came later in the file at the same specificity, so
+   source order handed it back to them and the guard has been dead ever since:
+   measured, `animationName` on a sale burst under
+   `prefers-reduced-motion: reduce` was `vp-burst-turn`, not `none`.
+
+   It also cost `check-parity.js` its determinism: that check renders both pages
+   with reduced motion emulated, so a 12s rotation that would not stop meant the
+   two copies were screenshotted at whatever angle each happened to reach.
+   Measured after, on both pages: `animationName` is `none` and `transform` is
+   `none` on all six sale bursts.
+
+   **That was not the whole of the flake, and this rule does not close it.**
+   The eleven-width sweep still comes back with one width differing on roughly
+   every second run — a few hundred pixels, worst channel gap about 18, always
+   inside a `.vp-deal-shot` photograph, on whichever width the run happens to
+   land on. It predates this rule and predates the drawer work either side of
+   it: with the whole branch stashed, the same signature turned up at 375. It is
+   written down in HANDOFF rather than guessed at here.
+
+   Repeated rather than moved: the block above is where the burst's movement is
+   explained and is the right place to read it, and the hero's half of it is
+   working. */
+@media (prefers-reduced-motion: reduce) {
+  .vp-deal-burst .vp-burst-star,
+  .vp-deal-burst .vp-burst-stud {
+    animation: none;
+  }
+
+  .vp-deal-burst .vp-burst-stud {
+    opacity: 1;
+  }
+}
+
 .vp-deal-burst text {
   fill: #FFFFFF;
   text-anchor: middle;
@@ -7601,7 +7640,18 @@ ul.vp-how-list.is-ticked li:before {
    those is a width. */
 @media (max-height: 730px) {
   .vp-drawer-head { padding: 10px 14px; }
-  .vp-logo-drawer img { width: 32px; height: 32px; }
+  /* The mark is **not** in this list. It came down to 32 with everything else
+     and that is what «لوگو همچنان تو قسمت منو کوچیکتر از صفحه هومه» is: the
+     header band's mark does not read the viewport's height, so on any phone
+     short enough to trigger this block — which is most of them once Safari's
+     chrome is counted — the shop's sign was 42 at the top of the page and 32
+     the moment the menu opened over it. The whole point of the drawer's lockup
+     is that those two are one number.
+
+     It costs this block nothing to leave it out. The head's height is
+     max(mark, close button) plus its padding, and the close button is 42 here
+     — so the head measures 62 either way. Verified at 393×700, 375×667 and
+     430×720: head 62, and the gap above the basket stays 11. */
   .vp-drawer-body { padding: 11px 14px; }
   .vp-quick { padding: 8px 3px 7px; }
   .vp-quick-mark { width: 26px; height: 26px; font-size: 11px; }
@@ -9498,4 +9548,30 @@ ul.vp-how-list.is-ticked li:before {
     height: 47.52px;
     border-radius: 23.76px;
   }
+}
+
+/* The drawer opens twice as fast.
+
+   «سرعت باز شدن منو باید ۲ برابر باشه». The template runs the scrim at
+   `all ease 0.8s` and the panel at `all ease 1s`, so the menu takes a full
+   second to arrive and the panel is still sliding after the scrim has finished.
+   Twice the speed is half the time: 0.4s and 0.5s, the same easing and the same
+   0.2s stagger between the two, so the movement is the one the template drew —
+   played at double rate — rather than a different one.
+
+   Both directions. The transition is one declaration per element and the close
+   runs back along it; a faster open with the old close would read as a menu
+   that is quick to arrive and slow to leave.
+
+   `all` is kept rather than narrowed to `left`/`opacity`. The island block
+   above puts a margin, a corner and a border on this element, and none of them
+   change between the two states — there is nothing else here for `all` to
+   animate, and narrowing it would be a second decision hidden inside a timing
+   change. */
+.th-menu-wrapper {
+  transition: all ease 0.4s;
+}
+
+.th-menu-wrapper .th-menu-area {
+  transition: all ease 0.5s;
 }
