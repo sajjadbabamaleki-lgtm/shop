@@ -1867,13 +1867,13 @@ option:hover {
 @media (max-width: 991.98px) {
   .th-header .menu-area,
   .th-header .sticky-wrapper.sticky .menu-area {
-    margin-inline: 9px;
+    margin-inline: 10px;
     /* And the same above. The desktop's 18 is one number on three sides and the
        phone's should be too — it was 18 above against 9 either side, which is
        the thing the island was set up to avoid in the first place. Still
        nothing below: the gap down to the hero is the hero's own padding, and a
        margin here would stack on top of it. */
-    margin-top: 9px;
+    margin-top: 10px;
     /* Twenty per cent off 24. The corner follows the panel: a smaller inset
        with the same radius reads rounder than it did, because the curve is a
        larger fraction of what is left. */
@@ -8047,7 +8047,7 @@ ul.vp-how-list.is-ticked li:before {
    card fills the width, so there is nothing here to disturb. */
 @media (max-width: 991.98px) {
   .heroSlide6 .hero-inner {
-    margin-inline: 9px;
+    margin-inline: 10px;
   }
 }
 
@@ -8485,11 +8485,11 @@ ul.vp-how-list.is-ticked li:before {
      the 575 reading was the one that looked like proof. */
   .vp-ladder-area > .container.th-container {
     max-width: none;
-    padding-inline: 9px;
+    padding-inline: 10px;
   }
 
   .vp-best-panel {
-    margin-inline: 9px;
+    margin-inline: 10px;
     padding: 0;
     border-radius: 0;
     background: none;
@@ -8498,7 +8498,7 @@ ul.vp-how-list.is-ticked li:before {
 
   .vp-ladder-deals,
   .vp-best-row {
-    --bs-gutter-x: 9px;
+    --bs-gutter-x: 10px;
   }
 
   .vp-ladder-deals > *,
@@ -8531,7 +8531,7 @@ ul.vp-how-list.is-ticked li:before {
    card 258.3 tall against 273.3. */
 @media (max-width: 991.98px) {
   .vp-best {
-    gap: 9px;
+    gap: 10px;
   }
 }
 
@@ -8614,7 +8614,7 @@ ul.vp-how-list.is-ticked li:before {
    Below 992; the desktop head keeps its 30. */
 @media (max-width: 991.98px) {
   .vp-ladder-head {
-    padding-inline: 9px;
+    padding-inline: 10px;
   }
 }
 
@@ -8658,7 +8658,7 @@ ul.vp-how-list.is-ticked li:before {
      at 390, so: measure both ends of the phone range, always. */
   .vp-daily-deal-wrap {
     max-width: none;
-    padding-inline: 9px;
+    padding-inline: 10px;
   }
 
   /* ── and then back into them, at the new proportion ──────────────────────
@@ -8672,12 +8672,12 @@ ul.vp-how-list.is-ticked li:before {
      Both keep the margins the block above gave them, so the pane's outer edge
      is at 9 and its inner edge at 18. */
   .vp-daily-deal {
-    padding: 9px;
+    padding: 10px;
   }
 
   .vp-brands-panel {
-    margin-inline: 9px;
-    padding: 9px;
+    margin-inline: 10px;
+    padding: 10px;
   }
 }
 
@@ -8923,8 +8923,8 @@ ul.vp-how-list.is-ticked li:before {
 
   .vp-foot-m {
     display: block;
-    /* The page's own 9, like every band above it. */
-    padding: 26px 9px 4px;
+    /* The page's own 10, like every band above it. */
+    padding: 26px 10px 4px;
     text-align: center;
   }
 
@@ -9075,5 +9075,42 @@ ul.vp-how-list.is-ticked li:before {
 
   .vp-foot-m-col a:hover {
     color: #A47F25;
+  }
+}
+
+/* Every side inset on the page is 10, the category strip included.
+
+   «همه فاصله ها از بغلا بشه ۱۰ بعلاوه نوار دسته بندی ها». The page ran on 9 —
+   the header island's own margin, which every band below it had been matched
+   to over this run — and the strip of category tiles was the one thing still
+   on the page container's 12, which the round before this noted and left.
+
+   So 9 goes to 10 everywhere it came from the island, and the strip joins it.
+   That is the island's three margins, the hero card, the stepped sale's
+   container and its head, the best sellers' panel, the daily deal's wrap and
+   its pane, the brand panel and its padding, the footer's padding, the gutter
+   down the middle of both product rows, and the gap between a best seller's
+   photograph and its strip — the last two because they were each set *equal to*
+   the side gap on the client's word, so they are the same number and not
+   coincidentally 9.
+
+   The strip's 12 is the page container's, so it is overridden here rather than
+   at the container, which the whole page uses. `max-width: none` with it, for
+   the reason two other blocks in this file now record: a Bootstrap container is
+   fluid only below 576 and fixed above it, and padding alone leaves the band
+   snapped to the middle of the page from 576 up.
+
+   Not the header's *inner* 12 — that is the air between the island's edge and
+   its controls, which is a different measure and was asked for separately. And
+   not the 13.5 above the hero card, which is «۵۰ درصد بیشتر» of what the gap
+   was when it was asked for, not a fraction of this number. Both left alone
+   deliberately; say so before changing either.
+
+   Measured after at 360, 390, 575, 767 and 991 — every band 10 from both
+   sides. */
+@media (max-width: 991.98px) {
+  .feature-area2 > .container.th-container {
+    max-width: none;
+    padding-inline: 10px;
   }
 }
