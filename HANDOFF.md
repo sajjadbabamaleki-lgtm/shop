@@ -292,6 +292,15 @@ is a level down inside `storefront/`. Moving it up is a loose end.
   repo's history were only settled that way. The tooling is in `CLAUDE.md`.
 - **Check the whole set of widths.** 992, 1200, 1440, 1920 at least. The header
   has broken onto three lines and overflowed the document twice.
+- **And 375 and 320, every time the phone page is touched.** The template has
+  bands of its own down there that nothing above 376 ever shows. One of them —
+  `@media (max-width: 375px)` in `style.css` — throws away `.feature-card`'s row
+  layout and stacks the icon above the copy, which met a stated `height` on the
+  five trust badges and printed each card's second line inside the card below
+  it. It shipped, and it shipped because the block that set that height records
+  measurements at "360, 390, 575, 767 and 991" — 375 is the one width in the
+  usual sweep that was skipped, and it was the only width that showed it. The
+  client found it on their own phone. Sweep 320, 360, **375**, 390, 430, 575.
 - **The preview server dies constantly.** Restart it with `setsid` rather than
   assuming it is up.
 
@@ -645,17 +654,60 @@ disturb.
 - **The drawer's lockup is the header's lockup.** It had a 36px tile and a 14px
   name of its own, so the shop's sign was one size at the top of the page and
   another the moment the menu opened over it. It now carries the phone header's
-  numbers exactly — 42/10, 14.52 at 900, 9.35 on one line — and they move
-  together.
+  numbers exactly — 14.52 at 900, 9.35 on one line — and they move together.
+
+  **The tile follows the header band per width, and the close button with it.**
+  The tile was 42 across the drawer's whole range, which agreed with the header
+  below 576 and quietly did not at 576–991, where the band's squares are 52.
+  Both are now the band's own pair — 42/12.65 below 576, 52/15.18 above it — so
+  the drawer's head is the header's head at every width the drawer opens at.
+  «آیکون لوگو باید تو قسمت منو هم اندازه هوم اصلی باشه و مربع ضبدر».
 - **The close button's cross is centred by its box**, the same fix the header's
-  three bars needed. Measured after: 11 above / 10 below, 10 left / 11 right. A
-  9px glyph in a 30px box cannot be better than half a pixel off on an integer
-  grid.
+  three bars needed. The box was 30 with a 9px glyph and is now one of the
+  header's squares, glyph at half the box — a control that grows and keeps its
+  old mark is a bigger control with a small glyph rattling in it.
 
 **`make-blade.js`'s first region was anchored on `<div class="magic-cursor`.**
 Removing the element threw the anchor rather than silently swallowing the whole
 chrome region into the one after it — which is exactly what that assertion is
 for. It anchors on `<div class="slider-drag-cursor">` now.
+
+## The drawer as an island, and two heights that had drifted
+
+- **The panel is an island, at the header island's numbers.** «منو بجای اینکه از
+  بالا پایین و راست بچسبه باید جزیره ای بشه». 10 from the top, the foot and the
+  outer edge, corner 19.2, the template's 3px gold side rule gone — the scrim
+  behind it (rgba(0,0,0,0.6)) draws the boundary at 255 against 102 and needs no
+  hairline, and no drop shadow either: the panel is not sitting on white, so
+  «لبه پنهان» has nothing to rescue here.
+
+  **It costs 20px of the drawer's height budget.** That was paid for in the same
+  round by «دسترسی سریع» coming off — the label over the three shortcuts and
+  the gold rule that ran off the end of it, both asked for by name — which gave
+  back its 19.5 line and its 10 margin. Measured after, and these are the two
+  numbers that budget states: **14px above the button on a 390×844 and 11 on a
+  375×667**, both unchanged, neither scrolling. A 320×568 scrolls by 48 and
+  scrolled by 50 before any of this; it is below the shortest screen still in
+  service and was never in the budget.
+
+  With that label gone, every `.vp-drawer-label` left is inside
+  `.vp-drawer-heading`, which had always turned the gold rule off — so the
+  `::after` that drew it was drawing nothing anywhere and went with it.
+
+- **The best seller's strip and the stepped sale's are one height, and it broke
+  once already.** The client levelled them by hand — «ارتفاع باکس اسم محصول و
+  قیمت … مث حراج پله ای بشه» — and `.vp-best-label`'s own rule says the number
+  is read off `.vp-deal-label` and that "if that one moves again these move with
+  them". A later round took a tenth off the sale strip below 992 and the best
+  seller's stayed where it was, so the pair drifted 5.28 apart on a phone and
+  nowhere else, and the client asked for it a second time. Both are 47.52 with a
+  23.76 corner below 992 now, and the browse circle and the swatch pill are
+  47.52 with them — **all four are one height by construction**, which is why
+  the number is stated in one place. Desktop is 52.8 throughout and is level.
+
+  The corner is half the height on purpose: these are pills, and a height moved
+  without its radius leaves one of them a rounded rectangle beside a pill. The
+  shape is what is being matched, not only the number.
 
 ## The hero card on a phone
 

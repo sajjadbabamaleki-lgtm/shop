@@ -27,7 +27,11 @@
                     <button type="button" class="th-menu-toggle" aria-label="بستن منو"><i class="fal fa-times" aria-hidden="true"></i></button>
                 </div>
                 <div class="vp-drawer-body">
-                    <p class="vp-drawer-label">دسترسی سریع</p>
+                    {{-- No label over the three shortcuts. «اون دسترسی سریع و
+                         خط روبروش باید از منو حذف بشن» — the heading and the
+                         gold rule that ran off the end of it both. The chips
+                         say what they are. The «فروشگاه» heading below stays:
+                         it has a list under it that does need naming. --}}
                     <div class="vp-drawer-quick">
                         {{-- The sale is the lit one, and it is the listing's own
                              `sale` filter rather than a page of its own — one

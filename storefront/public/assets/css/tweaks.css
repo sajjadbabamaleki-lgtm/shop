@@ -7270,12 +7270,14 @@ ul.vp-how-list.is-ticked li:before {
   padding: 14px 16px;
 }
 
-/* The section label, with the short gold rule the old menu had beside it —
-   drawn rather than typed, so it cannot end up on a line of its own. */
+/* The section label. It used to carry a short gold rule beside it, drawn as an
+   `::after` so it could not end up on a line of its own; «اون دسترسی سریع و خط
+   روبروش باید از منو حذف بشن» took the rule off with the one free-standing
+   label that showed it. Every label left in the drawer is inside
+   `.vp-drawer-heading`, which had always turned the rule off — so the rule was
+   drawing nothing anywhere, and the flex row and the gap that laid it out are
+   gone with it. */
 .vp-drawer-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
   margin: 0 0 10px;
   font-family: 'Cairo', var(--title-font);
   font-weight: 700;
@@ -7288,14 +7290,6 @@ ul.vp-how-list.is-ticked li:before {
   color: #A47F25;
 }
 
-.vp-drawer-label::after {
-  content: '';
-  flex: 1;
-  height: 2px;
-  border-radius: 2px;
-  background: linear-gradient(270deg, #C0972F 0%, rgba(192, 151, 47, 0) 100%);
-}
-
 .vp-drawer-heading {
   display: flex;
   align-items: center;
@@ -7306,10 +7300,6 @@ ul.vp-how-list.is-ticked li:before {
 
 .vp-drawer-heading .vp-drawer-label {
   margin: 0;
-}
-
-.vp-drawer-heading .vp-drawer-label::after {
-  display: none;
 }
 
 /* «همه محصولات» — the brand strip's own see-all, at the drawer's size. */
@@ -9307,5 +9297,205 @@ ul.vp-how-list.is-ticked li:before {
 
   .vp-trust-row .feature-card {
     height: 75.6px;
+  }
+}
+
+/* The five trust badges, still one line each under 376.
+
+   «چرا اون ۵ آیتمو اینجوری کردی؟ خراب شدن» — with a screenshot of the icon
+   tiles floating over the copy and each card's second line printed inside the
+   card below it.
+
+   Not a phone-wide fault and not the glass: it is one template rule meeting
+   one of ours. `style.css` has a `max-width: 375px` band that gives up on the
+   badge's row layout entirely —
+
+     .feature-card          { display: block; margin: auto; text-align: center }
+     .feature-card .box-icon { display: block; max-width: 64px;
+                               margin: auto auto 20px auto }
+
+   — which stacks a 64px tile above the copy and centres both. That wants about
+   138px of card. The block above states `height: 75.6px` on these five, so the
+   copy is pushed straight out of the bottom of the glass and lands over the
+   next card, and the tile sits across the seam between the two. Every phone at
+   376 and up was fine, which is why it survived: 390, 430 and 575 all keep the
+   row layout and measure 75.6 exactly.
+
+   The row layout is the right one at 320 as well — it is five one-line badges,
+   not five posters — so the band is answered rather than the height given up.
+   Three classes to beat the template's two, and only the two declarations that
+   do the damage are undone: the tile goes back to sitting beside the copy with
+   no auto margins, and the card goes back to a flex row reading from the start
+   edge.
+
+   Measured after at 320, 360 and 375, all five cards: 75.6 tall, 10 from both
+   sides, tile 64 on the reading edge, and no card's content box overflowing its
+   glass. 320 is the tightest — 236 of copy against the 226 the longest pair of
+   lines wants — and nothing wraps there. */
+@media (max-width: 375px) {
+  .vp-trust-row .feature-card {
+    display: flex;
+    margin: 0;
+    text-align: start;
+  }
+
+  .vp-trust-row .feature-card .box-icon {
+    margin: 0;
+    max-width: none;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   The drawer as an island, and its close button as one of the header's squares.
+   -------------------------------------------------------------------------- */
+
+/* «منو بجای اینکه از بالا پایین و راست بچسبه باید جزیره ای بشه».
+
+   The panel was the template's: full height, flush to the top, the foot and
+   the reading edge, with a 3px gold rule down its outer side and square
+   corners. Everything else on this phone page is an island — the header at 10
+   with a 19.2 corner, the trust cards at 10, the product panes at 9 — and the
+   menu was the one surface still nailed to the screen.
+
+   Same numbers as the header island, because it is the same object seen twice:
+   10 from the top, the foot and the outer edge, corner 19.2. The width is not
+   touched — `min(86vw, 400px)` was measured off the menu the client sent and
+   the 10 comes out of it, not off the categories.
+
+   `height: calc(100% - 20px)` rather than a bottom inset: the panel is
+   `position: relative` and slides in on `left`, so its box has to keep coming
+   from the flow. The wrapper is the full viewport, so 100% is the screen and
+   the 20 is the two insets.
+
+   `overflow: hidden` because the corner has to cut something — the head's
+   hairline and the foot's button both run edge to edge and would otherwise
+   square the panel back off at top and bottom.
+
+   The template's gold `border-right` goes. On a panel with square corners it
+   was the edge; on a rounded one it is a rule that stops short at both ends,
+   and the scrim behind the panel (rgba(0,0,0,0.6)) already draws the boundary
+   harder than any hairline — 255 against 102 down the whole side. No drop
+   shadow either, for the same reason and for «لبه پنهان»'s: the panel is not
+   sitting on white here, so there is nothing for a shadow to rescue.
+
+   Below 992 only, which is where the drawer exists at all — its opener is
+   `d-block d-lg-none`. */
+@media (max-width: 991.98px) {
+  .th-menu-wrapper .th-menu-area {
+    height: calc(100% - 20px);
+    margin-block: 10px;
+    /* The outer edge. The panel hugs the inline-start side of an rtl wrapper,
+       which is the right of the screen, so this is the 10 that lifts it off
+       that edge — not `margin-inline-end`, which is the side it never touches.
+       The width above it is untouched, so the panel moves 10 rather than
+       losing 10. */
+    margin-inline-start: 10px;
+    border: 0;
+    border-radius: 19.2px;
+    overflow: hidden;
+  }
+}
+
+/* The close button, at the header's own size and corner.
+
+   «آیکون لوگو باید تو قسمت منو هم اندازه هوم اصلی باشه و مربع ضبدر». The mark
+   already is: `.vp-logo-drawer img` is 42, the same 42 the header band carries
+   below 576, and it takes the header's 12.65 corner from the block at the end
+   of this file. The X was not — 30 square with a 10 corner, drawn small and
+   quiet back when it was the only control in a 270px panel.
+
+   So it becomes one of the header's squares: 42 and 12.65 below 576, 52 and
+   15.18 above it, exactly the numbers `.th-header .th-menu-toggle.d-block` and
+   the basket beside it use. The drawer's head now reads as the header's does —
+   the mark on one side, a square control on the other, both the same size —
+   which is what the two halves of that sentence are asking for together.
+
+   The glyph goes up with the box: 15 in a 30 square is half of it, and the
+   same half of 42 is 21. A control that grows and keeps its old mark is a
+   bigger control with a small glyph rattling in it — the same note the best
+   seller's browse circle carries.
+
+   Measured at 390: head 42 of mark against 42 of button, both centred on the
+   head's own 63.6 line, and the panel's inner width unchanged. */
+.th-menu-wrapper .th-menu-toggle {
+  width: 42px;
+  height: 42px;
+  border-radius: 12.65px;
+  font-size: 21px;
+}
+
+/* And above 576 the pair goes up together, because that is where the header
+   band's own squares go to 52.
+
+   The mark is in here as well. `.vp-logo-drawer` already says the drawer's
+   lockup is the header's lockup and that the two "have to be one number, not
+   two that happen to agree today" — and below 576 they did agree, at 42, which
+   is why nobody noticed that the drawer held 42 across the whole range while
+   the header band went to 52 at 576. Putting the X on the header's numbers
+   would have made that visible as a mark smaller than the button beside it, so
+   the mark takes them too and the drawer's head is the header band's pair at
+   every width the drawer opens at.
+
+   After the corner block at the end of this file, not beside the width nine
+   hundred lines up: `.vp-logo-drawer img` and `.vp-logo img` are the same
+   specificity and source order is the only thing deciding between them — the
+   same note that block carries. */
+@media (min-width: 576px) and (max-width: 991.98px) {
+  .th-menu-wrapper .th-menu-toggle {
+    width: 52px;
+    height: 52px;
+    border-radius: 15.18px;
+    font-size: 26px;
+  }
+
+  .vp-logo-drawer img {
+    width: 52px;
+    height: 52px;
+    border-radius: 15.18px;
+  }
+}
+
+/* The best seller's name-and-price box, back level with the sale's price box.
+
+   «ارتفاع باکس قیمت و اسم در بخش پرفروش ترین ها باید هم ارتفاع باکس قیمت بخش
+   حراج باشه».
+
+   These two have been tied together since the client first asked for it — the
+   rule on `.vp-best-label` says so in as many words: "the number is not chosen
+   here — it is read off that strip, and if that one moves again these move with
+   them." That one did move. A round later `.vp-deal-label` took a tenth off
+   below 992, 52.8 → 47.52, and the best seller's strip stayed at 52.8, so the
+   pair the client had levelled drifted 5.28 apart on a phone and nowhere else.
+
+   47.52, and the corner with it: both strips are pills — 26.4 was half of 52.8
+   and 23.76 is half of 47.52 — so a height changed without the radius would
+   leave this one a rounded rectangle beside a pill, which is the shape being
+   matched, not just the number.
+
+   The browse circle and the swatch pill come too. All three are one height by
+   construction — a circle taller than the strip it sits beside is exactly the
+   thing that height was stated once to prevent — and the circle's glyph takes
+   the same tenth, 18 → 16.2, for the reason its own rule gives.
+
+   Below 992 only. The desktop pair is still 52.8 against 52.8 and is already
+   level; «به هیچ عنوان به نسخه دستاپ دست نزنی» stands.
+
+   Measured at 360, 375, 390, 430, 575 and 991: both boxes 47.5, the circle
+   47.5, and no name ellipsized or price wrapped that was not already. */
+@media (max-width: 991.98px) {
+  .vp-best-label {
+    height: 47.52px;
+    border-radius: 23.76px;
+  }
+
+  .vp-best-browse {
+    width: 47.52px;
+    height: 47.52px;
+    font-size: 16.2px;
+  }
+
+  .vp-best-colors {
+    height: 47.52px;
+    border-radius: 23.76px;
   }
 }

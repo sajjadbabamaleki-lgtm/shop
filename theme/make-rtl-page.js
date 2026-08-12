@@ -383,7 +383,11 @@ const DRAWER =
   '                    <button type="button" class="th-menu-toggle" aria-label="بستن منو"><i class="fal fa-times" aria-hidden="true"></i></button>\n' +
   '                </div>\n' +
   '                <div class="vp-drawer-body">\n' +
-  '                    <p class="vp-drawer-label">دسترسی سریع</p>\n' +
+  // No label over the three shortcuts. «اون دسترسی سریع و خط روبروش باید از
+  // منو حذف بشن» — the heading and the gold rule that ran off the end of it
+  // both. The chips say what they are; the label was naming a category the
+  // menu does not otherwise have. The «فروشگاه» heading below stays: it has a
+  // list under it that does need naming, and «همه محصولات» opposite it.
   '                    <div class="vp-drawer-quick">\n' +
   QUICK_LINKS.map(([icon, name, lit]) =>
     `                        <a class="vp-quick${lit ? ' ' + lit : ''}" href="shop.html">\n` +
