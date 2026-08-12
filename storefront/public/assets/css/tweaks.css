@@ -9233,3 +9233,79 @@ ul.vp-how-list.is-ticked li:before {
     border-radius: 32.4px;
   }
 }
+
+/* The lines round the daily deal's pane and the brand panel, off.
+
+   «خطهای دور کارت پیشنهاد امروز و برندهای موجود حذف بشن». Each pane carried a
+   1.5px inset ring — 0.10 on the daily deal, 0.12 on the brands — which is what
+   reads as a drawn line round a pane that already has a tint to end it. The
+   soft drop shadow under the brand panel is not a line and stays; only the
+   rings go.
+
+   The white card *inside* the daily deal keeps its own hairline: it is a card
+   on a pane, not the pane, and nothing was said about it. */
+@media (max-width: 991.98px) {
+  .vp-daily-deal,
+  .vp-brands-panel {
+    box-shadow: none;
+  }
+
+  .vp-brands-panel {
+    box-shadow: 0 18px 32px -22px rgba(16, 17, 17, 0.18);
+  }
+}
+
+/* Half the air between the struck price and the live one.
+
+   «در قسمت حراج فاصله بین قیمت خط خورده و قیمت اصلی نصف بشه» — the two are the
+   flex row's own children and 7 apart, so 3.5. Nothing else in the strip moves:
+   the price line is one line at 20 tall and the strip a stated 47.52, so the
+   pair simply closes up. */
+@media (max-width: 991.98px) {
+  .vp-deal-price {
+    gap: 3.5px;
+  }
+}
+
+/* The five trust cards: a tenth shorter, and 10 all round.
+
+   «اون ۵ آیتم ارسال رایگان… ارتفاعشون ۱۰ درصد کمتر بشه فاصلشون از بغلا هم ۱۰
+   پیکسل بشه فاصلشون از هم هم ۱۰ پیکسل بشه».
+
+   The row is the last thing on the page still standing at 18 a side — it was
+   set to match the header island back when the island was 18, and the island
+   has been 10 for two rounds. 10 now, like everything else.
+
+   The gutter carries both the gap between the cards and, through the row's own
+   negative margin, where the cards start; 24 to 10 answers «فاصلشون از هم» and
+   the margin above answers «از بغلا», and the two have to move together or the
+   cards land 7 off where the margin says they should.
+
+   The height is stated rather than padded down. It was 84 — content plus 10 of
+   padding, equalised by `height: 100%` across the row — and a tenth off is
+   75.6. Stating it keeps the five equal by construction rather than by the
+   tallest one, which is what `height: 100%` was doing.
+
+   Measured after at 360, 390, 575, 767 and 991: five cards, 75.6 tall, 10 from
+   both sides, and every gap between them exactly 10.0.
+
+   **Measure them entered.** The first reading came back 10, 44, 10, 10 and the
+   44 was the measurement, not the row: these cards carry the page's scroll-in
+   with `--enter-y: 34px`, so a card that has not arrived yet sits 34 low —
+   10 + 34 = 44. The columns were evenly spaced at 663.4, 749.0, 834.6, 920.2
+   and 1005.8 the whole time, 85.6 apart, which is 75.6 and 10. Wait for every
+   card's opacity to reach 1 before believing a number off this row. */
+@media (max-width: 991.98px) {
+  .vp-trust-row-wrap {
+    margin-inline: 10px;
+  }
+
+  .vp-trust-row {
+    --bs-gutter-x: 10px;
+    --bs-gutter-y: 10px;
+  }
+
+  .vp-trust-row .feature-card {
+    height: 75.6px;
+  }
+}
