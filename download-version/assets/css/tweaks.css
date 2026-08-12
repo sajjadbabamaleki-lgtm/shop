@@ -8782,3 +8782,112 @@ ul.vp-how-list.is-ticked li:before {
     font-weight: 735;
   }
 }
+
+/* Ten pixels of air between the shoe and its name.
+
+   «باید یه حریم ۱۰ پیکسلی بین باکس اسم محصول و عکس محصول باشه که اینجوری محصول
+   نره زیر باکس». The shot's box is `inset: 23% 16.4% 27.4%` — percentages of a
+   square tile — and the strip beneath it is fixed: 47.52 tall, 12 up from the
+   tile's foot. Two systems, so their distance apart changes with the tile: at
+   390 the box's foot sat 49.7 up and the strip's head 59.5 up, which is the
+   photograph ending 9.8px *inside* the strip. The client drew the line where
+   the Jordan's sole crosses it.
+
+   The box's foot has to land at 12 + 47.52 + 10 = 69.52 from the tile's own
+   foot, and the two ends are in different units — the top is 23% of a square
+   tile, the bottom a fixed 69.52 — so the height is the thing to state:
+   `calc(77% - 69.52px)`, which is what is left of the tile once the top's 23%
+   and the strip's stack come off it.
+
+   **Not `bottom` with `height: auto`.** That was the first attempt and it
+   silently did nothing: for a *replaced* element `height: auto` resolves to
+   the intrinsic height, so the box keeps the shape of the photograph and the
+   `bottom` is dropped. Measured, the clearance came out -6.0 at 390 and -10.4
+   at 360 — the shoe still inside the strip, and the rule looking applied in
+   the inspector the whole time.
+
+   `object-fit: contain` then letterboxes the shoe inside that box, so 10 is a
+   floor rather than an exact: the clearance is 10 plus whatever the
+   letterboxing adds on a shoe that is wider than it is tall.
+
+   Below 992, where the tile is small enough for the two systems to collide. */
+@media (max-width: 991.98px) {
+  .vp-deal-shot img {
+    height: calc(77% - 69.52px);
+  }
+}
+
+/* The names, another tenth of weight. 735 → 808.5, on both strips together as
+   the round before left them. */
+@media (max-width: 991.98px) {
+  .vp-deal-name,
+  .vp-best-name {
+    font-weight: 808.5;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   «لبه پنهان» again, on the sale's cards. Read the entry in CLAUDE.md first.
+
+   The client: «پایین قسمت حراج پله ای یه شکستگی نور هست که خطای چشم ایجاد کرده
+   انگار یه چیز سفید اونجا اومده رو سایه و لبه کارتها» — and they are right,
+   and it is the same fault the hero card had, for the same reason.
+
+   Measured down the middle of a card's foot at 390, from six pixels inside to
+   the page below:
+
+     250 251 251 252 253 254 254 | 255 255 255 …
+
+   The card is white on a white page. Its own ring is `0 0 0 1px` at 5%, which
+   is 243 at full strength and is drawn *inside* the corner radius where the
+   foot curves away, so down the middle it contributes nothing. Its drop
+   shadow is `0 8px 22px -12px`: the -12 spread pulls the shadow's rectangle
+   12px inside the card and the +8 offset drops it, so at the card's own edge
+   the shadow is already past its own boundary and contributes about a level.
+   The step from card to page is 254 → 255. One level. There is no edge, and
+   the long climb from 250 is the «شکستگی نور».
+
+   The remedy is the one that entry ends with: draw the edge as an edge.
+
+     the foot is ink — `inset 0 -1.4px 0 rgba(16,17,17,0.07)`, the same
+     thickness and the same alpha the hero card's foot carries;
+     and the drop shadow goes, because the fade *is* the drop shadow. Raising
+     its alpha instead buys the edge back and puts a hard line under the card,
+     which is the thing the client rejected in those words the first time.
+
+   Measured after, the same column:
+
+     250 252 253 254 245 238 243 | 255 255 …
+
+   The card's interior still climbs to 254 — that is its own ring, and it is
+   fine — and then the ink lands at 238 and the page is 255 in the very next
+   pixel. Seventeen levels in one step, where there was one level before. The
+   hero card reads 247 → 234 → 255 on the same construction; this one starts
+   from white rather than glass, so the ink sits at 238 instead of 234.
+
+   **Measure this with the card actually revealed.** `.vp-deal` carries the
+   page's scroll-in, so a card that has not been scrolled to is `opacity: 0` —
+   pure white, foot and all. A full-page screenshot reads 255 down the whole
+   column and looks exactly like a rule that did not apply. Scroll it into
+   view, wait for the opacity to reach 1, and then scan.
+
+   The hover shadow goes with it: a card that grows a drop shadow on hover
+   grows the fade back for as long as the pointer is on it.
+
+   Below 992, and the same treatment is *not* applied to the best sellers'
+   shot, which was not what the client was looking at. Its foot has the same
+   construction and will read the same way; noted here so the next person can
+   decide it rather than discover it. */
+@media (max-width: 991.98px) {
+  .vp-deal-shot {
+    box-shadow:
+      0 0 0 1px rgba(16, 17, 17, 0.05),
+      inset 0 -1.4px 0 rgba(16, 17, 17, 0.07);
+  }
+
+  .vp-deal:hover .vp-deal-shot {
+    box-shadow:
+      0 0 0 1px rgba(164, 127, 37, 0.28),
+      inset 0 -1.4px 0 rgba(16, 17, 17, 0.07);
+  }
+}
