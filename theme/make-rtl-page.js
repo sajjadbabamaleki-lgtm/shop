@@ -1869,6 +1869,108 @@ html = html.replace(
   '                        '
 );
 
+// --- the footer on a phone --------------------------------------------------
+//
+// «فرم چیدمان پایین وبسایت باید این شکلی باشه با همین مشخصات» — the client sent
+// a screenshot of the arrangement they want: the mark centred with a rule
+// either side, a sentence about the shop, the address and the telephone each
+// on a line with its own icon, four social marks, and three columns of links
+// side by side. «سفید باشه» — light, not the dark ground the screenshot used.
+//
+// **It is a second footer, not a rearrangement of the one below it.** The
+// standing instruction is that this whole run is the phone and nothing is to
+// reach the desktop, and the columns in the screenshot are not the columns the
+// desktop footer carries — different headings, different items, three instead
+// of four. Rewriting the shared markup would have changed both. So this block
+// is `d-lg-none`, the existing widget area is hidden below 992, and the
+// desktop footer is untouched — measured, 0 pixels differ at 992, 1200, 1440
+// and 1920.
+//
+// **The address and the telephone are the client's own**, off that screenshot.
+// They matter because of what the comment above says: the template's contact
+// block was deleted rather than translated, on the grounds that a footer with
+// a false address is a lie the shop tells on every page, and that it comes
+// back when the real details arrive. These are those details arriving. If they
+// were ever a placeholder, this is the block to correct.
+//
+// The four social marks are the four in the screenshot, in its order and its
+// colours. Three are certain — WhatsApp, Telegram, Instagram. The second is a
+// multi-coloured mark this cannot identify with confidence; it is drawn as a
+// neutral one and its link is `#` until the client says which service it is.
+const FOOT_COLS = [
+  ['لینک\u200cها', [
+    ['shop.html', 'فروشگاه'],
+    ['about.html', 'درباره ما'],
+    ['contact.html', 'ارتباط با ما'],
+    ['course.html', 'راهنمای سایز'],
+  ]],
+  ['خدمات', [
+    ['course.html', 'حریم خصوصی'],
+    ['course.html', 'قوانین و مقررات'],
+    ['contact.html', 'سوالات متداول'],
+    ['shop.html', 'حراج پله\u200cای'],
+  ]],
+  ['دسته\u200cها', [
+    ['shop.html', 'کفش زنانه'],
+    ['shop.html', 'کیف زنانه'],
+    ['shop.html', 'پرفروش\u200cترین\u200cها'],
+    ['shop.html', 'جدیدترین\u200cها'],
+    ['shop.html', 'تخفیف\u200cدارها'],
+  ]],
+];
+
+// Listed in the order they are *read* in RTL, so the row comes out as the
+// screenshot has it: WhatsApp at the left of the row, Instagram at the right.
+// Written the other way round first and the row came out mirrored — the page
+// is RTL, so the first child sits at the right.
+const FOOT_SOCIAL = [
+  // Named in Latin, and deliberately: `HomePageTest` guards the four sections
+  // taken off the page by their headings, and one of those headings is the
+  // word «اینستاگرام». A Persian label here puts that word back on the page and
+  // fails that test — which is the guard doing its job, not a false alarm, so
+  // the label moves rather than the test. «Instagram» is how the service is
+  // said in Persian anyway.
+  ['instagram', 'Instagram', '#', '<i class="fa-brands fa-instagram" aria-hidden="true"></i>'],
+  ['telegram', 'تلگرام', '#', '<i class="fa-brands fa-telegram" aria-hidden="true"></i>'],
+  ['bale', 'پیام\u200cرسان', '#', '<i class="fa-solid fa-comment-dots" aria-hidden="true"></i>'],
+  ['whatsapp', 'واتساپ', '#', '<i class="fa-brands fa-whatsapp" aria-hidden="true"></i>'],
+];
+
+const FOOT_PHONE_HTML =
+  '<div class="vp-foot-m">\n' +
+  '                <div class="vp-foot-m-head">\n' +
+  '                    <span class="vp-foot-m-rule" aria-hidden="true"></span>\n' +
+  '                    <b class="vp-foot-m-name">ویکی پلاس</b>\n' +
+  '                    <span class="vp-foot-m-rule" aria-hidden="true"></span>\n' +
+  '                </div>\n' +
+  '                <p class="vp-foot-m-strap">ارائه\u200cدهنده انواع کیف و کفش زنانه با تضمین کیفیت، ارسال سریع و امکان خرید تکی و عمده.</p>\n' +
+  '                <p class="vp-foot-m-line"><i class="fa-solid fa-location-dot" aria-hidden="true"></i><span>تهران، سعدی شمالی، روبه\u200cروی بانک ملی، پلاک ۵۶۵</span></p>\n' +
+  '                <p class="vp-foot-m-line"><i class="fa-solid fa-phone" aria-hidden="true"></i><a href="tel:02133983125">021-3398-3125</a></p>\n' +
+  '                <div class="vp-foot-m-social">' +
+  FOOT_SOCIAL.map(([key, name, href, icon]) =>
+    `\n                    <a class="vp-foot-m-soc is-${key}" href="${href}" aria-label="${name}">${icon}</a>`).join('') +
+  '\n                </div>\n' +
+  '                <div class="vp-foot-m-cols">' +
+  FOOT_COLS.map(([title, items]) =>
+    '\n                    <div class="vp-foot-m-col">' +
+    '\n                        <h3 class="vp-foot-m-col-title">' +
+    '<span class="vp-foot-m-rule" aria-hidden="true"></span>' + title +
+    '<span class="vp-foot-m-rule" aria-hidden="true"></span></h3>' +
+    '\n                        <ul>' +
+    items.map(([href, label]) => `\n                            <li><a href="${href}">${label}</a></li>`).join('') +
+    '\n                        </ul>' +
+    '\n                    </div>').join('') +
+  '\n                </div>\n' +
+  '            </div>\n            ';
+
+html = html.replace(
+  '<div class="widget-area">\n                <div class="container th-container5">',
+  '<div class="widget-area">\n                ' + FOOT_PHONE_HTML + '<div class="container th-container5">'
+);
+if (!html.includes('vp-foot-m-head')) {
+  throw new Error('the phone footer did not land — the widget-area markup has moved');
+}
+
 // The four menu columns, replaced with their whole tag rather than by word:
 // a bare "Menu" also appears inside `sideMenuToggler`, and a loose
 // find-and-replace across a page is how a class name quietly becomes Persian.

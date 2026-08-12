@@ -8891,3 +8891,189 @@ ul.vp-how-list.is-ticked li:before {
       inset 0 -1.4px 0 rgba(16, 17, 17, 0.07);
   }
 }
+
+/* ==========================================================================
+   The footer on a phone.
+
+   «فرم چیدمان پایین وبسایت باید این شکلی باشه با همین مشخصات» with a
+   screenshot, and «سفید باشه» — the arrangement from the screenshot, on the
+   page's own light ground rather than the dark one it was drawn on.
+
+   The block is `.vp-foot-m`, written into the markup as a second footer rather
+   than as a rearrangement of the one below it: its three columns are not the
+   desktop's four, and the standing instruction for this whole run is that
+   nothing reaches the desktop. So this shows below 992 and the widget area
+   shows above it, and neither knows about the other.
+   ========================================================================== */
+/* Off above 992, and this is the rule that keeps the desktop out of it. The
+   first version of this block said `d-lg-none` in its comment and never put it
+   in the markup, so the phone's footer rendered on the desktop as well and the
+   page grew 730px at every width — 7454 → 8184 at 992. The parity check said
+   "identical" the whole time, because both copies had grown by the same 730.
+   Reading the desktop is what caught it, which is the third time in this run. */
+.vp-foot-m {
+  display: none;
+}
+
+@media (max-width: 991.98px) {
+  /* The desktop footer's own columns, off. */
+  .footer-wrapper .widget-area > .container.th-container5 {
+    display: none;
+  }
+
+  .vp-foot-m {
+    display: block;
+    /* The page's own 9, like every band above it. */
+    padding: 26px 9px 4px;
+    text-align: center;
+  }
+
+  /* The mark, centred with a rule running out to either side. The rules take
+     the space that is left, so the name stays centred whatever its width. */
+  .vp-foot-m-head {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+  }
+
+  .vp-foot-m-rule {
+    flex: 1;
+    height: 1px;
+    max-width: 84px;
+    background: linear-gradient(90deg, rgba(192, 151, 47, 0), #C0972F);
+  }
+
+  .vp-foot-m-rule:last-child {
+    background: linear-gradient(90deg, #C0972F, rgba(192, 151, 47, 0));
+  }
+
+  .vp-foot-m-name {
+    font-family: 'Cairo', var(--title-font);
+    font-weight: 800;
+    font-size: 22px;
+    color: #A47F25;
+  }
+
+  .vp-foot-m-strap {
+    margin: 18px auto 20px;
+    max-width: 34ch;
+    font-size: 13px;
+    line-height: 2;
+    color: rgba(16, 17, 17, 0.62);
+  }
+
+  /* Address and telephone, each on its line with its own mark. RTL, so the
+     icon leads from the right the way the reading does. */
+  .vp-foot-m-line {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    margin: 0 0 10px;
+    font-size: 13px;
+    line-height: 1.9;
+    color: rgba(16, 17, 17, 0.72);
+  }
+
+  .vp-foot-m-line i {
+    flex: none;
+    font-size: 15px;
+    color: #C0972F;
+  }
+
+  .vp-foot-m-line a {
+    color: inherit;
+    direction: ltr;
+  }
+
+  /* The four marks. Rounded squares at the icons' own size — the same corner
+     ratio the header's controls carry, 0.292 of the box, so the foot of the
+     page and the head of it are drawn by the same hand. */
+  .vp-foot-m-social {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin: 20px 0 28px;
+  }
+
+  .vp-foot-m-soc {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 12.65px;
+    font-size: 19px;
+    color: #FFFFFF;
+    /* Each on its own service's colour, which is what the screenshot shows and
+       is the one place on this page where the palette is not the shop's. */
+    background: #25D366;
+    box-shadow:
+      0 0 2px rgba(16, 17, 17, 0.10),
+      0 0 8px -2px rgba(16, 17, 17, 0.14);
+    transition: transform 0.2s ease;
+  }
+
+  .vp-foot-m-soc:hover {
+    transform: translateY(-2px);
+    color: #FFFFFF;
+  }
+
+  /* The second mark is a service this could not identify from the screenshot —
+     a multi-coloured cube. It is neutral here and its link is '#'; see the
+     comment in make-rtl-page.js. */
+  .vp-foot-m-soc.is-bale { background: linear-gradient(135deg, #F0A020, #E0457B 55%, #4A6CF7); }
+  .vp-foot-m-soc.is-telegram { background: #2AABEE; }
+  .vp-foot-m-soc.is-instagram { background: linear-gradient(135deg, #F9CE34, #EE2A7B 55%, #6228D7); }
+
+  /* Three columns side by side, as narrow as they need to be. `1fr` each
+     rather than auto, so the three read as one grid and the middle one does
+     not drift with the length of its longest item. */
+  .vp-foot-m-cols {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-top: 6px;
+  }
+
+  .vp-foot-m-col-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    margin: 0 0 14px;
+    font-family: 'Cairo', var(--title-font);
+    font-weight: 800;
+    font-size: 13px;
+    color: #A47F25;
+    white-space: nowrap;
+  }
+
+  /* The heading's rules are short strokes rather than the long fades the
+     lockup's are — the same device at the size the column allows. */
+  .vp-foot-m-col-title .vp-foot-m-rule {
+    max-width: 16px;
+    background: #C0972F;
+  }
+
+  .vp-foot-m-col ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .vp-foot-m-col li + li {
+    margin-top: 12px;
+  }
+
+  .vp-foot-m-col a {
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: rgba(16, 17, 17, 0.72);
+  }
+
+  .vp-foot-m-col a:hover {
+    color: #A47F25;
+  }
+}
