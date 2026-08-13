@@ -11450,3 +11450,42 @@ ul.vp-how-list.is-ticked li:before {
     inset-block-start: 2px;
   }
 }
+
+/* The photograph, 5% bigger.
+
+   «عکس محصول ۵ درصد بزرگتر بشه» — the shoe's box scaled by 1.05 in both
+   directions, below 992.
+
+     width   67.2%  ->  70.56%
+     height  calc(77% - 69.52px)  ->  calc(80.85% - 72.996px)
+
+   **The insets have to move with the width, or the shoe goes off centre.** The
+   base rule is `inset: 23% 16.4% 27.4%` *and* `width: 67.2%` — 16.4 + 67.2 +
+   16.4 = 100, so the two agree and the box is centred. They only agree by
+   arithmetic, though: with a left, a right and a width all specified, the
+   width wins and the right inset is dropped. Widening to 70.56% while the
+   insets stay at 16.4 would anchor the box to one side and hang the extra
+   3.36% off the other — a shoe 3px off centre, on every card, from a change
+   that reads as symmetrical. So the pair is restated: (100 − 70.56) ÷ 2 =
+   14.72 on each side.
+
+   The height grows downward, because the box's top is anchored at 23% and only
+   its height is scaled. That costs clearance rather than position: the gap
+   between the shoe's foot and the strip's head goes 16 → 11.9 at 390 and
+   16 → 12.5 at 360, both still above the «حریم ۱۰ پیکسلی» the client set for
+   it. Measured, not derived from the formula alone. If a later round grows the
+   photograph again, that clearance is the thing to check first — it is what
+   runs out.
+
+   The shoe's centre drops about 2px with the box. That is half of the 4.15px
+   the box gains, and it is left alone: re-anchoring the top to hold the centre
+   would move the photograph up while making it bigger, which is two changes
+   where one was asked for. */
+@media (max-width: 991.98px) {
+  .vp-deal-shot img {
+    inset-inline-start: 14.72%;
+    inset-inline-end: 14.72%;
+    width: 70.56%;
+    height: calc(80.85% - 72.996px);
+  }
+}
