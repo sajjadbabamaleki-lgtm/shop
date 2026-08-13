@@ -3821,62 +3821,61 @@ option:hover {
     padding-block-end: 6px;
   }
 
-  /* «اون لودینگ باید بیاد کنار هفته دوم زیرش نباید باشه».
-
-     The step's three chips — the name, the week and the flag that says how it
-     stands — are one wrapping row. 116 is a floor, not the width: a flex item's
-     automatic minimum is its content, so the step was coming out 140, which is
-     exactly «پله دوم» + «هفته دوم» + the gap. The 25px flag had nowhere to go
-     and dropped to a second line under the week, where on the live step it read
-     as a spinner belonging to nothing.
-
-     170 is those three plus their two gaps, measured: 63 + 73 + 25 + 8 = 169.
-     Stated on every step so the scale stays a scale — steps of different
-     widths are not a scale — and the desktop needs none of this, where the step
-     is 194 and all three have always sat on one line.
-
-     The last step keeps two lines: «پس از هفته چهارم» is 111 wide and no
-     sensible step width fits it beside the other two. Its flag is still beside
-     the week rather than under it, which is the thing that was asked. */
-  .vp-step { flex: 0 0 170px; }
-
-  /* And the row has to be allowed to use that 170. `.vp-step` centres its
-     children, so the tags box was sized to its own content — it wrapped at 140
-     and then reported 140 as its width, which is a box that wrapped because it
-     was narrow and is narrow because it wrapped. Widening the step alone
-     changed nothing on the page. */
-  .vp-step-tags { width: 100%; }
-
-  /* The last step is the one that cannot have all three on a line: «پس از هفته
-     چهارم» is 105 against the other weeks' 73, and 61 + 105 + 25 + two gaps is
-     199. Widening every step to 199 to suit one of them would take the strip
-     from 2.3 steps visible to 1.7, which is a worse trade than a second line on
-     one step.
-
-     So its name takes a line of its own and the week and the flag share the
-     next — 105 + 25 + 4 = 134, comfortably inside 170. Without this the name
-     and the week measure 60.8 + 4 + 105.2 = exactly 170.0 and the flag is
-     pushed off the end by nothing at all, which is where it was before this
-     round. The flag is beside the week either way, which is what was asked. */
-  .vp-ladder-steps > .vp-step:last-child .vp-step-name { width: 100%; }
+  .vp-step { flex: 0 0 116px; }
 }
 
-/* The same fault, between 700 and 992, and a different answer.
+/* «اون لودینگ باید بیاد کنار هفته دوم زیرش نباید باشه», then «چرا موارد زیر
+   ۳ تا مربع از مربع ها زده بیرون؟ باید مث پله اول باشه».
 
-   Above 700 the five steps share one row instead of scrolling, so each gets
-   140 of the container's 748 and there is no width to buy: 169 across five
-   steps is 893, which the row does not have. Widening here would either
-   overflow the page or turn the tablet into a scroller, and nobody asked for
-   the tablet to change.
+   Both sentences are about the same row and the second one is the constraint
+   the first has to be answered inside. A step is three rate tiles with a row
+   of chips under them — the name, the week, and the flag saying how the step
+   stands. **The chip row is never allowed to be wider than the tiles above
+   it**; that is what «مث پله اول» means, and it is true of the first step by
+   accident: «پله اول» + «هفته اول» + the flag comes to 48 + 59 + 25 + two
+   gaps = 140, which is exactly what three 44px tiles and their gaps measure.
 
-   So the name takes a line of its own — the last step's arrangement, applied
-   to all five — and the week and the flag share the next: 73 + 25 + 4 = 102
-   inside 140. Two lines rather than one, and the flag beside the week rather
-   than under it, which is the whole of the complaint. */
-@media (min-width: 700.02px) and (max-width: 991.98px) {
-  .vp-step-tags,
+   Every other step's labels are longer — «پله دوم» and «هفته دوم» alone are
+   63 + 73 + 4 = 140 — so all three cannot share a line inside the tiles. One
+   round of this widened the step to 170 to make them fit, and that is the
+   mistake this comment exists to prevent: it fitted the chips by pushing them
+   out past the squares, which is worse than what it fixed.
+
+   So the name takes a line of its own and the week and the flag share the
+   next: 73 + 25 + 4 = 102, inside 140 at every step, with the longest week on
+   the page («پس از هفته چهارم», 105) still at 134. Two lines rather than one,
+   the flag beside the week rather than under it, and nothing wider than the
+   tiles.
+
+   A grid rather than a wrapping flex row, because **a flex line cannot be
+   broken without stretching the thing that breaks it**. `width: 100%` on the
+   name does put it on its own line, and it also makes the white pill that wide
+   — which between 700 and 992, where the five steps share a row and each is
+   wider than its own 140 of tiles, put the pill 20px out past the squares. The
+   same fault it was meant to fix, from the other side. In a grid the name spans
+   both columns while `justify-self: center` leaves the pill at its text width,
+   so the span and the pill are two different things.
+
+   No width on the box either: content-sized, it is as wide as its widest row —
+   102 — and `.vp-step` centres it over the tiles at every width.
+
+   All five steps take two lines, including the first, which had room for one.
+   A scale whose rungs are shaped differently is not a scale, and the first step
+   only fitted by the accident of having the page's two shortest labels.
+
+   The desktop needs none of this: the step is 194 there and all three chips
+   have always sat on one line inside it. */
+@media (max-width: 991.98px) {
+  .vp-step-tags {
+    display: grid;
+    grid-template-columns: auto auto;
+    justify-content: center;
+    gap: 4px;
+  }
+
   .vp-step-name {
-    width: 100%;
+    grid-column: 1 / -1;
+    justify-self: center;
   }
 }
 

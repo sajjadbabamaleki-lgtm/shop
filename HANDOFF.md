@@ -1274,29 +1274,37 @@ and nobody drew it.
 and they are what puts the shoe's colour on the card. Above 992 all three are
 unchanged.
 
-**«اون لودینگ باید بیاد کنار هفته دوم زیرش نباید باشه».** Each step's three
-chips — name, week, flag — are one wrapping row, and the 25px flag was dropping
-under the week. Two bands, two answers, because they have different amounts of
-room:
+**«اون لودینگ باید بیاد کنار هفته دوم زیرش نباید باشه»**, and then, one round
+later and much louder, **«چرا موارد زیر ۳ تا مربع از مربع ها زده بیرون؟ باید مث
+پله اول باشه»**. Both sentences are about the same row, and the second is the
+constraint the first has to be answered inside.
 
-- **Below 700** the steps scroll sideways, so width can be bought.
-  `flex: 0 0 116px` was a floor, not a width — a flex item's automatic minimum
-  is its content, so the step came out at exactly «پله دوم» + «هفته دوم» + gap
-  = 140 and the flag had nowhere to go. Now `flex: 0 0 170px` (63 + 73 + 25 +
-  two gaps = 169). **Widening the step alone changed nothing**: `.vp-step`
-  centres its children, so the tags box was sized to its own content — it
-  wrapped at 140 and then reported 140 as its width. `.vp-step-tags { width:
-  100% }` is what makes the 170 reach it.
-- **700 to 992** the five steps share one row and get 140 each of the
-  container's 748; 169 across five is 893, which the row does not have. So the
-  name takes a line of its own and the week and the flag share the next
-  (73 + 25 + 4 = 102). Two lines, flag beside the week.
+A step is three rate tiles with a row of chips under them — the name, the week,
+and the flag saying how the step stands. **The chip row is never allowed to be
+wider than the tiles above it.** That is what «مث پله اول» means, and the first
+step satisfies it by accident: «پله اول» + «هفته اول» + the flag is 48 + 59 + 25
++ two gaps = 140, exactly what three 44px tiles and their gaps measure. Every
+other step's labels are longer — «پله دوم» + «هفته دوم» alone is already 140 —
+so all three cannot share a line inside the tiles.
 
-The last step is its own case at both sizes: «پس از هفته چهارم» is 105 against
-the other weeks' 73, and 61 + 105 + 25 + gaps is 199. Widening every step to 199
-would take the strip from 2.3 steps visible to 1.7 — a worse trade than a second
-line on one step — so its name goes full-width too. Note 61 + 4 + 105 is exactly
-170.0: without that rule the flag is pushed off the end by nothing at all.
+The first attempt widened the step to 170 so the three would fit. **That fitted
+the chips by pushing them out past the squares**, which is worse than what it
+fixed, and is what the shouting was about.
 
-Measured at 320, 360, 390, 430, 700, 740, 768, 900, 991, 992 and 1440: the flag
-is beside the week on every step at every width, and no page overflows.
+What it is now: the tags row is a **grid**, name spanning both columns with
+`justify-self: center`, week and flag sharing the second row (73 + 25 + 4 = 102,
+inside 140 even for the page's longest week, «پس از هفته چهارم» at 105).
+
+**A grid rather than a wrapping flex row, because a flex line cannot be broken
+without stretching the thing that breaks it.** `width: 100%` on the name does
+put it on its own line — and makes the white pill that wide, which between 700
+and 992, where the five steps share a row and each is wider than its own 140 of
+tiles, put the pill 20px out past the squares. Measured: `worstOver` 11.2 at 900
+and 20.3 at 991. In a grid the span and the pill are two different things.
+
+All five steps take two lines now, including the first, which had room for one.
+A scale whose rungs are shaped differently is not a scale.
+
+Measured at 320, 360, 390, 430, 700, 768, 900, 991, 992 and 1440: nothing of any
+chip row outside its own tiles at any width (`worstOver` 0 everywhere), the flag
+beside the week on every step, and no page overflow.
