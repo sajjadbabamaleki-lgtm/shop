@@ -1654,12 +1654,22 @@ on the type. They are one component with two skins; a number recalculated here
 instead of copied will drift the next time the sale card moves, and it has
 moved four times in one evening.
 
-**The basket was kept, and that is a judgement call.** Read literally, «دقیقا
-مث حراج پله» deletes it — `.vp-deal-cart` is `display: none` below 992. But the
-client designed that button two rounds earlier, and deleting it as a side
-effect of a sentence about glass is reading one instruction over another. It
-sits the way the sale card's own *desktop* arranges the same pair: the strip
-holds 6 + 47.5 + 6 = 59.5 at the inline end and the button sits in that corner.
+**The basket was kept for one round and then removed.** Read literally, «دقیقا
+مث حراج پله» deletes it — `.vp-deal-cart` is `display: none` below 992 — but the
+client had designed that button two rounds earlier, so deleting it as a side
+effect of a sentence about glass looked like reading one instruction over
+another. It was kept, said so, and the next message was «دقیقا همون کارت حراج
+پله برای پر فروش ترینها اجرا بشه». It is `display: none` below 992 now and the
+strip runs the tile's full width, 6 from both edges, exactly as the sale card's
+does. The markup is untouched, so the button is still there above 992.
+
+The inversion stayed through that, because «برعکس» was asked for in the message
+before and this one does not mention colour: tile glass, strip white.
+
+**The lesson, since this fork will come again**: «دقیقا مث X» says nothing
+about what to do with a thing X has not got. Asking costs a round and assuming
+costs a round — so next time, render both and put the question in the same
+message as the work.
 
 **The photograph change reached the desktop and the fitting rule had to follow
 it.** The tile's picture is a cut-out on white now, and `.vp-best-shot img` was
