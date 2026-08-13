@@ -10332,6 +10332,12 @@ ul.vp-how-list.is-ticked li:before {
   display: flex;
   align-items: center;
   gap: 8px;
+  /* «منفی بره چپ مثبت بیاد راست». The page is rtl, so the source order — minus,
+     count, plus — lays out right to left and puts the minus on the right. One
+     `direction` on this box turns just this control round without moving
+     anything else on the line, and the buttons stay in the order they read in
+     the markup. */
+  direction: ltr;
 }
 
 .vp-cart-less,
@@ -10339,12 +10345,12 @@ ul.vp-how-list.is-ticked li:before {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   padding: 0;
   border: 0;
-  border-radius: 11px;
-  font-size: 17px;
+  border-radius: 13px;
+  font-size: 21px;
   line-height: 1;
   cursor: pointer;
   transition: background-color 0.2s ease, opacity 0.2s ease;
@@ -10385,10 +10391,10 @@ ul.vp-how-list.is-ticked li:before {
 }
 
 .vp-cart-count {
-  min-width: 18px;
+  min-width: 24px;
   font-family: 'Vazirmatn', var(--body-font);
   font-weight: 700;
-  font-size: 14px;
+  font-size: 16px;
   font-feature-settings: 'tnum' 1;
   text-align: center;
 }
@@ -10420,11 +10426,15 @@ ul.vp-how-list.is-ticked li:before {
   .vp-cart-sum {
     position: fixed;
     z-index: 40;
-    inset-inline: 0;
-    inset-block-end: 0;
+    /* An island, not a band. «باید جزیره ای باشه» — 10 from both sides and 10
+       off the foot, rounded all the way round, like every other floating thing
+       on this phone. It was flush to three edges for one round because that
+       sentence was read backwards. */
+    inset-inline: 10px;
+    inset-block-end: calc(10px + env(safe-area-inset-bottom, 0px));
     margin: 0;
-    padding: 16px 16px calc(16px + env(safe-area-inset-bottom, 0px));
-    border-radius: 24px 24px 0 0;
+    padding: 16px;
+    border-radius: 24px;
     background: rgba(255, 255, 255, 0.82);
     -webkit-backdrop-filter: blur(18px) saturate(1.2);
     backdrop-filter: blur(18px) saturate(1.2);
@@ -10444,6 +10454,78 @@ ul.vp-how-list.is-ticked li:before {
      the clearance is the page. Measured against the tallest the sheet gets —
      three rows, the code field and the button, with a discount applied. */
   .vp-shop-section:has(.vp-cart-sum) {
-    padding-block-end: 240px;
+    padding-block-end: 250px;
+  }
+
+  /* And the basket is not on a card.
+
+     «خط جدا کننده دور کارت هم نزار، اون سایه پایین کارت هم بردار، اصلا قسمت
+     بالا نباید رو کارت باشه». The panel drew a 1.5px outline and a drop shadow
+     around everything, so the phone showed a card of cards: the head, the
+     lines and the totals all inside one more box. The reference has no such
+     box — the items sit on the page.
+
+     So on this page it keeps only its margins. The lines are already cards in
+     their own right and the summary is an island; there is nothing left for
+     the panel to be except the 10 either side. Scoped by `:has()` to the
+     basket, because the listing and the product page still want their card. */
+  .vp-shop-panel:has(.vp-cart-sum) {
+    padding: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   The basket's lines as cards, not as ruled rows.
+
+   «این چه حالت خط خطی» — the reference the client sent puts each product on its
+   own card with air between them; ours drew one long card and separated the
+   lines inside it with hairlines, then the summary added a gold rule under its
+   title and a second rule above the total. Four horizontal lines on one screen,
+   which is what was being described.
+
+   So the rules come off and the separation is done with space and material
+   instead: each line is the page's own tint on the white panel, 10 apart —
+   the same 10 everything else on this phone stands at, and the same glass the
+   trust cards are cut from. Tinted rather than white because the panel under
+   them is white and a white card on a white card is a card you cannot see.
+
+   Below 992 only: the desktop basket is a table-shaped thing where ruled rows
+   are right, and the client is looking at a phone.
+   -------------------------------------------------------------------------- */
+@media (max-width: 991.98px) {
+  .vp-cart-lines {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .vp-cart-line {
+    box-shadow: none;
+    padding: 12px;
+    border-radius: 20px;
+    background: rgba(16, 17, 17, 0.034);
+  }
+
+  /* A line the shop cannot supply keeps its mark — it is the one rule on this
+     screen that carries meaning rather than dividing anything. */
+  .vp-cart-line.is-short {
+    box-shadow: inset 3px 0 0 var(--theme-color);
+  }
+
+  /* The summary's title has no rule either. It sits at the top of a panel with
+     its own edge; the rule was drawing a boundary that the panel already has. */
+  .vp-cart-sum .vp-filter-title::after {
+    display: none;
+  }
+
+  /* One separator in the summary, not two, and it belongs above the total —
+     which is where the reference puts its dashed line. The code field had one
+     as well, so the sheet was ruled twice in five rows. */
+  .vp-cart-sum .vp-code {
+    box-shadow: none;
+    padding-top: 0;
   }
 }

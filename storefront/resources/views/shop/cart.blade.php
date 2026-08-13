@@ -143,6 +143,15 @@
                             <p class="vp-code-note is-good">{{ $discount['code']->describe() }} اعمال شد.</p>
                         @endif
 
+                        {{-- The line the customer is actually being asked to agree to,
+                             which the panel did not state: it listed the parts and left
+                             the adding up to them. Delivery is not in it and the row
+                             above says so. --}}
+                        <div class="vp-cart-row is-total">
+                            <span>جمع کل</span>
+                            <span>{{ toman($cart->subtotal() - $discount['amount']) }} تومان</span>
+                        </div>
+
                         @if ($cart->problems()->isNotEmpty())
                             <p class="vp-note is-bad">اول ردیف‌های مشخص‌شده را درست کن.</p>
                         @else
