@@ -9807,3 +9807,48 @@ ul.vp-how-list.is-ticked li:before {
     gap: 6px;
   }
 }
+
+/* The ink foot off the hero card and the trust cards, on a phone.
+
+   «پایین کارتهای هیرو و پایین این کارتا تو حالت موبایل یه خط خاکستری هست باید
+   حذف بشه». That line is «لبه پنهان»'s own remedy — `inset 0 -1.4px 0` at 7%,
+   the ink foot that replaced a drop shadow after the client reported three
+   times that the card had no bottom edge. Read CLAUDE.md before putting it
+   back on the desktop or changing what replaces it there.
+
+   What changed since is the phone, and the phone is not the page that argument
+   was had on. There the card was 1227 wide against a white field and its foot
+   dissolved; here it is 370 wide with a 43.2 corner, six of them stacked one
+   above another down a short screen, and the same 1.4px reads as a rule drawn
+   under each card rather than as the edge of one. The client is looking at six
+   grey lines, not at a card resting on a surface.
+
+   So it comes off below 992 and stays above it. The lit hairline on the other
+   three sides is untouched — it is the `:after` ring and it never drew a band
+   along the foot anyway (`padding: 1.4px 1.4px 0`), so nothing is left half
+   drawn: the phone card now ends on the ring's two side ends and the tint
+   simply stops.
+
+   **This puts the hero back in step with the header island rather than out of
+   it.** CLAUDE.md says the two are one material and must not drift, which is
+   worth checking before touching either — and measured, the island already
+   draws no foot below 992: `boxShadow` on `.th-header .menu-area` reads `none`
+   at 390 and did before this rule existed. The phone card was the odd one out.
+
+   The selector is the whole group the foot is set on, not `.heroSlide6
+   .hero-inner` alone. That declaration lives on a list whose per-slide members
+   are three classes deep (`.heroSlide6 .swiper-slide:nth-child(2)
+   .hero-inner`), so a two-class override loses to them regardless of source
+   order — the first attempt did exactly that and left the line on the card
+   while taking it off the trust badges.
+   -------------------------------------------------------------------------- */
+@media (max-width: 991.98px) {
+  .heroSlide6 .hero-inner,
+  .heroSlide6 .swiper-slide:nth-child(2) .hero-inner,
+  .heroSlide6 .swiper-slide:nth-child(3) .hero-inner,
+  .heroSlide6 .swiper-slide:nth-child(5) .hero-inner,
+  .heroSlide6 .swiper-slide:nth-child(6) .hero-inner,
+  .vp-trust-row .feature-card {
+    box-shadow: none;
+  }
+}
