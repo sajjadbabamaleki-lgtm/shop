@@ -11366,3 +11366,28 @@ ul.vp-how-list.is-ticked li:before {
 .vp-shop-grid .vp-deal:hover .vp-deal-shot {
   box-shadow: none;
 }
+
+/* The strip's corners, 15% tighter.
+
+   «کرو گوشه های باکس قیمت و اسم ۱۵ درصد کمتر بشه» — 23.76 → 20.196 below 992.
+
+   Note what this does to the shape, because it is the point rather than a side
+   effect. 23.76 was exactly half the strip's 47.52 height, which is what makes
+   a pill: the ends are semicircles and there is no straight run in them. At
+   20.196 each end carries 47.52 − 2 × 20.196 = 7.12px of straight vertical
+   edge, so the strip stops being a pill and becomes a rounded rectangle
+   (measured, at 390 and 360 alike — the strip's height is fixed, so the
+   straight run is the same at both). A block earlier in this file
+   declined to take a fifth off this same number while changing the *card's*
+   corners, on the grounds that a corner instruction about the card should not
+   quietly reshape the strip inside it. This instruction names the strip, so it
+   reshapes it.
+
+   Below 992. The desktop strip is a different object already — 52.8 tall with
+   a 26.4 radius, its own pill — and is left alone; say so before changing it.
+   The card's own corner is untouched at 22.4. */
+@media (max-width: 991.98px) {
+  .vp-deal-label {
+    border-radius: 20.196px;
+  }
+}
