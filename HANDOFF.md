@@ -1255,3 +1255,48 @@ page's own 10 margin already frames.
 
 Measured at 360, 390 and 768: 16 down, 10 across, both grids. At 992 and 1440:
 still 24, untouched.
+
+## The hero's third mark, and the ladder's flag
+
+Two on a phone, both of them a thing placed against a wide card and never
+re-looked-at on a narrow one.
+
+**«اون شکل چسبیده به دایره زیر هیرو در موبایل باید حذف بشه».** The hero carries
+three blurred marks in the shoe's own colour: `.m-fall`, a 160 disc on the
+card's centre line; `.m-near`, a 204 bar 29 off the left edge; `.m-far`, the
+same bar 29 off the right. At 1440 they are three separate things with air
+between them. At 390 the card is 370 wide, so `.m-far` spans 157 → 361 while the
+disc spans 115 → 275 — **118px of overlap**, and the two blurs merge into one
+lobed blob hanging off the disc's shoulder. That is the shape being pointed at,
+and nobody drew it.
+
+`.m-far` is `display: none` below 992. The other two stay: they do not touch,
+and they are what puts the shoe's colour on the card. Above 992 all three are
+unchanged.
+
+**«اون لودینگ باید بیاد کنار هفته دوم زیرش نباید باشه».** Each step's three
+chips — name, week, flag — are one wrapping row, and the 25px flag was dropping
+under the week. Two bands, two answers, because they have different amounts of
+room:
+
+- **Below 700** the steps scroll sideways, so width can be bought.
+  `flex: 0 0 116px` was a floor, not a width — a flex item's automatic minimum
+  is its content, so the step came out at exactly «پله دوم» + «هفته دوم» + gap
+  = 140 and the flag had nowhere to go. Now `flex: 0 0 170px` (63 + 73 + 25 +
+  two gaps = 169). **Widening the step alone changed nothing**: `.vp-step`
+  centres its children, so the tags box was sized to its own content — it
+  wrapped at 140 and then reported 140 as its width. `.vp-step-tags { width:
+  100% }` is what makes the 170 reach it.
+- **700 to 992** the five steps share one row and get 140 each of the
+  container's 748; 169 across five is 893, which the row does not have. So the
+  name takes a line of its own and the week and the flag share the next
+  (73 + 25 + 4 = 102). Two lines, flag beside the week.
+
+The last step is its own case at both sizes: «پس از هفته چهارم» is 105 against
+the other weeks' 73, and 61 + 105 + 25 + gaps is 199. Widening every step to 199
+would take the strip from 2.3 steps visible to 1.7 — a worse trade than a second
+line on one step — so its name goes full-width too. Note 61 + 4 + 105 is exactly
+170.0: without that rule the flag is pushed off the end by nothing at all.
+
+Measured at 320, 360, 390, 430, 700, 740, 768, 900, 991, 992 and 1440: the flag
+is beside the week on every step at every width, and no page overflows.

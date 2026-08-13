@@ -1108,6 +1108,26 @@ option:hover {
   height: 26px;
 }
 
+/* And it comes off the phone. «اون شکل چسبیده به دایره زیر هیرو در موبایل باید
+   حذف بشه» — the shape stuck to the circle.
+
+   The three marks are placed against a *wide* card: the disc on the card's
+   centre line, one bar 29 off the left edge and this one 29 off the right, so
+   at 1440 they are three separate things with air between them. On a 390 phone
+   the card is 370 wide and this bar spans 157 → 361 while the disc spans
+   115 → 275, so 118px of the two overlap and their blurs merge into one lobed
+   blob hanging off the disc's shoulder. That is the shape being pointed at, and
+   it is not a shape anybody drew.
+
+   The disc and the near bar stay: they do not touch each other, and they are
+   what puts the shoe's own colour on the card. Only the one that collides
+   goes. Above 992 all three are unchanged. */
+@media (max-width: 991.98px) {
+  .vp-hero-marks .m-far {
+    display: none;
+  }
+}
+
 /* The header, as an island. The dark strip above it keeps its own ground and
    its full width; this is the band with the logo, nav and search, and it is
    now a floating panel rather than a band that runs edge to edge.
@@ -3801,7 +3821,63 @@ option:hover {
     padding-block-end: 6px;
   }
 
-  .vp-step { flex: 0 0 116px; }
+  /* «اون لودینگ باید بیاد کنار هفته دوم زیرش نباید باشه».
+
+     The step's three chips — the name, the week and the flag that says how it
+     stands — are one wrapping row. 116 is a floor, not the width: a flex item's
+     automatic minimum is its content, so the step was coming out 140, which is
+     exactly «پله دوم» + «هفته دوم» + the gap. The 25px flag had nowhere to go
+     and dropped to a second line under the week, where on the live step it read
+     as a spinner belonging to nothing.
+
+     170 is those three plus their two gaps, measured: 63 + 73 + 25 + 8 = 169.
+     Stated on every step so the scale stays a scale — steps of different
+     widths are not a scale — and the desktop needs none of this, where the step
+     is 194 and all three have always sat on one line.
+
+     The last step keeps two lines: «پس از هفته چهارم» is 111 wide and no
+     sensible step width fits it beside the other two. Its flag is still beside
+     the week rather than under it, which is the thing that was asked. */
+  .vp-step { flex: 0 0 170px; }
+
+  /* And the row has to be allowed to use that 170. `.vp-step` centres its
+     children, so the tags box was sized to its own content — it wrapped at 140
+     and then reported 140 as its width, which is a box that wrapped because it
+     was narrow and is narrow because it wrapped. Widening the step alone
+     changed nothing on the page. */
+  .vp-step-tags { width: 100%; }
+
+  /* The last step is the one that cannot have all three on a line: «پس از هفته
+     چهارم» is 105 against the other weeks' 73, and 61 + 105 + 25 + two gaps is
+     199. Widening every step to 199 to suit one of them would take the strip
+     from 2.3 steps visible to 1.7, which is a worse trade than a second line on
+     one step.
+
+     So its name takes a line of its own and the week and the flag share the
+     next — 105 + 25 + 4 = 134, comfortably inside 170. Without this the name
+     and the week measure 60.8 + 4 + 105.2 = exactly 170.0 and the flag is
+     pushed off the end by nothing at all, which is where it was before this
+     round. The flag is beside the week either way, which is what was asked. */
+  .vp-ladder-steps > .vp-step:last-child .vp-step-name { width: 100%; }
+}
+
+/* The same fault, between 700 and 992, and a different answer.
+
+   Above 700 the five steps share one row instead of scrolling, so each gets
+   140 of the container's 748 and there is no width to buy: 169 across five
+   steps is 893, which the row does not have. Widening here would either
+   overflow the page or turn the tablet into a scroller, and nobody asked for
+   the tablet to change.
+
+   So the name takes a line of its own — the last step's arrangement, applied
+   to all five — and the week and the flag share the next: 73 + 25 + 4 = 102
+   inside 140. Two lines rather than one, and the flag beside the week rather
+   than under it, which is the whole of the complaint. */
+@media (min-width: 700.02px) and (max-width: 991.98px) {
+  .vp-step-tags,
+  .vp-step-name {
+    width: 100%;
+  }
 }
 
 /* The field's own input carries the template's fixed 350px width and a 280px
