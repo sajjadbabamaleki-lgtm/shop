@@ -482,6 +482,45 @@ html = html.replace(
   STORY_ROW + '<div class="th-hero-wrapper hero-6 slider-area" id="hero">'
 );
 
+// The mini basket, in place of the template's demo.
+//
+// What the basket button opened, on every page and at every width, was still
+// the ThemeForest demo: «فروشگاهping Cart» (a half-translated title nobody
+// caught), five Nike and Adidas shoes, `$39.00`, and remove links pointing at
+// '#'. It survived the whole port for the same reason the phone menu did —
+// nobody opens it in a desktop review, and no check can see it because the
+// panel is parked off-screen.
+//
+// The preview draws the **empty** state, which is what a visitor with nothing
+// in their basket gets, so the static page and the Blade render the same thing
+// and check-parity.js compares like with like. The filled state is the Blade's
+// alone — this page has no basket to fill.
+//
+// The classes the template's script binds to stay exactly as they are:
+// `sidemenu-wrapper`, `sidemenu-content` and `sideMenuCls` are what open and
+// close the panel, and renaming any of them makes the basket button do nothing.
+const MINI_CART =
+  '<div class="sidemenu-wrapper sidemenu-cart">\n' +
+  '        <div class="sidemenu-content">\n' +
+  '            <div class="vp-mini">\n' +
+  '                <div class="vp-mini-head">\n' +
+  '                    <h2 class="vp-mini-title">سبد خرید</h2>\n' +
+  '                    <button type="button" class="closeButton sideMenuCls" aria-label="بستن سبد خرید"><i class="fal fa-times" aria-hidden="true"></i></button>\n' +
+  '                </div>\n' +
+  '                <div class="vp-mini-empty">\n' +
+  '                    <span class="vp-mini-empty-mark" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M10 16 h28 l-3 22 a3 3 0 0 1 -3 3 h-16 a3 3 0 0 1 -3 -3 z" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"></path><path d="M18 16 a6 6 0 0 1 12 0" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"></path></svg></span>\n' +
+  '                    <p class="vp-mini-say">سبد خریدت خالی است.</p>\n' +
+  '                    <a class="vp-mini-out" href="shop.html">رفتن به فروشگاه</a>\n' +
+  '                </div>\n' +
+  '            </div>\n' +
+  '        </div>\n' +
+  '    </div>\n    ';
+
+html = html.replace(
+  /<div class="sidemenu-wrapper sidemenu-cart[\s\S]*?<div class="popup-search-box/,
+  MINI_CART + '<div class="popup-search-box'
+);
+
 // Six trust badges under the category row: the template's own feature-card
 // markup and CSS (feature-card.style2), just with gold icons in place of its
 // red ones and Persian copy. row-cols-* rather than col-N, same reason as the

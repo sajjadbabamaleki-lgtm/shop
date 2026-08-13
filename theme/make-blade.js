@@ -53,6 +53,10 @@ const REGIONS = [
   // the page — the anchor threw rather than silently swallowing the region,
   // which is the whole reason it insists the string exists exactly once.
   { name: 'chrome', anchor: '<div class="slider-drag-cursor">', into: 'partials/chrome.blade.php' },
+  // The mini basket, sliced out of chrome so it can render the real one. Same
+  // reasoning as the stories strip: without a region of its own the chrome
+  // region runs on through it and the demo markup comes back on every build.
+  { name: 'mini-cart', anchor: '<div class="sidemenu-wrapper sidemenu-cart">', into: 'partials/mini-cart.blade.php', owned: true },
   { name: 'mobile-menu', anchor: '<div class="th-menu-wrapper">', into: 'partials/mobile-menu.blade.php', owned: true },
   { name: 'header', anchor: '<header class="th-header', into: 'partials/header.blade.php' },
   // The story strip sits between the header and the hero, so it needs a region

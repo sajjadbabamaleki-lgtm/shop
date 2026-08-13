@@ -5759,13 +5759,6 @@ ul.vp-how-list.is-ticked li:before {
   box-shadow: inset 0 -1px 0 rgba(16, 17, 17, 0.08);
 }
 
-@media (max-width: 575px) {
-  .vp-cart-line {
-    grid-template-columns: 64px minmax(0, 1fr) 32px;
-    row-gap: 10px;
-  }
-}
-
 /* A line the shop cannot supply. Marked at its reading edge rather than
    tinted: a whole row in a warning colour reads as an error the customer
    made. */
@@ -6885,14 +6878,99 @@ ul.vp-how-list.is-ticked li:before {
   padding-block: 18px;
 }
 
+/* On a phone the line has to be told where its five parts go, not just how
+   many columns there are.
+
+   It was three columns and nothing else, so the grid filled them in source
+   order and the quantity form landed in the 32px one — that is the box hanging
+   off the card's edge in the client's screenshot, with the price and the
+   remove button dropping to a second row beside each other and the `×` reading
+   as part of the price.
+
+   Named areas instead, in the arrangement a phone basket normally takes: the
+   photograph down the reading edge, the name and the remove control on the
+   first line, the quantity and the price on the second under the name. Every
+   part has a stated place, so a sixth child cannot rearrange the other five.
+
+   Four columns, not three, and the name spans two of them. Three columns put
+   the price under the × in one `auto` track, and that track is as wide as the
+   price — about 100 — so it took 100 off the name's row as well and «کتونی
+   گلدن گوس» began wrapping where it had not before. Giving the name the two
+   middle columns and letting the quantity and the price share them on the
+   second row costs nothing and answers both.
+
+   A stated width on that column is worse still: 32 cut «۴٬۵۳۶٬۰۰۰ تومان» off
+   at the card's edge. **There are two `max-width: 575px` blocks for this line
+   in this file and the later one wins** — the first attempt was written into
+   the earlier one and changed nothing on the page at all.
+
+   Measured at 320, 390, 430 and 575: nothing of the line outside the viewport,
+   the price whole, and the name back on one line from 390 up. */
 @media (max-width: 575px) {
   .vp-cart-line {
-    grid-template-columns: 72px minmax(0, 1fr) 32px;
+    grid-template-columns: 72px auto minmax(0, 1fr) 30px;
+    grid-template-areas:
+      "shot what what  drop"
+      "shot qty  money drop";
+    align-items: start;
+    column-gap: 12px;
+    row-gap: 12px;
   }
 
   .vp-cart-shot {
+    grid-area: shot;
     width: 72px;
     height: 72px;
+  }
+
+  .vp-cart-what { grid-area: what; }
+
+  .vp-cart-qty {
+    grid-area: qty;
+    align-self: center;
+  }
+
+  .vp-cart-money {
+    grid-area: money;
+    align-self: center;
+  }
+
+  /* The remove form is the only child with no class of its own. */
+  .vp-cart-line > form:not(.vp-cart-qty) {
+    grid-area: drop;
+    justify-self: end;
+    align-self: start;
+  }
+
+  .vp-cart-qty input {
+    width: 52px;
+    height: 34px;
+  }
+
+  .vp-cart-qty button {
+    height: 34px;
+    padding-inline: 10px;
+    font-size: 12px;
+  }
+}
+
+/* Under 376 the quantity and the price cannot share a row.
+   «به‌روزرسانی» is a long label and the stepper beside it wants about 148 of
+   the 130 those two columns have at 320 — measured, the price track collapsed
+   to 0 and the figure ran off the card. It takes a row of its own there rather
+   than the label being shortened, which would make the button say a different
+   thing on a small phone than on a large one. */
+@media (max-width: 375.98px) {
+  .vp-cart-line {
+    grid-template-areas:
+      "shot what  what  drop"
+      "shot money money drop"
+      "shot qty   qty   drop";
+  }
+
+  .vp-cart-money {
+    align-self: start;
+    text-align: start;
   }
 }
 
@@ -9905,4 +9983,295 @@ ul.vp-how-list.is-ticked li:before {
   .th-header .th-menu-toggle.d-block {
     min-width: 39.9px;
   }
+}
+
+/* --------------------------------------------------------------------------
+   The mini basket, behind the header's basket button.
+
+   The template's own panel is kept — `sidemenu-wrapper` slides it, `sideMenuCls`
+   closes it — and everything inside it is ours, in the page's materials: the
+   drawer's head, the cart page's line, the ladder's buttons. Nothing new was
+   invented for it, which is the point: a visitor who has seen the cart page
+   should recognise this panel as the same shop.
+
+   It is a column with the head and the foot fixed and the lines scrolling, the
+   same arrangement the phone drawer uses and for the same reason — a basket
+   with nine things in it must not push its own total off the screen.
+   -------------------------------------------------------------------------- */
+.vp-mini {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  text-align: right;
+}
+
+.vp-mini-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex: none;
+  padding-block-end: 14px;
+  box-shadow: inset 0 -1px 0 rgba(16, 17, 17, 0.06);
+}
+
+.vp-mini-title {
+  margin: 0;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 800;
+  font-size: 18px;
+  color: #101111;
+}
+
+/* The way out, in the head rather than over it.
+
+   The template's is a 50px bordered circle pinned `position: absolute` at
+   `top: 20px; right: 20px` — which in this panel put a large ringed X floating
+   above the title and, on the phone, over the first line of the basket. It is
+   the same control the phone drawer has, so it takes the phone drawer's shape:
+   a quiet square in the flow, at the header band's own corner. The rotate on
+   hover goes with it; nothing else on this site turns when you point at it. */
+.sidemenu-cart .closeButton {
+  position: static;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.10);
+  color: #6E7070;
+  font-size: 15px;
+  line-height: 1;
+  transform: none;
+}
+
+.sidemenu-cart .closeButton:hover {
+  background: rgba(16, 17, 17, 0.05);
+  border-color: transparent;
+  color: #101111;
+  transform: none;
+}
+
+/* --- the lines ----------------------------------------------------------- */
+
+.vp-mini-lines {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  margin: 0;
+  padding: 4px 0 0;
+  list-style: none;
+}
+
+.vp-mini-line {
+  display: grid;
+  grid-template-columns: 56px 1fr auto auto;
+  align-items: center;
+  gap: 10px;
+  padding-block: 12px;
+}
+
+.vp-mini-line + .vp-mini-line {
+  box-shadow: inset 0 1px 0 rgba(16, 17, 17, 0.06);
+}
+
+.vp-mini-shot {
+  display: block;
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  background: rgba(16, 17, 17, 0.034);
+  overflow: hidden;
+}
+
+.vp-mini-shot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.vp-mini-what {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.vp-mini-name {
+  overflow: hidden;
+  font-family: 'Vazirmatn', var(--body-font);
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #101111;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vp-mini-name:hover {
+  color: var(--theme-color);
+}
+
+.vp-mini-meta {
+  font-size: 11px;
+  color: #6E7070;
+}
+
+/* The one thing on the line that is allowed to be loud: a line the shop cannot
+   supply has to say so where the customer is looking, not on another page. */
+.vp-mini-warn {
+  font-size: 11px;
+  font-weight: 600;
+  color: #B4402F;
+}
+
+.vp-mini-money strong {
+  display: block;
+  font-family: 'Vazirmatn', var(--body-font);
+  font-weight: 800;
+  font-size: 13px;
+  color: #101111;
+  white-space: nowrap;
+}
+
+.vp-mini-money strong span {
+  font-size: 9.9px;
+  font-weight: 600;
+  color: #6E7070;
+}
+
+.vp-mini-drop {
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.10);
+  color: #6E7070;
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.vp-mini-drop:hover {
+  background: rgba(16, 17, 17, 0.05);
+  color: #101111;
+}
+
+/* --- the foot ------------------------------------------------------------ */
+
+.vp-mini-foot {
+  flex: none;
+  padding-block-start: 14px;
+  box-shadow: inset 0 1px 0 rgba(16, 17, 17, 0.06);
+}
+
+.vp-mini-sum {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-block-end: 12px;
+  font-family: 'Vazirmatn', var(--body-font);
+  font-weight: 800;
+  font-size: 14px;
+  color: #101111;
+}
+
+/* Two ways out, and they are not the same weight. The gold one is the one the
+   shop wants pressed; «مشاهده سبد» is for the customer who wants to change
+   something first, and it is quiet glass rather than a second gold button
+   competing with it. */
+.vp-mini-go,
+.vp-mini-pay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  border-radius: 14px;
+  font-family: 'Vazirmatn', var(--body-font);
+  font-weight: 700;
+  font-size: 13.5px;
+  text-decoration: none;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.vp-mini-go {
+  margin-block-end: 8px;
+  background: rgba(16, 17, 17, 0.034);
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.05);
+  color: #101111;
+}
+
+.vp-mini-go:hover {
+  background: rgba(16, 17, 17, 0.06);
+  color: #101111;
+}
+
+.vp-mini-pay {
+  background: linear-gradient(96deg, #C0972F 0%, #E3B54A 100%);
+  color: #FFFFFF;
+}
+
+.vp-mini-pay:hover {
+  color: #FFFFFF;
+  filter: brightness(1.04);
+}
+
+/* --- nothing in it ------------------------------------------------------- */
+
+.vp-mini-empty {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  text-align: center;
+}
+
+.vp-mini-empty-mark {
+  color: rgba(16, 17, 17, 0.18);
+}
+
+.vp-mini-empty-mark svg {
+  width: 48px;
+  height: 48px;
+}
+
+.vp-mini-say {
+  margin: 0;
+  font-family: 'Vazirmatn', var(--body-font);
+  font-weight: 600;
+  font-size: 14px;
+  color: #6E7070;
+}
+
+.vp-mini-out {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 18px;
+  border-radius: 14px;
+  background: linear-gradient(96deg, #C0972F 0%, #E3B54A 100%);
+  font-family: 'Vazirmatn', var(--body-font);
+  font-weight: 700;
+  font-size: 13px;
+  color: #FFFFFF;
+  text-decoration: none;
+}
+
+.vp-mini-out:hover {
+  color: #FFFFFF;
+  filter: brightness(1.04);
 }

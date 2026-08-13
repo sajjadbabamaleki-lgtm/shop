@@ -20,6 +20,7 @@
 <body class="shoe-shop">
 
 @include('partials.chrome')
+@include('partials.mini-cart')
 @include('partials.mobile-menu')
 @include('partials.header')
 

@@ -65,6 +65,19 @@ class AppServiceProvider extends ServiceProvider
          * count; they fill in as the catalogue does. If that rule ever changes
          * it changes in both places at once, and a test asserts the two agree.
          */
+        /*
+         * The mini basket behind the header's basket button.
+         *
+         * `current()` rather than a count, because this panel draws the lines
+         * themselves. It is on every storefront page and no controller owns
+         * it, same as the two above — and the panel is parked off-screen, so a
+         * page that forgot to pass it would not look broken, it would look
+         * empty. A composer is the only way that cannot happen.
+         */
+        View::composer('partials.mini-cart', function ($view): void {
+            $view->with('miniCart', app(CartManager::class)->current());
+        });
+
         View::composer('partials.mobile-menu', function ($view): void {
             $view->with([
                 'drawerCategories' => Category::query()
