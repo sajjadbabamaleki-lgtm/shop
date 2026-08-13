@@ -11571,3 +11571,139 @@ ul.vp-how-list.is-ticked li:before {
   outline: 2px solid var(--title-color);
   outline-offset: 3px;
 }
+
+/* ==========================================================================
+   Five on the phone: the ladder head's line, the hover zoom, the best
+   sellers' strip and its button, and the header's basket count.
+
+   «خطی که دور کارت بزرگ بالایی قسمت حراج پله ای هست پاک بشه»، «یه حالتی هست
+   که دست میره رو کارتها زوم میشن در نسخه موبایل غیرفعال بشه»، «قسمت پرفروش
+   ترین ها باکس قیمت باید کرو گوشه هاش اندازه کرو گوشه های باکس قیمت قسمت حراج
+   پله ای باشه»، «اون دایره مثبت خرید هم باید مربع بشه با همون اندازه کرو گوشه
+   ها و بجای مربع سبد خرید بیاد»، «اون دایره ای که رو گوشه ی مربع سبد خرید تو
+   هدر هست دایره دقیق نیست دایره بشه / ۵ پیکسل به چپ بیاد ۳ پیکسل بره بالا».
+
+   Below 992, all of it. «ما داریم رو موبایل کار میکنیم» — the desktop keeps
+   every number in here.
+
+   --------------------------------------------------------------------------
+   1. The ladder head's line.
+
+   `.vp-ladder-head` — the box carrying the title and the step tiles, which is
+   what «کارت بزرگ بالایی» is. Its ring is `inset 0 0 0 1px` at 5%; the panel
+   *around* it, `.vp-ladder`, already lost its frame and its lit hairline on
+   the phone in an earlier round, so this ring is the only line left in that
+   corner of the section. The head keeps its glass tint: the ask is the line,
+   not the surface it draws round.
+
+   --------------------------------------------------------------------------
+   2. The hover zoom, off.
+
+   Three components grow on `:hover` — the sale card, the best seller and the
+   category tile — each with a lift on the tile and a `scale(1.05)` on the
+   photograph inside it. On a phone `:hover` is not a hover: a tap sets it and
+   it *stays* set until something else is tapped, so a card the visitor
+   touched on their way past stays enlarged behind them. That is the state the
+   client is describing.
+
+   Turned off with `transform: none` rather than by deleting the rules, so the
+   desktop keeps them and there is one place that says why they are off here.
+   The transitions go too — a transition on a property that never changes is
+   only a promise the phone has to keep re-checking.
+
+   --------------------------------------------------------------------------
+   3. The best sellers' strip, at the sale's corner.
+
+   26.4 → 19.1862, which is `.vp-deal-label`'s number after this evening's two
+   cuts. Quoted rather than recalculated: the instruction is that the two
+   *match*, so if the sale's strip moves again this has to move with it, and a
+   second arithmetic chain would drift out of step silently. The same is
+   already true of the two strips' type sizes, which were matched in an
+   earlier round for the same reason.
+
+   --------------------------------------------------------------------------
+   4. The browse button, square, with a basket in it.
+
+   `border-radius: 50%` → 19.1862, the strip's own, so the pair reads as two
+   pieces of one object rather than a pill beside a coin. Only the corner
+   changes: the button is already square at 47.5 on the phone — 52.8 is its
+   desktop size, and an earlier round stepped it down here with the strip
+   beside it — so «مربع بشه» costs nothing but the radius.
+
+   The glyph goes from `fa-plus` to `fa-bag-shopping` — markup, so it is in
+   `theme/make-rtl-page.js` for the preview and in
+   `home/best-sellers.blade.php`, which is hand-owned, for the storefront. Both
+   were edited; `make-blade.js` does not regenerate that file and will not put
+   the plus back.
+
+   Worth noting what did *not* change: the button still goes to the product
+   page, as it always has. Its `aria-label` has said «افزودن ... به سبد خرید»
+   since it was written, so the basket is the glyph that matches the label it
+   already had — but neither of them adds anything to a basket yet. «فعلا فقط
+   Ui میخوام گذاشته بشه», so this is the picture and the wiring is still to
+   come; the label was already writing the cheque this glyph now shows.
+
+   --------------------------------------------------------------------------
+   5. The basket count in the header, an actual circle.
+
+   Measured, it was 15.38 × 17.5. `border-radius: 50%` on a box that is not
+   square is an ellipse, and at two and a bit pixels of difference it reads as
+   a circle drawn slightly wrong — which is exactly what «دایره دقیق نیست»
+   says. It was sized by its padding, so the width tracked the glyph inside it
+   and the height did not.
+
+   18 square, padding gone, the digit centred by flex. 18 rather than 17.5 to
+   land on a whole pixel: the height gains half a pixel and the width gains
+   2.62, which is the defect being taken out.
+
+   Then «۵ پیکسل به چپ بیاد ۳ پیکسل بره بالا»: it sat at `left: 0` and
+   `top: -3`, so it goes to -5 and -6. Physical `left` and `top`, and the
+   template's `right` is cleared with it — the badge is placed from the
+   button's left corner on this page, and leaving the other side set would let
+   the two fight over an element whose width is now fixed. */
+@media (max-width: 991.98px) {
+  .vp-ladder-head {
+    box-shadow: none;
+  }
+
+  .vp-deal:hover .vp-deal-shot,
+  .vp-deal:hover .vp-deal-shot img,
+  .vp-best:hover .vp-best-shot,
+  .vp-best:hover .vp-best-shot img,
+  .vp-category:hover,
+  .vp-category:hover img {
+    transform: none;
+  }
+
+  .vp-deal-shot,
+  .vp-deal-shot img,
+  .vp-best-shot,
+  .vp-best-shot img,
+  .vp-category,
+  .vp-category img {
+    transition: none;
+  }
+
+  .vp-best-label {
+    border-radius: 19.1862px;
+  }
+
+  .vp-best-browse {
+    border-radius: 19.1862px;
+  }
+
+  .th-header .header-button .icon-btn.sideMenuToggler .badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    min-width: 0;
+    padding: 0;
+    line-height: 1;
+    border-radius: 50%;
+    right: auto;
+    left: -5px;
+    top: -6px;
+  }
+}

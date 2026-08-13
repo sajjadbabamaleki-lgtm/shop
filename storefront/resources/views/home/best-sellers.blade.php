@@ -46,7 +46,7 @@
                                     <span class="vp-best-cta"><strong>{{ toman($tile['product']->offerHere()->compare_at_price) }} <span>تومان</span></strong></span>
                                 </span>
                             </div>
-                            <a class="vp-best-browse" href="{{ storefront_route('product', $tile['product']) }}" aria-label="افزودن {{ $tile['product']->short_title }} به سبد خرید"><i class="fa-solid fa-plus" aria-hidden="true"></i></a>
+                            <a class="vp-best-browse" href="{{ storefront_route('product', $tile['product']) }}" aria-label="افزودن {{ $tile['product']->short_title }} به سبد خرید"><i class="fa-solid fa-bag-shopping" aria-hidden="true"></i></a>
                         </div>
                     </div>
                 </div>

@@ -696,7 +696,7 @@ const bestCard = ([file], i) => {
     `\n                                    <span class="vp-best-cta"><strong>${price} <span>تومان</span></strong></span>` +
     '\n                                </span>' +
     '\n                            </div>' +
-    `\n                            <a class="vp-best-browse" href="shop.html" aria-label="افزودن ${name} به سبد خرید"><i class="fa-solid fa-plus" aria-hidden="true"></i></a>` +
+    `\n                            <a class="vp-best-browse" href="shop.html" aria-label="افزودن ${name} به سبد خرید"><i class="fa-solid fa-bag-shopping" aria-hidden="true"></i></a>` +
     '\n                        </div>' +
     '\n                    </div>' +
     '\n                </div>'
