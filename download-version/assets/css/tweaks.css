@@ -9484,37 +9484,39 @@ ul.vp-how-list.is-ticked li:before {
    10 + 34 = 44. The columns were evenly spaced at 663.4, 749.0, 834.6, 920.2
    and 1005.8 the whole time, 85.6 apart, which is 75.6 and 10. Wait for every
    card's opacity to reach 1 before believing a number off this row. */
-/* «این دوتا فاصله بشه اندازه فاصله هدر با هیرو».
+/* The two gaps either side of the trust row, on a phone: **30**.
 
-   Two gaps on the phone, both marked on the client's own screenshot: the one
-   above the trust row and the one below it. The measure they are to take is
-   the gap between the header island and the hero card, which is **13.5** —
-   `.th-hero-wrapper`'s own top padding, and the same 13.5 `.feature-area2`
-   carries above the category tiles. So the number is already the page's on a
-   phone; the trust row was the one band standing outside it, at 40 above and
-   150 below.
+   «این دوتا فاصله بشه اندازه فاصله هدر با هیرو» set them to the header-to-hero
+   distance, which is 13.5 — `.th-hero-wrapper`'s own top padding, and the same
+   13.5 `.feature-area2` carries above the category tiles. Seen on the page that
+   was too tight («جالب نشد»), and the answer is 30.
+
+   So this is no longer "the same as that gap" — it is its own number, and the
+   comment says so rather than pointing at a measure it no longer takes. They
+   started at 40 above (`.vp-trust-row-wrap` margin-top, which had deliberately
+   left the page's rhythm) and 150 below (`.collection-area`
+   padding-block-start).
 
    The 150 is the desktop page's rhythm — six gaps down the page, all 150, each
    carried by exactly one property (see the rhythm block above). That rhythm is
-   not touched: these two overrides are inside a phone query, and 150 of air
-   between two bands on a 390-wide screen is half a screenful of nothing, which
-   is what was being pointed at.
+   not touched: both overrides are inside a phone query, and 150 of air between
+   two bands on a 390-wide screen is half a screenful of nothing, which is what
+   was being pointed at.
 
    Only the two that were marked. The other four gaps below are still 150 on a
    phone. */
 @media (max-width: 991.98px) {
   .vp-trust-row-wrap {
     margin-inline: 10px;
-    /* Above the trust row: was 40, the number this row has stood at since it
-       deliberately left the page's rhythm. */
-    margin-top: 13.5px;
+    /* Above the trust row. */
+    margin-top: 30px;
   }
 
   /* Below it. The gap belongs to the stepped sale's section, which is where
      the desktop's 150 lives too — one property carries it, so one property
      changes it. */
   .collection-area {
-    padding-block-start: 13.5px;
+    padding-block-start: 30px;
   }
 
   .vp-trust-row {

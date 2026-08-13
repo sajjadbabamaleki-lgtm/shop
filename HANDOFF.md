@@ -1161,18 +1161,23 @@ related shelf's gutters go to 10 (`--bs-gutter-x/y` on
 stands at; `gy-4` was 24, which is the desktop's air. And its heading is
 «نمونه‌های مشابه».
 
-## The trust row's two gaps, on a phone
+## The trust row's two gaps, on a phone: 30
 
 «این دوتا فاصله بشه اندازه فاصله هدر با هیرو», marked on a screenshot: the gap
 above the trust row and the gap below it.
 
-The measure they were told to take is 13.5 — `.th-hero-wrapper`'s own top
+The measure they were told to take was 13.5 — `.th-hero-wrapper`'s own top
 padding, which is the whole distance between the header island and the hero
-card, and the same 13.5 `.feature-area2` already carries above the category
-tiles. So the number was the phone's already; the trust row was the one band
-standing outside it, at **40** above (`.vp-trust-row-wrap` margin-top, which had
-deliberately left the page's rhythm two rounds earlier) and **150** below
-(`.collection-area` padding-block-start, which is the desktop's rhythm).
+card, and the same 13.5 `.feature-area2` carries above the category tiles. Seen
+on the page that was too tight («جالب نشد»), and **both are 30 now**.
+
+So the pair is no longer "the same as the header's gap". 30 is its own number,
+and the comment in `tweaks.css` says that rather than pointing at a measure it
+no longer takes — a comment that names a relationship the code has stopped
+having is worse than no comment. They started at **40** above
+(`.vp-trust-row-wrap` margin-top, which had deliberately left the page's rhythm
+two rounds earlier) and **150** below (`.collection-area` padding-block-start,
+which is the desktop's rhythm).
 
 Both overrides are inside `max-width: 991.98px`. The desktop's six-gap 150
 rhythm is untouched and still reads 40/40/176 at 992 and up — 150 of air between
@@ -1181,8 +1186,8 @@ two bands is right on a 1920 page and half a screenful of nothing on a 390 one.
 **Only the two that were marked.** The four gaps further down the page are still
 150 on a phone.
 
-Measured after at 360, 390 and 768: header→hero, tiles→trust and trust→sale all
-13.5. At 992 and 1440: unchanged.
+Measured after at 360, 390 and 768: tiles→trust and trust→sale both 30, with
+header→hero left at its own 13.5. At 992 and 1440: unchanged.
 
 ## The mini basket as an island, and its X
 
