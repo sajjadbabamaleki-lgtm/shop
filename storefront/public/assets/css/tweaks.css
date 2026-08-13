@@ -2532,9 +2532,14 @@ option:hover {
 /* The live step in the buy button's own gold, so the thing the visitor can act
    on now and the thing they act with are the same colour. */
 .vp-step.is-current .vp-step-rate b {
-  /* Ink on the gold, not white — the page settled that question on the
-     burst: white measures 2.6:1 on this gold and ink 5.1. */
-  color: var(--title-color);
+  /* «اعداد داخل مربع های گلد حراج پله ای باید سفید بشن». It was ink, and the
+     comment here argued for it: white measures 2.6:1 on this gold and ink 5.1,
+     and 2.6 is under the 3:1 WCAG asks of a graphical control. The client has
+     now asked for white twice on this ramp — here and on the menu square — so
+     it is white, and the measurement stays written down rather than deleted.
+     If these ever read faint in daylight, that number is why and ink is the
+     fix. */
+  color: #FFFFFF;
   background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
   box-shadow: none;
 }
@@ -2578,7 +2583,9 @@ option:hover {
    above it, so the step reads as one thing lit. Ink on the gold, not white —
    the page settled that on the burst: white measures 2.6:1 here and ink 5.1. */
 .vp-step.is-current .vp-step-flag {
-  color: var(--title-color);
+  /* «اون لودینگی که میچرخه هم سفید بشه» — the ring is drawn in currentColor,
+     so this one property carries it. Same contrast note as the digits above. */
+  color: #FFFFFF;
   background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
   box-shadow: none;
   /* «اندازه مربع لودینگ ارتفاعش از کارت هفته دوم که کنارشه بیشتره... باید اندازه
@@ -12061,15 +12068,14 @@ ul.vp-how-list.is-ticked li:before {
   color: #C0972F;
 }
 
-.heroSlide6 .discount-tag .vp-burst .vp-burst-star path {
-  fill: #FFFFFF;
-}
-
-.heroSlide6 .discount-tag .vp-burst .vp-burst-stud,
-.heroSlide6 .discount-tag .vp-burst .vp-burst-num,
-.heroSlide6 .discount-tag .vp-burst .vp-burst-off {
-  fill: #C0972F;
-}
+/* The hero's star was turned white here for one round — «ستاره تخفیف تو هیرو
+   باید سفید بشه چیزای روش گلد بشه» — and then «ستاره تخفیف هم در هیرو باید
+   برگرده به حالت قبل و طلایی بشه». The rules are deleted rather than
+   overridden: the star's gold comes from the gradient the generator writes
+   into the markup, so with nothing here to beat the presentation attribute it
+   is simply itself again. Recorded because the shape of the mistake is worth
+   keeping — the same message asked for a badge on the best sellers, and both
+   were built white on the reading that they were one instruction. */
 
 /* The best sellers' star is the sale cards' — «اون ستاره تخفیف فقط در هیرو
    باید سفید بشه». It was drawn white for one round, in its own partial with
@@ -12120,4 +12126,51 @@ ul.vp-how-list.is-ticked li:before {
   /* Nothing to place: `.vp-deal-burst` already sits 8 from the tile's top and
      inline start at 43.2 square below 992, and it is inside `.vp-best-shot`
      here exactly as it is inside `.vp-deal-shot` there. */
+}
+
+/* The menu square's shadow.
+
+   «دور آیکون منو هم مث اون ۳ تای دیگه باید سایه بیاری». The search and the
+   basket beside it carry `0 0 2px rgba(16,17,17,0.1), 0 0 8px -2px
+   rgba(16,17,17,0.14)` from `.icon-btn`; this button is not an `.icon-btn`,
+   which is the same reason its colour needed its own rule, so the shadow has
+   to be written out rather than inherited. Copied off the rendered page, not
+   from the source, so it is what those two actually paint.
+
+   Same selector as the colour above it: three class levels, because the rule
+   that fills this button gold is three and sets `box-shadow: none`. */
+.th-header .th-menu-toggle.d-block {
+  box-shadow:
+    0 0 2px rgba(16, 17, 17, 0.1),
+    0 0 8px -2px rgba(16, 17, 17, 0.14);
+}
+
+/* The search mark, sized to what it paints rather than to its box.
+
+   «آیکون سرچ تو منو خیلی کوچیکه باید بزرگتر بشه داخل مربع». It was 17px on a
+   39.9 button, the same number as the box the other two glyphs sit in — which
+   is why it looked like it had been matched, and why it was not.
+
+   The others are icon-font glyphs and fill their boxes. This one is an SVG
+   with a 0 0 20 20 view box and a magnifier drawn inside it: a circle at
+   r 6 with a handle running to 15.3, so the drawn mark spans about 13 of the
+   20 units and stops well short of the edges. Measured by scanning the painted
+   pixels of each of the three, not their layout boxes:
+
+     search   13 x 13
+     basket   18 x 20
+     bars     16 x 14
+
+   23px puts the search's ink at 17-18, in among the other two. The number is
+   not 23 because 23 looks right — it is 17.5 ÷ (13 ÷ 17), the box that gives
+   the ink the size the basket's has.
+
+   This is the lesson HANDOFF already carries from the mark and the basket,
+   arriving again: when two things are meant to look the same size and their
+   boxes are equal, measure the *painted* area next. */
+@media (max-width: 991.98px) {
+  .th-header .header-button .icon-btn.vp-search-btn .vp-search-icon {
+    width: 23px;
+    height: 23px;
+  }
 }

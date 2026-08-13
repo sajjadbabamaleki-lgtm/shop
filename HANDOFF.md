@@ -1754,3 +1754,39 @@ things about the rule, because it silently did nothing twice:
 - `background-image: none` explicitly. The gold is a gradient, so the computed
   `background-color` reads transparent and setting only a colour leaves the
   gradient painting over it.
+
+### White on the gold ramp, and a mark measured by its ink
+
+Two things from the same round, both of which overturn a number this file had
+argued for.
+
+**The live step's digits and its spinner are white.** «اعداد داخل مربع های گلد
+حراج پله ای باید سفید بشن اون لودینگی که میچرخه هم سفید بشه». They were ink,
+and the comments on both rules argued for it from a measurement: white reads
+2.6:1 on this gold and ink 5.1, and 2.6 is under the 3:1 WCAG asks of a
+graphical control. The client has now asked for white on this ramp twice — here
+and on the header's menu square — so it is white. **The measurement is kept in
+the comments rather than deleted**: if these ever read faint in daylight, that
+is why, and ink is the fix.
+
+**The hero's star went white for one round and came back gold.** Both rules
+were deleted rather than overridden — the gold comes from a gradient the
+generator writes into the markup, so with nothing to beat the presentation
+attribute the star is simply itself again.
+
+**The search mark is 23px, and the number is arithmetic rather than taste.** It
+was 17 — the same number as the box the other two glyphs sit in, which is
+exactly why it looked matched and was not. The other two are icon-font glyphs
+that fill their boxes; this one is an SVG whose magnifier spans about 13 of its
+20 view-box units. Scanning the painted pixels of all three:
+
+    search   13 x 13        (before)
+    basket   18 x 20
+    bars     16 x 14
+
+23 = 17.5 ÷ (13 ÷ 17), the box that puts the search's ink at the basket's size.
+Measured after: 17 x 17.
+
+That is the third time this repo has been caught by equal boxes with unequal
+ink. **When two things are meant to look the same size, measure what they
+paint, not what they occupy.**
