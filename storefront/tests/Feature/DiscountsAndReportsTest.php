@@ -106,9 +106,12 @@ class DiscountsAndReportsTest extends TestCase
         $this->code();
         $price = $this->basket();
 
-        $this->post('/cart/discount', ['code' => 'nowruz'])->assertRedirect(route('cart'));
+        $this->post('/cart/discount', ['code' => 'nowruz'])->assertRedirect(route('checkout'));
 
-        $this->get('/cart')->assertOk()->assertSee(toman(intdiv($price, 10)), false);
+        // The checkout prints the discount as its own line; the basket no longer
+        // does — it shows one figure, «جمع کل», with the code already taken off.
+        $this->get('/checkout')->assertOk()->assertSee(toman(intdiv($price, 10)), false);
+        $this->get('/cart')->assertOk()->assertSee(toman($price - intdiv($price, 10)), false);
 
         $order = $this->place();
 
@@ -137,7 +140,7 @@ class DiscountsAndReportsTest extends TestCase
 
         $this->post('/cart/discount', ['code' => 'NOWRUZ']);
 
-        $this->get('/cart')->assertOk()->assertSee('دیگر معتبر نیست', false);
+        $this->get('/checkout')->assertOk()->assertSee('دیگر معتبر نیست', false);
         $this->assertSame(0, $this->place()->discount_total);
     }
 
@@ -150,7 +153,7 @@ class DiscountsAndReportsTest extends TestCase
 
         $this->post('/cart/discount', ['code' => 'NOWRUZ']);
 
-        $this->get('/cart')->assertOk()->assertSee('به بالا اعمال می‌شود', false);
+        $this->get('/checkout')->assertOk()->assertSee('به بالا اعمال می‌شود', false);
         $this->assertSame(0, $this->place()->discount_total);
     }
 
@@ -179,7 +182,7 @@ class DiscountsAndReportsTest extends TestCase
         $this->basket();
         $this->post('/cart/discount', ['code' => 'NOWRUZ']);
 
-        $this->get('/cart')->assertSee('ظرفیت این کد پر شده', false);
+        $this->get('/checkout')->assertSee('ظرفیت این کد پر شده', false);
         $this->assertSame(0, $this->place()->discount_total);
     }
 
@@ -245,7 +248,7 @@ class DiscountsAndReportsTest extends TestCase
         $this->post('/cart', ['variant' => $offer->variant_id, 'vendor' => $vendor->id]);
         $this->post('/cart/discount', ['code' => 'NOWRUZ']);
 
-        $this->get('/cart')->assertSee('فروشندگان دیگر', false);
+        $this->get('/checkout')->assertSee('فروشندگان دیگر', false);
     }
 
     /**
@@ -261,7 +264,7 @@ class DiscountsAndReportsTest extends TestCase
 
         $this->post('/cart/discount', ['code' => 'NOWRUZ']);
 
-        $this->get('/cart')->assertSee('شناخته نشد', false);
+        $this->get('/checkout')->assertSee('شناخته نشد', false);
         $this->assertSame(0, $this->place()->discount_total);
     }
 
@@ -274,7 +277,7 @@ class DiscountsAndReportsTest extends TestCase
         $this->post('/shiraz/cart', ['variant' => $this->variant()->id]);
         $this->post('/shiraz/cart/discount', ['code' => 'NOWRUZ']);
 
-        $this->get('/shiraz/cart')->assertOk()->assertSee('اعمال شد', false);
+        $this->get('/shiraz/checkout')->assertOk()->assertSee('اعمال شد', false);
     }
 
     public function test_a_manager_makes_a_code_for_their_own_branch(): void

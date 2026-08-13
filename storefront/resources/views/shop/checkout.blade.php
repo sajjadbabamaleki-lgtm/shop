@@ -96,6 +96,25 @@
                         </div>
                     @endforeach
 
+                    {{-- The discount field lives here now. It was on the basket
+                         page and came off it at the client's word; this is the last
+                         screen before paying, which is where a code is usually typed
+                         anyway. Whether it applies is still worked out on every page
+                         and again inside the order transaction — nothing about it is
+                         stored on the basket. --}}
+                    <form class="vp-code" method="post" action="{{ storefront_route('cart.discount') }}">
+                        @csrf
+                        <label class="visually-hidden" for="vp-code">کد تخفیف</label>
+                        <input id="vp-code" name="code" value="{{ $discount['code']?->code }}" placeholder="کد تخفیف" maxlength="32">
+                        <button type="submit">اعمال</button>
+                    </form>
+
+                    @if ($discount['problem'])
+                        <p class="vp-code-note">{{ $discount['problem'] }}</p>
+                    @elseif ($off > 0)
+                        <p class="vp-code-note is-good">{{ $discount['code']->describe() }} اعمال شد.</p>
+                    @endif
+
                     <div class="vp-cart-row"><span>جمع کالاها</span><span>{{ toman($subtotal) }} تومان</span></div>
                     @if ($off > 0)
                         <div class="vp-cart-row"><span>تخفیف ({{ $discount['code']->code }})</span><span>− {{ toman($off) }}</span></div>

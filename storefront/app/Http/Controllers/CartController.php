@@ -56,7 +56,13 @@ class CartController extends Controller
             ? $this->discounts->forget()
             : $this->discounts->remember(mb_substr($code, 0, 32));
 
-        return redirect()->to(storefront_route('cart'));
+        // Back where it was typed. The field was on the basket page and is on
+        // the checkout now, and a hard redirect to the basket would have thrown
+        // the customer off the last screen before paying to tell them their
+        // code worked. The fallback is the checkout, because that is the only
+        // page the field is on — a request with no referer came from nowhere a
+        // form could have been.
+        return back(fallback: storefront_route('checkout'));
     }
 
     public function add(Request $request): RedirectResponse

@@ -114,39 +114,21 @@
                         @endforeach
                     </div>
 
+                    {{-- Only what is being decided here: how many, and how much.
+
+                         «کلا اینجا یدونه فقط تعداد خرید باشه و جمع کل». What was
+                         here also listed «جمع کالاها» and «هزینه ارسال» and carried
+                         the discount field — and with delivery decided at the next
+                         step and no code typed, «جمع کالاها» and «جمع کل» were the
+                         same number printed twice.
+
+                         The code field moved to the checkout rather than being
+                         deleted: it was the only place on the storefront a discount
+                         code could be typed, and taking it out here would have made
+                         `discount_codes` unreachable. --}}
                     <aside class="vp-cart-sum">
-                        <h2 class="vp-filter-title">جمع سبد</h2>
+                        <div class="vp-cart-row"><span>تعداد</span><span>{{ fa_number($cart->count()) }} کالا</span></div>
 
-                        <div class="vp-cart-row"><span>جمع کالاها</span><span>{{ toman($cart->subtotal()) }} تومان</span></div>
-
-                        @if ($discount['amount'] > 0)
-                            <div class="vp-cart-row"><span>تخفیف ({{ $discount['code']->code }})</span><span>− {{ toman($discount['amount']) }}</span></div>
-                        @endif
-
-                        {{-- Delivery is not decided here and the page says so rather than
-                             quoting a number that the checkout might then change. --}}
-                        <div class="vp-cart-row"><span>هزینه ارسال</span><span>در مرحله بعد</span></div>
-
-                        {{-- The code is text the customer typed; whether it applies is
-                             worked out again on every page and once more when the order
-                             is placed. --}}
-                        <form class="vp-code" method="post" action="{{ storefront_route('cart.discount') }}">
-                            @csrf
-                            <label class="visually-hidden" for="vp-code">کد تخفیف</label>
-                            <input id="vp-code" name="code" value="{{ $discount['code']?->code }}" placeholder="کد تخفیف" maxlength="32">
-                            <button type="submit">اعمال</button>
-                        </form>
-
-                        @if ($discount['problem'])
-                            <p class="vp-code-note">{{ $discount['problem'] }}</p>
-                        @elseif ($discount['amount'] > 0)
-                            <p class="vp-code-note is-good">{{ $discount['code']->describe() }} اعمال شد.</p>
-                        @endif
-
-                        {{-- The line the customer is actually being asked to agree to,
-                             which the panel did not state: it listed the parts and left
-                             the adding up to them. Delivery is not in it and the row
-                             above says so. --}}
                         <div class="vp-cart-row is-total">
                             <span>جمع کل</span>
                             <span>{{ toman($cart->subtotal() - $discount['amount']) }} تومان</span>

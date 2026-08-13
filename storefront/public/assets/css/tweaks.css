@@ -10328,11 +10328,11 @@ ul.vp-how-list.is-ticked li:before {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 34px;
+  height: 34px;
   padding: 0;
   border: 0;
-  border-radius: 13px;
+  border-radius: 11px;
   /* «خود مثبت و منفی تو مربعو بزرگ کن» — the mark, not the square. 21 was a
      glyph rattling around inside a 40 box; 28 fills it the way the reference's
      does. `line-height: 1` and the flex centring keep it on the middle of the
@@ -10444,7 +10444,11 @@ ul.vp-how-list.is-ticked li:before {
      the clearance is the page. Measured against the tallest the sheet gets —
      three rows, the code field and the button, with a discount applied. */
   .vp-shop-section:has(.vp-cart-sum) {
-    padding-block-end: 250px;
+    /* The sheet is 182 with a discount applied — it lost the code field, the
+       delivery row and the goods row in the same round the client asked for
+       «فقط تعداد خرید و جمع کل», so the 250 it used to need is 60 of dead
+       floor. 200 is the sheet plus its 10 inset and a little air. */
+    padding-block-end: 200px;
   }
 
   /* And the basket is not on a card.
