@@ -1,0 +1,30 @@
+# Rebuilt inside the image.
+#
+# Anchored with a leading slash on purpose. Without it these match a directory
+# of that name at ANY depth — and public/assets/js/vendor holds jQuery, so an
+# unanchored "vendor/" silently drops it from the upload. main.js then dies on
+# its first $ and nothing on the page initialises: the preloader never lifts,
+# the hero deck never slides. The site looks broken for a reason that is
+# nowhere near where it appears.
+/vendor/
+/node_modules/
+
+# Never bake an environment into an image.
+.env
+.env.*
+!.env.example
+
+# Runtime state belongs to the running container, not to the image.
+storage/logs/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+bootstrap/cache/*
+
+.git/
+.github/
+tests/
+phpunit.xml
+.phpunit.result.cache
+Dockerfile
+.dockerignore

@@ -19,7 +19,11 @@ class Product extends Model
 {
     use HasFactory;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'slug', 'title', 'short_title', 'brand_id', 'description', 'material',
+        'care_instructions', 'use_case', 'status', 'default_variant_id',
+        'seo_title', 'seo_description', 'canonical_url', 'published_at',
+    ];
 
     protected function casts(): array
     {
@@ -36,14 +40,29 @@ class Product extends Model
         return $this->hasMany(Variant::class);
     }
 
+    /**
+     * The variant a listing prices and adds to a basket when the customer has
+     * not chosen a colour or size yet.
+     */
+    public function defaultVariant(): BelongsTo
+    {
+        return $this->belongsTo(Variant::class, 'default_variant_id');
+    }
+
     public function media(): HasMany
     {
         return $this->hasMany(VariantMedia::class)->orderBy('position');
     }
 
+    /**
+     * The pivot is named product_category. Eloquent would infer
+     * category_product from the two model names in alphabetical order, so the
+     * table has to be named here or the relation queries one that was never
+     * created.
+     */
     public function categories(): BelongsToMany
     {
-        return $this->belongsToMany(Category::class);
+        return $this->belongsToMany(Category::class, 'product_category');
     }
 
     public function getRouteKeyName(): string
@@ -64,9 +83,72 @@ class Product extends Model
     }
 
     /**
+     * Adds `branch_price` — the cheapest sellable offer this branch has for
+     * the product — as a column on the row.
+     *
+     * A listing sorted by price cannot sort in PHP: the cheapest twelve of two
+     * hundred products are not the cheapest twelve of the page you happen to
+     * be on. So the price the sort uses has to be in the query, and it is the
+     * branch's price, through the branch's own scope. With nothing bound the
+     * subquery matches nothing and every product prices at null — the same
+     * failing-closed as everywhere else.
+     */
+    public function scopePricedHere(Builder $query): Builder
+    {
+        $cheapest = BranchOffer::query()
+            ->selectRaw('min(branch_offers.price)')
+            ->join('variants', 'variants.id', '=', 'branch_offers.variant_id')
+            ->whereColumn('variants.product_id', 'products.id')
+            ->where('branch_offers.status', 'active');
+
+        return $query->select('products.*')->selectSub($cheapest, 'branch_price');
+    }
+
+    /**
+     * Adds `units_sold` — how many of the product this branch has actually
+     * sold — as a column on the row.
+     *
+     * Same reason as `pricedHere()`: the ten best sellers of two hundred
+     * products are not the ten best sellers of whichever page you are on, so
+     * the count has to be in the query.
+     *
+     * Counted off **paid** orders only, and off `order_items` rather than the
+     * catalogue: what sold is a fact about orders, and a basket somebody
+     * abandoned is not a sale. `Order` is branch-scoped, so this is what this
+     * shop sold and not what the chain did — a franchise's best sellers are its
+     * own. `coalesce` so a product nobody has bought sorts as 0 and not as
+     * null, which in Postgres would sort *first* on a descending order and put
+     * the things that have never sold at the top of the best-seller list.
+     *
+     * Composes with `pricedHere()` in either order. That needs saying, because
+     * `select()` replaces the column list rather than adding to it: two scopes
+     * that both opened with `select('products.*')` would leave whichever ran
+     * second having quietly dropped the other's column, and the only symptom
+     * would be a sort that does nothing.
+     */
+    public function scopeCountingSales(Builder $query): Builder
+    {
+        $sold = OrderItem::query()
+            ->selectRaw('coalesce(sum(order_items.quantity), 0)')
+            ->join('variants', 'variants.id', '=', 'order_items.variant_id')
+            ->whereColumn('variants.product_id', 'products.id')
+            ->whereIn('order_items.order_id', Order::query()->select('id')->where('status', Order::PAID));
+
+        if (empty($query->getQuery()->columns)) {
+            $query->select('products.*');
+        }
+
+        return $query->selectSub($sold, 'units_sold');
+    }
+
+    /**
      * The colourways offered by the product page's colour selector, each
      * carrying its own sizes. Changing colour must update media, price and
      * availability together (spec 16.1), so they travel as one structure.
+     *
+     * `from_price` is the cheapest size **at the branch this request belongs
+     * to**, and null where the branch lists none of them — a shop that does
+     * not stock a colour has no price to quote for it.
      */
     public function colorways(): Collection
     {
@@ -76,10 +158,71 @@ class Product extends Model
                 'display_color' => $variants->first()->display_color,
                 'color_family' => $variants->first()->color_family,
                 'sellable' => $variants->contains(fn (Variant $v) => $v->isSellable()),
-                'from_price' => $variants->min('price'),
+                'from_price' => $variants->map(fn (Variant $v) => $v->offer?->price)->filter()->min(),
                 'sizes' => $variants->sortBy('size_value', SORT_NATURAL)->values(),
             ])
             ->values();
+    }
+
+    /**
+     * The one image a card shows. The primary if a colourway has been marked
+     * as such, otherwise whichever comes first by position.
+     */
+    public function primaryMedia(): ?VariantMedia
+    {
+        return $this->media->firstWhere('is_primary', true) ?? $this->media->first();
+    }
+
+    /**
+     * What this branch has left to sell, across every colour and size.
+     */
+    public function sellableStock(): int
+    {
+        return (int) $this->variants->sum(fn (Variant $variant) => $variant->sellableStock());
+    }
+
+    /**
+     * The size a card's basket button adds.
+     *
+     * The default variant when this branch can supply it, and otherwise the
+     * first size it can — a listing shows a product while *any* of its sizes
+     * is sellable, so the default one is often the one that has just sold out,
+     * and a button that adds it would put a line in the basket that the
+     * checkout then refuses.
+     */
+    public function addableVariant(): ?Variant
+    {
+        $default = $this->defaultVariant;
+
+        if ($default?->isSellable()) {
+            return $default;
+        }
+
+        return $this->variants->first(fn (Variant $variant) => $variant->isSellable());
+    }
+
+    /**
+     * The price a listing card shows: the default variant's, at the branch
+     * this request belongs to.
+     *
+     * Falls back off the default variant when this branch does not list it.
+     * `purchasable()` promises that *some* size is sellable here, not that the
+     * default one is — so a shop that has stopped stocking the default size
+     * still has a price to show, and a card for it does not render a blank
+     * where the money goes.
+     *
+     * Null only when the branch lists none of the sizes at all, which the
+     * purchasable scope already keeps out of every list a customer sees.
+     *
+     * Named for where it applies, and not `offer()`, because Variant::offer is
+     * an Eloquent relation and two methods of one name doing two different
+     * kinds of thing is how a template ends up writing `$product->offer` and
+     * getting an exception it cannot read.
+     */
+    public function offerHere(): ?BranchOffer
+    {
+        return $this->defaultVariant?->offer
+            ?? $this->variants->map(fn (Variant $variant) => $variant->offer)->filter()->sortBy('price')->first();
     }
 
     /**

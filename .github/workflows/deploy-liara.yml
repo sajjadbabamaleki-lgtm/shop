@@ -1,0 +1,106 @@
+name: Tests and deploy
+
+# Runs the test suite on every push and every pull request, and deploys to
+# Liara only when the tests pass and only from a deploy branch.
+#
+# The app lives in storefront/, not at the repository root, which is why every
+# step below sets working-directory. Liara's own documentation deploys from the
+# root; this is the same thing pointed one level down.
+
+on:
+  push:
+    branches:
+      - main
+      - claude/wiki-plus-latest-work-enpjl1
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: Tests
+    runs-on: ubuntu-latest
+
+    # The catalogue's invariants — stock never negative, a reservation never
+    # above what is on hand, a sale price never above the struck-through one —
+    # are CHECK constraints in PostgreSQL DDL, so the suite needs the real
+    # database rather than SQLite.
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: vikyplus
+          POSTGRES_PASSWORD: vikyplus
+          POSTGRES_DB: vikyplus_testing
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    defaults:
+      run:
+        working-directory: ./storefront
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          # intl because prices are formatted through ICU; pdo_pgsql for the
+          # catalogue. Both are what the app declares in composer.json.
+          extensions: dom, curl, intl, libxml, mbstring, zip, pcntl, pdo, pgsql, pdo_pgsql
+          coverage: none
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: Prepare the environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Run the tests
+        env:
+          DB_HOST: 127.0.0.1
+          DB_PASSWORD: vikyplus
+        run: php artisan test
+
+      - name: Check the code style
+        run: ./vendor/bin/pint --test
+
+  deploy:
+    name: Deploy to Liara
+    runs-on: ubuntu-latest
+    needs: tests
+    # Never deploy a pull request — only a push to a deploy branch, or the
+    # "Run workflow" button.
+    if: github.event_name != 'pull_request'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install the Liara CLI
+        run: npm install -g @liara/cli@9
+
+      - name: Deploy
+        working-directory: ./storefront
+        env:
+          LIARA_TOKEN: ${{ secrets.LIARA_API_TOKEN }}
+        # The app's name in the Liara panel. Set a repository variable named
+        # LIARA_APP to use a different one; otherwise it is "vikyplus".
+        run: |
+          liara deploy \
+            --app "${{ vars.LIARA_APP || 'vikyplus' }}" \
+            --api-token "$LIARA_TOKEN" \
+            --no-app-logs

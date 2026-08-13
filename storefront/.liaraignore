@@ -1,0 +1,35 @@
+# Liara installs these itself.
+#
+# Anchored with a leading slash on purpose. Without it these match a directory
+# of that name at ANY depth — and public/assets/js/vendor holds jQuery, so an
+# unanchored "vendor/" silently drops it from the upload. main.js then dies on
+# its first $ and nothing on the page initialises: the preloader never lifts,
+# the hero deck never slides. The site looks broken for a reason that is
+# nowhere near where it appears.
+/vendor/
+/node_modules/
+
+# Never upload an environment. Set these in the panel, or with `liara env:set`.
+.env
+.env.*
+!.env.example
+
+# Runtime state belongs to the running app.
+storage/logs/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+bootstrap/cache/*
+
+.git/
+.github/
+tests/
+phpunit.xml
+.phpunit.result.cache
+
+# The container is the portable path, not this one. Keeping the Dockerfile out
+# of the upload also keeps the CLI's platform detection from having an opinion
+# about it — liara.json says laravel, and nothing should argue.
+Dockerfile
+.dockerignore
+docker/

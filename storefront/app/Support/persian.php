@@ -1,0 +1,130 @@
+<?php
+
+if (! function_exists('latin_digits')) {
+    /**
+     * Persian and Arabic-Indic digits folded to ASCII.
+     *
+     * Anything a customer types on a Persian keyboard arrives in Persian
+     * digits — a phone number, a price in a filter box, a size. Every one of
+     * those has to become a number eventually, and a value that does not fold
+     * is not a validation error the customer can see: it is a filter that
+     * silently matches nothing, or a second account nobody can explain.
+     *
+     * Both sets, because the two look alike and keyboards disagree: ۰-۹ is
+     * Persian (U+06F0), ٠-٩ is Arabic-Indic (U+0660).
+     */
+    function latin_digits(string $value): string
+    {
+        return strtr($value, [
+            '۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4',
+            '۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9',
+            '٠' => '0', '١' => '1', '٢' => '2', '٣' => '3', '٤' => '4',
+            '٥' => '5', '٦' => '6', '٧' => '7', '٨' => '8', '٩' => '9',
+        ]);
+    }
+}
+
+if (! function_exists('fa_number')) {
+    /**
+     * A number as this page writes numbers: Persian digits, grouped with the
+     * Arabic thousands separator — ۷٬۹۸۰٬۰۰۰, not 7,980,000.
+     *
+     * The static page produced these with JavaScript's toLocaleString('fa-IR').
+     * ICU's fa_IR decimal format is the same formatter behind both, so the two
+     * agree digit for digit, separator for separator.
+     */
+    function fa_number(int|float $number): string
+    {
+        static $formatter = null;
+
+        $formatter ??= new NumberFormatter('fa_IR', NumberFormatter::DECIMAL);
+
+        return $formatter->format($number);
+    }
+}
+
+if (! function_exists('fold_persian')) {
+    /**
+     * One spelling of a Persian word, for matching against another.
+     *
+     * Persian is typed three ways by three keyboards and none of them is
+     * wrong. The Arabic ي and ك look like the Persian ی and ک and are a
+     * different code point; a zero-width non-joiner is invisible and splits
+     * «نیوبالانس» from «نیو‌بالانس»; and Arabic diacritics arrive from copied
+     * text and match nothing.
+     *
+     * So both sides of a search are folded to one spelling before they are
+     * compared. Without this, a shop where half the catalogue was typed on one
+     * keyboard and half on another is a shop where search works for half of
+     * it — and nobody can see why, because the two strings look identical.
+     *
+     * Only for *matching*. What is stored and shown stays exactly as it was
+     * written.
+     */
+    function fold_persian(string $value): string
+    {
+        $folded = strtr(latin_digits($value), [
+            'ي' => 'ی', 'ك' => 'ک', 'ﻙ' => 'ک', 'ﻚ' => 'ک',
+            'ة' => 'ه', 'ۀ' => 'ه',
+            'أ' => 'ا', 'إ' => 'ا', 'آ' => 'ا', 'ٱ' => 'ا',
+            'ؤ' => 'و', 'ئ' => 'ی',
+            // The invisible ones: a zero-width non-joiner, a zero-width
+            // joiner, and the Arabic tatweel that stretches a word.
+            "\u{200C}" => '', "\u{200D}" => '', 'ـ' => '',
+        ]);
+
+        // Harakat — the marks above and below letters. Copied text carries
+        // them and a keyboard does not type them.
+        return preg_replace('/[\x{064B}-\x{0652}\x{0670}]/u', '', $folded) ?? $folded;
+    }
+}
+
+if (! function_exists('fa_date')) {
+    /**
+     * A date as it is read here: Jalali, in Persian digits, Tehran time.
+     *
+     * ICU carries the Persian calendar, so this is a conversion the platform
+     * already knows how to do correctly — including the leap years, which is
+     * the part every hand-rolled Jalali function eventually gets wrong.
+     *
+     * Showing a customer 2026/08/10 would not be a formatting preference; it
+     * would be a date they have to convert in their head to know whether their
+     * order was yesterday.
+     */
+    function fa_date(DateTimeInterface $when, bool $withTime = false): string
+    {
+        static $formatters = [];
+
+        $key = $withTime ? 'long' : 'short';
+
+        $formatters[$key] ??= new IntlDateFormatter(
+            'fa_IR@calendar=persian',
+            IntlDateFormatter::MEDIUM,
+            $withTime ? IntlDateFormatter::SHORT : IntlDateFormatter::NONE,
+            'Asia/Tehran',
+            IntlDateFormatter::TRADITIONAL,
+        );
+
+        return $formatters[$key]->format($when);
+    }
+}
+
+if (! function_exists('toman')) {
+    /**
+     * Money for display.
+     *
+     * Prices are stored in integer Rial so arithmetic stays exact, and shown
+     * in Toman because that is what a price is read as here. Ten Rial to the
+     * Toman, and the division is exact — a price that is not a whole number of
+     * Toman would be a seeding mistake, so it is asserted rather than rounded
+     * away.
+     */
+    function toman(int $rial): string
+    {
+        if ($rial % 10 !== 0) {
+            throw new InvalidArgumentException("{$rial} Rial is not a whole number of Toman.");
+        }
+
+        return fa_number(intdiv($rial, 10));
+    }
+}

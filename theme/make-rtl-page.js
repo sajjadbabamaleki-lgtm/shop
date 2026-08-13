@@ -29,6 +29,28 @@ let html = fs.readFileSync(src, 'utf8');
 // --- direction and language -------------------------------------------------
 html = html.replace(/<html[^>]*>/i, '<html class="no-js" lang="fa" dir="rtl">');
 
+// --- the preloader comes off ------------------------------------------------
+//
+// The template covers the whole page with a white curtain and lifts it in
+// main.js on the browser's `load` event:
+//
+//     $(window).on("load", function () { $(".preloader").fadeOut(); });
+//
+// `load` waits for every single subresource. One request that never finishes —
+// not a 404, which resolves, but one that hangs — and the event never fires and
+// the curtain never lifts. The entire shop is then held hostage by a decorative
+// animation, which is exactly what happened on the first deployment: the site
+// was up, serving correctly, and every visitor saw a blank white page.
+//
+// It buys nothing. Our page has no flash of unstyled content worth hiding, and
+// the cost of being wrong about that is the whole site. So it goes, on both
+// copies of the page, and the failure mode goes with it.
+const PRELOADER = /[ \t]*<!--=+\s*\n\s*Preloader\s*\n\s*=+-->\s*\n[ \t]*<div class="preloader[\s\S]*?\n[ \t]*<\/div>\n/;
+if (!PRELOADER.test(html)) {
+  throw new Error('the preloader is not where it was — check before assuming it is gone');
+}
+html = html.replace(PRELOADER, '');
+
 // --- swap in the flipped stylesheets ---------------------------------------
 const SHEETS = [
   ['assets/css/style.css', 'assets/css/style.rtl.css'],
@@ -131,6 +153,42 @@ html = html.replace(
   '                            </div>'
 );
 
+// --- the circle that follows the mouse --------------------------------------
+//
+// «اون دایره گردانی که با موس حرکت میکنه». The template's cursor follower: two
+// divs the size of a coin that trail the pointer across every page. On a phone
+// there is no pointer to follow and it sits in a corner doing nothing; on a
+// desktop it is the template's flourish and not this shop's.
+//
+// The markup goes and the script does not have to: main.js guards the whole
+// block with `if ($('.cursor-follower').length > 0)`, so with the element gone
+// it never runs.
+if (!html.includes('cursor-follower')) {
+  throw new Error('the cursor follower is already gone — check what replaced it');
+}
+// Two of them: the wrapper with its pair of divs, and a *third*
+// `.cursor-follower` sitting loose in the markup underneath it. The guard
+// below is what noticed the second one.
+html = html.replace(
+  /<div class="magic-cursor[^"]*">[\s\S]*?<\/div>\s*<\/div>\s*/,
+  ''
+);
+html = html.replace(/<div class="cursor-follower"><\/div>\s*/g, '');
+if (html.includes('cursor-follower')) {
+  throw new Error('the cursor follower replacement did not match');
+}
+
+// --- the drawer's search field ----------------------------------------------
+//
+// Removed at the client's word, and the second time of asking: they meant the
+// field, not only its button. The phone had no search at all for a while after
+// that, which was said plainly here rather than worked around.
+//
+// It has one again, and the shape is the point: «یه آیکون مربع سفید سرچ بیاد
+// کنار اون دوتا» — a square, beside the basket and the menu, not a field. The
+// objection was to a text field taking a row of the drawer, and a button that
+// goes to the search page is not that.
+
 // The basket takes a filled icon rather than the template's outline SVG, to
 // match the one on the sale cards and because it now sits on gold, where an
 // outline reads as a hole rather than as a bag. fa-solid is already loaded —
@@ -141,9 +199,63 @@ html = html.replace(
 // its contents, so the count no longer stands in for one.
 html = html.replace(
   /<button type="button" class="icon-btn sideMenuToggler"><img[^>]*>/i,
+  // The phone's search, at the right-hand end of the button group — which is
+  // where the desktop's search field sits, so the two layouts order the same
+  // controls the same way. `d-lg-none` because above 992 the field itself is
+  // there and a second search beside it would be two ways to the same page.
+  //
+  // The same two-shape SVG the field's own button carries, rather than
+  // FontAwesome's fa-search, whose handle is nearly as long as the glass. It
+  // is sized by the CSS rather than by this markup's width/height, which the
+  // viewBox makes safe to override.
+  //
+  // `search-product.html` is the template's search page and is mapped in
+  // `config/storefront.php`, so make-blade turns this into the `search` route
+  // rather than leaving a dead .html link in the Blade.
+  '<a href="search-product.html" class="icon-btn vp-search-btn d-lg-none" aria-label="جستجو">' +
+    '<svg class="vp-search-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true">' +
+      '<circle cx="8.5" cy="8.5" r="6" stroke="currentColor" stroke-width="2"/>' +
+      '<line x1="12.9" y1="12.9" x2="15.3" y2="15.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>' +
+    '</svg>' +
+  '</a>' +
+  // The account, beside the basket. It lived in the dark strip above the
+  // header until that strip was removed, and on a desktop the drawer — which
+  // carries the other copy — never opens. `.vp-account-btn` so the two are the
+  // same control at the two ends of the page and neither can be styled alone.
+  '<a href="my-account.html" class="icon-btn vp-account-btn" aria-label="ورود / ثبت‌نام">' +
+    '<i class="fa-solid fa-user" aria-hidden="true"></i>' +
+  '</a>' +
   '<button type="button" class="icon-btn sideMenuToggler" aria-label="سبد خرید">' +
     '<i class="fa-solid fa-bag-shopping" aria-hidden="true"></i>'
 );
+
+// --- the dark strip above the header ----------------------------------------
+//
+// «این هدر تیره رو حذف کن». It was the template's, entire: a German company's
+// telephone number, `helloerna@mail.com`, and two select menus offering
+// English/Spanish/Hindi and USD/Euro/GBP on a shop that is written in Persian
+// and prices everything in Toman. The two pickers did nothing — no handler, no
+// second locale, no second currency — so the strip's whole content was either
+// false or inert.
+//
+// It carried two links that are real, and both are kept: «پیگیری سفارش» is in
+// the phone drawer and is now the footer's «سفارش‌های من» as well, and
+// «ورود / ثبت‌نام» has just become an icon beside the basket. Nothing else in
+// the strip survives, because nothing else in it was true.
+//
+// Anchored on the next sibling rather than on a run of closing divs — the same
+// trap the footer's contact block set, where a lazy match stopped inside the
+// info-boxes and left the row one </div> heavy.
+if (!html.includes('helloerna@mail.com')) {
+  throw new Error('the header-top is not the template\'s any more — read it before deleting it');
+}
+html = html.replace(
+  /<div class="header-top">[\s\S]*?(?=<div class="sticky-wrapper">)/,
+  ''
+);
+if (html.includes('helloerna@mail.com')) {
+  throw new Error('the header-top replacement did not match');
+}
 
 // FontAwesome's fa-search draws its handle almost as long as the glass
 // itself, which read cramped once the header disc shrank. A two-shape inline
@@ -191,6 +303,26 @@ const CATEGORIES = [
   ['sport-set', 'ست ورزشی'],
 ];
 
+// The mark beside a category in the phone drawer. The same map as
+// storefront/config/storefront.php's `category_icons`, and the two have to
+// agree — check-parity.js compares the two pages but not the drawer, which is
+// parked off-screen, so PhoneDrawerTest is what notices if they drift.
+//
+// All eight drawn for this, in one hand: the shop sells five kinds of footwear
+// and the template ships one shoe, and the template's own icons are
+// multi-coloured line art that would not have sat beside anything drawn to fill
+// the gaps.
+const CATEGORY_ICONS = {
+  'majlesi': 'vp-cat-heel.svg',
+  'sneaker': 'vp-cat-sneaker.svg',
+  'college': 'vp-cat-college.svg',
+  'sandal': 'vp-cat-sandal.svg',
+  'boot': 'vp-cat-boot.svg',
+  'bag-set': 'vp-cat-bagset.svg',
+  'accessory': 'vp-cat-watch.svg',
+  'sport-set': 'vp-cat-sport.svg',
+};
+
 // The name is real text on the tile, so it is also the link's own name and
 // needs no aria-label.
 const CATEGORY_ROW =
@@ -205,28 +337,241 @@ const CATEGORY_ROW =
   ).join('') +
   '\n            </div>';
 
-// Five trust badges under the category row: the template's own feature-card
+// --- the drawer that opens on a phone ---------------------------------------
+//
+// The template's mobile menu was a directory of its own demo: «Electronics
+// فروشگاه», «About Style 1», ten spellings of blog-grid, every one of them a
+// page this shop does not have. Nobody saw it on a desktop, so it survived the
+// whole port — and it is the *only* menu a phone visitor gets.
+//
+// Rebuilt from the shop's previous site, which the client asked for by name,
+// in this one's materials rather than that one's: the old menu colour-coded
+// its three shortcuts pink, blue and orange, and this page has one accent. So
+// the tiles are the page's own quiet tint with gold marks on them, and the one
+// with urgency — the sale — is lit the way the running step of the stepped
+// sale is lit. Same device, same gradient, ink on the gold.
+//
+// Every destination here is a page that exists. The old menu's «ورود / ثبت‌نام»
+// is not among them: this shop has no customer accounts — an order is found by
+// its number — so the foot of the drawer is the basket instead. That swaps back
+// the day accounts exist and not before.
+const QUICK_LINKS = [
+  ['fa-tag', 'تخفیف‌دارها', 'is-lit'],
+  ['fa-clock', 'جدیدترین‌ها', ''],
+  ['fa-arrow-trend-up', 'پرفروش‌ترین‌ها', ''],
+];
+
+const DRAWER_LINKS = [
+  ['fa-truck-fast', 'پیگیری سفارش', 'order-tracking.html'],
+  ['fa-store', 'فروشنده شوید', 'vendor-register.html'],
+];
+
+const DRAWER =
+  '<div class="th-menu-wrapper">\n' +
+  '        <div class="th-menu-area">\n' +
+  '            <div class="vp-drawer">\n' +
+  '                <div class="vp-drawer-head">\n' +
+  '                    <a href="index.html" class="vp-logo vp-logo-drawer">\n' +
+  '                        <img src="assets/img/vikyplus-appicon.png" alt="ویکی پلاس">\n' +
+  '                        <span class="vp-logo-text">\n' +
+  '                            <b>ویکی پلاس</b>\n' +
+  '                            <small>فروشگاه کیف و کفش زنانه</small>\n' +
+  '                        </span>\n' +
+  '                    </a>\n' +
+  // The class the template's plugin binds to. It is what closes the drawer,
+  // so it stays whatever else changes around it.
+  '                    <button type="button" class="th-menu-toggle" aria-label="بستن منو"><i class="fal fa-times" aria-hidden="true"></i></button>\n' +
+  '                </div>\n' +
+  '                <div class="vp-drawer-body">\n' +
+  // No label over the three shortcuts. «اون دسترسی سریع و خط روبروش باید از
+  // منو حذف بشن» — the heading and the gold rule that ran off the end of it
+  // both. The chips say what they are; the label was naming a category the
+  // menu does not otherwise have. The «فروشگاه» heading below stays: it has a
+  // list under it that does need naming, and «همه محصولات» opposite it.
+  '                    <div class="vp-drawer-quick">\n' +
+  QUICK_LINKS.map(([icon, name, lit]) =>
+    `                        <a class="vp-quick${lit ? ' ' + lit : ''}" href="shop.html">\n` +
+    `                            <span class="vp-quick-mark"><i class="fa-solid ${icon}" aria-hidden="true"></i></span>\n` +
+    `                            <span class="vp-quick-name">${name}</span>\n` +
+    '                        </a>\n'
+  ).join('') +
+  '                    </div>\n' +
+  '                    <div class="vp-drawer-heading">\n' +
+  '                        <p class="vp-drawer-label">فروشگاه</p>\n' +
+  '                        <a class="vp-drawer-all" href="shop.html">همه محصولات</a>\n' +
+  '                    </div>\n' +
+  '                    <ul class="vp-drawer-cats">\n' +
+  CATEGORIES.map(([slug, name]) =>
+    '                        <li>\n' +
+    '                            <a href="shop.html">\n' +
+    `                                <img class="vp-cat-icon" src="assets/img/icon/${CATEGORY_ICONS[slug]}" alt="" loading="lazy">\n` +
+    `                                <span class="vp-cat-name">${name}</span>\n` +
+    '                                <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>\n' +
+    '                            </a>\n' +
+    '                        </li>\n'
+  ).join('') +
+  '                    </ul>\n' +
+  '                    <ul class="vp-drawer-links">\n' +
+  DRAWER_LINKS.map(([icon, name, page]) =>
+    '                        <li>\n' +
+    `                            <a href="${page}">\n` +
+    `                                <i class="fa-solid ${icon}" aria-hidden="true"></i>\n` +
+    `                                <span>${name}</span>\n` +
+    '                            </a>\n' +
+    '                        </li>\n'
+  ).join('') +
+  '                    </ul>\n' +
+  '                </div>\n' +
+  // «ورود / ثبت‌نام», as the shop's previous menu had it and as the client
+  // asked for again. It was the basket for one round, on the grounds that this
+  // shop had no accounts and a login button would go nowhere — so accounts were
+  // built rather than the button changed back.
+  '                <div class="vp-drawer-foot">\n' +
+  '                    <a class="vp-drawer-cta" href="my-account.html">\n' +
+  '                        <i class="fa-solid fa-user" aria-hidden="true"></i>\n' +
+  '                        <span>ورود / ثبت‌نام</span>\n' +
+  '                    </a>\n' +
+  '                </div>\n' +
+  '            </div>\n' +
+  '        </div>\n' +
+  '    </div>';
+
+if (!html.includes('logo-gold.svg')) {
+  throw new Error('the mobile drawer is not the template\'s any more — check what replaced it before replacing it again');
+}
+html = html.replace(
+  /<div class="th-menu-wrapper">[\s\S]*?<\/div>\s*<\/div>\s*<\/div>(?=<!--)/,
+  DRAWER
+);
+if (html.includes('logo-gold.svg')) {
+  throw new Error('the drawer replacement did not match');
+}
+
+// Five story circles between the header and the hero.
+//
+// «۵ تا حالت استوری دایره ای بزار بالای هیرو و زیر هدر ببینیم چطور میشه» — a
+// look, asked for as one. It is phone-only: the strip is `display: none` above
+// 991.98 so the desktop page does not gain a band it was never designed with,
+// and so the desktop stays pixel-identical, which is the standing rule.
+//
+// The five are the catalogue's own first five sections, with the photographs
+// the tiles under the hero already use and the names they already carry.
+// Nothing here is invented — same rule as the trust badges. In the Blade they
+// come out of `$categories` so the strip and the tiles cannot describe two
+// different shops; here they are typed, the way the preview types everything
+// the storefront queries.
+const STORY_ROW =
+  '<section class="vp-stories" aria-label="دسته‌بندی‌ها">\n' +
+  '        <div class="vp-stories-row">' +
+  CATEGORIES.slice(0, 5).map(([file, name]) =>
+    // No caption under the circle — «نباید زیر عنوان داشته باشن استوری ها».
+    // The name moves onto the link as its accessible name rather than being
+    // deleted: a link whose whole content is a decorative photograph announces
+    // itself as nothing at all.
+    `\n            <a class="vp-story" href="shop.html" aria-label="${name}">` +
+    '\n                <span class="vp-story-ring">' +
+    `\n                    <img src="assets/img/category/${file}.jpg" alt="" loading="lazy">` +
+    '\n                </span>' +
+    '\n            </a>'
+  ).join('') +
+  '\n        </div>\n' +
+  '    </section>\n    ';
+
+html = html.replace(
+  '<div class="th-hero-wrapper hero-6 slider-area" id="hero">',
+  STORY_ROW + '<div class="th-hero-wrapper hero-6 slider-area" id="hero">'
+);
+
+// The mini basket, in place of the template's demo.
+//
+// What the basket button opened, on every page and at every width, was still
+// the ThemeForest demo: «فروشگاهping Cart» (a half-translated title nobody
+// caught), five Nike and Adidas shoes, `$39.00`, and remove links pointing at
+// '#'. It survived the whole port for the same reason the phone menu did —
+// nobody opens it in a desktop review, and no check can see it because the
+// panel is parked off-screen.
+//
+// The preview draws the **empty** state, which is what a visitor with nothing
+// in their basket gets, so the static page and the Blade render the same thing
+// and check-parity.js compares like with like. The filled state is the Blade's
+// alone — this page has no basket to fill.
+//
+// The classes the template's script binds to stay exactly as they are:
+// `sidemenu-wrapper`, `sidemenu-content` and `sideMenuCls` are what open and
+// close the panel, and renaming any of them makes the basket button do nothing.
+const MINI_CART =
+  '<div class="sidemenu-wrapper sidemenu-cart">\n' +
+  '        <div class="sidemenu-content">\n' +
+  '            <div class="vp-mini">\n' +
+  '                <div class="vp-mini-head">\n' +
+  '                    <h2 class="vp-mini-title">سبد خرید</h2>\n' +
+  '                    <button type="button" class="closeButton sideMenuCls" aria-label="بستن سبد خرید"><i class="fal fa-times" aria-hidden="true"></i></button>\n' +
+  '                </div>\n' +
+  '                <div class="vp-mini-empty">\n' +
+  '                    <span class="vp-mini-empty-mark" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M10 16 h28 l-3 22 a3 3 0 0 1 -3 3 h-16 a3 3 0 0 1 -3 -3 z" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"></path><path d="M18 16 a6 6 0 0 1 12 0" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"></path></svg></span>\n' +
+  '                    <p class="vp-mini-say">سبد خریدت خالی است.</p>\n' +
+  '                    <a class="vp-mini-out" href="shop.html">رفتن به فروشگاه</a>\n' +
+  '                </div>\n' +
+  '            </div>\n' +
+  '        </div>\n' +
+  '    </div>\n    ';
+
+html = html.replace(
+  /<div class="sidemenu-wrapper sidemenu-cart[\s\S]*?<div class="popup-search-box/,
+  MINI_CART + '<div class="popup-search-box'
+);
+
+// Six trust badges under the category row: the template's own feature-card
 // markup and CSS (feature-card.style2), just with gold icons in place of its
 // red ones and Persian copy. row-cols-* rather than col-N, same reason as the
-// category row: five is not a clean fraction of Bootstrap's 12 columns.
-// Solid-fill icons (feature_card_* and check2), not the outlined feature_2_*
-// set — the client wants every icon in the same filled style as the payment
-// shield.
+// category row: six is a clean fraction of twelve but five was not, and the
+// row has been both.
+// Solid-fill icons, not the outlined feature_2_* set — the client wants every
+// icon in the same filled style as the payment shield, and said so twice.
+//
+// The sixth is a FontAwesome glyph rather than one of the template's SVGs, and
+// that is the second time. It was `bag.svg` first, on the reasoning that it
+// came from the same folder as the other five — but the template's icon set is
+// almost entirely line art, and `bag.svg` is an outline drawn as a filled path,
+// so it passed a "no stroke attribute" check and still read as a wire bag
+// beside five solid glyphs: «اون آیکون هم باید مث اون ۵ تا توپر باشه».
+//
+// Every icon in that folder was rendered and looked at. The genuinely solid
+// ones are the five already in use plus a credit card, three flames and some
+// user silhouettes — there is no filled box or bag anywhere in it. FontAwesome
+// 6 is already shipped and already used for the phone drawer's marks, its solid
+// family is solid by definition, and `fa-boxes-stacked` is the subject. It is
+// painted with the same `#7D6324 → #CE9E29` ramp the SVGs carry, so the row
+// stays one material — see tweaks.css.
+const TRUST_GLYPH = 'fa-boxes-stacked';
+//
+// The sixth is «خرید تکی و عمده», and it is here to make the phone's two-up
+// grid come out even: «بنظرم یه آیتم تکراری بزار ۶ تایی بشه». What was asked
+// for was a repeat of one of the five, which on a live shop reads as a mistake
+// rather than as a sixth promise — so it is a real one instead, and its words
+// are not invented either. The page already carries «تضمین کیفیت، ارسال سریع و
+// امکان خرید تکی و عمده»; this is the half of that sentence the row did not
+// already say. The strapline restates the claim rather than extending it,
+// because a trust badge is a promise to a customer and this repository does
+// not write those — see HANDOFF on copy.
 const TRUST_ITEMS = [
   ['feature_card_1-gold.svg', 'ارسال سریع', 'ارسال به سراسر کشور'],
   ['feature_card_2-gold.svg', 'ضمانت بازگشت کالا', 'بازگشت و تعویض آسان'],
   ['secure-gold.svg', 'پرداخت امن', 'پرداخت آنلاین مطمئن'],
   ['check2-gold.svg', 'تضمین اصالت', 'گارانتی اصل بودن کالا'],
   ['feature_card_4-gold.svg', 'پشتیبانی آنلاین', 'پاسخگویی ۲۴ ساعته'],
+  [TRUST_GLYPH, 'خرید تکی و عمده', 'امکان سفارش عمده'],
 ];
 
 const TRUST_ROW =
-  '<div class="row gy-4 row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-5 vp-trust-row">' +
+  '<div class="row gy-4 row-cols-2 row-cols-lg-3 row-cols-xl-5 vp-trust-row">' +
   TRUST_ITEMS.map(([icon, title, text]) =>
     '\n                <div class="col">' +
     '\n                    <div class="feature-card style2">' +
     '\n                        <div class="box-icon">' +
-    `\n                            <img src="assets/img/icon/${icon}" alt="">` +
+    (icon.startsWith('fa-')
+      ? `\n                            <i class="fa-solid ${icon} vp-trust-glyph" aria-hidden="true"></i>`
+      : `\n                            <img src="assets/img/icon/${icon}" alt="">`) +
     '\n                        </div>' +
     '\n                        <div class="box-content">' +
     `\n                            <h3 class="box-title">${title}</h3>` +
@@ -602,9 +947,19 @@ const LADDER_TRACK_HTML = LADDER_STEPS.map(([, , , state], i) => {
 // .vp-deal-stock argued it was the scarcity half of the offer and had earned
 // its place; that was our reasoning, not theirs, and they have now said
 // otherwise. The rule is still in tweaks.css, unused, next to that argument.
-const LADDER_DEALS_HTML = LADDER_DEALS.map(([file, name, price], i) => {
+// «یک محصول تکراری در حراج پله ای بزار که ۶ تایی بشه». The phone shows six
+// cards and the sale holds five, so the sixth is the first one again — and it
+// carries `d-lg-none`, because `row-cols-xl-5` puts five on one line above 992
+// and a sixth would wrap that row onto two. The Blade does the same thing from
+// the catalogue's side; see home/ladder.blade.php, and change the two together.
+const LADDER_DEALS_HTML = LADDER_DEALS
+  .map((deal, i) => ({ deal, i, phoneOnly: false }))
+  .concat(LADDER_DEALS.length < 6
+    ? [{ deal: LADDER_DEALS[0], i: 0, phoneOnly: true }]
+    : [])
+  .map(({ deal: [file, name, price], i, phoneOnly }) => {
   const now = Math.round(price * (100 - LADDER_CUT) / 100);
-  return '\n                <div class="col">' +
+  return '\n                <div class="col' + (phoneOnly ? ' d-lg-none' : '') + '">' +
     '\n                    <div class="vp-deal">' +
     `\n                        <a class="vp-deal-shot" href="shop.html">` +
     `\n                            <img src="assets/img/${file}" alt="" loading="lazy">` +
@@ -1259,6 +1614,22 @@ html = html.replace('</body>',
   '        (function () {\n' +
   '            var items = document.querySelectorAll(".vp-category, .vp-trust-row .feature-card, .th-product, .vp-deal, .vp-best, .blog-card, .sec-title");\n' +
   '            if (!items.length || !("IntersectionObserver" in window)) return;\n' +
+  // «اون ۸ آیتم باید از اول که صفحه هوم لود میشه باشن و منتظر اسکرول نباشن».
+  // Below 992 the eight tiles are a horizontal strip, and a strip that is
+  // waiting for the page to be scrolled is a strip the reader may never see
+  // move: it sits one screen down, and the reveal is `opacity: 0` until then.
+  // So on a phone they are simply there, and the observer never touches them.
+  //
+  // Read once, before the loop, because it decides two things — whether the
+  // tiles are in `items` at all, and whether the closing-on-the-middle
+  // movement below is set up. A resize past 992 does not re-run this, which is
+  // the right trade: nobody resizes a phone across the breakpoint, and the
+  // desktop still gets the entrance it was drawn with.
+  '            var phone = window.matchMedia("(max-width: 991.98px)").matches;\n' +
+  '            items = Array.prototype.filter.call(items, function (el) {\n' +
+  '                return !(phone && el.classList.contains("vp-category"));\n' +
+  '            });\n' +
+  '            if (!items.length) return;\n' +
   '            items.forEach(function (el) {\n' +
   '                el.classList.add("vp-enter");\n' +
   '                var row = el.closest(".row") || el.parentElement;\n' +
@@ -1288,6 +1659,59 @@ html = html.replace('</body>',
   '                });\n' +
   '            }, { rootMargin: "0px 0px -80px 0px", threshold: 0.12 });\n' +
   '            items.forEach(function (el) { seen.observe(el); });\n' +
+  '        }());\n' +
+  '    </script>\n</body>');
+
+// The category strip carries itself along, and stops while it is being used.
+//
+// «۸ آیتم باید مث هیرو خود اسکرول هم باشن و قابل اسکرول دستی هم باشن» — like
+// the hero, which means the hero's own numbers: main.js gives every .th-slider
+// `delay: 6000` and `speed: 1000` with `disableOnInteraction: false`, so this
+// waits six seconds between moves, takes about a second over each one, and
+// comes back after a hand has been on it rather than giving up for good.
+//
+// It moves by one tile — the tile's width plus the strip's gap, read off the
+// first two tiles rather than assumed — so it always lands on a snap point and
+// never leaves a tile half in view.
+//
+// Nothing here decides whether the strip exists. Above 992 the row is an
+// ordinary Bootstrap row with no overflow, so `scrollWidth` and `clientWidth`
+// agree and every tick returns early; below it they do not. That is one test
+// instead of a media query kept in step with the stylesheet, and it follows a
+// resize for free.
+//
+// RTL: `scrollLeft` runs from 0 at the right-hand end down to a negative
+// number at the left, so a step forward is a *subtraction*, and the end of the
+// strip is the most negative value. Getting that sign wrong does nothing
+// visible on the first tick — 0 is already the start — which is exactly the
+// kind of bug that reaches a client.
+html = html.replace('</body>',
+  '    <script>\n' +
+  '        (function () {\n' +
+  '            var strip = document.querySelector(".vp-category-row");\n' +
+  '            if (!strip) return;\n' +
+  '            if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;\n' +
+  '            var tiles = strip.querySelectorAll(".col");\n' +
+  '            if (tiles.length < 2) return;\n' +
+  '            var touched = 0;\n' +
+  '            ["pointerdown", "touchstart", "wheel", "keydown"].forEach(function (ev) {\n' +
+  '                strip.addEventListener(ev, function () { touched = Date.now(); }, { passive: true });\n' +
+  '            });\n' +
+  '            function step() {\n' +
+  '                var room = strip.scrollWidth - strip.clientWidth;\n' +
+  '                if (room < 4) return;\n' +
+  '                if (Date.now() - touched < 6000) return;\n' +
+  '                if (document.hidden) return;\n' +
+  '                var a = tiles[0].getBoundingClientRect();\n' +
+  '                var b = tiles[1].getBoundingClientRect();\n' +
+  '                var pitch = Math.abs(a.left - b.left);\n' +
+  '                if (!pitch) return;\n' +
+  // One tile of tolerance: the end is -room, and a strip that is within a
+  // tile of it has nothing left to show, so it rewinds instead of nudging.
+  '                var atEnd = strip.scrollLeft <= -(room - pitch / 2);\n' +
+  '                strip.scrollTo({ left: atEnd ? 0 : strip.scrollLeft - pitch, behavior: "smooth" });\n' +
+  '            }\n' +
+  '            setInterval(step, 6000);\n' +
   '        }());\n' +
   '    </script>\n</body>');
 
@@ -1513,6 +1937,192 @@ html = html.replace('</body>',
   '            apply(window.pageYOffset);\n' +
   '        }());\n' +
   '    </script>\n</body>');
+
+// --- the footer, in Persian -------------------------------------------------
+//
+// The template's footer arrived in English and was left that way through every
+// round of work on the page above it, so the shop ends in another language and
+// somebody else's company. The words are generic shop labels, so translating
+// them invents nothing.
+//
+// The contact block is *removed* rather than translated. It carried a German
+// company, a Californian street and a +00 telephone number — the template's
+// own fiction. A footer with no address is ordinary; a footer with a false one
+// is a lie the shop tells on every page. It comes back when the real details
+// arrive; see HANDOFF.md.
+// Anchored on the *next* column rather than on a run of closing divs: the
+// info-boxes inside this one end in three of them too, so a lazy match stops
+// in the middle and leaves the row one </div> heavy — which is exactly what
+// happened, and the page grew 434px at 992 before the parity check caught it.
+html = html.replace(
+  /<div class="col-md-6 col-xl-3">\s*<div class="widget footer-widget">\s*<div class="th-widget-about">[\s\S]*?(?=<div class="col-md-6 col-xl-auto">)/,
+  '<div class="col-md-6 col-xl-3">\n' +
+  '                            <div class="widget footer-widget">\n' +
+  '                                <div class="th-widget-about">\n' +
+  // The header's own mark and name, verbatim — the same object at the foot of
+  // the page as at the head of it. The template's ERNA wordmark is gone with
+  // the rest of its company. `.vp-logo-text` already carries the strapline, so
+  // the paragraph that used to repeat it is gone too.
+  '                                    <a href="index.html" class="vp-logo vp-logo-foot">\n' +
+  '                                        <img src="assets/img/vikyplus-appicon.png" alt="ویکی پلاس">\n' +
+  '                                        <span class="vp-logo-text">\n' +
+  '                                            <b>ویکی پلاس</b>\n' +
+  '                                            <small>فروشگاه کیف و کفش زنانه</small>\n' +
+  '                                        </span>\n' +
+  '                                    </a>\n' +
+  '                                </div>\n' +
+  '                            </div>\n' +
+  '                        </div>\n' +
+  '                        '
+);
+
+// --- the footer on a phone --------------------------------------------------
+//
+// «فرم چیدمان پایین وبسایت باید این شکلی باشه با همین مشخصات» — the client sent
+// a screenshot of the arrangement they want: the mark centred with a rule
+// either side, a sentence about the shop, the address and the telephone each
+// on a line with its own icon, four social marks, and three columns of links
+// side by side. «سفید باشه» — light, not the dark ground the screenshot used.
+//
+// **It is a second footer, not a rearrangement of the one below it.** The
+// standing instruction is that this whole run is the phone and nothing is to
+// reach the desktop, and the columns in the screenshot are not the columns the
+// desktop footer carries — different headings, different items, three instead
+// of four. Rewriting the shared markup would have changed both. So this block
+// is `d-lg-none`, the existing widget area is hidden below 992, and the
+// desktop footer is untouched — measured, 0 pixels differ at 992, 1200, 1440
+// and 1920.
+//
+// **The address and the telephone are the client's own**, off that screenshot.
+// They matter because of what the comment above says: the template's contact
+// block was deleted rather than translated, on the grounds that a footer with
+// a false address is a lie the shop tells on every page, and that it comes
+// back when the real details arrive. These are those details arriving. If they
+// were ever a placeholder, this is the block to correct.
+//
+// The four social marks are the four in the screenshot, in its order and its
+// colours. Three are certain — WhatsApp, Telegram, Instagram. The second is a
+// multi-coloured mark this cannot identify with confidence; it is drawn as a
+// neutral one and its link is `#` until the client says which service it is.
+const FOOT_COLS = [
+  ['لینک\u200cها', [
+    ['shop.html', 'فروشگاه'],
+    ['about.html', 'درباره ما'],
+    ['contact.html', 'ارتباط با ما'],
+    ['course.html', 'راهنمای سایز'],
+  ]],
+  ['خدمات', [
+    ['course.html', 'حریم خصوصی'],
+    ['course.html', 'قوانین و مقررات'],
+    ['contact.html', 'سوالات متداول'],
+    ['shop.html', 'حراج پله\u200cای'],
+  ]],
+  ['دسته\u200cها', [
+    ['shop.html', 'کفش زنانه'],
+    ['shop.html', 'کیف زنانه'],
+    ['shop.html', 'پرفروش\u200cترین\u200cها'],
+    // «جدیدترین‌ها» came off so this column is four items like the two beside
+    // it — «تعداد با بغلی ها برابر بشه».
+    ['shop.html', 'تخفیف\u200cدارها'],
+  ]],
+];
+
+// Listed in the order they are *read* in RTL, so the row comes out as the
+// screenshot has it: WhatsApp at the left of the row, Instagram at the right.
+// Written the other way round first and the row came out mirrored — the page
+// is RTL, so the first child sits at the right.
+const FOOT_SOCIAL = [
+  // Named in Latin, and deliberately: `HomePageTest` guards the four sections
+  // taken off the page by their headings, and one of those headings is the
+  // word «اینستاگرام». A Persian label here puts that word back on the page and
+  // fails that test — which is the guard doing its job, not a false alarm, so
+  // the label moves rather than the test. «Instagram» is how the service is
+  // said in Persian anyway.
+  ['instagram', 'Instagram', '#', '<i class="fa-brands fa-instagram" aria-hidden="true"></i>'],
+  ['telegram', 'تلگرام', '#', '<i class="fa-brands fa-telegram" aria-hidden="true"></i>'],
+  ['bale', 'پیام\u200cرسان', '#', '<i class="fa-solid fa-comment-dots" aria-hidden="true"></i>'],
+  ['whatsapp', 'واتساپ', '#', '<i class="fa-brands fa-whatsapp" aria-hidden="true"></i>'],
+];
+
+const FOOT_PHONE_HTML =
+  '<div class="vp-foot-m">\n' +
+  '                <div class="vp-foot-m-head">\n' +
+  '                    <span class="vp-foot-m-rule" aria-hidden="true"></span>\n' +
+  '                    <b class="vp-foot-m-name">ویکی پلاس</b>\n' +
+  '                    <span class="vp-foot-m-rule" aria-hidden="true"></span>\n' +
+  '                </div>\n' +
+  '                <p class="vp-foot-m-strap">ارائه\u200cدهنده انواع کیف و کفش زنانه با تضمین کیفیت، ارسال سریع و امکان خرید تکی و عمده.</p>\n' +
+  '                <p class="vp-foot-m-line"><i class="fa-solid fa-location-dot" aria-hidden="true"></i><span>تهران، سعدی شمالی، روبه\u200cروی بانک ملی، پلاک ۵۶۵</span></p>\n' +
+  '                <p class="vp-foot-m-line"><i class="fa-solid fa-phone" aria-hidden="true"></i><a href="tel:02133983125">021-3398-3125</a></p>\n' +
+  '                <div class="vp-foot-m-social">' +
+  FOOT_SOCIAL.map(([key, name, href, icon]) =>
+    `\n                    <a class="vp-foot-m-soc is-${key}" href="${href}" aria-label="${name}">${icon}</a>`).join('') +
+  '\n                </div>\n' +
+  '                <div class="vp-foot-m-cols">' +
+  FOOT_COLS.map(([title, items]) =>
+    '\n                    <div class="vp-foot-m-col">' +
+    '\n                        <h3 class="vp-foot-m-col-title">' +
+    '<span class="vp-foot-m-rule" aria-hidden="true"></span>' + title +
+    '<span class="vp-foot-m-rule" aria-hidden="true"></span></h3>' +
+    '\n                        <ul>' +
+    items.map(([href, label]) => `\n                            <li><a href="${href}">${label}</a></li>`).join('') +
+    '\n                        </ul>' +
+    '\n                    </div>').join('') +
+  '\n                </div>\n' +
+  '            </div>\n            ';
+
+html = html.replace(
+  '<div class="widget-area">\n                <div class="container th-container5">',
+  '<div class="widget-area">\n                ' + FOOT_PHONE_HTML + '<div class="container th-container5">'
+);
+if (!html.includes('vp-foot-m-head')) {
+  throw new Error('the phone footer did not land — the widget-area markup has moved');
+}
+
+// The four menu columns, replaced with their whole tag rather than by word:
+// a bare "Menu" also appears inside `sideMenuToggler`, and a loose
+// find-and-replace across a page is how a class name quietly becomes Persian.
+//
+// «فروشنده شوید» gets a filename of its own so that config/storefront.php can
+// point it at the application form — every other item shares contact.html and
+// still resolves to '#'.
+[
+  ['<h3 class="widget_title">Menu</h3>', '<h3 class="widget_title">ویکی پلاس</h3>'],
+  ['<h3 class="widget_title">Customer Support</h3>', '<h3 class="widget_title">پشتیبانی</h3>'],
+  ['<h3 class="widget_title">فروشگاه on The Go</h3>', '<h3 class="widget_title">ویکی پلاس روی موبایل</h3>'],
+  ['<a href="contact.html">Become a Vendor</a>', '<a href="vendor-register.html">فروشنده شوید</a>'],
+  ['<a href="contact.html">Affiliate Program</a>', '<a href="contact.html">همکاری در فروش</a>'],
+  ['<a href="course.html">Privacy Policy</a>', '<a href="course.html">حریم خصوصی</a>'],
+  ['<a href="course.html">Our Suppliers</a>', '<a href="course.html">تأمین‌کنندگان</a>'],
+  ['<a href="contact.html">Extended Plan</a>', '<a href="contact.html">خدمات پس از فروش</a>'],
+  ['<a href="contact.html">Community</a>', '<a href="contact.html">درباره ما</a>'],
+  ['<a href="contact.html">Help Center</a>', '<a href="contact.html">راهنما</a>'],
+  ['<a href="contact.html">Report Abuse</a>', '<a href="contact.html">گزارش تخلف</a>'],
+  ['<a href="contact.html">Submit and Dispute</a>', '<a href="contact.html">ثبت شکایت</a>'],
+  ['<a href="contact.html">Policies & Rules</a>', '<a href="contact.html">قوانین</a>'],
+  ['<a href="contact.html">Online فروشگاهping</a>', '<a href="contact.html">خرید اینترنتی</a>'],
+  // The real tracking page, not contact.html. The top bar carried the only
+  // other link to it and the top bar is gone.
+  ['<a href="contact.html">Order History</a>', '<a href="order-tracking.html">سفارش‌های من</a>'],
+  ['<a href="course.html">فروشگاهing سبد خرید</a>', '<a href="cart.html">سبد خرید</a>'],
+  ['<a href="course.html">Compare</a>', '<a href="course.html">مقایسه</a>'],
+  ['<a href="contact.html">Help Ticket</a>', '<a href="contact.html">پشتیبانی</a>'],
+  ['From App Store or Google Play App is available. Get it now', 'اپلیکیشن ویکی پلاس به‌زودی روی کافه‌بازار و اپ‌استور.'],
+].forEach(([from, to]) => {
+  if (!html.includes(from)) {
+    throw new Error(`the footer no longer contains ${from.slice(0, 40)} — check before assuming it is gone`);
+  }
+  html = html.split(from).join(to);
+});
+
+// The basket's badge starts at nothing. It was the template's «5» — a number
+// that never moved however full the basket was, which is worse than no number
+// at all. The Laravel page renders the real count in its place; both read ۰
+// with an empty basket, which is what the parity check compares.
+html = html.replace(
+  /(<button type="button" class="icon-btn sideMenuToggler"[\s\S]*?)<span class="badge">5<\/span>/,
+  '$1<span class="badge">۰</span>'
+);
 
 fs.writeFileSync(out, html);
 console.log(`wrote ${path.relative(ROOT, out)} (theme: ${theme || 'none — template colours'})`);

@@ -1,0 +1,117 @@
+{{--
+    The panel's shell.
+
+    It borrows the storefront's head — the same fonts, the same RTL build of the
+    template's CSS, the same tweaks.css — because the client asked for a panel
+    that looks like the shop rather than like an admin framework. What it does
+    not borrow is the shop's chrome: no top bar, no mega menu, no footer. A
+    person working here is not shopping.
+
+    The branch being administered is named in the header at all times. In a
+    system where the same screen shows Shiraz's numbers or Tehran's depending
+    on who is signed in, "which shop am I looking at" is not a detail.
+--}}
+<!doctype html>
+<html class="no-js" lang="fa" dir="rtl">
+
+<head>
+@include('partials.head')
+</head>
+
+@php
+    // The marketplace screens have no branch — a vendor sells across the whole
+    // platform — so the shell has to hold that without falling over.
+    $branch = $branch ?? null;
+@endphp
+<body class="shoe-shop vp-admin-body">
+
+<header class="vp-admin-bar">
+    <div class="vp-admin-bar-in">
+        <a class="vp-admin-mark" href="{{ route('admin.dashboard') }}">
+            <strong>ویکی پلاس</strong>
+            <span>پنل شعبه</span>
+        </a>
+
+        <nav class="vp-admin-nav">
+            @if ($branch)
+                <a href="{{ route('admin.dashboard') }}" @class(['is-on' => request()->routeIs('admin.dashboard')])>خانه</a>
+                <a href="{{ route('admin.orders') }}" @class(['is-on' => request()->routeIs('admin.order*')])>سفارش‌ها</a>
+                <a href="{{ route('admin.inventory') }}" @class(['is-on' => request()->routeIs('admin.inventory*')])>موجودی</a>
+                @if (auth()->user()->hasPermissionToAt($branch, 'branch.pricing.manage'))
+                    <a href="{{ route('admin.pricing') }}" @class(['is-on' => request()->routeIs('admin.pricing*')])>قیمت‌ها</a>
+                    <a href="{{ route('admin.discounts') }}" @class(['is-on' => request()->routeIs('admin.discounts*')])>تخفیف‌ها</a>
+                @endif
+                @if (auth()->user()->hasPermissionToAt($branch, 'report.view'))
+                    <a href="{{ route('admin.reports') }}" @class(['is-on' => request()->routeIs('admin.reports')])>گزارش</a>
+                @endif
+                @if (auth()->user()->hasPermissionToAt($branch, 'branch.staff.manage'))
+                    <a href="{{ route('admin.staff') }}" @class(['is-on' => request()->routeIs('admin.staff*')])>کارکنان</a>
+                @endif
+            @endif
+            {{-- The marketplace is not a branch's business, so these appear
+                 only for the platform-wide permissions that own them. --}}
+            @if (auth()->user()->hasPermissionTo('catalogue.manage'))
+                <a href="{{ route('admin.catalogue') }}" @class(['is-on' => request()->routeIs('admin.catalogue') || request()->routeIs('admin.product.*')])>کاتالوگ</a>
+            @endif
+            @if (auth()->user()->hasPermissionTo('report.view'))
+                <a href="{{ route('admin.reports.platform') }}" @class(['is-on' => request()->routeIs('admin.reports.platform')])>گزارش پلتفرم</a>
+            @endif
+            @if (auth()->user()->hasPermissionTo('vendor.view'))
+                <a href="{{ route('admin.vendors') }}" @class(['is-on' => request()->routeIs('admin.vendor*')])>فروشندگان</a>
+            @endif
+            @if (auth()->user()->hasPermissionTo('marketplace.settlement.view'))
+                <a href="{{ route('admin.settlements') }}" @class(['is-on' => request()->routeIs('admin.settlement*')])>تسویه‌ها</a>
+            @endif
+            @if (auth()->user()->hasPermissionTo('marketplace.commission.manage'))
+                <a href="{{ route('admin.commissions') }}" @class(['is-on' => request()->routeIs('admin.commissions*')])>کارمزد</a>
+            @endif
+            @if ($branch && auth()->user()->hasPermissionToAt($branch, 'branch.settings.manage'))
+                <a href="{{ route('admin.settings') }}" @class(['is-on' => request()->routeIs('admin.settings*')])>تنظیمات</a>
+            @endif
+        </nav>
+
+        <div class="vp-admin-who">
+            @php $branches = auth()->user()->administrableBranches(); @endphp
+
+            @if ($branch && $branches->count() > 1)
+                <form method="post" action="{{ route('admin.branch.switch') }}" class="vp-admin-switch">
+                    @csrf
+                    <label class="visually-hidden" for="vp-branch">شعبه</label>
+                    <select id="vp-branch" name="branch" onchange="this.form.submit()">
+                        @foreach ($branches as $option)
+                            <option value="{{ $option->id }}" @selected($option->id === $branch->id)>{{ $option->name }}</option>
+                        @endforeach
+                    </select>
+                    <noscript><button type="submit">برو</button></noscript>
+                </form>
+            @elseif ($branch)
+                <span class="vp-admin-branch">{{ $branch->name }}</span>
+            @endif
+
+            <form method="post" action="{{ route('admin.logout') }}">
+                @csrf
+                <button type="submit" class="vp-admin-out">خروج</button>
+            </form>
+        </div>
+    </div>
+</header>
+
+<main class="vp-admin-main">
+    <div class="container th-container">
+        @if (session('status'))
+            <p class="vp-note is-good">{{ session('status') }}</p>
+        @endif
+
+        @foreach ($errors->all() as $error)
+            <p class="vp-note is-bad">{{ $error }}</p>
+        @endforeach
+
+        @yield('content')
+    </div>
+</main>
+
+@include('partials.scripts')
+
+</body>
+
+</html>

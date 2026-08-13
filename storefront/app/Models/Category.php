@@ -13,7 +13,10 @@ class Category extends Model
 {
     use HasFactory;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'parent_id', 'slug', 'name', 'description', 'image_path', 'position',
+        'is_active', 'show_in_nav', 'seo_title', 'seo_description',
+    ];
 
     protected function casts(): array
     {
@@ -30,9 +33,10 @@ class Category extends Model
         return $this->hasMany(Category::class, 'parent_id')->orderBy('position');
     }
 
+    /** @see Product::categories() for why the pivot is named explicitly. */
     public function products(): BelongsToMany
     {
-        return $this->belongsToMany(Product::class);
+        return $this->belongsToMany(Product::class, 'product_category');
     }
 
     public function getRouteKeyName(): string

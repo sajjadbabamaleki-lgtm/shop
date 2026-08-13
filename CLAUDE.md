@@ -1,10 +1,65 @@
 # VikyPlus — notes for whoever picks this up next
 
+## ⛔ STOP — `main` is not the work. Read this before you touch anything.
+
+**The work is on `claude/wiki-plus-latest-work-enpjl1` (PR #45). `main` is 88
+commits behind it and is the wrong version of this site.**
+
+If you have landed on `main`, you are looking at a site the client stopped
+recognising months of work ago. A session did exactly that at the start of one
+afternoon, built on it, and the client's reply was «این دیگه چه کوفتیه؟ داری رو
+جای اشتباه کار میکنی». Everything below — the numbers, the codenames, the whole
+of `HANDOFF.md` — describes the branch, not `main`.
+
+```
+git fetch origin claude/wiki-plus-latest-work-enpjl1
+git checkout claude/wiki-plus-latest-work-enpjl1
+```
+
+**And do not push to `main`.** `main` is still listed in
+`.github/workflows/deploy-liara.yml`'s `on.push`, and the deploy job's only
+guard is `if: github.event_name != 'pull_request'` — so *any* push to `main`,
+including a one-line change to a README, runs the tests and then deploys
+`main`'s own tree to Liara. That would replace the live site with the
+88-commits-old version, silently, and the client would find it before you did.
+
+There are exactly two safe ways for `main` to stop being wrong, and both are the
+client's call, not yours: **merge PR #45 into it**, or take `main` out of that
+`on.push` list first. Until one of them happens, `main` is read-only.
+
 **`HANDOFF.md` says what is finished, what is not, and which numbers the
 finished part is not allowed to lose. Read it after this.**
 
 An Iranian shoe and bag storefront (vikyplus.ir) built on the ThemeForest
 "Erna" HTML template. The page being worked on is the RTL Persian preview.
+
+## The build goes to Liara. It does not go to Netlify.
+
+**The deliverable is the Laravel app in `storefront/`, and the only place a
+change is «فرستاده شده» is Liara.** One session sent a build to Netlify instead;
+the client saw an old page and had no way to tell why. So, plainly:
+
+- **Deploy target: Liara**, app `vikyplus`, at <https://vikyplus.liara.run>,
+  eventually vikyplus.ir. It is driven by
+  `.github/workflows/deploy-liara.yml` — tests, then Pint, then
+  `liara deploy` — and by nothing else. Nobody runs a deploy by hand.
+- **The only trigger is a push to a branch named in that workflow's `on.push`
+  list.** Right now that is `main` and
+  `claude/wiki-plus-latest-work-enpjl1`. Working on any other branch and
+  pushing deploys *nothing*, silently, and the workflow is where that gets
+  fixed — add the branch to the list. A pull request runs the tests and is
+  explicitly barred from deploying.
+- **After a push, say what happened.** The client asks «بیلد تغییراتو بفرست»
+  after every change and means the Liara deploy specifically. Read the run's
+  two jobs (Tests, Deploy to Liara) and report the conclusion of both. Note
+  that this container's proxy returns 403 for vikyplus.liara.run, so the run's
+  own result is the check — curl is not available as a second opinion.
+- **`netlify.toml` is not the deploy.** It publishes `download-version/` — the
+  static design preview, which is a *copy* of the home page and has no PHP, no
+  database and none of the catalogue pages. It is kept because the design is
+  still argued on it and three scripts in `theme/` read from it. Publishing it
+  is not shipping the shop, and a change that only reaches Netlify has not
+  reached the client's site.
 
 ## Where things are
 
@@ -13,8 +68,92 @@ An Iranian shoe and bag storefront (vikyplus.ir) built on the ThemeForest
 - `download-version/assets/css/tweaks.css` — every deliberate deviation from
   the template, loaded last. One block per decision, with the reasoning and the
   measurements in the comment above it.
-- `theme/make-category-photos.js` — the six category tiles. The photographs go
+- `theme/make-category-photos.js` — the category tiles. The photographs go
   in exactly as supplied: resize only, no crop, no cut-out.
+- `theme/make-favicons.js` — the whole icon set, `favicon.ico`, `manifest.json`
+  and `browserconfig.xml`, all from `assets/img/vikyplus-appicon.png`. Same rule
+  as the category photographs: resize only. Re-run it if the mark ever changes.
+  The shop's mark appears in three places (header, footer, phone drawer) and all
+  three are the same lockup — see HANDOFF.md before adjusting any of them.
+- `storefront/resources/views/` — the Laravel app renders the same page, and
+  six of its bands come out of the database. The six under `home/` and
+  `partials/mobile-menu.blade.php` are hand-owned; the rest of `partials/` is
+  **generated** — never hand-edit
+  those, run `node theme/make-blade.js` after a markup change and
+  `node theme/sync-storefront-assets.js` after a `tweaks.css` or photograph
+  change. `make-blade.js` prints which files it left alone.
+  Serve it with `cd storefront && php artisan serve --port=8812`, after
+  `php artisan migrate --seed`.
+- `node theme/check-parity.js` — renders the preview page and the Laravel page
+  at four widths and counts the pixels that differ. **Zero is the expected
+  answer.** Run it after changing either side; it is the only thing that
+  notices when the two copies of this page come apart. It compares the *home*
+  page only — the catalogue pages below exist in Laravel and nowhere else, and
+  nothing checks their pixels.
+- The storefront is more than that one page now. `/products`, `/products/{slug}`,
+  `/categories/{slug}` and `/search` are Blade written by hand under
+  `resources/views/shop/`, in the home page's own materials — the pane is
+  `.vp-best-panel`'s and a product card is the stepped sale's `.vp-deal`. If
+  either of those changes, these change with it.
+- **Price and stock belong to a branch, not to a variant.** `variants` has no
+  price column; `branch_offers` and `branch_inventory` do, and every read goes
+  through the branch bound for the request. `$variant->offer`, `$variant->stock`
+  and `$product->offerHere()` are the way in. A query with no branch bound
+  returns nothing rather than everything, on purpose.
+  `php artisan branch:open <slug> <name> --markup= --stock=` opens a franchise
+  at `/<slug>` with the central catalogue at its own prices.
+- **Stock only ever moves in two places**: `PlaceOrder` reserves it and
+  `SettleOrder` sells or releases it, both under `FOR UPDATE`. Anything else
+  that writes `branch_inventory` is a bug waiting to be an oversell. Every
+  movement is also a row in `inventory_movements`, so a shelf can explain
+  itself.
+- **Two sign-ins, two guards.** Staff are `web` at `/admin/login`; shoppers are
+  `customer` at `/account/enter`. Every staff route says `auth:web` explicitly —
+  the bare `auth` means "whichever guard is default", which is a runtime value.
+  Registration is the interesting part: checkout has always created `customers`
+  rows keyed on a phone number, so most people who register already have one,
+  with an order history on it. Claiming one asks for the number off one of their
+  own orders, because there is no SMS provider to send a code with. See
+  `AccountController`.
+- The panel is at `/admin`, hand-built (no Filament, at the client's request)
+  in the storefront's own materials — `resources/views/admin/` and
+  `layouts/admin.blade.php`. Its branch comes from the **signed-in user**, not
+  the URL; `php artisan staff:invite` makes an account.
+- The marketplace is at `/vendor` (a vendor's own panel) and under `/admin`
+  for the platform's side. **Nothing in it is branch-scoped** — a vendor sells
+  across the platform, so those screens sit outside the branch group and use
+  `RequirePlatformPermission`. A vendor's money is `ledger_entries`, which is
+  append-only: the model throws on update and delete, and a balance is
+  `SUM(amount)`, never a column. `php artisan vendor:invite` registers one.
+- **Two kinds of promotion, kept apart.** The stepped sale is a price on an
+  offer; a discount code is `discount_codes` + `discount_redemptions`, typed
+  into the basket, and applies to the branch's own lines only — never to a
+  vendor's price. Whether it applies is recomputed on every page and again
+  inside the order transaction; nothing about it is stored on the basket.
+- **`ResolveTenant` and `ResolveAdminTenant` must run before `SubstituteBindings`** — set in
+  `bootstrap/app.php`'s priority list. Branch-scoped models fail closed, so a
+  binding resolved before the tenant finds nothing and the page 404s for
+  everybody. Tests can hide this by leaving a branch bound in the container;
+  forget it before the request when testing a page that binds one.
+- **The phone drawer is invisible to every check we have.** It is parked
+  off-screen, so `check-parity.js` cannot see it and `check-overflow.js` cannot
+  either — which is how the template's demo menu («About Style 1», ten
+  blog-grids) survived the whole port as the only menu a phone visitor gets.
+  `PhoneDrawerTest` is what watches it now, including that the static preview
+  and the Blade still list the same categories. It is also sized to fit a
+  375×667 screen with no scrolling; anything added there has to be measured
+  again, because growing past the screen is silent.
+- `node theme/check-overflow.js` — loads every page at 390/768/1200/1920 and
+  fails if any of them scrolls sideways, naming the outermost element that
+  sticks out. The pages after the home page have no pixel baseline to compare
+  against, so this checks the one thing that is objectively wrong rather than a
+  matter of taste. `VP_LOGIN=email:password` and `VP_PAGES=/a,/b` reach the
+  panel.
+- **Persian is typed three ways.** `fold_persian()` in PHP and
+  `App\Support\Search::fold()` in SQL fold ي/ی, ك/ک, zero-width joiners,
+  harakat and both sets of digits to one spelling. Search folds *both* sides;
+  folding one and not the other fails for exactly the rows somebody typed on a
+  different keyboard, and nobody can see why.
 - Preview server:
   `cd download-version && setsid nohup python3 -m http.server 8811 &`
   It dies often; restart it with `setsid` rather than assuming it is up.

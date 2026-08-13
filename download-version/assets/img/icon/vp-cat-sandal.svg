@@ -1,0 +1,7 @@
+<!-- صندل — a flat sole with two open straps over it. -->
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#A47F25" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M3.4 16.8h17.2v1.6a1.2 1.2 0 0 1-1.2 1.2H4.6a1.2 1.2 0 0 1-1.2-1.2v-1.6Z"/>
+  <path d="M6.6 16.8c0-3.1 2-5.2 5-5.2"/>
+  <path d="M11.6 11.6c2.8 0 4.6 2.1 5 5.2"/>
+  <path d="M13.6 11.8v5"/>
+</svg>

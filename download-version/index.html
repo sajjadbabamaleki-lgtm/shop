@@ -68,25 +68,9 @@
     <!--********************************
    		Code Start From Here 
 	******************************** -->
-    <div class="magic-cursor relative z-10">
-        <div class="cursor"></div>
-        <div class="cursor-follower"></div>
-    </div>
-
-    <div class="cursor-follower"></div>
-
     <!-- slider drag cursor -->
     <div class="slider-drag-cursor"><img src="assets/img/icon/arrow.svg" alt=""></div>
 
-    <!--==============================
-     Preloader
-  ==============================-->
-    <div class="preloader ">
-        <button class="th-btn preloaderCls">Cancel Preloader </button>
-        <div class="preloader-inner">
-            <div class="loader">
-                <img src="assets/img/theme-img/shopping-loader.gif" alt="">
-            </div>
         </div>
     </div><!--==============================
 Product Lightbox
@@ -136,63 +120,17 @@ Product Lightbox
     </div><!--==============================
     Sidemenu
 ============================== -->
-    <div class="sidemenu-wrapper sidemenu-cart ">
+    <div class="sidemenu-wrapper sidemenu-cart">
         <div class="sidemenu-content">
-            <button class="closeButton sideMenuCls"><i class="far fa-times"></i></button>
-            <div class="widget woocommerce widget_shopping_cart">
-                <h3 class="widget_title">فروشگاهping cart</h3>
-                <div class="widget_shopping_cart_content">
-                    <ul class="woocommerce-mini-cart cart_list product_list_widget ">
-                        <li class="woocommerce-mini-cart-item mini_cart_item">
-                            <a href="#" class="remove remove_from_cart_button"><i class="far fa-times"></i></a>
-                            <a href="#"><img src="assets/img/product/product_12_1.png" alt="سبد خرید Image">Nike Renew Serenity Run</a>
-                            <span class="quantity">1 ×
-                                <span class="woocommerce-Price-amount amount">
-                                    <span class="woocommerce-Price-currencySymbol">$</span>39.00</span>
-                            </span>
-                        </li>
-                        <li class="woocommerce-mini-cart-item mini_cart_item">
-                            <a href="#" class="remove remove_from_cart_button"><i class="far fa-times"></i></a>
-                            <a href="#"><img src="assets/img/product/product_12_2.png" alt="سبد خرید Image">Nike Renew Color Shoes</a>
-                            <span class="quantity">1 ×
-                                <span class="woocommerce-Price-amount amount">
-                                    <span class="woocommerce-Price-currencySymbol">$</span>38.00</span>
-                            </span>
-                        </li>
-                        <li class="woocommerce-mini-cart-item mini_cart_item">
-                            <a href="#" class="remove remove_from_cart_button"><i class="far fa-times"></i></a>
-                            <a href="#"><img src="assets/img/product/product_12_3.png" alt="سبد خرید Image">Adidas Plastic Rebar Shoes</a>
-                            <span class="quantity">1 ×
-                                <span class="woocommerce-Price-amount amount">
-                                    <span class="woocommerce-Price-currencySymbol">$</span>37.00</span>
-                            </span>
-                        </li>
-                        <li class="woocommerce-mini-cart-item mini_cart_item">
-                            <a href="#" class="remove remove_from_cart_button"><i class="far fa-times"></i></a>
-                            <a href="#"><img src="assets/img/product/product_12_4.png" alt="سبد خرید Image">Nike Flex Run 2021</a>
-                            <span class="quantity">1 ×
-                                <span class="woocommerce-Price-amount amount">
-                                    <span class="woocommerce-Price-currencySymbol">$</span>32.00</span>
-                            </span>
-                        </li>
-                        <li class="woocommerce-mini-cart-item mini_cart_item">
-                            <a href="#" class="remove remove_from_cart_button"><i class="far fa-times"></i></a>
-                            <a href="#"><img src="assets/img/product/product_12_5.png" alt="سبد خرید Image">Nike Air Max 97</a>
-                            <span class="quantity">1 ×
-                                <span class="woocommerce-Price-amount amount">
-                                    <span class="woocommerce-Price-currencySymbol">$</span>29.00</span>
-                            </span>
-                        </li>
-                    </ul>
-                    <p class="woocommerce-mini-cart__total total">
-                        <strong>Subtotal:</strong>
-                        <span class="woocommerce-Price-amount amount">
-                            <span class="woocommerce-Price-currencySymbol">$</span>137.00</span>
-                    </p>
-                    <p class="woocommerce-mini-cart__buttons buttons">
-                        <a href="cart.html" class="th-btn wc-forward">View cart</a>
-                        <a href="checkout.html" class="th-btn checkout wc-forward">تسویه حساب</a>
-                    </p>
+            <div class="vp-mini">
+                <div class="vp-mini-head">
+                    <h2 class="vp-mini-title">سبد خرید</h2>
+                    <button type="button" class="closeButton sideMenuCls" aria-label="بستن سبد خرید"><i class="fal fa-times" aria-hidden="true"></i></button>
+                </div>
+                <div class="vp-mini-empty">
+                    <span class="vp-mini-empty-mark" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M10 16 h28 l-3 22 a3 3 0 0 1 -3 3 h-16 a3 3 0 0 1 -3 -3 z" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"></path><path d="M18 16 a6 6 0 0 1 12 0" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"></path></svg></span>
+                    <p class="vp-mini-say">سبد خریدت خالی است.</p>
+                    <a class="vp-mini-out" href="shop.html">رفتن به فروشگاه</a>
                 </div>
             </div>
         </div>
@@ -207,126 +145,122 @@ Product Lightbox
     Mobile Menu
   ============================== -->
     <div class="th-menu-wrapper">
-        <div class="th-menu-area text-center">
-            <button class="th-menu-toggle" aria-label="بستن منو"><i class="fal fa-times" aria-hidden="true"></i></button>
-            <div class="mobile-logo">
-                <a href="electronics-shop.html"><img src="assets/img/logo-gold.svg" alt="Erna"></a>
-            </div>
-            <div class="th-mobile-menu">
-                <ul>
-                    <li class="menu-item-has-children">
-                        <a href="electronics-shop.html">خانه</a>
-                        <ul class="sub-menu">
-                            <li><a href="electronics-shop.html">Electronics فروشگاه</a></li>
-                            <li><a href="fashion-shop.html">fashion-shop</a></li>
-                            <li><a href="grocery-shop.html">Grocery-shop</a></li>
-                            <li><a href="coffee-shop.html">Coffee فروشگاه</a></li>
-                            <li><a href="furniture-shop.html">Furniture فروشگاه</a></li>
-                            <li><a href="shoe-shop.html">Shoe فروشگاه</a></li>
-                        </ul>
-                    </li>
-                    <li class="menu-item-has-children">
-                        <a href="#">فروشگاه</a>
-                        <ul class="sub-menu">
-                            <li><a href="shop-grid.html">فروشگاه</a></li>
-                            <li><a href="shop-grid-left-sidebar.html">فروشگاه با سایدبار راست</a></li>
-                            <li><a href="shop-grid-right-sidebar.html">فروشگاه با سایدبار چپ</a></li>
-                            <li><a href="shop-list.html">لیست محصولات</a></li>
-                            <li><a href="shop.html">فروشگاه Full Width</a></li>
-                            <li><a href="shop-details.html">جزئیات محصول</a></li>
-                            <li><a href="cart.html">سبد خرید Page</a></li>
-                            <li><a href="checkout.html">تسویه حساب</a></li>
-                            <li><a href="wishlist.html">علاقه‌مندی‌ها</a></li>
-                            <li><a href="my-account.html">حساب کاربری</a></li>
-                            <li><a href="search-product.html">Search Result for Product</a></li>
-
-                        </ul>
-                    </li>
-                    <li class="menu-item-has-children">
-                        <a href="#">درباره ما</a>
-                        <ul class="sub-menu">
-                            <li><a href="about.html">About Style 1</a></li>
-                            <li><a href="about-2.html">About Style 2</a></li>
-                            <li><a href="about-3.html">About Style 3</a></li>
-                        </ul>
-                    </li>
-                    <li class="menu-item-has-children">
-                        <a href="#">صفحات</a>
-                        <ul class="sub-menu">
-                            <li><a href="order-tracking.html">پیگیری سفارش</a></li>
-                            <li><a href="faq.html">Faq Page</a></li>
-                            <li><a href="error.html">Error Page</a></li>
-                        </ul>
-                    </li>
-                    <li class="menu-item-has-children">
-                        <a href="#">وبلاگ</a>
-                        <ul class="sub-menu">
-                            <li><a href="blog-grid.html">وبلاگ Grid</a></li>
-                            <li><a href="blog-grid-left-sidebar.html">وبلاگ Grid With Left Sidebar</a></li>
-                            <li><a href="blog-grid-right-sidebar.html">وبلاگ Grid With Right Sidebar</a></li>
-                            <li><a href="blog-list.html">وبلاگ List</a></li>
-                            <li><a href="blog-left-sidebar.html">وبلاگ Left Sidebar</a></li>
-                            <li><a href="blog-right-sidebar.html">وبلاگ Right Sidebar</a></li>
-                            <li><a href="blog.html">وبلاگ No Sidebar</a></li>
-                            <li><a href="blog-details-left-sidebar.html">وبلاگ Left Sidebar</a></li>
-                            <li><a href="blog-details-right-sidebar.html">وبلاگ Right Sidebar</a></li>
-                            <li><a href="blog-details.html">وبلاگ Details Without Sidebar</a></li>
-                        </ul>
-                    </li>
-                    <li class="menu-item-has-children">
-                        <a href="#">تماس با ما</a>
-                        <ul class="sub-menu">
-                            <li><a href="contact.html">Contact Style 1</a></li>
-                            <li><a href="contact-2.html">Contact Style 2</a></li>
-                            <li><a href="contact-3.html">Contact Style 3</a></li>
-                        </ul>
-                    </li>
-                </ul>
+        <div class="th-menu-area">
+            <div class="vp-drawer">
+                <div class="vp-drawer-head">
+                    <a href="index.html" class="vp-logo vp-logo-drawer">
+                        <img src="assets/img/vikyplus-appicon.png" alt="ویکی پلاس">
+                        <span class="vp-logo-text">
+                            <b>ویکی پلاس</b>
+                            <small>فروشگاه کیف و کفش زنانه</small>
+                        </span>
+                    </a>
+                    <button type="button" class="th-menu-toggle" aria-label="بستن منو"><i class="fal fa-times" aria-hidden="true"></i></button>
+                </div>
+                <div class="vp-drawer-body">
+                    <div class="vp-drawer-quick">
+                        <a class="vp-quick is-lit" href="shop.html">
+                            <span class="vp-quick-mark"><i class="fa-solid fa-tag" aria-hidden="true"></i></span>
+                            <span class="vp-quick-name">تخفیف‌دارها</span>
+                        </a>
+                        <a class="vp-quick" href="shop.html">
+                            <span class="vp-quick-mark"><i class="fa-solid fa-clock" aria-hidden="true"></i></span>
+                            <span class="vp-quick-name">جدیدترین‌ها</span>
+                        </a>
+                        <a class="vp-quick" href="shop.html">
+                            <span class="vp-quick-mark"><i class="fa-solid fa-arrow-trend-up" aria-hidden="true"></i></span>
+                            <span class="vp-quick-name">پرفروش‌ترین‌ها</span>
+                        </a>
+                    </div>
+                    <div class="vp-drawer-heading">
+                        <p class="vp-drawer-label">فروشگاه</p>
+                        <a class="vp-drawer-all" href="shop.html">همه محصولات</a>
+                    </div>
+                    <ul class="vp-drawer-cats">
+                        <li>
+                            <a href="shop.html">
+                                <img class="vp-cat-icon" src="assets/img/icon/vp-cat-heel.svg" alt="" loading="lazy">
+                                <span class="vp-cat-name">مجلسی</span>
+                                <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="shop.html">
+                                <img class="vp-cat-icon" src="assets/img/icon/vp-cat-sneaker.svg" alt="" loading="lazy">
+                                <span class="vp-cat-name">ونس و کتونی</span>
+                                <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="shop.html">
+                                <img class="vp-cat-icon" src="assets/img/icon/vp-cat-college.svg" alt="" loading="lazy">
+                                <span class="vp-cat-name">کالج</span>
+                                <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="shop.html">
+                                <img class="vp-cat-icon" src="assets/img/icon/vp-cat-sandal.svg" alt="" loading="lazy">
+                                <span class="vp-cat-name">صندل</span>
+                                <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="shop.html">
+                                <img class="vp-cat-icon" src="assets/img/icon/vp-cat-boot.svg" alt="" loading="lazy">
+                                <span class="vp-cat-name">بوت و نیم‌بوت</span>
+                                <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="shop.html">
+                                <img class="vp-cat-icon" src="assets/img/icon/vp-cat-bagset.svg" alt="" loading="lazy">
+                                <span class="vp-cat-name">ست کیف و کفش</span>
+                                <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="shop.html">
+                                <img class="vp-cat-icon" src="assets/img/icon/vp-cat-watch.svg" alt="" loading="lazy">
+                                <span class="vp-cat-name">اکسسوری</span>
+                                <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="shop.html">
+                                <img class="vp-cat-icon" src="assets/img/icon/vp-cat-sport.svg" alt="" loading="lazy">
+                                <span class="vp-cat-name">ست ورزشی</span>
+                                <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+                            </a>
+                        </li>
+                    </ul>
+                    <ul class="vp-drawer-links">
+                        <li>
+                            <a href="order-tracking.html">
+                                <i class="fa-solid fa-truck-fast" aria-hidden="true"></i>
+                                <span>پیگیری سفارش</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="vendor-register.html">
+                                <i class="fa-solid fa-store" aria-hidden="true"></i>
+                                <span>فروشنده شوید</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="vp-drawer-foot">
+                    <a class="vp-drawer-cta" href="my-account.html">
+                        <i class="fa-solid fa-user" aria-hidden="true"></i>
+                        <span>ورود / ثبت‌نام</span>
+                    </a>
+                </div>
             </div>
         </div>
     </div><!--==============================
 	Header Area
 ==============================-->
     <header class="th-header header-layout1 header-layout6">
-        <div class="header-top">
-            <div class="container th-container">
-                <div class="row justify-content-center justify-content-lg-between align-items-center gy-2">
-                    <div class="col-lg-4">
-                        <div class="header-links">
-                            <ul>
-                                <li><img src="assets/img/icon/phone8-gold.svg" alt=""><a href="tel:+00123456789">+00 123 456
-                                        789</a></li>
-                                <li><i class="fa-sharp fa-solid fa-envelope"></i><a href="mailto:helloerna@mail.com">helloerna@mail.com</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="col-lg-8">
-                        <div class="header-right">
-                            <div class="header-links">
-                                <ul>
-                                    <li><a href="order-tracking.html">پیگیری سفارش </a></li>
-                                    <li><a href="my-account.html" class="d-none d-xl-block"><img src="assets/img/icon/user4.svg" alt="">ورود / ثبت‌نام</a></li>
-                                </ul>
-                            </div>
-                            <div class="currency-menu">
-                                <select class="form-select nice-select">
-                                    <option selected="">English</option>
-                                    <option>Spanish</option>
-                                    <option>Hindi</option>
-                                </select>
-                            </div>
-                            <div class="currency-menu">
-                                <select class="form-select nice-select">
-                                    <option selected="">USD</option>
-                                    <option>Euro</option>
-                                    <option>GBP</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
         <div class="sticky-wrapper">
             <!-- Main Menu Area -->
             <div class="menu-area">
@@ -581,7 +515,7 @@ Product Lightbox
                                         </div>
                                     </form>
                                 </div>
-                                <button type="button" class="icon-btn sideMenuToggler" aria-label="سبد خرید"><i class="fa-solid fa-bag-shopping" aria-hidden="true"></i><span class="badge">5</span></button>
+                                <a href="search-product.html" class="icon-btn vp-search-btn d-lg-none" aria-label="جستجو"><svg class="vp-search-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="8.5" cy="8.5" r="6" stroke="currentColor" stroke-width="2"/><line x1="12.9" y1="12.9" x2="15.3" y2="15.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></a><a href="my-account.html" class="icon-btn vp-account-btn" aria-label="ورود / ثبت‌نام"><i class="fa-solid fa-user" aria-hidden="true"></i></a><button type="button" class="icon-btn sideMenuToggler" aria-label="سبد خرید"><i class="fa-solid fa-bag-shopping" aria-hidden="true"></i><span class="badge">۰</span></button>
                                 <button type="button" class="th-menu-toggle d-block d-lg-none" aria-label="باز کردن منو"><i class="far fa-bars" aria-hidden="true"></i></button>
                             </div>
                         </div>
@@ -592,6 +526,35 @@ Product Lightbox
     </header><!--==============================
 Hero Area
 ==============================-->
+    <section class="vp-stories" aria-label="دسته‌بندی‌ها">
+        <div class="vp-stories-row">
+            <a class="vp-story" href="shop.html" aria-label="مجلسی">
+                <span class="vp-story-ring">
+                    <img src="assets/img/category/majlesi.jpg" alt="" loading="lazy">
+                </span>
+            </a>
+            <a class="vp-story" href="shop.html" aria-label="ونس و کتونی">
+                <span class="vp-story-ring">
+                    <img src="assets/img/category/sneaker.jpg" alt="" loading="lazy">
+                </span>
+            </a>
+            <a class="vp-story" href="shop.html" aria-label="کالج">
+                <span class="vp-story-ring">
+                    <img src="assets/img/category/college.jpg" alt="" loading="lazy">
+                </span>
+            </a>
+            <a class="vp-story" href="shop.html" aria-label="صندل">
+                <span class="vp-story-ring">
+                    <img src="assets/img/category/sandal.jpg" alt="" loading="lazy">
+                </span>
+            </a>
+            <a class="vp-story" href="shop.html" aria-label="بوت و نیم‌بوت">
+                <span class="vp-story-ring">
+                    <img src="assets/img/category/boot.jpg" alt="" loading="lazy">
+                </span>
+            </a>
+        </div>
+    </section>
     <div class="th-hero-wrapper hero-6 slider-area" id="hero">
 
         <div class="slider-area">
@@ -842,7 +805,7 @@ Feature Area
             </div>
         </div>
         <div class="vp-trust-row-wrap">
-            <div class="row gy-4 row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-5 vp-trust-row">
+            <div class="row gy-4 row-cols-2 row-cols-lg-3 row-cols-xl-5 vp-trust-row">
                 <div class="col">
                     <div class="feature-card style2">
                         <div class="box-icon">
@@ -895,6 +858,17 @@ Feature Area
                         <div class="box-content">
                             <h3 class="box-title">پشتیبانی آنلاین</h3>
                             <p class="box-text">پاسخگویی ۲۴ ساعته</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="feature-card style2">
+                        <div class="box-icon">
+                            <i class="fa-solid fa-boxes-stacked vp-trust-glyph" aria-hidden="true"></i>
+                        </div>
+                        <div class="box-content">
+                            <h3 class="box-title">خرید تکی و عمده</h3>
+                            <p class="box-text">امکان سفارش عمده</p>
                         </div>
                     </div>
                 </div>
@@ -1017,6 +991,21 @@ collection Area
                                 <span class="vp-deal-lines">
                                     <span class="vp-deal-name">کتونی جردن وان ایر</span>
                                     <span class="vp-deal-price"><del>۸٬۴۸۰٬۰۰۰</del><strong>۵٬۹۳۶٬۰۰۰ <span>تومان</span></strong></span>
+                                </span>
+                            </span>
+                        </a>
+                        <button type="button" class="vp-deal-cart" aria-label="افزودن به سبد خرید"><i class="fa-solid fa-bag-shopping" aria-hidden="true"></i></button>
+                    </div>
+                </div>
+                <div class="col d-lg-none">
+                    <div class="vp-deal">
+                        <a class="vp-deal-shot" href="shop.html">
+                            <img src="assets/img/hero/vikyplus-hero-goldengoose.webp" alt="" loading="lazy">
+                            <svg class="vp-deal-burst" viewBox="0 0 150 150" aria-hidden="true"><defs><linearGradient id="vp-deal-burst-gold-0" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#C0972F"></stop><stop offset="100%" stop-color="#E3B54A"></stop></linearGradient></defs><g class="vp-burst-star"><path fill="url(#vp-deal-burst-gold-0)" d="M 75,3 C 80.73,3 85.7,14.57 92.19,16.47 C 98.67,18.38 109.11,11.33 113.93,14.43 C 118.75,17.53 116.67,29.94 121.1,35.05 C 125.53,40.16 138.11,39.88 140.49,45.09 C 142.87,50.3 134.42,59.63 135.38,66.32 C 136.34,73.01 147.08,79.58 146.27,85.25 C 145.45,90.92 133.3,94.19 130.49,100.34 C 127.68,106.49 133.17,117.82 129.41,122.15 C 125.66,126.48 113.67,122.66 107.98,126.32 C 102.29,129.97 100.78,142.47 95.28,144.08 C 89.79,145.7 81.76,136 75,136 C 68.24,136 60.21,145.7 54.72,144.08 C 49.22,142.47 47.71,129.97 42.02,126.32 C 36.33,122.66 24.34,126.48 20.59,122.15 C 16.83,117.82 22.32,106.49 19.51,100.34 C 16.7,94.19 4.55,90.92 3.73,85.25 C 2.92,79.58 13.66,73.01 14.62,66.32 C 15.58,59.63 7.13,50.3 9.51,45.09 C 11.89,39.88 24.47,40.16 28.9,35.05 C 33.33,29.94 31.25,17.53 36.07,14.43 C 40.89,11.33 51.33,18.38 57.81,16.47 C 64.3,14.57 69.27,3 75,3 Z"></path><circle class="vp-burst-stud" cx="75.00" cy="19.50" r="2.4"></circle><circle class="vp-burst-stud" cx="105.01" cy="28.31" r="2.4"></circle><circle class="vp-burst-stud" cx="125.48" cy="51.94" r="2.4"></circle><circle class="vp-burst-stud" cx="129.94" cy="82.90" r="2.4"></circle><circle class="vp-burst-stud" cx="116.94" cy="111.34" r="2.4"></circle><circle class="vp-burst-stud" cx="90.64" cy="128.25" r="2.4"></circle><circle class="vp-burst-stud" cx="59.36" cy="128.25" r="2.4"></circle><circle class="vp-burst-stud" cx="33.06" cy="111.34" r="2.4"></circle><circle class="vp-burst-stud" cx="20.06" cy="82.90" r="2.4"></circle><circle class="vp-burst-stud" cx="24.52" cy="51.94" r="2.4"></circle><circle class="vp-burst-stud" cx="44.99" cy="28.31" r="2.4"></circle></g><text x="75" y="88">٪۳۰</text></svg>
+                            <span class="vp-deal-label">
+                                <span class="vp-deal-lines">
+                                    <span class="vp-deal-name">کتونی گلدن گوس</span>
+                                    <span class="vp-deal-price"><del>۶٬۴۸۰٬۰۰۰</del><strong>۴٬۵۳۶٬۰۰۰ <span>تومان</span></strong></span>
                                 </span>
                             </span>
                         </a>
@@ -1300,67 +1289,92 @@ Brand Area
     <footer class="footer-wrapper footer-layout5 footer-layout6">
         <div class="footer-area th-screen">
             <div class="widget-area">
-                <div class="container th-container5">
+                <div class="vp-foot-m">
+                <div class="vp-foot-m-head">
+                    <span class="vp-foot-m-rule" aria-hidden="true"></span>
+                    <b class="vp-foot-m-name">ویکی پلاس</b>
+                    <span class="vp-foot-m-rule" aria-hidden="true"></span>
+                </div>
+                <p class="vp-foot-m-strap">ارائه‌دهنده انواع کیف و کفش زنانه با تضمین کیفیت، ارسال سریع و امکان خرید تکی و عمده.</p>
+                <p class="vp-foot-m-line"><i class="fa-solid fa-location-dot" aria-hidden="true"></i><span>تهران، سعدی شمالی، روبه‌روی بانک ملی، پلاک ۵۶۵</span></p>
+                <p class="vp-foot-m-line"><i class="fa-solid fa-phone" aria-hidden="true"></i><a href="tel:02133983125">021-3398-3125</a></p>
+                <div class="vp-foot-m-social">
+                    <a class="vp-foot-m-soc is-instagram" href="#" aria-label="Instagram"><i class="fa-brands fa-instagram" aria-hidden="true"></i></a>
+                    <a class="vp-foot-m-soc is-telegram" href="#" aria-label="تلگرام"><i class="fa-brands fa-telegram" aria-hidden="true"></i></a>
+                    <a class="vp-foot-m-soc is-bale" href="#" aria-label="پیام‌رسان"><i class="fa-solid fa-comment-dots" aria-hidden="true"></i></a>
+                    <a class="vp-foot-m-soc is-whatsapp" href="#" aria-label="واتساپ"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i></a>
+                </div>
+                <div class="vp-foot-m-cols">
+                    <div class="vp-foot-m-col">
+                        <h3 class="vp-foot-m-col-title"><span class="vp-foot-m-rule" aria-hidden="true"></span>لینک‌ها<span class="vp-foot-m-rule" aria-hidden="true"></span></h3>
+                        <ul>
+                            <li><a href="shop.html">فروشگاه</a></li>
+                            <li><a href="about.html">درباره ما</a></li>
+                            <li><a href="contact.html">ارتباط با ما</a></li>
+                            <li><a href="course.html">راهنمای سایز</a></li>
+                        </ul>
+                    </div>
+                    <div class="vp-foot-m-col">
+                        <h3 class="vp-foot-m-col-title"><span class="vp-foot-m-rule" aria-hidden="true"></span>خدمات<span class="vp-foot-m-rule" aria-hidden="true"></span></h3>
+                        <ul>
+                            <li><a href="course.html">حریم خصوصی</a></li>
+                            <li><a href="course.html">قوانین و مقررات</a></li>
+                            <li><a href="contact.html">سوالات متداول</a></li>
+                            <li><a href="shop.html">حراج پله‌ای</a></li>
+                        </ul>
+                    </div>
+                    <div class="vp-foot-m-col">
+                        <h3 class="vp-foot-m-col-title"><span class="vp-foot-m-rule" aria-hidden="true"></span>دسته‌ها<span class="vp-foot-m-rule" aria-hidden="true"></span></h3>
+                        <ul>
+                            <li><a href="shop.html">کفش زنانه</a></li>
+                            <li><a href="shop.html">کیف زنانه</a></li>
+                            <li><a href="shop.html">پرفروش‌ترین‌ها</a></li>
+                            <li><a href="shop.html">تخفیف‌دارها</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="container th-container5">
                     <div class="row justify-content-between">
                         <div class="col-md-6 col-xl-3">
                             <div class="widget footer-widget">
                                 <div class="th-widget-about">
-                                    <div class="about-logo2 mb-25">
-                                        <a href="electronics-shop.html"><img src="assets/img/logo-red2-gold.svg" alt="Erna"></a>
-                                    </div>
-                                    <p class="about-text">Erna a Germany company, provides Furniture.</p>
-                                    <div class="info-box style5">
-                                        <div class="box-icon">
-                                            <i class="fa-solid fa-location-dot"></i>
-                                        </div>
-                                        <p class="box-text">789 Inner Lane, Biyes park, California, USA</p>
-                                    </div>
-                                    <div class="info-box style5">
-                                        <div class="box-icon">
-                                            <img src="assets/img/icon/phone5.svg" alt="">
-                                        </div>
-                                        <p class="box-text">
-                                            <a href="tel:+00123456789" class="box-link">+00 123 456 789 <span class="text-title fs-18 fw-semibold"> or </span> +00 987
-                                                654 012</a>
-                                        </p>
-                                    </div>
-                                    <div class="info-box style5">
-                                        <div class="box-icon">
-                                            <i class="fa-sharp fa-solid fa-envelope"></i>
-                                        </div>
-                                        <p class="box-text">
-                                            <a href="mailto:support24@erna.com" class="box-link">support24@erna.com</a>
-                                        </p>
-                                    </div>
+                                    <a href="index.html" class="vp-logo vp-logo-foot">
+                                        <img src="assets/img/vikyplus-appicon.png" alt="ویکی پلاس">
+                                        <span class="vp-logo-text">
+                                            <b>ویکی پلاس</b>
+                                            <small>فروشگاه کیف و کفش زنانه</small>
+                                        </span>
+                                    </a>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-6 col-xl-auto">
                             <div class="widget widget_nav_menu footer-widget">
-                                <h3 class="widget_title">Menu</h3>
+                                <h3 class="widget_title">ویکی پلاس</h3>
                                 <div class="menu-all-pages-container">
                                     <ul class="menu">
-                                        <li><a href="contact.html">Become a Vendor</a></li>
-                                        <li><a href="contact.html">Affiliate Program</a></li>
-                                        <li><a href="course.html">Privacy Policy</a></li>
-                                        <li><a href="course.html">Our Suppliers</a></li>
-                                        <li><a href="contact.html">Extended Plan</a></li>
-                                        <li><a href="contact.html">Community</a></li>
+                                        <li><a href="vendor-register.html">فروشنده شوید</a></li>
+                                        <li><a href="contact.html">همکاری در فروش</a></li>
+                                        <li><a href="course.html">حریم خصوصی</a></li>
+                                        <li><a href="course.html">تأمین‌کنندگان</a></li>
+                                        <li><a href="contact.html">خدمات پس از فروش</a></li>
+                                        <li><a href="contact.html">درباره ما</a></li>
                                     </ul>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-6 col-xl-auto">
                             <div class="widget widget_nav_menu footer-widget">
-                                <h3 class="widget_title">Customer Support</h3>
+                                <h3 class="widget_title">پشتیبانی</h3>
                                 <div class="menu-all-pages-container">
                                     <ul class="menu">
-                                        <li><a href="contact.html">Help Center</a></li>
+                                        <li><a href="contact.html">راهنما</a></li>
                                         <li><a href="contact.html">تماس با ما</a></li>
-                                        <li><a href="contact.html">Report Abuse</a></li>
-                                        <li><a href="contact.html">Submit and Dispute</a></li>
-                                        <li><a href="contact.html">Policies & Rules</a></li>
-                                        <li><a href="contact.html">Online فروشگاهping</a></li>
+                                        <li><a href="contact.html">گزارش تخلف</a></li>
+                                        <li><a href="contact.html">ثبت شکایت</a></li>
+                                        <li><a href="contact.html">قوانین</a></li>
+                                        <li><a href="contact.html">خرید اینترنتی</a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -1371,10 +1385,10 @@ Brand Area
                                 <div class="menu-all-pages-container">
                                     <ul class="menu">
                                         <li><a href="contact.html">حساب کاربری</a></li>
-                                        <li><a href="contact.html">Order History</a></li>
-                                        <li><a href="course.html">فروشگاهing سبد خرید</a></li>
-                                        <li><a href="course.html">Compare</a></li>
-                                        <li><a href="contact.html">Help Ticket</a></li>
+                                        <li><a href="order-tracking.html">سفارش‌های من</a></li>
+                                        <li><a href="cart.html">سبد خرید</a></li>
+                                        <li><a href="course.html">مقایسه</a></li>
+                                        <li><a href="contact.html">پشتیبانی</a></li>
                                         <li><a href="contact.html">علاقه‌مندی‌ها</a></li>
                                     </ul>
                                 </div>
@@ -1382,9 +1396,9 @@ Brand Area
                         </div>
                         <div class="col-md-6 col-xl-3">
                             <div class="widget footer-widget">
-                                <h3 class="widget_title">فروشگاه on The Go</h3>
+                                <h3 class="widget_title">ویکی پلاس روی موبایل</h3>
                                 <div class="widget-content2">
-                                    <p class="title mb-20">From App Store or Google Play App is available. Get it now</p>
+                                    <p class="title mb-20">اپلیکیشن ویکی پلاس به‌زودی روی کافه‌بازار و اپ‌استور.</p>
                                     <div class="download-btn-wrap style2 d-flex">
                                         <div class="">
                                             <a target="_blank" href="https://www.apple.com/store" class="download-btn">
@@ -1601,6 +1615,11 @@ Brand Area
         (function () {
             var items = document.querySelectorAll(".vp-category, .vp-trust-row .feature-card, .th-product, .vp-deal, .vp-best, .blog-card, .sec-title");
             if (!items.length || !("IntersectionObserver" in window)) return;
+            var phone = window.matchMedia("(max-width: 991.98px)").matches;
+            items = Array.prototype.filter.call(items, function (el) {
+                return !(phone && el.classList.contains("vp-category"));
+            });
+            if (!items.length) return;
             items.forEach(function (el) {
                 el.classList.add("vp-enter");
                 var row = el.closest(".row") || el.parentElement;
@@ -1627,6 +1646,32 @@ Brand Area
                 });
             }, { rootMargin: "0px 0px -80px 0px", threshold: 0.12 });
             items.forEach(function (el) { seen.observe(el); });
+        }());
+    </script>
+    <script>
+        (function () {
+            var strip = document.querySelector(".vp-category-row");
+            if (!strip) return;
+            if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+            var tiles = strip.querySelectorAll(".col");
+            if (tiles.length < 2) return;
+            var touched = 0;
+            ["pointerdown", "touchstart", "wheel", "keydown"].forEach(function (ev) {
+                strip.addEventListener(ev, function () { touched = Date.now(); }, { passive: true });
+            });
+            function step() {
+                var room = strip.scrollWidth - strip.clientWidth;
+                if (room < 4) return;
+                if (Date.now() - touched < 6000) return;
+                if (document.hidden) return;
+                var a = tiles[0].getBoundingClientRect();
+                var b = tiles[1].getBoundingClientRect();
+                var pitch = Math.abs(a.left - b.left);
+                if (!pitch) return;
+                var atEnd = strip.scrollLeft <= -(room - pitch / 2);
+                strip.scrollTo({ left: atEnd ? 0 : strip.scrollLeft - pitch, behavior: "smooth" });
+            }
+            setInterval(step, 6000);
         }());
     </script>
     <script>

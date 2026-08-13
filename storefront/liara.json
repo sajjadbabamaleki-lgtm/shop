@@ -1,0 +1,17 @@
+{
+    "platform": "laravel",
+    "port": 80,
+    "build": {
+        "location": "germany"
+    },
+    "laravel": {
+        "phpVersion": "8.4",
+        "timezone": "Asia/Tehran",
+        "composerMirror": false,
+        "installDevDependencies": false,
+        "buildAssets": false,
+        "ssr": false,
+        "configCache": false,
+        "routeCache": false
+    }
+}

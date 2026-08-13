@@ -1,0 +1,69 @@
+# The storefront and its database, for a VPS or for running the real thing
+# locally without installing PHP.
+#
+#   cp storefront/.env.example .env.docker
+#   # set APP_KEY — docker compose run --rm app php artisan key:generate --show
+#   docker compose up --build
+#
+# Then http://localhost:8080.
+#
+# Not run in the session that wrote it: the egress policy there blocked Docker
+# Hub's blob CDN, so no image could be pulled. The application configuration it
+# sets was verified — the app was booted with exactly these APP_ENV, APP_DEBUG
+# and cache settings against this PostgreSQL version, and rendered the page
+# pixel-identically to the design preview. What is unverified is the packaging:
+# the image build and this file.
+
+services:
+  app:
+    build:
+      context: ./storefront
+    ports:
+      - "8080:80"
+    environment:
+      APP_NAME: VikyPlus
+      APP_ENV: production
+      APP_DEBUG: "false"
+      # No default. The entrypoint refuses to start without it rather than
+      # failing later on the first encrypted cookie.
+      APP_KEY: ${APP_KEY:?set APP_KEY — php artisan key:generate --show}
+      APP_URL: http://localhost:8080
+      APP_LOCALE: fa
+      APP_TIMEZONE: Asia/Tehran
+
+      DB_CONNECTION: pgsql
+      DB_HOST: database
+      DB_PORT: "5432"
+      DB_DATABASE: vikyplus
+      DB_USERNAME: vikyplus
+      DB_PASSWORD: ${DB_PASSWORD:-vikyplus}
+
+      # Both are tables this app's migrations already create, so nothing else
+      # has to be running for a session or a cache entry to have somewhere to
+      # go.
+      SESSION_DRIVER: database
+      CACHE_STORE: database
+      QUEUE_CONNECTION: database
+      LOG_CHANNEL: stderr
+    depends_on:
+      database:
+        condition: service_healthy
+    restart: unless-stopped
+
+  database:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: vikyplus
+      POSTGRES_USER: vikyplus
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-vikyplus}
+    volumes:
+      - catalogue:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vikyplus -d vikyplus"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+volumes:
+  catalogue:

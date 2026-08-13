@@ -1,3 +1,7 @@
+# NOT THE DEPLOY. The shop ships to Liara — see «The build goes to Liara» at the
+# top of CLAUDE.md. This file publishes the static design preview and nothing
+# else; a change that reaches only Netlify has not reached the client's site.
+#
 # Netlify deploys the static preview page, not the Laravel app.
 #
 # The pages under download-version/ are committed already generated — the
