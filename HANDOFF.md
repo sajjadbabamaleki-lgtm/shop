@@ -1434,3 +1434,42 @@ for. It is written down because it will come back the moment this card is
 rebuilt again without `shop/card.blade.php` being rebuilt with it — and because
 "the catalogue took it with it" was in a commit message once already without
 being true.
+
+### The phone card's five numbers, after the revert
+
+The revert put the card back; these five moved it on from there, and they are
+the numbers the phone card now holds. Below 992 only — **the desktop card is
+untouched and still reads 1:1, 28px, a 1px ring and a shadowed strip.**
+
+| | before | now |
+|---|---|---|
+| tile outline | `0 0 0 1px` @ 5% | `0 0 0 2px` @ 5% |
+| tile shape | `aspect-ratio: 1` (180 × 180) | `10 / 11` (180 × 198) |
+| tile corner | 28px | 22.4px |
+| burst | 48px | 43.2px |
+| strip's drop shadow | `0 4px 14px -8px` @ 35% | none |
+
+Three things about that table are worth more than the numbers themselves.
+
+**The 10px حریم did not have to be re-measured.** The clearance between the
+shoe's box and the strip is `H − 59.52 − (H − 69.52)`, which is 10 at any tile
+height — the shoe's box was written as a percentage *minus the fixed stack*
+rather than as two percentages, so a taller tile carries the client's number
+through unchanged. Measured after: 10.0 at 390 and 10.0 at 360. If the shoe's
+box is ever restated in plain percentages, this stops being true and the
+height becomes a two-number change.
+
+**The burst moved below 992 and not at 992–1199.** The burst and the basket
+were deliberately set to one size, at the client's request. Between 992 and
+1199 both are 48 and both on screen, so shrinking the burst there would break
+that pair; below 992 the basket is `display: none` and the burst is alone.
+A future "make the badge smaller" that is applied at `max-width: 1199px`
+silently undoes an instruction nobody will remember.
+
+**The strip lost its drop shadow and kept its ring.** The ring is the strip's
+edge, not its shadow. Dropping both is the exact move that started «لبه پنهان»
+on the hero card — read that entry before deciding the ring should go too.
+
+The outline reads, and was checked rather than assumed: scanned across the
+tile's side at 390 the row goes `255 255 | 243 243 | 255`, two pixels of line
+where there was one, twelve levels under the page.

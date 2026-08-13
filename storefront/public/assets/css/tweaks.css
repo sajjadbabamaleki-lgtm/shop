@@ -11165,3 +11165,89 @@ ul.vp-how-list.is-ticked li:before {
     white-space: nowrap;
   }
 }
+
+/* ==========================================================================
+   Five numbers on the sale card, on the phone.
+
+   «خط دور کارت زخیمتر بشه / ارتفاع کارت ده درصد بیشتر بشه / بج تخفیف ده درصد
+   کوچیکتر بشه / سایه باکس قیمت حذف بشه / ۲۰ درصد کروی گوشه های ۲ طرف کارت کمتر
+   بشه» — five asks in one message, against the card as it is after this
+   evening's revert.
+
+   Below 992 only. The client has been reading this card on a phone all
+   evening and the message names no breakpoint, which is how every other round
+   in this file has been scoped. The desktop card keeps its square, its 28px
+   corner, its 1px ring and its shadowed strip; say so before changing it.
+
+   `.vp-deal` is the catalogue's card as well as the sale's, so the listing,
+   the category pages and the related shelf take all five with it. That is the
+   rule in CLAUDE.md and it holds here because both sides are on the same
+   markup again after the revert.
+
+   The five, in order:
+
+   **The outline, 1px → 2px.** `0 0 0 1px` at 5% is the ring the card has
+   carried since it was drawn; doubling the width is what «ضخیم‌تر» asks for,
+   and the alpha stays where it is because the ask is thickness, not weight.
+   Note the ring is *not* inset, so the card's painted box grows a pixel on
+   each side; measured at 390 the two columns still clear each other.
+
+   The foot's ink is left at 1.4px. It is the «لبه پنهان» remedy and not part
+   of the outline — read that entry in CLAUDE.md before touching it. With a
+   2px ring around and 1.4px of ink inside it, the foot reads heavier than the
+   other three sides, which is what a panel resting on a surface does anyway.
+
+   **The height, +10%.** The tile is `aspect-ratio: 1`; 10/11 makes it a tenth
+   taller and leaves the width alone. 180 × 180 becomes 180 × 198 at 390.
+
+   Nothing under it needs re-measuring, and that is worth stating rather than
+   assuming. The strip is pinned 12 from the foot and the shoe's box is
+   `top: 23%` with `height: calc(77% - 69.52px)` — so the clearance between
+   them works out as H − 59.52 − (H − 69.52) = 10px at *any* tile height. The
+   client's «حریم ۱۰ پیکسلی» survives the change because it was written as a
+   percentage minus the fixed stack rather than as two percentages. Measured
+   after: 10.0 at 390 and 10.0 at 360.
+
+   **The badge, −10%.** 48 → 43.2 below 992 and not above it. The burst and
+   the basket were deliberately made one size — «اون ستاره گوشه راست بالا باید
+   اندازش اندازه سبد خرید تو همون قسمت باشه» — and between 992 and 1199 they
+   are both 48 and both on screen, so shrinking one there would break the pair
+   the client asked for. Below 992 the basket is `display: none`, so there is
+   no pair to break and the burst is free to move on its own.
+
+   **The strip's shadow, gone.** `.vp-deal-label` carried
+   `0 4px 14px -8px rgba(16,17,17,0.35)` and now carries nothing outside
+   itself. Its `inset 0 0 0 1px` ring stays: that is the strip's edge, not its
+   shadow, and dropping an edge as well as a shadow is exactly the move that
+   started «لبه پنهان» on the hero card. If the ring is meant to go too it
+   should be asked for as an edge.
+
+   **The corners, −20%.** 28 → 22.4 on the tile. The strip's own radius is
+   left alone: at 47.52 tall with a 23.76 radius it is a pill — half its
+   height — and taking a fifth off that would make it a rounded rectangle
+   rather than a smaller pill, which is not what a corner instruction about
+   the card means. */
+@media (max-width: 991.98px) {
+  .vp-deal-shot {
+    aspect-ratio: 10 / 11;
+    border-radius: 22.4px;
+    box-shadow:
+      0 0 0 2px rgba(16, 17, 17, 0.05),
+      inset 0 -1.4px 0 rgba(16, 17, 17, 0.07);
+  }
+
+  .vp-deal:hover .vp-deal-shot {
+    box-shadow:
+      0 0 0 2px rgba(164, 127, 37, 0.28),
+      inset 0 -1.4px 0 rgba(16, 17, 17, 0.07);
+  }
+
+  .vp-deal-burst {
+    width: 43.2px;
+    height: 43.2px;
+  }
+
+  .vp-deal-label {
+    box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.05);
+  }
+}
