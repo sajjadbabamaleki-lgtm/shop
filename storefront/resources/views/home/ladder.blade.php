@@ -77,27 +77,15 @@
                     <div class="vp-deal">
                         <a class="vp-deal-shot" href="{{ storefront_route('product', $deal) }}">
                             <img src="{{ asset($deal->primaryMedia()->path) }}" alt="" loading="lazy">
+                            @include('partials.deal-burst', ['key' => $loop->index, 'percent' => $deal->offerHere()->discountPercent()])
+                            <span class="vp-deal-label">
+                                <span class="vp-deal-lines">
+                                    <span class="vp-deal-name">{{ $deal->title }}</span>
+                                    <span class="vp-deal-price"><del>{{ toman($deal->offerHere()->compare_at_price) }}</del><strong>{{ toman($deal->offerHere()->price) }} <span>تومان</span></strong></span>
+                                </span>
+                            </span>
                         </a>
-                        {{-- Both controls sit outside the link — a basket is never a
-                             navigation and neither is a favourite — on the
-                             photograph's two far corners, mirrored from the client's
-                             reference: «سبد شاپ تو یه دایره بیاد گوشیه چپ عکس محصول». --}}
-                        <button type="button" class="vp-deal-fav" aria-label="افزودن به علاقه‌مندی‌ها"><i class="fa-regular fa-heart" aria-hidden="true"></i></button>
                         <button type="button" class="vp-deal-cart" aria-label="افزودن به سبد خرید"><i class="fa-solid fa-bag-shopping" aria-hidden="true"></i></button>
-                        {{-- The rating sits across from the name, not across from the
-                             price: «امتیاز کفش ها باید بیاد روبرو اسم کفش». --}}
-                        <span class="vp-deal-head">
-                            <a class="vp-deal-name" href="{{ storefront_route('product', $deal) }}">{{ $deal->title }}</a>
-                            {{-- Nothing rates a product in this catalogue yet. The number
-                                 is a stand-in so the card can be finished, the same call
-                                 that was made for the product page's colourway strip;
-                                 set `placeholders.rating` to 0 to switch the whole
-                                 element off when reviews exist. --}}
-                            @if ((int) config('storefront.placeholders.rating') > 0)
-                                <span class="vp-deal-rate"><i class="fa-solid fa-star" aria-hidden="true"></i>{{ fa_number((int) config('storefront.placeholders.rating')) }}</span>
-                            @endif
-                        </span>
-                        <span class="vp-deal-price"><strong>{{ toman($deal->offerHere()->price) }} <span>تومان</span></strong><del>{{ toman($deal->offerHere()->compare_at_price) }}</del></span>
                     </div>
                 </div>
                 @endforeach

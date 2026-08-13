@@ -952,14 +952,6 @@ const LADDER_TRACK_HTML = LADDER_STEPS.map(([, , , state], i) => {
 // carries `d-lg-none`, because `row-cols-xl-5` puts five on one line above 992
 // and a sixth would wrap that row onto two. The Blade does the same thing from
 // the catalogue's side; see home/ladder.blade.php, and change the two together.
-// The rating in the reference card has nothing behind it yet: there is no
-// review table and no ratings anywhere in this catalogue. It is a stand-in so
-// the card can be finished, the same call the client made for the product
-// page's colourway strip — «یه چیز پیشفرض تکراری بزار تا ما فعلا ui تکمیل
-// کنیم». One number, written once, so there is a single place to delete from
-// when reviews exist. The Blade reads `placeholders.rating` for the same value.
-const DEAL_RATING = 4;
-
 const LADDER_DEALS_HTML = LADDER_DEALS
   .map((deal, i) => ({ deal, i, phoneOnly: false }))
   .concat(LADDER_DEALS.length < 6
@@ -971,25 +963,18 @@ const LADDER_DEALS_HTML = LADDER_DEALS
     '\n                    <div class="vp-deal">' +
     `\n                        <a class="vp-deal-shot" href="shop.html">` +
     `\n                            <img src="assets/img/${file}" alt="" loading="lazy">` +
+    `\n                            ${dealBurst(LADDER_CUT, i)}` +
+    '\n                            <span class="vp-deal-label">' +
+    '\n                                <span class="vp-deal-lines">' +
+    `\n                                    <span class="vp-deal-name">${name}</span>` +
+    '\n                                    <span class="vp-deal-price">' +
+    `<del>${fa(price)}</del><strong>${fa(now)} <span>تومان</span></strong></span>` +
+    '\n                                </span>' +
+    '\n                            </span>' +
     '\n                        </a>' +
-    // Both controls are outside the link: a basket is never a navigation, and
-    // neither is a favourite. They sit on the photograph's two far corners,
-    // mirrored from the client's reference — the heart at the top and the
-    // basket at the foot, both on the inline-end side, which is the left of an
-    // rtl card. «سبد شاپ تو یه دایره بیاد گوشیه چپ عکس محصول».
-    '\n                        <button type="button" class="vp-deal-fav" aria-label="افزودن به علاقه‌مندی‌ها">' +
-    '<i class="fa-regular fa-heart" aria-hidden="true"></i></button>' +
+    // Its own control, outside the link, so a basket is never a navigation.
     '\n                        <button type="button" class="vp-deal-cart" aria-label="افزودن به سبد خرید">' +
     '<i class="fa-solid fa-bag-shopping" aria-hidden="true"></i></button>' +
-    // Name, then price and rating on one line under it — the reference's
-    // arrangement. Off the photograph, not on it: the strip that used to float
-    // over the shot took the bottom third of every tile.
-    '\n                        <span class="vp-deal-head">' +
-    `\n                            <a class="vp-deal-name" href="shop.html">${name}</a>` +
-    `\n                            <span class="vp-deal-rate"><i class="fa-solid fa-star" aria-hidden="true"></i>${fa(DEAL_RATING)}</span>` +
-    '\n                        </span>' +
-    '\n                        <span class="vp-deal-price">' +
-    `<strong>${fa(now)} <span>تومان</span></strong><del>${fa(price)}</del></span>` +
     '\n                    </div>' +
     '\n                </div>';
 }).join('');

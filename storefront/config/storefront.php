@@ -226,23 +226,6 @@ return [
         'colorway_shots' => 5,
 
         /*
-         | The star on the sale card.
-         |
-         | The client's reference card carries a rating and nothing in this
-         | catalogue is rated — there is no review table and no column for it.
-         | This is the number the star shows until there is, the same call as
-         | the colourway strip above: «یه چیز پیشفرض تکراری بزار تا ما فعلا ui
-         | تکمیل کنیم».
-         |
-         | **Set this to 0 the day reviews exist** and the star disappears from
-         | the card entirely rather than showing a made-up number beside a real
-         | one. The static preview carries the same value in
-         | theme/make-rtl-page.js as DEAL_RATING; the two have to agree or
-         | check-parity.js will say so.
-         */
-        'rating' => 4,
-
-        /*
          | The brand strip.
          |
          | Each tile carries three photographs and a count. Neither is real:

@@ -2712,24 +2712,15 @@ option:hover {
   /* The tiles' 30 at 157px, kept in proportion at the ~260 five across run
      at. It was 34 when there were four. */
   border-radius: 28px;
-  /* «جای عکس محصول باید شیشه ای بشه» — the tile the photograph sits on is the
-     page's own glass, not white. The reference card puts the shoe on a tinted
-     panel and this is the tint everything else on this page is cut from:
-     `rgba(16,17,17,0.035)` over `blur(10px)`, the hero card's recipe and the
-     ladder head's.
-
-     It was white, and the comment here argued for it: an off-white tile on a
-     glass panel is a grey object on a grey ground. That was written when the
-     photograph carried a strip and a burst on top of it and needed to read as
-     a lit surface. The card is a photograph on a panel now, and the client has
-     asked for the panel.
-
-     No drop shadow with it. Glass on glass does not sit *on* anything — the
-     ring states the edge, which is what «لبه پنهان» settled for the hero. */
-  background: rgba(16, 17, 17, 0.035);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
-  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.05);
+  /* White, not the category tiles' off-white. That off-white was chosen
+     against a white panel; on the glass panel it is a grey object on a grey
+     ground and neither edge does any work — which is the exact problem that
+     made the panel white in the first place, now solved from the other side.
+     The cut-outs still get a ground to sit on, it is just a lighter one. */
+  background: #FFFFFF;
+  box-shadow:
+    0 0 0 1px rgba(16, 17, 17, 0.05),
+    0 8px 22px -12px rgba(16, 17, 17, 0.18);
   transition: transform 0.28s ease, box-shadow 0.28s ease;
 }
 
@@ -2897,134 +2888,48 @@ option:hover {
    The strip's inline-end inset is not a number of its own: it is where the
    basket's gap begins, 12 (the basket's own inset) + 52.8 (the basket) + 10
    (the gap) = 74.8. It was 66 on the same arithmetic. */
-/* The sale card, rebuilt to the client's reference: a tinted photograph with
-   a favourite at one corner and a basket at the other, then the name, then the
-   price and a rating on one line under it.
-
-   «تو بخش حراج پله ای اینو برام بساز بجای چیز فعلی که داریم». What it replaces
-   was a glass strip floating over the bottom third of the photograph with the
-   name and both prices inside it, and a discount burst over the top corner.
-   Neither is in the reference — the type comes off the photograph and sits
-   under it, and the corner the burst held is where the heart goes.
-
-   The card is a grid rather than a box with absolutely positioned children, so
-   the two controls can be told to sit on the photograph without any of them
-   knowing how tall it is: the shot and both buttons are placed in row 1, and
-   `justify-self` / `align-self` put them on its corners. The old basket was
-   `position: absolute` against the card, which worked only while the card *was*
-   the photograph; with a name and a price under it now, the same insets would
-   have put the basket over the price.
-
-   `justify-self: end` is the inline end, which on this rtl page is the left —
-   «سبد شاپ تو یه دایره بیاد گوشیه چپ عکس محصول». */
-.vp-deal {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 10px;
-}
-
-.vp-deal-shot,
-.vp-deal-fav,
-.vp-deal-cart {
-  grid-area: 1 / 1;
-}
-
-/* The favourite. White rather than the page's glass: it sits on a photograph,
-   and glass over a photograph takes the photograph's colour, which is the one
-   thing a control on top of six different shoes cannot do. Outline heart, not
-   filled — nothing is favourited yet, and a filled heart says it is. */
-.vp-deal-fav {
-  justify-self: end;
-  align-self: start;
-  z-index: 3;
+.vp-deal-label {
+  position: absolute;
+  inset-inline-start: 12px;
+  inset-inline-end: 74.8px;
+  inset-block-end: 12px;
+  z-index: 2;
   display: flex;
   align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  margin: 12px;
-  padding: 0;
-  border: 0;
-  border-radius: 50%;
-  background: #FFFFFF;
-  color: #101111;
-  font-size: 18px;
-  line-height: 1;
-  cursor: pointer;
-  box-shadow: 0 4px 14px -8px rgba(16, 17, 17, 0.35);
-  transition: transform 0.2s ease;
+  gap: 10px;
+  height: 52.8px;
+  padding-inline: 16px;
+  border-radius: 26.4px;
+  background: rgba(16, 17, 17, 0.034);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  backdrop-filter: blur(12px) saturate(1.2);
+  box-shadow:
+    inset 0 0 0 1px rgba(16, 17, 17, 0.05),
+    0 4px 14px -8px rgba(16, 17, 17, 0.35);
 }
 
-.vp-deal-fav:hover {
-  transform: scale(1.06);
+.vp-deal-lines {
+  display: block;
+  min-width: 0;
 }
 
-.vp-deal-fav:focus-visible {
-  outline: 2px solid var(--title-color);
-  outline-offset: 2px;
-}
-
-/* The name, off the photograph and on the page. A link, because it is the
-   product's name and the shot above it is the same link — two ways into the
-   same page rather than one clickable picture with a caption. */
-/* Name and rating on one line, the rating across from the name — «امتیاز کفش
-   ها باید بیاد روبرو اسم کفش». The price takes the line under them. */
-.vp-deal-head {
-  grid-area: 2 / 1;
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 8px;
-}
-
+/* 12, not the 14 this started at. */
 .vp-deal-name {
-  flex: 1 1 auto;
   display: block;
   font-family: 'Cairo', var(--title-font);
   font-weight: 700;
-  font-size: 14px;
+  font-size: 12px;
   line-height: 1.6;
   color: #101111;
-  min-width: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.vp-deal-name:hover {
-  color: var(--theme-color);
-}
-
-.vp-deal-price {
-  grid-area: 3 / 1;
-}
-
-/* The star is the reference's, and the number behind it is a stand-in: nothing
-   in this catalogue is rated. `placeholders.rating` is the one place it is
-   written on the Laravel side and DEAL_RATING the one place on the preview's;
-   set the config value to 0 and the element goes rather than showing an
-   invented number beside a real price. */
-.vp-deal-rate {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  flex: none;
-  font-family: 'Vazirmatn', var(--body-font);
-  font-weight: 700;
-  font-size: 13px;
-  color: #101111;
-}
-
-.vp-deal-rate i {
-  font-size: 12px;
-  color: #E3B54A;
 }
 
 .vp-deal-price {
   display: flex;
   align-items: baseline;
   gap: 7px;
-  min-width: 0;
   line-height: 1.5;
 }
 
@@ -3052,13 +2957,10 @@ option:hover {
    than one lapping the other. 52.8 plus a 10px gap is the strip's 74.8px
    inset. It was 44 against a 66px inset before the pair went up 20%. */
 .vp-deal-cart {
-  justify-self: end;
-  align-self: end;
+  position: absolute;
   z-index: 3;
-  margin: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  inset-block-end: 12px;
+  inset-inline-end: 12px;
   width: 52.8px;
   height: 52.8px;
   padding: 0;
@@ -3093,9 +2995,8 @@ option:hover {
    as above, 12 + 48 + 10 = 70, where it read 12 + 40 + 10 = 62 before. */
 @media (max-width: 1199px) {
   .vp-deal-shot { border-radius: 28px; }
-  /* The strip this used to hold back for is gone — the name and the price sit
-     under the photograph now. The basket keeps its step down. */
-  .vp-deal-cart { width: 48px; height: 48px; }
+  .vp-deal-label { inset-inline-end: 70px; }
+  .vp-deal-cart { width: 48px; height: 48px; inset-block-end: 12px; inset-inline-end: 12px; }
   /* The burst steps down with the basket, or the pair the client asked for
      only holds above 1200 — measured 52.8 against 48 at 992 before this. */
   .vp-deal-burst { width: 48px; height: 48px; }
@@ -8955,26 +8856,19 @@ ul.vp-how-list.is-ticked li:before {
    what makes this the right fix rather than any of the three that were offered
    last round — all of which would have undone a number the client set.
 
-   **That whole argument is spent.** It was about a glass strip on the
-   photograph and the basket beside it fighting for one line's width; the card
-   the client has since asked for takes the name and the price off the
-   photograph entirely, so there is no strip for the basket to crowd. The
-   basket is back on the phone — the reference puts it there and «سبد شاپ تو یه
-   دایره بیاد گوشیه چپ عکس محصول» asks for it by name — and it is smaller than
-   the desktop's, which is what the tile at this width has room for. */
+   `display: none` rather than removing it from the markup: the button is in
+   the hand-owned Blade and in the preview's generator both, and the desktop
+   card still carries it.
+
+   Below 992, like everything else in this run — the instruction names no
+   breakpoint and «به هیچ عنوان به نسخه دستاپ دست نزنی» decides those. */
 @media (max-width: 991.98px) {
   .vp-deal-cart {
-    width: 40px;
-    height: 40px;
-    margin: 10px;
-    font-size: 16px;
+    display: none;
   }
 
-  .vp-deal-fav {
-    width: 34px;
-    height: 34px;
-    margin: 10px;
-    font-size: 14px;
+  .vp-deal-label {
+    inset-inline-end: 12px;
   }
 
   /* And the price on one line, which the width alone did not give. The strip
@@ -9102,6 +8996,12 @@ ul.vp-how-list.is-ticked li:before {
    The price line is 20 tall and centred in the strip, so it has the room; the
    strip carries no padding-block to give back. Below 992; the desktop strip
    and its basket are unchanged at 52.8 and 26.4. */
+@media (max-width: 991.98px) {
+  .vp-deal-label {
+    height: 47.52px;
+    border-radius: 23.76px;
+  }
+}
 
 /* The shoe names, in the page's own face.
 
