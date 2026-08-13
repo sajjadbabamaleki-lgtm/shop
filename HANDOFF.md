@@ -1274,37 +1274,42 @@ and nobody drew it.
 and they are what puts the shoe's colour on the card. Above 992 all three are
 unchanged.
 
-**«اون لودینگ باید بیاد کنار هفته دوم زیرش نباید باشه»**, and then, one round
-later and much louder, **«چرا موارد زیر ۳ تا مربع از مربع ها زده بیرون؟ باید مث
-پله اول باشه»**. Both sentences are about the same row, and the second is the
-constraint the first has to be answered inside.
+**The ladder's chip row — three rounds, one rule.**
 
-A step is three rate tiles with a row of chips under them — the name, the week,
-and the flag saying how the step stands. **The chip row is never allowed to be
-wider than the tiles above it.** That is what «مث پله اول» means, and the first
-step satisfies it by accident: «پله اول» + «هفته اول» + the flag is 48 + 59 + 25
-+ two gaps = 140, exactly what three 44px tiles and their gaps measure. Every
-other step's labels are longer — «پله دوم» + «هفته دوم» alone is already 140 —
-so all three cannot share a line inside the tiles.
+«اون لودینگ باید بیاد کنار هفته دوم زیرش نباید باشه», then «چرا موارد زیر ۳ تا
+مربع از مربع ها زده بیرون؟», then «باید تو یه ردیف باشن». Read together they are
+one rule with no room in it:
 
-The first attempt widened the step to 170 so the three would fit. **That fitted
-the chips by pushing them out past the squares**, which is worse than what it
-fixed, and is what the shouting was about.
+> **The three chips sit on one row, and that row is exactly the width of the
+> three tiles above it.**
 
-What it is now: the tags row is a **grid**, name spanning both columns with
-`justify-self: center`, week and flag sharing the second row (73 + 25 + 4 = 102,
-inside 140 even for the page's longest week, «پس از هفته چهارم» at 105).
+The base CSS already said the second half — `.vp-step-tags { width:
+calc(var(--tile) * 3 + 8px) }` — and the whole mess came from trying to satisfy
+the first half inside a tile that was too small for it. Two wrong answers, both
+worth keeping written down:
 
-**A grid rather than a wrapping flex row, because a flex line cannot be broken
-without stretching the thing that breaks it.** `width: 100%` on the name does
-put it on its own line — and makes the white pill that wide, which between 700
-and 992, where the five steps share a row and each is wider than its own 140 of
-tiles, put the pill 20px out past the squares. Measured: `worstOver` 11.2 at 900
-and 20.3 at 991. In a grid the span and the pill are two different things.
+1. **Widen the step to 170.** The chips fitted on one row and hung out past the
+   squares, because the tiles are sized by `--tile` and did not move.
+2. **Break the row in two** (grid, name spanning both columns, week + flag
+   under it). Nothing overflowed, and it was two rows — which is what «باید تو
+   یه ردیف باشن» then said no to.
 
-All five steps take two lines now, including the first, which had room for one.
-A scale whose rungs are shaped differently is not a scale.
+The only thing that gives both halves is **the tile size**, because the row's
+width is derived from it. The longest step sets it: «پله نهایی» 57 + «پس از
+هفته چهارم» 102 + the 25 mark + two gaps = 192. `--tile: 58px` gives
+58 × 3 + 8 = 182, and dropping the labels back to their base 11px — the phone
+had bumped them to 12 when the tile was 44 — brings 192 down to 179. 179 inside
+182, every step, nothing clipped. `flex-wrap: nowrap` goes with it, so a label
+that ever grows shrinks rather than wrapping.
 
-Measured at 320, 360, 390, 430, 700, 768, 900, 991, 992 and 1440: nothing of any
-chip row outside its own tiles at any width (`worstOver` 0 everywhere), the flag
-beside the week on every step, and no page overflow.
+**The scroller boundary moved from 700 to 992 for this.** Between the two, five
+steps used to share a row at 140 each of the container's 748; at 182 they need
+958, which that row does not have. Scrolling is what the phone already did, and
+the alternative was ellipsised labels on a tablet.
+
+Above 992 nothing changed — the tile has always been 58 there. This is the
+phone arriving at the desktop's own numbers.
+
+Measured at 320, 360, 390, 700, 768, 991, 992 and 1440: every step one row, no
+chip outside its own tiles (0px at every width), nothing clipped, no page
+overflow.
