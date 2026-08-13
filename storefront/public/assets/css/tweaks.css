@@ -5720,8 +5720,12 @@ ul.vp-how-list.is-ticked li:before {
    hero card beside it all stand at 10.
 
    The container's padding goes to 0 and the margin carries the whole inset, so
-   the side gap is one number that can be read off one line. 10 above and 10
-   below with it.
+   the side gap is one number that can be read off one line.
+
+   **The sides are 14 and the top and foot are 10** — «فاصله از بغلا بشه ۱۴
+   بنظرم بجای ۱۰», asked for after seeing the basket at 10 all round. So this
+   is the one place on the phone whose side gap is not the header island's 10;
+   the island, the trust cards and the hero card above it are untouched.
 
    This reaches every page built on `.vp-shop-section` — the basket, the
    listing, the product, the checkout, the account — which is the point: they
@@ -5737,7 +5741,7 @@ ul.vp-how-list.is-ticked li:before {
   }
 
   .vp-shop-panel {
-    margin-inline: 10px;
+    margin-inline: 14px;
     padding: 18px;
     border-radius: 32px;
   }
@@ -5844,30 +5848,13 @@ ul.vp-how-list.is-ticked li:before {
   gap: 6px;
 }
 
-.vp-cart-qty input {
-  width: 68px;
-  height: 36px;
-  padding-inline: 8px;
-  border: 0;
-  border-radius: 12px;
-  background: #FFFFFF;
-  box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.12);
-  font-size: 14px;
-  text-align: center;
-}
-
-.vp-cart-qty button {
-  height: 36px;
-  padding-inline: 12px;
-  border: 0;
-  border-radius: 12px;
-  background: rgba(16, 17, 17, 0.05);
-  font-size: 13px;
-}
-
-.vp-cart-qty button:hover {
-  background: rgba(164, 127, 37, 0.16);
-}
+/* The number box and the update button that used to be in here are gone from
+   the markup — the quantity is a `−` and a `+` now. Their rules went with them,
+   and they had to: `.vp-cart-qty button` is a class and a type, which outranks
+   `.vp-cart-less` and `.vp-cart-more` however far down the file those are
+   written, so the old 36px height and 12px side padding were still stretching
+   the new squares into rectangles and holding the glyph at 13px. Leaving dead
+   rules behind is not free when they are more specific than the live ones. */
 
 .vp-cart-qty-static {
   font-size: 14px;
@@ -6967,16 +6954,12 @@ ul.vp-how-list.is-ticked li:before {
     align-self: start;
   }
 
-  .vp-cart-qty input {
-    width: 52px;
-    height: 34px;
-  }
-
-  .vp-cart-qty button {
-    height: 34px;
-    padding-inline: 10px;
-    font-size: 12px;
-  }
+  /* The stepper's two buttons are squares and stay squares. This block used to
+     hold `height: 34px; padding-inline: 10px` from when the quantity was a
+     number box with an update button beside it — left in place, it stretched
+     the new `+` and `−` into rectangles. Nothing here sizes them any more; the
+     rule that does is `.vp-cart-less, .vp-cart-more`, and it sets one number
+     for both sides. */
 }
 
 /* Under 376 the quantity and the price cannot share a row.
@@ -10350,7 +10333,11 @@ ul.vp-how-list.is-ticked li:before {
   padding: 0;
   border: 0;
   border-radius: 13px;
-  font-size: 21px;
+  /* «خود مثبت و منفی تو مربعو بزرگ کن» — the mark, not the square. 21 was a
+     glyph rattling around inside a 40 box; 28 fills it the way the reference's
+     does. `line-height: 1` and the flex centring keep it on the middle of the
+     square as it grows. */
+  font-size: 28px;
   line-height: 1;
   cursor: pointer;
   transition: background-color 0.2s ease, opacity 0.2s ease;
@@ -10358,7 +10345,6 @@ ul.vp-how-list.is-ticked li:before {
 
 .vp-cart-less {
   background: rgba(16, 17, 17, 0.05);
-  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.08);
   color: #101111;
 }
 
@@ -10430,17 +10416,21 @@ ul.vp-how-list.is-ticked li:before {
        off the foot, rounded all the way round, like every other floating thing
        on this phone. It was flush to three edges for one round because that
        sentence was read backwards. */
-    inset-inline: 10px;
+    inset-inline: 14px;
     inset-block-end: calc(10px + env(safe-area-inset-bottom, 0px));
     margin: 0;
     padding: 16px;
     border-radius: 24px;
-    background: rgba(255, 255, 255, 0.82);
-    -webkit-backdrop-filter: blur(18px) saturate(1.2);
-    backdrop-filter: blur(18px) saturate(1.2);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.9),
-      0 -12px 34px -20px rgba(16, 17, 17, 0.45);
+    /* «اون جزیره پایین باید شیشه ای باشه» — the page's own glass, the same
+       `rgba(16,17,17,0.034)` over a blur that the hero card, the header island
+       and the trust cards are cut from. It was white at 0.82, which is a
+       painted panel with a little light behind it rather than glass. The blur
+       is deeper than their 10 because what passes under this one is the
+       basket's own photographs rather than a white page. */
+    background: rgba(16, 17, 17, 0.034);
+    -webkit-backdrop-filter: blur(22px) saturate(1.15);
+    backdrop-filter: blur(22px) saturate(1.15);
+    box-shadow: none;
   }
 
   /* Its title is the head of a panel that no longer has a top edge. */
@@ -10515,6 +10505,14 @@ ul.vp-how-list.is-ticked li:before {
     box-shadow: inset 3px 0 0 var(--theme-color);
   }
 
+  /* «سایه هارو از اینجا حذف کن». The photograph carried a 1.5px inset ring and
+     the line card sits on the page's tint already, so the ring was drawing a
+     second edge inside an edge. The tile keeps its white ground — the shoes are
+     cut out on white and need it — and loses the ring. */
+  .vp-cart-shot {
+    box-shadow: none;
+  }
+
   /* The summary's title has no rule either. It sits at the top of a panel with
      its own edge; the rule was drawing a boundary that the panel already has. */
   .vp-cart-sum .vp-filter-title::after {
@@ -10527,5 +10525,33 @@ ul.vp-how-list.is-ticked li:before {
   .vp-cart-sum .vp-code {
     box-shadow: none;
     padding-top: 0;
+  }
+}
+
+/* The basket's figures in the page's own face, not the display one.
+
+   «فونت اعداد نباید این فونت باشه باید معمولی باشه». The prices, the totals and
+   the count were set in Cairo — the display face the hero card uses — while the
+   rest of the site is Vazirmatn, `--body-font` and `--title-font` both. Cairo
+   draws Persian digits with a noticeably different shape and rhythm, so a page
+   whose whole content is numbers read as though the numbers came from another
+   site.
+
+   This is the third time the same swap has been asked for. «اسم کفش ها در
+   باکسها با همون فونت معمولی و رسمی که در سایت هست نوشته بشه نه فونت فعلی» took
+   the shoe names off Cairo on the home page's two product bands; the figures
+   here are the same complaint about the same face.
+
+   `var(--body-font)` rather than naming Vazirmatn, so a change to the page's
+   face carries these with it instead of leaving them behind. `tnum` stays —
+   figures that line up under each other is the whole reason to put them in a
+   column, and it is not what was being complained about. */
+@media (max-width: 991.98px) {
+  .vp-cart-money strong,
+  .vp-cart-row.is-total,
+  .vp-cart-count,
+  .vp-cart-name,
+  .vp-cart-sum .vp-filter-title {
+    font-family: var(--body-font);
   }
 }
