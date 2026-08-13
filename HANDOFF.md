@@ -1514,3 +1514,68 @@ instruction behind the 10 was that the product must not run under the box;
 to keep the number exact — that would be a bigger photograph, which is not
 what the message asked for. If the 10 is ever wanted back exactly, it is
 `calc(77% - 63.52px)` in the حریم block.
+
+### The corner button is WhatsApp now, not scroll-to-top
+
+«بجای این باید یه آیکون واتسپ بیاری با گوشه های کرو», with a screenshot of the
+template's gold ring. Replaced, not joined — asked and confirmed.
+
+**The number is written in one place: `theme/make-rtl-page.js`.** It goes into
+the generated preview page, and `theme/make-blade.js` ports that into
+`partials/whatsapp.blade.php`. Not `config/storefront.php`: that would make the
+Blade hand-owned and let the two copies of the page drift, and the footer's
+landline is already hardcoded the same way. `wa.me` wants the international
+form — 09918905993 is written 989918905993, no plus, no leading zero.
+
+`WhatsAppButtonTest` is what guards it, and it is there because this is the
+only link on the site that sends a customer somewhere the site does not
+control. A wrong digit does not 404, does not look broken, and is invisible to
+`check-parity.js` — two buttons with different `href`s are the same picture.
+The test was checked against a changed digit and fails on it.
+
+Three things that were decided rather than defaulted:
+
+- **`left: 30px`, not `inset-inline-start`.** The logical property is right
+  almost everywhere in `tweaks.css` and wrong here: the template's rule is
+  `left`, and on an rtl page the inline start is the right-hand side. Written
+  logically the button measured 310 from the left in a 390 viewport instead of
+  30 — the other corner, from a change that looks like a tidy-up.
+- **Always on screen**, where the ring appeared only after 50px of scroll. A
+  back-to-top control is useless at the top of a page; a way to ask a question
+  is most wanted there.
+- **16px on a 50px square.** «گوشه های کرو» against something that was
+  `border-radius: 50%`, so the ask is that corners exist — 25 is the circle
+  again, 8 is a box.
+
+Two loose ends, both harmless and both deliberate. The scroll script in
+`partials/scripts.blade.php` still looks for `.scroll-top`; every use of it is
+guarded (`toTop &&`, `if (toTop)`), so it finds nothing and carries on — this
+was read, not assumed. And the theme-colour lists near the top of `tweaks.css`
+still name `.scroll-top svg` and `.scroll-top:after`, now dead selectors, left
+in a shared list of forty where picking them out risks more than it gains.
+
+### The cache-bust is generated now, not typed
+
+Worth its own note because it was lost twice in one evening, the same way both
+times.
+
+`tweaks.css` is fingerprinted in the head so a returning visitor cannot get new
+HTML against their cached copy of the old stylesheet. The fix was first typed
+into `partials/head.blade.php` — **a file `theme/make-blade.js` generates** —
+and the next run of that script deleted it silently while porting an unrelated
+change. A generated file cannot hold a hand correction; that is exactly why
+`make-blade.js` prints the list of files it leaves alone.
+
+The transformation lives in `make-blade.js` now, applied *after* `toBlade`
+(before it, the link is still a plain relative path and the regex matches
+nothing), and the script throws if it cannot find the link to rewrite. And
+`ShippedAssetsTest::test_the_stylesheet_that_changes_is_fingerprinted` reads
+the rendered page and checks the hash matches the file on disk, so it holds
+whoever wrote the link and however it got there. Checked against the fix being
+removed: it fails.
+
+**The general lesson, for the next hand-edit:** if a correction has to be made
+to something under `partials/` other than `mobile-menu.blade.php`, it belongs
+in `theme/make-blade.js` or `theme/make-rtl-page.js`. Making it in the Blade
+works, passes every check, deploys — and disappears the next time anyone
+touches unrelated markup.

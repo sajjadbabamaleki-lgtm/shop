@@ -73,7 +73,7 @@ const REGIONS = [
   { name: 'daily-deal', anchor: '<section class="space overflow-hidden overflow-hidden vp-daily-deal-section"', into: 'home/daily-deal.blade.php', owned: true },
   { name: 'brands', anchor: '<section class="vp-brands-section', into: 'home/brands.blade.php', owned: true },
   { name: 'footer', anchor: '<footer class="footer-wrapper', into: 'partials/footer.blade.php' },
-  { name: 'page-end', anchor: '<!-- Scroll To Top -->', into: 'partials/scripts.blade.php' },
+  { name: 'page-end', anchor: '<!-- WhatsApp -->', into: 'partials/scripts.blade.php' },
 ];
 
 const BODY_OPEN = html.indexOf('<body');
@@ -233,18 +233,23 @@ pageEnd.text = pageEnd.text.replace(
   "$1\n    @stack('scripts')\n"
 );
 
-// The scroll-to-top ring is markup, not script; it is only in this region
+// The floating corner button is markup, not script; it is only in this region
 // because the template puts it between the footer and the script tags. Keeping
 // it there — rather than folding it into the chrome at the top of the body —
 // keeps the DOM order, and with it the stacking order, exactly as measured.
-const SCROLL_TOP_END = '</div>\n';
-const scrollTopEnd = pageEnd.text.indexOf(SCROLL_TOP_END) + SCROLL_TOP_END.length;
-const scrollTop = pageEnd.text.slice(0, scrollTopEnd);
-if (!scrollTop.includes('class="scroll-top"')) {
-  throw new Error('the scroll-to-top ring is not at the head of the tail region');
+//
+// It was the template's scroll-to-top ring and is a WhatsApp link now, so the
+// closing tag to slice on is an anchor's rather than a div's, and the partial
+// is named for what it is. `theme/make-rtl-page.js` is where the swap happens
+// and where the number lives.
+const CORNER_END = '</a>\n';
+const cornerEnd = pageEnd.text.indexOf(CORNER_END) + CORNER_END.length;
+const corner = pageEnd.text.slice(0, cornerEnd);
+if (!corner.includes('class="vp-whatsapp"')) {
+  throw new Error('the WhatsApp button is not at the head of the tail region');
 }
-pageEnd.text = pageEnd.text.slice(scrollTopEnd);
-marks.push({ name: 'scroll-top', into: 'partials/scroll-top.blade.php', text: scrollTop });
+pageEnd.text = pageEnd.text.slice(cornerEnd);
+marks.push({ name: 'whatsapp', into: 'partials/whatsapp.blade.php', text: corner });
 
 // --- write -------------------------------------------------------------------
 
@@ -274,7 +279,42 @@ let head = html.slice(html.indexOf('<head>') + '<head>'.length, html.indexOf('</
 head = head.replace(/<title>[\s\S]*?<\/title>/,
   "<title>@yield('title', config('app.name'))</title>");
 if (!head.includes('@yield')) throw new Error('the head has no <title> to make per-page');
-write('partials/head.blade.php', tidy(toBlade(head)));
+
+// tweaks.css is fingerprinted, and this belongs here rather than in the file
+// this writes.
+//
+// It was a hand-edit to partials/head.blade.php once, and this script silently
+// deleted it the next time it ran — a generated file cannot hold a hand
+// correction, which is the whole reason make-blade.js prints what it leaves
+// alone. So the transformation lives in the generator and survives.
+//
+// What it is for: tweaks.css is the one stylesheet on this site that changes,
+// and it was served at a plain URL. A returning visitor therefore got the new
+// HTML — a response, never cached — against their browser's cached copy of the
+// old CSS. Not a subtle failure: the client opened a rebuilt product card and
+// saw the new markup with none of its rules on it, an unstyled button below
+// the photograph where a white circle should have been on it, and reported the
+// build as broken. It was not broken; it was half of it.
+//
+// The hash is of the file's contents, so the URL changes when the file does
+// and not otherwise. `file_exists` because a missing stylesheet should render
+// a page without styles rather than a 500.
+// Applied after `toBlade`, not before: the link is still a plain relative path
+// at this point and only becomes an `asset()` call in there, so a regex
+// written against the finished form finds nothing and — worse — finds it
+// silently.
+let headOut = tidy(toBlade(head));
+
+const TWEAKS = /<link rel="stylesheet" href="\{\{ asset\('assets\/css\/tweaks\.css'\) \}\}">/;
+if (!TWEAKS.test(headOut)) {
+  throw new Error('the head has no tweaks.css link to fingerprint — check before assuming it is already done');
+}
+headOut = headOut.replace(TWEAKS,
+  "@php($tweaks = public_path('assets/css/tweaks.css'))\n"
+  + "    <link rel=\"stylesheet\" href=\"{{ asset('assets/css/tweaks.css') }}"
+  + "{{ file_exists($tweaks) ? '?v='.substr(md5_file($tweaks), 0, 8) : '' }}\">");
+
+write('partials/head.blade.php', headOut);
 
 console.log('Wrote:');
 for (const line of written) console.log('  ' + line);

@@ -95,6 +95,43 @@ class ShippedAssetsTest extends TestCase
     }
 
     /**
+     * tweaks.css reaches the browser with a fingerprint on it.
+     *
+     * This has been lost twice. tweaks.css is the one stylesheet that changes,
+     * and served at a plain URL it hands a returning visitor the new HTML —
+     * never cached — against their own cached copy of the old CSS. The client
+     * saw a rebuilt product card rendered with none of its rules and reported
+     * the build as broken; it was not broken, it was half of it.
+     *
+     * The first fix was typed into partials/head.blade.php, which
+     * theme/make-blade.js generates, and the next run of that script deleted
+     * it without a word. The fix lives in the generator now. This is what says
+     * so from the outside — it reads the rendered page, so it holds whoever
+     * wrote the link and however it got there.
+     */
+    public function test_the_stylesheet_that_changes_is_fingerprinted(): void
+    {
+        $page = $this->get('/')->assertOk()->getContent();
+
+        preg_match('~href="[^"]*assets/css/tweaks\.css([^"]*)"~', $page, $m);
+
+        $this->assertNotEmpty($m, 'The page does not load tweaks.css at all.');
+        $this->assertMatchesRegularExpression(
+            '~^\?v=[0-9a-f]{8}$~',
+            $m[1],
+            'tweaks.css is served at a plain URL — a returning visitor will get new HTML against their cached old CSS. '
+            .'The fingerprint is applied in theme/make-blade.js; do not hand-edit partials/head.blade.php.'
+        );
+
+        // And it has to track the file, or it is a constant with extra steps.
+        $this->assertSame(
+            '?v='.substr(md5_file(public_path('assets/css/tweaks.css')), 0, 8),
+            $m[1],
+            'The fingerprint does not match the stylesheet on disk.'
+        );
+    }
+
+    /**
      * No deployment ignore rule may match anything under public/.
      *
      * This is the one that would have caught it. An unanchored directory

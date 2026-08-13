@@ -27,7 +27,7 @@
 @yield('content')
 
 @include('partials.footer')
-@include('partials.scroll-top')
+@include('partials.whatsapp')
 @include('partials.scripts')
 
 </body>

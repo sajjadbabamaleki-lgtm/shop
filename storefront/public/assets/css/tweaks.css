@@ -11489,3 +11489,85 @@ ul.vp-how-list.is-ticked li:before {
     height: calc(80.85% - 72.996px);
   }
 }
+
+/* ==========================================================================
+   The corner button: WhatsApp, where the scroll-to-top ring was.
+
+   «بجای این باید یه آیکون واتسپ بیاری با گوشه های کرو» with a screenshot of
+   the template's gold circle and its up arrow. The markup swap is in
+   `theme/make-rtl-page.js`, which is also the one place the number is written;
+   this is only what it looks like.
+
+   It keeps the ring's corner and the ring's size — `fixed`, 30 from the left
+   and 30 from the foot, 50 square — so nothing else on the page has to move.
+   What changes is the shape, the colour and when it is visible.
+
+   **`left`, not `inset-inline-start`, and that is not a slip.** The logical
+   property is the right instinct almost everywhere in this file, and it is
+   wrong here: the template's rule is `left: 30px`, and on an rtl page the
+   inline start is the *right*. Written logically the button jumped to the
+   other corner — measured 310 from the left in a 390 viewport instead of 30 —
+   which is a change of position nobody asked for, dressed up as a
+   modernisation. The ring sat at the bottom left and so does this.
+
+   **Curved, not round.** 16px on a 50px square: «گوشه های کرو» against a thing
+   that was `border-radius: 50%`, so the ask is for corners to exist at all.
+   16 is 32% of the side, which reads as a rounded square rather than a
+   circle-with-a-bite — at 25 it would be the circle again and at 8 it would be
+   a box.
+
+   **Green, and it is the only green on this page.** Asked and answered:
+   #25D366 is WhatsApp's own, and the point of a WhatsApp button is that nobody
+   has to work out what it is. The gold would have matched the site and lost
+   that.
+
+   **Always on screen.** The ring appeared only after 50px of scroll, because a
+   back-to-top control is useless at the top of the page. A way to ask a
+   question is not — it is most wanted on the first screen, before anything has
+   been read — so the `show` class goes with the script that set it. That
+   script still runs: every use of the old element in it is guarded
+   (`toTop &&`, `if (toTop)`), so it finds nothing and carries on, which was
+   checked rather than assumed.
+
+   The drop shadow here is deliberate and does not re-open «لبه پنهان». That
+   entry is about a near-white object dissolving into a white page, where a
+   shadow buys two levels and a long fade; this is a saturated green on white
+   with a step of more than a hundred levels, and the shadow is doing the
+   ordinary job of lifting a floating control off the page rather than standing
+   in for an edge it cannot draw.
+
+   Note the theme-colour lists near the top of this file still name
+   `.scroll-top svg` and `.scroll-top:after`. They are dead selectors now.
+   Left in place rather than picked out of a shared list of forty, where a
+   slip costs something real and the gain is nothing. */
+.vp-whatsapp {
+  position: fixed;
+  left: 30px;
+  bottom: 30px;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  border-radius: 16px;
+  background: #25D366;
+  color: #FFFFFF;
+  font-size: 26px;
+  line-height: 1;
+  text-decoration: none;
+  box-shadow: 0 6px 18px -6px rgba(16, 17, 17, 0.35);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.vp-whatsapp:hover,
+.vp-whatsapp:focus {
+  color: #FFFFFF;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px -8px rgba(16, 17, 17, 0.45);
+}
+
+.vp-whatsapp:focus-visible {
+  outline: 2px solid var(--title-color);
+  outline-offset: 3px;
+}

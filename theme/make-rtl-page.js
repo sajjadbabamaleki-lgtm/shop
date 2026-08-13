@@ -51,6 +51,40 @@ if (!PRELOADER.test(html)) {
 }
 html = html.replace(PRELOADER, '');
 
+// --- the scroll-to-top ring becomes a WhatsApp button -----------------------
+//
+// «بجای این باید یه آیکون واتسپ بیاری با گوشه های کرو», with a screenshot of
+// the template's gold circle and its up arrow. So the ring goes and a WhatsApp
+// button takes its corner — «بجای این», not beside it, which was asked and
+// answered before this was written.
+//
+// **The number lives here and nowhere else.** It is written into the generated
+// page, which `theme/make-blade.js` then ports into the Blade partial, so both
+// copies of the site carry one number from one line. The alternative — reading
+// it from `config/storefront.php` — would make the Blade hand-owned and let
+// the two pages drift, and the footer's landline is already hardcoded the same
+// way. `wa.me` wants the international form with no plus and no leading zero:
+// 09918905993 becomes 989918905993.
+//
+// The arrow's SVG goes with the ring. It was a scroll *progress* indicator —
+// the path's dash offset was written every frame from the page's scroll — so
+// it has no meaning on a button that opens a chat. The script that drove it
+// already guards every use of the element (`toTop &&`, `if (toTop)`), so it
+// keeps working with nothing to find; that was checked rather than assumed.
+const SCROLL_TOP = /[ \t]*<!-- Scroll To Top -->\s*\n[ \t]*<div class="scroll-top">[\s\S]*?\n[ \t]*<\/div>\n/;
+if (!SCROLL_TOP.test(html)) {
+  throw new Error('the scroll-to-top ring is not where it was — check before replacing it');
+}
+const WHATSAPP = [
+  '    <!-- WhatsApp -->',
+  '    <a class="vp-whatsapp" href="https://wa.me/989918905993" target="_blank" rel="noopener"',
+  '       aria-label="گفتگو در واتساپ">',
+  '        <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>',
+  '    </a>',
+  '',
+].join('\n');
+html = html.replace(SCROLL_TOP, WHATSAPP);
+
 // --- swap in the flipped stylesheets ---------------------------------------
 const SHEETS = [
   ['assets/css/style.css', 'assets/css/style.rtl.css'],
