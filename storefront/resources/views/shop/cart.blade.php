@@ -68,14 +68,30 @@
                                     @endif
                                 </div>
 
-                                <form class="vp-cart-qty" method="post" action="{{ storefront_route('cart.update') }}">
-                                    @csrf
-                                    <input type="hidden" name="variant" value="{{ $variant->id }}">
-                                    <input type="hidden" name="vendor" value="{{ $line['item']->vendor_id }}">
-                                    <label class="visually-hidden" for="qty-{{ $line['item']->id }}">تعداد</label>
-                                    <input id="qty-{{ $line['item']->id }}" type="number" name="quantity" value="{{ $line['quantity'] }}" min="0" max="{{ max(1, $line['available']) }}" inputmode="numeric">
-                                    <button type="submit">به‌روزرسانی</button>
-                                </form>
+                                {{-- A stepper, not a number box and an update button.
+                                     Two one-button forms posting the quantity either
+                                     side of the current one: no script, and nothing to
+                                     press afterwards to make it count. Minus stops at 1
+                                     — taking the last one out is the × at the end of the
+                                     line, which says what it does. Plus stops at what
+                                     the branch has on the shelf. --}}
+                                <div class="vp-cart-qty">
+                                    <form method="post" action="{{ storefront_route('cart.update') }}">
+                                        @csrf
+                                        <input type="hidden" name="variant" value="{{ $variant->id }}">
+                                        <input type="hidden" name="vendor" value="{{ $line['item']->vendor_id }}">
+                                        <input type="hidden" name="quantity" value="{{ $line['quantity'] - 1 }}">
+                                        <button type="submit" class="vp-cart-less" aria-label="یکی کمتر" @disabled($line['quantity'] <= 1)>&minus;</button>
+                                    </form>
+                                    <span class="vp-cart-count" aria-label="تعداد">{{ fa_number($line['quantity']) }}</span>
+                                    <form method="post" action="{{ storefront_route('cart.update') }}">
+                                        @csrf
+                                        <input type="hidden" name="variant" value="{{ $variant->id }}">
+                                        <input type="hidden" name="vendor" value="{{ $line['item']->vendor_id }}">
+                                        <input type="hidden" name="quantity" value="{{ $line['quantity'] + 1 }}">
+                                        <button type="submit" class="vp-cart-more" aria-label="یکی بیشتر" @disabled($line['quantity'] >= $line['available'])>+</button>
+                                    </form>
+                                </div>
 
                                 <div class="vp-cart-money">
                                     @if ($line['offer'])

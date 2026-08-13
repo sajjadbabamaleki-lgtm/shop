@@ -10314,3 +10314,136 @@ ul.vp-how-list.is-ticked li:before {
   color: #FFFFFF;
   filter: brightness(1.04);
 }
+
+/* --------------------------------------------------------------------------
+   The basket on a phone, in the arrangement the client sent: a stepper on each
+   line, and the totals stuck to the foot of the screen.
+   -------------------------------------------------------------------------- */
+
+/* The stepper. «− ۱ +» in place of a number box with an update button beside
+   it — the reference's, and the thing every phone basket does, because a
+   quantity you have to confirm is a quantity people forget to confirm.
+
+   Two one-button forms posting the quantity either side of the current one, so
+   it works with no script at all. The plus is the accent and the minus is
+   quiet: the reference draws it that way and it is also true — one of them is
+   the shop's interest and the other is the customer's. */
+.vp-cart-qty {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.vp-cart-less,
+.vp-cart-more {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 11px;
+  font-size: 17px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+
+.vp-cart-less {
+  background: rgba(16, 17, 17, 0.05);
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.08);
+  color: #101111;
+}
+
+.vp-cart-less:hover:not(:disabled) {
+  background: rgba(16, 17, 17, 0.09);
+}
+
+.vp-cart-more {
+  background: linear-gradient(96deg, #C0972F 0%, #E3B54A 100%);
+  color: #FFFFFF;
+}
+
+.vp-cart-more:hover:not(:disabled) {
+  filter: brightness(1.04);
+}
+
+/* A step that cannot be taken says so rather than doing nothing when pressed —
+   minus at one, plus at whatever the branch has on the shelf.
+
+   Flat and grey rather than the live control at low opacity: a gold plus at
+   35% is a pale gold disc with a white glyph on it, and the glyph disappears
+   before the disc does. Disabled has to stay readable to say which control it
+   is. */
+.vp-cart-less:disabled,
+.vp-cart-more:disabled {
+  background: rgba(16, 17, 17, 0.05);
+  box-shadow: none;
+  color: rgba(16, 17, 17, 0.3);
+  cursor: default;
+}
+
+.vp-cart-count {
+  min-width: 18px;
+  font-family: 'Vazirmatn', var(--body-font);
+  font-weight: 700;
+  font-size: 14px;
+  font-feature-settings: 'tnum' 1;
+  text-align: center;
+}
+
+/* The totals, stuck to the foot of the screen.
+
+   «بجای بنفش باید اون حالت شیشه ای بیاد پایین ولی جزیره ای نه مث این چسبیده» —
+   the reference puts them in a block against the bottom of the phone; ours is
+   the page's glass instead of that purple, and **not an island**: no side
+   margin, flush to both edges and to the foot, rounded only where it meets the
+   page. It is the one surface on this phone that is deliberately not at 10.
+
+   Fixed rather than sticky. Sticky would only pin it once the page had scrolled
+   far enough to push it there, so a basket with one line in it — which is most
+   of them — would leave the total halfway up an empty screen.
+
+   The glass is white here, not the page's `rgba(16,17,17,0.034)` tint. That
+   tint is 3.4% and reads as glass because what is behind it is a white page;
+   this panel has the basket's own photographs and prices sliding under it, and
+   at 3.4% the total would be printed over a shoe. 0.82 keeps the material and
+   the legibility both — the same recipe the best seller's swatch pill uses,
+   at the alpha a surface with type on it needs.
+
+   The panel above pads out by 240 so the last line clears it. That is a stated
+   number rather than the sheet's own height because the sheet is out of flow
+   and cannot push anything; it is measured against the tallest the sheet gets
+   (three rows, the code field and the button, with a discount applied). */
+@media (max-width: 991.98px) {
+  .vp-cart-sum {
+    position: fixed;
+    z-index: 40;
+    inset-inline: 0;
+    inset-block-end: 0;
+    margin: 0;
+    padding: 16px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+    border-radius: 24px 24px 0 0;
+    background: rgba(255, 255, 255, 0.82);
+    -webkit-backdrop-filter: blur(18px) saturate(1.2);
+    backdrop-filter: blur(18px) saturate(1.2);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.9),
+      0 -12px 34px -20px rgba(16, 17, 17, 0.45);
+  }
+
+  /* Its title is the head of a panel that no longer has a top edge. */
+  .vp-cart-sum .vp-filter-title {
+    margin-block-end: 10px;
+  }
+
+  /* The room for the sheet goes under the panel, not inside it. Inside, the
+     card grew a 240px empty floor and read as a basket with something missing
+     from it; the sheet is out of flow and cannot push anything, so what needs
+     the clearance is the page. Measured against the tallest the sheet gets —
+     three rows, the code field and the button, with a discount applied. */
+  .vp-shop-section:has(.vp-cart-sum) {
+    padding-block-end: 240px;
+  }
+}
