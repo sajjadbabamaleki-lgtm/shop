@@ -71,9 +71,11 @@ class CartController extends Controller
                 ->withErrors(['cart' => 'این سایز در این شعبه موجود نیست.']);
         }
 
-        return redirect()
-            ->to(storefront_route('cart'))
-            ->with('status', 'به سبد خرید اضافه شد.');
+        // No «به سبد خرید اضافه شد» on the way in. The redirect lands on the
+        // basket with the thing in it, so the banner said what the page was
+        // already showing — and it is the first thing the eye meets above the
+        // line it is announcing.
+        return redirect()->to(storefront_route('cart'));
     }
 
     public function update(Request $request): RedirectResponse

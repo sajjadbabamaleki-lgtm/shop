@@ -9998,6 +9998,20 @@ ul.vp-how-list.is-ticked li:before {
    same arrangement the phone drawer uses and for the same reason — a basket
    with nine things in it must not push its own total off the screen.
    -------------------------------------------------------------------------- */
+/* The panel's own gaps are the page's: 10 at the top, the sides and the foot.
+
+   The template pads `.sidemenu-content` 80 above and 30 either side — numbers
+   for a desktop off-canvas, and on a 390 screen they spend a fifth of the
+   panel's width and a tenth of its height on nothing. 10 is what everything
+   else on this phone stands at: the header island, the trust cards, the story
+   rings, the hero card. The scrollbar the template puts on that box goes with
+   them — the lines inside scroll on their own, and two scrollers in one panel
+   is one too many. */
+.sidemenu-cart .sidemenu-content {
+  padding: 10px;
+  overflow: hidden;
+}
+
 .vp-mini {
   display: flex;
   flex-direction: column;
