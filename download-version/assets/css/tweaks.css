@@ -9464,14 +9464,40 @@ ul.vp-how-list.is-ticked li:before {
        itself, and in a flex column they push the tile off the middle of the
        gap. Stated here so the two halves of the range are one card. */
     margin: 0;
-    min-height: 135.2px;
+    /* Follows the tile down. The gaps and the two lines are untouched, so
+       115.95 is what the card comes to on its own once the tile is 44.8 —
+       measured at 320, 360, 375, 390, 430 and 575, the same at all six.
+       `min-height` and not `height`, for the reason the block above gives: a
+       floor cannot clip copy that grows and a ceiling can, and a ceiling is
+       what «خراب شدن» was. */
+    min-height: 115.95px;
     padding: 14px 10px;
     text-align: center;
   }
 
+  /* The white tile and the mark on it, 30% down — «مربع ها و آیکونارو ۳۰ درصد
+     کوچیکتر کن که فضای کمتری اشغال کنه». 64 → 44.8, the mark 32 → 22.4, and
+     the tile's corner with them, 20 → 14, so it stays the same square rather
+     than a rounder one. `line-height` is what centres the mark inside the tile
+     (the template's own method) so it follows the height or the mark sits low. */
   .vp-trust-row .feature-card .box-icon {
     margin: 0;
+    min-width: 44.8px;
+    width: 44.8px;
     max-width: none;
+    height: 44.8px;
+    line-height: 44.8px;
+    border-radius: 14px;
+  }
+
+  .vp-trust-row .box-icon img {
+    width: 22.4px;
+    height: 22.4px;
+  }
+
+  .vp-trust-row .box-icon .vp-trust-glyph {
+    font-size: 22.4px;
+    line-height: 44.8px;
   }
 
   .vp-trust-row .feature-card .box-title {
