@@ -14,6 +14,12 @@ const path = require('path');
 const ROOT = path.resolve(__dirname, '..');
 const SITE_IMG = path.join(ROOT, 'download-version/assets/img');
 
+// Persian digits and separators. Declared with the paths rather than half way
+// down, because the tables further on are evaluated where they are written and
+// three of them format a price — the first to be moved up hit `Cannot access
+// 'fa' before initialization`, which is the same trap in a different order.
+const fa = (n) => n.toLocaleString('fa-IR');
+
 // Usage: make-rtl-page.js [theme] [source.html]
 //
 // With no theme the page renders in the template's own colours and styles;
@@ -679,21 +685,66 @@ const bestColors =
 // inventing new ones, cycling to cover the sixth tile. "کتونی" dropped from
 // every name — client's own request, so the name is short enough to sit on
 // one line with the price beside it.
-const BEST_TEST_ITEMS = [
-  ['نیوبالانس ۵۳۰', '۷٬۹۸۰٬۰۰۰'],
-  ['جردن وان ایر', '۸٬۴۸۰٬۰۰۰'],
-  ['گلدن گوس', '۶٬۴۸۰٬۰۰۰'],
-  ['نایک وی۲کی ران', '۶٬۹۸۰٬۰۰۰'],
-  ['اون کلادتیلت', '۴٬۸۸۰٬۰۰۰'],
+// The five shoes in the stepped sale: photograph, name, list price, and the
+// stock line each one carries.
+//
+// Declared here rather than beside the sale's own markup further down, because
+// three bands read it now — the sale, the daily-deal banner, and the best
+// sellers, which take their photographs from it — and a `const` is only in
+// scope after it is evaluated. It was below the best sellers and the file
+// threw on load.
+const LADDER_DEALS = [
+  ['hero/vikyplus-hero-goldengoose.webp', 'کتونی گلدن گوس', 6480000, 'فقط سایزهای ۳۷ و ۳۹'],
+  ['hero/vikyplus-deal-cloudtilt.webp', 'کتونی اون کلادتیلت', 4880000, 'فقط سایزهای ۳۸ و ۴۰'],
+  ['hero/vikyplus-hero-nb530.webp', 'کتونی نیوبالانس ۵۳۰', 7980000, 'فقط ۱ عدد باقی مانده'],
+  ['hero/vikyplus-deal-v2k.webp', 'کتونی نایک وی۲کی ران', 6980000, 'فقط سایزهای ۳۷ و ۳۹'],
+  ['hero/vikyplus-hero-jordan.webp', 'کتونی جردن وان ایر', 8480000, 'فقط سایز ۳۸'],
 ];
 
-const bestCard = ([file], i) => {
-  const [name, price] = BEST_TEST_ITEMS[i % BEST_TEST_ITEMS.length];
+//
+// «از همون عکس های قسمت حراج پله ای استفاده کن» — so this is not a table any
+// more, it is derived from LADDER_DEALS. The photograph, the name and the
+// price on every tile now belong to *one* shoe instead of a category
+// photograph with somebody else's name under it. The placeholder the comment
+// above admits to is half retired by that: which shoe lands on which tile
+// still carries no meaning, but the tile no longer contradicts itself.
+//
+// «کتونی» is still dropped from the front of each name, at the client's own
+// request, so the name fits on one line beside the price.
+//
+// **The order has to match `config/storefront.php`'s
+// `placeholders.best_sellers.priced_from`, or the two pages show the same six
+// shoes in different places and check-parity.js fails.** It did, the first
+// time this was written: the generator ran in LADDER_DEALS' order and the
+// storefront in the config's, and 46,629 pixels differed at 1440. The names
+// below are that config's list, spelled the way LADDER_DEALS spells them.
+const BEST_ORDER = [
+  'کتونی نیوبالانس ۵۳۰',
+  'کتونی جردن وان ایر',
+  'کتونی گلدن گوس',
+  'کتونی نایک وی۲کی ران',
+  'کتونی اون کلادتیلت',
+];
+
+const BEST_TEST_ITEMS = BEST_ORDER.map((wanted) => {
+  const deal = LADDER_DEALS.find(([, name]) => name === wanted);
+  if (!deal) {
+    throw new Error(`best sellers: no shoe in LADDER_DEALS called ${wanted}`);
+  }
+  const [file, name, price] = deal;
+  return [name.replace(/^کتونی\s+/, ''), fa(price), file];
+});
+
+// The category's own file is no longer read — the tile takes the shoe's
+// photograph instead — but the parameter stays so the caller's list of
+// categories still drives how many tiles there are and in what order.
+const bestCard = (_category, i) => {
+  const [name, price, file] = BEST_TEST_ITEMS[i % BEST_TEST_ITEMS.length];
   return (
     '\n                <div class="col">' +
     '\n                    <div class="vp-best">' +
     '\n                        <a class="vp-best-shot" href="shop.html">' +
-    `\n                            <img src="assets/img/category/${file}.jpg" alt="" loading="lazy">` +
+    `\n                            <img src="assets/img/${file}" alt="" loading="lazy">` +
     bestColors +
     '\n                        </a>' +
     '\n                        <div class="vp-best-info">' +
@@ -894,17 +945,9 @@ const LADDER_STEP_NAME = LADDER_STEPS.find(([, , , state]) => state === 'current
 // card. It is left in the data rather than deleted: it is the only place those
 // sizes are written down, it costs nothing unused, and putting the pill back
 // is then one line in the template rather than five invented strings.
-const LADDER_DEALS = [
-  ['hero/vikyplus-hero-goldengoose.webp', 'کتونی گلدن گوس', 6480000, 'فقط سایزهای ۳۷ و ۳۹'],
-  ['hero/vikyplus-deal-cloudtilt.webp', 'کتونی اون کلادتیلت', 4880000, 'فقط سایزهای ۳۸ و ۴۰'],
-  ['hero/vikyplus-hero-nb530.webp', 'کتونی نیوبالانس ۵۳۰', 7980000, 'فقط ۱ عدد باقی مانده'],
-  ['hero/vikyplus-deal-v2k.webp', 'کتونی نایک وی۲کی ران', 6980000, 'فقط سایزهای ۳۷ و ۳۹'],
-  ['hero/vikyplus-hero-jordan.webp', 'کتونی جردن وان ایر', 8480000, 'فقط سایز ۳۸'],
-];
 
 // fa-IR gives Persian digits and the Arabic thousands mark, which is what a
 // price should read as on this page.
-const fa = (n) => n.toLocaleString('fa-IR');
 
 // How a step stands, drawn rather than set: a tick for the one that is done, a
 // loading ring for the one running now, a clock for the ones still to come.

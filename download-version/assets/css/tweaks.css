@@ -3054,12 +3054,29 @@ option:hover {
    real category photographs the category row above uses, already filling
    their own frame, so there is no silhouette to fit around — the exact
    treatment the category tiles give them. */
+/* Fitted, not filled — and this rule had to follow the photograph rather than
+   the breakpoint.
+
+   The tile held a lifestyle photograph and `cover` was right for it: a person
+   wearing shoes fills a square happily. «از همون عکس های قسمت حراج پله ای
+   استفاده کن» made it a shoe cut out on white, and `cover` on a cut-out crops
+   the toe or the heel — rendered at 1440 it took a bite out of every one of
+   the six. That is the failure the sale card's own «fitted, not filled» note
+   has guarded against since it was drawn.
+
+   The swap was markup, so it reached the desktop even though the round was a
+   phone round; this follows it there for the same reason. Centred with an even
+   margin, because unlike the sale card's tile there is nothing else on this
+   one — its strip sits below the tile above 992, not on it.
+
+   The phone overrides the box further down to the sale card's own numbers, so
+   the two bands' shoes sit at the same size and height there. */
 .vp-best-shot img {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  inset: 14%;
+  width: 72%;
+  height: 72%;
+  object-fit: contain;
   transition: transform 0.5s ease;
 }
 
@@ -11830,5 +11847,124 @@ ul.vp-how-list.is-ticked li:before {
 
   .vp-ladder-area {
     padding-block-end: 2px;
+  }
+}
+
+/* ==========================================================================
+   The best sellers become the sale card, inverted.
+
+   «کارتهای قسمت پر فروش ترینها هم دقیقا مث حراج پله بشه اما برعکس یعنی کارت
+   شیشه ای بشه و باکس قیمت و اسم سفید / از همون عکس های قسمت حراج پله ای
+   استفاده کن». Below 992; the desktop card is untouched.
+
+   Two different objects until now. The sale card is a tile with the strip
+   lying *on* it; the best seller was a tile with the strip in a row *under*
+   it, beside a round button. This makes the second into the first and then
+   swaps its two surfaces:
+
+     tile    #FFFFFF          ->  rgba(16,17,17,0.035) over blur(10px)
+     strip   rgba(16,17,17,0.034) glass  ->  #FFFFFF
+
+   Everything else is quoted from the sale card rather than re-derived —
+   10/11, 22.4, the 2px ring, 47.52 of strip 6 from three edges, 19.1862 on its
+   corner, the photograph's box, the 2px optical lift on the type. They are one
+   component with two skins now, and a number that gets recalculated here
+   instead of copied is a number that will drift the next time the sale's card
+   moves. There have been four such rounds this evening alone.
+
+   --------------------------------------------------------------------------
+   What is kept that the sale card does not have, and why.
+
+   **The basket stays.** Taken literally, «دقیقا مث حراج پله» would delete it:
+   `.vp-deal-cart` is `display: none` below 992. But the client designed this
+   very button two rounds ago — «اون دایره مثبت خرید هم باید مربع بشه ... و
+   بجای مربع سبد خرید بیاد» — and deleting it as a side effect of a sentence
+   about glass would be reading one instruction over the top of another. So it
+   stays, arranged the way the sale card's *own desktop* arranges the same
+   pair: the strip holds room at the inline end and the button sits in that
+   corner. Say the word and it goes; it is one rule.
+
+   Its room is 6 + 47.5 + 6 = 59.5 — the tile's inset, the button, and the gap
+   between them, the same arithmetic the desktop sale card uses for its own
+   basket.
+
+   **The colour swatches go, on the phone only.** `.vp-best-colors` sits at the
+   foot of the tile on exactly the geometry the strip now occupies, so the two
+   would be stacked on the same pixels. They are already `opacity: 0` until
+   hover, and hover sticks on a phone, so this is also the last of the tapped
+   states this evening has been turning off. Above 992 they are untouched.
+
+   --------------------------------------------------------------------------
+   The photograph.
+
+   `object-fit: contain` in an inset box, not the `cover` this tile had. That
+   is not a preference: the tile's picture is a shoe cut out on white now
+   rather than a lifestyle photograph, and `cover` on a cut-out crops the toe
+   or the heel — the rule the sale card has carried since it was drawn. The box
+   is the sale card's, to the digit, so the two bands' shoes sit at the same
+   size and the same height on the tile.
+
+   The generator and the hand-owned Blade both moved for this;
+   `theme/make-rtl-page.js` takes the tile's photograph, name and price from
+   `LADDER_DEALS` now, and `home/best-sellers.blade.php` from
+   `$tile['product']`, so a tile no longer shows one shoe and names another. */
+@media (max-width: 991.98px) {
+  .vp-best {
+    position: relative;
+  }
+
+  /* The row wrapper stops being a box, so the strip and the button can be
+     placed against the tile instead of laid out under it. */
+  .vp-best-info {
+    display: contents;
+  }
+
+  .vp-best-shot {
+    aspect-ratio: 10 / 11;
+    border-radius: 22.4px;
+    background: rgba(16, 17, 17, 0.035);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 0 0 2px rgba(16, 17, 17, 0.05);
+  }
+
+  .vp-best-shot img {
+    inset: 8% 14.72% auto;
+    width: 70.56%;
+    height: calc(80.85% - 72.996px);
+    object-fit: contain;
+  }
+
+  .vp-best-colors {
+    display: none;
+  }
+
+  .vp-best-label {
+    position: absolute;
+    z-index: 2;
+    inset-inline-start: 6px;
+    inset-inline-end: 59.5px;
+    inset-block-end: 6px;
+    height: 47.52px;
+    padding-inline: 16px;
+    border-radius: 19.1862px;
+    background: #FFFFFF;
+    box-shadow: none;
+  }
+
+  .vp-best-lines {
+    position: relative;
+    inset-block-start: 2px;
+  }
+
+  .vp-best-browse {
+    position: absolute;
+    z-index: 2;
+    inset-inline-end: 6px;
+    inset-block-end: 6px;
+    width: 47.5px;
+    height: 47.5px;
+    background: #FFFFFF;
+    box-shadow: none;
   }
 }

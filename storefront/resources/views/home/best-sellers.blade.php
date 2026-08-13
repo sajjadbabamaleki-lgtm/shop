@@ -1,13 +1,17 @@
 {{--
-    «پرفروش‌ترین‌ها» — six category photographs with a shoe's name and price on
-    each strip.
+    «پرفروش‌ترین‌ها» — six tiles, each a shoe with its name and price.
 
-    The pairing is a placeholder and is admitted as one: a category photograph
-    is not a SKU, and the client asked for a name and a price on the strip
-    anyway rather than leave it bare. Which product lands under which
-    photograph carries no meaning. The price shown is the one before the sale,
-    which is also why it does not agree with the same shoe's card in the
-    stepped sale above.
+    The photograph is the product's own now — «از همون عکس های قسمت حراج پله ای
+    استفاده کن» — so the shot, the name and the price on a tile all belong to
+    the same shoe, and the tile links to that shoe rather than to a category.
+    The category is still what decides how many tiles there are and in what
+    order; it just no longer supplies the picture.
+
+    Still a placeholder in one respect, and admitted as one: these are not
+    actually the best sellers. Nothing counts orders yet, so the six are the
+    priced products cycled over the category list. The price shown is the one
+    before the sale, which is why it does not agree with the same shoe's card
+    in the stepped sale above.
 
     The brand filters below do not filter — the six tiles are categories, not
     products tagged by brand — and the colour swatches on each tile do not
@@ -33,8 +37,9 @@
                 @foreach ($bestSellers as $tile)
                 <div class="col">
                     <div class="vp-best">
-                        <a class="vp-best-shot" href="{{ storefront_route('category', $tile['category']) }}">
-                            <img src="{{ asset($tile['category']->image_path) }}" alt="" loading="lazy">
+                        @php($shot = $tile['product']->primaryMedia())
+                        <a class="vp-best-shot" href="{{ storefront_route('product', $tile['product']) }}">
+                            @if ($shot)<img src="{{ asset($shot->path) }}" alt="{{ $tile['product']->title }}" loading="lazy">@endif
                             <div class="vp-best-colors" aria-hidden="true">
                                 <span></span><span></span><span></span><span></span><span></span>
                             </div>

@@ -176,6 +176,55 @@ class HomePageTest extends TestCase
     }
 
     /**
+     * A best-seller tile shows the shoe it names.
+     *
+     * It used to show a category photograph with an unrelated product's name
+     * and price under it — a placeholder the band's own comment admitted to —
+     * and «از همون عکس های قسمت حراج پله ای استفاده کن» retired that half of
+     * it. This is what keeps it retired.
+     *
+     * Worth a test rather than a look, because the failure is quiet: a tile
+     * with the wrong picture still renders, still links, still prices, and
+     * `check-parity.js` cannot see it at all — that script compares this page
+     * against the static preview, so if the two ever agree on the wrong
+     * photograph it reports zero.
+     */
+    public function test_a_best_seller_tile_shows_the_shoe_it_names(): void
+    {
+        $page = $this->get('/')->assertOk()->getContent();
+
+        $open = strpos($page, 'vp-best-row');
+        $row = substr($page, $open, strpos($page, '</section>', $open) - $open);
+
+        $slugs = config('storefront.placeholders.best_sellers.priced_from');
+        $this->assertNotEmpty($slugs);
+
+        foreach ($slugs as $slug) {
+            $product = Product::where('slug', $slug)->firstOrFail();
+            $shot = $product->primaryMedia();
+
+            $this->assertNotNull($shot, "{$slug} has no photograph to put on its tile.");
+            $this->assertStringContainsString(
+                $shot->path,
+                $row,
+                "The best sellers do not show {$slug}'s own photograph."
+            );
+        }
+
+        // And the thing it replaced is gone: no category photograph is left in
+        // the band. `image_path` is what the tiles at the top of the page use.
+        foreach (Category::all() as $category) {
+            if ($category->image_path) {
+                $this->assertStringNotContainsString(
+                    $category->image_path,
+                    $row,
+                    'A category photograph is still on a best-seller tile.'
+                );
+            }
+        }
+    }
+
+    /**
      * «فقط ۱ عدد باقی مانده» is a count, not a claim: it follows the stock.
      */
     public function test_the_daily_deal_counts_what_is_left(): void

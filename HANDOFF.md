@@ -1637,3 +1637,49 @@ card's own ring along with the gold one, which is the fault above. Those
 resting values were read off the rendered page: the best seller and the
 category tile rest on a 1px ring *plus* a `0 8px 22px -12px` drop shadow, which
 a first pass guessed away.
+
+### The best sellers are the sale card now, inverted
+
+«کارتهای قسمت پر فروش ترینها هم دقیقا مث حراج پله بشه اما برعکس یعنی کارت شیشه
+ای بشه و باکس قیمت و اسم سفید / از همون عکس های قسمت حراج پله ای استفاده کن».
+Below 992; the desktop card keeps its own layout.
+
+They were two different objects: the sale card is a tile with the strip lying
+*on* it, the best seller was a tile with the strip in a row *under* it beside a
+round button. The second is now the first, with the two surfaces swapped —
+tile glass, strip white — and **every other number quoted from the sale card
+rather than re-derived**. 10/11, 22.4, the 2px ring, 47.52 of strip 6 from
+three edges, 19.1862 on its corner, the photograph's box, the 2px optical lift
+on the type. They are one component with two skins; a number recalculated here
+instead of copied will drift the next time the sale card moves, and it has
+moved four times in one evening.
+
+**The basket was kept, and that is a judgement call.** Read literally, «دقیقا
+مث حراج پله» deletes it — `.vp-deal-cart` is `display: none` below 992. But the
+client designed that button two rounds earlier, and deleting it as a side
+effect of a sentence about glass is reading one instruction over another. It
+sits the way the sale card's own *desktop* arranges the same pair: the strip
+holds 6 + 47.5 + 6 = 59.5 at the inline end and the button sits in that corner.
+
+**The photograph change reached the desktop and the fitting rule had to follow
+it.** The tile's picture is a cut-out on white now, and `.vp-best-shot img` was
+`object-fit: cover` — rendered at 1440 it took a bite out of every one of the
+six shoes. That is exactly the failure the sale card's «fitted, not filled»
+note guards against. `contain` in a centred box, at every width, because the
+photograph changed at every width even though the round was a phone round.
+
+**Two orders now have to agree, and nothing in CI checks it.**
+`theme/make-rtl-page.js`'s `BEST_ORDER` must list the same shoes in the same
+sequence as `config/storefront.php`'s `placeholders.best_sellers.priced_from`.
+The first cut of this ran the generator in `LADDER_DEALS`' order and the
+storefront in the config's: same six shoes, different tiles, 46,629 pixels
+apart at 1440. `check-parity.js` caught it — and `check-parity.js` is not in the
+deploy workflow, which runs PHPUnit and Pint only. **Run it after touching
+either list.** The generator at least throws if a name in `BEST_ORDER` is not
+in `LADDER_DEALS`.
+
+`HomePageTest::test_a_best_seller_tile_shows_the_shoe_it_names` covers the
+other half — that a tile shows its own product's photograph and that no
+category photograph is left in the band. Not parity's job: parity compares this
+page against the preview, so if the two ever agree on the wrong photograph it
+reports zero. Checked against the old markup: it fails.
