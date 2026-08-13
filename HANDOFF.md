@@ -1236,3 +1236,22 @@ them.
 Measured at 360, 390 and 768: panel 10 off every edge with a 19.2 corner, and
 the X byte-identical to the drawer's at all three. At 1440: unchanged — a 450
 side panel with the 30px X.
+
+## The product grids: 10 across, 16 down
+
+«این فاصله چنده؟» about the gap between rows of product cards, then «۲۴ بشه ۱۶».
+
+It was **24**, and it was nobody's decision: both grids carry Bootstrap's own
+`gy-4`, which is `--bs-gutter-y: 1.5rem`. The x had been set to 10 by hand when
+the two-up phone grid was built and the y was never looked at, so the two grids
+were 10 across and 24 down without anyone choosing either number against the
+other.
+
+Now `--bs-gutter-y: 16px` beside the existing `--bs-gutter-x: 10px` on
+`.vp-ladder-deals, .vp-best-row`, below 992. **They are deliberately not equal**:
+a card is a photograph with a name and a price under it, so the space below one
+card separates two products while the space beside it separates two columns the
+page's own 10 margin already frames.
+
+Measured at 360, 390 and 768: 16 down, 10 across, both grids. At 992 and 1440:
+still 24, untouched.

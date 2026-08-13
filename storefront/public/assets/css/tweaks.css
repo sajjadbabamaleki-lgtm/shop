@@ -8685,9 +8685,18 @@ ul.vp-how-list.is-ticked li:before {
     box-shadow: none;
   }
 
+  /* 10 across, 16 down. The x was set here when the two-up grid was built; the
+     y stayed on Bootstrap's own `gy-4`, which is 1.5rem — 24, the template's
+     number and nobody's decision. Asked and answered: «۲۴ بشه ۱۶».
+
+     They are deliberately not equal. A card is a photograph with a name and a
+     price under it, so the space below one card and the space beside it are
+     doing different jobs: down the page it separates two products, across it
+     separates two columns that the page's own 10 margin already frames. */
   .vp-ladder-deals,
   .vp-best-row {
     --bs-gutter-x: 10px;
+    --bs-gutter-y: 16px;
   }
 
   .vp-ladder-deals > *,
