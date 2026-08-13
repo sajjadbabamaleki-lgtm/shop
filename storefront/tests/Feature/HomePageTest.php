@@ -155,9 +155,13 @@ class HomePageTest extends TestCase
     }
 
     /**
-     * A deal card's price is this branch's offer, and its badge is that
-     * offer's discount — so the cut drawn on a card is the one the board above
-     * it says is live, without either being told about the other.
+     * A deal card's price is this branch's offer, and it agrees with the cut
+     * the board above says is live, without either being told about the other.
+     *
+     * The order of the two prices is part of the assertion because it is part
+     * of the design: the client's reference card leads with what you pay and
+     * puts what it was after it. It used to be the other way round, inside a
+     * strip on the photograph, and the strip is gone.
      */
     public function test_a_deal_card_prices_its_own_offer(): void
     {
@@ -170,7 +174,7 @@ class HomePageTest extends TestCase
         $this->assertSame($cut, $offer->discountPercent());
 
         $this->get('/')->assertSee(
-            '<del>'.toman($offer->compare_at_price).'</del><strong>'.toman($offer->price).' <span>تومان</span></strong>',
+            '<strong>'.toman($offer->price).' <span>تومان</span></strong><del>'.toman($offer->compare_at_price).'</del>',
             false
         );
     }

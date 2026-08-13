@@ -1367,3 +1367,49 @@ Nothing in the row changes size.
 and the boxes measure equal, measure the *painted* area next, not just the
 layout box. A 1px ring on one and not the other is a 2px difference in what the
 eye is actually given, and at 25px that is 8%.
+
+## The sale card, rebuilt to the client's reference
+
+«تو بخش حراج پله ای اینو برام بساز بجای چیز فعلی که داریم», with a reference
+card, then «البته از راست چین، و سبد شاپ تو یه دایره بیاد گوشیه چپ عکس محصول».
+
+**What it replaces:** a glass strip floating over the bottom third of the
+photograph with the name and both prices inside it, and a discount burst over
+the top corner. Neither is in the reference. The type comes off the photograph
+and sits under it; the corner the burst held is where the heart goes.
+
+**What it is:** photograph, a white favourite circle at its top inline-end
+corner and the gold basket circle at the bottom one — the left of an rtl card,
+which is what «گوشیه چپ» asks for — then the name centred under it, then the
+price and a rating on one line, price at the reading edge.
+
+**The card is a grid now**, not a box with absolutely positioned children. The
+shot and both buttons are placed in row 1 and pushed to its corners with
+`justify-self` / `align-self`, so neither button needs to know how tall the
+photograph is. The old basket was `position: absolute` against the card, which
+worked only while the card *was* the photograph; with a name and a price under
+it, the same insets would have put the basket over the price.
+
+**The basket is back on the phone.** It was `display: none` below 992, and the
+long comment above that rule argued the strip and the basket could not share a
+line at 360. That argument is spent — there is no strip.
+
+**Two things in the reference have no data behind them.** There is no review
+table and no rating column, and no wishlist. The star's number is
+`placeholders.rating` on the Laravel side and `DEAL_RATING` in
+`theme/make-rtl-page.js`, one number each, and **they have to agree or
+`check-parity.js` says so**. Set the config value to 0 and the star goes rather
+than showing an invented number beside a real price. The heart is drawn and
+does nothing yet — it is an outline, not a filled one, because nothing is
+favourited.
+
+**`.vp-deal` is also the catalogue's card** (`shop/card.blade.php`), so the
+listing, the category pages and the product page's related shelf took this
+change with it — which is what CLAUDE.md says should happen when either moves.
+
+`HomePageTest::test_a_deal_card_prices_its_own_offer` asserts the two prices in
+order, and the order is part of the design: what you pay leads, what it was
+follows.
+
+Measured: parity identical at 992, 1200, 1440 and 1920; 233 tests; Pint; no
+overflow at 390/768/1200/1920.
