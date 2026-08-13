@@ -10314,7 +10314,11 @@ ul.vp-how-list.is-ticked li:before {
 .vp-cart-qty {
   display: flex;
   align-items: center;
-  gap: 8px;
+  /* «فاصله بین تعداد کالا و مثبت منفی باید نصف بشه» — 8 either side of the
+     number was reading as three separate controls; 4 makes the three of them
+     one. The count keeps its own `min-width`, so the stepper's overall width
+     does not move as the number goes from one digit to two. */
+  gap: 4px;
   /* «منفی بره چپ مثبت بیاد راست». The page is rtl, so the source order — minus,
      count, plus — lays out right to left and puts the minus on the right. One
      `direction` on this box turns just this control round without moving
@@ -10468,6 +10472,21 @@ ul.vp-how-list.is-ticked li:before {
     border-radius: 0;
     background: none;
     box-shadow: none;
+  }
+
+  /* «در صفحه سبد خرید ما نباید فوتر پایین داشته باشیم».
+
+     The basket is a checkout step, not a page to browse on from: the footer's
+     four columns of links, the payment marks and the copyright are 678px of
+     somewhere-else under a screen whose only job is «ادامه و ثبت سفارش». Every
+     phone basket worth copying ends at the totals, and ours has a fixed island
+     sitting over the top of the footer anyway.
+
+     Scoped by `:has()` to the basket and to the phone. The desktop basket
+     keeps its footer — there the totals are a card in the flow, the page ends
+     properly, and nothing is covering anything. */
+  body:has(.vp-cart-sum) .footer-wrapper {
+    display: none;
   }
 }
 
@@ -10684,5 +10703,171 @@ ul.vp-how-list.is-ticked li:before {
 
   .vp-shop-section:has(.vp-pick-bar) {
     padding-block-end: 110px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   The product page on a phone, in the reference's arrangement.
+
+   Shot, dots, a strip of square colourway thumbnails, then the name with the
+   price beside it, the size chips, and the basket bar at the foot. The strip
+   is standing in for photographs the shop has not sent yet — one photograph
+   repeated, `placeholders.colorway_shots`, at the client's word — so nothing
+   in it is selectable and no colour is named.
+   -------------------------------------------------------------------------- */
+@media (max-width: 991.98px) {
+  /* «اون کادرهای گوهو برداااار من بهت نمونه دادم» — the boxes come off.
+
+     The page was drawing a card of cards, the same mistake the basket made
+     before it: a white panel with a 1.5px outline and a drop shadow around
+     everything, and inside it the photograph in a *second* framed card, and
+     under it the related shelf in a third. The reference has none of them —
+     the photograph sits on the page, the name sits under it, and the only
+     drawn edges on the screen are the thumbnails and the size chips.
+
+     Both panels, because both are boxes and the client said «کادرها». They
+     keep their side margins and nothing else. Above 992 the card is right and
+     stays: there the page is two columns and the pane is what holds them. */
+  .vp-shop-panel:has(.vp-pdp-body),
+  .vp-shop-panel.vp-pdp-related {
+    padding: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+  }
+
+  /* The shot is square and fills the panel's width, and it is no longer a card
+     of its own — no ring, no shadow, no corner. It is the photograph. */
+  .vp-pdp-shot {
+    aspect-ratio: 1 / 1;
+    width: 100%;
+    height: auto;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+  }
+
+  /* With the card gone the photograph has to fill the square itself. The
+     desktop insets — 18% top and bottom, 64% tall — were the air a framed
+     pane needs around its subject; without the frame they are just a shoe
+     stranded in a third of the screen. `contain` keeps the shape. */
+  .vp-pdp-shot img {
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .vp-pdp-dots {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-block-start: 12px;
+  }
+
+  .vp-pdp-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(16, 17, 17, 0.16);
+  }
+
+  .vp-pdp-dot.is-on {
+    width: 18px;
+    border-radius: 3px;
+    background: var(--theme-color);
+  }
+
+  /* The strip. Square tiles, evenly spread, the live one ringed in the shop's
+     gold the way the reference rings its own. */
+  .vp-pdp-thumbs {
+    display: flex;
+    /* Without this the row stretches every tile to the tallest of them and the
+       squares come out 59 by 76. A flex row's default `stretch` beats an
+       `aspect-ratio` on the child. */
+    align-items: flex-start;
+    gap: 8px;
+    margin-block-start: 12px;
+  }
+
+  .vp-pdp-thumb {
+    flex: 1 1 0;
+    min-width: 0;
+    /* A flex item's automatic minimum size is its *content* size, and that
+       floors the height however the ratio is set: the photograph came in at 64
+       tall inside a 46.8-wide box and the square measured 58.8 × 76. `0` lets
+       the ratio decide, and the image below is then sizing against a height
+       that is definite. */
+    min-height: 0;
+    /* The desktop tile is a fixed 76 square. Here the row spreads to the
+       page's width, so the width comes from the flex line and the height has
+       to be released back to `auto` — a fixed height would win over the ratio
+       and the tiles came out 66 × 76. */
+    height: auto;
+    aspect-ratio: 1 / 1;
+    position: relative;
+    border-radius: 16px;
+    background: rgba(16, 17, 17, 0.034);
+  }
+
+  .vp-pdp-thumb.is-on {
+    background: #FFFFFF;
+    box-shadow: inset 0 0 0 2px var(--theme-color);
+  }
+
+  /* The photograph is taken out of the tile's flow, which is the only way the
+     tile stays square: in flow it is `height: 100%` of a parent whose height
+     is auto, so the percentage resolves to `auto`, the image comes in at its
+     natural height and the tile grows to fit it — a ratio on the box loses to
+     its own content every time. Positioned, the tile's size is settled first
+     and the image fits inside the 6px inset. */
+  .vp-pdp-thumb img {
+    position: absolute;
+    inset: 6px;
+    width: calc(100% - 12px);
+    height: calc(100% - 12px);
+    object-fit: contain;
+  }
+
+  /* Name and price on one line. */
+  .vp-pdp-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-block-start: 20px;
+  }
+
+  .vp-pdp-naming {
+    min-width: 0;
+  }
+
+  .vp-pdp-title {
+    margin: 0;
+    font-size: 20px;
+    line-height: 1.4;
+  }
+
+  .vp-pdp-brand {
+    display: block;
+    margin-block-start: 2px;
+    font-size: 12px;
+  }
+
+  /* The price is in the head in the markup now. It was lifted into line with a
+     negative margin for one build and that was wrong twice over: it overlapped
+     the title the moment the title took two lines, and a margin the height of
+     something else is a number that goes stale on its own. */
+  .vp-pdp-head .vp-pdp-price {
+    flex: none;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+    margin: 0;
+  }
+
+  .vp-pdp-head .vp-pdp-price strong {
+    font-family: var(--body-font);
+    font-size: 19px;
+    white-space: nowrap;
   }
 }

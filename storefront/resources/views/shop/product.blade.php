@@ -18,7 +18,7 @@
     <div class="container th-container">
         <div class="vp-shop-panel vp-pdp">
 
-            <nav class="vp-pdp-crumbs" aria-label="مسیر">
+            <nav class="vp-pdp-crumbs d-none d-lg-flex" aria-label="مسیر">
                 <a href="{{ storefront_route('home') }}">خانه</a>
                 <span aria-hidden="true">/</span>
                 <a href="{{ storefront_route('shop') }}">محصولات</a>
@@ -30,27 +30,65 @@
 
             <div class="vp-pdp-body">
 
+                @php
+                    // The colourway strip. Real media if there is more than one
+                    // photograph; otherwise the one we have, repeated, because the
+                    // client asked for the row to exist while the photographs are
+                    // still coming — see `placeholders.colorway_shots`, and set it
+                    // to 0 to switch this off.
+                    $stand = (int) config('storefront.placeholders.colorway_shots');
+                    $shots = $gallery->count() > 1
+                        ? $gallery
+                        : collect(array_fill(0, max(0, $stand), $product->primaryMedia()))->filter();
+                @endphp
+
                 <div class="vp-pdp-gallery">
                     <div class="vp-pdp-shot">
                         @if ($product->primaryMedia())
                             <img src="{{ asset($product->primaryMedia()->path) }}" alt="{{ $product->title }}">
                         @endif
                     </div>
-                    @if ($gallery->count() > 1)
+
+                    @if ($shots->count() > 1)
+                        {{-- Dots for the strip under it, the reference's own. They
+                             say how many there are and which one is showing; they
+                             are not controls, because there is nothing to switch
+                             to while the row is standing in for itself. --}}
+                        <div class="vp-pdp-dots" aria-hidden="true">
+                            @foreach ($shots as $shot)
+                                <span @class(['vp-pdp-dot', 'is-on' => $loop->first])></span>
+                            @endforeach
+                        </div>
+
                         <div class="vp-pdp-thumbs">
-                            @foreach ($gallery as $shot)
-                                <span class="vp-pdp-thumb"><img src="{{ asset($shot->path) }}" alt="" loading="lazy"></span>
+                            @foreach ($shots as $shot)
+                                <span @class(['vp-pdp-thumb', 'is-on' => $loop->first])><img src="{{ asset($shot->path) }}" alt="" loading="lazy"></span>
                             @endforeach
                         </div>
                     @endif
                 </div>
 
                 <div class="vp-pdp-info">
-                    @if ($product->brand)
-                        <a class="vp-pdp-brand" href="{{ storefront_route('shop', ['brand' => $product->brand->slug]) }}">{{ $product->brand->name }}</a>
-                    @endif
+                    {{-- Name on one side, price on the other, the brand under the
+                         name — the reference's arrangement. The price block moves
+                         up here from below on a phone; above 992 it stays where it
+                         was, under the title, where there is room for it. --}}
+                    <div class="vp-pdp-head">
+                        <div class="vp-pdp-naming">
+                            <h1 class="vp-pdp-title">{{ $product->title }}</h1>
+                            @if ($product->brand)
+                                <a class="vp-pdp-brand" href="{{ storefront_route('shop', ['brand' => $product->brand->slug]) }}">{{ $product->brand->name }}</a>
+                            @endif
+                        </div>
 
-                    <h1 class="vp-pdp-title">{{ $product->title }}</h1>
+                        <div class="vp-pdp-price">
+                            <strong>{{ toman($offer->price) }} <span>تومان</span></strong>
+                            @if ($offer->discountPercent())
+                                <del>{{ toman($offer->compare_at_price) }}</del>
+                                <span class="vp-pdp-cut">٪{{ fa_number($offer->discountPercent()) }}</span>
+                            @endif
+                        </div>
+                    </div>
 
                     {{-- The price leads, then what it was, then the cut. On an RTL
                          page the first child is the rightmost, so this is the order
@@ -65,14 +103,6 @@
                             ->unique()
                             ->count();
                     @endphp
-
-                    <div class="vp-pdp-price">
-                        <strong>{{ toman($offer->price) }} <span>تومان</span></strong>
-                        @if ($offer->discountPercent())
-                            <del>{{ toman($offer->compare_at_price) }}</del>
-                            <span class="vp-pdp-cut">٪{{ fa_number($offer->discountPercent()) }}</span>
-                        @endif
-                    </div>
 
                     @if ($sellerCount > 1)
                         <p class="vp-pdp-from">ارزان‌ترین قیمت از میان {{ fa_number($sellerCount) }} فروشنده</p>

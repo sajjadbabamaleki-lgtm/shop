@@ -1064,3 +1064,49 @@ That left the phone with no search at all, so **the drawer has one**:
 `.vp-drawer-search`, at the top of its body, posting to the same `/search` the
 header's field does. It cost 6px more than a 375×667 screen had, which came back
 off the short-screen block — the drawer still fits with nothing scrolling.
+
+## The basket and the product page, off their cards
+
+Three things in one message, all of them about a phone screen that had too many
+drawn edges on it.
+
+**«فاصله بین تعداد کالا و مثبت منفی باید نصف بشه».** `.vp-cart-qty`'s gap went
+8 → 4. At 8 the `−`, the number and the `+` read as three controls sitting near
+each other; at 4 they read as one stepper. The count keeps its own `min-width`,
+so the stepper's overall width does not jump when the quantity goes from one
+digit to two.
+
+**«در صفحه سبد خرید ما نباید فوتر پایین داشته باشیم».** `body:has(.vp-cart-sum)
+.footer-wrapper { display: none }`, below 992 only. The footer is 678px of
+four link columns, payment marks and a copyright under a screen whose only job
+is «ادامه و ثبت سفارش» — and the totals island is fixed over the top of it
+anyway. The desktop basket keeps its footer: there the totals are a card in the
+flow and the page ends properly.
+
+**«اون کادرهای گوهو برداااار من بهت نمونه دادم».** The product page was drawing
+a card of cards, the same mistake the basket made a round earlier: a
+`.vp-shop-panel` with a 1.5px outline and a drop shadow around everything, the
+photograph inside it in a *second* framed card with its own 40px corner and
+shadow, and the related shelf under it in a third. The reference has none of
+them. Below 992 both panels keep their side margins and nothing else, and
+`.vp-pdp-shot` loses its ring, its corner and its shadow.
+
+Two things had to move with the frame:
+
+- The photograph's insets. `.vp-pdp-shot img` is `inset: 18% 12% 18%; height:
+  64%` on the desktop — the air a framed pane needs around its subject. With no
+  frame that is a shoe stranded in a third of the screen, so on a phone it is
+  `inset: 0; width/height: 100%`, still `contain`.
+- The colourway tiles. They measured 58.8 × 76 and then 66 × 76 through two
+  attempted fixes, and there were two separate causes stacked: the desktop rule
+  sets a fixed `height: 76px`, which beats any `aspect-ratio`; and the image
+  inside was `height: 100%` of a parent whose height is auto, so the percentage
+  resolved to `auto`, the image came in at its natural height and the tile grew
+  to fit it. The tile now takes `height: auto` and the image is positioned
+  `inset: 6px` out of the tile's flow. A ratio on a box loses to its own content
+  every time — that is the general shape of it.
+
+Measured after: panel and shot both `background: none; box-shadow: none;
+border-radius: 0`, tile 66 × 66, footer `display: none` on `/cart` and present
+everywhere else. 233 tests, parity identical at all four widths, no overflow at
+390/768/1200/1920.

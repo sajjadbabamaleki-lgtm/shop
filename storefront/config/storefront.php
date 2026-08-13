@@ -206,6 +206,26 @@ return [
     'placeholders' => [
 
         /*
+         | The product page's colourway strip.
+         |
+         | The reference the client sent shows a row of square photographs under
+         | the shot, one per colour of the shoe, with the chosen one lit. We hold
+         | **one photograph per product and no colour on any variant**, so there
+         | is nothing to build that row from.
+         |
+         | The client asked for it anyway, in as many words — «وقتی نمیتونی عکس
+         | رنگهای مختلف کفشو بزاری یه چیز پیشفرض تکراری بزار تا ما فعلا ui
+         | تکمیل کنیم» — so the row repeats the product's own photograph this
+         | many times. It is a stand-in for a layout, not a claim about the
+         | shoe: nothing under it is selectable and no colour is named.
+         |
+         | **Set this to 0 the day real colourway photographs arrive**, and the
+         | row falls back to the product's actual media. It is here rather than
+         | in the view so that removing it is one number in one file.
+         */
+        'colorway_shots' => 5,
+
+        /*
          | The brand strip.
          |
          | Each tile carries three photographs and a count. Neither is real:
