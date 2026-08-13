@@ -1473,3 +1473,44 @@ on the hero card — read that entry before deciding the ring should go too.
 The outline reads, and was checked rather than assumed: scanned across the
 tile's side at 390 the row goes `255 255 | 243 243 | 255`, two pixels of line
 where there was one, twelve levels under the page.
+
+### The catalogue loses its frame; the card loses its second bottom line
+
+Three more in the same evening, and two of them touch decisions recorded
+elsewhere in this file, so read this before undoing either.
+
+**The catalogue's cards have no frame, at every width.** `.vp-shop-grid
+.vp-deal-shot` is `box-shadow: none` — the listing, the category pages, the
+search results and the related shelf. The stepped sale keeps its frame; it is
+on `.vp-ladder-deals` and the rule does not reach it. Measured first, because
+«کادر» could have meant several things: the catalogue tile is `#FFFFFF` and
+`.vp-shop-panel` under it is also `#FFFFFF`, so a scan across a tile's side
+read `255 …255 | 243 243 | 255 …` — page, ring, tile. **The ring was the
+entire frame**; there was no background to take off. If that panel ever stops
+being white, the tile's own white becomes a box again and this needs redoing.
+
+**The foot's ink is gone, and «لبه پنهان» still holds.** The
+`inset 0 -1.4px 0 rgba(16,17,17,0.07)` under the card was that entry's remedy
+and the client asked for it deleted («یه خط اضافه تیره»). It is safe *only
+because the ring went to 2px in the round before*. Measured down a sale card's
+foot at 390:
+
+    with the ink   255 255 255 255 246 238 | 243 243 | 255 255
+    without        255 255 255 255 255 255 | 243 243 | 255 255
+
+The edge into the page is the ring's `243 → 255`, one pixel, twelve levels,
+with or without the ink. The ink was a second line inside the first, which is
+what the client was looking at. **Taking the ring back to 1px means putting
+this ink back**, or the foot dissolves and «لبه پنهان» starts over.
+
+**The strip is 6 from the card's edge, not 12** — inline start, inline end and
+block end, below 992. Above 992 the inline end is 70/74.8 and stays: that is
+room held for the basket, not a distance from the edge.
+
+**And the حریم is 16 now, not 10.** The shoe's box is measured from the tile's
+foot, so moving the strip 6px down moved the gap above it to 16. The client's
+instruction behind the 10 was that the product must not run under the box;
+16 satisfies it further. The shoe was left where it is rather than grown 6px
+to keep the number exact — that would be a bigger photograph, which is not
+what the message asked for. If the 10 is ever wanted back exactly, it is
+`calc(77% - 63.52px)` in the حریم block.

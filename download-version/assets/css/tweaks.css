@@ -11251,3 +11251,118 @@ ul.vp-how-list.is-ticked li:before {
     box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.05);
   }
 }
+
+/* ==========================================================================
+   The catalogue's cards lose their frame; every card loses the dark line under
+   it; and the strip moves in to half its distance from the card's edge.
+
+   «رو کاتالوگ باید کادرهای دور حذف بشن»، «همچنین پایین کارت ها یه خط اضافه
+   تیره هست باید پاک بشه»، «فاصله باکس قیمت و اسم با لبه ی کارت از ۲ طرف و
+   پایین نصف بشه».
+
+   --------------------------------------------------------------------------
+   1. The catalogue's frame, gone — and what «کادر» turned out to be.
+
+   Worth writing down because it was measured rather than guessed. The
+   catalogue tile is `#FFFFFF` and the panel it sits on, `.vp-shop-panel`, is
+   also `#FFFFFF`. Scanned across a tile's side at 390 the row reads
+
+     255 255 255 255 255 255 255 255 | 243 243 | 255 255 255 …
+
+   — page, then the ring, then the tile. The tile's own white is invisible
+   against the panel's white, so **the ring is the entire frame**. There was no
+   second box to find and no background to take off; removing the box-shadow
+   removes the box. If the panel ever stops being white this stops being true.
+
+   All widths, not below 992 like the rest of this evening. The desktop
+   catalogue draws the same box with a 1px ring and a `0 8px 22px -12px`
+   shadow, and a catalogue that is framed on a laptop and frameless on a phone
+   is not a state anyone asked for. The hover ring goes with it — a frame that
+   appears under the pointer is still a frame — while the card's lift on hover
+   stays, because that is motion and not an edge.
+
+   `.vp-shop-grid` is the whole catalogue: the listing, the category pages, the
+   search results and the related shelf on a product page all render
+   `shop/card.blade.php` into that one grid class. The stepped sale keeps its
+   frame; it is on `.vp-ladder-deals` and this does not reach it.
+
+   --------------------------------------------------------------------------
+   2. The dark line under every card — and why «لبه پنهان» does not veto this.
+
+   **Read the «لبه پنهان» entry in CLAUDE.md before this paragraph.** The line
+   the client is asking to delete is that entry's remedy:
+   `inset 0 -1.4px 0 rgba(16,17,17,0.07)`, put there because the card's foot
+   dissolved into the page and the client said so in three separate messages.
+   Deleting a fix for a complaint is normally how a complaint comes back.
+
+   It does not come back here, and the reason is the round before this one.
+   That fix was written when the card's ring was 1px and, down the middle of
+   the foot where the corner curves away, contributed nothing — so the ink was
+   the only thing stating the bottom edge. The ring is 2px now, at the client's
+   own request, and it states all four sides. The foot no longer needs its own
+   object; what it has instead is a bottom edge that is 2px of ring *plus*
+   1.4px of ink where the other three sides are 2px of ring, and that
+   difference is exactly what «یه خط اضافه تیره» is describing. The ask is not
+   "remove the edge", it is "stop drawing the bottom twice".
+
+   Measured down the middle of a sale card's foot at 390, six pixels inside the
+   tile to the page below, with the ink present and with it gone:
+
+     with the ink   255 255 255 255 246 238 | 243 243 | 255 255
+     without        255 255 255 255 255 255 | 243 243 | 255 255
+
+   The ring is the pair of 243s and it is untouched; the step into the page is
+   243 → 255 in one pixel either way, twelve levels, which is the edge «لبه
+   پنهان» exists to protect. What goes is the 246 238 *inside* it — a second,
+   darker line sitting on top of the first, which is the whole of the
+   complaint. **If the ring is ever taken back to 1px, this ink has to come
+   back with it**, or the foot dissolves again and that entry restarts from the
+   beginning.
+
+   Below 992, where the 2px ring lives. On the catalogue the ink goes anyway
+   with the rest of the frame, above.
+
+   --------------------------------------------------------------------------
+   3. The strip, half as far from the card's edge.
+
+   12 → 6 on the inline start, the inline end and the block end. All three are
+   the same 12 and the instruction names all three («از ۲ طرف و پایین»), so
+   this is one number halved in three places rather than three decisions.
+
+   Below 992. Above it the strip's inline end is 70 or 74.8 — it is holding
+   room for the basket, which is a different number for a different reason and
+   is not a distance from the card's edge at all.
+
+   **One thing this moves that was not asked for, stated rather than
+   corrected.** The clearance between the shoe's box and the strip's head was
+   the client's own «حریم ۱۰ پیکسلی». The shoe's box is measured from the
+   tile's foot and the strip has just moved 6px closer to it, so that gap is
+   now 16, not 10. The instruction behind the 10 was that the product must not
+   run under the box, and 16 satisfies it further rather than breaking it — so
+   the shoe is left where it is. Growing it by 6 to take the space back would
+   restore the number exactly, and is a one-line change to the `calc` in the
+   حریم block above; it is not made here because a bigger photograph is not
+   what this message asked for. */
+@media (max-width: 991.98px) {
+  /* The ring alone, on all four sides. */
+  .vp-deal-shot {
+    box-shadow: 0 0 0 2px rgba(16, 17, 17, 0.05);
+  }
+
+  .vp-deal:hover .vp-deal-shot {
+    box-shadow: 0 0 0 2px rgba(164, 127, 37, 0.28);
+  }
+
+  .vp-deal-label {
+    inset-inline-start: 6px;
+    inset-inline-end: 6px;
+    inset-block-end: 6px;
+  }
+}
+
+/* Higher specificity than either of the rules above, so this wins at every
+   width without needing to be repeated inside the query. */
+.vp-shop-grid .vp-deal-shot,
+.vp-shop-grid .vp-deal:hover .vp-deal-shot {
+  box-shadow: none;
+}
