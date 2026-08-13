@@ -11970,3 +11970,154 @@ ul.vp-how-list.is-ticked li:before {
     display: none;
   }
 }
+
+/* ==========================================================================
+   Five: the header's menu square, the hero's star, the basket count, and two
+   things on the best sellers' tiles.
+
+   «مربع منو ۳ خط هم تو هدر باید رنگش سفید بشه»، «ستاره تخفیف تو هیرو باید سفید
+   بشه چیزای روش گلد بشه»، «دایره ی روی مربع سبد خرید باید ۱۰ درصد کوچیکتر
+   بشه»، «عکس محصول روی کارت پر فروش ترینها باید ۴۰ پیکسل بیاد پایینتر»، «گوشه
+   چپ کارت پر فروش ترینها باید یه مربع اندازه ی سبد خرید تو هدر بیاد و روش یه
+   قلب بزاری و سمت راست بعضی از همون کارتها ستاره تخفیف ۲۵ درصد».
+
+   --------------------------------------------------------------------------
+   1. The menu square, white.
+
+   It was the only filled control in the header — a gold square with a white
+   glyph, beside a search and a basket that are both white squares with gold
+   glyphs. White here makes the three read as one set. The glyph takes the gold
+   the other two use rather than the page's ink, which is what «رنگش سفید بشه»
+   leaves implied: a white square with a white glyph on it is a blank square.
+
+   All widths. The header's own island is a phone-and-desktop object and the
+   menu button only exists below 992 anyway (`d-block d-lg-none`), so a media
+   query here would be a query around something that is already scoped.
+
+   --------------------------------------------------------------------------
+   2. The hero's star, inverted.
+
+   The shape carries `fill="url(#vp-burst-gold)"` as a presentation attribute
+   in the markup, and a CSS `fill` beats a presentation attribute — so this
+   turns it white without the generator having to stop drawing the gradient.
+   The gradient is still in the file and still referenced; it simply no longer
+   wins. Left that way on purpose: the sale cards use the same generator helper
+   and are still gold.
+
+   The studs and both lines of type go the other way, from white to the gold
+   the shape gave up. Flat `#C0972F` rather than the gradient: the gradient is
+   drawn across the whole 150-unit box, and a 2.4-unit stud sampling it takes
+   one flat colour out of it anyway — this just says which.
+
+   --------------------------------------------------------------------------
+   3. The basket count, a tenth smaller. 18 → 16.2.
+
+   --------------------------------------------------------------------------
+   4 and 5. The best sellers' tile: the shoe 40px down, a heart at one top
+   corner, the star at the other.
+
+   These are one change. The photograph moves down to clear the top of the
+   tile, and what moves into the space is the heart and the star.
+
+   The shoe's box keeps its height and only its top moves — «۴۰ پیکسل بیاد
+   پایینتر» is a move, not a resize. Measured at 390 that leaves its foot 1.6px
+   above the strip's head, where it had 41.6 before. That is tight as a *box*
+   and not tight as a picture: `object-fit: contain` letterboxes a shoe wider
+   than its box, so the ink stops well short of the edge. Worth knowing before
+   the next round moves anything else down there — there is no room left.
+
+   The heart's square is the header's basket button, named by the client:
+   39.9 square with a 12.0175 corner, both read off that button rather than
+   guessed. Not the card's own 19.1862 — on a 39.9 box that is 48% and would
+   draw a circle, and the word was «مربع».
+
+   The star sits at the tile's inline start, which on this rtl page is the
+   right, and the heart at the inline end, which is the left — «گوشه چپ ...
+   قلب» and «سمت راست ... ستاره», mirrored by the same property so they cannot
+   drift apart when the direction changes.
+
+   Both are hidden above 992. This is a phone round and the desktop tile has a
+   different layout; putting them there is a decision nobody has made. */
+/* `.th-header .th-menu-toggle`, and the narrower selector was wrong: unlike
+   the search and the basket beside it, this button carries no `.icon-btn`
+   class — it is `class="th-menu-toggle d-block d-lg-none"` and nothing else —
+   so a rule written to match the pair next to it matched nothing and the
+   square stayed gold. Two class levels are still enough to beat the template's
+   own single-class rule in the theme list near the top of this file.
+
+   And `.d-block` on the end, which is not decoration either. The rule that
+   fills this button gold is written `.th-header .th-menu-toggle.d-block`
+   further up this file — three class levels — so a two-level rule loses to it
+   however far down the file it sits, and the square stayed gold with a white
+   glyph through two attempts. Matching that selector's own specificity is what
+   it takes; going higher would need a class this button does not have.
+
+   `background-image: none` explicitly, because the gold is a gradient. Setting
+   only a colour leaves the gradient painting on top of it, which is the second
+   way this change silently did nothing. */
+.th-header .th-menu-toggle.d-block {
+  background-image: none;
+  background-color: #FFFFFF;
+  color: #C0972F;
+}
+
+.heroSlide6 .discount-tag .vp-burst .vp-burst-star path {
+  fill: #FFFFFF;
+}
+
+.heroSlide6 .discount-tag .vp-burst .vp-burst-stud,
+.heroSlide6 .discount-tag .vp-burst .vp-burst-num,
+.heroSlide6 .discount-tag .vp-burst .vp-burst-off {
+  fill: #C0972F;
+}
+
+/* The best sellers' star is the sale cards' — «اون ستاره تخفیف فقط در هیرو
+   باید سفید بشه». It was drawn white for one round, in its own partial with
+   its own class, on the reading that the badge asked for in the same message
+   as the hero's inversion would take that inversion with it. It does not, and
+   once it does not there is nothing about it that differs from the sale
+   cards' burst except the number — so the component, the partial and the class
+   were all deleted rather than kept in parallel, and both pages now include
+   the one `deal-burst` with `percent => 25`. */
+
+@media (min-width: 992px) {
+  .vp-best-fav,
+  .vp-best .vp-deal-burst {
+    display: none;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .th-header .header-button .icon-btn.sideMenuToggler .badge {
+    width: 16.2px;
+    height: 16.2px;
+  }
+
+  .vp-best-shot img {
+    inset-block-start: calc(8% + 40px);
+  }
+
+  .vp-best-fav {
+    position: absolute;
+    z-index: 3;
+    inset-inline-end: 8px;
+    inset-block-start: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 39.9px;
+    height: 39.9px;
+    padding: 0;
+    border: 0;
+    border-radius: 12.0175px;
+    background: #FFFFFF;
+    color: #101111;
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  /* Nothing to place: `.vp-deal-burst` already sits 8 from the tile's top and
+     inline start at 43.2 square below 992, and it is inside `.vp-best-shot`
+     here exactly as it is inside `.vp-deal-shot` there. */
+}

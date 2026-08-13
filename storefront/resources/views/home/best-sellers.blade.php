@@ -40,10 +40,33 @@
                         @php($shot = $tile['product']->primaryMedia())
                         <a class="vp-best-shot" href="{{ storefront_route('product', $tile['product']) }}">
                             @if ($shot)<img src="{{ asset($shot->path) }}" alt="{{ $tile['product']->title }}" loading="lazy">@endif
+                            {{-- «بعضی از همون کارتها» — every other tile. Nothing in
+                                 the catalogue says which of these six is discounted
+                                 (none is, on this band: the price shown is the one
+                                 before the sale), so "some" had to be a rule rather
+                                 than a fact. The 25 is the client's own number.
+
+                                 The sale cards' own burst, not a variant of it —
+                                 «اون ستاره تخفیف فقط در هیرو باید سفید بشه» settled
+                                 that this one stays gold, and once it does there is
+                                 nothing left that differs but the number. The $key
+                                 is prefixed so its gradient id cannot collide with
+                                 the five in the sale above. Kept in step with
+                                 theme/make-rtl-page.js, or check-parity.js fails. --}}
+                            @if ($loop->index % 2 === 0)@include('partials.deal-burst', ['key' => 'b'.$loop->index, 'percent' => 25])@endif
                             <div class="vp-best-colors" aria-hidden="true">
                                 <span></span><span></span><span></span><span></span><span></span>
                             </div>
                         </a>
+                        {{-- «گوشه چپ کارت پر فروش ترینها باید یه مربع اندازه ی سبد
+                             خرید تو هدر بیاد و روش یه قلب بزاری». Outside the <a>,
+                             because a button inside a link is invalid and a
+                             favourite is not a navigation — the same reason the
+                             sale card's basket sits outside its own link.
+
+                             Outline heart: nothing is favourited, and there is no
+                             wishlist behind it yet. --}}
+                        <button type="button" class="vp-best-fav" aria-label="افزودن {{ $tile['product']->short_title }} به علاقه‌مندی‌ها"><i class="fa-regular fa-heart" aria-hidden="true"></i></button>
                         <div class="vp-best-info">
                             <div class="vp-best-label">
                                 <span class="vp-best-lines">

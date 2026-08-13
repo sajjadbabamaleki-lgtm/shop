@@ -1693,3 +1693,64 @@ other half — that a tile shows its own product's photograph and that no
 category photograph is left in the band. Not parity's job: parity compares this
 page against the preview, so if the two ever agree on the wrong photograph it
 reports zero. Checked against the old markup: it fails.
+
+### The generator's declaration order, four times over
+
+`theme/make-rtl-page.js` builds its bands top to bottom, and `const` is not
+hoisted — a table declared below a band that reads it throws
+`ReferenceError: Cannot access 'X' before initialization` on load, before a
+single page is written. Four constants have had to be lifted to the top of the
+file for this, all in one evening: `LADDER_DEALS`, `fa`, the burst primitives
+(`BURST_PATH` / `BURST_LOBES` / `BURST_STUDS`) and `dealBurst`.
+
+The pattern is always the same and always a surprise, because the file reads as
+if it were declarative. **If a band needs something another band already has,
+move the declaration to the top rather than copying it** — and expect that
+error first.
+
+### The best sellers' heart and star
+
+- **The heart** is at the tile's inline end (the left on this rtl page), in a
+  39.9px square with a 12.0175 corner — the header's basket button, which is
+  what the client named. Not the card's own 19.1862: on a 39.9 box that is 48%
+  and draws a circle, and the word was «مربع». It is outside the `<a>`, because
+  a `<button>` inside a link is invalid and a favourite is not a navigation —
+  the same reason the sale card's basket sits outside its own link. Outline
+  heart: there is no wishlist behind it.
+
+- **The star** is the sale cards' own `deal-burst` at `percent => 25`, inside
+  the tile's link where the sale card puts its own. It was drawn white for one
+  round — the message that added it also asked for the hero's star to go white,
+  and that read as one instruction — and «اون ستاره تخفیف فقط در هیرو باید سفید
+  بشه» corrected it. Once it is gold there is nothing left that differs from the
+  sale cards' badge but the number, so the parallel component, its partial and
+  its class were deleted rather than kept.
+
+- **Which cards carry one: every other tile.** Nothing in the catalogue says
+  which of the six is discounted — none is, on this band; the price shown is
+  the pre-sale one — so «بعضی» had to be a rule rather than a fact. It is
+  `$loop->index % 2 === 0` in the Blade and `i % 2 === 0` in the generator, and
+  **the two have to stay in step or `check-parity.js` fails.**
+
+- **The shoe moved 40px down** to clear the top of the tile for them, keeping
+  its height — a move, not a resize. That leaves its box 1.6px above the
+  strip's head where it had 41.6. Tight as a box and not as a picture, since
+  `object-fit: contain` letterboxes it, but **there is no room left down
+  there**; anything else that moves down has to take height off first.
+
+- Both are hidden above 992. The desktop tile is a different layout and nobody
+  has decided where they go on it.
+
+### The header's menu square
+
+White with a gold glyph, so the three header controls read as one set. Two
+things about the rule, because it silently did nothing twice:
+
+- It has to be written `.th-header .th-menu-toggle.d-block`. Unlike the search
+  and basket beside it this button carries **no `.icon-btn` class** — it is
+  `class="th-menu-toggle d-block d-lg-none"` — and the rule that fills it gold
+  further up this file is itself three class levels, so a two-level rule loses
+  to it however far down the file it sits.
+- `background-image: none` explicitly. The gold is a gradient, so the computed
+  `background-color` reads transparent and setting only a colour leaves the
+  gradient painting over it.
