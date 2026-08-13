@@ -5710,9 +5710,34 @@ ul.vp-how-list.is-ticked li:before {
   margin: 0;
 }
 
+/* The shop pages stand 10 from the screen on a phone, like everything else.
+
+   «فاصله ها از بالا بغل پایین باید ۱۰ باشه». The panel was 24 from each side —
+   12 of `.th-container` padding plus 12 of its own margin, two numbers nobody
+   adds up while reading either of them — with 40 above it and 150 below. Those
+   are the desktop's proportions on a 390 screen: the card floated in the
+   middle of a lot of nothing while the header island, the trust cards and the
+   hero card beside it all stand at 10.
+
+   The container's padding goes to 0 and the margin carries the whole inset, so
+   the side gap is one number that can be read off one line. 10 above and 10
+   below with it.
+
+   This reaches every page built on `.vp-shop-section` — the basket, the
+   listing, the product, the checkout, the account — which is the point: they
+   are one set and a basket 10 from the edge beside a listing at 24 is the kind
+   of drift this file exists to stop. */
 @media (max-width: 575px) {
+  .vp-shop-section {
+    padding-block: 10px;
+  }
+
+  .vp-shop-section > .th-container {
+    padding-inline: 0;
+  }
+
   .vp-shop-panel {
-    margin-inline: 12px;
+    margin-inline: 10px;
     padding: 18px;
     border-radius: 32px;
   }
