@@ -631,7 +631,25 @@ with it. `check-parity.js` renders the two *copies of this page* against each
 other, so a change that lands on both is still zero difference. It is not a
 guard against changing the desktop. Only reading the desktop is.
 
-## The hero, fifth pass: the shoe 5% down and the card 5% shorter
+## The hero, three passes that were made and then unmade
+
+**All three of these are reverted. The hero is back to where it stood before
+the first of them**, and the check is the strongest kind: the whole page
+rendered against commit `5d751f2` at 320, 375, 390, 575, 991, 1200 and 1920 —
+pixel-identical at all seven. «هیرو هم به حالت قبل برگرده به قبل از دستور حذف
+نوشته کوچیک رو هیرو».
+
+They are written down because each was measured, and a number that was measured
+once should not have to be measured again if the client changes their mind
+back:
+
+- **The eyebrow off the phone.** `.sub-title` hidden below 992. The card went
+  436.9 → 393.2 — its 28px line box and the 15.71 under it — and nothing was
+  re-spaced to hold the old height.
+- **A third tenth off the name.** 30.15 → 27.135, line box 33.75 → 30.375,
+  stroke 1.53 → 1.377 for a stem of 6.0625 against 6.075 asked. The stroke was
+  re-measured, not scaled, and 1.377 happens to be 0.9 × 1.53 as well.
+- **The shoe 5% down and the card 5% shorter.**
 
 «سایز محصول تو هیرو ۵ درصد کوچیکتر بشه ارتفاع هیرو هم ۵ درصد کوتاهتر بشه».
 
@@ -653,6 +671,12 @@ guard against changing the desktop. Only reading the desktop is.
   the first pin computed off one of those landed the star a pixel and a half
   out. `emulateMedia({reducedMotion:'reduce'})` and a wait, as
   `check-parity.js` does.
+
+**Two things above outlive the revert.** Measuring this card with motion
+disabled is true whatever the numbers are. And so is taking the star's place as
+a fraction of the shoe's box rather than re-deriving it: the screenshot the
+original (283, 157) came from is a picture of a 299-wide shoe and cannot be
+read against any other.
 
 ## The hero card on a phone, second pass
 
@@ -715,11 +739,17 @@ Removing the element threw the anchor rather than silently swallowing the whole
 chrome region into the one after it — which is exactly what that assertion is
 for. It anchors on `<div class="slider-drag-cursor">` now.
 
-## Five story circles, and a region that had to be cut for them
+## Five story circles — tried, and parked
 
 «۵ تا حالت استوری دایره ای بزار بالای هیرو و زیر هدر ببینیم چطور میشه» — asked
-for as a look to try, so it is built to be removed in one line if it does not
-earn its place.
+for as a look to try. The answer came back «بنظرم استوری هارو هاید کن», so
+**the strip is off**: one `display` in the phone block, and everything below is
+still measured and still correct if it is ever wanted again.
+
+It is parked rather than deleted on purpose. The markup lives in two places and
+the make-blade region below exists only for it — deleting all of that means
+rebuilding it to try the idea a second time, and the whole point of a look is
+that it might come back.
 
 - **Phone only.** `display: none` is the default and the phone turns it on. The
   desktop has a settled rhythm from the island to the hero and does not gain a

@@ -7977,38 +7977,22 @@ ul.vp-how-list.is-ticked li:before {
    tenth off both, so 33.5 → 30.15 with the line box following it, 37.5 →
    33.75. The two are one number and move together, or the space the type used
    to need stays behind — the same reason the halving took the line box with
-   it.
-
-   Third pass, «زخامت اون اسم بزرگ ۱۰ درصد و سایزش هم ۱۰ درصد کوچیکتر بشه»:
-   the same tenth again. 30.15 → 27.135, line box 33.75 → 30.375, and the stem
-   6.75 → 6.075. */
+   it. */
 @media (max-width: 991.98px) {
   .heroSlide6 .hero-inner .hero-title {
-    font-size: 27.135px;
-    line-height: 30.375px;
-    /* Measured, not guessed, and re-measured on every pass: the stroke does
+    font-size: 30.15px;
+    line-height: 33.75px;
+    /* Measured, not guessed, and re-measured for the tenth: the stroke does
        not scale with the type, so it cannot be left where it was when the size
        moves. Method is the one that set 1.7 — render at 4x, take every run of
        ink across every row of the heading, and read the median as the stem.
 
-       That method was re-run from scratch here and reproduces both numbers on
-       the record exactly: 33.5 with 1.7 reads 7.50, and 30.15 with 1.53 reads
-       6.75. **Take the title off the active slide.** The hero runs two slides
-       to a view with the deck at `margin: 0 -36%`, so the first `.hero-title`
-       in the DOM belongs to a neighbour parked off-screen and screenshots
-       blank — measure `.swiper-slide-active .hero-title` or measure nothing.
-
-       A tenth off 6.75 is 6.075, and 1.377 lands the stem on 6.0625 — the
-       closest the raster gets. The median is quantised to 1/SCALE of a pixel,
-       so 4x can only say 6.00 or 6.25 here; this was read at 8x and again at
-       16x to choose between them, and 1.34 (6.000) is 0.075 low against
-       1.377's 0.0125 high.
-
-       1.377 is also exactly 0.9 × 1.53, which is how the last tenth was taken.
-       That the arithmetic and the measurement agree is worth one line and no
-       more: they did not agree at the halving, and the measurement is what
-       decides. */
-    -webkit-text-stroke-width: 1.377px;
+       At 33.5/900 with 1.7 the stem read 7.50. A tenth off that is 6.75, which
+       is what this is set against: 1.53 lands it on 6.75 exactly. The type
+       coming down a tenth carries most of the way there on its own (the
+       untouched stem falls to about 5.18) and the stroke supplies the rest, so
+       both halves of the client's sentence are in one number. */
+    -webkit-text-stroke-width: 1.53px;
     -webkit-text-stroke-color: currentColor;
     paint-order: stroke fill;
   }
@@ -8068,15 +8052,15 @@ ul.vp-how-list.is-ticked li:before {
    they were. */
 @media (max-width: 991.98px) {
   .heroSlide6 .hero-style6 {
-    padding-block: 20.76px 11.224px;
+    padding-block: 23.25px 12.57px;
   }
 
   .heroSlide6 .hero-inner .sub-title {
-    margin-bottom: 14.028px;
+    margin-bottom: 15.71px;
   }
 
   .heroSlide6 .hero-inner .hero-title {
-    margin-bottom: 16.831px;
+    margin-bottom: 18.85px;
   }
 }
 
@@ -8218,13 +8202,7 @@ ul.vp-how-list.is-ticked li:before {
 
   .heroSlide6 .hero-img > img {
     display: block;
-    /* «سایز محصول تو هیرو ۵ درصد کوچیکتر بشه» — 299 → 284.05. The height
-       follows on its own (`height: auto` against a stated aspect ratio), so
-       269.85 → 256.36 and the column loses 13.49 of the card's height before
-       anything is asked of the copy. **The star has to be re-pinned when this
-       moves** — see the block below, and HANDOFF's warning that narrowing the
-       shoe walks the heel out from under it. */
-    width: 284.05px;
+    width: 299px;
     height: auto;
     margin-inline: auto;
     transform: translateY(20px);
@@ -8273,30 +8251,9 @@ ul.vp-how-list.is-ticked li:before {
        Its page coordinate did move, 157 → 161.9, and that is the header gap
        going 9 → 13.5 carrying the whole card down 4.5. The circle was drawn
        around a place on the shoe, not a place on the screen, and the star is
-       still on it.
-
-       **Re-pinned for the shoe's 5%.** The rule above took the photograph
-       299 → 284.05, which is exactly the move this block warns about: the
-       heel walks left and up out from under the star. So the star's place was
-       taken as a *fraction of the shoe's own box* before the resize — 0.7991
-       across and 0.2632 down, which is where (220, 31) had put it — and the
-       new numbers are that fraction read back off the resized photograph
-       rather than re-derived from the screenshot. Measured after, at 390: the
-       star's centre sits on 0.7991 / 0.2632 of the shoe again, to four
-       decimals.
-
-       **Measure this card with motion disabled.** The photograph carries the
-       template's `slideinrighthero`, which transforms it, so a reading taken
-       while that is in flight reports a shoe 282 or 270 wide instead of the
-       284.05 it is set to — and pinning against one of those puts the star a
-       pixel and a half off. `emulateMedia({reducedMotion:'reduce'})` and a
-       wait, the same as `check-parity.js` does.
-
-       Keep taking it as a fraction if the shoe moves again. The screenshot the
-       original numbers came from is a picture of a 299-wide shoe and cannot be
-       re-read against any other. */
-    top: 27.449px;
-    left: 215.548px;
+       still on it. */
+    top: 31px;
+    left: 220px;
     right: auto;
     margin: 0;
     z-index: 2;
@@ -9716,48 +9673,13 @@ ul.vp-how-list.is-ticked li:before {
 .th-menu-wrapper .th-menu-area {
   transition: all ease 0.5s;
 }
-
-/* The hero's eyebrow, off on a phone.
-
-   «میتونیم تو نسخه موبایل اون اسم کوچیک رو هیرو حذف کنیم؟ ولی رو نسخه دستاپ
-   باشدش؟» — the small name above the heading. It is «کتونی نیوبالانس ۵۳۰» and
-   so is the heading under it: on a phone the card said the same six words
-   twice, one size apart, in a column that had already been closed up by a
-   tenth to fit.
-
-   `display: none` below 992 and nothing else. The desktop keeps it, which is
-   the whole request.
-
-   **The copy block's top padding is on the block, not on the eyebrow**
-   (`.hero-style6` carries `padding-block: 23.25px 12.57px`), so the heading
-   still has its 23.25 above it rather than landing against the card's edge —
-   which is what would have happened had that number lived on the eyebrow's
-   margin, and is worth saying because the two are one line apart in the block
-   above.
-
-   The card gets shorter by exactly what the eyebrow occupied: its 28px line
-   box and the 15.71 under it, so 436.9 → 393.2. Nothing is re-spaced to hold
-   the old height — the four gaps are the client's own numbers, scaled together
-   from the template's, and padding one of them out to keep 436.9 would break
-   the proportion they were measured to keep.
-
-   The shoe and the star do not move. They are pinned inside the image column,
-   which is `order: 1` and sits above the copy, so the card's top edge to the
-   star is untouched at 31 and the shoe still spans 45.5 to 344.5 — only the
-   card's foot comes up. Measured at 375, 390, 430, 575, 767 and 991: card
-   393.2 at all six, star and shoe unmoved. */
-@media (max-width: 991.98px) {
-  .heroSlide6 .hero-inner .sub-title {
-    display: none;
-  }
-}
-
 /* --------------------------------------------------------------------------
    Five story circles, between the header and the hero. Phone only.
 
    «۵ تا حالت استوری دایره ای بزار بالای هیرو و زیر هدر ببینیم چطور میشه» —
-   asked for as something to look at, so it is built to be looked at and to be
-   removed in one line if it does not earn its place.
+   asked for as something to look at, and then «بنظرم استوری هارو هاید کن»,
+   which is the answer to a look. **The strip is off**; the switch is the one
+   `display` in the phone block below and everything else here still holds.
 
    **It does not exist above 991.98.** `display: none` is the default and the
    phone turns it on, not the other way round: the desktop page has a settled
@@ -9796,7 +9718,13 @@ ul.vp-how-list.is-ticked li:before {
 
 @media (max-width: 991.98px) {
   .vp-stories {
-    display: block;
+    /* **Parked.** «بنظرم استوری هارو هاید کن» — the strip was asked for as
+       something to look at and did not earn its place. `block` here is the
+       whole switch: this one word turns it back on and everything below is
+       still measured and still correct. Nothing else about it was deleted,
+       because deleting it means rebuilding the make-blade region and the two
+       copies of the markup to try it again. */
+    display: none;
     margin: 13.5px 10px 0;
   }
 
