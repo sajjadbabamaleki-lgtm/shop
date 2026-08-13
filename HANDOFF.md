@@ -1183,3 +1183,40 @@ two bands is right on a 1920 page and half a screenful of nothing on a 390 one.
 
 Measured after at 360, 390 and 768: header→hero, tiles→trust and trust→sale all
 13.5. At 992 and 1440: unchanged.
+
+## The mini basket as an island, and its X
+
+«بنظرم این سبد خرید باید جزیره ای بشه اندازه اون ضبدر هم اندازه ضبدر منو بشه» —
+the panel behind the header's basket button.
+
+Two things, and the second is why the first was noticed. **This panel and the
+phone drawer are the same object seen twice**, one behind each of two buttons
+sitting side by side in the same header island, so anything true of one is read
+as a promise about the other. The drawer became an island three rounds ago; this
+stayed a full-bleed sheet with a 30px X in the corner of it.
+
+The island takes the drawer's own numbers — 10 off every edge, a 19.2 corner —
+on `.sidemenu-content`, not the wrapper: the wrapper is the fixed sheet that
+dims the page behind it and has to stay edge to edge. The drawer moves 10 and
+keeps its width because it is narrower than the screen; this one *is* the
+screen, so `width: calc(100% - 20px)` comes with `height`.
+
+The X renders at **39.9 / 12.0175 / 21** below 576 and **52 / 15.18 / 26** from
+there to 991 — the drawer's, which are the header band's squares. Note the
+drawer's own base 42 is dead below 992 (overridden at both ends), so those two
+bands are what it actually draws.
+
+**The trap.** Those numbers are written in the mini basket's own section rather
+than added to the drawer's selector lists, where they belong. They cannot go
+there: `.sidemenu-cart .closeButton` sets this button's desktop shape 30 lines
+further down the file at the same specificity, so a shared rule above it loses
+at every width. The desktop 30 has to stay — the basket opener is in the header
+above 992, where the drawer does not exist. **So if the drawer's X moves, this
+one has to be moved by hand.** Nothing checks the pair: `PhoneDrawerTest`
+watches the drawer's contents rather than its metrics, and both panels are
+parked off-screen where `check-parity.js` and `check-overflow.js` cannot see
+them.
+
+Measured at 360, 390 and 768: panel 10 off every edge with a 19.2 corner, and
+the X byte-identical to the drawer's at all three. At 1440: unchanged — a 450
+side panel with the 30px X.

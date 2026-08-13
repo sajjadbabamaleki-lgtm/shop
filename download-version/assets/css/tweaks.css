@@ -10133,6 +10133,75 @@ ul.vp-how-list.is-ticked li:before {
   transform: none;
 }
 
+/* «این سبد خرید باید جزیره ای بشه اندازه اون ضبدر هم اندازه ضبدر منو بشه».
+
+   Two things, and the second is why the first was noticed. This panel and the
+   phone drawer are the same object seen twice — one behind the menu button, one
+   behind the basket button, side by side in the same header island — so
+   anything true of one is read as a promise about the other. The drawer became
+   an island three rounds ago and this stayed a full-bleed sheet with a 30px X
+   in the corner of it, against the drawer's 42.
+
+   The island first. The drawer's own numbers, from the block ~350 lines up:
+   10 off every edge and a 19.2 corner. The drawer moves 10 and keeps its width
+   because it is narrower than the screen; this one *is* the screen, so the
+   width has to come down by the same 20 the height does. `.sidemenu-content`
+   and not the wrapper: the wrapper is the fixed sheet that dims the page behind
+   it and has to stay edge to edge.
+
+   Below 992 only, matching the drawer, which is where a full-bleed panel is
+   what you get and where the client is looking. */
+@media (max-width: 991.98px) {
+  .sidemenu-cart .sidemenu-content {
+    width: calc(100% - 20px);
+    height: calc(100% - 20px);
+    margin: 10px;
+    border-radius: 19.2px;
+  }
+
+}
+
+/* «اندازه اون ضبدر هم اندازه ضبدر منو بشه» — this X is the drawer's X.
+
+   The drawer's renders at 39.9 / 12.0175 / 21 below 576 and 52 / 15.18 / 26
+   from there to 991 (its own base 42 is dead below 992, overridden at both
+   ends), so those are the two bands written here. They are the header band's
+   squares, which is why the drawer has them: the mark on one side of a panel's
+   head and a square control on the other, both the size of the buttons in the
+   island the panel came out of.
+
+   **Written here rather than added to the drawer's own selector lists**, which
+   is where they belong and where they cannot go: `.sidemenu-cart .closeButton`
+   sets this button's desktop shape 30 lines up, at the same specificity and
+   later in the file, so a shared rule further up loses to it at every width.
+   The desktop 30 has to stay — the basket opener is in the header above 992 as
+   well, where the drawer does not exist.
+
+   So: **if the drawer's X moves, this moves with it.** The pair is checked by
+   nothing; `PhoneDrawerTest` watches the drawer's contents, not this panel's
+   metrics, and both panels are parked off-screen where `check-parity.js` and
+   `check-overflow.js` cannot see them.
+
+   The glyph goes up with the box. A control that grows and keeps its old mark
+   is a bigger control with a small glyph rattling in it. */
+@media (max-width: 575px) {
+  .sidemenu-cart .closeButton {
+    width: 39.9px;
+    height: 39.9px;
+    border-radius: 12.0175px;
+    font-size: 21px;
+  }
+}
+
+@media (min-width: 576px) and (max-width: 991.98px) {
+  .sidemenu-cart .closeButton {
+    width: 52px;
+    height: 52px;
+    border-radius: 15.18px;
+    font-size: 26px;
+  }
+}
+
 /* --- the lines ----------------------------------------------------------- */
 
 .vp-mini-lines {
