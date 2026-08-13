@@ -89,17 +89,70 @@
                         </div>
                     @endif
 
-                    {{-- One block per size, each listing everybody who can supply it.
-                         A basket line is a size *from a seller*, so choosing both has
-                         to be the same action as adding it — which is why every row
-                         is its own little form rather than a radio somewhere else. --}}
-                    <h2 class="vp-pdp-choice-title vp-pdp-sizes-title">سایز و فروشنده</h2>
+                    {{-- Sizes as chips, and the basket button at the foot of the
+                         screen — the arrangement the client sent.
+
+                         A basket line is a size *from a seller*, so the chip has to
+                         carry both. Where the branch is the only seller of a size —
+                         which is every size in the catalogue today — the chip is the
+                         size and nothing else, exactly as the reference draws it.
+                         Where a size has more than one seller, the chips cannot say
+                         which, so those sizes keep their seller rows below and the
+                         rows keep their own buttons.
+
+                         One form, radios, one submit. No script: the chip is a
+                         `<label>` over a radio, and the bar at the foot posts
+                         whichever one is checked. --}}
+                    @php
+                        // A chip can only stand in for a seller row when the seller
+                        // is the branch itself. One vendor selling a size is still
+                        // one seller, but a chip that said only «۳۹» would take that
+                        // vendor's name off the page — which is the whole point of a
+                        // marketplace listing, and what `MarketplaceTest` caught.
+                        $alone = fn ($v) => $sellers[$v->id]->count() === 1
+                            && $sellers[$v->id]->first()['vendor'] === null;
+
+                        $simple = $sizes->filter($alone);
+                        $contested = $sizes->reject($alone);
+                    @endphp
 
                     @if ($sizes->isEmpty())
                         <p class="vp-pdp-out">فعلاً موجود نیست.</p>
                     @endif
 
-                    @foreach ($sizes as $variant)
+                    @if ($simple->isNotEmpty())
+                        <form class="vp-pick" method="post" action="{{ storefront_route('cart.add') }}">
+                            @csrf
+
+                            <div class="vp-pick-head">
+                                <h2 class="vp-pdp-choice-title">انتخاب سایز</h2>
+                                <span class="vp-pick-note">{{ fa_number($simple->count()) }} سایز موجود</span>
+                            </div>
+
+                            <div class="vp-pick-sizes">
+                                @foreach ($simple as $variant)
+                                    <label class="vp-pick-size">
+                                        <input type="radio" name="variant" value="{{ $variant->id }}" @checked($loop->first)>
+                                        <span>{{ fa_number((int) $variant->size_value) }}</span>
+                                    </label>
+                                @endforeach
+                            </div>
+
+                            {{-- The bar the reference puts at the foot of the phone.
+                                 It is part of this form, so the button adds whichever
+                                 chip is checked. Above 992 it sits in the flow. --}}
+                            <div class="vp-pick-bar">
+                                <span class="vp-pick-price">{{ toman($offer->price) }} <em>تومان</em></span>
+                                <button type="submit" class="vp-pick-go">افزودن به سبد</button>
+                            </div>
+                        </form>
+                    @endif
+
+                    @if ($contested->isNotEmpty())
+                        <h2 class="vp-pdp-choice-title vp-pdp-sizes-title">سایزهایی با چند فروشنده</h2>
+                    @endif
+
+                    @foreach ($contested as $variant)
                         <div class="vp-sellers">
                             <h3 class="vp-sellers-title"><span>سایز</span> {{ fa_number((int) $variant->size_value) }}</h3>
 

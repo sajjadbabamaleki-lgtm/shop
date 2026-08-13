@@ -10555,3 +10555,130 @@ ul.vp-how-list.is-ticked li:before {
     font-family: var(--body-font);
   }
 }
+
+/* --------------------------------------------------------------------------
+   The product page's size picker and its buy bar, in the arrangement the
+   client sent: chips for the sizes and the basket button against the foot of
+   the screen.
+   -------------------------------------------------------------------------- */
+
+.vp-pick-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.vp-pick-note {
+  font-size: 12px;
+  color: #6E7070;
+}
+
+.vp-pick-sizes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-block-start: 10px;
+}
+
+/* The chip is a label over a radio: the whole thing is the hit area, it works
+   with the keyboard, and nothing has to run for it to hold its state. */
+.vp-pick-size input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.vp-pick-size span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 48px;
+  height: 44px;
+  padding-inline: 12px;
+  border-radius: 14px;
+  background: rgba(16, 17, 17, 0.034);
+  font-family: 'Vazirmatn', var(--body-font);
+  font-weight: 700;
+  font-size: 15px;
+  font-feature-settings: 'tnum' 1;
+  color: #101111;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.vp-pick-size input:checked + span {
+  background: linear-gradient(96deg, #C0972F 0%, #E3B54A 100%);
+  color: #FFFFFF;
+}
+
+/* The chip has to say it has the keyboard, and a checked chip is already gold,
+   so the ring goes outside it rather than changing its fill. */
+.vp-pick-size input:focus-visible + span {
+  outline: 2px solid var(--theme-color);
+  outline-offset: 2px;
+}
+
+.vp-pick-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-block-start: 16px;
+}
+
+.vp-pick-price {
+  font-family: 'Vazirmatn', var(--body-font);
+  font-weight: 800;
+  font-size: 18px;
+  font-feature-settings: 'tnum' 1;
+  white-space: nowrap;
+}
+
+.vp-pick-price em {
+  font-size: 11px;
+  font-weight: 600;
+  font-style: normal;
+  color: #6E7070;
+}
+
+.vp-pick-go {
+  flex: 1;
+  height: 52px;
+  border: 0;
+  border-radius: 18px;
+  background: linear-gradient(96deg, #C0972F 0%, #E3B54A 100%);
+  font-family: 'Vazirmatn', var(--body-font);
+  font-weight: 700;
+  font-size: 15px;
+  color: #FFFFFF;
+  cursor: pointer;
+}
+
+.vp-pick-go:hover {
+  filter: brightness(1.04);
+}
+
+/* On a phone the bar leaves the flow and sits against the foot, as an island —
+   the same 14 either side and 10 off the bottom the basket's totals take, and
+   the same glass. The page pads out by 100 so the last thing on it clears the
+   bar; the bar is out of flow and cannot push anything itself. */
+@media (max-width: 991.98px) {
+  .vp-pick-bar {
+    position: fixed;
+    z-index: 40;
+    inset-inline: 14px;
+    inset-block-end: calc(10px + env(safe-area-inset-bottom, 0px));
+    margin: 0;
+    padding: 12px;
+    border-radius: 24px;
+    background: rgba(16, 17, 17, 0.034);
+    -webkit-backdrop-filter: blur(22px) saturate(1.15);
+    backdrop-filter: blur(22px) saturate(1.15);
+  }
+
+  .vp-shop-section:has(.vp-pick-bar) {
+    padding-block-end: 110px;
+  }
+}
