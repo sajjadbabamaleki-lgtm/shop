@@ -1274,42 +1274,61 @@ and nobody drew it.
 and they are what puts the shoe's colour on the card. Above 992 all three are
 unchanged.
 
-**The ladder's chip row — three rounds, one rule.**
+**The ladder's chip row — four rounds, one rule.**
 
 «اون لودینگ باید بیاد کنار هفته دوم زیرش نباید باشه», then «چرا موارد زیر ۳ تا
-مربع از مربع ها زده بیرون؟», then «باید تو یه ردیف باشن». Read together they are
-one rule with no room in it:
+مربع از مربع ها زده بیرون؟», then «باید تو یه ردیف باشن», then — about the round
+that answered *that* by growing the tiles — «چرا مربع های بخش حراج پله ای رو
+بزرگ کردی؟ برای اینکه لودینگ و تیک کنار هفته و پله قرار بگیره باید فضای خالی دو
+طرف مستطیلی که این کلمات توش قرار میگیره رو کم کنی، نه اینکه مربع هارو بزرگ
+کنی.»
 
-> **The three chips sit on one row, and that row is exactly the width of the
-> three tiles above it.**
+The rule, complete:
 
-The base CSS already said the second half — `.vp-step-tags { width:
-calc(var(--tile) * 3 + 8px) }` — and the whole mess came from trying to satisfy
-the first half inside a tile that was too small for it. Two wrong answers, both
-worth keeping written down:
+> **The three chips sit on one row; that row is exactly the width of the three
+> tiles above it; and the tiles do not move.**
 
-1. **Widen the step to 170.** The chips fitted on one row and hung out past the
-   squares, because the tiles are sized by `--tile` and did not move.
-2. **Break the row in two** (grid, name spanning both columns, week + flag
-   under it). Nothing overflowed, and it was two rows — which is what «باید تو
-   یه ردیف باشن» then said no to.
+The base CSS ties the first two together — `.vp-step-tags { width:
+calc(var(--tile) * 3 + 8px) }` — so the row is the board and cannot be widened
+without widening the board. Three wrong answers, all of them the same wrong
+instinct, which is why they are worth keeping written down:
 
-The only thing that gives both halves is **the tile size**, because the row's
-width is derived from it. The longest step sets it: «پله نهایی» 57 + «پس از
-هفته چهارم» 102 + the 25 mark + two gaps = 192. `--tile: 58px` gives
-58 × 3 + 8 = 182, and dropping the labels back to their base 11px — the phone
-had bumped them to 12 when the tile was 44 — brings 192 down to 179. 179 inside
-182, every step, nothing clipped. `flex-wrap: nowrap` goes with it, so a label
-that ever grows shrinks rather than wrapping.
+1. **Widen the step to 170.** Chips on one row, hanging out past the squares:
+   the tiles are sized by `--tile` and did not move with it.
+2. **Break the row in two** (grid, name spanning, week + flag under it).
+   Nothing overflowed; it was two rows.
+3. **Grow the tile, 44 → 58.** One row, inside the board, and the board was now
+   a third bigger than the client had ever asked for. This is the one they
+   caught, and the correction is the right one: *the room comes out of the
+   labels' own chrome, not out of the board.*
 
-**The scroller boundary moved from 700 to 992 for this.** Between the two, five
-steps used to share a row at 140 each of the container's 748; at 182 they need
-958, which that row does not have. Scrolling is what the phone already did, and
-the alternative was ellipsised labels on a tablet.
+What it is now. Tile back at 44, row back at 140, and two things give up space,
+both chrome rather than type:
 
-Above 992 nothing changed — the tile has always been 58 there. This is the
-phone arriving at the desktop's own numbers.
+| | from | to | saves |
+| --- | --- | --- | --- |
+| label side padding | 7px | 3px | 16 across the row |
+| label size | 12px | 11px | 22 on the widest pair |
 
-Measured at 320, 360, 390, 700, 768, 991, 992 and 1440: every step one row, no
-chip outside its own tiles (0px at every width), nothing clipped, no page
-overflow.
+**The padding alone is not enough**, which is worth knowing before trying it
+again: it can only ever return the 28 the two labels spend on it, and «پله
+چهارم» + «هفته چهارم» at 12px need 162 of a 140 row. The 11px is not a new
+number either — it is what the labels are above 992; the 12 was a phone-only
+bump, free while the mark had a line to itself and not free now that it shares
+theirs.
+
+Measured: «پله دوم» 49 + «هفته دوم» 59 of type, 12 of padding, the 25 mark and
+two 4px gaps = 137 inside 140.
+
+**The last step is the one that cannot fit and must not be shrunk until it
+does.** «پس از هفته چهارم» is 81 of type against the other weeks' 59, so its
+three come to 165 in a 140 row; 10px type does not close that and neither does a
+smaller mark. That step alone takes two lines — name on its own, week and mark
+beside each other under it (87 + 4 + 25 = 116). `width: 100%` on its name is
+safe *because* the row's width is the tiles' width, so a full-width label is
+exactly the board and never a pixel wider. That is the same property the failed
+grid round violated by putting `width: 100%` on the row itself.
+
+Measured at 320, 360, 390, 700, 768, 991, 992 and 1440: tiles 140 below 992 and
+182 above, no chip outside its own tiles anywhere, nothing clipped, the mark
+beside the week on every step, and no page overflow.

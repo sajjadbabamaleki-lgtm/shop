@@ -3803,66 +3803,87 @@ option:hover {
 @media (max-width: 991px) {
   .vp-ladder { padding: 26px 20px 24px; }
   /* The tag row under the tiles is sized off --tile, so it narrows with them
-     rather than needing its own number here. The number itself is set in the
-     scroller block below, where the reason for it lives — 44 was the tile that
-     made the chip row too narrow for its own three chips. */
+     rather than needing its own number here. */
+  .vp-step { --tile: 44px; }
   .vp-step-rate b { font-size: 21px; }
-  /* The labels stay at the base 11. They were bumped to 12 when the tile was
-     44 and the chips had a row to themselves to fill; at the tile size the
-     one-row rule forces, 12 makes «پس از هفته چهارم» clip. */
+  /* The labels keep the base 11 here. They used to be bumped to 12, which was
+     free while the mark had a line of its own; sharing a 140 row with it,
+     «پله چهارم» + «هفته چهارم» at 12 need 162 of that 140 and no amount of
+     padding closes 22. At 11 they need 140 exactly. */
   /* Stacked, so there is no card beside the link to match — it goes back to
      filling the line like the two conditions above it. */
   .vp-ladder-notes { flex-direction: column; gap: 10px; }
   .vp-ladder-all { flex: none; }
 }
 
-/* The ladder is a scale, so it is never allowed to wrap — below 992 it scrolls
-   sideways instead, which keeps the five steps in one line and in order.
-
-   «باید تو یه ردیف باشن» — the chips too, and that is what sets the tile size
-   here rather than taste. The base rule ties them together:
-   `.vp-step-tags { width: calc(var(--tile) * 3 + 8px) }`, so the row of chips is
-   exactly the row of tiles and cannot be one without the other. Three chips
-   need room for the longest step, and the longest is the last: «پله نهایی» 57 +
-   «پس از هفته چهارم» 102 + the 25 mark + two gaps = 192. The tile is 58 —
-   58 x 3 + 8 = 182 — with the labels at their base 11px rather than the 12 the
-   phone used to bump them to, which is what brings 192 down to 179.
-
-   At 44 the row was 140 and «پله دوم» + «هفته دوم» alone came to exactly that,
-   which is why the flag kept falling to a second line. Two rounds were spent
-   answering that inside 140 — first by widening the step past its tiles, then
-   by breaking the row in two — and both were wrong, because the constraint is
-   one row *and* nothing wider than the tiles, and only the tile size can give
-   both.
-
-   **The boundary moves from 700 to 992 because of this.** Between the two the
-   five steps used to share a row and take 140 each of the container's 748; at
-   170 they need 898, which that row does not have. Scrolling is the same
-   behaviour the phone already had, and the alternative was ellipsised labels on
-   a tablet. Above 992 nothing changes: the tile is 58 there, the row is 182,
-   and all three chips have always sat on one line inside it. */
-@media (max-width: 991.98px) {
+/* The ladder is a scale, so it is never allowed to wrap — under 700 it scrolls
+   sideways instead, which keeps the five steps in one line and in order. */
+@media (max-width: 700px) {
   .vp-ladder-steps {
     overflow-x: auto;
     padding-block-end: 6px;
   }
 
-  .vp-step {
-    flex: 0 0 auto;
-    --tile: 58px;
+  .vp-step { flex: 0 0 116px; }
+}
+
+/* The chip row, on one line, inside the tiles it belongs to.
+
+   «باید تو یه ردیف باشن», and then, about the round that answered it by growing
+   the tiles: «چرا مربع های بخش حراج پله ای رو بزرگ کردی؟ برای اینکه لودینگ و
+   تیک کنار هفته و پله قرار بگیره باید فضای خالی دو طرف مستطیلی که این کلمات
+   توش قرار میگیره رو کم کنی، نه اینکه مربع هارو بزرگ کنی.»
+
+   Which is right, and is the fourth answer to one question. The three before it
+   were all versions of making something bigger — the step, then the row over
+   two lines, then the tile, which went 44 to 58. **The room comes out of the
+   labels' own chrome, not out of the board.** The tile is back at 44 and the
+   row back at 140, exactly where they were.
+
+   Two things give it up, and both are chrome rather than type:
+
+     side padding   7px -> 3px   saves 16 across the row
+     label size     12px -> 11   saves 22 on the widest pair
+
+   The padding is what was asked for and it is not enough on its own: «پله
+   چهارم» + «هفته چهارم» at 12px need 162 of a 140 row, and padding can only
+   ever return the 28 the two labels spend on it. 11px is the size the labels
+   already are above 992 — the 12 was a phone-only bump, free while the mark had
+   a line of its own and not free now that it shares theirs.
+
+   Measured after, at 11px with 3px of padding: «پله دوم» 49 + «هفته دوم» 59 of
+   type, 12 of padding, the 25 mark and two 4px gaps — 137 inside 140. */
+@media (max-width: 991.98px) {
+  .vp-step-name,
+  .vp-step-when {
+    padding-inline: 3px;
   }
 
-  /* And the row never breaks. Only the last step needs this — «پس از هفته
-     چهارم» is 105 against the other weeks' 73, so its three come to 201 in a
-     170 row — and without it that step wraps instead of shrinking. The labels
-     are `flex: 1 1 auto; min-width: 0` with an ellipsis for exactly this, and
-     it is what the desktop's own last step does: 54 and 95 there, shrunk from
-     70 and 119. */
+  /* The row never breaks. Without this the mark still drops to a second line
+     the moment a label is a pixel too long. */
   .vp-step-tags {
     flex-wrap: nowrap;
   }
-}
 
+  /* Except on the last step, which cannot be made to fit and should not be
+     shrunk until it does: «پس از هفته چهارم» is 81 of type against the other
+     weeks' 59, so its three come to 165 in a 140 row. Nothing closes that —
+     10px type does not, and a smaller mark does not.
+
+     So that one step alone takes two lines: the name on its own, the week and
+     the mark beside each other under it (87 + 4 + 25 = 116, inside 140). The
+     mark is still beside the week, which is what was asked for; and `width:
+     100%` is safe here because the row's own width is `--tile * 3 + 8` — the
+     tiles' width — so a full-width label is exactly as wide as the board and
+     never a pixel wider. */
+  .vp-ladder-steps > .vp-step:last-child .vp-step-tags {
+    flex-wrap: wrap;
+  }
+
+  .vp-ladder-steps > .vp-step:last-child .vp-step-name {
+    width: 100%;
+  }
+}
 
 /* The field's own input carries the template's fixed 350px width and a 280px
    min-width, so narrowing the field left the input hanging off the side of the
