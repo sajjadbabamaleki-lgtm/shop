@@ -1161,33 +1161,44 @@ related shelf's gutters go to 10 (`--bs-gutter-x/y` on
 stands at; `gy-4` was 24, which is the desktop's air. And its heading is
 «نمونه‌های مشابه».
 
-## The trust row's two gaps, on a phone: 30
+## The phone's own rhythm: 60 from the trust row down
 
-«این دوتا فاصله بشه اندازه فاصله هدر با هیرو», marked on a screenshot: the gap
-above the trust row and the gap below it.
+«اون فاصله ۳۰ باید بشه ۶۰ و از اون ۶ آیتم به پایین همه فاصله بین بخش های مختلف
+بشه ۶۰».
 
-The measure they were told to take was 13.5 — `.th-hero-wrapper`'s own top
-padding, which is the whole distance between the header island and the hero
-card, and the same 13.5 `.feature-area2` carries above the category tiles. Seen
-on the page that was too tight («جالب نشد»), and **both are 30 now**.
+The desktop has had a rhythm of **150** for a long time — six gaps down the page,
+all the same, each carried by exactly one property with the other side zeroed,
+so a gap can be read off a single number instead of summed from two paddings
+nobody remembers. The rhythm block in `tweaks.css` names all six and says which
+property carries which. **That block is the map for this one.**
 
-So the pair is no longer "the same as the header's gap". 30 is its own number,
-and the comment in `tweaks.css` says that rather than pointing at a measure it
-no longer takes — a comment that names a relationship the code has stopped
-having is worse than no comment. They started at **40** above
-(`.vp-trust-row-wrap` margin-top, which had deliberately left the page's rhythm
-two rounds earlier) and **150** below (`.collection-area` padding-block-start,
-which is the desktop's rhythm).
+The phone now takes the same six at **60**, in the same one-property-each way,
+plus the gap above the trust row — which was never part of the rhythm and is now
+the seventh member of it:
 
-Both overrides are inside `max-width: 991.98px`. The desktop's six-gap 150
-rhythm is untouched and still reads 40/40/176 at 992 and up — 150 of air between
-two bands is right on a 1920 page and half a screenful of nothing on a 390 one.
+| gap | property | was |
+| --- | --- | --- |
+| tiles → trust row | `.vp-trust-row-wrap` margin-top | 30 |
+| trust row → sale | `.collection-area` padding-block-start | 30 |
+| sale → best sellers | `.vp-best-panel` margin-top | 150 |
+| best sellers → banner | `.vp-best-section` padding-bottom | 150 |
+| banner → daily deal | `.vp-daily-deal-section` padding-top | 150 |
+| daily deal → brands | `.vp-brands-panel` margin-top | 150 |
+| brands → footer | `.vp-brands-section` padding-bottom | 150 |
 
-**Only the two that were marked.** The four gaps further down the page are still
-150 on a phone.
+The number arrived in three steps and every one of them was looked at on the
+page: 13.5 («این دوتا فاصله بشه اندازه فاصله هدر با هیرو» — the header-to-hero
+distance, then «جالب نشد»), 30, then 60. It is its own number now, not a copy of
+anything else's, which is why nothing in the file says "the same as".
 
-Measured after at 360, 390 and 768: tiles→trust and trust→sale both 30, with
-header→hero left at its own 13.5. At 992 and 1440: unchanged.
+**The order trap.** All seven overrides sit in one `max-width: 991.98px` block
+far below the rhythm block they override, at the same specificity — source order
+is the only thing deciding it. Moving that block up the file turns it off
+silently. The desktop's 150s are untouched and still read 40/150/150/150/150/150
+at 992 and up.
+
+Measured at 360, 390 and 768: all seven exactly 60. At 992 and 1440: unchanged.
+Parity identical at all four widths.
 
 ## The mini basket as an island, and its X
 

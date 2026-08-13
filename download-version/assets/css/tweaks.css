@@ -9484,39 +9484,71 @@ ul.vp-how-list.is-ticked li:before {
    10 + 34 = 44. The columns were evenly spaced at 663.4, 749.0, 834.6, 920.2
    and 1005.8 the whole time, 85.6 apart, which is 75.6 and 10. Wait for every
    card's opacity to reach 1 before believing a number off this row. */
-/* The two gaps either side of the trust row, on a phone: **30**.
+/* --------------------------------------------------------------------------
+   The phone's own rhythm: 60 between every band from the trust row down
+   --------------------------------------------------------------------------
+   «اون فاصله ۳۰ باید بشه ۶۰ و از اون ۶ آیتم به پایین همه فاصله بین بخش های
+   مختلف بشه ۶۰».
 
-   «این دوتا فاصله بشه اندازه فاصله هدر با هیرو» set them to the header-to-hero
-   distance, which is 13.5 — `.th-hero-wrapper`'s own top padding, and the same
-   13.5 `.feature-area2` carries above the category tiles. Seen on the page that
-   was too tight («جالب نشد»), and the answer is 30.
+   The desktop's rhythm is 150 — six gaps down the page, all the same, each
+   carried by exactly one property with the other side zeroed, so a gap can be
+   read off a single number rather than summed from two paddings nobody
+   remembers. The rhythm block ~6000 lines up names all six and says which
+   property carries which.
 
-   So this is no longer "the same as that gap" — it is its own number, and the
-   comment says so rather than pointing at a measure it no longer takes. They
-   started at 40 above (`.vp-trust-row-wrap` margin-top, which had deliberately
-   left the page's rhythm) and 150 below (`.collection-area`
-   padding-block-start).
+   **That block is the map for this one.** The phone takes the same six gaps at
+   60, in the same one-property-each way, plus the gap above the trust row —
+   which was never part of the rhythm and is now the seventh member of it. The
+   desktop's 150s are untouched; this is a phone query, and 150 of air between
+   two bands on a 390 screen is a third of a screenful of nothing.
 
-   The 150 is the desktop page's rhythm — six gaps down the page, all 150, each
-   carried by exactly one property (see the rhythm block above). That rhythm is
-   not touched: both overrides are inside a phone query, and 150 of air between
-   two bands on a 390-wide screen is half a screenful of nothing, which is what
-   was being pointed at.
+   The number arrived in three steps and each one was looked at: 13.5 (the
+   header-to-hero distance, «جالب نشد» — too tight), 30, then 60. It is its own
+   number now and not a copy of anything else's, which is why nothing here says
+   "the same as".
 
-   Only the two that were marked. The other four gaps below are still 150 on a
-   phone. */
+     tiles      -> trust row  .vp-trust-row-wrap margin-top       (was 30)
+     trust row  -> sale       .collection-area padding-block-start (was 30)
+     sale       -> best       .vp-best-panel margin-top            (was 150)
+     best       -> banner     .vp-best-section padding-bottom      (was 150)
+     banner     -> daily deal .vp-daily-deal-section padding-top   (was 150)
+     daily deal -> brands     .vp-brands-panel margin-top          (was 150)
+     brands     -> footer     .vp-brands-section padding-bottom    (was 150)
+
+   Below 992 only, and after every one of the rules it overrides — those live
+   in the rhythm block far above, at the same specificity, so source order is
+   the only thing deciding this. Moving this block up the file turns it off.
+
+   Measured at 360, 390 and 768: all seven exactly 60. At 992 and 1440:
+   unchanged. */
 @media (max-width: 991.98px) {
   .vp-trust-row-wrap {
     margin-inline: 10px;
-    /* Above the trust row. */
-    margin-top: 30px;
+    margin-top: 60px;
   }
 
-  /* Below it. The gap belongs to the stepped sale's section, which is where
-     the desktop's 150 lives too — one property carries it, so one property
-     changes it. */
   .collection-area {
-    padding-block-start: 30px;
+    padding-block-start: 60px;
+  }
+
+  .vp-best-panel {
+    margin-top: 60px;
+  }
+
+  .vp-best-section {
+    padding-bottom: 60px;
+  }
+
+  .vp-daily-deal-section {
+    padding-top: 60px;
+  }
+
+  .vp-brands-panel {
+    margin-top: 60px;
+  }
+
+  .vp-brands-section {
+    padding-bottom: 60px;
   }
 
   .vp-trust-row {
