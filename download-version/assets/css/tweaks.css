@@ -9852,3 +9852,57 @@ ul.vp-how-list.is-ticked li:before {
     box-shadow: none;
   }
 }
+
+/* --------------------------------------------------------------------------
+   The header's lockup and its three squares, 5% down — and the band with them.
+
+   «مربع لوگو آیکون و اون ۳ تا مربع ۵ درصد کوچیکتر بشن و به همون نسبت ارتفاع
+   هدر هم کمتر بشه در موبایل».
+
+   The band's height is not a separate decision and must not be treated as one.
+   The block far above states it once: the mark is 42 in a 66 band, which gives
+   (66 − 42) / 2 = 12 above, below and to the side, and the basket and the menu
+   are 42 so they take the same 12. Every one of those numbers is the same 5%
+   here, which is what «به همون نسبت» asks for and what keeps the equal air:
+
+     the mark and the three squares   42    → 39.9
+     their corner                     12.65 → 12.0175
+     the band                         66    → 62.7
+     the air on the three sides       12    → 11.4
+
+   (62.7 − 39.9) / 2 = 11.4 exactly, so the identity the band was built on
+   still holds rather than being restored by luck.
+
+   **The drawer's mark and its close button come too.** They are the header's
+   lockup by construction — the client raised it once already, when a short
+   screen left the drawer's mark at 32 against the header's 42 — so leaving
+   them at 42 here would open the same complaint from the other side. Only the
+   phone band moves: 576–991 keeps its 52 and 15.18 and the desktop keeps
+   everything.
+   -------------------------------------------------------------------------- */
+@media (max-width: 575px) {
+  .th-header .menu-area .row {
+    min-height: 62.7px;
+  }
+
+  .th-header .menu-area > .container {
+    padding-inline: 11.4px;
+  }
+
+  .vp-logo img,
+  .th-header .header-button .icon-btn.sideMenuToggler,
+  .th-header .header-button .icon-btn.vp-search-btn,
+  .th-header .th-menu-toggle.d-block,
+  .vp-logo-drawer img,
+  .th-menu-wrapper .th-menu-toggle {
+    width: 39.9px;
+    height: 39.9px;
+    border-radius: 12.0175px;
+  }
+
+  .th-header .header-button .icon-btn.sideMenuToggler,
+  .th-header .header-button .icon-btn.vp-search-btn,
+  .th-header .th-menu-toggle.d-block {
+    min-width: 39.9px;
+  }
+}
