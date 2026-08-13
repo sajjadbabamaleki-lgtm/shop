@@ -68,9 +68,16 @@ html = html.replace(PRELOADER, '');
 //
 // The arrow's SVG goes with the ring. It was a scroll *progress* indicator —
 // the path's dash offset was written every frame from the page's scroll — so
-// it has no meaning on a button that opens a chat. The script that drove it
-// already guards every use of the element (`toTop &&`, `if (toTop)`), so it
-// keeps working with nothing to find; that was checked rather than assumed.
+// it has no meaning on a button that opens a chat, and the script below sets
+// `ring` to null rather than looking for a path that is not there.
+//
+// The rest of that script is still wanted, though. «آیکون واتسپ وقتی اولین
+// اسکرول شروع میشه باید ظاهر بشه» — the show-on-scroll behaviour the ring had
+// is the behaviour this button wants too, so the same handler drives it,
+// pointed at `.vp-whatsapp` and toggling on the first pixel instead of the
+// ring's 50th. This round reverses the one before it, which parked the button
+// on screen from the top on the reasoning that a way to ask a question is most
+// wanted on the first screen. The client has looked at both.
 const SCROLL_TOP = /[ \t]*<!-- Scroll To Top -->\s*\n[ \t]*<div class="scroll-top">[\s\S]*?\n[ \t]*<\/div>\n/;
 if (!SCROLL_TOP.test(html)) {
   throw new Error('the scroll-to-top ring is not where it was — check before replacing it');
@@ -1885,8 +1892,11 @@ html = html.replace('</body>',
   '            var header = wrap && wrap.closest(".th-header");\n' +
   '            var menu = wrap && wrap.querySelector(".menu-area");\n' +
   '            var catMenu = document.querySelector(".category-menu");\n' +
-  '            var toTop = document.querySelector(".scroll-top");\n' +
-  '            var ring = toTop && toTop.querySelector("path");\n' +
+  '            // The corner button. It was the template\'s scroll-to-top ring\n' +
+  '            // and is the WhatsApp link now; the name says which, because a\n' +
+  '            // variable called toTop that shows a chat button is a trap.\n' +
+  '            var corner = document.querySelector(".vp-whatsapp");\n' +
+  '            var ring = null;\n' +
   '            var screenEl = document.querySelector(".th-screen");\n' +
   '            if (!$ || !wrap || !header) return;\n' +
   '\n' +
@@ -1936,7 +1946,12 @@ html = html.replace('</body>',
   '                    ring.style.strokeDashoffset =\n' +
   '                        run > 0 ? ringLen - (y * ringLen / run) : ringLen;\n' +
   '                }\n' +
-  '                if (toTop) toTop.classList.toggle("show", y > 50);\n' +
+  '                // «آیکون واتسپ وقتی اولین اسکرول شروع میشه باید ظاهر بشه»,\n' +
+  '                // so the threshold is the first pixel rather than the\n' +
+  '                // ring\'s old 50. The button fades in on its own transition,\n' +
+  '                // so "the first scroll" is where the fade starts, not where\n' +
+  '                // it finishes.\n' +
+  '                if (corner) corner.classList.toggle("show", y > 0);\n' +
   '                if (screenEl) {\n' +
   '                    // The template\'s own test, unchanged: the footer is left\n' +
   '                    // alone while it sits whole in the viewport, allowing 200.\n' +

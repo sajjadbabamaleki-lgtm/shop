@@ -11557,11 +11557,40 @@ ul.vp-how-list.is-ticked li:before {
   line-height: 1;
   text-decoration: none;
   box-shadow: 0 6px 18px -6px rgba(16, 17, 17, 0.35);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  /* Hidden until the page has moved. `visibility` as well as `opacity`, so a
+     button nobody can see is also a button nobody can tap — opacity alone
+     leaves a 50px target sitting over the page's bottom-left corner. */
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(12px);
+  transition: transform 0.3s ease, opacity 0.3s ease, visibility 0.3s ease, box-shadow 0.2s ease;
 }
 
-.vp-whatsapp:hover,
-.vp-whatsapp:focus {
+/* «آیکون واتسپ وقتی اولین اسکرول شروع میشه باید ظاهر بشه». The class is set by
+   the scroll handler in `theme/make-rtl-page.js`, which the ring used to own
+   and which now toggles on `y > 0` rather than the ring's `y > 50` — the ask
+   is the *first* scroll, not a little way into one.
+
+   This reverses the round before it, which parked the button on screen from
+   the top because a way to ask a question is most wanted on the first screen.
+   Written down rather than quietly swapped: both were asked for, in that
+   order, and the second is the one that stands.
+
+   The 12px lift is the ring's own idea, at a quarter of its 45 — the ring was
+   a 78px object on the desktop and this is 50 on a phone, and 45 on this
+   button reads as a thing thrown up from below the fold rather than one
+   surfacing. */
+.vp-whatsapp.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* The hover lift has to name `.show`, or it competes with the hidden state's
+   own `translateY(12px)` and pulls the button half-way onto the page while it
+   is still meant to be invisible. */
+.vp-whatsapp.show:hover,
+.vp-whatsapp.show:focus {
   color: #FFFFFF;
   transform: translateY(-2px);
   box-shadow: 0 10px 22px -8px rgba(16, 17, 17, 0.45);

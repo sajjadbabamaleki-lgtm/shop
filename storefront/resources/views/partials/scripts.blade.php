@@ -98,8 +98,11 @@
             var header = wrap && wrap.closest(".th-header");
             var menu = wrap && wrap.querySelector(".menu-area");
             var catMenu = document.querySelector(".category-menu");
-            var toTop = document.querySelector(".scroll-top");
-            var ring = toTop && toTop.querySelector("path");
+            // The corner button. It was the template's scroll-to-top ring
+            // and is the WhatsApp link now; the name says which, because a
+            // variable called toTop that shows a chat button is a trap.
+            var corner = document.querySelector(".vp-whatsapp");
+            var ring = null;
             var screenEl = document.querySelector(".th-screen");
             if (!$ || !wrap || !header) return;
 
@@ -149,7 +152,12 @@
                     ring.style.strokeDashoffset =
                         run > 0 ? ringLen - (y * ringLen / run) : ringLen;
                 }
-                if (toTop) toTop.classList.toggle("show", y > 50);
+                // «آیکون واتسپ وقتی اولین اسکرول شروع میشه باید ظاهر بشه»,
+                // so the threshold is the first pixel rather than the
+                // ring's old 50. The button fades in on its own transition,
+                // so "the first scroll" is where the fade starts, not where
+                // it finishes.
+                if (corner) corner.classList.toggle("show", y > 0);
                 if (screenEl) {
                     // The template's own test, unchanged: the footer is left
                     // alone while it sits whole in the viewport, allowing 200.

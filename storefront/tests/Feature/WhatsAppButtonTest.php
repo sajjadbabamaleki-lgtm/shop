@@ -115,6 +115,41 @@ class WhatsAppButtonTest extends TestCase
     }
 
     /**
+     * Something can still reveal it.
+     *
+     * The button is `opacity: 0; visibility: hidden` until the page scrolls —
+     * «آیکون واتسپ وقتی اولین اسکرول شروع میشه باید ظاهر بشه» — and the class
+     * that reveals it is set by the scroll handler that used to drive the
+     * template's ring. That makes a hidden default and a JS selector the two
+     * halves of one thing, and nothing else in this repo checks either half:
+     * PHPUnit does not run the script, `check-parity.js` compares the two
+     * pages against *each other* so it stays at zero if both go blank, and
+     * `check-overflow.js` only asks whether the page scrolls sideways.
+     *
+     * So if the selector in `theme/make-rtl-page.js` ever drifts, the button
+     * is invisible on every page, forever, and every check still passes. This
+     * asserts the two halves still name the same thing.
+     */
+    public function test_the_scroll_handler_can_still_find_the_button(): void
+    {
+        $page = $this->get('/')->assertOk()->getContent();
+
+        $this->assertStringContainsString(
+            'querySelector(".vp-whatsapp")',
+            $page,
+            'Nothing on the page looks for the WhatsApp button, so the class that reveals it is never set '
+            .'and the button is hidden for good. The handler is in theme/make-rtl-page.js.'
+        );
+
+        $css = public_path('assets/css/tweaks.css');
+        $this->assertStringContainsString(
+            '.vp-whatsapp.show',
+            file_get_contents($css),
+            'The stylesheet has no rule for the revealed state, so setting the class does nothing.'
+        );
+    }
+
+    /**
      * The ring it replaced is gone, on both copies.
      *
      * «بجای این» — instead of, not beside. A leftover `.scroll-top` would sit

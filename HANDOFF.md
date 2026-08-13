@@ -1540,9 +1540,24 @@ Three things that were decided rather than defaulted:
   `left`, and on an rtl page the inline start is the right-hand side. Written
   logically the button measured 310 from the left in a 390 viewport instead of
   30 — the other corner, from a change that looks like a tidy-up.
-- **Always on screen**, where the ring appeared only after 50px of scroll. A
-  back-to-top control is useless at the top of a page; a way to ask a question
-  is most wanted there.
+- **Shown on the first scroll, and this was decided twice.** The first build
+  parked it on screen from the top, on the reasoning that a back-to-top control
+  is useless at the top of a page while a way to ask a question is most wanted
+  there. The client looked at that and asked for the ring's old behaviour back
+  — «آیکون واتسپ وقتی اولین اسکرول شروع میشه باید ظاهر بشه» — so the same
+  scroll handler drives it again, pointed at `.vp-whatsapp` and toggling on
+  `y > 0` rather than the ring's `y > 50`: the ask is the *first* scroll, not a
+  little way into one. Both were asked for, in that order, and the second
+  stands.
+
+  That hidden default is half of a mechanism whose other half is a JS
+  selector, and **nothing else in this repo can see either half**. PHPUnit does
+  not run the script; `check-parity.js` compares the two pages against each
+  other, so it stays at zero if both go blank; `check-overflow.js` only asks
+  whether the page scrolls sideways. A drifted selector would make the button
+  invisible on every page, forever, with every check green.
+  `WhatsAppButtonTest::test_the_scroll_handler_can_still_find_the_button`
+  is what notices — checked against a typo'd selector, it fails.
 - **16px on a 50px square.** «گوشه های کرو» against something that was
   `border-radius: 50%`, so the ask is that corners exist — 25 is the circle
   again, 8 is a box.
