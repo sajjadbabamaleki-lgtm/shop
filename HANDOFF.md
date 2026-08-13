@@ -1,9 +1,11 @@
 # VikyPlus — where this stands
 
-> ⛔ **This file describes `claude/wiki-plus-latest-work-enpjl1`, not `main`.**
-> `main` is 88 commits behind and is the wrong version of the site. Do not work
-> on it and do not push to it — a push to `main` deploys `main` to Liara and
-> puts the old site live. See the block at the top of `CLAUDE.md`.
+> ⛔ **This file describes `claude/wiki-plus-latest-work-enpjl1`.** `main`
+> carries the same work since PR #45 was merged; before that it was 88 commits
+> behind, and a session spent an afternoon building on it. Check the two are
+> still in step before you start, and never push to a `main` that is behind — a
+> push to `main` deploys `main` and puts the old site live. See the block at the
+> top of `CLAUDE.md`.
 
 Read `CLAUDE.md` first: it says where things are, how the page is built, and
 carries the codenames for problems that have already cost a day. This file says

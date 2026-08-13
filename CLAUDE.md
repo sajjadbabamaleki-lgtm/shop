@@ -1,31 +1,34 @@
 # VikyPlus — notes for whoever picks this up next
 
-## ⛔ STOP — `main` is not the work. Read this before you touch anything.
+## ⛔ Which branch is the work — read this before you touch anything.
 
-**The work is on `claude/wiki-plus-latest-work-enpjl1` (PR #45). `main` is 88
-commits behind it and is the wrong version of this site.**
+**The work is `claude/wiki-plus-latest-work-enpjl1`, and `main` now carries it
+too.** PR #45 was merged on 2026-08-13; before that, `main` sat **88 commits
+behind** and was the wrong version of this site. A session started an afternoon
+on it, built there, and the client's reply was «این دیگه چه کوفتیه؟ داری رو جای
+اشتباه کار میکنی». Nothing in the repository said which branch was the work, so
+the next session would have done the same. That is what this block is for.
 
-If you have landed on `main`, you are looking at a site the client stopped
-recognising months of work ago. A session did exactly that at the start of one
-afternoon, built on it, and the client's reply was «این دیگه چه کوفتیه؟ داری رو
-جای اشتباه کار میکنی». Everything below — the numbers, the codenames, the whole
-of `HANDOFF.md` — describes the branch, not `main`.
+Before you write a line, check that the two are still in step:
 
 ```
-git fetch origin claude/wiki-plus-latest-work-enpjl1
-git checkout claude/wiki-plus-latest-work-enpjl1
+git fetch origin main claude/wiki-plus-latest-work-enpjl1
+git rev-list --left-right --count origin/main...origin/claude/wiki-plus-latest-work-enpjl1
 ```
 
-**And do not push to `main`.** `main` is still listed in
+`0	0` — or a small number on the left, which is main's merge commits — means
+they agree. **A number on the right is `main` gone stale again**: the branch is
+the work, and `main` is a version of this site the client stopped recognising.
+Work on the branch, and say so rather than quietly picking one.
+
+**And know what a push to `main` does.** `main` is listed in
 `.github/workflows/deploy-liara.yml`'s `on.push`, and the deploy job's only
 guard is `if: github.event_name != 'pull_request'` — so *any* push to `main`,
 including a one-line change to a README, runs the tests and then deploys
-`main`'s own tree to Liara. That would replace the live site with the
-88-commits-old version, silently, and the client would find it before you did.
-
-There are exactly two safe ways for `main` to stop being wrong, and both are the
-client's call, not yours: **merge PR #45 into it**, or take `main` out of that
-`on.push` list first. Until one of them happens, `main` is read-only.
+`main`'s own tree to Liara. While the two branches agree that is harmless. While
+`main` is behind it replaces the live site with the old version, silently, and
+the client finds it before you do. So: **never push to a stale `main`.** Bring
+it up to the branch first, which is the client's call, not yours.
 
 **`HANDOFF.md` says what is finished, what is not, and which numbers the
 finished part is not allowed to lose. Read it after this.**
