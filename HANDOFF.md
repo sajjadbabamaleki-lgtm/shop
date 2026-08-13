@@ -1332,3 +1332,31 @@ grid round violated by putting `width: 100%` on the row itself.
 Measured at 320, 360, 390, 700, 768, 991, 992 and 1440: tiles 140 below 992 and
 182 above, no chip outside its own tiles anywhere, nothing clipped, the mark
 beside the week on every step, and no page overflow.
+
+## The live step's mark, two pixels too much colour
+
+«اندازه مربع لودینگ ارتفاعش از کارت هفته دوم که کنارشه بیشتره... باید اندازه اون
+مربعی باشه که کنار هفته اول تیک خورده».
+
+**The boxes were never different.** Measured at 8× device scale, the mark and
+the label beside it both paint 448.953 → 473.953: 25.000 exactly, top and bottom
+on the same line, at 360, 390, 768 and 1440, on all five steps. The first answer
+to this question was "they are the same, it is contrast" — which was true and
+not the whole truth.
+
+What differs is **how much of the 25 is coloured**. Every other rectangle in the
+row is white inside a 1px inset ring at 5% ink, so its white core measures 23 and
+the ring reads as part of the card under it. The live mark carries
+`box-shadow: none` — a grey ring on gold looks like dirt — so all 25 of it is
+saturated gold. 25 of colour beside 23 of colour, and the gold is the
+high-contrast one, which is what "taller" was.
+
+The fill is inset rather than the ring drawn: `border: 1px solid transparent`
+with `background-clip: padding-box`. The box stays 25, the gold becomes 23 — the
+same coloured area as the tick's white, which is the square the client named.
+Nothing in the row changes size.
+
+**The lesson worth keeping**: when someone says two things are different sizes
+and the boxes measure equal, measure the *painted* area next, not just the
+layout box. A 1px ring on one and not the other is a 2px difference in what the
+eye is actually given, and at 25px that is 8%.

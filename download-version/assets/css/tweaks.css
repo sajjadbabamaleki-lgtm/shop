@@ -2581,6 +2581,27 @@ option:hover {
   color: var(--title-color);
   background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
   box-shadow: none;
+  /* «اندازه مربع لودینگ ارتفاعش از کارت هفته دوم که کنارشه بیشتره... باید اندازه
+     اون مربعی باشه که کنار هفته اول تیک خورده».
+
+     The boxes were never different: measured at 8x, the mark and the label
+     beside it both run 448.953 → 473.953, exactly 25.000. What differs is how
+     much of that 25 is *coloured*.
+
+     Every other rectangle in this row is white inside a 1px inset ring at 5%
+     ink — so its white core measures 23 and the ring reads as part of the card
+     it sits on. This one has `box-shadow: none`, because a grey ring on gold
+     looks like dirt, so all 25 of it is saturated gold. 25 of colour against 23
+     of colour, and the gold is the high-contrast one of the two, which is why
+     it reads taller than a box the same size.
+
+     So the fill is inset instead of the ring being drawn: a 1px transparent
+     border with `background-clip: padding-box` leaves the box at 25 and the
+     gold at 23 — the same coloured area as the tick's white, which is the
+     square the client named. Nothing in the row changes size; the mark stops
+     claiming two pixels the others give back to the card. */
+  border: 1px solid transparent;
+  background-clip: padding-box;
 }
 
 /* The loading ring turns, because that is the whole of what it says: this step
