@@ -11391,3 +11391,62 @@ ul.vp-how-list.is-ticked li:before {
     border-radius: 20.196px;
   }
 }
+
+/* The strip: another 5% off the corner, the type 4px down, and no line round
+   it.
+
+   «باکس اسمو قیمت ۵ درصد کمتر بشه کروش»، «اسم و قیمت ۴ پیکسل از جایی که هستن
+   بیان پایینتر»، «خطی که دور باکس اسم و قیمت هست حذف بشه». Below 992, like the
+   rest of this card's evening; the desktop strip keeps 26.4, its centred type
+   and its ring.
+
+   **The corner: 20.196 → 19.1862.** Five percent off the number the round
+   before left, not five percent off the original 23.76 — the instruction says
+   «کمتر بشه» against what is on screen now.
+
+   **The type, 2px down, and it is the type that moves and not the strip.** The
+   message names «اسم و قیمت» rather than the box, and the two are different
+   things here: the box has already been moved this evening, to 6px off the
+   card's edge. So this is `.vp-deal-lines` shifted inside a strip that stays
+   where it is.
+
+   The number was 4 and is 2 — «نمیخواد ۴ پیکسل فقط ۲ پیکسل» — and the reason
+   is worth keeping, because it is the same reason both times.
+
+   The strip is a centred flex row, so the *line box* is already centred: 39.44
+   tall in 47.52, with 4.03 above and 4.05 below. What is not centred is the
+   ink. Scanned row by row at 4px, the painted text ran 6..37 in a 48px strip:
+   6px of clear space above it and 10 below, because Persian set in Vazirmatn
+   hangs high in its line box — the descenders leave room under the text that
+   the ascenders do not leave over it. That 2px of imbalance is what «یذره
+   بیاره پایینتر» is looking at, and 2px is exactly what closes it. 4 put the
+   ink at 10 above and 6 below, the same error mirrored.
+
+   So: 2px, ink at 8 and 8, optically centred in a box that was already
+   geometrically centred. **If this ever needs revisiting, measure the ink and
+   not the boxes** — the boxes will keep reporting that everything is already
+   centred, which is true and is not what anyone is looking at.
+
+   **The ring, gone.** `inset 0 0 0 1px rgba(16,17,17,0.05)`. It was kept
+   deliberately two rounds ago when the strip's drop shadow was removed, on the
+   grounds that a shadow and an edge are different objects and «سایه» only
+   asked for one of them — with a note that if the ring was meant to go it
+   should be asked for as an edge. It has been. The strip now reads by its tint
+   alone: `rgba(16,17,17,0.034)` over `blur(12px)`, which is 247 against the
+   tile's 255, an eight-level step and no line.
+
+   This does *not* re-open «لبه پنهان». That entry is about the card's foot
+   against the page — an edge that had to survive at the boundary of the whole
+   object — and the card's own 2px ring is untouched. This is a panel inside
+   that object, on a tile it never leaves. */
+@media (max-width: 991.98px) {
+  .vp-deal-label {
+    border-radius: 19.1862px;
+    box-shadow: none;
+  }
+
+  .vp-deal-lines {
+    position: relative;
+    inset-block-start: 2px;
+  }
+}
