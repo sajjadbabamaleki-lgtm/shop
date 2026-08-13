@@ -1594,3 +1594,46 @@ to something under `partials/` other than `mobile-menu.blade.php`, it belongs
 in `theme/make-blade.js` or `theme/make-rtl-page.js`. Making it in the Blade
 works, passes every check, deploys — and disappears the next time anyone
 touches unrelated markup.
+
+### «یه چیز سفید افتاده رو پایین کارتها» — a clipped edge, not «لبه پنهان»
+
+The words are that codename's, the cause is not, and the difference is worth
+keeping because the next report will sound identical.
+
+«لبه پنهان» is four greys within a few levels of each other and no step
+anywhere — a composite problem. This was arithmetic. Measured at 390, down the
+middle of a sale card's foot, six pixels inside the tile to five below it:
+
+    middle row   255 255 255 255 255 255 | 243 243 | 255 255
+    last row     255 255 255 255 255 255 | 255 255 | 255 255
+
+The 243s are the card's 2px ring. **The last row had none.**
+`.vp-ladder-area` carries the template's `overflow-hidden` and its
+`padding-bottom` is 0 on the phone, so the section ends on exactly the pixel
+the cards end on — and the ring is `0 0 0 2px` *without* `inset`, painted
+outside the border box, so it fell in the two pixels the clip removed. Three
+sides ringed, the fourth cut, a white tile on a white page: a card with nothing
+under it.
+
+`padding-block-end: 2px` on `.vp-ladder-area`, which is exactly the ring's
+width — the same remedy «لبه پنهان» ends with for a different reason, that the
+room has to be made *inside* the clip.
+
+**Any change to the ring's width has to change that padding too.** A 3px ring
+in a 2px gap puts the fault straight back, and it will look like a colour
+problem again — which is how an hour goes.
+
+`.vp-best-panel`'s `margin-top: 60` is left alone: measured from the card's own
+edge the gap between the bands is still 60, and it is the border box that is
+now 2px further off. If that 60 was ever meant box-to-panel, it is 58 and one
+line.
+
+**And a second thing the same round caught.** Turning the hover zoom off took
+the `transform` and left the `box-shadow`, so a tapped card still grew a gold
+`rgba(164,127,37,0.28)` ring and kept it until something else was tapped —
+same sticky-`:hover` fault, half-fixed. All three components are now set back
+to their resting shadow rather than to `none`; `none` would have deleted the
+card's own ring along with the gold one, which is the fault above. Those
+resting values were read off the rendered page: the best seller and the
+category tile rest on a 1px ring *plus* a `0 8px 22px -12px` drop shadow, which
+a first pass guessed away.

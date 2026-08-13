@@ -11736,3 +11736,99 @@ ul.vp-how-list.is-ticked li:before {
     top: -6px;
   }
 }
+
+/* ==========================================================================
+   The badge two pixels over, the gold hover line gone, and the last row of
+   sale cards gets its foot back.
+
+   «دایره گوشه مربع سبد خرید ۲ پیکسل بیاد پایین ۲ پیکسل بره راست»، «این خط
+   زردی که همراه اون زوم که حذف کردی میومد الانم میاد حذفش کن»، «در قسمت پایین
+   کارتهای حراج پله ای یه شکست نور هست که انگار یچیز سفید افتاده رو پایین
+   کارتها اونم درست کن». Below 992.
+
+   --------------------------------------------------------------------------
+   1. The basket count, 2 down and 2 right. -5/-6 becomes -3/-4.
+
+   --------------------------------------------------------------------------
+   2. The gold line that came with the zoom.
+
+   The round that turned the hover zoom off took the `transform` and left the
+   `box-shadow` behind, so a tapped card still grew a gold ring —
+   `rgba(164,127,37,0.28)` — and kept it until something else was tapped. Same
+   fault as the zoom and the same reason: on a phone `:hover` sticks.
+
+   Three components, because the zoom was three: the sale card carries it at
+   2px (it was matched to the ring the client asked for), the best seller and
+   the category tile at 1px with a drop shadow under it. Each is set back to
+   exactly what it shows when nothing is touching it, rather than to `none` —
+   `none` would delete the card's own ring along with the gold one and leave
+   the tile with no edge at all, which is the fault being fixed two paragraphs
+   down.
+
+   Those resting values were read off the rendered page rather than reasoned
+   from the rules above, and it mattered: a first pass wrote the best seller's
+   rest as a bare inset ring and the category tile's as `none`, and both are
+   actually a 1px ring *plus* a `0 8px 22px -12px` drop shadow. Guessing there
+   would have swapped one wrong hover state for another.
+
+   --------------------------------------------------------------------------
+   3. «یه چیز سفید افتاده رو پایین کارتها» — and this time it really is a
+      clipped edge rather than «لبه پنهان»'s composite.
+
+   Read the «لبه پنهان» entry in CLAUDE.md, then read this, because the words
+   are that entry's and the cause is not. That entry is about four greys within
+   a few levels of each other and no step anywhere. Here there is no fade at
+   all: the last row of cards simply has no bottom edge.
+
+   Measured at 390, down the middle of a card's foot, six pixels inside the
+   tile to five below it:
+
+     middle row   255 255 255 255 255 255 | 243 243 | 255 255
+     last row     255 255 255 255 255 255 | 255 255 | 255 255
+
+   The 243s are the card's 2px ring. The last row has none.
+
+   The cause is arithmetic, not colour. `.vp-ladder-area` carries the
+   template's `overflow-hidden` and its `padding-bottom` is 0 on the phone, so
+   the section ends on exactly the pixel the cards end on — and the ring is
+   `0 0 0 2px` *without* `inset`, so it is painted outside the border box and
+   falls in the two pixels the clip removes. Three sides ringed, the fourth
+   cut. A white tile on a white page with no edge along its foot is a card with
+   nothing under it, which is what the client is looking at.
+
+   The fix is the one «لبه پنهان» ends with for a different reason: the room
+   has to be made *inside* the clip. Two pixels of `padding-bottom` is exactly
+   the ring's width.
+
+   What that costs, stated rather than hidden: the section is 2px taller, so
+   everything below it moves down 2px. `.vp-best-panel`'s `margin-top: 60` —
+   which is the recorded gap between these two bands — is left alone, because
+   measured from the card's own edge the gap is still 60; it is the card's
+   border box that is now 2px further from the panel, and the border box is not
+   what anybody sees. If that 60 was ever meant as box-to-panel, this is 58 and
+   one line fixes it.
+
+   **Any future change to the ring's width has to change this number too.** A
+   3px ring in a 2px gap puts the fault straight back, and it will look like a
+   colour problem again. */
+@media (max-width: 991.98px) {
+  .th-header .header-button .icon-btn.sideMenuToggler .badge {
+    left: -3px;
+    top: -4px;
+  }
+
+  .vp-deal:hover .vp-deal-shot {
+    box-shadow: 0 0 0 2px rgba(16, 17, 17, 0.05);
+  }
+
+  .vp-best:hover .vp-best-shot,
+  .vp-category:hover {
+    box-shadow:
+      0 0 0 1px rgba(16, 17, 17, 0.05),
+      0 8px 22px -12px rgba(16, 17, 17, 0.18);
+  }
+
+  .vp-ladder-area {
+    padding-block-end: 2px;
+  }
+}
