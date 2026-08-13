@@ -46,4 +46,19 @@
     <link rel="stylesheet" href="{{ asset('assets/css/style.rtl.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/fonts-fa.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/rtl-fixes.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/css/tweaks.css') }}">
+    {{-- Fingerprinted, and this is not housekeeping.
+
+         tweaks.css is the one stylesheet on this site that changes, and it was
+         served at a plain URL — so a visitor who had been here before got the
+         new HTML (a response, never cached) against their browser's old CSS.
+         That is not a subtle failure: the client opened a rebuilt product card
+         and saw the new markup with none of its rules on it — an unstyled
+         button below the photograph where a white circle should have been on
+         it — and reported the build as broken. It was not broken; it was half
+         of it.
+
+         The hash is of the file's contents, so the URL changes when the file
+         does and not otherwise. `file_exists` because a missing stylesheet
+         should render a page without styles, not a 500. --}}
+    @php($tweaks = public_path('assets/css/tweaks.css'))
+    <link rel="stylesheet" href="{{ asset('assets/css/tweaks.css') }}{{ file_exists($tweaks) ? '?v='.substr(md5_file($tweaks), 0, 8) : '' }}">

@@ -984,12 +984,12 @@ const LADDER_DEALS_HTML = LADDER_DEALS
     // Name, then price and rating on one line under it — the reference's
     // arrangement. Off the photograph, not on it: the strip that used to float
     // over the shot took the bottom third of every tile.
-    `\n                        <a class="vp-deal-name" href="shop.html">${name}</a>` +
-    '\n                        <span class="vp-deal-foot">' +
-    '\n                            <span class="vp-deal-price">' +
-    `<strong>${fa(now)} <span>تومان</span></strong><del>${fa(price)}</del></span>` +
+    '\n                        <span class="vp-deal-head">' +
+    `\n                            <a class="vp-deal-name" href="shop.html">${name}</a>` +
     `\n                            <span class="vp-deal-rate"><i class="fa-solid fa-star" aria-hidden="true"></i>${fa(DEAL_RATING)}</span>` +
     '\n                        </span>' +
+    '\n                        <span class="vp-deal-price">' +
+    `<strong>${fa(now)} <span>تومان</span></strong><del>${fa(price)}</del></span>` +
     '\n                    </div>' +
     '\n                </div>';
 }).join('');

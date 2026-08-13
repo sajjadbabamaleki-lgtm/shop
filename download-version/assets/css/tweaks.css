@@ -2712,15 +2712,24 @@ option:hover {
   /* The tiles' 30 at 157px, kept in proportion at the ~260 five across run
      at. It was 34 when there were four. */
   border-radius: 28px;
-  /* White, not the category tiles' off-white. That off-white was chosen
-     against a white panel; on the glass panel it is a grey object on a grey
-     ground and neither edge does any work — which is the exact problem that
-     made the panel white in the first place, now solved from the other side.
-     The cut-outs still get a ground to sit on, it is just a lighter one. */
-  background: #FFFFFF;
-  box-shadow:
-    0 0 0 1px rgba(16, 17, 17, 0.05),
-    0 8px 22px -12px rgba(16, 17, 17, 0.18);
+  /* «جای عکس محصول باید شیشه ای بشه» — the tile the photograph sits on is the
+     page's own glass, not white. The reference card puts the shoe on a tinted
+     panel and this is the tint everything else on this page is cut from:
+     `rgba(16,17,17,0.035)` over `blur(10px)`, the hero card's recipe and the
+     ladder head's.
+
+     It was white, and the comment here argued for it: an off-white tile on a
+     glass panel is a grey object on a grey ground. That was written when the
+     photograph carried a strip and a burst on top of it and needed to read as
+     a lit surface. The card is a photograph on a panel now, and the client has
+     asked for the panel.
+
+     No drop shadow with it. Glass on glass does not sit *on* anything — the
+     ring states the edge, which is what «لبه پنهان» settled for the hero. */
+  background: rgba(16, 17, 17, 0.035);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.05);
   transition: transform 0.28s ease, box-shadow 0.28s ease;
 }
 
@@ -2958,15 +2967,25 @@ option:hover {
 /* The name, off the photograph and on the page. A link, because it is the
    product's name and the shot above it is the same link — two ways into the
    same page rather than one clickable picture with a caption. */
-.vp-deal-name {
+/* Name and rating on one line, the rating across from the name — «امتیاز کفش
+   ها باید بیاد روبرو اسم کفش». The price takes the line under them. */
+.vp-deal-head {
   grid-area: 2 / 1;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.vp-deal-name {
+  flex: 1 1 auto;
   display: block;
   font-family: 'Cairo', var(--title-font);
   font-weight: 700;
   font-size: 14px;
   line-height: 1.6;
   color: #101111;
-  text-align: center;
+  min-width: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -2976,13 +2995,8 @@ option:hover {
   color: var(--theme-color);
 }
 
-/* Price at the reading edge, rating at the far one — the reference's line. */
-.vp-deal-foot {
+.vp-deal-price {
   grid-area: 3 / 1;
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 8px;
 }
 
 /* The star is the reference's, and the number behind it is a stand-in: nothing

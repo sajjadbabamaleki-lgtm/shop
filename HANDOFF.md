@@ -1413,3 +1413,38 @@ follows.
 
 Measured: parity identical at 992, 1200, 1440 and 1920; 233 tests; Pint; no
 overflow at 390/768/1200/1920.
+
+## The sale card, corrected — and the stale-CSS trap behind it
+
+Three things in one round, and the third is the one that matters beyond this
+card.
+
+**«جای عکس محصول باید شیشه ای بشه».** The tile the photograph sits on is the
+page's own glass now — `rgba(16,17,17,0.035)` over `blur(10px)`, the hero card's
+recipe — not white. The comment that argued for white is kept above the rule
+with the reason it stopped applying: it was written when the photograph carried
+a strip and a burst on top of it and had to read as a lit surface. No drop
+shadow with it; glass on glass does not sit *on* anything, which is «لبه پنهان»'s
+own finding.
+
+**«امتیاز کفش ها باید بیاد روبرو اسم کفش».** The rating moved off the price's
+line and onto the name's, at the far end of it. `.vp-deal-head` is the row;
+the price takes the line under it.
+
+**The stale-CSS trap.** The client's screenshot of the first build showed the
+new markup with none of its rules on it — an unstyled grey button *below* the
+photograph where a white circle should have been *on* it, no basket at all, the
+rating stacked under the price. None of that was reproducible here: parity was
+identical at four widths and the local render was correct.
+
+It was the browser cache. **`tweaks.css` was served at a plain URL**, so a
+returning visitor gets the new HTML — a response, never cached — against their
+own cached copy of the old stylesheet. New markup, old rules, and a build that
+looks broken in a way no check on this side can see.
+
+The link in `partials/head.blade.php` now carries `?v=` plus the first eight
+characters of the file's md5, so the URL changes when the file does and not
+otherwise. **If a change ever appears to have shipped only halfway again, this
+is the first thing to check** — and note that the static preview under
+`download-version/` still links it plainly, which is fine while that page is
+opened fresh but is the same trap if it is ever put behind a CDN.
