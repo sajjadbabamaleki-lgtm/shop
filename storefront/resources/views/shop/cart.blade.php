@@ -126,7 +126,14 @@
                          deleted: it was the only place on the storefront a discount
                          code could be typed, and taking it out here would have made
                          `discount_codes` unreachable. --}}
-                    <aside class="vp-cart-sum">
+                    {{-- `is-island` is what makes this one float against the foot
+                         of the phone in glass. The checkout's summary is the same
+                         `.vp-cart-sum` and must *not* — «تو این صفحه ثبت سفارش این
+                         شیشه ای اضافست»: there it was landing on top of the form,
+                         over the mobile number field. So the treatment is asked for
+                         by name here rather than inherited by anything that reuses
+                         the block. --}}
+                    <aside class="vp-cart-sum is-island">
                         <div class="vp-cart-row"><span>تعداد</span><span>{{ fa_number($cart->count()) }} کالا</span></div>
 
                         <div class="vp-cart-row is-total">

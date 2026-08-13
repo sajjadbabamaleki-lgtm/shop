@@ -240,7 +240,7 @@
 
         @if ($related->isNotEmpty())
             <div class="vp-shop-panel vp-pdp-related">
-                <h2 class="vp-shop-title">شبیه به این</h2>
+                <h2 class="vp-shop-title">نمونه‌های مشابه</h2>
                 <div class="row gy-4 row-cols-2 row-cols-md-3 row-cols-xxl-4 vp-shop-grid">
                     @foreach ($related as $other)
                         {{-- Named, not reused: looping "as $product" would overwrite

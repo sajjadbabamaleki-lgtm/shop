@@ -1110,3 +1110,53 @@ Measured after: panel and shot both `background: none; box-shadow: none;
 border-radius: 0`, tile 66 × 66, footer `display: none` on `/cart` and present
 everywhere else. 233 tests, parity identical at all four widths, no overflow at
 390/768/1200/1920.
+
+## One row, one glass sheet, one footer too many
+
+Four from one message, three of them things an earlier round had left behind.
+
+**«قیمت و تعداد باید تو یک ردیف باشن».** There was a `max-width: 375.98px`
+block giving the basket line's price and its stepper a row each, and on a
+360-wide phone that is what the client was looking at. It was right when it was
+written: the quantity was then a number box with a «به‌روزرسانی» button beside
+it, about 148px of control, and the two middle columns have 130 at 320 — the
+price track collapsed to 0 and the figure ran off the card. That control has
+been a `− ۱ +` stepper for two rounds. **A breakpoint that exists for a
+component's width has to go when the component does**; left behind it is a rule
+nobody can explain from the page.
+
+Deleting it was not enough on its own — 100 of stepper plus 121 of price plus a
+12px gap is one pixel more than a 360 line has. Three small things bought the
+room:
+
+- The `×` came out of the grid and is absolutely positioned in the card's
+  corner. As a column it cost 30 plus a gap on every row — 42 of a 360-wide
+  phone for one glyph.
+- The column gap went 12 → 8, and `.vp-cart-count`'s `min-width` 24 → 20 (two
+  Persian digits measure 18, so the `+` still does not move).
+- `.vp-cart-money` may wrap. Below about 340 «تومان» drops under the figure,
+  which keeps the price *beside* the quantity instead of above it.
+
+Measured at 320/360/375/390/430/575: one row at every width, price whole and
+inside the card, nothing overflowing. One line of price from 360 up.
+
+**«تو این صفحه ثبت سفارش این شیشه ای اضافست».** The checkout's summary is the
+same `.vp-cart-sum` as the basket's, so it inherited the whole fixed-glass
+island treatment — and landed on top of the form, over the mobile number field,
+on a page whose only content is fields to type in. The island now asks for
+itself by name: `.vp-cart-sum.is-island`, set on the basket's aside only. A
+floating sheet is right where the page is a list you scroll and wrong where the
+page is a form.
+
+Taking it off exposed the order underneath: stacked in source order the customer
+met «ثبت سفارش» before «قابل پرداخت» — the button to pay above the number being
+paid. `.vp-cart:has(.vp-checkout) .vp-cart-sum { order: -1 }` puts the summary
+first below 992. On the desktop they are side by side and it never came up.
+
+**The product page's footer and shelf.** `body:has(.vp-pdp-body)` joins the
+basket in hiding `.footer-wrapper` below 992 — the page ends on a fixed
+«افزودن به سبد» bar and the footer was 678px of somewhere-else behind it. The
+related shelf's gutters go to 10 (`--bs-gutter-x/y` on
+`.vp-pdp-related .vp-shop-grid`), the number everything else on this phone
+stands at; `gy-4` was 24, which is the desktop's air. And its heading is
+«نمونه‌های مشابه».

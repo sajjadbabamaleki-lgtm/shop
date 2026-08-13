@@ -5772,6 +5772,16 @@ ul.vp-how-list.is-ticked li:before {
   .vp-cart {
     grid-template-columns: minmax(0, 1fr);
   }
+
+  /* On the checkout, the summary goes above the form rather than under it.
+     Stacked in source order the customer met «ثبت سفارش» before «قابل پرداخت»
+     — the button to pay above the number being paid. On the desktop they are
+     side by side and the order never came up; the fixed sheet was hiding it on
+     the phone until it came off. Only where there is a form to be above:
+     the basket's own summary is an island and orders itself. */
+  .vp-cart:has(.vp-checkout) .vp-cart-sum {
+    order: -1;
+  }
 }
 
 .vp-cart-keep {
@@ -6920,12 +6930,16 @@ ul.vp-how-list.is-ticked li:before {
    the price whole, and the name back on one line from 390 up. */
 @media (max-width: 575px) {
   .vp-cart-line {
-    grid-template-columns: 72px auto minmax(0, 1fr) 30px;
+    position: relative;
+    grid-template-columns: 72px auto minmax(0, 1fr);
     grid-template-areas:
-      "shot what what  drop"
-      "shot qty  money drop";
+      "shot what what"
+      "shot qty  money";
     align-items: start;
-    column-gap: 12px;
+    /* 8 rather than 12. The price and the stepper have to share the second row
+       at every width now, and at 360 the two of them plus a 12 gap came to one
+       pixel more than the line had. */
+    column-gap: 8px;
     row-gap: 12px;
   }
 
@@ -6945,13 +6959,27 @@ ul.vp-how-list.is-ticked li:before {
   .vp-cart-money {
     grid-area: money;
     align-self: center;
+    /* Let «تومان» drop under the figure when the row is genuinely too tight —
+       at 320 it is. A wrapped price is still a price beside the quantity; a
+       `nowrap` price in a track it does not fit runs out of the card, and a
+       price on a row of its own is what the client asked to stop seeing. */
+    white-space: normal;
   }
 
-  /* The remove form is the only child with no class of its own. */
+  /* The × comes out of the flow and sits in the corner of the card. As a
+     column it cost 30 plus a gap on every row of the line — 42 of a 360-wide
+     phone spent on a control that is one glyph — and that was the difference
+     between the price and the stepper sharing a row and not.
+     `inset-inline-end` is the left of an rtl card, where it already was. */
   .vp-cart-line > form:not(.vp-cart-qty) {
-    grid-area: drop;
-    justify-self: end;
-    align-self: start;
+    position: absolute;
+    inset-block-start: 12px;
+    inset-inline-end: 12px;
+  }
+
+  /* And the name stops short of it, so a long title cannot run underneath. */
+  .vp-cart-what {
+    padding-inline-end: 26px;
   }
 
   /* The stepper's two buttons are squares and stay squares. This block used to
@@ -6962,25 +6990,22 @@ ul.vp-how-list.is-ticked li:before {
      for both sides. */
 }
 
-/* Under 376 the quantity and the price cannot share a row.
-   «به‌روزرسانی» is a long label and the stepper beside it wants about 148 of
-   the 130 those two columns have at 320 — measured, the price track collapsed
-   to 0 and the figure ran off the card. It takes a row of its own there rather
-   than the label being shortened, which would make the button say a different
-   thing on a small phone than on a large one. */
-@media (max-width: 375.98px) {
-  .vp-cart-line {
-    grid-template-areas:
-      "shot what  what  drop"
-      "shot money money drop"
-      "shot qty   qty   drop";
-  }
+/* «چرا تو این صفحه تو گوشی من تعداد میفته پایین؟ قیمت و تعداد باید تو یک ردیف
+   باشن». There was a `max-width: 375.98px` block here that gave the price and
+   the quantity a row each, and on a 360-wide phone that is what the client was
+   looking at.
 
-  .vp-cart-money {
-    align-self: start;
-    text-align: start;
-  }
-}
+   It was right when it was written and stopped being right two rounds later.
+   The reason for it was «به‌روزرسانی»: a number box and an update button with a
+   long Persian label, about 148px of control, and the two middle columns have
+   130 at 320 — so the price track collapsed to 0 and the figure ran off the
+   card. That control is gone. The stepper that replaced it is 34 + 4 + 24 + 4
+   + 34 = 100, and the price needs about 130, which fits from 320 up.
+
+   So the block is gone rather than adjusted. Measured at 320 and 360: one row,
+   price whole, nothing outside the card. A breakpoint that exists for a
+   component's width has to go when the component does — left behind, it is a
+   rule nobody can explain from the page. */
 
 .vp-cart-money strong {
   font-size: 17px;
@@ -10381,7 +10406,10 @@ ul.vp-how-list.is-ticked li:before {
 }
 
 .vp-cart-count {
-  min-width: 24px;
+  /* Wide enough that two digits do not move the `+`, and no wider: at 360 the
+     price and the stepper share a row with one pixel to spare, and 24 here
+     spent four of them. Two Persian digits at 16px measure 18. */
+  min-width: 20px;
   font-family: 'Vazirmatn', var(--body-font);
   font-weight: 700;
   font-size: 16px;
@@ -10412,8 +10440,15 @@ ul.vp-how-list.is-ticked li:before {
    number rather than the sheet's own height because the sheet is out of flow
    and cannot push anything; it is measured against the tallest the sheet gets
    (three rows, the code field and the button, with a discount applied). */
+/* `is-island` and not `.vp-cart-sum` alone. «تو این صفحه ثبت سفارش این شیشه ای
+   اضافست و باید حذف بشه» — the checkout's summary is the same block, and it was
+   inheriting all of this: a fixed glass sheet landing on top of the form, over
+   the mobile number field, on a page the customer has to type on. A floating
+   sheet is right where the page is a list you scroll and wrong where the page
+   is a form, so the treatment is asked for by name on the basket rather than
+   coming free with the class. */
 @media (max-width: 991.98px) {
-  .vp-cart-sum {
+  .vp-cart-sum.is-island {
     position: fixed;
     z-index: 40;
     /* An island, not a band. «باید جزیره ای باشه» — 10 from both sides and 10
@@ -10438,7 +10473,7 @@ ul.vp-how-list.is-ticked li:before {
   }
 
   /* Its title is the head of a panel that no longer has a top edge. */
-  .vp-cart-sum .vp-filter-title {
+  .vp-cart-sum.is-island .vp-filter-title {
     margin-block-end: 10px;
   }
 
@@ -10447,7 +10482,7 @@ ul.vp-how-list.is-ticked li:before {
      from it; the sheet is out of flow and cannot push anything, so what needs
      the clearance is the page. Measured against the tallest the sheet gets —
      three rows, the code field and the button, with a discount applied. */
-  .vp-shop-section:has(.vp-cart-sum) {
+  .vp-shop-section:has(.vp-cart-sum.is-island) {
     /* The sheet is 182 with a discount applied — it lost the code field, the
        delivery row and the goods row in the same round the client asked for
        «فقط تعداد خرید و جمع کل», so the 250 it used to need is 60 of dead
@@ -10484,8 +10519,14 @@ ul.vp-how-list.is-ticked li:before {
 
      Scoped by `:has()` to the basket and to the phone. The desktop basket
      keeps its footer — there the totals are a card in the flow, the page ends
-     properly, and nothing is covering anything. */
-  body:has(.vp-cart-sum) .footer-wrapper {
+     properly, and nothing is covering anything.
+
+     The product page goes with it — «این صفحه نباید فوتر داشته باشه», same
+     round, same reason: it ends on a fixed «افزودن به سبد» bar and the footer
+     was 678px of somewhere-else behind it. The checkout keeps its footer; its
+     summary is in the flow and the page ends properly. */
+  body:has(.vp-cart-sum.is-island) .footer-wrapper,
+  body:has(.vp-pdp-body) .footer-wrapper {
     display: none;
   }
 }
@@ -10826,6 +10867,17 @@ ul.vp-how-list.is-ticked li:before {
     width: calc(100% - 12px);
     height: calc(100% - 12px);
     object-fit: contain;
+  }
+
+  /* «فاصله بین اون ۴ تا محصول باید ۱۰ بشه». The shelf under the product is a
+     Bootstrap row with `gy-4` on it — 24 down and 24 across, which is the air
+     the desktop grid wants and twice what everything else on this phone stands
+     at. The gutter variables rather than a margin: the row sets its columns'
+     padding from them, so overriding the pair moves both halves of every gap
+     and nothing has to know how many columns there are. */
+  .vp-pdp-related .vp-shop-grid {
+    --bs-gutter-x: 10px;
+    --bs-gutter-y: 10px;
   }
 
   /* Name and price on one line. */
