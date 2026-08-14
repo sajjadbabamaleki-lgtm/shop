@@ -54,4 +54,13 @@
             </span>
         @endif
     @endforeach
+
+    {{-- The count, at the right-hand end of the same line — «فاصله بینشون کمتر
+         بشه که اون مستطیل بیاد راستشون». It is the second of two copies: the
+         one in `.vp-pick-head` is the desktop's, beside the heading, and
+         exactly one of the two is ever shown. Rendering it twice rather than
+         moving it is what keeps the desktop line untouched. --}}
+    @if ($simple->isNotEmpty())
+        <span class="vp-pick-note is-inline">{{ fa_number($simple->count()) }} سایز موجود</span>
+    @endif
 </div>

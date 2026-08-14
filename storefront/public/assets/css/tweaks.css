@@ -5715,6 +5715,7 @@ ul.vp-how-list.is-ticked li:before {
 .vp-pdp-rate,
 .vp-pdp-desc.is-standin,
 .vp-pick-empty,
+.vp-pick-note.is-inline,
 .vp-pick-size.is-off,
 .vp-pick-size.is-elsewhere {
   display: none;
@@ -11491,27 +11492,20 @@ ul.vp-how-list.is-ticked li:before {
     color: rgba(16, 17, 17, 0.62);
   }
 
-  /* The heading, then the count under it in a box of its own — «یه مستطیل زیر
-     انتخاب سایز که توش نوشته باشه یک سایز موجود».
+  /* The heading on its own, and the count moved out of it — «یه مستطیل زیر
+     انتخاب سایز که توش نوشته باشه یک سایز موجود», then «فاصله بینشون کمتر بشه
+     که اون مستطیل بیاد راستشون اون مستطیل باید هم ارتفاعشون باشه».
 
-     It was on the heading's line, hard against the other end of the row. Now
-     it is a rectangle under it: the row's own grey, a corner small enough that
-     it still reads as an oblong beside the squares below it, and the count in
-     Persian digits, which is how every other number on this page is set. */
+     The rectangle ended up in the size row itself, as its last item, so this
+     copy of the count — the one beside the heading, which is what the desktop
+     draws — is not shown here at all. */
   .vp-pick-head {
     display: block;
     margin-block-start: 20px;
   }
 
-  .vp-pick-note {
-    display: inline-block;
-    margin-block-start: 8px;
-    padding: 6px 12px;
-    border-radius: 8px;
-    background: rgba(16, 17, 17, 0.034);
-    font-size: 12px;
-    line-height: 1.5;
-    color: #6E7070;
+  .vp-pick-head .vp-pick-note {
+    display: none;
   }
 
   /* ---- The size chips ----------------------------------------------------
@@ -11547,9 +11541,42 @@ ul.vp-how-list.is-ticked li:before {
      numbers are the one thing on this page that read the same way in both. */
   .vp-pick-sizes {
     flex-wrap: nowrap;
-    gap: 16px;
+    gap: 8px;
     direction: ltr;
     justify-content: flex-start;
+    align-items: center;
+  }
+
+  /* The count as the row's last item, at the right-hand end of the line the
+     squares start — «فاصله بینشون کمتر بشه که اون مستطیل بیاد راستشون اون
+     مستطیل باید هم ارتفاعشون باشه».
+
+     The gap comes back to 8 to make room for it: five 45.98 squares and this
+     box come to 229.9 + 89, and 362 − 318.9 leaves 43 for the five gaps
+     between them. At 16 they would not have fitted on one line.
+
+     It takes the chips' height and their corner, so the row is one set of
+     objects with one of them longer, and it is the only item allowed to
+     shrink — the row does not wrap, so a longer count than today's must give
+     way rather than push the line past the page. Its text stays RTL inside an
+     LTR row: the row's direction is for the order of the squares, not for a
+     Persian sentence. */
+  .vp-pick-note.is-inline {
+    display: flex;
+    align-items: center;
+    flex: 0 1 auto;
+    min-width: 0;
+    height: 45.98px;
+    padding-inline: 12px;
+    border-radius: 13.85px;
+    background: rgba(16, 17, 17, 0.034);
+    direction: rtl;
+    font-size: 12px;
+    line-height: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #6E7070;
   }
 
   .vp-pick-size,
@@ -11576,15 +11603,17 @@ ul.vp-how-list.is-ticked li:before {
      with a tighter radius, which reads as a different shape rather than the
      same one larger — the same note the drawer's close button carries.
 
-     The row still holds them: 5 × 48.4 + 4 × 16 = 306 of the 362 it has at
-     390. */
+     Then 5% off again — «مربع ها ۵ درصد کوچیکتر بشن» — to make room for the
+     count at the end of the line: 48.4 → 45.98, corner 45.98 × 0.30119 =
+     13.85. The row now holds five squares, the box and five 8 gaps in 358.9 of
+     the 362 it has at 390. */
   .vp-pick-size span {
-    width: 48.4px;
+    width: 45.98px;
     min-width: 0;
     height: auto;
     aspect-ratio: 1;
     padding-inline: 0;
-    border-radius: 14.58px;
+    border-radius: 13.85px;
     background: #FFFFFF;
     box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.10);
   }
