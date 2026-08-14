@@ -1207,6 +1207,28 @@ at 992 and up.
 Measured at 360, 390 and 768: all seven exactly 60. At 992 and 1440: unchanged.
 Parity identical at all four widths.
 
+### …and then the first of the seven left it again, at 13.5
+
+«فاصله این ۶ تا آیتم با اون ۸ آیتم بالا بشه اندازه فاصله ۸ آیتم با هیرو».
+
+Asked by geometry rather than by a number: the gap **under** the eight tiles is
+to equal the gap **above** them. That one is the hero's foot to the first tile
+— 523.1 to 536.6 at 390, so **13.5**. `.vp-trust-row-wrap` margin-top goes
+60 → 13.5 and the other six of the seven stay at 60.
+
+**This is a reversal, and it is the second time this number has been here.**
+The paragraph above records 13.5 being tried under almost the same instruction
+(«این دوتا فاصله بشه اندازه فاصله هدر با هیرو») and rejected with «جالب نشد» —
+that time it was the header-to-hero distance, this time the hero-to-tiles one,
+and the two happen to be the same 13.5. So the tiles and the badges now read as
+one block under the hero rather than as two bands 60 apart, which is what was
+asked for. If it reads too tight a second time, it is one line in
+`tweaks.css`, and the numbers already passed through on the way are 30 and 60.
+
+Measured at 360, 390 and 430: tile foot to badge top exactly 13.5 at all three,
+equal to the hero's foot to the tile top at all three. Parity identical at
+992/1200/1440/1920, no sideways scroll at 390/768/1200/1920.
+
 ## The mini basket as an island, and its X
 
 «بنظرم این سبد خرید باید جزیره ای بشه اندازه اون ضبدر هم اندازه ضبدر منو بشه» —
@@ -1367,3 +1389,931 @@ Nothing in the row changes size.
 and the boxes measure equal, measure the *painted* area next, not just the
 layout box. A 1px ring on one and not the other is a 2px difference in what the
 eye is actually given, and at 25px that is 8%.
+
+## The sale card, rebuilt twice and put back
+
+**Where it stands: the card is what it was before 13 August 17:49.** Photograph
+on a light tile, the «٪۳۰» burst on the top corner, a glass strip under the
+shoe carrying the name and both prices, no favourite, no rating, and no basket
+below 992. If you are looking at `git log` and wondering why two commits were
+reverted the same evening, this is the entry.
+
+**What happened, in order.** The client sent a reference and «تو بخش حراج پله
+ای اینو برام بساز بجای چیز فعلی که داریم». Commit `48947a4` built it: the strip
+and the burst came off the photograph, the name went under it with the price
+and a rating, a white favourite went on one corner and the gold basket on the
+other, and the basket came back on the phone. `3808c28` followed with the tile
+turned to glass and the rating moved across from the name. Then a second
+reference arrived — a Tailwind card with a frosted band fading up out of the
+photograph's foot, the name, the price and the controls all sitting on it —
+and that was built too, scoped to `.vp-ladder-deals` below 992, with the tile
+darkened five percent so the band had something to frost. The client's answer
+to the result was «افتضاح شده برگردون به همون نسخه ای که ۵ ساعت پیش داشتیم»,
+with a screenshot of the live site. Both commits are reverted and the third
+build was never committed.
+
+**What that means for the next reference.** Two rebuilds of this card were
+accepted in the brief and rejected on the phone, and in both cases the thing
+that came back was the version that had been living on the site for days. The
+useful reading is not "the client changes their mind" — it is that a reference
+drawn for one big card does not survive being taken at 53% into a two-up grid,
+and the parts that fail are the ones the mockup had room for and the card does
+not. The second reference is a case in point: at 340px wide it has a labelled
+«Add to Cart» pill, a 24px title and a rating with a review count. At 180 the
+pill does not fit beside the heart, the title lands at 12.5, and the review
+count cannot exist because there is no review table. Three of the reference's
+own elements were gone before the first pixel was drawn, and what is left is
+not really that card any more.
+
+So: **before building the next one, put it on the phone at 180px wide and show
+it, and get that agreed before touching `tweaks.css`.** A render costs
+minutes. Both of these rounds cost an evening each and ended where they
+started.
+
+**The cache-bust was kept.** `3808c28` carried one change that has nothing to
+do with the card: `partials/head.blade.php` now fingerprints `tweaks.css` with
+a hash of its contents. Before it, a returning visitor got new HTML — never
+cached — against their own cached copy of the old stylesheet, which is what
+made the first rebuild look broken on the client's phone and fine here. The
+revert deliberately leaves that hunk in place. Do not take it out with the
+next revert either.
+
+**What the reverts also took back**, so nothing here is a surprise later:
+`config('storefront.placeholders.rating')` and `DEAL_RATING` are gone, along
+with the `HomePageTest` assertions on them; the rating existed only for the
+rebuilt card and had no review table behind it. The generated preview pages
+were rebuilt from `theme/make-rtl-page.js` rather than reverted by hand.
+
+**And a bug this round surfaced that is still open.** `shop/card.blade.php` —
+the listing, the category pages and the related shelf — is on the old
+`.vp-deal-label` / `.vp-deal-lines` markup. `48947a4`'s message said those
+pages took the rebuild with them. They did not: only the shared stylesheet
+moved. While those two commits were on the branch, `/products` at 390 rendered
+with its names clipped mid-word, its strip across the top of the photograph and
+its basket fallen out from under the card. **The revert fixes that too**, since
+the stylesheet those pages read is back to the one their markup was written
+for. It is written down because it will come back the moment this card is
+rebuilt again without `shop/card.blade.php` being rebuilt with it — and because
+"the catalogue took it with it" was in a commit message once already without
+being true.
+
+### The phone card's five numbers, after the revert
+
+The revert put the card back; these five moved it on from there, and they are
+the numbers the phone card now holds. Below 992 only — **the desktop card is
+untouched and still reads 1:1, 28px, a 1px ring and a shadowed strip.**
+
+| | before | now |
+|---|---|---|
+| tile outline | `0 0 0 1px` @ 5% | `0 0 0 2px` @ 5% |
+| tile shape | `aspect-ratio: 1` (180 × 180) | `10 / 11` (180 × 198) |
+| tile corner | 28px | 22.4px |
+| burst | 48px | 43.2px |
+| strip's drop shadow | `0 4px 14px -8px` @ 35% | none |
+
+Three things about that table are worth more than the numbers themselves.
+
+**The 10px حریم did not have to be re-measured.** The clearance between the
+shoe's box and the strip is `H − 59.52 − (H − 69.52)`, which is 10 at any tile
+height — the shoe's box was written as a percentage *minus the fixed stack*
+rather than as two percentages, so a taller tile carries the client's number
+through unchanged. Measured after: 10.0 at 390 and 10.0 at 360. If the shoe's
+box is ever restated in plain percentages, this stops being true and the
+height becomes a two-number change.
+
+**The burst moved below 992 and not at 992–1199.** The burst and the basket
+were deliberately set to one size, at the client's request. Between 992 and
+1199 both are 48 and both on screen, so shrinking the burst there would break
+that pair; below 992 the basket is `display: none` and the burst is alone.
+A future "make the badge smaller" that is applied at `max-width: 1199px`
+silently undoes an instruction nobody will remember.
+
+**The strip lost its drop shadow and kept its ring.** The ring is the strip's
+edge, not its shadow. Dropping both is the exact move that started «لبه پنهان»
+on the hero card — read that entry before deciding the ring should go too.
+
+The outline reads, and was checked rather than assumed: scanned across the
+tile's side at 390 the row goes `255 255 | 243 243 | 255`, two pixels of line
+where there was one, twelve levels under the page.
+
+### The catalogue loses its frame; the card loses its second bottom line
+
+Three more in the same evening, and two of them touch decisions recorded
+elsewhere in this file, so read this before undoing either.
+
+**The catalogue's cards have no frame, at every width.** `.vp-shop-grid
+.vp-deal-shot` is `box-shadow: none` — the listing, the category pages, the
+search results and the related shelf. The stepped sale keeps its frame; it is
+on `.vp-ladder-deals` and the rule does not reach it. Measured first, because
+«کادر» could have meant several things: the catalogue tile is `#FFFFFF` and
+`.vp-shop-panel` under it is also `#FFFFFF`, so a scan across a tile's side
+read `255 …255 | 243 243 | 255 …` — page, ring, tile. **The ring was the
+entire frame**; there was no background to take off. If that panel ever stops
+being white, the tile's own white becomes a box again and this needs redoing.
+
+**The foot's ink is gone, and «لبه پنهان» still holds.** The
+`inset 0 -1.4px 0 rgba(16,17,17,0.07)` under the card was that entry's remedy
+and the client asked for it deleted («یه خط اضافه تیره»). It is safe *only
+because the ring went to 2px in the round before*. Measured down a sale card's
+foot at 390:
+
+    with the ink   255 255 255 255 246 238 | 243 243 | 255 255
+    without        255 255 255 255 255 255 | 243 243 | 255 255
+
+The edge into the page is the ring's `243 → 255`, one pixel, twelve levels,
+with or without the ink. The ink was a second line inside the first, which is
+what the client was looking at. **Taking the ring back to 1px means putting
+this ink back**, or the foot dissolves and «لبه پنهان» starts over.
+
+**The strip is 6 from the card's edge, not 12** — inline start, inline end and
+block end, below 992. Above 992 the inline end is 70/74.8 and stays: that is
+room held for the basket, not a distance from the edge.
+
+**And the حریم is 16 now, not 10.** The shoe's box is measured from the tile's
+foot, so moving the strip 6px down moved the gap above it to 16. The client's
+instruction behind the 10 was that the product must not run under the box;
+16 satisfies it further. The shoe was left where it is rather than grown 6px
+to keep the number exact — that would be a bigger photograph, which is not
+what the message asked for. If the 10 is ever wanted back exactly, it is
+`calc(77% - 63.52px)` in the حریم block.
+
+### The corner button is WhatsApp now, not scroll-to-top
+
+«بجای این باید یه آیکون واتسپ بیاری با گوشه های کرو», with a screenshot of the
+template's gold ring. Replaced, not joined — asked and confirmed.
+
+**The number is written in one place: `theme/make-rtl-page.js`.** It goes into
+the generated preview page, and `theme/make-blade.js` ports that into
+`partials/whatsapp.blade.php`. Not `config/storefront.php`: that would make the
+Blade hand-owned and let the two copies of the page drift, and the footer's
+landline is already hardcoded the same way. `wa.me` wants the international
+form — 09918905993 is written 989918905993, no plus, no leading zero.
+
+`WhatsAppButtonTest` is what guards it, and it is there because this is the
+only link on the site that sends a customer somewhere the site does not
+control. A wrong digit does not 404, does not look broken, and is invisible to
+`check-parity.js` — two buttons with different `href`s are the same picture.
+The test was checked against a changed digit and fails on it.
+
+Three things that were decided rather than defaulted:
+
+- **`left: 30px`, not `inset-inline-start`.** The logical property is right
+  almost everywhere in `tweaks.css` and wrong here: the template's rule is
+  `left`, and on an rtl page the inline start is the right-hand side. Written
+  logically the button measured 310 from the left in a 390 viewport instead of
+  30 — the other corner, from a change that looks like a tidy-up.
+- **Shown on the first scroll, and this was decided twice.** The first build
+  parked it on screen from the top, on the reasoning that a back-to-top control
+  is useless at the top of a page while a way to ask a question is most wanted
+  there. The client looked at that and asked for the ring's old behaviour back
+  — «آیکون واتسپ وقتی اولین اسکرول شروع میشه باید ظاهر بشه» — so the same
+  scroll handler drives it again, pointed at `.vp-whatsapp` and toggling on
+  `y > 0` rather than the ring's `y > 50`: the ask is the *first* scroll, not a
+  little way into one. Both were asked for, in that order, and the second
+  stands.
+
+  That hidden default is half of a mechanism whose other half is a JS
+  selector, and **nothing else in this repo can see either half**. PHPUnit does
+  not run the script; `check-parity.js` compares the two pages against each
+  other, so it stays at zero if both go blank; `check-overflow.js` only asks
+  whether the page scrolls sideways. A drifted selector would make the button
+  invisible on every page, forever, with every check green.
+  `WhatsAppButtonTest::test_the_scroll_handler_can_still_find_the_button`
+  is what notices — checked against a typo'd selector, it fails.
+- **16px on a 50px square.** «گوشه های کرو» against something that was
+  `border-radius: 50%`, so the ask is that corners exist — 25 is the circle
+  again, 8 is a box.
+
+Two loose ends, both harmless and both deliberate. The scroll script in
+`partials/scripts.blade.php` still looks for `.scroll-top`; every use of it is
+guarded (`toTop &&`, `if (toTop)`), so it finds nothing and carries on — this
+was read, not assumed. And the theme-colour lists near the top of `tweaks.css`
+still name `.scroll-top svg` and `.scroll-top:after`, now dead selectors, left
+in a shared list of forty where picking them out risks more than it gains.
+
+### The cache-bust is generated now, not typed
+
+Worth its own note because it was lost twice in one evening, the same way both
+times.
+
+`tweaks.css` is fingerprinted in the head so a returning visitor cannot get new
+HTML against their cached copy of the old stylesheet. The fix was first typed
+into `partials/head.blade.php` — **a file `theme/make-blade.js` generates** —
+and the next run of that script deleted it silently while porting an unrelated
+change. A generated file cannot hold a hand correction; that is exactly why
+`make-blade.js` prints the list of files it leaves alone.
+
+The transformation lives in `make-blade.js` now, applied *after* `toBlade`
+(before it, the link is still a plain relative path and the regex matches
+nothing), and the script throws if it cannot find the link to rewrite. And
+`ShippedAssetsTest::test_the_stylesheet_that_changes_is_fingerprinted` reads
+the rendered page and checks the hash matches the file on disk, so it holds
+whoever wrote the link and however it got there. Checked against the fix being
+removed: it fails.
+
+**The general lesson, for the next hand-edit:** if a correction has to be made
+to something under `partials/` other than `mobile-menu.blade.php`, it belongs
+in `theme/make-blade.js` or `theme/make-rtl-page.js`. Making it in the Blade
+works, passes every check, deploys — and disappears the next time anyone
+touches unrelated markup.
+
+### «یه چیز سفید افتاده رو پایین کارتها» — a clipped edge, not «لبه پنهان»
+
+The words are that codename's, the cause is not, and the difference is worth
+keeping because the next report will sound identical.
+
+«لبه پنهان» is four greys within a few levels of each other and no step
+anywhere — a composite problem. This was arithmetic. Measured at 390, down the
+middle of a sale card's foot, six pixels inside the tile to five below it:
+
+    middle row   255 255 255 255 255 255 | 243 243 | 255 255
+    last row     255 255 255 255 255 255 | 255 255 | 255 255
+
+The 243s are the card's 2px ring. **The last row had none.**
+`.vp-ladder-area` carries the template's `overflow-hidden` and its
+`padding-bottom` is 0 on the phone, so the section ends on exactly the pixel
+the cards end on — and the ring is `0 0 0 2px` *without* `inset`, painted
+outside the border box, so it fell in the two pixels the clip removed. Three
+sides ringed, the fourth cut, a white tile on a white page: a card with nothing
+under it.
+
+`padding-block-end: 2px` on `.vp-ladder-area`, which is exactly the ring's
+width — the same remedy «لبه پنهان» ends with for a different reason, that the
+room has to be made *inside* the clip.
+
+**Any change to the ring's width has to change that padding too.** A 3px ring
+in a 2px gap puts the fault straight back, and it will look like a colour
+problem again — which is how an hour goes.
+
+`.vp-best-panel`'s `margin-top: 60` is left alone: measured from the card's own
+edge the gap between the bands is still 60, and it is the border box that is
+now 2px further off. If that 60 was ever meant box-to-panel, it is 58 and one
+line.
+
+**And a second thing the same round caught.** Turning the hover zoom off took
+the `transform` and left the `box-shadow`, so a tapped card still grew a gold
+`rgba(164,127,37,0.28)` ring and kept it until something else was tapped —
+same sticky-`:hover` fault, half-fixed. All three components are now set back
+to their resting shadow rather than to `none`; `none` would have deleted the
+card's own ring along with the gold one, which is the fault above. Those
+resting values were read off the rendered page: the best seller and the
+category tile rest on a 1px ring *plus* a `0 8px 22px -12px` drop shadow, which
+a first pass guessed away.
+
+### The best sellers are the sale card now, inverted
+
+«کارتهای قسمت پر فروش ترینها هم دقیقا مث حراج پله بشه اما برعکس یعنی کارت شیشه
+ای بشه و باکس قیمت و اسم سفید / از همون عکس های قسمت حراج پله ای استفاده کن».
+Below 992; the desktop card keeps its own layout.
+
+They were two different objects: the sale card is a tile with the strip lying
+*on* it, the best seller was a tile with the strip in a row *under* it beside a
+round button. The second is now the first, with the two surfaces swapped —
+tile glass, strip white — and **every other number quoted from the sale card
+rather than re-derived**. 10/11, 22.4, the 2px ring, 47.52 of strip 6 from
+three edges, 19.1862 on its corner, the photograph's box, the 2px optical lift
+on the type. They are one component with two skins; a number recalculated here
+instead of copied will drift the next time the sale card moves, and it has
+moved four times in one evening.
+
+**The basket was kept for one round and then removed.** Read literally, «دقیقا
+مث حراج پله» deletes it — `.vp-deal-cart` is `display: none` below 992 — but the
+client had designed that button two rounds earlier, so deleting it as a side
+effect of a sentence about glass looked like reading one instruction over
+another. It was kept, said so, and the next message was «دقیقا همون کارت حراج
+پله برای پر فروش ترینها اجرا بشه». It is `display: none` below 992 now and the
+strip runs the tile's full width, 6 from both edges, exactly as the sale card's
+does. The markup is untouched, so the button is still there above 992.
+
+The inversion stayed through that, because «برعکس» was asked for in the message
+before and this one does not mention colour: tile glass, strip white.
+
+**The lesson, since this fork will come again**: «دقیقا مث X» says nothing
+about what to do with a thing X has not got. Asking costs a round and assuming
+costs a round — so next time, render both and put the question in the same
+message as the work.
+
+**The photograph change reached the desktop and the fitting rule had to follow
+it.** The tile's picture is a cut-out on white now, and `.vp-best-shot img` was
+`object-fit: cover` — rendered at 1440 it took a bite out of every one of the
+six shoes. That is exactly the failure the sale card's «fitted, not filled»
+note guards against. `contain` in a centred box, at every width, because the
+photograph changed at every width even though the round was a phone round.
+
+**Two orders now have to agree, and nothing in CI checks it.**
+`theme/make-rtl-page.js`'s `BEST_ORDER` must list the same shoes in the same
+sequence as `config/storefront.php`'s `placeholders.best_sellers.priced_from`.
+The first cut of this ran the generator in `LADDER_DEALS`' order and the
+storefront in the config's: same six shoes, different tiles, 46,629 pixels
+apart at 1440. `check-parity.js` caught it — and `check-parity.js` is not in the
+deploy workflow, which runs PHPUnit and Pint only. **Run it after touching
+either list.** The generator at least throws if a name in `BEST_ORDER` is not
+in `LADDER_DEALS`.
+
+`HomePageTest::test_a_best_seller_tile_shows_the_shoe_it_names` covers the
+other half — that a tile shows its own product's photograph and that no
+category photograph is left in the band. Not parity's job: parity compares this
+page against the preview, so if the two ever agree on the wrong photograph it
+reports zero. Checked against the old markup: it fails.
+
+### The generator's declaration order, four times over
+
+`theme/make-rtl-page.js` builds its bands top to bottom, and `const` is not
+hoisted — a table declared below a band that reads it throws
+`ReferenceError: Cannot access 'X' before initialization` on load, before a
+single page is written. Four constants have had to be lifted to the top of the
+file for this, all in one evening: `LADDER_DEALS`, `fa`, the burst primitives
+(`BURST_PATH` / `BURST_LOBES` / `BURST_STUDS`) and `dealBurst`.
+
+The pattern is always the same and always a surprise, because the file reads as
+if it were declarative. **If a band needs something another band already has,
+move the declaration to the top rather than copying it** — and expect that
+error first.
+
+### The best sellers' heart and star
+
+- **The heart** is at the tile's inline end (the left on this rtl page), in a
+  39.9px square with a 12.0175 corner — the header's basket button, which is
+  what the client named. Not the card's own 19.1862: on a 39.9 box that is 48%
+  and draws a circle, and the word was «مربع». It is outside the `<a>`, because
+  a `<button>` inside a link is invalid and a favourite is not a navigation —
+  the same reason the sale card's basket sits outside its own link. Outline
+  heart: there is no wishlist behind it.
+
+- **The star** is the sale cards' own `deal-burst` at `percent => 25`, inside
+  the tile's link where the sale card puts its own. It was drawn white for one
+  round — the message that added it also asked for the hero's star to go white,
+  and that read as one instruction — and «اون ستاره تخفیف فقط در هیرو باید سفید
+  بشه» corrected it. Once it is gold there is nothing left that differs from the
+  sale cards' badge but the number, so the parallel component, its partial and
+  its class were deleted rather than kept.
+
+- **Which cards carry one: every other tile.** Nothing in the catalogue says
+  which of the six is discounted — none is, on this band; the price shown is
+  the pre-sale one — so «بعضی» had to be a rule rather than a fact. It is
+  `$loop->index % 2 === 0` in the Blade and `i % 2 === 0` in the generator, and
+  **the two have to stay in step or `check-parity.js` fails.**
+
+- **The shoe moved 40px down** to clear the top of the tile for them, keeping
+  its height — a move, not a resize. That leaves its box 1.6px above the
+  strip's head where it had 41.6. Tight as a box and not as a picture, since
+  `object-fit: contain` letterboxes it, but **there is no room left down
+  there**; anything else that moves down has to take height off first.
+
+- Both are hidden above 992. The desktop tile is a different layout and nobody
+  has decided where they go on it.
+
+### The header's menu square
+
+White with a gold glyph, so the three header controls read as one set. Two
+things about the rule, because it silently did nothing twice:
+
+- It has to be written `.th-header .th-menu-toggle.d-block`. Unlike the search
+  and basket beside it this button carries **no `.icon-btn` class** — it is
+  `class="th-menu-toggle d-block d-lg-none"` — and the rule that fills it gold
+  further up this file is itself three class levels, so a two-level rule loses
+  to it however far down the file it sits.
+- `background-image: none` explicitly. The gold is a gradient, so the computed
+  `background-color` reads transparent and setting only a colour leaves the
+  gradient painting over it.
+
+### White on the gold ramp, and a mark measured by its ink
+
+Two things from the same round, both of which overturn a number this file had
+argued for.
+
+**The live step's digits and its spinner are white.** «اعداد داخل مربع های گلد
+حراج پله ای باید سفید بشن اون لودینگی که میچرخه هم سفید بشه». They were ink,
+and the comments on both rules argued for it from a measurement: white reads
+2.6:1 on this gold and ink 5.1, and 2.6 is under the 3:1 WCAG asks of a
+graphical control. The client has now asked for white on this ramp twice — here
+and on the header's menu square — so it is white. **The measurement is kept in
+the comments rather than deleted**: if these ever read faint in daylight, that
+is why, and ink is the fix.
+
+**The hero's star went white for one round and came back gold.** Both rules
+were deleted rather than overridden — the gold comes from a gradient the
+generator writes into the markup, so with nothing to beat the presentation
+attribute the star is simply itself again.
+
+**The search mark is 23px, and the number is arithmetic rather than taste.** It
+was 17 — the same number as the box the other two glyphs sit in, which is
+exactly why it looked matched and was not. The other two are icon-font glyphs
+that fill their boxes; this one is an SVG whose magnifier spans about 13 of its
+20 view-box units. Scanning the painted pixels of all three:
+
+    search   13 x 13        (before)
+    basket   18 x 20
+    bars     16 x 14
+
+23 = 17.5 ÷ (13 ÷ 17), the box that puts the search's ink at the basket's size.
+Measured after: 17 x 17.
+
+That is the third time this repo has been caught by equal boxes with unequal
+ink. **When two things are meant to look the same size, measure what they
+paint, not what they occupy.**
+
+## The shop, rebuilt to a reference — and what it has no data for
+
+«برای قسمت شاپ اینو پیاده سازی کن ... دسته بندی های خودمون باشه ... اون قسمت
+پاپلر و لاتستو اینا هم باید باشه / جایی که محصول قرار میگیره باید مربع باشه»,
+then «باید بدونه قاب باشه».
+
+Below 992. Above it the listing keeps its heading, its sidebar and its
+count-and-sort bar; the phone gets a top bar, a tab row, a category strip and a
+new card laid over that.
+
+**`check-parity.js` does not reach any of this.** It compares the *home* page
+against the static preview, and the shop has no preview — it is Blade written
+by hand. `check-overflow.js` and the feature tests are the whole of this page's
+automated cover. Screenshot it after changing it.
+
+### What is real and what is missing
+
+| on the card | backed by |
+|---|---|
+| name, price, cut, was-price | the catalogue |
+| «جدید» badge | `Product::isNew()` — `published_at` inside 21 days |
+| «۵۶ فروش» | `units_sold`, paid order items — **hidden while it is 0** |
+| ★ 4.9 | **nothing. Not built.** |
+
+There is no review table, so the reference's rating is the one element left
+out. A star with a number beside a real price is a claim, and an invented one
+has already been put in and taken out of this repo once.
+
+The sales line is wired and simply absent until something sells. The demo
+catalogue has no paid orders, so today it never shows — printing «۰ فروش» on
+every card of a shop that has not opened says less than nothing.
+
+### Two tabs that look identical and are not
+
+«پرطرفدار» sorts on `units_sold_recent` (a 30-day window) and «پرفروش‌ترین» on
+`units_sold` (all time). They return the same order today because every product
+ties on nought. **That is not a reason to collapse them into one sort** — on a
+shop that has been trading a while they are genuinely different lists, and the
+scopes are written and commented so the difference arrives on its own.
+
+### Three faults this round produced, all caught by something
+
+- **`url()->previous()` in the back link.** It puts the referrer into the
+  page's HTML, so one URL renders differently for two visitors and nothing
+  downstream can cache it. `CataloguePagesTest` caught it by requesting the
+  same listing twice. The arrow goes one step out now — category or search to
+  the shop, shop to home.
+- **The listing lost add-to-cart.** The reference's card carries only a
+  favourite, so the form went with the old card. Recorded in
+  `CataloguePagesTest`, whose assertion moved to the product page rather than
+  being deleted: the invariant it protects — a branch that stopped stocking the
+  default size can still sell one — is still checked end to end.
+- **The filter rail is rendered twice**, once in the phone's `<details>` and
+  once in the desktop sidebar, with exactly one shown. Two forms with the same
+  field names; only the visible one can submit, so nothing disagrees. **A third
+  copy would be a real bug.**
+
+### The frame
+
+`.vp-listing-panel` is the listing's own hook and the extra class is the point:
+`.vp-shop-panel` is shared with the basket, the product page, the checkout and
+the account, and «باید بدونه قاب باشه» was about the listing. Measured at 390,
+the cards ran 34..356 inside the frame and 14..376 without it — 44px of
+picture back.
+
+### The tab row is pills, and the empty left was arithmetic
+
+«چرا با وجود اینکه فضا هست اون ردیف فیلترها سمت چپشون خالیه؟ بنظرم ردیف
+فیلترهارو تو بیضی قرار بدیم».
+
+The six labels paint 265.5px of type. Five 12px gaps took the row's content to
+325.5, and the row is the card grid's width — 336 at 360, 366 at 390, 388 at
+412, 406 at 430. The row was `nowrap` with fixed type and fixed gaps, so none of
+that grew, and on an rtl page the leftover falls at the inline end, which is the
+left: **31px at 360, 41 at 390, 63 at 412, 81 at 430.** The row's own hairline
+ran the full width underneath, so the emptiness was drawn rather than merely
+present. That is what the client was looking at.
+
+`flex: 1 0 auto` on all six spends it. The surplus is shared out as padding
+inside the pills instead of being stranded past the last one, and the row is
+exactly full at every width — measured `ink` and `row` now start and end on the
+same pixel from 360 to 430. Painted side padding: 4.2 at 360, 5.3 at 390, 6.3 at
+402, 7.1 at 412, 8.6 at 430.
+
+Two states, `.vp-chip`'s: outlined black off, gold solid on. The row's hairline
+and the per-tab underline both went — a pill marks itself, and a rule under a
+row of pills only redraws the problem above it.
+
+**The floor is a scroll, and it is newly available.** `flex-shrink: 0` with
+`overflow-x: auto` means that when the six genuinely do not fit — under about
+350 — the row scrolls instead of pushing the page sideways. The old block ruled
+scrolling out for a good reason: the price and brand panels were absolutely
+positioned *inside* this row, and a scroll container clipped them the moment
+they opened. They are `position: fixed` sheets over a scrim now, so they are not
+this box's to clip. Verified rather than assumed — both sheets measured at 390
+and 430 with the row scrolling: full width, `checkVisibility()` true, and the
+sheet's box 60–110px below the row's bottom edge.
+
+**Six is still the ceiling.** Under 381 the type drops to 11 and the gap to 4 to
+keep one line at 360 (333.9 needed against 336). A seventh control does not fit,
+and the answer then is a shorter label — 11px is as small as this row reads at
+arm's length.
+
+### The top bar is one white box, and the pills' black came down
+
+«رنگ مشکی که برای بیضی و مواردی که توش گذاشتی انتخاب کردی خیلی پررنگه باید
+متعادلتر بشه / سرچ بار باید سفید بشه و دورش سایه بیاد و فیلتر هم بیاد داخل باکس
+سرچ سمت چپش», then «خط ننداز دور سرچ / باید همون سایه ای که دور مربع منو تو هدر
+انداختیرو بندازی دورش».
+
+**The tab pills.** The ring is `rgba(16,17,17,0.2)` (204 on white) and the label
+`0.55` (124), down from a full `#101111` on both. Six hard black outlines on a
+white row were competing with the one gold pill that is actually saying
+something. `.55` is where this page already keeps secondary type — the category
+strip under the row is `.62`, and the tab's own label was `.5` before it became
+a pill. **The brand chips inside the sheet still carry the full black**, which
+was asked for by name («برندهای مختلف تو بیضی باشن به رنگ مشکی»); if they should
+follow the row, it is one value in `.vp-chip`.
+
+### The gold pill's two-tone edges were the ramp painted at the wrong end
+
+«این بیضی هایی که برای فیلتر ها و پاپ ها ساختی چرا بالا و پایینش خرابی و دو رنگی
+داره». A lighter line along the top of the gold pill and a darker band along its
+foot — on the filter row's chosen tab and on the chips inside the sheets.
+
+Not a shadow, not a ring, not a second gold. `background-origin` defaults to
+`padding-box` while `background-clip` defaults to `border-box`; these pills carry
+a 1px transparent border to hold the on state to the same size as the off
+state's ring, so those two boxes differ by a pixel on each side, and
+`background-repeat` fills the shortfall by tiling the ramp. The strip above the
+pill got the ramp's *bottom* and the strip below it got the ramp's *top* — the
+two ends of the gold, 34 levels apart, one on each edge.
+
+Measured down the middle of the live `/products` pill at DPR 3, where the strip
+is three device pixels:
+
+```
+before   top  226 226 227 → 192      foot  226 226 227 → 192 193
+after    top  192 192 193 193 194    foot  224 225 225 226 227
+```
+
+Worst step at either edge, 35 → 1. `background-origin: border-box` on
+`.vp-shop-tab.is-on` and `.vp-chip.is-on` is the whole fix. Not
+`background-clip: padding-box`, which keeps the ramp honest by leaving the
+border pixel unpainted and so puts a white hairline round a solid pill. The
+transparent border stays either way; nothing changed size, and parity stayed
+zero at all four widths.
+
+**The box is `.vp-shop-top`, not the search form, and that is load-bearing.**
+`shop.filters` is a `<form>`. Putting the filter's `<details>` inside the search
+form would nest one form in another, and browsers do not tolerate that — the
+inner one is dropped, and the phone's whole filter rail would stop submitting
+with nothing visible to explain it. So the bar is the box, the form goes
+transparent inside it, and the two stay siblings. The form is first and the
+filter second, which on this rtl page puts the field right and the filter left.
+
+Two things moved with it. `.vp-shop-filter` is `position: static` and the panel
+takes `inset-inline: 0` off the bar, because the button is at the *left* end
+now and a 320-wide panel pinned to the left edge of a 66-wide button runs off
+the screen — the same fault, and the same fix, as the price sheet's. And the
+button dropped 42 → 34 so it sits inside a 46 box with 6 of air rather than
+filling it like a lid.
+
+**No ring. The shadow is the header menu square's, copied literally.** The first
+attempt put a 1px ring shadow under two blurred layers on «لبه پنهان»'s
+reasoning that white on white needs a drawn edge; the client does not want a
+line there and named the shadow they do want. Measured across this box's left
+edge at 390: `253 251 248 → 240 → 255`. Across the menu square's on the same
+page: `245 244 242 240 → 232 → 255`. Same shadow — the 8 levels between them are
+the ground, since the header island is a tinted pane at 245 and this bar is on
+the white page. 15 levels of step here against 23 there, which is softer than
+the hero card's 13-level edge was allowed to be, and is the trade the
+instruction asked for.
+
+Side effect worth having: the field went from 215 wide to 266.
+
+### The category icons are Microsoft's now, not hand-drawn
+
+«یه دسته بندی آیکون حرفه ای برام پیدا کن دانلود کن که از اونا استفاده کنیم», then
+«نه اینایی که پیدا کردی بدرد نمیخورن دوباره بگرد چیزای بهتر پیدا کن», then «B»
+off the second sheet.
+
+The eight were drawn by hand in this repo by a session with no illustrator.
+That is what «حرفه‌ای» was about, and no amount of measuring fixes it.
+
+**What the search actually found, so nobody repeats it.** Nine sets were
+measured against these eight categories, by name, out of the full Iconify
+bundle. The obvious modern line sets each cover **six of eight** and each is
+missing one that matters:
+
+| set | licence | gaps |
+|---|---|---|
+| Phosphor | MIT | صندل، کالج |
+| Huge Icons | MIT | کالج، and its only boot is `armored-boot` |
+| IconPark Outline | Apache 2.0 | **ونس و کتونی** |
+| Material Design Icons | Apache 2.0 | صندل، بوت |
+
+A shoe shop whose sneaker tile is a gap is not a set, which is what ruled out
+IconPark. The sets that have **all eight drawn** are the emoji families —
+Fluent, Noto, OpenMoji, Streamline, Twemoji — because the Unicode footwear
+block happens to be exactly this shop's catalogue: `high-heeled-shoe`,
+`running-shoe`, `mans-shoe`, `womans-sandal`, `womans-boot`, `handbag`,
+`watch`, `running-shirt`.
+
+**The client chose Fluent Emoji High Contrast** — Microsoft's monochrome cut of
+Fluent Emoji, MIT, so it takes the page's gold and needs no attribution line in
+the footer. `theme/make-category-icons.js` writes the eight, recoloured to
+`#A47F25`, under the filenames that were already in `config/storefront.php` and
+`theme/make-rtl-page.js` — so swapping the artwork touched no markup and no
+config. Re-run it after changing the map, then `sync-storefront-assets.js`.
+
+**MIT is not the same as free, and the notice is a shipped file.**
+`LICENSE-fluent-emoji.txt` sits beside the icons in both trees. It is written
+into `storefront/public/` directly by the generator rather than carried by the
+sync, because `sync-storefront-assets.js` copies what the *page reaches* and
+nothing links a licence file — the reachability walk cannot see it.
+`ShippedAssetsTest::test_the_category_icons_ship_with_the_licence_they_are_under`
+is what fails if either the notice or the provenance line inside the SVGs goes.
+
+The eight land in two places at once: the shop's category strip and the phone
+drawer's list. Same files, so they cannot come apart.
+
+### Three changes to the set, and a second source
+
+«کتونی باید آیکونش عوض بشه بری یه آیکون دیگه براش پیدا کنی / ست ورزشی اون خط کج
+وسطش پاک بشه بجاش ۳۰ درصد از قسمت پایینش پر بشه / از بالای قسمت بوت هم ۲۰ درصد
+حذف بشه».
+
+All three live in `theme/make-category-icons.js` as named, explained overrides.
+None of them is a hand-edit to a generated file: a re-run would silently undo
+one, and nothing on this project would say so.
+
+**The sneaker is now Phosphor's**, `sneaker-move-fill` — «شماره ۳ خوبه اونکه
+انگار در حال دویدنه», off a sheet of ten monochrome candidates rendered in gold
+beside their neighbours. So the generator has two sources, each icon names its
+own in a comment at the top of its file, and each set's MIT notice is written
+beside the icons. One catch worth knowing: **Phosphor puts `fill="currentColor"`
+on the `<svg>` element, not on the paths**, so dropping the wrapper drops the
+fill and the icon renders black. The colour is carried back in on a `<g>`.
+
+**The sport vest's sash was never drawn.** The vest is one compound path — an
+outer outline plus two inner subpaths that are holes — and the diagonal is the
+*gap left between the two holes*. So removing it is not deleting a stroke, it is
+merging the holes into one, tracing the two outlines end to end with the sash's
+own two diagonals dropped. Then three tenths: the ink runs y 1..31, so 9 units,
+and the interior's walls are vertical below the shoulders — a plain rectangle
+from y 22 to the interior floor at 29 leaves the icon solid from 22 to 31.
+
+**The boot is a crop, not a redraw.** Its shaft is a long straight wall, so
+moving the top of the view box down that same wall shortens it and leaves every
+curve untouched: ink y 2..30.5 is 28.5 units, a fifth is 5.7, box opens at 7.7.
+The box stays 32 wide on purpose — `object-fit: contain` and
+`preserveAspectRatio` both fit the whole box, so keeping the width means the
+boot keeps the width it had beside the other seven and loses only height.
+
+### One line under the shop's icons, and a shorter boot
+
+«۲۰ درصد از بالای اون آیکون بوت و نیم بوتو ببری بنظرم خیلی بلنده / تو قسمت
+فروشگاه همه آیکونها باید از پایین تو یک سطح قرار بگیرن».
+
+**The two rounds on the boot compound, they do not add.** The second twenty per
+cent was asked of the boot as it then stood, which was already four fifths — so
+the crop is 0.2 + 0.8 × 0.2 = **0.36** of the drawn ink, not 0.4. It is written
+in the generator as that arithmetic rather than as `0.36`, because the next
+round of this will be a third fifth and the sum has to stay readable.
+
+**The baseline is half in the files and half in the CSS, and neither half works
+alone.** The icon boxes were already the same 26px square and their *feet* were
+not: these eight are drawn on different amounts of built-in padding, and
+`object-fit: contain` centres what it fits. A loafer and a sandal are wide and
+flat — ink 53 and 51.5 of 128 against a sneaker's 120 — so contain floated them
+in the middle of the box and their soles hung above everyone else's. So
+`make-category-icons.js` now **crops every view box to its own ink**, which
+makes a file's bottom edge the sole of the shoe in it, and the strip adds
+`object-position: center bottom`. Without the crop, `bottom` only lines up eight
+different amounts of padding; without the CSS, the crop only recentres them.
+
+**The generator measures the ink itself**, by rasterising each finished SVG
+through sharp — not by reading the path, because a path's numbers are control
+points and a curve leaves them behind, and because two of these eight are
+altered so the drawn `d` is not the shipped one.
+
+**The trap, and it cost a round.** An `<img>`'s intrinsic ratio comes from the
+`width`/`height` attributes, **not** from the view box. With both left at 32 on
+a `0 16 32 13.25` box the browser believes the picture is square: `contain` fits
+that square, `preserveAspectRatio` letterboxes the real artwork inside it, and
+`object-position: bottom` bottoms the square the artwork is floating in the
+middle of. Measured with them at 32, the eight soles landed on 203, 203, 204,
+205, 207, 208, 208, 209 — six pixels of scatter on a 26px icon, which is the
+fault this was meant to fix, still there and now invisible in the CSS. With
+`width`/`height` following the view box: **210, 210, 210, 210, 210, 211, 211,
+211** — one pixel, and that one is the antialiased edge.
+
+The width is what must never be trimmed. Trim a side and that icon alone starts
+scaling by height, and it becomes the only one of the eight at a different size
+— the same fault arriving from the other direction.
+
+### One rule replaced two: the view box is the ink, on all four sides
+
+«الان سایز مجلسی و کتونی ۵ درصد کوچیکتر بشن / در قسمت منو باید آیکونها تو مربع
+هم اندازه قرار بگیرن».
+
+The second of those turned out to be the *same fault* as the shop's baseline,
+seen from the side. Both are the sets' built-in padding: eight icons drawn on
+eight different amounts of canvas, fitted into one box by something that
+centres. In the strip that showed up as soles at different heights; in the
+drawer's square it showed up as ink 11.5 to 14 wide and 5.5 to 13.5 tall, so a
+sandal read as a sliver beside a handbag.
+
+So the crop is now tight on all four sides, not just the bottom, and that one
+rule answers both:
+
+- the strip keeps `object-position: center bottom`, and because a file's bottom
+  edge *is* the sole, every sole lands on one line;
+- **the drawer needs no CSS at all.** `preserveAspectRatio` already fits and
+  centres; once the box is the ink, "fits" means every icon is as large as its
+  square allows — which is what equal size means for eight objects that are not
+  the same shape.
+
+It is a change of a few per cent, not a resize, because both boxes fit by the
+longer side: measured in the drawer, +3% on the handbag, +5% on the watch, +6%
+on the loafer, +14% on the heel.
+
+**The five per cent is slack, not a scale.** `shrink: 0.05` grows the view box
+around the ink in both dimensions, so the artwork paints smaller inside whatever
+box it is fitted to and its shape is untouched. The extra height comes off the
+top rather than being shared, because the bottom edge is load-bearing — it is
+the line the strip stands every icon on.
+
+**One measuring trap, for the next person.** The strip scrolls horizontally, so
+only five of the eight are on screen at 390. A scan that walks each icon's
+bounding rect will happily read the three off-screen ones as 44, 120 and 196
+pixels wide, because their rects lie outside the viewport and the window lands
+on whatever else is painted there. The visible five are the ones to trust; check
+`getBoundingClientRect()` against the viewport before believing a number.
+
+### The drawer's tiles were never squares — a declaration that had never run
+
+«گفتم تو منو باید آیکون ها تو مربع قرار بگیرن و همه مربع ها یه اندازه باشن».
+
+`.vp-cat-icon` has asked for `width: 28px; height: 28px` since it was written,
+and **the height has been losing the whole time.** The template resets
+`img:not([draggable]) { height: auto }`, and an element plus a pseudo-class
+beats a single class — so the tile's height came from the picture's own aspect
+ratio and not from the number in this file.
+
+That was invisible for as long as every icon's view box was square: auto height
+off a 1:1 picture is the same 28, so the eight tiles agreed **by accident rather
+than by instruction**. Cropping the boxes to their ink ended the accident, and
+the column measured 28 wide by 19.66, 20.09, 22.75, 26.88, 27.00, 27.39, 29.47
+and 31.75 tall — eight different rectangles where eight equal squares were
+written.
+
+The fix is `.vp-drawer-cats a .vp-cat-icon`, one class more specific than the
+reset, carrying the height and `object-fit: contain`. Both sizes — 28, and 25
+inside the `max-height: 730px` block — live in that one place, so neither can be
+undercut by source order later in the file. Verified at 844 and at 700: eight
+tiles of 28 × 28, and eight of 25 × 25.
+
+**Worth carrying as a class of bug, not a bug.** A declaration that has never
+taken effect is indistinguishable from one that has, right up until something
+else changes and it is finally asked to do its job. Nothing in this repo checks
+computed style against written style, so the only way this surfaces is somebody
+measuring — which is why every visual claim here gets measured.
+
+### The heel: a triangle out of its middle, not a different heel
+
+«فقط آیکون مجلسی زشته» → «چنتا آیکون مجلسی پیدا کن جایگذین کنیم».
+
+**Twenty-four replacement heels were shown across two rounds and every one was
+refused.** All twelve monochrome heels in the whole Iconify catalogue, then
+twelve more taken from the coloured cuts and flattened to gold. The catalogue is
+exhausted; do not go looking again without reading this.
+
+What the client wanted was not a different shoe: «میتونیم همین آیکون مجلسی
+فعلیرو یکم توشو خالی کنیم که **هم وزن** بشه با باقی آیکونامون». The complaint was
+weight. The heel is the only one of the eight that is a solid mass — the loafer
+carries a sole line, the boot a shaft seam, the sneaker its motion marks, and
+every one of them shows some ground through itself. This one showed none, so it
+read heavier than its neighbours at the same size.
+
+**The first attempt was refused too, and the reason is worth keeping.** It was
+two straight bars, one along the sole and one along the vamp: «خیلی مصنوعی
+هستن» — a ruled slot across a drawing whose every other edge is a curve. So the
+cut is a `roundedTriangle`, each corner turned with a quadratic through the
+corner itself, which is the same curve a rounded join is.
+
+**The corners are the client's own, measured off the drawing they sent.** Their
+image put the shoe's ink at x 285..835 and y 750..1290 — 20.95 and 22.04 pixels
+to the unit against this 32 grid — and the triangle they drew came to x
+12.3..20.2, y 12.6..20.1. What is not theirs is the slope: «وتر موازیِ رویه», so
+the hypotenuse is parallel to the shoe's own upper edge, which runs (10.37,
+5.13) to (24.23, 21.41) at 1.175. That lifts the apex from 12.6 to 10.9 and is
+what makes the cut read as drawn rather than as placed.
+
+**Clearance is what to preserve if those numbers are ever touched.** At the
+apex's height the shoe's upper edge is at x 15.28 and the cut stops at 12.4; at
+the base the edge is at 23.12 and the cut stops at 20.2. Under about two units
+the wall between the cut and the edge stops being visible at 26px.
+
+And then «سایزش ۵ درصد کوچیکتر بشه» a second time, which compounds like the
+boot's crops: 0.05 + 0.95 × 0.05, so the artwork ends at 0.9025 of its box.
+Measured in the strip: 25.00 wide before, 23.50 after, soles still on 211.
+
+## The basket, rebuilt to the client's reference
+
+«دقیقا این ui بساز ولی از راست چین و به شکل جزیره ای فعلی» — a screenshot of a
+basket card and its summary, to be built exactly, mirrored, and in the island
+treatment this page already has.
+
+**The card was five columns and is now two.** Photograph, then one stack beside
+it: name, the price under it in the shop's gold, then the specification lines.
+The bin is in the far corner and the stepper is at the foot of the stack. What
+went: the price as a separate column aligned to the line's far edge, and the
+stepper as a column of its own. `.vp-cart-line` carries the reasoning.
+
+Three things about it are worth knowing before changing it:
+
+- **Two specification lines: the size on one of its own, the colour on the
+  bottom row beside the stepper.** «حالا سایز کفش بره بالاتر که بتونی رنگ هم
+  بنویسی» — the reference's own arrangement. A pass before this one left the
+  colour out whenever a variant had no colourway and let the stepper take
+  whichever spec line came last; that was a judgement about the data, and the
+  row had been asked for.
+- **Every card reads «رنگ: نامشخص» today**, because every variant in the
+  catalogue is still `color_family = 'unspecified'`. The field is
+  `display_color` on the product screen in `/admin`; nothing in the view needs
+  changing when real colourways are typed in. The seller line is separate and
+  appears only on a vendor's line.
+- **The desktop caps the stack at 560.** The reference is a phone card and the
+  desktop's line is about 1400 wide; `1fr` stretched it the whole way and
+  `space-between` threw the stepper a screen's width from the size line.
+
+**The summary is the reference's four rows** — جمع کالاها, تخفیف, هزینه ارسال,
+then مبلغ قابل پرداخت under a rule — and the button carries the figure, «ادامه
+(… تومان)».
+
+**This is also a reversal.** «کلا اینجا یدونه فقط تعداد خرید باشه و جمع کل» had
+cut this block down to two rows on the grounds that delivery was decided at the
+next step and the code was typed there; the reference has all four, so all four
+are back. The row that was hardest to make honest is delivery, and that is what
+`App\Support\Checkout\Shipping` is for:
+
+> The fee is now printed twice on the way to an order — quoted on the basket,
+> charged by `PlaceOrder`. It used to be a private method on `PlaceOrder`, so a
+> basket printing it would have needed a second copy of the rule. It is one
+> class now and both read it. It is also applied to the subtotal **before** the
+> discount, because that is the number `PlaceOrder` passes it; the first draft
+> here passed the discounted total, which would have put a basket one code away
+> from quoting a fee the order then contradicted.
+
+`CheckoutTest::test_the_basket_quotes_the_delivery_fee_the_order_charges` is the
+test that would have caught exactly that, and
+`test_the_basket_summary_shows_the_reference_four_rows` pins the four rows —
+worth having, since the shape they replaced was asked for by name too.
+
+### And then to the reference's proportions, not just its arrangement
+
+«کسخل من نسخه موبایلو بهت تصویر دادم / دقیقا شبیه این بساز جموجور مرتب فقط راست
+چین بشه». The first pass built the picture's *arrangement* and not its
+*proportions* — right parts, wrong sizes: a photograph too small for its card,
+type too large, lines too far apart, a stepper half again the reference's size.
+
+The block at the very end of `tweaks.css` is measured off the picture rather
+than chosen. In the picture the card is 264 wide and 93 tall, the photograph is
+64 square and the stepper's circles are 17 across; as fractions of the card's
+own width — the thing that survives the screenshot having been scaled — that is
+0.242, 0.352 and 0.064. Ours, at 390: **0.243, 0.332 and 0.066.**
+
+Three things make it read as tidy, and none of them are sizes:
+
+1. **The text block stretches to the photograph's height.** `align-items:
+   stretch` with the `margin-block-start: auto` already on `.vp-cart-last` puts
+   the name on the card's top line and the stepper on its bottom one. Loose,
+   unaligned space under the text was most of what looked untidy.
+2. **The lines are 2 apart.** Four short lines beside a photograph are a block;
+   the same four spread out are a list.
+3. **Both stepper buttons are quiet circles.** The gold `+` was right for the
+   earlier reference; this one draws both grey, so both are grey — and round,
+   which is what turned two rounded squares into one control.
+
+It is scoped to `.vp-cart-line`, because the same stepper classes are on the
+order pages, and it sits at the end of the file so source order cannot lose it
+to the four earlier basket blocks.
+
+**The fourth row is paid for out of the leading, not out of the height.**
+«باید فاصله بین ردیفارو کم میکردی که رنگ هم تو همون ابعاد ارتفاع جا میشد چرا
+چند پیکسل به ارتفاع اضافه کردی» — adding the colour line had taken the card from
+112 to 120.25. The card is 88 of photograph and 24 of padding, so the text block
+has exactly 88 to fit four rows into, and it had grown to 96.25. The 8.25 came
+back off the spacing and **nothing on the card is smaller to read**:
+
+| | was | now |
+| --- | --- | --- |
+| row gap, over three gaps | 2 | 1 |
+| price line box | 26 (`normal`) | 20.8 (`line-height: 1.3`) |
+
+The price was much the loosest line on the card — 26px of box around 15px of
+figure, where the name sat in 21 and the size in 17.25 — so it is where the
+room was. Text block 88.05 into the photograph's 88: the photograph sets the
+card's height again and the card is back to **112 with four rows in it**.
+
+244 tests, Pint clean, parity identical at 992/1200/1440/1920, and no sideways
+scroll on the basket at 320/360/390/430/575/768/992/1200/1920.

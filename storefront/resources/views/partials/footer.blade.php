@@ -140,17 +140,7 @@
         </div>
         <div class="copyright-wrap">
             <div class="container th-container5">
-                <div class="row gy-2 align-items-center">
-                    <div class="col-lg-6">
-                        <p class="copyright-text">Copyright <i class="fal fa-copyright"></i> 2025 <a href="{{ page_url('electronics-shop.html') }}">Erna</a>. All Rights Reserved.</p>
-                    </div>
-                    <div class="col-lg-6 text-center text-lg-end">
-                        <div class="footer-card">
-                            <span class="footer-title">We Are Acepting</span>
-                            <img src="{{ asset('assets/img/shape/cards3.png') }}" alt="">
-                        </div>
-                    </div>
-                </div>
+                <p class="copyright-text">تمامی حقوق این وب‌سایت متعلق به ویکی پلاس است.</p>
             </div>
         </div>
     </footer>

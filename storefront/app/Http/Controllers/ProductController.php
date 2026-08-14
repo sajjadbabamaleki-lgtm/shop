@@ -54,6 +54,23 @@ class ProductController extends Controller
             'offer' => $bySize->flatten(1)->sortBy(fn (array $seller) => $seller['offer']->price)->first()['offer'],
             'colorways' => $product->colorways(),
             'sizes' => $sizes,
+            // Every size the row draws — «سایزها باید ۳۷ ۳۸ ۳۹ ۴۰ ۴۱». The
+            // shop's stated range, `storefront.size_row`, rather than the
+            // distinct sizes in the catalogue: 41 is a size this shop sells
+            // and nobody has stocked yet, and a row built from stock could not
+            // say so.
+            //
+            // Plus this shoe's own sizes, which is not belt and braces. The
+            // row is where the radios are: a size that is on sale here and
+            // missing from the config list would have no chip, and with no
+            // chip there is nothing to put in the basket. The list decides
+            // what is *added* to the row, never what is taken out of it.
+            'shopSizes' => collect(config('storefront.size_row'))
+                ->map(fn ($size) => (int) $size)
+                ->merge($sizes->map(fn (Variant $variant) => (int) $variant->size_value))
+                ->unique()
+                ->sort()
+                ->values(),
             'sellers' => $bySize,
             'gallery' => $product->media,
             'related' => $this->related($product),

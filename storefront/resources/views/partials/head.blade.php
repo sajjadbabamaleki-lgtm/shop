@@ -3,9 +3,9 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <title>@yield('title', config('app.name'))</title>
-    <meta name="author" content="Erna">
-    <meta name="description" content="Erna - Multi-Purpose Modern & Minimal WooCommerce Template">
-    <meta name="keywords" content="Erna - Multi-Purpose Modern & Minimal WooCommerce Template">
+    <meta name="author" content="ویکی پلاس">
+    <meta name="description" content="ویکی پلاس، فروشگاه اینترنتی کیف و کفش زنانه: کتانی، مجلسی، بوت، صندل و کیف، با ارسال به سراسر ایران.">
+    <meta name="keywords" content="کفش زنانه, کیف زنانه, کتانی زنانه, کفش مجلسی, بوت زنانه, ویکی پلاس">
     <meta name="robots" content="INDEX,FOLLOW">
 
     <!-- Mobile Specific Metas -->
@@ -46,4 +46,5 @@
     <link rel="stylesheet" href="{{ asset('assets/css/style.rtl.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/fonts-fa.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/rtl-fixes.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/css/tweaks.css') }}">
+    @php($tweaks = public_path('assets/css/tweaks.css'))
+    <link rel="stylesheet" href="{{ asset('assets/css/tweaks.css') }}{{ file_exists($tweaks) ? '?v='.substr(md5_file($tweaks), 0, 8) : '' }}">

@@ -12,6 +12,11 @@ on:
     branches:
       - main
       - claude/wiki-plus-latest-work-enpjl1
+      # This round's branch. «تمام تغییراتی که از ۱۵ ساعت پیش مانده و بیلدشون
+      # ارسال نشدرو ارسال کن» — a push from a branch that is not on this list
+      # deploys nothing, silently, and CLAUDE.md says this file is where that
+      # gets fixed. It comes off the list when the branch is merged.
+      - claude/shop-section-image-sw2i3a
   pull_request:
   workflow_dispatch:
 

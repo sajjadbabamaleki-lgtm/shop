@@ -98,8 +98,11 @@
             var header = wrap && wrap.closest(".th-header");
             var menu = wrap && wrap.querySelector(".menu-area");
             var catMenu = document.querySelector(".category-menu");
-            var toTop = document.querySelector(".scroll-top");
-            var ring = toTop && toTop.querySelector("path");
+            // The corner button. It was the template's scroll-to-top ring
+            // and is the WhatsApp link now; the name says which, because a
+            // variable called toTop that shows a chat button is a trap.
+            var corner = document.querySelector(".vp-whatsapp");
+            var ring = null;
             var screenEl = document.querySelector(".th-screen");
             if (!$ || !wrap || !header) return;
 
@@ -149,7 +152,12 @@
                     ring.style.strokeDashoffset =
                         run > 0 ? ringLen - (y * ringLen / run) : ringLen;
                 }
-                if (toTop) toTop.classList.toggle("show", y > 50);
+                // «آیکون واتسپ وقتی اولین اسکرول شروع میشه باید ظاهر بشه»,
+                // so the threshold is the first pixel rather than the
+                // ring's old 50. The button fades in on its own transition,
+                // so "the first scroll" is where the fade starts, not where
+                // it finishes.
+                if (corner) corner.classList.toggle("show", y > 0);
                 if (screenEl) {
                     // The template's own test, unchanged: the footer is left
                     // alone while it sits whole in the viewport, allowing 200.
@@ -182,5 +190,40 @@
 
             remeasure();
             apply(window.pageYOffset);
+
+            // The shop's price slider writes into the «تا» box as it moves,
+            // so a drag and a typed number are the same filter arriving by
+            // different hands. It sits here, after the scroll handler and
+            // inside the same guard-free tail, rather than in the middle of
+            // that handler — the first attempt spliced it into the frame
+            // function and left the footer's own block inside an
+            // `if (false)`, which nothing would have reported.
+            //
+            // The range carries no name and submits nothing on its own — a
+            // named one would post a maximum on every apply, including one
+            // nobody dragged. So this handler is not decoration: without it
+            // the slider does nothing at all and the two boxes are the whole
+            // filter. It also repaints the track, which is gold to the left
+            // of the thumb and white to its right.
+            var priceRange = document.querySelector("[data-vp-price-range]");
+            var priceMax = document.querySelector("[data-vp-price-max]");
+            // The shop's filter sheets close on their scrim and on their
+            // own X. The tab that opened one is behind the scrim, so without
+            // this there is no way back out except the browser's.
+            document.addEventListener("click", function (e) {
+                var hit = e.target.closest && e.target.closest("[data-vp-sheet-close]");
+                if (!hit) return;
+                var sheet = hit.closest("details");
+                if (sheet) { e.preventDefault(); sheet.open = false; }
+            });
+
+            if (priceRange && priceMax) {
+                priceRange.addEventListener("input", function () {
+                    priceMax.value = Number(priceRange.value).toLocaleString("fa-IR");
+                    var lo = Number(priceRange.min), hi = Number(priceRange.max);
+                    var pct = hi > lo ? (Number(priceRange.value) - lo) / (hi - lo) * 100 : 100;
+                    priceRange.style.setProperty("--vp-fill", pct + "%");
+                });
+            }
         }());
     </script>

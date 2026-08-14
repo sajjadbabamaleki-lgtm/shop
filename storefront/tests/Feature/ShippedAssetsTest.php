@@ -95,6 +95,43 @@ class ShippedAssetsTest extends TestCase
     }
 
     /**
+     * tweaks.css reaches the browser with a fingerprint on it.
+     *
+     * This has been lost twice. tweaks.css is the one stylesheet that changes,
+     * and served at a plain URL it hands a returning visitor the new HTML —
+     * never cached — against their own cached copy of the old CSS. The client
+     * saw a rebuilt product card rendered with none of its rules and reported
+     * the build as broken; it was not broken, it was half of it.
+     *
+     * The first fix was typed into partials/head.blade.php, which
+     * theme/make-blade.js generates, and the next run of that script deleted
+     * it without a word. The fix lives in the generator now. This is what says
+     * so from the outside — it reads the rendered page, so it holds whoever
+     * wrote the link and however it got there.
+     */
+    public function test_the_stylesheet_that_changes_is_fingerprinted(): void
+    {
+        $page = $this->get('/')->assertOk()->getContent();
+
+        preg_match('~href="[^"]*assets/css/tweaks\.css([^"]*)"~', $page, $m);
+
+        $this->assertNotEmpty($m, 'The page does not load tweaks.css at all.');
+        $this->assertMatchesRegularExpression(
+            '~^\?v=[0-9a-f]{8}$~',
+            $m[1],
+            'tweaks.css is served at a plain URL — a returning visitor will get new HTML against their cached old CSS. '
+            .'The fingerprint is applied in theme/make-blade.js; do not hand-edit partials/head.blade.php.'
+        );
+
+        // And it has to track the file, or it is a constant with extra steps.
+        $this->assertSame(
+            '?v='.substr(md5_file(public_path('assets/css/tweaks.css')), 0, 8),
+            $m[1],
+            'The fingerprint does not match the stylesheet on disk.'
+        );
+    }
+
+    /**
      * No deployment ignore rule may match anything under public/.
      *
      * This is the one that would have caught it. An unanchored directory
@@ -144,6 +181,61 @@ class ShippedAssetsTest extends TestCase
                 'The rule "%s" in %s is unanchored, so it also drops public/**/%s — anchor it as "/%s".',
                 $pattern, $file, $name, $pattern
             ));
+        }
+    }
+
+    /**
+     * The category icons are somebody else's artwork, and MIT's one condition
+     * travels with them.
+     *
+     * They come from two sets — Fluent Emoji for seven, Phosphor for the
+     * sneaker — via theme/make-category-icons.js, and MIT asks that the
+     * copyright notice be included in copies of the work. So each set's notice
+     * sits in the same directory and ships with the icons. Deleting one while
+     * keeping the icons is not a tidy-up: it is the one edit in that folder
+     * that is actually a breach, and it is exactly the sort of file a cleanup
+     * pass removes without noticing.
+     *
+     * Driven off what the icons themselves say rather than a list kept here,
+     * so a ninth category, or a third set, is covered the day it appears — the
+     * generator writes the set's name into every file it emits, and this reads
+     * it back.
+     */
+    public function test_the_category_icons_ship_with_the_licences_they_are_under(): void
+    {
+        $notices = [
+            'Fluent Emoji' => ['LICENSE-fluent-emoji.txt', 'Microsoft Corporation'],
+            'Phosphor Icons' => ['LICENSE-phosphor.txt', 'Phosphor Icons'],
+        ];
+
+        $icons = array_unique(array_values(config('storefront.category_icons')));
+        $this->assertNotEmpty($icons);
+
+        $seen = [];
+
+        foreach ($icons as $icon) {
+            $this->assertFileExists(public_path($icon));
+
+            $svg = file_get_contents(public_path($icon));
+            $named = array_values(array_filter(array_keys($notices), fn ($set) => str_contains($svg, $set)));
+
+            $this->assertCount(1, $named, "{$icon} does not say which set its artwork came from.");
+            $seen[$named[0]] = true;
+        }
+
+        // Every set actually in use has its notice beside the icons — and no
+        // set is claimed that nothing uses.
+        $this->assertSame(array_keys($notices), array_keys($seen));
+
+        foreach ($seen as $set => $_) {
+            [$file, $holder] = $notices[$set];
+            $licence = public_path(dirname($icons[0]).'/'.$file);
+
+            $this->assertFileExists($licence, "The category icons ship without {$set}'s MIT notice.");
+
+            $text = file_get_contents($licence);
+            $this->assertStringContainsString('MIT License', $text);
+            $this->assertStringContainsString($holder, $text);
         }
     }
 }

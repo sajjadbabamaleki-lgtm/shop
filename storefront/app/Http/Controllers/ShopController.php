@@ -47,11 +47,24 @@ class ShopController extends Controller
      * store's prices.
      */
     private const SORTS = [
+        'popular' => ['پرطرفدار', 'units_sold_recent', 'desc'],
         'newest' => ['تازه‌ترین', 'published_at', 'desc'],
         'bestselling' => ['پرفروش‌ترین', 'units_sold', 'desc'],
         'cheapest' => ['ارزان‌ترین', 'branch_price', 'asc'],
         'dearest' => ['گران‌ترین', 'branch_price', 'desc'],
     ];
+
+    /**
+     * The four the phone's tab row offers, in its order.
+     *
+     * The listing's own select still carries all five; this is the reference's
+     * «Popular / Latest / Best Sellers / Price», with the last one a pair
+     * rather than a tab because a price sort has a direction and the other
+     * three do not.
+     */
+    public const TABS = ['popular', 'newest', 'bestselling'];
+
+    public const PRICE_TABS = ['cheapest', 'dearest'];
 
     public function __invoke(Request $request, ?Category $category = null): View
     {
@@ -65,6 +78,10 @@ class ShopController extends Controller
             'sorts' => array_map(fn (array $sort) => $sort[0], self::SORTS),
             'facets' => $this->facets(),
             'heading' => $this->heading($filters),
+            // The strip of categories above the grid. The same list the phone
+            // drawer and the home page's tiles read, in the same order, so a
+            // category is in the same place wherever it is offered.
+            'strip' => Category::query()->where('is_active', true)->orderBy('position')->get(),
         ]);
     }
 
@@ -78,7 +95,7 @@ class ShopController extends Controller
      * types into the box, and become Rial here — the one place the conversion
      * happens on the way in.
      *
-     * @return array{category: ?Category, brand: ?string, size: ?string, color: ?string, min: ?int, max: ?int, sale: bool, sort: string, q: ?string}
+     * @return array{category: ?Category, brand: list<string>, size: ?string, color: ?string, min: ?int, max: ?int, sale: bool, sort: string, q: ?string}
      */
     private function filters(Request $request, ?Category $category): array
     {
@@ -90,7 +107,7 @@ class ShopController extends Controller
 
         return [
             'category' => $category ?? Category::where('slug', $request->query('category'))->first(),
-            'brand' => $this->slugOrNull($request->query('brand')),
+            'brand' => $this->slugList($request->query('brand')),
             'size' => $this->trimmedOrNull($request->query('size')),
             'color' => $this->slugOrNull($request->query('color')),
             'min' => $toman($request->query('min')),
@@ -106,6 +123,27 @@ class ShopController extends Controller
     private function slugOrNull(mixed $value): ?string
     {
         return is_string($value) && preg_match('/^[a-z0-9-]{1,64}$/', $value) ? $value : null;
+    }
+
+    /**
+     * Brands, of which there can now be several.
+     *
+     * «وقتی مثلا در اینجا رو یه برند زده میشه پاپاپ بسته میشه و نمیتونم دوتا
+     * یا چنتا برند انتخاب کنم» — the sheet posts `brand[]` and this reads it.
+     *
+     * A bare `?brand=nike` still works and still means one brand: every link
+     * this application has written until today is that shape, and so is every
+     * one a customer has bookmarked or shared. Both arrive here as a list.
+     *
+     * @return list<string>
+     */
+    private function slugList(mixed $value): array
+    {
+        $values = is_array($value) ? $value : [$value];
+
+        return array_values(array_unique(array_filter(
+            array_map(fn ($one) => $this->slugOrNull($one), $values)
+        )));
     }
 
     private function trimmedOrNull(mixed $value): ?string
@@ -127,6 +165,7 @@ class ShopController extends Controller
             ->purchasable()
             ->pricedHere()
             ->countingSales()
+            ->countingRecentSales()
             ->with(['brand', 'media', 'variants.offer', 'variants.stock', 'defaultVariant.offer']);
 
         if ($filters['category']) {
@@ -134,7 +173,7 @@ class ShopController extends Controller
         }
 
         if ($filters['brand']) {
-            $query->whereHas('brand', fn (Builder $b) => $b->where('slug', $filters['brand']));
+            $query->whereHas('brand', fn (Builder $b) => $b->whereIn('slug', $filters['brand']));
         }
 
         // Size and colour are asked of the *sellable* variants only. A shoe

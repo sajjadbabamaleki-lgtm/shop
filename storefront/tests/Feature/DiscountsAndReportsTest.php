@@ -17,6 +17,7 @@ use App\Models\Vendor;
 use App\Models\VendorOffer;
 use App\Support\Branches\BranchOpener;
 use App\Support\Checkout\SettleOrder;
+use App\Support\Checkout\Shipping;
 use App\Support\Tenancy\TenantContext;
 use Database\Seeders\BranchSeeder;
 use Database\Seeders\CatalogueSeeder;
@@ -108,10 +109,21 @@ class DiscountsAndReportsTest extends TestCase
 
         $this->post('/cart/discount', ['code' => 'nowruz'])->assertRedirect(route('checkout'));
 
-        // The checkout prints the discount as its own line; the basket no longer
-        // does — it shows one figure, «جمع کل», with the code already taken off.
-        $this->get('/checkout')->assertOk()->assertSee(toman(intdiv($price, 10)), false);
-        $this->get('/cart')->assertOk()->assertSee(toman($price - intdiv($price, 10)), false);
+        // Both print the discount on a line of its own now. The basket's summary
+        // was one figure — «جمع کل», with the code already taken off — until the
+        // client asked for the reference's four rows: goods, discount, delivery,
+        // and the payable total under a rule. So the basket is checked for the
+        // parts it now shows separately, and for the total being the three of
+        // them put together rather than a figure of its own.
+        $off = intdiv($price, 10);
+        $payable = $price - $off + Shipping::on($price);
+
+        $this->get('/checkout')->assertOk()->assertSee(toman($off), false);
+
+        $this->get('/cart')->assertOk()
+            ->assertSee(toman($price), false)
+            ->assertSee(toman($off), false)
+            ->assertSee(toman($payable), false);
 
         $order = $this->place();
 

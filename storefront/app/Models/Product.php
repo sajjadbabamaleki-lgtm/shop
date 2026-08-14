@@ -142,6 +142,56 @@ class Product extends Model
     }
 
     /**
+     * The same count, but only over the last few weeks.
+     *
+     * This is what «پرطرفدار» sorts on, and it exists so that tab and
+     * «پرفروش‌ترین» are not the same query wearing two labels. All-time units
+     * is a record of what has sold; a trailing window is a record of what is
+     * selling, and on a shop that has been open a while the two lists are
+     * genuinely different — a shoe that sold four hundred pairs two years ago
+     * outranks everything on the first and nothing on the second.
+     *
+     * They do agree today, because the demo catalogue has no paid orders at
+     * all and every product ties on nought. That is not a reason to collapse
+     * them into one sort; it is a reason to write down why they look identical
+     * before the shop takes its first order.
+     *
+     * The window is a parameter rather than a constant so a caller can widen
+     * it without a migration, and it is measured on the order's own date, not
+     * the item's — an item has no date of its own.
+     */
+    public function scopeCountingRecentSales(Builder $query, int $days = 30): Builder
+    {
+        $sold = OrderItem::query()
+            ->selectRaw('coalesce(sum(order_items.quantity), 0)')
+            ->join('variants', 'variants.id', '=', 'order_items.variant_id')
+            ->whereColumn('variants.product_id', 'products.id')
+            ->whereIn('order_items.order_id', Order::query()
+                ->select('id')
+                ->where('status', Order::PAID)
+                ->where('created_at', '>=', now()->subDays($days)));
+
+        if (empty($query->getQuery()->columns)) {
+            $query->select('products.*');
+        }
+
+        return $query->selectSub($sold, 'units_sold_recent');
+    }
+
+    /**
+     * Published inside the window the listing calls new.
+     *
+     * A product is "new" for a while after it goes on sale and then quietly
+     * stops being it; nothing has to be switched off by hand. `published_at`
+     * is nullable, so a draft that never went live is never new.
+     */
+    public function isNew(int $days = 21): bool
+    {
+        return $this->published_at !== null
+            && $this->published_at->greaterThanOrEqualTo(now()->subDays($days));
+    }
+
+    /**
      * The colourways offered by the product page's colour selector, each
      * carrying its own sizes. Changing colour must update media, price and
      * availability together (spec 16.1), so they travel as one structure.

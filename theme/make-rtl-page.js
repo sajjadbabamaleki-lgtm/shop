@@ -14,6 +14,12 @@ const path = require('path');
 const ROOT = path.resolve(__dirname, '..');
 const SITE_IMG = path.join(ROOT, 'download-version/assets/img');
 
+// Persian digits and separators. Declared with the paths rather than half way
+// down, because the tables further on are evaluated where they are written and
+// three of them format a price — the first to be moved up hit `Cannot access
+// 'fa' before initialization`, which is the same trap in a different order.
+const fa = (n) => n.toLocaleString('fa-IR');
+
 // Usage: make-rtl-page.js [theme] [source.html]
 //
 // With no theme the page renders in the template's own colours and styles;
@@ -28,6 +34,35 @@ let html = fs.readFileSync(src, 'utf8');
 
 // --- direction and language -------------------------------------------------
 html = html.replace(/<html[^>]*>/i, '<html class="no-js" lang="fa" dir="rtl">');
+
+// --- the head says whose shop this is ----------------------------------------
+//
+// «لطفا یک جستجوی کامل در کل صفحات بکن که هیچ نشونه ای از قالب آماده یا اون
+// قالب ERNA وجود نداشته باشه».
+//
+// The template's own title, author, description and keywords rode through
+// every build — «Erna - Multi-Purpose Modern & Minimal WooCommerce Template»
+// was the browser tab, the search result and the share card of every page of
+// this shop. It is the one trace of the template that a *visitor* could read.
+html = html.replace(
+  /<title>[\s\S]*?<\/title>/i,
+  '<title>ویکی پلاس | فروشگاه کیف و کفش زنانه</title>'
+);
+
+html = html.replace(
+  /<meta name="author"[^>]*>/i,
+  '<meta name="author" content="ویکی پلاس">'
+);
+
+html = html.replace(
+  /<meta name="description"[^>]*>/i,
+  '<meta name="description" content="ویکی پلاس، فروشگاه اینترنتی کیف و کفش زنانه: کتانی، مجلسی، بوت، صندل و کیف، با ارسال به سراسر ایران.">'
+);
+
+html = html.replace(
+  /<meta name="keywords"[^>]*>/i,
+  '<meta name="keywords" content="کفش زنانه, کیف زنانه, کتانی زنانه, کفش مجلسی, بوت زنانه, ویکی پلاس">'
+);
 
 // --- the preloader comes off ------------------------------------------------
 //
@@ -50,6 +85,47 @@ if (!PRELOADER.test(html)) {
   throw new Error('the preloader is not where it was — check before assuming it is gone');
 }
 html = html.replace(PRELOADER, '');
+
+// --- the scroll-to-top ring becomes a WhatsApp button -----------------------
+//
+// «بجای این باید یه آیکون واتسپ بیاری با گوشه های کرو», with a screenshot of
+// the template's gold circle and its up arrow. So the ring goes and a WhatsApp
+// button takes its corner — «بجای این», not beside it, which was asked and
+// answered before this was written.
+//
+// **The number lives here and nowhere else.** It is written into the generated
+// page, which `theme/make-blade.js` then ports into the Blade partial, so both
+// copies of the site carry one number from one line. The alternative — reading
+// it from `config/storefront.php` — would make the Blade hand-owned and let
+// the two pages drift, and the footer's landline is already hardcoded the same
+// way. `wa.me` wants the international form with no plus and no leading zero:
+// 09918905993 becomes 989918905993.
+//
+// The arrow's SVG goes with the ring. It was a scroll *progress* indicator —
+// the path's dash offset was written every frame from the page's scroll — so
+// it has no meaning on a button that opens a chat, and the script below sets
+// `ring` to null rather than looking for a path that is not there.
+//
+// The rest of that script is still wanted, though. «آیکون واتسپ وقتی اولین
+// اسکرول شروع میشه باید ظاهر بشه» — the show-on-scroll behaviour the ring had
+// is the behaviour this button wants too, so the same handler drives it,
+// pointed at `.vp-whatsapp` and toggling on the first pixel instead of the
+// ring's 50th. This round reverses the one before it, which parked the button
+// on screen from the top on the reasoning that a way to ask a question is most
+// wanted on the first screen. The client has looked at both.
+const SCROLL_TOP = /[ \t]*<!-- Scroll To Top -->\s*\n[ \t]*<div class="scroll-top">[\s\S]*?\n[ \t]*<\/div>\n/;
+if (!SCROLL_TOP.test(html)) {
+  throw new Error('the scroll-to-top ring is not where it was — check before replacing it');
+}
+const WHATSAPP = [
+  '    <!-- WhatsApp -->',
+  '    <a class="vp-whatsapp" href="https://wa.me/989918905993" target="_blank" rel="noopener"',
+  '       aria-label="گفتگو در واتساپ">',
+  '        <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>',
+  '    </a>',
+  '',
+].join('\n');
+html = html.replace(SCROLL_TOP, WHATSAPP);
 
 // --- swap in the flipped stylesheets ---------------------------------------
 const SHEETS = [
@@ -638,23 +714,172 @@ const bestColors =
 // inventing new ones, cycling to cover the sixth tile. "کتونی" dropped from
 // every name — client's own request, so the name is short enough to sit on
 // one line with the price beside it.
-const BEST_TEST_ITEMS = [
-  ['نیوبالانس ۵۳۰', '۷٬۹۸۰٬۰۰۰'],
-  ['جردن وان ایر', '۸٬۴۸۰٬۰۰۰'],
-  ['گلدن گوس', '۶٬۴۸۰٬۰۰۰'],
-  ['نایک وی۲کی ران', '۶٬۹۸۰٬۰۰۰'],
-  ['اون کلادتیلت', '۴٬۸۸۰٬۰۰۰'],
+// --- the discount mark ------------------------------------------------------
+//
+// Everything from here to the end of `dealBurst` was written beside the hero
+// and the sale cards and has been lifted to the top of the file, in four
+// separate goes, because each new band that draws one of these sits above
+// where it used to live and `const` is not hoisted. If a fifth band needs one,
+// move it here rather than copying it — and expect the same error first:
+// `ReferenceError: Cannot access 'X' before initialization` at load.
+//
+// Declared up here rather than beside the hero it was drawn for, because three
+// bands draw it now — the hero, the sale cards and the best sellers — and the
+// best sellers are assembled above where it used to sit. `const` is only in
+// scope after it is evaluated, so leaving it below meant `Cannot access
+// 'bestBurst' before initialization` on load. That is the third constant this
+// file has had to lift for the same reason; if a fourth band needs one of
+// these, move it here too rather than duplicating it.
+//
+// The discount mark: a lobed burst in the buy button's gold, with the offer
+// on it. Used full-size on the hero shot, and again, smaller and with one
+// line instead of two, on each of the five deal cards below — declared here
+// so both can reach it.
+//
+// The outline is eleven lobes — outer and inner points alternating round a
+// circle at radii 72 and 61, with a Catmull-Rom spline through them turned into
+// cubic segments, which is what gives the soft scalloped edge rather than a
+// spiked star. Generated once and written in, since it never changes.
+const BURST_PATH =
+  'M 75,3 C 80.73,3 85.7,14.57 92.19,16.47 C 98.67,18.38 109.11,11.33 113.93,14.43 C 118.75,17.53 116.67,29.94 121.1,35.05 C 125.53,40.16 138.11,39.88 140.49,45.09 C 142.87,50.3 134.42,59.63 135.38,66.32 C 136.34,73.01 147.08,79.58 146.27,85.25 C 145.45,90.92 133.3,94.19 130.49,100.34 C 127.68,106.49 133.17,117.82 129.41,122.15 C 125.66,126.48 113.67,122.66 107.98,126.32 C 102.29,129.97 100.78,142.47 95.28,144.08 C 89.79,145.7 81.76,136 75,136 C 68.24,136 60.21,145.7 54.72,144.08 C 49.22,142.47 47.71,129.97 42.02,126.32 C 36.33,122.66 24.34,126.48 20.59,122.15 C 16.83,117.82 22.32,106.49 19.51,100.34 C 16.7,94.19 4.55,90.92 3.73,85.25 C 2.92,79.58 13.66,73.01 14.62,66.32 C 15.58,59.63 7.13,50.3 9.51,45.09 C 11.89,39.88 24.47,40.16 28.9,35.05 C 33.33,29.94 31.25,17.53 36.07,14.43 C 40.89,11.33 51.33,18.38 57.81,16.47 C 64.3,14.57 69.27,3 75,3 Z';
+
+// A stud in the mouth of each outward lobe — where the lobe opens out of the
+// body, on the lobe's own axis. Not in the notches between them: that is half
+// a lobe round from here and is where these first went, wrongly.
+//
+// Taken off the client's reference by measuring it, not by reading it. The
+// centre has to be the gold's centroid and not its bounding box — eleven lobes
+// are not symmetric about a box, and using the box put every angle out by
+// enough to land the studs a half-lobe away. From the centroid, the outline's
+// own tips come out at 285.3° and 317.8° and its notches at 300.4° and 333.1°;
+// the two dots sit at 285.0° and 317.3°, which is the tips.
+//
+// Their radius measures 0.783 and 0.751 of the outline's, so 56.4 and 54.1 of
+// our 72, and 55.5 is between them. It reads as the lobe's mouth because that
+// is about where the mouth is: the chord joining the two notches either side
+// crosses the lobe's axis at 61·cos(180°/11) = 58.5.
+const BURST_LOBES = 11;
+const BURST_STUD_ORBIT = 55.5;
+// 2 was where these started. The client asked for 20% on the studs as well
+// as on the burst, and the burst's own 20% is taken on its box in the CSS,
+// so this 20% is on top of that: 2.4 here is a stud 44% larger on the page
+// than before, against a burst 20% larger.
+const BURST_STUD_R = 2.4;
+
+// The outline starts on an outer point at twelve o'clock, so the lobes' own
+// axes are that angle and every 360/11 from it.
+const BURST_STUDS = Array.from({ length: BURST_LOBES }, (_, i) => {
+  const turn = (2 * Math.PI) / BURST_LOBES;
+  const angle = -Math.PI / 2 + i * turn;
+  const cx = (75 + BURST_STUD_ORBIT * Math.cos(angle)).toFixed(2);
+  const cy = (75 + BURST_STUD_ORBIT * Math.sin(angle)).toFixed(2);
+  return `<circle class="vp-burst-stud" cx="${cx}" cy="${cy}" r="${BURST_STUD_R}"></circle>`;
+}).join('');
+
+
+// The same construction as the hero's mark, verbatim — shape, studs and all —
+// just drawn smaller and with one line instead of two: at the deal cards'
+// size there is room for the cut and nothing else. A gradient id per card:
+// SVG ids have to be unique in the document, and five cards each need their
+// own.
+const dealBurst = (cut, i) =>
+  `<svg class="vp-deal-burst" viewBox="0 0 150 150" aria-hidden="true">` +
+  `<defs><linearGradient id="vp-deal-burst-gold-${i}" x1="0" y1="0" x2="0" y2="1">` +
+  '<stop offset="0%" stop-color="#C0972F"></stop><stop offset="100%" stop-color="#E3B54A"></stop>' +
+  '</linearGradient></defs>' +
+  '<g class="vp-burst-star">' +
+  `<path fill="url(#vp-deal-burst-gold-${i})" d="${BURST_PATH}"></path>` +
+  BURST_STUDS +
+  '</g>' +
+  // Percent first in the string, same reasoning as the ladder tiles: this
+  // text renders left to right, so the sign has to come before the digits in
+  // source order to land behind them for an RTL reader.
+  `<text x="75" y="88">٪${fa(cut)}</text>` +
+  '</svg>';
+
+// The five shoes in the stepped sale: photograph, name, list price, and the
+// stock line each one carries.
+//
+// Declared here rather than beside the sale's own markup further down, because
+// three bands read it now — the sale, the daily-deal banner, and the best
+// sellers, which take their photographs from it — and a `const` is only in
+// scope after it is evaluated. It was below the best sellers and the file
+// threw on load.
+const LADDER_DEALS = [
+  ['hero/vikyplus-hero-goldengoose.webp', 'کتونی گلدن گوس', 6480000, 'فقط سایزهای ۳۷ و ۳۹'],
+  ['hero/vikyplus-deal-cloudtilt.webp', 'کتونی اون کلادتیلت', 4880000, 'فقط سایزهای ۳۸ و ۴۰'],
+  ['hero/vikyplus-hero-nb530.webp', 'کتونی نیوبالانس ۵۳۰', 7980000, 'فقط ۱ عدد باقی مانده'],
+  ['hero/vikyplus-deal-v2k.webp', 'کتونی نایک وی۲کی ران', 6980000, 'فقط سایزهای ۳۷ و ۳۹'],
+  ['hero/vikyplus-hero-jordan.webp', 'کتونی جردن وان ایر', 8480000, 'فقط سایز ۳۸'],
 ];
 
-const bestCard = ([file], i) => {
-  const [name, price] = BEST_TEST_ITEMS[i % BEST_TEST_ITEMS.length];
+//
+// «از همون عکس های قسمت حراج پله ای استفاده کن» — so this is not a table any
+// more, it is derived from LADDER_DEALS. The photograph, the name and the
+// price on every tile now belong to *one* shoe instead of a category
+// photograph with somebody else's name under it. The placeholder the comment
+// above admits to is half retired by that: which shoe lands on which tile
+// still carries no meaning, but the tile no longer contradicts itself.
+//
+// «کتونی» is still dropped from the front of each name, at the client's own
+// request, so the name fits on one line beside the price.
+//
+// **The order has to match `config/storefront.php`'s
+// `placeholders.best_sellers.priced_from`, or the two pages show the same six
+// shoes in different places and check-parity.js fails.** It did, the first
+// time this was written: the generator ran in LADDER_DEALS' order and the
+// storefront in the config's, and 46,629 pixels differed at 1440. The names
+// below are that config's list, spelled the way LADDER_DEALS spells them.
+const BEST_ORDER = [
+  'کتونی نیوبالانس ۵۳۰',
+  'کتونی جردن وان ایر',
+  'کتونی گلدن گوس',
+  'کتونی نایک وی۲کی ران',
+  'کتونی اون کلادتیلت',
+];
+
+const BEST_TEST_ITEMS = BEST_ORDER.map((wanted) => {
+  const deal = LADDER_DEALS.find(([, name]) => name === wanted);
+  if (!deal) {
+    throw new Error(`best sellers: no shoe in LADDER_DEALS called ${wanted}`);
+  }
+  const [file, name, price] = deal;
+  return [name.replace(/^کتونی\s+/, ''), fa(price), file];
+});
+
+// The category's own file is no longer read — the tile takes the shoe's
+// photograph instead — but the parameter stays so the caller's list of
+// categories still drives how many tiles there are and in what order.
+const bestCard = (_category, i) => {
+  const [name, price, file] = BEST_TEST_ITEMS[i % BEST_TEST_ITEMS.length];
   return (
     '\n                <div class="col">' +
     '\n                    <div class="vp-best">' +
     '\n                        <a class="vp-best-shot" href="shop.html">' +
-    `\n                            <img src="assets/img/category/${file}.jpg" alt="" loading="lazy">` +
+    `\n                            <img src="assets/img/${file}" alt="" loading="lazy">` +
     bestColors +
+    // «گوشه چپ کارت پر فروش ترینها باید یه مربع اندازه ی سبد خرید تو هدر بیاد
+    // و روش یه قلب بزاری». Outside the <a>, because a button inside a link is
+    // invalid and because a favourite is not a navigation — the same reason
+    // the sale card's basket sits outside its own link.
+    //
+    // Outline heart, not filled: nothing is favourited, and there is no
+    // wishlist behind this yet.
+    // «بعضی از همون کارتها» — every other tile. Nothing in the data says which
+    // of these six is discounted (none of them is, on this band: the price
+    // shown is the one before the sale), so "some" had to be a rule rather
+    // than a fact. Alternating is the plainest one that reads as "some".
+    //
+    // `dealBurst` itself, not a copy of it: «اون ستاره تخفیف فقط در هیرو باید
+    // سفید بشه» settled that this badge is the sale cards' gold one, and once
+    // it is, there is nothing about it that differs except the number. Inside
+    // the <a>, where the sale card puts its own, so it positions against the
+    // tile — an <svg> in a link is valid where the button below is not. The id
+    // suffix is prefixed so it cannot collide with the sale cards' five.
+    (i % 2 === 0 ? '\n                            ' + dealBurst(25, `b${i}`) : '') +
     '\n                        </a>' +
+    `\n                        <button type="button" class="vp-best-fav" aria-label="افزودن ${name} به علاقه‌مندی‌ها">` +
+    '<i class="fa-regular fa-heart" aria-hidden="true"></i></button>' +
     '\n                        <div class="vp-best-info">' +
     '\n                            <div class="vp-best-label">' +
     '\n                                <span class="vp-best-lines">' +
@@ -662,7 +887,7 @@ const bestCard = ([file], i) => {
     `\n                                    <span class="vp-best-cta"><strong>${price} <span>تومان</span></strong></span>` +
     '\n                                </span>' +
     '\n                            </div>' +
-    `\n                            <a class="vp-best-browse" href="shop.html" aria-label="افزودن ${name} به سبد خرید"><i class="fa-solid fa-plus" aria-hidden="true"></i></a>` +
+    `\n                            <a class="vp-best-browse" href="shop.html" aria-label="افزودن ${name} به سبد خرید"><i class="fa-solid fa-bag-shopping" aria-hidden="true"></i></a>` +
     '\n                        </div>' +
     '\n                    </div>' +
     '\n                </div>'
@@ -752,71 +977,6 @@ const LADDER_INTRO = {
   how: 'نحوه کار',
 };
 
-// The discount mark: a lobed burst in the buy button's gold, with the offer
-// on it. Used full-size on the hero shot, and again, smaller and with one
-// line instead of two, on each of the five deal cards below — declared here
-// so both can reach it.
-//
-// The outline is eleven lobes — outer and inner points alternating round a
-// circle at radii 72 and 61, with a Catmull-Rom spline through them turned into
-// cubic segments, which is what gives the soft scalloped edge rather than a
-// spiked star. Generated once and written in, since it never changes.
-const BURST_PATH =
-  'M 75,3 C 80.73,3 85.7,14.57 92.19,16.47 C 98.67,18.38 109.11,11.33 113.93,14.43 C 118.75,17.53 116.67,29.94 121.1,35.05 C 125.53,40.16 138.11,39.88 140.49,45.09 C 142.87,50.3 134.42,59.63 135.38,66.32 C 136.34,73.01 147.08,79.58 146.27,85.25 C 145.45,90.92 133.3,94.19 130.49,100.34 C 127.68,106.49 133.17,117.82 129.41,122.15 C 125.66,126.48 113.67,122.66 107.98,126.32 C 102.29,129.97 100.78,142.47 95.28,144.08 C 89.79,145.7 81.76,136 75,136 C 68.24,136 60.21,145.7 54.72,144.08 C 49.22,142.47 47.71,129.97 42.02,126.32 C 36.33,122.66 24.34,126.48 20.59,122.15 C 16.83,117.82 22.32,106.49 19.51,100.34 C 16.7,94.19 4.55,90.92 3.73,85.25 C 2.92,79.58 13.66,73.01 14.62,66.32 C 15.58,59.63 7.13,50.3 9.51,45.09 C 11.89,39.88 24.47,40.16 28.9,35.05 C 33.33,29.94 31.25,17.53 36.07,14.43 C 40.89,11.33 51.33,18.38 57.81,16.47 C 64.3,14.57 69.27,3 75,3 Z';
-
-// A stud in the mouth of each outward lobe — where the lobe opens out of the
-// body, on the lobe's own axis. Not in the notches between them: that is half
-// a lobe round from here and is where these first went, wrongly.
-//
-// Taken off the client's reference by measuring it, not by reading it. The
-// centre has to be the gold's centroid and not its bounding box — eleven lobes
-// are not symmetric about a box, and using the box put every angle out by
-// enough to land the studs a half-lobe away. From the centroid, the outline's
-// own tips come out at 285.3° and 317.8° and its notches at 300.4° and 333.1°;
-// the two dots sit at 285.0° and 317.3°, which is the tips.
-//
-// Their radius measures 0.783 and 0.751 of the outline's, so 56.4 and 54.1 of
-// our 72, and 55.5 is between them. It reads as the lobe's mouth because that
-// is about where the mouth is: the chord joining the two notches either side
-// crosses the lobe's axis at 61·cos(180°/11) = 58.5.
-const BURST_LOBES = 11;
-const BURST_STUD_ORBIT = 55.5;
-// 2 was where these started. The client asked for 20% on the studs as well
-// as on the burst, and the burst's own 20% is taken on its box in the CSS,
-// so this 20% is on top of that: 2.4 here is a stud 44% larger on the page
-// than before, against a burst 20% larger.
-const BURST_STUD_R = 2.4;
-
-// The outline starts on an outer point at twelve o'clock, so the lobes' own
-// axes are that angle and every 360/11 from it.
-const BURST_STUDS = Array.from({ length: BURST_LOBES }, (_, i) => {
-  const turn = (2 * Math.PI) / BURST_LOBES;
-  const angle = -Math.PI / 2 + i * turn;
-  const cx = (75 + BURST_STUD_ORBIT * Math.cos(angle)).toFixed(2);
-  const cy = (75 + BURST_STUD_ORBIT * Math.sin(angle)).toFixed(2);
-  return `<circle class="vp-burst-stud" cx="${cx}" cy="${cy}" r="${BURST_STUD_R}"></circle>`;
-}).join('');
-
-// The same construction as the hero's mark, verbatim — shape, studs and all —
-// just drawn smaller and with one line instead of two: at the deal cards'
-// size there is room for the cut and nothing else. A gradient id per card:
-// SVG ids have to be unique in the document, and five cards each need their
-// own.
-const dealBurst = (cut, i) =>
-  `<svg class="vp-deal-burst" viewBox="0 0 150 150" aria-hidden="true">` +
-  `<defs><linearGradient id="vp-deal-burst-gold-${i}" x1="0" y1="0" x2="0" y2="1">` +
-  '<stop offset="0%" stop-color="#C0972F"></stop><stop offset="100%" stop-color="#E3B54A"></stop>' +
-  '</linearGradient></defs>' +
-  '<g class="vp-burst-star">' +
-  `<path fill="url(#vp-deal-burst-gold-${i})" d="${BURST_PATH}"></path>` +
-  BURST_STUDS +
-  '</g>' +
-  // Percent first in the string, same reasoning as the ladder tiles: this
-  // text renders left to right, so the sign has to come before the digits in
-  // source order to land behind them for an RTL reader.
-  `<text x="75" y="88">٪${fa(cut)}</text>` +
-  '</svg>';
-
 // Step, its cut, the week it runs, and where it stands. Exactly one is
 // 'current' — the CSS leans on that for the gold tile and the live label.
 const LADDER_STEPS = [
@@ -853,17 +1013,9 @@ const LADDER_STEP_NAME = LADDER_STEPS.find(([, , , state]) => state === 'current
 // card. It is left in the data rather than deleted: it is the only place those
 // sizes are written down, it costs nothing unused, and putting the pill back
 // is then one line in the template rather than five invented strings.
-const LADDER_DEALS = [
-  ['hero/vikyplus-hero-goldengoose.webp', 'کتونی گلدن گوس', 6480000, 'فقط سایزهای ۳۷ و ۳۹'],
-  ['hero/vikyplus-deal-cloudtilt.webp', 'کتونی اون کلادتیلت', 4880000, 'فقط سایزهای ۳۸ و ۴۰'],
-  ['hero/vikyplus-hero-nb530.webp', 'کتونی نیوبالانس ۵۳۰', 7980000, 'فقط ۱ عدد باقی مانده'],
-  ['hero/vikyplus-deal-v2k.webp', 'کتونی نایک وی۲کی ران', 6980000, 'فقط سایزهای ۳۷ و ۳۹'],
-  ['hero/vikyplus-hero-jordan.webp', 'کتونی جردن وان ایر', 8480000, 'فقط سایز ۳۸'],
-];
 
 // fa-IR gives Persian digits and the Arabic thousands mark, which is what a
 // price should read as on this page.
-const fa = (n) => n.toLocaleString('fa-IR');
 
 // How a step stands, drawn rather than set: a tick for the one that is done, a
 // loading ring for the one running now, a clock for the ones still to come.
@@ -1851,8 +2003,11 @@ html = html.replace('</body>',
   '            var header = wrap && wrap.closest(".th-header");\n' +
   '            var menu = wrap && wrap.querySelector(".menu-area");\n' +
   '            var catMenu = document.querySelector(".category-menu");\n' +
-  '            var toTop = document.querySelector(".scroll-top");\n' +
-  '            var ring = toTop && toTop.querySelector("path");\n' +
+  '            // The corner button. It was the template\'s scroll-to-top ring\n' +
+  '            // and is the WhatsApp link now; the name says which, because a\n' +
+  '            // variable called toTop that shows a chat button is a trap.\n' +
+  '            var corner = document.querySelector(".vp-whatsapp");\n' +
+  '            var ring = null;\n' +
   '            var screenEl = document.querySelector(".th-screen");\n' +
   '            if (!$ || !wrap || !header) return;\n' +
   '\n' +
@@ -1902,7 +2057,12 @@ html = html.replace('</body>',
   '                    ring.style.strokeDashoffset =\n' +
   '                        run > 0 ? ringLen - (y * ringLen / run) : ringLen;\n' +
   '                }\n' +
-  '                if (toTop) toTop.classList.toggle("show", y > 50);\n' +
+  '                // «آیکون واتسپ وقتی اولین اسکرول شروع میشه باید ظاهر بشه»,\n' +
+  '                // so the threshold is the first pixel rather than the\n' +
+  '                // ring\'s old 50. The button fades in on its own transition,\n' +
+  '                // so "the first scroll" is where the fade starts, not where\n' +
+  '                // it finishes.\n' +
+  '                if (corner) corner.classList.toggle("show", y > 0);\n' +
   '                if (screenEl) {\n' +
   '                    // The template\'s own test, unchanged: the footer is left\n' +
   '                    // alone while it sits whole in the viewport, allowing 200.\n' +
@@ -1935,8 +2095,142 @@ html = html.replace('</body>',
   '\n' +
   '            remeasure();\n' +
   '            apply(window.pageYOffset);\n' +
+  '\n' +
+  '            // The shop\'s price slider writes into the «تا» box as it moves,\n' +
+  '            // so a drag and a typed number are the same filter arriving by\n' +
+  '            // different hands. It sits here, after the scroll handler and\n' +
+  '            // inside the same guard-free tail, rather than in the middle of\n' +
+  '            // that handler — the first attempt spliced it into the frame\n' +
+  '            // function and left the footer\'s own block inside an\n' +
+  '            // `if (false)`, which nothing would have reported.\n' +
+  '            //\n' +
+  '            // The range carries no name and submits nothing on its own — a\n' +
+  '            // named one would post a maximum on every apply, including one\n' +
+  '            // nobody dragged. So this handler is not decoration: without it\n' +
+  '            // the slider does nothing at all and the two boxes are the whole\n' +
+  '            // filter. It also repaints the track, which is gold to the left\n' +
+  '            // of the thumb and white to its right.\n' +
+  '            var priceRange = document.querySelector("[data-vp-price-range]");\n' +
+  '            var priceMax = document.querySelector("[data-vp-price-max]");\n' +
+  '            // The shop\'s filter sheets close on their scrim and on their\n' +
+  '            // own X. The tab that opened one is behind the scrim, so without\n' +
+  '            // this there is no way back out except the browser\'s.\n' +
+  '            document.addEventListener("click", function (e) {\n' +
+  '                var hit = e.target.closest && e.target.closest("[data-vp-sheet-close]");\n' +
+  '                if (!hit) return;\n' +
+  '                var sheet = hit.closest("details");\n' +
+  '                if (sheet) { e.preventDefault(); sheet.open = false; }\n' +
+  '            });\n' +
+  '\n' +
+  '            if (priceRange && priceMax) {\n' +
+  '                priceRange.addEventListener("input", function () {\n' +
+  '                    priceMax.value = Number(priceRange.value).toLocaleString("fa-IR");\n' +
+  '                    var lo = Number(priceRange.min), hi = Number(priceRange.max);\n' +
+  '                    var pct = hi > lo ? (Number(priceRange.value) - lo) / (hi - lo) * 100 : 100;\n' +
+  '                    priceRange.style.setProperty("--vp-fill", pct + "%");\n' +
+  '                });\n' +
+  '            }\n' +
   '        }());\n' +
   '    </script>\n</body>');
+
+// --- the desktop menu, rebuilt from the pages this shop has -------------------
+//
+// «لطفا یک جستجوی کامل در کل صفحات بکن که هیچ نشونه ای از قالب آماده یا اون
+// قالب ERNA وجود نداشته باشه».
+//
+// The band above the page was still the template's demo menu, in full: a
+// mega-menu of screenshots of the template's own demo sites with «View Demo»
+// buttons on them, «About Style 1/2/3», «Contact Style 1/2/3», eleven blog
+// layouts, «Search Result for Product», «فروشگاه Full Width». It is the
+// loudest trace of the template anywhere on this site, it is the first thing
+// on every desktop page, and half of it links to pages this shop does not
+// have — `page_url()` sends every unmapped filename to '#', so those were dead
+// links as well as somebody else's product's furniture.
+//
+// The phone's drawer was rebuilt for exactly this reason once already; this is
+// the same round for the desktop, and CLAUDE.md's note about that drawer is
+// what said to look here.
+//
+// **Only pages that exist.** Every item below is a filename in
+// `config/storefront.php`'s `pages` map, which is what turns it into a real
+// route in Blade. Nothing here can go to '#'. The categories are not in it —
+// they are not filenames, and the drawer, the listing's own strip and its
+// sidebar all offer them; a menu item that cannot be written without a route
+// helper does not belong in a file that also has to render as a static
+// preview.
+//
+// **Four, not six.** The basket and the account are already buttons in this
+// same band, so listing them again is the same door twice — and measured, six
+// items of Persian ran the header row 22px past the page at 1200, which
+// `check-overflow.js` failed on. The template's six were shorter words with
+// dropdown arrows; ours are «پیگیری سفارش» and «فروشنده شوید».
+html = html.replace(
+  /<nav class="main-menu d-none d-lg-inline-block">[\s\S]*?<\/nav>/,
+  '<nav class="main-menu d-none d-lg-inline-block">\n' +
+  '                                <ul>\n' +
+  '                                    <li><a href="index.html">خانه</a></li>\n' +
+  '                                    <li><a href="shop.html">فروشگاه</a></li>\n' +
+  '                                    <li><a href="order-tracking.html">پیگیری سفارش</a></li>\n' +
+  '                                    <li><a href="vendor-register.html">فروشنده شوید</a></li>\n' +
+  '                                </ul>\n' +
+  '                            </nav>'
+);
+
+// --- two blocks of the template's demo goods, out ----------------------------
+//
+// Same round, same instruction: «هیچ نشونه ای از قالب آماده ... وجود نداشته
+// باشه».
+//
+// **The desktop search's suggestion panel.** `main.js` opens it the moment the
+// header's field is focused, and what it showed was five of the template's own
+// products — «Nike Renew», «Adidas Plastic», «Nike Flex Run», «Nike Air Max» —
+// with the template's photographs and prices, each linking to a product page
+// this shop does not have. A shop that suggests four shoes it does not sell,
+// on every desktop page, the first time anybody clicks search. The panel goes;
+// the field stays and still submits.
+//
+// jQuery makes that safe: the handler does `$(this).children('.search-
+// suggestions')` and then `.css()` on it, and both are no-ops on an empty set.
+//
+// **The QuickView modal.** A hidden dialog carrying «Women's fashion Bag» at
+// $120.85, «Rated 5.00 out of 5 ... 4 customer reviews», «SKU: Fashion-1254»,
+// «Category: Bag, Fashion Hand Bag, Uncategorized» and a paragraph about 1960s
+// hippie fashion. Nothing on this site opens it — no `href="#QuickView"`
+// anywhere — so it is dead markup that ships in the source of every page,
+// with an invented rating in it. Out.
+html = html.replace(/<div class="search-suggestions">[\s\S]*?<!-- \/\.box-suggestions -->\s*<\/div>/, '');
+// Anchored on the sidemenu comment that follows it rather than on a run of
+// closing divs — the same trap the footer replacement above documents.
+html = html.replace(
+  /<div id="QuickView"[\s\S]*?(?=<!--==============================\s*\n?\s*Sidemenu)/,
+  ''
+);
+
+// --- the offer banners, in the shop's own words -------------------------------
+//
+// Still «BLACK / FRIDAY / SPECIAL OFFER» and «Adidas Shoes — The Summer Sale
+// Up to 50% Off», in English, on the home page of a Persian shop that sells
+// neither Adidas nor a Black Friday. The last of the template's copy anybody
+// could read.
+//
+// What replaces it is the shop's own sale, which is the one promotion this
+// site actually runs — the stepped sale the board further up the page
+// explains. No number in it: the live step is `config('storefront.ladder')`
+// and moves, and a banner with a percentage baked into the markup goes stale
+// the week it moves without anybody noticing.
+html = html.replace(
+  /<span class="box-title">BLACK<\/span>\s*<h4 class="box-title style1">FRIDAY<\/h4>\s*<h3 class="sec-title style1">SPECIAL OFFER<\/h3>/,
+  '<span class="box-title">فروش ویژه</span>\n' +
+  '                                <h4 class="box-title style1">حراج پله‌ای</h4>\n' +
+  '                                <h3 class="sec-title style1">هر هفته یک پله ارزان‌تر</h3>'
+);
+
+html = html.replace(
+  /<span class="sub-title2">Adidas Shoes<\/span>\s*<h3 class="sec-title style1">The Summer Sale Up\s*to <span class="text-theme">50%<\/span>Off<\/h3>/,
+  '<span class="sub-title2">کیف و کفش زنانه</span>\n' +
+  '                                <h3 class="sec-title style1">تازه‌های این هفته را\n' +
+  '                                    <span class="text-theme">ببینید</span></h3>'
+);
 
 // --- the footer, in Persian -------------------------------------------------
 //
@@ -1974,6 +2268,34 @@ html = html.replace(
   '                            </div>\n' +
   '                        </div>\n' +
   '                        '
+);
+
+// --- the strip under the footer ----------------------------------------------
+//
+// «پایین فوتر اون کارتها باید کامل حذف بشن و کپی رایت هم به فارسی نوشته بشه
+// متعلق به ویکی پلاس است».
+//
+// Two things went out of that strip. The card row — «We Are Acepting» over a
+// picture of Apple Pay, Visa, Discover, Mastercard and a «Secure Payment»
+// badge — is the template's, and every one of those marks is a claim this shop
+// has not made: an Iranian storefront settles through a shaparak gateway and
+// takes none of them. A row of card logos that cannot be paid with is worse
+// than no row.
+//
+// And the notice itself was «Copyright © 2025 Erna. All Rights Reserved», with
+// the word Erna linked to the template's own demo page — the shop's own footer
+// crediting somebody else's product, in English, on a Persian site.
+//
+// What is left is one line in the shop's own language, centred because it is
+// now the only thing on the strip.
+html = html.replace(
+  /<div class="copyright-wrap">[\s\S]*?<\/footer>/,
+  '<div class="copyright-wrap">\n' +
+  '            <div class="container th-container5">\n' +
+  '                <p class="copyright-text">تمامی حقوق این وب‌سایت متعلق به ویکی پلاس است.</p>\n' +
+  '            </div>\n' +
+  '        </div>\n' +
+  '    </footer>'
 );
 
 // --- the footer on a phone --------------------------------------------------

@@ -92,7 +92,8 @@ class PlaceOrder
             // moment where the answer is worth anything.
             $discount = $this->discounts->on($cart, $customer->id);
 
-            $shipping = $this->shipping($subtotal);
+            // The same rule the basket printed a moment ago — see Shipping.
+            $shipping = Shipping::on($subtotal);
             $off = $discount['amount'];
 
             $order = Order::create([
@@ -247,22 +248,6 @@ class PlaceOrder
 
         $locked->stock_reserved += $quantity;
         $locked->save();
-    }
-
-    /**
-     * Delivery, flat and free over a threshold.
-     *
-     * Both numbers are in config and both are placeholders until the client
-     * says what they should be — see config/storefront.php. They are a
-     * starting policy, not a measured one, and they are in one place so that
-     * changing them is one line.
-     */
-    private function shipping(int $subtotal): int
-    {
-        $free = (int) config('storefront.checkout.free_shipping_above');
-        $flat = (int) config('storefront.checkout.shipping_flat');
-
-        return $free > 0 && $subtotal >= $free ? 0 : $flat;
     }
 
     /**

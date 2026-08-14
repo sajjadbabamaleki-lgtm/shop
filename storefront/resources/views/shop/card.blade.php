@@ -1,36 +1,64 @@
 {{--
-    A product, as a card.
+    A product, as a card, to the client's reference screenshot.
 
-    The stepped sale's own card, unchanged: same square photograph, same glass
-    strip, same burst in the corner, same basket. The listing is not a new
-    design — it is the object the home page already uses to say "here is a
-    thing you can go and look at", laid out in a grid.
+    Built for the phone: a square photograph on a grey tile with a badge at one
+    corner and a favourite at the other, then the name, the price, the cut
+    beside the price it was, and the sales line.
 
-    Two differences, both because this card can be any product rather than one
-    that is definitely on offer: the struck-through price only appears when a
-    promotion is actually running, and so does the burst.
+    «جایی که محصول قرار میگیره باید مربع باشه» — the tile is 1:1 and the
+    photograph is fitted inside it, not filled. A cut-out cropped to a square
+    loses the toe or the heel, which on a shoe is the whole silhouette; that
+    rule is older than this card and applies here for the same reason.
+
+    Two of the reference's lines are not here, and both are absences of data
+    rather than of effort:
+
+    - **No rating.** There is no review table. A star with a number beside a
+      real price is a claim, and this repo has taken an invented one out once
+      already.
+    - **The sales line only appears when something has sold.** `units_sold`
+      counts paid order items, and on the demo catalogue that is nought for
+      every product — printing «۰ فروش» on all of them says less than saying
+      nothing. It appears on its own once orders exist.
+
+    The «جدید» badge is real too: `isNew()` is `published_at` inside a window,
+    so a product stops being new by itself.
 --}}
 @php
     $offer = $product->offerHere();
     $cut = $offer?->discountPercent();
     $shot = $product->primaryMedia();
+    $sold = (int) ($product->units_sold ?? 0);
 @endphp
-<div class="vp-deal">
-    <a class="vp-deal-shot" href="{{ storefront_route('product', $product) }}">
-        @if ($shot)<img src="{{ asset($shot->path) }}" alt="{{ $product->title }}" loading="lazy">@endif
-        @if ($cut)@include('partials.deal-burst', ['key' => 'p'.$product->id, 'percent' => $cut])@endif
-        <span class="vp-deal-label">
-            <span class="vp-deal-lines">
-                <span class="vp-deal-name">{{ $product->title }}</span>
-                <span class="vp-deal-price">@if ($cut)<del>{{ toman($offer->compare_at_price) }}</del>@endif<strong>{{ toman($offer->price) }} <span>تومان</span></strong></span>
-            </span>
+<article class="vp-card">
+    {{-- The photograph and the favourite share a box of their own, and that is
+         not tidiness. The heart sits on the shot's foot corner but cannot live
+         inside it — a <button> inside an <a> is invalid, and a favourite is not
+         a navigation — so it needs a positioned parent that ends where the shot
+         ends. Against the card it would measure from the card's foot, which is
+         below the name and the price. --}}
+    <div class="vp-card-top">
+        <a class="vp-card-shot" href="{{ storefront_route('product', $product) }}">
+            @if ($shot)<img src="{{ asset($shot->path) }}" alt="{{ $product->title }}" loading="lazy">@endif
+            @if ($product->isNew())<span class="vp-card-new">جدید</span>@endif
+        </a>
+        <button type="button" class="vp-card-fav" aria-label="افزودن {{ $product->title }} به علاقه‌مندی‌ها">
+            <i class="fa-regular fa-heart" aria-hidden="true"></i>
+        </button>
+    </div>
+
+    <a class="vp-card-name" href="{{ storefront_route('product', $product) }}">{{ $product->title }}</a>
+
+    <strong class="vp-card-price">{{ toman($offer->price) }} <span>تومان</span></strong>
+
+    @if ($cut)
+        <span class="vp-card-was">
+            <span class="vp-card-cut">٪{{ fa_number($cut) }}</span>
+            <del>{{ toman($offer->compare_at_price) }}</del>
         </span>
-    </a>
-    {{-- Adds a size this branch can actually supply. A card has no room to ask
-         which, and the basket is where a size is changed anyway. --}}
-    <form method="post" action="{{ storefront_route('cart.add') }}">
-        @csrf
-        <input type="hidden" name="variant" value="{{ $product->addableVariant()?->id }}">
-        <button type="submit" class="vp-deal-cart" aria-label="افزودن {{ $product->title }} به سبد خرید"><i class="fa-solid fa-bag-shopping" aria-hidden="true"></i></button>
-    </form>
-</div>
+    @endif
+
+    @if ($sold > 0)
+        <span class="vp-card-sold">{{ fa_number($sold) }} فروش</span>
+    @endif
+</article>
