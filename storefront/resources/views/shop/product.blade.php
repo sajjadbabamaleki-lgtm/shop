@@ -116,7 +116,24 @@
                          was, under the title, where there is room for it. --}}
                     <div class="vp-pdp-head">
                         <div class="vp-pdp-naming">
-                            <h1 class="vp-pdp-title">{{ $product->title }}</h1>
+                            <h1 class="vp-pdp-title">
+                                {{ $product->title }}
+
+                                {{-- The rating, opposite the name — «اول اسم
+                                     کتونی روبروش امتیاز». It is
+                                     `placeholders.rating` and not an average of
+                                     anything: there is no review table yet. It
+                                     is inside the heading so the two sit on one
+                                     line however long the name runs, and it is
+                                     the same number on every shoe, which is
+                                     what a stand-in should look like. --}}
+                                @if (config('storefront.placeholders.rating'))
+                                    <span class="vp-pdp-rate">
+                                        <i class="fa-solid fa-star" aria-hidden="true"></i>
+                                        {{ fa_number(config('storefront.placeholders.rating')) }}
+                                    </span>
+                                @endif
+                            </h1>
                             @if ($product->brand)
                                 <a class="vp-pdp-brand" href="{{ storefront_route('shop', ['brand' => $product->brand->slug]) }}">{{ $product->brand->name }}</a>
                             @endif
@@ -200,14 +217,7 @@
                                 <span class="vp-pick-note">{{ fa_number($simple->count()) }} سایز موجود</span>
                             </div>
 
-                            <div class="vp-pick-sizes">
-                                @foreach ($simple as $variant)
-                                    <label class="vp-pick-size">
-                                        <input type="radio" name="variant" value="{{ $variant->id }}" @checked($loop->first)>
-                                        <span>{{ fa_number((int) $variant->size_value) }}</span>
-                                    </label>
-                                @endforeach
-                            </div>
+                            @include('shop.sizes')
 
                             {{-- The bar the reference puts at the foot of the phone.
                                  It is part of this form, so the button adds whichever
@@ -226,6 +236,21 @@
                         </form>
                     @endif
 
+                    {{-- Every size, even when this shop cannot sell one of them
+                         today: a shoe whose sizes are all gone still shows the
+                         row, greyed, above the line that says so. Without this
+                         the page would answer «همه سایزها باید باشن» only while
+                         there was something to buy. --}}
+                    @if ($simple->isEmpty() && $shopSizes->isNotEmpty())
+                        <div class="vp-pick vp-pick-empty">
+                            <div class="vp-pick-head">
+                                <h2 class="vp-pdp-choice-title">انتخاب سایز</h2>
+                            </div>
+
+                            @include('shop.sizes')
+                        </div>
+                    @endif
+
                     {{-- The «گالری» section, the reference's, under the sizes.
                          Phone only — above 992 the same strip is already in the
                          left column under the photograph. --}}
@@ -241,7 +266,8 @@
                     @endif
 
                     @foreach ($contested as $variant)
-                        <div class="vp-sellers">
+                        {{-- The id the size row's chip links down to. --}}
+                        <div class="vp-sellers" id="size-{{ $variant->id }}">
                             <h3 class="vp-sellers-title"><span>سایز</span> {{ fa_number((int) $variant->size_value) }}</h3>
 
                             @foreach ($sellers[$variant->id] as $seller)
@@ -277,8 +303,17 @@
                         </div>
                     @endforeach
 
-                    @if ($product->description)
-                        <div class="vp-pdp-desc"><p>{{ $product->description }}</p></div>
+                    {{-- The shoe's own description when it has one, and
+                         `placeholders.description` when it has not — «زیرش
+                         توضیحات کفش». The five demo products have none, and an
+                         empty gap under the name is not what the reference
+                         draws; the stand-in says nothing about the shoe, so
+                         filling it in the panel is the only thing that makes
+                         this paragraph specific. --}}
+                    @php $blurb = $product->description ?: config('storefront.placeholders.description'); @endphp
+
+                    @if ($blurb)
+                        <div @class(['vp-pdp-desc', 'is-standin' => ! $product->description])><p>{{ $blurb }}</p></div>
                     @endif
 
                     <dl class="vp-pdp-facts">

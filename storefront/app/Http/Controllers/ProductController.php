@@ -54,6 +54,15 @@ class ProductController extends Controller
             'offer' => $bySize->flatten(1)->sortBy(fn (array $seller) => $seller['offer']->price)->first()['offer'],
             'colorways' => $product->colorways(),
             'sizes' => $sizes,
+            // Every size this branch carries, across the whole catalogue —
+            // «همه سایزها باید باشن». The row on the product page draws all of
+            // them and greys the ones this shoe has not got, so the three
+            // states are off, on and chosen.
+            //
+            // The same query the filter rail runs, deliberately: two lists of
+            // "the sizes this shop sells" that could disagree would be one
+            // list too many.
+            'shopSizes' => Variant::sellable()->distinct()->orderBy('size_value')->pluck('size_value'),
             'sellers' => $bySize,
             'gallery' => $product->media,
             'related' => $this->related($product),

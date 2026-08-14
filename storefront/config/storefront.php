@@ -226,6 +226,40 @@ return [
         'colorway_shots' => 5,
 
         /*
+         | The product page's rating.
+         |
+         | There is no review table, so there is nothing to average. The client
+         | asked for the number anyway — the reference screen carries it beside
+         | the name and «دقیقا همین» was the instruction — so it is here, in
+         | the one place in this repo where an invented number is allowed to
+         | live, rather than seeded into the catalogue where it would be
+         | indistinguishable from a counted one.
+         |
+         | It is the same number on every product, which is the honest shape
+         | for a stand-in: nothing about it varies because nothing about it is
+         | measured. **Set it to null the day reviews exist** and the stars
+         | come off the page until a real average replaces them.
+         */
+        'rating' => 4.9,
+
+        /*
+         | The product page's description.
+         |
+         | `products.description` is a real column and the panel can edit it;
+         | this is what the page prints for a product whose description has not
+         | been written yet, so the block under the name is not an empty gap
+         | while the shop's copy is still being typed.
+         |
+         | It says what is true of every shoe in the catalogue and nothing that
+         | is true of one — no material, no country, no story. A stand-in that
+         | described the shoe would be a claim about it, and the client has had
+         | one invented claim taken off this catalogue already.
+         |
+         | Set it to null to leave the space empty instead.
+         */
+        'description' => 'مشخصات کامل این محصول هنوز ثبت نشده است. برای سایز، جنس و شرایط ارسال با پشتیبانی ویکی پلاس در تماس باشید.',
+
+        /*
          | The brand strip.
          |
          | Each tile carries three photographs and a count. Neither is real:

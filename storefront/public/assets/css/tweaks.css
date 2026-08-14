@@ -5697,14 +5697,26 @@ ul.vp-how-list.is-ticked li:before {
   object-fit: contain;
 }
 
-/* Two pieces of the phone's «Details» screen, off by default and turned on in
-   its own block far below: the brand watermarked behind the shoe, and the
-   «گالری» section under the size chips. Both are in the markup at every width —
-   the watermark because it belongs inside the shot, the strip because it is a
-   second copy of the thumbnails that the phone's order needs — so the desktop
-   has to say no to them here rather than rely on never having said yes. */
+/* Everything the phone's «Details» screen adds, off by default and turned on in
+   its own block far below.
+
+   All of it is in the markup at every width — the watermark belongs inside the
+   shot, the strip is a second copy of the thumbnails the phone's order needs,
+   and the rating, the stand-in description and the sizes this shoe has not got
+   are all printed by the same Blade the desktop renders. «ما الان فقط داریم
+   موبایل کار میکنیم»: the desktop has to say no to each of them here rather
+   than rely on never having said yes.
+
+   Measured, not assumed: with this list in place the product page, the listing
+   and a category page render 0 differing subpixels at 1200, 1440 and 1920
+   against the tree before any of this. */
 .vp-pdp-mark,
-.vp-pdp-strip {
+.vp-pdp-strip,
+.vp-pdp-rate,
+.vp-pdp-desc.is-standin,
+.vp-pick-empty,
+.vp-pick-size.is-off,
+.vp-pick-size.is-elsewhere {
   display: none;
 }
 
@@ -11465,7 +11477,39 @@ ul.vp-how-list.is-ticked li:before {
     display: none;
   }
 
-  .vp-pdp-desc {
+  /* The rating, on the name's line and hard against the other end of it — «اول
+     اسم کتونی روبروش امتیاز». It is inside the <h1>, floated to the far side,
+     so the name wraps around it instead of being pushed into a narrow column
+     by a flex row: a two-line Persian name and a five-character number on one
+     line is what «روبروش» asks for, and float is the only thing that gives the
+     second line the full width back.
+
+     A star and a number and nothing else. The parentheses on the reference are
+     an English convention for an aside; in Persian they read as a correction.
+
+     The gold is the page's, at the size the brand line under it takes. */
+  .vp-pdp-rate {
+    display: inline-flex;
+    float: inline-end;
+    align-items: center;
+    gap: 4px;
+    margin-inline-start: 10px;
+    padding-block-start: 4px;
+    font-family: var(--body-font);
+    font-weight: 700;
+    font-size: 13px;
+    font-feature-settings: 'tnum' 1;
+    color: #101111;
+  }
+
+  .vp-pdp-rate i {
+    font-size: 12px;
+    color: #C0972F;
+  }
+
+  .vp-pdp-desc,
+  .vp-pdp-desc.is-standin {
+    display: block;
     margin-block-start: 10px;
   }
 
@@ -11498,6 +11542,53 @@ ul.vp-how-list.is-ticked li:before {
 
   .vp-pick-size input:checked + span {
     box-shadow: none;
+  }
+
+  /* The row is every size the branch carries, and a size this shoe has not got
+     is drawn rather than left out — «همه سایزها باید باشن با ۳ حالت غیره فعال
+     قابل انتخاب و سلکت شده». The three have to be told apart at a glance and
+     without colour alone:
+
+       غیرفعال      grey ground, no ring, ink at a third, and a line through it
+       قابل انتخاب  white ground, the hairline ring, full ink
+       سلکت شده     the gold ramp, no ring, white ink
+
+     The struck line is the part that carries no colour. Faded ink alone is the
+     one distinction that goes when a phone is in bright sun or in a
+     high-contrast mode, and "this size is gone" is the one thing on this row
+     nobody should have to guess at. */
+  .vp-pick-size.is-off,
+  .vp-pick-size.is-elsewhere {
+    display: block;
+  }
+
+  .vp-pick-size.is-elsewhere {
+    text-decoration: none;
+  }
+
+  .vp-pick-size.is-off > span {
+    position: relative;
+    background: rgba(16, 17, 17, 0.034);
+    box-shadow: none;
+    color: rgba(16, 17, 17, 0.32);
+    cursor: default;
+  }
+
+  .vp-pick-size.is-off > span::after {
+    content: '';
+    position: absolute;
+    inset-inline: 9px;
+    inset-block-start: 50%;
+    height: 1.5px;
+    background: rgba(16, 17, 17, 0.20);
+    transform: rotate(-32deg);
+  }
+
+  /* The row on a shoe with nothing left in any size: the sizes still show,
+     greyed, above the line that says so. */
+  .vp-pick-empty {
+    display: block;
+    margin-block-start: 20px;
   }
 
   /* ---- The gallery -------------------------------------------------------
