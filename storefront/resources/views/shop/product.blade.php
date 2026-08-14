@@ -18,39 +18,17 @@
     <div class="container th-container">
         <div class="vp-shop-panel vp-pdp">
 
-            {{-- The phone's own head, from the reference: back, the screen's
-                 name, the favourite. It replaces nothing — the site header is
-                 still above it, because it carries the basket and the menu and
-                 this is a page of the shop rather than a screen of an app.
+            {{-- Nothing above the photograph on a phone — «بالاش ننویس هیچی».
 
-                 The back arrow is a link to somewhere, not `history.back()`: a
-                 visitor who opened this page from a search result or a shared
-                 link has no history to go back to, and a chevron that does
-                 nothing on those visits is worse than one that always lands on
-                 the shoe's own category. --}}
-            @php
-                $back = $product->categories->isNotEmpty()
-                    ? storefront_route('category', $product->categories->first())
-                    : storefront_route('shop');
-            @endphp
+                 The back chevron and the favourite went first, then the title
+                 with them; the site's own header band is taken off this page
+                 below 992 in the stylesheet, for «عکس اصلی هم نباید هدر داشته
+                 باشه». The page opens on the shoe.
 
-            <div class="vp-pdp-bar d-lg-none">
-                <a class="vp-pdp-back" href="{{ $back }}" aria-label="بازگشت">
-                    <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
-                </a>
-
-                <h2 class="vp-pdp-bar-name">جزئیات محصول</h2>
-
-                {{-- The reference's heart is filled red — a shoe that is
-                     already saved. Nothing can save one: there is no wishlist
-                     table and no route behind it, so a filled heart on every
-                     product would be a state that is not true. It is drawn
-                     outline, the same control the listing's cards carry, and it
-                     turns red the day there is something for it to write to. --}}
-                <button type="button" class="vp-pdp-fav" aria-label="افزودن {{ $product->title }} به علاقه‌مندی‌ها">
-                    <i class="fa-regular fa-heart" aria-hidden="true"></i>
-                </button>
-            </div>
+                 **The basket and the menu were in that band.** They are on
+                 every other page and in the drawer; here the way on is the
+                 «افزودن به سبد» bar at the foot. Said out loud because it is
+                 the cost of the ask rather than an oversight. --}}
 
             <nav class="vp-pdp-crumbs d-none d-lg-flex" aria-label="مسیر">
                 <a href="{{ storefront_route('home') }}">خانه</a>

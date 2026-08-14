@@ -192,6 +192,27 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | The size row
+    |--------------------------------------------------------------------------
+    |
+    | Every size the product page's row draws, in order — «سایزها باید ۳۷ ۳۸ ۳۹
+    | ۴۰ ۴۱». The shop's range, stated, rather than whatever the catalogue
+    | happens to hold today: a size nobody has stocked yet is still a size this
+    | shop sells, and the row is supposed to say which sizes exist before it
+    | says which are in.
+    |
+    | A size in this list that the shoe has not got is drawn greyed. A size the
+    | shoe *has* got and this list has not is still drawn, in its place in the
+    | order: this list says what is added to the row, never what is taken out
+    | of it. The chip is where the radio is, so a sellable size without one
+    | would be a size nobody could put in the basket.
+    |
+    */
+
+    'size_row' => [37, 38, 39, 40, 41],
+
+    /*
+    |--------------------------------------------------------------------------
     | Admitted placeholders
     |--------------------------------------------------------------------------
     |

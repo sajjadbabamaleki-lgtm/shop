@@ -11289,98 +11289,71 @@ ul.vp-how-list.is-ticked li:before {
    ========================================================================== */
 @media (max-width: 991.98px) {
 
-  /* ---- The head: back, name, favourite -----------------------------------
+  /* ---- Nothing above the photograph --------------------------------------
 
-     The three squares in the band above this one are 39.9 with a 12.0175
-     corner, white, lit by the mark's own two-stop shadow, with a gold glyph in
-     them. This row sits directly under that band, so its two controls are that
-     control — same size, same corner, same light, same gold.
+     «اون فلش بک و آیکون قلب از بالا حذف بشه / عکس اصلی هم نباید هدر داشته باشه
+     / بالاش ننویس هیچی». Three asks, one result: the back chevron, the
+     favourite and then the screen's own title are all out of the markup, and
+     the site's header band comes off this page.
 
-     The gold is worth one line, because the card's heart two pages back is
-     ink and this one is not. That heart sits on a photograph with the «جدید»
-     badge two corners away and a second gold there would be the one this
-     file's header block spends a paragraph refusing. Here there is no other
-     gold in the row, so the rule is the header's: a square control in the
-     chrome is white with a gold glyph. */
-  .vp-pdp-bar {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-block-end: 10px;
+     The header is hidden rather than left out of the layout, because the
+     layout is one file for every page and this is one page's decision. Scoped
+     by `:has()` to the product page and to the phone, the way the basket's
+     footer rule directly above does it — the desktop page keeps its header,
+     and so does every other page on the phone.
+
+     **The menu and the basket are in that band.** Hiding it takes both off
+     this page; the way on from here is the «افزودن به سبد» bar at the foot,
+     and every other page still has the header. The mini-basket panel and the
+     drawer are siblings of the header in the layout rather than children of
+     it, so they are still in the document — nothing that was reachable from
+     another page has become unreachable from it. */
+  body:has(.vp-pdp-body) .th-header {
+    display: none;
   }
 
-  .vp-pdp-back,
-  .vp-pdp-fav {
-    flex: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 39.9px;
-    height: 39.9px;
-    padding: 0;
-    border: 0;
-    border-radius: 12.0175px;
-    background: #FFFFFF;
-    color: #C0972F;
-    font-size: 16px;
-    line-height: 1;
-    text-decoration: none;
-    cursor: pointer;
-    box-shadow:
-      0 0 2px rgba(16, 17, 17, 0.10),
-      0 0 8px -2px rgba(16, 17, 17, 0.14);
-  }
+  /* ---- The ground under the shoe -----------------------------------------
 
-  /* Centred between the two squares, and it stays centred whichever of them is
-     wider, because the middle takes all the free space and centres its own
-     text. */
-  .vp-pdp-bar-name {
-    flex: 1;
-    min-width: 0;
-    margin: 0;
-    font-family: 'Cairo', var(--title-font);
-    font-weight: 700;
-    font-size: 16px;
-    text-align: center;
-  }
+     White. «مگه نگفتم بکگراند محصول باید سفید باشه».
 
-  /* ---- The tinted ground, and the sheet over it --------------------------
+     It was the page's gold at a tenth of an alpha, fading down the shot, which
+     is what the reference's own screen does — and that is not what this shop's
+     product photographs sit on anywhere else on the site. The listing's tile
+     is 0.034 grey, the desktop shot is white, and the cut-outs were
+     photographed on white.
 
-     The reference runs its tint to the edges of the screen and starts the
-     sheet's corners there. Ours stops at the page's own margin instead, and
-     that is a measurement rather than a preference: the panel is inset 14 at
-     390 and 20 at 768, two different numbers from two different rules, so a
-     full-bleed would have to be a negative margin that is right at one width
-     and wrong at the other. Held to the margin, the tint is 93% of the screen
-     at 390 and the sheet's corners land on the same line as everything else on
-     the page.
-
-     The tint is the page's one gold at a tenth of an alpha, fading out before
-     the sheet reaches it, so the ground under the shoe is warm rather than
-     grey and there is no second colour on the page.
-
-     No ring, no shadow, no drawn edge: «اون کادرهای گوهو برداااار» still
-     stands. What ends the tint is the sheet's own corner. */
+     Nothing takes its place: no tint, no ring, no shadow, no corner. The shoe
+     sits on the page. */
   .vp-pdp-body {
     gap: 0;
   }
 
   .vp-pdp-gallery {
-    padding-block: 4px 34px;
-    border-radius: 28px 28px 0 0;
-    background: linear-gradient(
-      180deg,
-      rgba(192, 151, 47, 0.11) 0%,
-      rgba(192, 151, 47, 0.04) 58%,
-      rgba(192, 151, 47, 0) 100%
-    );
+    padding-block: 4px 16px;
+    background: none;
+  }
+
+  /* And the frame comes down to the photograph's own shape.
+
+     The shot has been a square since it was written, and a square holding a
+     1400×990 cut-out fitted inside it paints 362 × 256 at 390 with 53 of
+     nothing above and below. The tint used to fill that band; on white it is a
+     hole, and the name sat 150 under the shoe because of it. 1400/990 is the
+     ratio every photograph in the catalogue is supplied at.
+
+     `contain` still decides, so a photograph that arrives at another shape
+     letterboxes rather than crops — the fit-don't-crop rule holds. If the
+     shop's photographs change shape, this is the number that changes. */
+  .vp-pdp-shot {
+    aspect-ratio: 1400 / 990;
   }
 
   /* The brand behind the shoe. Big, faint and inert — `aria-hidden`, so it is
      furniture rather than a second heading for a screen reader to read out
      before the name. Centred on the tile rather than on its text box, which is
      why it is a positioned box the full width of the shot with the line
-     centred inside it. */
+     centred inside it.
+
      **14% down, not the middle.** Measured off the render at 390 — the shoe's
      own ink, row by row, across the 362 tile: nothing above y=200, 153..160 at
      205, 125..167 at 220, 51..170 at 250, and past 280 it is most of the
@@ -11415,19 +11388,17 @@ ul.vp-how-list.is-ticked li:before {
     pointer-events: none;
   }
 
-  /* The sheet. White on a white page, so what it draws is not itself — it is
-     the curve where the tint stops, which is what the reference's corner is
-     doing too. It has to be lifted over the ground for that corner to be on
-     top of anything, hence the negative margin and the stacking context. */
+  /* What was the sheet lifted over the tint is now just the block under the
+     photograph — with the ground white there is no edge for a corner to end
+     and nothing for it to be lifted over. The radius, the white fill and the
+     stacking context are gone with the tint that needed them; what is left is
+     the flex column, which the order below depends on, and the air between the
+     shoe and the name. */
   .vp-pdp-info {
-    position: relative;
-    z-index: 1;
     display: flex;
     flex-direction: column;
-    margin-block-start: -26px;
-    padding-block-start: 22px;
-    border-radius: 28px 28px 0 0;
-    background: #FFFFFF;
+    margin-block-start: 0;
+    padding-block-start: 0;
   }
 
   /* ---- The order inside the sheet ----------------------------------------
@@ -11530,11 +11501,49 @@ ul.vp-how-list.is-ticked li:before {
      Ours were filled grey and gold; they become the reference's, on the page's
      own numbers: a 44 square with the header's corner ratio, 44 × 0.30119 =
      13.25, and the hairline `.vp-pdp-option` already uses one line up. The
-     fill is the same gold ramp it always was. */
+     fill is the same gold ramp it always was.
+
+     **One row, level, at the chip's own size** — «همه سایزها باید تو یک ردیف
+     هم سطح باشن / بجای اینکه مربع هارو بزرگ کنی فاصله بینشونو ۲ برابر کن».
+
+     The chips do not stretch. Sharing the row between them was what made the
+     square 66 instead of 44, and the size of the chip is not what the row's
+     width is for. So: `flex: none` at 44, the gap doubled from 8 to 16, and
+     the row set not to wrap.
+
+     Measured at 390: five 44 squares and four 16 gaps, 284 of the 362 row, all
+     five tops on the same line. */
+  .vp-pick-sizes {
+    flex-wrap: nowrap;
+    gap: 16px;
+  }
+
+  .vp-pick-size,
+  .vp-pick-size.is-off,
+  .vp-pick-size.is-elsewhere {
+    display: flex;
+    flex: none;
+    /* The template gives every `label` on the page `margin: -4.8px 0 8px` —
+       a form rule, from a stylesheet that never expected a label to be a chip
+       in a row of spans. Measured, it sat the two selectable chips 4.8 above
+       the three greyed ones and made the row 47.2 tall for 44 of chip. This
+       zero is «هم سطح»; without it no amount of alignment on the row would
+       have fixed it, because the offset is on the item and not in the line. */
+    margin: 0;
+  }
+
+  /* Squares, not oblongs — «سایزها باید تو مربع باشن نه مستطیل». 44 across and
+     `aspect-ratio: 1` for the height, rather than the 44 × 48 the padding and
+     the min-width used to come to.
+
+     The corner is the header's ratio of it, 44 × 0.30119 = 13.25, the same one
+     the band's squares and the card's favourite are drawn on. */
   .vp-pick-size span {
-    min-width: 44px;
-    height: 44px;
-    padding-inline: 10px;
+    width: 44px;
+    min-width: 0;
+    height: auto;
+    aspect-ratio: 1;
+    padding-inline: 0;
     border-radius: 13.25px;
     background: #FFFFFF;
     box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.10);
@@ -11544,44 +11553,27 @@ ul.vp-how-list.is-ticked li:before {
     box-shadow: none;
   }
 
-  /* The row is every size the branch carries, and a size this shoe has not got
-     is drawn rather than left out — «همه سایزها باید باشن با ۳ حالت غیره فعال
-     قابل انتخاب و سلکت شده». The three have to be told apart at a glance and
-     without colour alone:
+  /* The row draws every size in `storefront.size_row`, in three states:
 
-       غیرفعال      grey ground, no ring, ink at a third, and a line through it
+       غیرفعال      grey ground, no ring, ink at a third
        قابل انتخاب  white ground, the hairline ring, full ink
        سلکت شده     the gold ramp, no ring, white ink
 
-     The struck line is the part that carries no colour. Faded ink alone is the
-     one distinction that goes when a phone is in bright sun or in a
-     high-contrast mode, and "this size is gone" is the one thing on this row
-     nobody should have to guess at. */
-  .vp-pick-size.is-off,
-  .vp-pick-size.is-elsewhere {
-    display: block;
-  }
-
+     **No line through the disabled one** — «نیاز نیست خط روشون بزنی همون حالت
+     غیره فعال رنگ کافیه». It was drawn for the reason that a colour-only
+     distinction is the one that goes in bright sun or a high-contrast mode;
+     the client has looked at both and chosen, so it comes off. The grey ground
+     against the ring is a difference of shape as well as of value, which is
+     what carries it. */
   .vp-pick-size.is-elsewhere {
     text-decoration: none;
   }
 
   .vp-pick-size.is-off > span {
-    position: relative;
     background: rgba(16, 17, 17, 0.034);
     box-shadow: none;
     color: rgba(16, 17, 17, 0.32);
     cursor: default;
-  }
-
-  .vp-pick-size.is-off > span::after {
-    content: '';
-    position: absolute;
-    inset-inline: 9px;
-    inset-block-start: 50%;
-    height: 1.5px;
-    background: rgba(16, 17, 17, 0.20);
-    transform: rotate(-32deg);
   }
 
   /* The row on a shoe with nothing left in any size: the sizes still show,
