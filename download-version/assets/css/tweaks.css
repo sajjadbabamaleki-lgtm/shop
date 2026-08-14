@@ -11532,19 +11532,25 @@ ul.vp-how-list.is-ticked li:before {
     margin: 0;
   }
 
-  /* Squares, not oblongs — «سایزها باید تو مربع باشن نه مستطیل». 44 across and
-     `aspect-ratio: 1` for the height, rather than the 44 × 48 the padding and
-     the min-width used to come to.
+  /* Squares, not oblongs — «سایزها باید تو مربع باشن نه مستطیل» — and a tenth
+     bigger than they were: «سایز مربع هارو ۱۰ درصد بزرگتر کن فاصله بینشون همین
+     مقدار باشه». 44 → 48.4, with `aspect-ratio` carrying the height, and the
+     16 gap left where it is.
 
-     The corner is the header's ratio of it, 44 × 0.30119 = 13.25, the same one
-     the band's squares and the card's favourite are drawn on. */
+     The corner goes up with the box, at the header's ratio: 48.4 × 0.30119 =
+     14.58. A square that grows and keeps its old corner is a bigger square
+     with a tighter radius, which reads as a different shape rather than the
+     same one larger — the same note the drawer's close button carries.
+
+     The row still holds them: 5 × 48.4 + 4 × 16 = 306 of the 362 it has at
+     390. */
   .vp-pick-size span {
-    width: 44px;
+    width: 48.4px;
     min-width: 0;
     height: auto;
     aspect-ratio: 1;
     padding-inline: 0;
-    border-radius: 13.25px;
+    border-radius: 14.58px;
     background: #FFFFFF;
     box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.10);
   }
