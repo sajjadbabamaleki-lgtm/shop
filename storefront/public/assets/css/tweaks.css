@@ -11320,6 +11320,7 @@ ul.vp-how-list.is-ticked li:before {
   }
 
   .vp-pdp-gallery {
+    position: relative;
     padding-block: 4px 16px;
     background: none;
   }
@@ -11546,6 +11547,13 @@ ul.vp-how-list.is-ticked li:before {
      Physical left and right, not logical: the client named the corners of the
      screen, and these two sit on a photograph rather than in a line of text.
 
+     **12 off the screen, not off the photograph** — «چرا وسطن؟». They were the
+     shot's own children and 12 from its corners, which was the same thing
+     until the photograph went to 80% and centred and took them inwards with
+     it. They hang off the gallery now, which spans the full line, and
+     `calc(50% - 50vw + 12px)` is the same expression the size row uses to
+     land on 12 whatever the page's margin is — 14 at 390, 20 at 768.
+
      They are the header's square at the card's scale — white, the mark's own
      two-stop shadow, the 0.30119 corner — which is the same lockup the
      listing's favourite takes. The rating is the same object stretched to fit
@@ -11555,7 +11563,8 @@ ul.vp-how-list.is-ticked li:before {
     display: flex;
     position: absolute;
     z-index: 2;
-    top: 12px;
+    /* 12 from the photograph's own top: the gallery pads 4 above it. */
+    top: 16px;
     align-items: center;
     justify-content: center;
     height: 34px;
@@ -11569,7 +11578,7 @@ ul.vp-how-list.is-ticked li:before {
   }
 
   .vp-pdp-fav {
-    left: 12px;
+    left: calc(50% - 50vw + 12px);
     width: 34px;
     color: #101111;
     font-size: 14px;
@@ -11578,7 +11587,7 @@ ul.vp-how-list.is-ticked li:before {
   }
 
   .vp-pdp-rate {
-    right: 12px;
+    right: calc(50% - 50vw + 12px);
     gap: 5px;
     padding-inline: 10px;
     font-family: var(--body-font);

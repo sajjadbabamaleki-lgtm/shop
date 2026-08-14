@@ -71,26 +71,32 @@
                             <img src="{{ asset($product->primaryMedia()->path) }}" alt="{{ $product->title }}">
                         @endif
 
-                        {{-- The two corners of the photograph, from the
-                             reference: the favourite at the top left, the
-                             rating at the top right. Phone only — the desktop
-                             page has neither, and its rules turn both off.
-
-                             The heart is still outline rather than the
-                             reference's filled one: there is no wishlist table
-                             behind it, and a filled heart on every product is
-                             a state that is not true. --}}
-                        <button type="button" class="vp-pdp-fav" aria-label="افزودن {{ $product->title }} به علاقه‌مندی‌ها">
-                            <i class="fa-regular fa-heart" aria-hidden="true"></i>
-                        </button>
-
-                        @if (config('storefront.placeholders.rating'))
-                            <span class="vp-pdp-rate">
-                                {{ fa_number(config('storefront.placeholders.rating')) }}
-                                <i class="fa-solid fa-star" aria-hidden="true"></i>
-                            </span>
-                        @endif
                     </div>
+
+                    {{-- The two top corners: the favourite on the left, the
+                         rating on the right. Phone only — the desktop page has
+                         neither, and its rules turn both off.
+
+                         Outside the shot rather than inside it. They were its
+                         children until the photograph went to 80% and centred,
+                         which took them in with it; they belong to the screen's
+                         corners — «از راست ۱۲ پیکسل و از چپ هم ۱۲ پیکسل» — so
+                         they hang off the block that spans the full line.
+
+                         The heart is still outline rather than the reference's
+                         filled one: there is no wishlist table behind it, and a
+                         filled heart on every product is a state that is not
+                         true. --}}
+                    <button type="button" class="vp-pdp-fav" aria-label="افزودن {{ $product->title }} به علاقه‌مندی‌ها">
+                        <i class="fa-regular fa-heart" aria-hidden="true"></i>
+                    </button>
+
+                    @if (config('storefront.placeholders.rating'))
+                        <span class="vp-pdp-rate">
+                            {{ fa_number(config('storefront.placeholders.rating')) }}
+                            <i class="fa-solid fa-star" aria-hidden="true"></i>
+                        </span>
+                    @endif
 
                     @if ($shots->count() > 1)
                         {{-- Dots for the strip under it, the reference's own. They
