@@ -11491,8 +11491,27 @@ ul.vp-how-list.is-ticked li:before {
     color: rgba(16, 17, 17, 0.62);
   }
 
+  /* The heading, then the count under it in a box of its own — «یه مستطیل زیر
+     انتخاب سایز که توش نوشته باشه یک سایز موجود».
+
+     It was on the heading's line, hard against the other end of the row. Now
+     it is a rectangle under it: the row's own grey, a corner small enough that
+     it still reads as an oblong beside the squares below it, and the count in
+     Persian digits, which is how every other number on this page is set. */
   .vp-pick-head {
+    display: block;
     margin-block-start: 20px;
+  }
+
+  .vp-pick-note {
+    display: inline-block;
+    margin-block-start: 8px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    background: rgba(16, 17, 17, 0.034);
+    font-size: 12px;
+    line-height: 1.5;
+    color: #6E7070;
   }
 
   /* ---- The size chips ----------------------------------------------------
@@ -11512,10 +11531,25 @@ ul.vp-how-list.is-ticked li:before {
      the row set not to wrap.
 
      Measured at 390: five 44 squares and four 16 gaps, 284 of the 362 row, all
-     five tops on the same line. */
+     five tops on the same line.
+
+     **The row runs left to right, from the left edge** — «سایزهارو از چپ به
+     راست باید بزاری ۳۷ باید چپ باشه / از لبه چپ مربع هارو بزار».
+
+     `direction: ltr` on the row and nothing else: the page is RTL, so the
+     first chip was the rightmost and the row grew leftwards. Flipping the
+     row's own direction puts 37 on the left, 41 on the right, and starts the
+     line on the left edge — one property doing both halves of the ask, where
+     `row-reverse` would have reversed the order without moving where the line
+     begins.
+
+     The heading above it stays RTL. Only the strip of numbers turns, because
+     numbers are the one thing on this page that read the same way in both. */
   .vp-pick-sizes {
     flex-wrap: nowrap;
     gap: 16px;
+    direction: ltr;
+    justify-content: flex-start;
   }
 
   .vp-pick-size,

@@ -81,6 +81,61 @@ const page = fs.readFileSync(PAGE, 'utf8');
 for (const ref of refsIn(page, [ATTRS, URLS, TILE])) enqueue(ref, PAGE);
 
 // The manifest names the icons it lists, and nothing in the markup does.
+/**
+ * A stylesheet that does not parse the way it reads, refused before it ships.
+ *
+ * `tweaks.css` is two thirds prose: every deviation from the template carries
+ * the reasoning above it, and a round of edits usually means editing one of
+ * those comments. Twice now an edit has left a `*​/` in the middle of a block —
+ * the rest of the paragraph then sits *outside* the comment as garbage, and a
+ * browser recovering from garbage throws away the declaration block that
+ * follows it. Silently. Both times the rule that vanished was the one the
+ * round was about, and both times it was found by measuring the page and
+ * disbelieving the number.
+ *
+ * So the sync will not copy a stylesheet with a stray closer or unbalanced
+ * braces. It is the gate between the source stylesheet and the app, it already
+ * reads every CSS file it copies, and there is no point shipping a file whose
+ * rules the browser is going to drop.
+ *
+ * @param {string} css
+ * @param {string} file
+ */
+function refuseIfUnparseable(css, file) {
+  const faults = [];
+  let inComment = false;
+  let braces = 0;
+  let line = 1;
+
+  for (let i = 0; i < css.length; i++) {
+    if (css[i] === '\n') line++;
+
+    if (!inComment && css[i] === '/' && css[i + 1] === '*') {
+      inComment = true;
+      i++;
+    } else if (inComment && css[i] === '*' && css[i + 1] === '/') {
+      inComment = false;
+      i++;
+    } else if (!inComment && css[i] === '*' && css[i + 1] === '/') {
+      faults.push(`line ${line}: a */ with no comment open — the rule after it is dropped`);
+      i++;
+    } else if (!inComment) {
+      if (css[i] === '{') braces++;
+      if (css[i] === '}') braces--;
+    }
+  }
+
+  if (inComment) faults.push('the file ends inside a comment');
+  if (braces !== 0) faults.push(`braces are ${braces > 0 ? braces + ' short of closing' : -braces + ' too many'}`);
+
+  if (faults.length) {
+    console.error(`\n${path.relative(ROOT, file)} would not parse as written:`);
+    for (const fault of faults) console.error('  -', fault);
+    console.error('\nNothing copied. Fix the stylesheet and run this again.\n');
+    process.exit(1);
+  }
+}
+
 const collected = [];
 while (queue.length) {
   const file = queue.shift();
@@ -88,6 +143,7 @@ while (queue.length) {
   const ext = path.extname(file).toLowerCase();
   if (ext === '.css') {
     const css = fs.readFileSync(file, 'utf8');
+    refuseIfUnparseable(css, file);
     for (const ref of refsIn(css, [URLS, IMPORTS])) enqueue(ref, file);
   } else if (path.basename(file) === 'manifest.json') {
     const manifest = JSON.parse(fs.readFileSync(file, 'utf8'));
