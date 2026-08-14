@@ -33,26 +33,6 @@
                  JavaScript at all and the page keeps its promise that the URL
                  decides what is shown. --}}
             <div class="vp-shop-top">
-                {{-- A fixed destination, not `url()->previous()`.
-
-                     That was the first cut and it is a real fault, not a style
-                     preference: it puts the referrer into the page's HTML, so
-                     the same URL renders differently for two visitors and
-                     nothing downstream can cache it. `CataloguePagesTest`
-                     caught it by comparing two requests for the same listing.
-
-                     One step out, always: a category or a search result goes
-                     up to the whole shop, and the shop itself goes home. --}}
-                <a class="vp-shop-back" href="{{ ($filters['category'] || $filters['q']) ? storefront_route('shop') : storefront_route('home') }}" aria-label="بازگشت"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
-
-                <form class="vp-shop-find" action="{{ storefront_route('search') }}" method="get" role="search">
-                    <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-                    {{-- Shorter than the desktop's, which is a different input in a
-                         different box: at 390 the field is 215 wide and the long
-                         one was cut mid-word. --}}
-                    <input type="search" name="q" value="{{ $filters['q'] }}" placeholder="چی می‌خوای؟" aria-label="جست‌وجو در محصولات">
-                </form>
-
                 {{-- A <details>, so the panel opens with no JavaScript and the
                      page keeps its promise that the URL decides what is shown.
                      The rail itself is unchanged — it is the same include the
@@ -61,6 +41,14 @@
                     <summary class="vp-shop-filter-btn"><i class="fa-solid fa-sliders" aria-hidden="true"></i>فیلتر</summary>
                     <div class="vp-shop-filter-panel">@include('shop.filters')</div>
                 </details>
+                <form class="vp-shop-find" action="{{ storefront_route('search') }}" method="get" role="search">
+                    <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                    {{-- Shorter than the desktop's, which is a different input in a
+                         different box: at 390 the field is 215 wide and the long
+                         one was cut mid-word. --}}
+                    <input type="search" name="q" value="{{ $filters['q'] }}" placeholder="چی می‌خوای؟" aria-label="جست‌وجو در محصولات">
+                </form>
+
             </div>
 
             {{-- «اون قسمت پاپلر و لاتستو اینا هم باید باشه». Links, not a

@@ -12588,3 +12588,30 @@ ul.vp-how-list.is-ticked li:before {
     box-shadow: none;
   }
 }
+
+/* Twelve, at the sides and down the middle.
+
+   «فاصله ها از بغلا و وسط باید ۱۲ باشه». Two numbers, one instruction: the
+   listing's own side padding, which was 14, and the grid's column gutter,
+   which was Bootstrap's default. Set together so they cannot drift — the gap
+   the eye reads between a card and the screen's edge and the gap between the
+   two cards are the same gap, and a page where they differ looks like a
+   mistake even when neither number is wrong on its own.
+
+   The vertical gutter is left alone: «بغلا و وسط» is the horizontal pair, and
+   rows sitting closer together was not asked for. */
+@media (max-width: 991.98px) {
+  .vp-listing-panel {
+    padding-inline: 12px;
+  }
+
+  .vp-listing-panel .vp-shop-grid {
+    --bs-gutter-x: 12px;
+  }
+}
+
+/* The filter, first in the row.
+
+   «فیلتر هم باید راست باشه» — first child, which on this rtl page is the
+   right-hand end. The back arrow that used to sit there is gone: «فلش برگشت
+   اضافست». Nothing replaced it, so the search field takes the width it left. */
