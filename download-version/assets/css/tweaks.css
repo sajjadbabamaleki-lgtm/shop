@@ -11391,21 +11391,30 @@ ul.vp-how-list.is-ticked li:before {
      name with the price opposite it, the description, the sizes, the colours —
      goes on one card.
 
-     **It is the shop's pane, not the reference's white card, and that is
-     forced by the round before this one.** On the reference the ground is grey
-     and the card is white; here the ground is white, because «بکگراند محصول
-     باید سفید باشه» — so a white card would be invisible on it. The card takes
-     the tint the hero and the header island take, `rgba(16,17,17,0.034)`,
-     which is 247 on white: the same material the rest of this site's panes are
-     cut from, and the one thing on the page that reads as a card without
-     inventing a second colour.
+     **White, with a soft shadow around it** — «این کارتی که این موارد روشنو
+     سفید کن دورش سایه نرم بده». It was the shop's pane, tinted to 247, with
+     the «لبه پنهان» edges: a lit hairline on three sides and 1.4px of ink at
+     the foot, and no drop shadow at all.
 
-     **Its edges are the «لبه پنهان» remedy, and must stay that way.** The lit
-     hairline runs the top and the sides and stops short of the foot; the foot
-     is ink, 1.4px of it, the same weight as the hairline. No drop shadow. Read
-     that entry in CLAUDE.md before touching either — a soft shadow under this
-     card is exactly the fade the client rejected three times in one
-     afternoon. */
+     That entry in CLAUDE.md is about this exact move, so read it before
+     touching this again. Its finding was that a soft shadow at the edge of a
+     pane contributes about two levels — 247 pane, 250 hairline, 244 shadow,
+     then thirty pixels climbing back to the page's 255 — which is four values
+     within a few levels of each other and no step anywhere. The card
+     dissolved into the page and the long climb was the «fade» the client
+     rejected three times in one afternoon.
+
+     **A white card on a white page has that problem worse, not better**, since
+     the fill no longer differs from the ground at all: the shadow is the only
+     thing left to say where the card ends. So this is not one soft shadow but
+     three layers doing three jobs — a hairline-weight ring for the edge
+     itself, a short shadow for the lift, and a wide soft one for the spread.
+     The ring is what the «لبه پنهان» remedy insisted on and the reason this
+     does not read as a fade; it is 0.05, four levels, so it is an edge and not
+     the «خطی و تیز» line the client rejected in the same thread.
+
+     Measured across the card's left edge after: 255 page, 249 at the shadow's
+     darkest, 254, then 255 inside the card — a step, then the card. */
   .vp-pdp-info {
     position: relative;
     display: flex;
@@ -11425,28 +11434,11 @@ ul.vp-how-list.is-ticked li:before {
        breaking out of it. */
     padding: 18px 12px 20px;
     border-radius: 24px;
-    background: rgba(16, 17, 17, 0.034);
-    box-shadow: inset 0 -1.4px 0 rgba(16, 17, 17, 0.07);
-  }
-
-  /* The lit hairline, drawn as a ring that leaves the foot alone — the mask
-     pair is `.heroSlide6 .hero-inner`'s, at this card's radius. */
-  .vp-pdp-info::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    padding: 1.4px 1.4px 0;
-    border-radius: inherit;
-    background: rgba(255, 255, 255, 0.5);
-    -webkit-mask:
-      linear-gradient(#fff 0 0) content-box,
-      linear-gradient(#fff 0 0);
-    mask:
-      linear-gradient(#fff 0 0) content-box,
-      linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    pointer-events: none;
+    background: #FFFFFF;
+    box-shadow:
+      0 0 0 1px rgba(16, 17, 17, 0.05),
+      0 2px 6px -3px rgba(16, 17, 17, 0.14),
+      0 14px 30px -14px rgba(16, 17, 17, 0.22);
   }
 
   /* ---- The order inside the sheet ----------------------------------------
