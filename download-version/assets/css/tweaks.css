@@ -12483,6 +12483,10 @@ ul.vp-how-list.is-ticked li:before {
 }
 
 .vp-card-was del {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
   font-size: 10px;
   color: rgba(16, 17, 17, 0.42);
 }
@@ -12616,20 +12620,18 @@ ul.vp-how-list.is-ticked li:before {
    right-hand end. The back arrow that used to sit there is gone: «فلش برگشت
    اضافست». Nothing replaced it, so the search field takes the width it left. */
 
-/* The card's first line: the brand, and whether this is a stepped sale.
+/* The card's first line: the brand.
 
-   «تخفیف پله ای و برند بیان تو اون ردیف اول قبل قیمت». One row above the name,
-   so it is read before the price rather than after it.
+   «تخفیف پله ای و برند بیان تو اون ردیف اول قبل قیمت» put the sale marker here
+   too for one round; «باید اون مستطیل که نوشته حراج پله ای بیاد پشت ۳۰ درصد
+   قرار بگیره» moved it down beside the cut. The row is the brand's alone now,
+   and it stays above the name so the brand is still read before the price.
 
-   The brand is quiet and the sale marker is not. That is the point of putting
-   them together: on a 169px card the eye takes the row as one glance, and what
-   should survive that glance is «حراج پله‌ای», not the maker's name. The brand
-   is there because the client asked for it and because a shopper scanning for
-   one brand needs it; it is not there to be the loudest thing on the card.
-
-   `min-width: 0` and the ellipsis on the brand, not on the marker: if the two
-   cannot both fit it is the brand that gets cut, because the marker is a fixed
-   phrase that means nothing at half length. */
+   The chips it went to join are 34 and 62 wide against a 169px card, and the
+   struck price is 55 — three things and two gaps in a row that has 145 of
+   usable width. The struck price is what gives: `min-width: 0` and an ellipsis
+   on it, because a price that has been crossed out is the least of the three
+   and the only one that still means something clipped. */
 .vp-card-meta {
   display: flex;
   align-items: center;
@@ -12649,6 +12651,7 @@ ul.vp-how-list.is-ticked li:before {
 
 .vp-card-ladder {
   flex: none;
+  white-space: nowrap;
   padding: 1px 6px;
   border-radius: 5px;
   background: rgba(192, 151, 47, 0.14);

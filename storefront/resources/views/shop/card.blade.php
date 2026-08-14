@@ -59,7 +59,6 @@
          price on an offer, not a flag on a product. --}}
     <span class="vp-card-meta">
         @if ($product->brand)<span class="vp-card-brand">{{ $product->brand->name }}</span>@endif
-        @if ($cut)<span class="vp-card-ladder">حراج پله‌ای</span>@endif
     </span>
 
     <a class="vp-card-name" href="{{ storefront_route('product', $product) }}">{{ $product->title }}</a>
@@ -69,6 +68,13 @@
     @if ($cut)
         <span class="vp-card-was">
             <span class="vp-card-cut">٪{{ fa_number($cut) }}</span>
+            {{-- «باید اون مستطیل که نوشته حراج پله ای بیاد پشت ۳۰ درصد قرار
+                 بگیره» — behind the cut in reading order, so on this rtl page
+                 immediately to its left. It sat on the row above for one round
+                 and reads better here: the two chips are the same fact seen
+                 twice, how much is off and which offer took it off, and they
+                 belong on one line. --}}
+            <span class="vp-card-ladder">حراج پله‌ای</span>
             <del>{{ toman($offer->compare_at_price) }}</del>
         </span>
     @endif
