@@ -2097,3 +2097,32 @@ bounding rect will happily read the three off-screen ones as 44, 120 and 196
 pixels wide, because their rects lie outside the viewport and the window lands
 on whatever else is painted there. The visible five are the ones to trust; check
 `getBoundingClientRect()` against the viewport before believing a number.
+
+### The drawer's tiles were never squares — a declaration that had never run
+
+«گفتم تو منو باید آیکون ها تو مربع قرار بگیرن و همه مربع ها یه اندازه باشن».
+
+`.vp-cat-icon` has asked for `width: 28px; height: 28px` since it was written,
+and **the height has been losing the whole time.** The template resets
+`img:not([draggable]) { height: auto }`, and an element plus a pseudo-class
+beats a single class — so the tile's height came from the picture's own aspect
+ratio and not from the number in this file.
+
+That was invisible for as long as every icon's view box was square: auto height
+off a 1:1 picture is the same 28, so the eight tiles agreed **by accident rather
+than by instruction**. Cropping the boxes to their ink ended the accident, and
+the column measured 28 wide by 19.66, 20.09, 22.75, 26.88, 27.00, 27.39, 29.47
+and 31.75 tall — eight different rectangles where eight equal squares were
+written.
+
+The fix is `.vp-drawer-cats a .vp-cat-icon`, one class more specific than the
+reset, carrying the height and `object-fit: contain`. Both sizes — 28, and 25
+inside the `max-height: 730px` block — live in that one place, so neither can be
+undercut by source order later in the file. Verified at 844 and at 700: eight
+tiles of 28 × 28, and eight of 25 × 25.
+
+**Worth carrying as a class of bug, not a bug.** A declaration that has never
+taken effect is indistinguishable from one that has, right up until something
+else changes and it is finally asked to do its job. Nothing in this repo checks
+computed style against written style, so the only way this surfaces is somebody
+measuring — which is why every visual claim here gets measured.

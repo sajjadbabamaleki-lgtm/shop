@@ -7791,6 +7791,39 @@ ul.vp-how-list.is-ticked li:before {
   background: rgba(192, 151, 47, 0.07);
 }
 
+/* The tile has to be told it is a square.
+
+   «گفتم تو منو باید آیکون ها تو مربع قرار بگیرن و همه مربع ها یه اندازه باشن».
+
+   The rule above already asks for 28 × 28 and has been losing the height the
+   whole time: the template resets `img:not([draggable]) { height: auto }`, and
+   an element plus a pseudo-class beats a single class. So the tile's height
+   came from the picture's own aspect ratio, not from the number written here.
+
+   **That was invisible for as long as every view box was square** — auto height
+   off a 1:1 picture is the same 28, so the tiles agreed by accident rather than
+   by instruction. Cropping the boxes to their ink ended the accident, and the
+   eight tiles measured 28 wide by 19.66, 20.09, 22.75, 26.88, 27.00, 27.39,
+   29.47 and 31.75 tall — a column of eight different rectangles.
+
+   Restated at a specificity that wins, with `object-fit: contain` so the
+   artwork fits inside the square the tile now definitely is. Both heights live
+   here together so neither can be undercut by source order later in the file.
+
+   Worth remembering as a class of bug rather than a bug: a declaration that has
+   never taken effect looks exactly like one that has, right up until something
+   else changes and it is asked to do its job. */
+.vp-drawer-cats a .vp-cat-icon {
+  height: 28px;
+  object-fit: contain;
+}
+
+@media (max-height: 730px) {
+  .vp-drawer-cats a .vp-cat-icon {
+    height: 25px;
+  }
+}
+
 /* Gold on gold when the row is under the finger, so the mark lights with it
    rather than staying a flat tile in a row that has changed. */
 .vp-drawer-cats a:hover .vp-cat-icon {
