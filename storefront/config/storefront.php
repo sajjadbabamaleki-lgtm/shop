@@ -192,6 +192,27 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | The size row
+    |--------------------------------------------------------------------------
+    |
+    | Every size the product page's row draws, in order — «سایزها باید ۳۷ ۳۸ ۳۹
+    | ۴۰ ۴۱». The shop's range, stated, rather than whatever the catalogue
+    | happens to hold today: a size nobody has stocked yet is still a size this
+    | shop sells, and the row is supposed to say which sizes exist before it
+    | says which are in.
+    |
+    | A size in this list that the shoe has not got is drawn greyed. A size the
+    | shoe *has* got and this list has not is still drawn, in its place in the
+    | order: this list says what is added to the row, never what is taken out
+    | of it. The chip is where the radio is, so a sellable size without one
+    | would be a size nobody could put in the basket.
+    |
+    */
+
+    'size_row' => [37, 38, 39, 40, 41],
+
+    /*
+    |--------------------------------------------------------------------------
     | Admitted placeholders
     |--------------------------------------------------------------------------
     |
@@ -224,6 +245,97 @@ return [
          | in the view so that removing it is one number in one file.
          */
         'colorway_shots' => 5,
+
+        /*
+         | The product page's colour row.
+         |
+         | «یه لاین انتخاب رنگ هم نیاز داریم». Every variant in the catalogue
+         | carries `display_color = نامشخص` and `color_family = unspecified` —
+         | the shop has not told us the colours yet — so there is nothing to
+         | build a row of swatches from.
+         |
+         | These three are a stand-in for the layout, the same as the colourway
+         | strip above: nothing in the row is selectable and no colour is
+         | named, because a named colour is a claim about the shoe. The moment
+         | a variant carries a real colour the page draws that instead and this
+         | list is not consulted.
+         |
+         | Five of them — «رنگها هم حداقل ۵ رنگ روبروش باشن» — of which the
+         | first `colors_available` are drawn as in stock and the rest greyed,
+         | the same three states the size row has. Both numbers are invented,
+         | which is the point of them being here rather than in the database.
+         |
+         | Set it to [] to leave the row out entirely.
+         */
+        'colors' => ['#3F4147', '#D98F6B', '#E4C378', '#8FA8B8', '#C9C2BA'],
+
+        /*
+         | How many of those are in stock — «توش نوشته باشه ۳ رنگ موجود».
+         | Counted from the front of the list.
+         */
+        'colors_available' => 3,
+
+        /*
+         | The product page's rating.
+         |
+         | There is no review table, so there is nothing to average. The client
+         | asked for the number anyway — the reference screen carries it beside
+         | the name and «دقیقا همین» was the instruction — so it is here, in
+         | the one place in this repo where an invented number is allowed to
+         | live, rather than seeded into the catalogue where it would be
+         | indistinguishable from a counted one.
+         |
+         | It is the same number on every product, which is the honest shape
+         | for a stand-in: nothing about it varies because nothing about it is
+         | measured. **Set it to null the day reviews exist** and the stars
+         | come off the page until a real average replaces them.
+         */
+        'rating' => 4.9,
+
+        /*
+         | The product page's description.
+         |
+         | `products.description` is a real column and the panel can edit it;
+         | this is what the page prints for a product whose description has not
+         | been written yet, so the block under the name is not an empty gap
+         | while the shop's copy is still being typed.
+         |
+         | It says what is true of every shoe in the catalogue and nothing that
+         | is true of one — no material, no country, no story. A stand-in that
+         | described the shoe would be a claim about it, and the client has had
+         | one invented claim taken off this catalogue already.
+         |
+         | Set it to null to leave the space empty instead.
+         */
+        'description' => 'مشخصات کامل این محصول هنوز ثبت نشده است. برای سایز، جنس و شرایط ارسال با پشتیبانی ویکی پلاس در تماس باشید.',
+
+        /*
+         | The «توضیحات کفش» section, keyed by brand slug.
+         |
+         | «عنوان توضیحات کفش و یه متن ۴ خطی در مورد گلدن گوس زیرش». No product
+         | in the catalogue has a description, so the section had nothing to
+         | print for the shoe in front of it.
+         |
+         | What is here is about the *brand* and not about the shoe: where the
+         | maker is from, what it is known for, who wears it. That is the one
+         | kind of copy we can write without making a claim the catalogue has
+         | not made — a paragraph about this pair's leather, sole or fit would
+         | be inventing the shoe's specification, which is what the block this
+         | sits in exists to keep out.
+         |
+         | It is the *third* thing the section looks for. A product's own
+         | `description`, typed in the panel, wins over it; the generic line
+         | above is the fallback for a brand with no entry here. So filling a
+         | product in the panel is what takes its brand's paragraph off that
+         | page, one product at a time.
+         */
+        'brand_blurbs' => [
+            'golden-goose' => 'گلدن گوس برند ایتالیایی کفش‌های دست‌دوز است که از سال ۲۰۰۰ در ونیز کار می‌کند. امضای آن ظاهر عمداً کهنه و ستارهٔ دوخته‌شده روی بدنه است و هر جفت با پرداخت دستی ساخته می‌شود. به همین دلیل هیچ دو جفتی کاملاً شبیه هم نیستند.',
+            'nike' => 'نایک برند آمریکایی کفش ورزشی است که از سال ۱۹۶۴ در اورگان کار می‌کند. بسیاری از فناوری‌های امروزی کفش دویدن از آن آمده و سری‌های خیابانی‌اش از دههٔ هشتاد به سبک روزمره رسیدند. طراحی‌هایش میان راحتی و ظاهر ورزشی تعادل برقرار می‌کنند.',
+            'jordan' => 'جردن زیرمجموعهٔ نایک است که در سال ۱۹۸۴ برای مایکل جردن پایه‌گذاری شد. ایر جردن ۱ که کفش زمین بسکتبال بود، امروز یکی از شناخته‌شده‌ترین کتانی‌های خیابانی جهان است. نشان بال‌دار و طرح دورنگ، امضای ثابت این خانواده از کفش‌هاست.',
+            'new-balance' => 'نیوبالانس برند آمریکایی کفش است که از سال ۱۹۰۶ در بوستون کار می‌کند. سال‌ها با کفش دویدن و تنوع عرض قالب شناخته می‌شد و مدل‌های کلاسیکش مثل ۵۳۰ حالا کتانی روزمره‌اند. رنگ‌بندی خنثی و آرام، ویژگی همیشگی طراحی این برند است.',
+            'on' => 'اون برند سوئیسی کفش ورزشی است که در سال ۲۰۱۰ در زوریخ تأسیس شد. امضای آن زیرهٔ حفره‌دار است که فرود را نرم و رانش را سفت می‌کند؛ کفش‌هایش از دویدن به سبک روزمره رسیدند. ظاهر ساده و بی‌شلوغی، آن را برای پوشیدن طولانی‌مدت مناسب کرده.',
+        ],
 
         /*
          | The brand strip.

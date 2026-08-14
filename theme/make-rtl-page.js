@@ -35,6 +35,35 @@ let html = fs.readFileSync(src, 'utf8');
 // --- direction and language -------------------------------------------------
 html = html.replace(/<html[^>]*>/i, '<html class="no-js" lang="fa" dir="rtl">');
 
+// --- the head says whose shop this is ----------------------------------------
+//
+// «لطفا یک جستجوی کامل در کل صفحات بکن که هیچ نشونه ای از قالب آماده یا اون
+// قالب ERNA وجود نداشته باشه».
+//
+// The template's own title, author, description and keywords rode through
+// every build — «Erna - Multi-Purpose Modern & Minimal WooCommerce Template»
+// was the browser tab, the search result and the share card of every page of
+// this shop. It is the one trace of the template that a *visitor* could read.
+html = html.replace(
+  /<title>[\s\S]*?<\/title>/i,
+  '<title>ویکی پلاس | فروشگاه کیف و کفش زنانه</title>'
+);
+
+html = html.replace(
+  /<meta name="author"[^>]*>/i,
+  '<meta name="author" content="ویکی پلاس">'
+);
+
+html = html.replace(
+  /<meta name="description"[^>]*>/i,
+  '<meta name="description" content="ویکی پلاس، فروشگاه اینترنتی کیف و کفش زنانه: کتانی، مجلسی، بوت، صندل و کیف، با ارسال به سراسر ایران.">'
+);
+
+html = html.replace(
+  /<meta name="keywords"[^>]*>/i,
+  '<meta name="keywords" content="کفش زنانه, کیف زنانه, کتانی زنانه, کفش مجلسی, بوت زنانه, ویکی پلاس">'
+);
+
 // --- the preloader comes off ------------------------------------------------
 //
 // The template covers the whole page with a white curtain and lifts it in
@@ -2104,6 +2133,105 @@ html = html.replace('</body>',
   '        }());\n' +
   '    </script>\n</body>');
 
+// --- the desktop menu, rebuilt from the pages this shop has -------------------
+//
+// «لطفا یک جستجوی کامل در کل صفحات بکن که هیچ نشونه ای از قالب آماده یا اون
+// قالب ERNA وجود نداشته باشه».
+//
+// The band above the page was still the template's demo menu, in full: a
+// mega-menu of screenshots of the template's own demo sites with «View Demo»
+// buttons on them, «About Style 1/2/3», «Contact Style 1/2/3», eleven blog
+// layouts, «Search Result for Product», «فروشگاه Full Width». It is the
+// loudest trace of the template anywhere on this site, it is the first thing
+// on every desktop page, and half of it links to pages this shop does not
+// have — `page_url()` sends every unmapped filename to '#', so those were dead
+// links as well as somebody else's product's furniture.
+//
+// The phone's drawer was rebuilt for exactly this reason once already; this is
+// the same round for the desktop, and CLAUDE.md's note about that drawer is
+// what said to look here.
+//
+// **Only pages that exist.** Every item below is a filename in
+// `config/storefront.php`'s `pages` map, which is what turns it into a real
+// route in Blade. Nothing here can go to '#'. The categories are not in it —
+// they are not filenames, and the drawer, the listing's own strip and its
+// sidebar all offer them; a menu item that cannot be written without a route
+// helper does not belong in a file that also has to render as a static
+// preview.
+//
+// **Four, not six.** The basket and the account are already buttons in this
+// same band, so listing them again is the same door twice — and measured, six
+// items of Persian ran the header row 22px past the page at 1200, which
+// `check-overflow.js` failed on. The template's six were shorter words with
+// dropdown arrows; ours are «پیگیری سفارش» and «فروشنده شوید».
+html = html.replace(
+  /<nav class="main-menu d-none d-lg-inline-block">[\s\S]*?<\/nav>/,
+  '<nav class="main-menu d-none d-lg-inline-block">\n' +
+  '                                <ul>\n' +
+  '                                    <li><a href="index.html">خانه</a></li>\n' +
+  '                                    <li><a href="shop.html">فروشگاه</a></li>\n' +
+  '                                    <li><a href="order-tracking.html">پیگیری سفارش</a></li>\n' +
+  '                                    <li><a href="vendor-register.html">فروشنده شوید</a></li>\n' +
+  '                                </ul>\n' +
+  '                            </nav>'
+);
+
+// --- two blocks of the template's demo goods, out ----------------------------
+//
+// Same round, same instruction: «هیچ نشونه ای از قالب آماده ... وجود نداشته
+// باشه».
+//
+// **The desktop search's suggestion panel.** `main.js` opens it the moment the
+// header's field is focused, and what it showed was five of the template's own
+// products — «Nike Renew», «Adidas Plastic», «Nike Flex Run», «Nike Air Max» —
+// with the template's photographs and prices, each linking to a product page
+// this shop does not have. A shop that suggests four shoes it does not sell,
+// on every desktop page, the first time anybody clicks search. The panel goes;
+// the field stays and still submits.
+//
+// jQuery makes that safe: the handler does `$(this).children('.search-
+// suggestions')` and then `.css()` on it, and both are no-ops on an empty set.
+//
+// **The QuickView modal.** A hidden dialog carrying «Women's fashion Bag» at
+// $120.85, «Rated 5.00 out of 5 ... 4 customer reviews», «SKU: Fashion-1254»,
+// «Category: Bag, Fashion Hand Bag, Uncategorized» and a paragraph about 1960s
+// hippie fashion. Nothing on this site opens it — no `href="#QuickView"`
+// anywhere — so it is dead markup that ships in the source of every page,
+// with an invented rating in it. Out.
+html = html.replace(/<div class="search-suggestions">[\s\S]*?<!-- \/\.box-suggestions -->\s*<\/div>/, '');
+// Anchored on the sidemenu comment that follows it rather than on a run of
+// closing divs — the same trap the footer replacement above documents.
+html = html.replace(
+  /<div id="QuickView"[\s\S]*?(?=<!--==============================\s*\n?\s*Sidemenu)/,
+  ''
+);
+
+// --- the offer banners, in the shop's own words -------------------------------
+//
+// Still «BLACK / FRIDAY / SPECIAL OFFER» and «Adidas Shoes — The Summer Sale
+// Up to 50% Off», in English, on the home page of a Persian shop that sells
+// neither Adidas nor a Black Friday. The last of the template's copy anybody
+// could read.
+//
+// What replaces it is the shop's own sale, which is the one promotion this
+// site actually runs — the stepped sale the board further up the page
+// explains. No number in it: the live step is `config('storefront.ladder')`
+// and moves, and a banner with a percentage baked into the markup goes stale
+// the week it moves without anybody noticing.
+html = html.replace(
+  /<span class="box-title">BLACK<\/span>\s*<h4 class="box-title style1">FRIDAY<\/h4>\s*<h3 class="sec-title style1">SPECIAL OFFER<\/h3>/,
+  '<span class="box-title">فروش ویژه</span>\n' +
+  '                                <h4 class="box-title style1">حراج پله‌ای</h4>\n' +
+  '                                <h3 class="sec-title style1">هر هفته یک پله ارزان‌تر</h3>'
+);
+
+html = html.replace(
+  /<span class="sub-title2">Adidas Shoes<\/span>\s*<h3 class="sec-title style1">The Summer Sale Up\s*to <span class="text-theme">50%<\/span>Off<\/h3>/,
+  '<span class="sub-title2">کیف و کفش زنانه</span>\n' +
+  '                                <h3 class="sec-title style1">تازه‌های این هفته را\n' +
+  '                                    <span class="text-theme">ببینید</span></h3>'
+);
+
 // --- the footer, in Persian -------------------------------------------------
 //
 // The template's footer arrived in English and was left that way through every
@@ -2140,6 +2268,34 @@ html = html.replace(
   '                            </div>\n' +
   '                        </div>\n' +
   '                        '
+);
+
+// --- the strip under the footer ----------------------------------------------
+//
+// «پایین فوتر اون کارتها باید کامل حذف بشن و کپی رایت هم به فارسی نوشته بشه
+// متعلق به ویکی پلاس است».
+//
+// Two things went out of that strip. The card row — «We Are Acepting» over a
+// picture of Apple Pay, Visa, Discover, Mastercard and a «Secure Payment»
+// badge — is the template's, and every one of those marks is a claim this shop
+// has not made: an Iranian storefront settles through a shaparak gateway and
+// takes none of them. A row of card logos that cannot be paid with is worse
+// than no row.
+//
+// And the notice itself was «Copyright © 2025 Erna. All Rights Reserved», with
+// the word Erna linked to the template's own demo page — the shop's own footer
+// crediting somebody else's product, in English, on a Persian site.
+//
+// What is left is one line in the shop's own language, centred because it is
+// now the only thing on the strip.
+html = html.replace(
+  /<div class="copyright-wrap">[\s\S]*?<\/footer>/,
+  '<div class="copyright-wrap">\n' +
+  '            <div class="container th-container5">\n' +
+  '                <p class="copyright-text">تمامی حقوق این وب‌سایت متعلق به ویکی پلاس است.</p>\n' +
+  '            </div>\n' +
+  '        </div>\n' +
+  '    </footer>'
 );
 
 // --- the footer on a phone --------------------------------------------------

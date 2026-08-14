@@ -18,6 +18,18 @@
     <div class="container th-container">
         <div class="vp-shop-panel vp-pdp">
 
+            {{-- Nothing above the photograph on a phone — «بالاش ننویس هیچی».
+
+                 The back chevron and the favourite went first, then the title
+                 with them; the site's own header band is taken off this page
+                 below 992 in the stylesheet, for «عکس اصلی هم نباید هدر داشته
+                 باشه». The page opens on the shoe.
+
+                 **The basket and the menu were in that band.** They are on
+                 every other page and in the drawer; here the way on is the
+                 «افزودن به سبد» bar at the foot. Said out loud because it is
+                 the cost of the ask rather than an oversight. --}}
+
             <nav class="vp-pdp-crumbs d-none d-lg-flex" aria-label="مسیر">
                 <a href="{{ storefront_route('home') }}">خانه</a>
                 <span aria-hidden="true">/</span>
@@ -44,10 +56,56 @@
 
                 <div class="vp-pdp-gallery">
                     <div class="vp-pdp-shot">
+                        {{-- The reference's watermark: the brand's name, very
+                             faint, behind the shoe. `brands.name_latin` is a
+                             real column with a real value in it — this is the
+                             one part of that screen's furniture the catalogue
+                             can already fill. Before the <img>, so the
+                             photograph paints over it without either needing a
+                             z-index. --}}
+                        @if ($product->brand?->name_latin)
+                            <span class="vp-pdp-mark" aria-hidden="true">{{ $product->brand->name_latin }}</span>
+                        @endif
+
                         @if ($product->primaryMedia())
                             <img src="{{ asset($product->primaryMedia()->path) }}" alt="{{ $product->title }}">
                         @endif
+
                     </div>
+
+                    {{-- The two top corners: the close on the left, the
+                         rating on the right. Phone only — the desktop page has
+                         neither, and its rules turn both off.
+
+                         **A close, not a favourite.** «فقط یک آیکون مربع ضبدر
+                         بیار بجای مربع قلب» — and with the header off this page
+                         again, it is also the only way off the screen, so it is
+                         a link to somewhere rather than `history.back()`:
+                         somebody who arrived from a search engine or a shared
+                         link has no history to go back to, and it lands on the
+                         shoe's own category instead.
+
+                         Outside the shot rather than inside it. They were its
+                         children until the photograph went to 80% and centred,
+                         which took them in with it; they belong to the screen's
+                         corners — «از راست ۱۲ پیکسل و از چپ هم ۱۲ پیکسل» — so
+                         they hang off the block that spans the full line. --}}
+                    @php
+                        $back = $product->categories->isNotEmpty()
+                            ? storefront_route('category', $product->categories->first())
+                            : storefront_route('shop');
+                    @endphp
+
+                    <a class="vp-pdp-close" href="{{ $back }}" aria-label="بستن">
+                        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                    </a>
+
+                    @if (config('storefront.placeholders.rating'))
+                        <span class="vp-pdp-rate">
+                            {{ fa_number(config('storefront.placeholders.rating')) }}
+                            <i class="fa-solid fa-star" aria-hidden="true"></i>
+                        </span>
+                    @endif
 
                     @if ($shots->count() > 1)
                         {{-- Dots for the strip under it, the reference's own. They
@@ -60,11 +118,7 @@
                             @endforeach
                         </div>
 
-                        <div class="vp-pdp-thumbs">
-                            @foreach ($shots as $shot)
-                                <span @class(['vp-pdp-thumb', 'is-on' => $loop->first])><img src="{{ asset($shot->path) }}" alt="" loading="lazy"></span>
-                            @endforeach
-                        </div>
+                        @include('shop.gallery', ['shots' => $shots])
                     @endif
                 </div>
 
@@ -76,6 +130,17 @@
                     <div class="vp-pdp-head">
                         <div class="vp-pdp-naming">
                             <h1 class="vp-pdp-title">{{ $product->title }}</h1>
+
+                            {{-- The line under the name. On the phone it is
+                                 the sale — «زیر اسم به جای اون گلدن گوس زرد
+                                 بنویس ۳۰٪ تخفیف پله ای» — and the number in it
+                                 is the offer's own cut, not the words'. A shoe
+                                 with no cut keeps the brand there, which is
+                                 what the desktop shows either way. --}}
+                            @if ($offer->discountPercent())
+                                <span class="vp-pdp-ladder">٪{{ fa_number($offer->discountPercent()) }} تخفیف پله‌ای</span>
+                            @endif
+
                             @if ($product->brand)
                                 <a class="vp-pdp-brand" href="{{ storefront_route('shop', ['brand' => $product->brand->slug]) }}">{{ $product->brand->name }}</a>
                             @endif
@@ -159,23 +224,75 @@
                                 <span class="vp-pick-note">{{ fa_number($simple->count()) }} سایز موجود</span>
                             </div>
 
-                            <div class="vp-pick-sizes">
-                                @foreach ($simple as $variant)
-                                    <label class="vp-pick-size">
-                                        <input type="radio" name="variant" value="{{ $variant->id }}" @checked($loop->first)>
-                                        <span>{{ fa_number((int) $variant->size_value) }}</span>
-                                    </label>
-                                @endforeach
-                            </div>
+                            @include('shop.sizes')
+
+                            {{-- Inside the form, between the sizes and the buy
+                                 row, because that is the order asked for and
+                                 the buy row cannot leave the form it submits.
+                                 It contributes no field. --}}
+                            @include('shop.colors')
 
                             {{-- The bar the reference puts at the foot of the phone.
                                  It is part of this form, so the button adds whichever
                                  chip is checked. Above 992 it sits in the flow. --}}
+                            {{-- On the phone this is the last row of the card —
+                                 «باید اد تو کارت معادل فارسیش رو یه دکمه بیاد
+                                 راست / انتخاب تعداد هم چپ همون دکمه / همه اینا
+                                 باید رو کارت باشن». Above 992 it is what it has
+                                 always been: the price and the button, in the
+                                 flow under the sizes.
+
+                                 The stepper is the template's own control, not
+                                 a new one: `.quantity-plus` / `.quantity-minus`
+                                 with a sibling `.qty-input` is what
+                                 `assets/js/main.js` already binds on every
+                                 page, and `CartController@add` already reads
+                                 `quantity`. Nothing new had to run for it.
+
+                                 It is phone-only; on the desktop the field is
+                                 not drawn and the controller's own default of
+                                 1 is what a submit means there, exactly as
+                                 before. --}}
                             <div class="vp-pick-bar">
-                                <span class="vp-pick-price">{{ toman($offer->price) }} <em>تومان</em></span>
+                                {{-- The number and its unit in a box of their
+                                     own: the label stacks above them on the
+                                     phone, and without the wrapper «تومان»
+                                     becomes a third line of that column. --}}
+                                <span class="vp-pick-price">
+                                    <span class="vp-pick-label">قیمت</span>
+                                    <span class="vp-pick-sum">{{ toman($offer->price) }} <em>تومان</em></span>
+                                </span>
+
+                                <div class="vp-qty">
+                                    <button type="button" class="quantity-minus qty-btn" aria-label="یکی کمتر">
+                                        <i class="fa-solid fa-minus" aria-hidden="true"></i>
+                                    </button>
+                                    <input class="qty-input" type="number" name="quantity" value="1" min="1" inputmode="numeric" aria-label="تعداد">
+                                    <button type="button" class="quantity-plus qty-btn" aria-label="یکی بیشتر">
+                                        <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                                    </button>
+                                </div>
+
                                 <button type="submit" class="vp-pick-go">افزودن به سبد</button>
                             </div>
                         </form>
+                    @endif
+
+                    {{-- Every size, even when this shop cannot sell one of them
+                         today: a shoe whose sizes are all gone still shows the
+                         row, greyed, above the line that says so. Without this
+                         the page would answer «همه سایزها باید باشن» only while
+                         there was something to buy. --}}
+                    @if ($simple->isEmpty() && $shopSizes->isNotEmpty())
+                        <div class="vp-pick vp-pick-empty">
+                            <div class="vp-pick-head">
+                                <h2 class="vp-pdp-choice-title">انتخاب سایز</h2>
+                            </div>
+
+                            @include('shop.sizes')
+
+                            @include('shop.colors')
+                        </div>
                     @endif
 
                     @if ($contested->isNotEmpty())
@@ -183,7 +300,8 @@
                     @endif
 
                     @foreach ($contested as $variant)
-                        <div class="vp-sellers">
+                        {{-- The id the size row's chip links down to. --}}
+                        <div class="vp-sellers" id="size-{{ $variant->id }}">
                             <h3 class="vp-sellers-title"><span>سایز</span> {{ fa_number((int) $variant->size_value) }}</h3>
 
                             @foreach ($sellers[$variant->id] as $seller)
@@ -219,10 +337,23 @@
                         </div>
                     @endforeach
 
-                    @if ($product->description)
-                        <div class="vp-pdp-desc"><p>{{ $product->description }}</p></div>
+                    {{-- The shoe's own description when it has one, and
+                         `placeholders.description` when it has not — «زیرش
+                         توضیحات کفش». The five demo products have none, and an
+                         empty gap under the name is not what the reference
+                         draws; the stand-in says nothing about the shoe, so
+                         filling it in the panel is the only thing that makes
+                         this paragraph specific. --}}
+                    @php $blurb = $product->description ?: config('storefront.placeholders.description'); @endphp
+
+                    @if ($blurb)
+                        <div @class(['vp-pdp-desc', 'is-standin' => ! $product->description])><p>{{ $blurb }}</p></div>
                     @endif
 
+                    {{-- Only when there is a fact to list. An empty <dl> is
+                         invisible on a page that ends in white space and a hole
+                         at the foot of a card, which is what this is now. --}}
+                    @if ($product->material || $product->use_case || $product->care_instructions)
                     <dl class="vp-pdp-facts">
                         @if ($product->material)
                             <div><dt>جنس</dt><dd>{{ $product->material }}</dd></div>
@@ -234,9 +365,36 @@
                             <div><dt>نگهداری</dt><dd>{{ $product->care_instructions }}</dd></div>
                         @endif
                     </dl>
+                    @endif
                 </div>
             </div>
         </div>
+
+        {{-- «حالا توضیحات کفش بیاد اولین آیتم بعد از کارت بعد نمونه های مشابه /
+             عنوان توضیحات کفش و یه متن ۴ خطی در مورد گلدن گوس زیرش».
+
+             The first thing under the card and above the related shelf, on the
+             phone. The desktop's description is where it has always been,
+             inside the right-hand column, and this block is not drawn there.
+
+             Three things are looked for, in this order: the shoe's own
+             description, typed in the panel; the brand's paragraph from
+             `placeholders.brand_blurbs`; and the generic line. The brand's is
+             about the maker rather than about this pair — where it is from,
+             what it is known for — because a paragraph about this shoe's
+             leather or fit would be inventing its specification. --}}
+        @php
+            $about = $product->description
+                ?: (config('storefront.placeholders.brand_blurbs.'.($product->brand?->slug ?? '—'))
+                    ?: config('storefront.placeholders.description'));
+        @endphp
+
+        @if ($about)
+            <div class="vp-shop-panel vp-pdp-about">
+                <h2 class="vp-pdp-choice-title">توضیحات کفش</h2>
+                <p>{{ $about }}</p>
+            </div>
+        @endif
 
         @if ($related->isNotEmpty())
             <div class="vp-shop-panel vp-pdp-related">

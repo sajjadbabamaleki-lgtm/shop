@@ -5697,6 +5697,34 @@ ul.vp-how-list.is-ticked li:before {
   object-fit: contain;
 }
 
+/* Everything the phone's «Details» screen adds, off by default and turned on in
+   its own block far below.
+
+   All of it is in the markup at every width — the watermark belongs inside the
+   shot, the strip is a second copy of the thumbnails the phone's order needs,
+   and the rating, the stand-in description and the sizes this shoe has not got
+   are all printed by the same Blade the desktop renders. «ما الان فقط داریم
+   موبایل کار میکنیم»: the desktop has to say no to each of them here rather
+   than rely on never having said yes.
+
+   Measured, not assumed: with this list in place the product page, the listing
+   and a category page render 0 differing subpixels at 1200, 1440 and 1920
+   against the tree before any of this. */
+.vp-pdp-mark,
+.vp-pdp-rate,
+.vp-pdp-close,
+.vp-pdp-colors,
+.vp-pdp-ladder,
+.vp-pdp-about,
+.vp-qty,
+.vp-pdp-desc.is-standin,
+.vp-pick-empty,
+.vp-pick-note.is-inline,
+.vp-pick-size.is-off,
+.vp-pick-size.is-elsewhere {
+  display: none;
+}
+
 .vp-pdp-brand {
   display: inline-block;
   margin-bottom: 8px;
@@ -10137,6 +10165,18 @@ ul.vp-how-list.is-ticked li:before {
     margin: 13.5px 10px 0;
   }
 
+  /* Except on the listing, where it was asked for again — «تو قسمت فروشگاه
+     بالای سرچ برام ۵ استوری بزار». One selector turns this copy on and leaves
+     the home page's parked, which is what the note above is protecting.
+
+     No side margin here: inside the listing's panel the 14 is already spent,
+     and the 10 that suits the home page's full-width band would have set the
+     rings 24 in from a search bar sitting at 14. */
+  .vp-listing-panel .vp-stories {
+    display: block;
+    margin: 2px 0 14px;
+  }
+
   .vp-stories-row {
     display: flex;
     align-items: flex-start;
@@ -11048,6 +11088,13 @@ ul.vp-how-list.is-ticked li:before {
   color: #6E7070;
 }
 
+/* «قیمت» over the number, from the phone's reference — and the phone's alone.
+   Above 992 the bar is in the flow under the size chips, where the word would
+   be a caption on a number that already reads as one. */
+.vp-pick-label {
+  display: none;
+}
+
 .vp-pick-go {
   flex: 1;
   height: 52px;
@@ -11065,28 +11112,16 @@ ul.vp-how-list.is-ticked li:before {
   filter: brightness(1.04);
 }
 
-/* On a phone the bar leaves the flow and sits against the foot, as an island —
-   the same 14 either side and 10 off the bottom the basket's totals take, and
-   the same glass. The page pads out by 100 so the last thing on it clears the
-   bar; the bar is out of flow and cannot push anything itself. */
-@media (max-width: 991.98px) {
-  .vp-pick-bar {
-    position: fixed;
-    z-index: 40;
-    inset-inline: 14px;
-    inset-block-end: calc(10px + env(safe-area-inset-bottom, 0px));
-    margin: 0;
-    padding: 12px;
-    border-radius: 24px;
-    background: rgba(16, 17, 17, 0.034);
-    -webkit-backdrop-filter: blur(22px) saturate(1.15);
-    backdrop-filter: blur(22px) saturate(1.15);
-  }
+/* The bar used to leave the flow on a phone and sit against the foot as a
+   glass island, with the page padded out by 110 to clear it.
 
-  .vp-shop-section:has(.vp-pick-bar) {
-    padding-block-end: 110px;
-  }
-}
+   It does not any more: «همه اینا باید رو کارت باشن» — the buy row is the last
+   row of the card now, in the flow, with the quantity stepper beside it. What
+   is left here is the desktop's arrangement, which never moved.
+
+   The rules that went with the island went with it: the page's 110 of bottom
+   padding, and the lift that kept the WhatsApp button off the top of the bar.
+   Nothing is fixed on this page now, so neither has anything to clear. */
 
 /* --------------------------------------------------------------------------
    The product page on a phone, in the reference's arrangement.
@@ -11210,6 +11245,22 @@ ul.vp-how-list.is-ticked li:before {
     object-fit: contain;
   }
 
+  /* The shelf's heading, at the headings' size and a heading's distance from
+     what it heads — «نمونه های مشابه باید عنوانش هم اندازه عنوان های بالا و رو
+     کارت باشه و یه فاصله استاندارد با کارتهای پایینش داشته باشه».
+
+     15 is `.vp-pdp-choice-title`'s, which «انتخاب سایز», «انتخاب رنگ» and
+     «توضیحات کفش» all are. The standard gap on this page is 10, measured at
+     the size row and at the description.
+
+     The 20 is that 10 plus the row's own negative top margin: a Bootstrap row
+     pulls itself up by `--bs-gutter-y`, which this shelf sets to 10, so a 10
+     written here would have measured 0. Change one and the other follows. */
+  .vp-pdp-related .vp-shop-title {
+    font-size: 15px;
+    margin-block-end: 20px;
+  }
+
   /* «فاصله بین اون ۴ تا محصول باید ۱۰ بشه». The shelf under the product is a
      Bootstrap row with `gy-4` on it — 24 down and 24 across, which is the air
      the desktop grid wants and twice what everything else on this phone stands
@@ -11262,6 +11313,935 @@ ul.vp-how-list.is-ticked li:before {
     font-family: var(--body-font);
     font-size: 19px;
     white-space: nowrap;
+  }
+}
+
+/* ==========================================================================
+   The product page on a phone, to the second reference — the «Details» screen.
+
+   «حالا وقتی روی هر محصول کلیک میشه باید به یه همچین جایی بره یعنی جای جزئیات
+   محصول».
+
+   The screen the client sent, top to bottom: a head with a back arrow, the
+   word «Details» and a favourite; the shoe on a tinted ground with the brand
+   watermarked behind it; a white sheet lifted over that ground carrying the
+   name, the description, the sizes and a gallery; and a bar at the foot with
+   the price on one side and the basket button on the other.
+
+   Everything below is inside `max-width: 991.98px`. The desktop page is two
+   columns and untouched.
+
+   **Three things on that screen have no data behind them, and none of them is
+   drawn.** This is the same rule the colourway strip is under and the reason
+   `config('storefront.placeholders')` exists at all — a layout may stand in
+   for itself, a claim may not:
+
+   - **The rating, «( 4.9 ★ )».** There is no review table. A star with a
+     number beside a real price is a claim about a real shoe, and this repo has
+     taken an invented one off the card already.
+   - **The «360°» badge.** There is one photograph per product. A control that
+     promises a spin and has nothing to spin is worse than no control.
+   - **The description.** `products.description` is a real column, editable in
+     the panel, and the page has always printed it when it is filled — it is
+     null for all five demo products, so the paragraph is absent rather than
+     invented. The slot is in the reference's place: the moment the client
+     types one it appears under the name.
+
+   What the catalogue *can* fill, it fills: the watermark is `brands.name_latin`
+   and the gallery is the colourway strip that already exists.
+   ========================================================================== */
+@media (max-width: 991.98px) {
+
+  /* ---- Nothing written above the photograph -------------------------------
+
+     «اون فلش بک و آیکون قلب از بالا حذف بشه / بالاش ننویس هیچی». The back
+     chevron, the favourite and the screen's own title are all out of the
+     markup; the favourite came back later as one of the photograph's corners.
+
+     **And the site's header band comes off this page.** It went for «عکس اصلی
+     هم نباید هدر داشته باشه», came back for «چرا هدر بالای این صفحه نیست؟؟»,
+     and goes again for «تو این صفحه هدر حذف کن» — with, this time, the thing
+     that was missing the first time: a way off the screen. The × at the
+     photograph's corner is it.
+
+     Scoped by `:has()` to the product page and to the phone, the way the
+     basket's footer rule above does it. The desktop page keeps its header and
+     so does every other page on the phone. The basket is still reachable —
+     adding to it redirects there — and the menu is the drawer, which the ×
+     leads back to a page carrying. */
+  body:has(.vp-pdp-body) .th-header {
+    display: none;
+  }
+
+  /* ---- The ground under the shoe -----------------------------------------
+
+     White. «مگه نگفتم بکگراند محصول باید سفید باشه».
+
+     It was the page's gold at a tenth of an alpha, fading down the shot, which
+     is what the reference's own screen does — and that is not what this shop's
+     product photographs sit on anywhere else on the site. The listing's tile
+     is 0.034 grey, the desktop shot is white, and the cut-outs were
+     photographed on white.
+
+     Nothing takes its place: no tint, no ring, no shadow, no corner. The shoe
+     sits on the page. */
+  .vp-pdp-body {
+    gap: 0;
+  }
+
+  .vp-pdp-gallery {
+    position: relative;
+    padding-block: 4px 16px;
+    background: none;
+  }
+
+  /* And the frame comes down to the photograph's own shape.
+
+     The shot has been a square since it was written, and a square holding a
+     1400×990 cut-out fitted inside it paints 362 × 256 at 390 with 53 of
+     nothing above and below. The tint used to fill that band; on white it is a
+     hole, and the name sat 150 under the shoe because of it. 1400/990 is the
+     ratio every photograph in the catalogue is supplied at.
+
+     `contain` still decides, so a photograph that arrives at another shape
+     letterboxes rather than crops — the fit-don't-crop rule holds. If the
+     shop's photographs change shape, this is the number that changes.
+
+     Then a fifth off it — «اندازه عکس محصول اون بالا ۲۰ درصد کوچیکتر بشه». The
+     frame goes to 80% of the line and is centred, so the shoe comes down with
+     it and the ratio is untouched: 362 × 256 at 390 becomes 289.6 × 204.8.
+
+     And then square — «اون فضایی که در بالا محصول توش قرار میگیره باید مربع
+     باشه» — and then a fifth off that square's height: «خیلی ارتفاع فضایی که
+     محصول توشه بلند شد ۲۰ درصد کم بشه». 5/4 is exactly that: the width is the
+     square's and the height is 0.8 of it. 289.59 × 231.67 at 390.
+
+     The shoe is untouched by either. `contain` fits it to the frame's width,
+     so it paints 289.59 × 204.78 whatever the frame's height is, and what
+     changes is the space above and below it — 42 a side in the square, 13 a
+     side now. */
+  .vp-pdp-shot {
+    aspect-ratio: 5 / 4;
+    width: 80%;
+    margin-inline: auto;
+  }
+
+  /* The brand behind the shoe. Big, faint and inert — `aria-hidden`, so it is
+     furniture rather than a second heading for a screen reader to read out
+     before the name. Centred on the tile rather than on its text box, which is
+     why it is a positioned box the full width of the shot with the line
+     centred inside it.
+
+     **14% down, not the middle.** Measured off the render at 390 — the shoe's
+     own ink, row by row, across the 362 tile: nothing above y=200, 153..160 at
+     205, 125..167 at 220, 51..170 at 250, and past 280 it is most of the
+     width. A word set across the middle would have its whole left half behind
+     the shoe and read as the fragment that is left. At 14% it crosses the
+     collar only, which is what the reference's own watermark does.
+
+     **Sized off the viewport, and clipped.** `Golden Goose` is twelve
+     characters where `Jordan` is six, so a size that suits one runs past the
+     tile on the other — and this box is `nowrap` and absolutely positioned, so
+     running past the tile means running past the page, which
+     `check-overflow.js` fails on. The clamp keeps it 44–88, and the tile is
+     `overflow: hidden` underneath so the longest name is trimmed at the edges
+     rather than widening anything. */
+  .vp-pdp-shot {
+    overflow: hidden;
+  }
+
+  .vp-pdp-mark {
+    display: block;
+    position: absolute;
+    inset-inline: 0;
+    inset-block-start: 14%;
+    font-family: 'Cairo', var(--title-font);
+    font-weight: 700;
+    font-size: clamp(44px, 14vw, 88px);
+    line-height: 1;
+    letter-spacing: 0.02em;
+    text-align: center;
+    white-space: nowrap;
+    color: rgba(16, 17, 17, 0.055);
+    pointer-events: none;
+  }
+
+  /* ---- The card ----------------------------------------------------------
+
+     «باید موارد مث این بیان رو یه کارت». Everything under the photograph — the
+     name with the price opposite it, the description, the sizes, the colours —
+     goes on one card.
+
+     **White, with a soft shadow around it** — «این کارتی که این موارد روشنو
+     سفید کن دورش سایه نرم بده». It was the shop's pane, tinted to 247, with
+     the «لبه پنهان» edges: a lit hairline on three sides and 1.4px of ink at
+     the foot, and no drop shadow at all.
+
+     That entry in CLAUDE.md is about this exact move, so read it before
+     touching this again. Its finding was that a soft shadow at the edge of a
+     pane contributes about two levels — 247 pane, 250 hairline, 244 shadow,
+     then thirty pixels climbing back to the page's 255 — which is four values
+     within a few levels of each other and no step anywhere. The card
+     dissolved into the page and the long climb was the «fade» the client
+     rejected three times in one afternoon.
+
+     **A white card on a white page has that problem worse, not better**, since
+     the fill no longer differs from the ground at all: the shadow is the only
+     thing left to say where the card ends.
+
+     There is no ring around it. It had one for a round — a hairline weight,
+     the thing the «لبه پنهان» remedy insisted on — and «خط دور کارت سفیدو حذف
+     کن» takes it off. What carries the edge instead is the first of the three
+     layers: `0 0 3px` at 0.13, tight enough that its darkest is at the card's
+     own boundary rather than spread over thirty pixels of page. The other two
+     are the lift and the spread.
+
+     **On all four sides, and lightest at the top** — «یه سایه مث همونکه دادی
+     پایینش بده ۲ طرف و بالاش», then «سایه‌رو از بالای کارت کمتر کن». The three
+     layers carry a small downward offset, which is what makes the top the
+     lightest edge and the foot the darkest without any of the four losing its
+     shadow.
+
+     Their alphas came down with it, because the offset that lightens the top
+     piles the same ink onto the foot: at the first try the foot read 190,
+     which is a heavier card than anything else on this page wears.
+
+     **And softened once more** — «سایه ۲ طرف و پایین کارت فیدش خطیه یذره سایش
+     محوتر بشه». The blurs went up and the alphas came down together: a wider
+     blur on its own only spreads more ink over more pixels, which measured
+     *darker* rather than softer, and the pair is what turns the ramp from
+     eight levels in eight pixels into one a pixel.
+
+     Measured after, page → card, at 8px out and then every pixel in:
+
+         top   254 254 254 253 252 252 251 251 250 249 248 248 | 255
+         left  244 243 242 240 240 238 236 235 | 255
+         foot  255 | 219 222 225 229 231 233 … 248 over 30
+
+     A step at every edge still — 7 levels at the top, 20 at the sides, 36 at
+     the foot — with the darkest of each on the card's own boundary. That is
+     what keeps this on the right side of «لبه پنهان», where the arrangement
+     the entry is about had four values within a few levels of each other and
+     no step anywhere. Softer than this and there is no boundary left to read;
+     that is the floor, not a preference. */
+  .vp-pdp-info {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    /* The chip. One number, because three things are measured off it: the size
+       squares, the box at the end of their line, and the colour line's own
+       height — «ارتفاع مشتطیل ۳ رنگ موجود باید اندازه مستطیل ۱ سایز موجود
+       باشه».
+       41.8 is what the squares had settled at anyway once the card's 338 line
+       had taken the count box and the five gaps out of it; stating it stops
+       the two boxes drifting apart every time something else on the line
+       changes width, which is how they came apart the last time. */
+    --vp-chip: 41.8px;
+    margin-block-start: 4px;
+    /* 12 either side, which is the number the size row's ends were asked to
+       land on — so that row sits flush with the card's padding rather than
+       breaking out of it.
+
+       And 12 at the foot: «فاصله لبه پایین کارت با اضافه کردن به سبد خرید باید
+       هم اندازه فاصله همین دکمه از لبه ی چپ کارت باشه». The button's distance
+       from the card's left edge *is* this padding, so the foot takes the same
+       number rather than one measured off it. 20 → 12. */
+    padding: 18px 12px 12px;
+    border-radius: 24px;
+    background: #FFFFFF;
+    box-shadow:
+      0 3px 18px -4px rgba(16, 17, 17, 0.06),
+      0 10px 32px -8px rgba(16, 17, 17, 0.08),
+      0 22px 64px -20px rgba(16, 17, 17, 0.16);
+  }
+
+  /* ---- The order inside the sheet ----------------------------------------
+
+     The reference reads name → description → size → gallery, and the markup
+     is in the order the desktop's two columns want. Every child is given a
+     number rather than only the ones that move: an unnumbered flex child is
+     `order: 0` and would jump ahead of all of them.
+
+     The sellers' rows and the facts keep the foot of the page. They are not on
+     the reference at all — it draws one seller and no material — and dropping
+     them would take the marketplace's own listing off the phone. */
+  .vp-pdp-info > .vp-pdp-head { order: 1; }
+  .vp-pdp-info > .vp-pdp-from { order: 2; }
+  .vp-pdp-info > .vp-pdp-desc { order: 3; }
+  .vp-pdp-info > .vp-pdp-out { order: 4; }
+  .vp-pdp-info > .vp-pick { order: 5; }
+  .vp-pdp-info > .vp-pdp-colors { order: 6; }
+  .vp-pdp-info > .vp-pdp-choice { order: 7; }
+  .vp-pdp-info > .vp-pdp-sizes-title { order: 8; }
+  .vp-pdp-info > .vp-sellers { order: 9; }
+  .vp-pdp-info > .vp-pdp-facts { order: 10; }
+
+  /* The name with the price opposite it — «اسم روبروی قیمت قرار بگیره». The
+     name and the brand on one side, the price and the sale on the other, both
+     starting on the card's first line.
+
+     The price is back in the card and comes off the bar at the foot with it.
+     The reference's bar carries a button and nothing else, and the same number
+     twice on one screen reads as a mistake rather than as emphasis.
+
+     **On the name's own line, not merely on the same row** — «اون قیمت دقیقا
+     باید روبروی اسم قرار بگیره». `align-items: baseline` puts the price's
+     first baseline on the name's first baseline; `flex-start` had lined up the
+     tops of two boxes with different type sizes in them, which is not the same
+     thing and read as the price sitting high. Measured at 390: both baselines
+     on 411.5.
+
+     **And the cut chip comes off** — «اون ۳۰ درصد زیر قیمتو حذف کن». The price
+     it was stays, struck, directly under the price: that is the sale, and it
+     is one line rather than a block. The desktop keeps its chip. */
+  .vp-pdp-head {
+    flex-direction: row;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin-block-start: 0;
+  }
+
+  .vp-pdp-head .vp-pdp-price {
+    flex: none;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+    margin-block-start: 0;
+  }
+
+  /* A tenth off the price — «سایز قیمت ۱۰ درصد کوچیکتر بشه». 19 → 17.1. The
+     «تومان» beside it keeps its own size; the ask is the number. */
+  .vp-pdp-head .vp-pdp-price strong {
+    display: block;
+    font-family: var(--body-font);
+    font-size: 17.1px;
+    white-space: nowrap;
+  }
+
+  /* And the name comes down to the size of the headings inside the card —
+     «سایز اسم کفش هم بشه هم اندازه اون عنوان (انتخاب رنگ)». That heading is
+     `.vp-pdp-choice-title` at 15, near the top of this file; if it ever moves,
+     this moves with it by hand, because they are two rules and one intent. */
+  .vp-pdp-title {
+    font-size: 15px;
+  }
+
+  .vp-pdp-head .vp-pdp-cut {
+    display: none;
+  }
+
+  .vp-pick-price {
+    display: none;
+  }
+
+  .vp-pick-go {
+    flex: 1;
+  }
+
+  /* ---- The photograph's two corners --------------------------------------
+
+     «امتیاز رو اون گوشه بالا راست و قلب فیوریت رو قسمت چپ بالا», then «فقط یک
+     آیکون مربع ضبدر بیار بجای مربع قلب». The reference puts its back button at
+     one top corner of the shot and its rating at the other; ours carries a
+     close where the back button was — it was the favourite for a few rounds —
+     at the same size and on the same line as the rating opposite it.
+
+     Physical left and right, not logical: the client named the corners of the
+     screen, and these two sit on a photograph rather than in a line of text.
+
+     **12 off the screen, not off the photograph** — «چرا وسطن؟». They were the
+     shot's own children and 12 from its corners, which was the same thing
+     until the photograph went to 80% and centred and took them inwards with
+     it. They hang off the gallery now, which spans the full line, and
+     `calc(50% - 50vw + 12px)` is the same expression the size row uses to
+     land on 12 whatever the page's margin is — 14 at 390, 20 at 768.
+
+     They are the header's square at the card's scale — white, the mark's own
+     two-stop shadow, the 0.30119 corner — which is the same lockup the
+     listing's favourite takes. The rating is the same object stretched to fit
+     its number, so the pair reads as one set. */
+  .vp-pdp-close,
+  .vp-pdp-rate {
+    display: flex;
+    position: absolute;
+    z-index: 2;
+    /* 12 from the photograph's own top: the gallery pads 4 above it. */
+    top: 16px;
+    align-items: center;
+    justify-content: center;
+    height: 34px;
+    padding: 0;
+    border: 0;
+    border-radius: 10.24px;
+    background: #FFFFFF;
+    box-shadow:
+      0 0 2px rgba(16, 17, 17, 0.10),
+      0 0 8px -2px rgba(16, 17, 17, 0.14);
+  }
+
+  .vp-pdp-close {
+    left: calc(50% - 50vw + 12px);
+    width: 34px;
+    color: #101111;
+    font-size: 14px;
+    line-height: 1;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .vp-pdp-rate {
+    right: calc(50% - 50vw + 12px);
+    gap: 5px;
+    padding-inline: 10px;
+    font-family: var(--body-font);
+    font-weight: 700;
+    font-size: 13px;
+    font-feature-settings: 'tnum' 1;
+    color: #101111;
+  }
+
+  .vp-pdp-rate i {
+    font-size: 12px;
+    color: #C0972F;
+  }
+
+  /* The sale line under the name, where the brand was — «زیر اسم به جای اون
+     گلدن گوس زرد بنویس ۳۰٪ تخفیف پله ای». It takes the brand's own gold and
+     size, so the line reads the same and says something else. The number in it
+     is the offer's own cut rather than the words'.
+
+     The brand only steps aside when there is a cut to put there; a shoe at
+     full price keeps it, which is why this is `:has()` and not a flat
+     `display: none` on the brand. */
+  .vp-pdp-ladder {
+    display: inline-block;
+    margin-block-start: 2px;
+    font-size: 13px;
+    color: var(--theme-color);
+  }
+
+  .vp-pdp-naming:has(.vp-pdp-ladder) .vp-pdp-brand {
+    display: none;
+  }
+
+  /* The description comes off the *card* — «بخش توضیحاتو حذف کن ارتفاع کارت
+     کوتاهتر بشه» — both of it: the shoe's own when it has one, and the
+     stand-in when it has not. The desktop still prints it inside its column.
+
+     It is not off the page. «حالا توضیحات کفش بیاد اولین آیتم بعد از کارت»
+     puts it back as its own block below the card, with a heading, which is
+     `.vp-pdp-about` just under this. */
+  .vp-pdp-desc,
+  .vp-pdp-desc.is-standin {
+    display: none;
+  }
+
+  /* ---- «توضیحات کفش», under the card -------------------------------------
+
+     The first thing after the card and before the related shelf. It sits on
+     the page rather than on a card of its own: two cards in a row would be the
+     «کادرها» the client took off this page in an earlier round, and the shelf
+     under it is not on one either.
+
+     The paragraph is the brand's, from `placeholders.brand_blurbs`, whenever
+     the shoe has no description of its own — see the note there for why it is
+     about the maker and not about the pair. */
+  /* It is a `.vp-shop-panel` in the markup and not a panel on the page: the
+     class is there for its margins, which are the card's — 14 at 390, 20 at
+     768, from one rule rather than from a number copied here — and everything
+     that makes a panel a card is taken back off, the way the panel around the
+     card itself has it taken off on a phone.
+
+     `.vp-shop-panel + .vp-shop-panel` sets a 40 top margin between panels and
+     is two classes deep, so this has to be two as well to say 26. */
+  .vp-shop-panel.vp-pdp-about {
+    display: block;
+    margin-block: 26px;
+    padding: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+  }
+
+  .vp-pdp-about p {
+    margin: 10px 0 0;
+    font-size: 13px;
+    line-height: 2;
+    color: rgba(16, 17, 17, 0.62);
+    text-align: justify;
+  }
+
+  /* ---- The colour row ----------------------------------------------------
+
+     «یه لاین انتخاب رنگ هم نیاز داریم». Dots, the reference's own device, with
+     the first ringed the way it rings its own.
+
+     What they are is in `config/storefront.php`: every variant in the
+     catalogue says «نامشخص», so these three are a stand-in for the row and the
+     markup marks them `aria-hidden` — a screen reader hearing three unnamed
+     colours would be hearing a claim the catalogue has not made. The named
+     block above is what the page draws the day a variant carries a colour. */
+  /* Half again off the size line above it — «فاصله بین انتخاب سایز و انتخاب
+     رنگ ... باید ۵۰ درصد بیشتر بشن». 18 → 27. */
+  .vp-pdp-colors {
+    display: block;
+    margin-block-start: 27px;
+  }
+
+  /* The line is the size row's, so the two read as one system: left to right
+     from the card's own edge, the count in its rectangle at the other end, and
+     `space-between` sharing what is left. */
+  .vp-pdp-swatches {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    direction: ltr;
+    /* The line is as tall as the size line, so the box that stretches to it is
+       as tall as the size line's box. The swatches stay 32 and centre in it. */
+    min-height: var(--vp-chip);
+  }
+
+  .vp-pdp-swatch {
+    flex: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--vp-swatch);
+  }
+
+  /* Out of stock, the size chips' answer: the colour drops back and nothing
+     else changes. `opacity` rather than a paler hex, because the swatch's
+     colour is the one thing on it that carries meaning and a second version of
+     it in the stylesheet would be a second colour to keep in step. */
+  .vp-pdp-swatch.is-off {
+    opacity: 0.3;
+  }
+
+  /* The ring sits off the dot rather than on it, so the colour underneath is
+     the whole of the circle and not a rim of it. */
+  .vp-pdp-swatch.is-on {
+    box-shadow:
+      0 0 0 2px #FFFFFF,
+      0 0 0 3.5px rgba(16, 17, 17, 0.35);
+  }
+
+  .vp-pdp-desc p {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.9;
+    color: rgba(16, 17, 17, 0.62);
+  }
+
+  /* The heading on its own, and the count moved out of it — «یه مستطیل زیر
+     انتخاب سایز که توش نوشته باشه یک سایز موجود», then «فاصله بینشون کمتر بشه
+     که اون مستطیل بیاد راستشون اون مستطیل باید هم ارتفاعشون باشه».
+
+     The rectangle ended up in the size row itself, as its last item, so this
+     copy of the count — the one beside the heading, which is what the desktop
+     draws — is not shown here at all. */
+  .vp-pick-head {
+    display: block;
+    margin-block-start: 20px;
+  }
+
+  .vp-pick-head .vp-pick-note {
+    display: none;
+  }
+
+  /* ---- The size chips ----------------------------------------------------
+
+     The reference draws them white with a hairline and fills the chosen one.
+     Ours were filled grey and gold; they become the reference's, on the page's
+     own numbers: a 44 square with the header's corner ratio, 44 × 0.30119 =
+     13.25, and the hairline `.vp-pdp-option` already uses one line up. The
+     fill is the same gold ramp it always was.
+
+     **One row, level, at the chip's own size** — «همه سایزها باید تو یک ردیف
+     هم سطح باشن / بجای اینکه مربع هارو بزرگ کنی فاصله بینشونو ۲ برابر کن».
+
+     The chips do not stretch. Sharing the row between them was what made the
+     square 66 instead of 44, and the size of the chip is not what the row's
+     width is for. So: `flex: none` at 44, the gap doubled from 8 to 16, and
+     the row set not to wrap.
+
+     Measured at 390: five 44 squares and four 16 gaps, 284 of the 362 row, all
+     five tops on the same line.
+
+     **The row runs left to right, from the left edge** — «سایزهارو از چپ به
+     راست باید بزاری ۳۷ باید چپ باشه / از لبه چپ مربع هارو بزار».
+
+     `direction: ltr` on the row and nothing else: the page is RTL, so the
+     first chip was the rightmost and the row grew leftwards. Flipping the
+     row's own direction puts 37 on the left, 41 on the right, and starts the
+     line on the left edge — one property doing both halves of the ask, where
+     `row-reverse` would have reversed the order without moving where the line
+     begins.
+
+     The heading above it stays RTL. Only the strip of numbers turns, because
+     numbers are the one thing on this page that read the same way in both.
+
+     **The line's own ends are 12 from the screen, and the gaps take the
+     difference** — «فاصله هارو باید یجوری تنظیم کنی که مستطیل از راست ۱۲ پیکسل
+     و مربع هم از چپ ۱۲ پیکسل باشه».
+
+     Two parts. The 12 is the card's own padding now, so the row simply fills
+     it — it was `calc(50% - 50vw + 12px)`, 12 off the *screen*, while the
+     block under the photograph was not a card and its edges were the page's
+     own margin. With a card around it, 12 off the screen is 2 outside the
+     card, which reads as the row having escaped it.
+
+     The squares give way for that. The card's line is 338 at 390 where the
+     page's was 366, and five 45.98 squares and the box want 358.9 of it, so
+     they shrink to 41.81 — the same mechanism that already handled a 360
+     screen. The box on the line is what was asked for twice; the square's
+     exact size is what has moved to make room for it each time.
+
+     Then `space-between` puts the first square on the left end and the box on
+     the right end and shares what is left between the five gaps. The `gap` is
+     the floor, not the spacing: measured at 390 the row is 366, its contents
+     318.9, and the five gaps come out 9.42 each. They re-share themselves if
+     the count's text ever changes width, which a fixed gap would not. */
+  .vp-pick-sizes {
+    flex-wrap: nowrap;
+    gap: 8px;
+    direction: ltr;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  /* The count as the row's last item, at the right-hand end of the line the
+     squares start — «فاصله بینشون کمتر بشه که اون مستطیل بیاد راستشون اون
+     مستطیل باید هم ارتفاعشون باشه».
+
+     The gap comes back to 8 to make room for it: five 45.98 squares and this
+     box come to 229.9 + 89, and 362 − 318.9 leaves 43 for the five gaps
+     between them. At 16 they would not have fitted on one line.
+
+     It takes the chips' height and their corner, so the row is one set of
+     objects with one of them longer, and it is the only item allowed to
+     shrink — the row does not wrap, so a longer count than today's must give
+     way rather than push the line past the page. Its text stays RTL inside an
+     LTR row: the row's direction is for the order of the squares, not for a
+     Persian sentence. */
+  /* Sharing the free space is right on a phone and wrong on a tablet: at 768
+     the same rule put 85 between each square, because the line is 744 wide and
+     the six things on it come to 318.9. Above 576 the squares keep their 8 and
+     the box is pushed to the far end with an auto margin — both ends still
+     land on 12, which is what was asked; only the middle stops stretching. */
+  @media (min-width: 576px) {
+    .vp-pick-sizes {
+      justify-content: flex-start;
+    }
+
+    /* `margin-left`, not `margin-inline-start`. A logical margin resolves
+       against the *element's* own direction, and this box sets itself back to
+       rtl for its Persian text — so inline-start on it is the right-hand side
+       and the auto margin did nothing. The row is explicitly ltr; left is the
+       side the free space has to go on. */
+    .vp-pick-note.is-inline {
+      margin-left: auto;
+    }
+  }
+
+  .vp-pick-note.is-inline {
+    display: flex;
+    align-items: center;
+    /* It does not shrink; the squares beside it do. Its text is bounded —
+       «N سایز موجود», N at most two digits — so it cannot be the thing that
+       widens the line. The ellipsis below stays as a belt on that. */
+    flex: none;
+    min-width: 0;
+    /* Its height is the squares' height, whatever that has come to — «ارتفاع
+       مستطیل یک سایز موجود باید هم اندازه مربع ها بشه». It was written as the
+       squares' number, 45.98, and then the squares started shrinking to fit
+       the card and the two came apart. `stretch` takes the line's height,
+       which is the squares'; the row centres everything else, so this says so
+       for itself. */
+    align-self: stretch;
+    height: auto;
+    padding-inline: 12px;
+    border-radius: 13.85px;
+    background: rgba(16, 17, 17, 0.034);
+    direction: rtl;
+    font-size: 12px;
+    line-height: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #6E7070;
+  }
+
+  .vp-pick-size,
+  .vp-pick-size.is-off,
+  .vp-pick-size.is-elsewhere {
+    display: flex;
+    /* Shrinkable, and the only thing on the line that is. The row does not
+       wrap and its ends are pinned 12 off the screen, so on a narrower phone
+       something has to give: at 360 the five squares and the box want 358.8 of
+       a 336 line. The squares give — they keep `aspect-ratio: 1`, so they
+       stay square at 41.4 — and the count keeps its words. A number nobody can
+       read is worth less than a square a few pixels off its size, and 390 is
+       where the numbers below were measured anyway.
+
+       `min-width: 0` is what makes the shrink possible at all: a flex item's
+       automatic minimum is its content's size, and this one's content is a box
+       with a definite 45.98 width, so `auto` floors it at exactly the number
+       it is supposed to give way from. */
+    flex: 0 1 auto;
+    min-width: 0;
+    /* The template gives every `label` on the page `margin: -4.8px 0 8px` —
+       a form rule, from a stylesheet that never expected a label to be a chip
+       in a row of spans. Measured, it sat the two selectable chips 4.8 above
+       the three greyed ones and made the row 47.2 tall for 44 of chip. This
+       zero is «هم سطح»; without it no amount of alignment on the row would
+       have fixed it, because the offset is on the item and not in the line. */
+    margin: 0;
+  }
+
+  /* Squares, not oblongs — «سایزها باید تو مربع باشن نه مستطیل» — and a tenth
+     bigger than they were: «سایز مربع هارو ۱۰ درصد بزرگتر کن فاصله بینشون همین
+     مقدار باشه». 44 → 48.4, with `aspect-ratio` carrying the height, and the
+     16 gap left where it is.
+
+     The corner goes up with the box, at the header's ratio: 48.4 × 0.30119 =
+     14.58. A square that grows and keeps its old corner is a bigger square
+     with a tighter radius, which reads as a different shape rather than the
+     same one larger — the same note the drawer's close button carries.
+
+     Then 5% off again — «مربع ها ۵ درصد کوچیکتر بشن» — to make room for the
+     count at the end of the line: 48.4 → 45.98, corner 45.98 × 0.30119 =
+     13.85. The row now holds five squares, the box and five 8 gaps in 358.9 of
+     the 362 it has at 390. */
+  .vp-pick-size span {
+    width: var(--vp-chip);
+    max-width: 100%;
+    min-width: 0;
+    height: auto;
+    aspect-ratio: 1;
+    padding-inline: 0;
+    border-radius: 13.85px;
+    background: #FFFFFF;
+    box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.10);
+  }
+
+  .vp-pick-size input:checked + span {
+    box-shadow: none;
+  }
+
+  /* The row draws every size in `storefront.size_row`, in three states:
+
+       غیرفعال      grey ground, no ring, ink at a third
+       قابل انتخاب  white ground, the hairline ring, full ink
+       سلکت شده     the gold ramp, no ring, white ink
+
+     **No line through the disabled one** — «نیاز نیست خط روشون بزنی همون حالت
+     غیره فعال رنگ کافیه». It was drawn for the reason that a colour-only
+     distinction is the one that goes in bright sun or a high-contrast mode;
+     the client has looked at both and chosen, so it comes off. The grey ground
+     against the ring is a difference of shape as well as of value, which is
+     what carries it. */
+  .vp-pick-size.is-elsewhere {
+    text-decoration: none;
+  }
+
+  .vp-pick-size.is-off > span {
+    background: rgba(16, 17, 17, 0.034);
+    box-shadow: none;
+    color: rgba(16, 17, 17, 0.32);
+    cursor: default;
+  }
+
+  /* The row on a shoe with nothing left in any size: the sizes still show,
+     greyed, above the line that says so. */
+  .vp-pick-empty {
+    display: block;
+    margin-block-start: 20px;
+  }
+
+  /* ---- Five dots under the photograph ------------------------------------
+
+     «اون ۵ تا عکس زیر عکس اصلیرو حذف کن ۵ تا نقطه بیار که اولیش گلد باشه». The
+     strip of five thumbnails comes off the phone and five dots take its place,
+     the first in the shop's gold.
+
+     They are the dots that have been in this page's markup all along — one per
+     shot, `placeholders.colorway_shots` — so nothing was added for them; the
+     row above only stops being drawn. The desktop keeps the thumbnails in its
+     own column, which is why this hides them here rather than removing them.
+
+     Round, all five. The old rule stretched the lit one into an 18px pill,
+     which is a slider's device for "you are on the first of five"; the ask is
+     five dots with one of them gold. */
+  .vp-pdp-gallery .vp-pdp-thumbs {
+    display: none;
+  }
+
+  /* `ltr`, so the gold one is the leftmost. The two rows in the card below
+     were both turned left-to-right at the client's word — the sizes by name
+     and the colours to match them — and their first item is the one on the
+     left; a row of dots whose first is on the right would be the only
+     sequence on this screen counting the other way. */
+  .vp-pdp-dots {
+    display: flex;
+    justify-content: center;
+    gap: 7px;
+    margin-block-start: 16px;
+    direction: ltr;
+  }
+
+  .vp-pdp-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: rgba(16, 17, 17, 0.16);
+  }
+
+  .vp-pdp-dot.is-on {
+    width: 7px;
+    border-radius: 50%;
+    background: #C0972F;
+  }
+
+  /* ---- The bar at the foot -----------------------------------------------
+
+     The reference labels its price «Price» and stacks the number under it, so
+     The button keeps the shop's gold rather than the reference's near-black:
+     every other buy button in this storefront is that ramp — the ladder's, the
+     basket's, the seller rows' — and one page's own black CTA would be a
+     second answer to the same question. The shape is the reference's.
+
+     The price and its «قیمت» label are not in the bar any more. They were
+     drawn there while the card had no price on it; the card has one now, on
+     the name's line, and the same number twice on one screen reads as a
+     mistake. The button takes the whole bar, which is the reference's bar
+     as well. */
+
+  /* ---- The buy row, at the foot of the card ------------------------------
+
+     «باید اد تو کارت معادل فارسیش رو یه دکمه بیاد راست / انتخاب تعداد هم چپ
+     همون دکمه / همه اینا باید رو کارت باشن».
+
+     The stepper is on the right and the button on the left — «دکمه افزودن به
+     سبد خرید باید چپ قرار بگیره / انتخاب تعداد باید بیاد راست». The markup is
+     stepper then button, which on an RTL row is exactly that order, so the row
+     is a plain `row` again; it was `row-reverse` while the button was on the
+     right.
+
+     The button takes what is left of the line; the stepper is its own width. */
+  .vp-pick-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    /* The gap to the colour line above it, three rounds of it: 20 → 30 at
+       «فاصله افزودن به سبد خرید و انتخاب تعداد با بهش انتخاب رنگ هم باید ۵۰
+       درصد بیشتر بشه», 30 → 45 at «...و ردیف افزودن به سبد خرید باید ۵۰ درصد
+       بیشتر بشن», and now a fifth back off it — «فاصله بین رنگها و ردیف اضافه
+       کردن به سبد خرید باید ۲۰ درصد کمتر بشه» — which is 36. */
+    margin-block-start: 36px;
+  }
+
+  /* Gold again — «دکمه افزودن به سبد خرید هم باید طلایی بشه». It was white for
+     one round, at «به رنگ سفید», and white on the card's 247 is an eight-level
+     step: a shape you can see rather than one you can press. It is back on the
+     shop's own ramp, which is what every other buy button on the site is, so
+     the hairline and the ink it needed to read as a control both go with the
+     white. */
+  .vp-pick-go {
+    flex: 1;
+    height: 48px;
+    border-radius: 14.46px;
+    background: linear-gradient(96deg, #C0972F 0%, #E3B54A 100%);
+    box-shadow: none;
+    color: #FFFFFF;
+    font-size: 14px;
+  }
+
+  /* The stepper, to the shape the client drew: a grey trough with two white
+     squares in it and the number between them, on the grey.
+
+     The three sit on a ground of their own rather than on the card, so it is
+     one object; the squares are lit by the mark's two-stop shadow, the same
+     light the header's squares and this page's two photo corners take, which
+     is what makes them read as raised out of the trough rather than as holes
+     cut in it.
+
+     48 overall — the button's height — is 40 of square inside 4 of padding.
+     The corner is the header's ratio at each size: 48 × 0.30119 = 14.46 on the
+     trough, 40 × 0.30119 = 12.05 on the squares.
+
+     On an RTL row the first child is the rightmost, and the markup is minus,
+     field, plus — so the plus would land left of the number. `row-reverse`
+     turns the three around without touching the markup, which has to stay in
+     the order the template's own handler expects to find them in. */
+  .vp-qty {
+    display: flex;
+    flex: none;
+    flex-direction: row-reverse;
+    align-items: center;
+    /* Halved against the number between them — «فاصله بین مربع مثبت و منفی با
+       عدد وسطش باید نصف بشه». 8 → 4. */
+    gap: 4px;
+    /* Stated, not inherited from the tallest child: the number field's own
+       line box measured 50 against the two squares, and the row beside a 48
+       button reading 50 is a two-pixel step nobody meant. */
+    height: 48px;
+    /* 4 all round, so the squares are 40 and inset — the shape in the
+       photograph the client sent.
+
+       They were made to fill the trough for one round, reading «ارتفاع دکمه
+       افزودن به سبد خرید باید اندازه باکس انتخاب تعداد باشه» as being about
+       them. It was not: the button and this trough were already the same 48,
+       to the same top and bottom pixel, and the ask was about those two. The
+       squares are back where they were drawn. */
+    padding: 4px;
+    border-radius: 14.46px;
+    background: rgba(16, 17, 17, 0.05);
+  }
+
+  .vp-qty .qty-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 0;
+    border-radius: 12.05px;
+    background: #FFFFFF;
+    box-shadow:
+      0 0 2px rgba(16, 17, 17, 0.10),
+      0 0 8px -2px rgba(16, 17, 17, 0.14);
+    color: #101111;
+    font-size: 12px;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  /* The field carries the number and nothing else — no spinners, no border, no
+     background. It is `type="number"` so a phone opens the number pad on it,
+     and the two buttons are what most people will use. */
+  .vp-qty .qty-input {
+    width: 30px;
+    padding: 0;
+    border: 0;
+    background: none;
+    font-family: 'Vazirmatn', var(--body-font);
+    font-weight: 700;
+    font-size: 15px;
+    font-feature-settings: 'tnum' 1;
+    text-align: center;
+    color: #101111;
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+
+  .vp-qty .qty-input::-webkit-outer-spin-button,
+  .vp-qty .qty-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
   }
 }
 
@@ -12688,6 +13668,75 @@ ul.vp-how-list.is-ticked li:before {
   color: rgba(16, 17, 17, 0.5);
 }
 
+/* --------------------------------------------------------------------------
+   The card's tile, on the phone: the photograph 15 lower, the favourite as one
+   of the header's squares in the head corner, and the badge in gold.
+
+   «عکس محصول باید ۱۵ پیکسل بیاد پایینتر» / «لوگوی قلب باید تو یه مربع کرو مث
+   مربع های هدر بره گوشه ی بالا چپ» / «نوشته جدید باید رنگ گلد باشه نه مشکی».
+
+   Asked for the phone and written for the phone — «ما میخوایم رو نسخه موبایل
+   کار کنیم» — so it is scoped to the width the card was designed at. Above 992
+   the same card sits in the desktop grid and keeps the rules above; if these
+   three are ever wanted there too, this block is what moves out of the query.
+
+   **The 15 is a translate, not a new inset.** The tile is square and the
+   photograph is fitted inside a box of 80% of it, centred; moving that box by
+   changing `inset` would also change its size, and a fitted photograph that is
+   given a shorter box gets *smaller* rather than lower. A translate moves the
+   painted shoe and nothing else.
+
+   There is room for it. Measured at 390: the tile is 177, the fitted box 141.59
+   with 17.69 above and 17.72 below it, and the catalogue's photographs are
+   1400×990 — so inside that box the shoe paints 141.59 × 100.1 with a 20.7 band
+   of nothing above and below. After the 15 the box ends 2.72 short of the
+   tile's foot and the shoe itself 23.4 short of it, which is why nothing meets
+   the edge. A photograph squarer than 4:3 would eat that margin, so if the
+   catalogue ever carries one, measure this again before assuming it still
+   clears.
+
+   **The favourite is the header's square, at the same ratio, not the same
+   size.** The band's controls are 39.9 with a 12.0175 corner below 576 and 42
+   with 12.65 above it — one ratio, 0.30119, held at both. This control is 30,
+   because it sits on a 177 tile rather than in a 62.7 band, so it takes the
+   ratio: 30 × 0.30119 = 9.04. The fill and the lit edge come over unchanged,
+   including the mark's own two-stop shadow, so it reads as the header's
+   material at the card's scale.
+
+   Its ink stays #101111. «مث مربع های هدر» is about the square — and the
+   header's glyphs are gold because the band has no other gold in it, while
+   this tile now has the badge two corners away. Two golds on one photograph
+   would be the second gold this file's header block spends a paragraph
+   refusing.
+
+   **The badge takes the page's one gold**, the button ramp #C0972F → #E3B54A,
+   with #101111 on it — the basket count's exact pairing, already measured at
+   6.94:1 and AA. Not white on gold: at 10px that is 3.0:1 and fails.
+   -------------------------------------------------------------------------- */
+@media (max-width: 991.98px) {
+  .vp-card-shot img {
+    transform: translateY(15px);
+  }
+
+  .vp-card-fav {
+    inset-block-start: 8px;
+    inset-block-end: auto;
+    border-radius: 9.04px;
+    box-shadow:
+      0 0 2px rgba(16, 17, 17, 0.10),
+      0 0 8px -2px rgba(16, 17, 17, 0.14);
+  }
+
+  /* «اون جدید رو کارتها باید با سفید نوشته بشه». It was #101111 on the gold,
+     which is the pairing the basket count uses and measures 6.94:1. White on
+     the same ramp is 3.0:1, which is under AA for text this size — said once,
+     here, because the ask is explicit and the client has now seen both. */
+  .vp-card-new {
+    background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+    color: #FFFFFF;
+  }
+}
+
 /* The filter rail, folded on a phone and in the sidebar above 992.
 
    The same `shop.filters` include is rendered twice — once inside the top
@@ -12964,8 +14013,12 @@ ul.vp-how-list.is-ticked li:before {
     margin-block-end: 10px;
   }
 
-  .vp-price-sorts a {
+  /* Labels around a radio now, not links — see the note in the sheet. The
+     selector keeps the anchor as well so nothing depends on which it is. */
+  .vp-price-sorts a,
+  .vp-price-sorts label {
     flex: 1 1 0;
+    cursor: pointer;
     padding: 7px 4px;
     border-radius: 9px;
     background: rgba(16, 17, 17, 0.045);
@@ -12976,9 +14029,19 @@ ul.vp-how-list.is-ticked li:before {
     text-decoration: none;
   }
 
-  .vp-price-sorts a.is-on {
+  .vp-price-sorts a.is-on,
+  .vp-price-sorts label:has(:checked) {
     background: rgba(192, 151, 47, 0.14);
     color: #A47F25;
+  }
+
+  /* The radio itself is not drawn; the label is the control. */
+  .vp-price-sorts input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
   }
 
   /* ltr, so «از» is the left box: on an rtl page the first child sits at the
@@ -13325,7 +14388,11 @@ ul.vp-how-list.is-ticked li:before {
     text-decoration: none;
   }
 
-  /* «این بیضی هایی که برای فیلتر ها و پاپ ها ساختی چرا بالا و پایینش خرابی و
+  /* On, either because the server said so — the chips above the rule — or
+     because the shopper has just ticked it in an open sheet. The second is
+     what stops the sheet having to reload to show a choice.
+
+     «این بیضی هایی که برای فیلتر ها و پاپ ها ساختی چرا بالا و پایینش خرابی و
      دو رنگی داره» — a gold pill with a lighter line laid along its top and a
      darker band along its foot. Both are the same defect, and neither is a
      shadow, a ring or a second colour: it is one line of the gold ramp,
@@ -13355,12 +14422,46 @@ ul.vp-how-list.is-ticked li:before {
      `background-clip: padding-box`: clipping would keep the ramp honest too,
      but by leaving the border pixel unpainted, which puts a white hairline
      round a solid pill. The transparent border itself stays either way — it is
-     what holds the on state to the same size as the off state's ring. */
-  .vp-chip.is-on {
+     what holds the on state to the same size as the off state's ring.
+
+     Both selectors carry it: a pill turned gold by a tick in an open sheet is
+     the same pill with the same 1px transparent border, so it had the same two
+     edges. */
+  .vp-chip.is-on,
+  .vp-chip:has(:checked) {
     border-color: transparent;
     background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
     background-origin: border-box;
     color: #FFFFFF;
+  }
+
+  .vp-chip input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .vp-chip {
+    cursor: pointer;
+  }
+
+  /* «باید یه دکمه اعمال فیلتر به پایین این اضافه بشه». The brand sheet's own,
+     at the price sheet's — one button, one behaviour, both sheets. */
+  .vp-sheet-apply {
+    display: block;
+    width: 100%;
+    height: 44px;
+    margin-block-start: 16px;
+    border: 0;
+    border-radius: 13.25px;
+    background: linear-gradient(96deg, #C0972F 0%, #E3B54A 100%);
+    font-family: 'Vazirmatn', var(--body-font);
+    font-weight: 700;
+    font-size: 14px;
+    color: #FFFFFF;
+    cursor: pointer;
   }
 
   .vp-chip i {
