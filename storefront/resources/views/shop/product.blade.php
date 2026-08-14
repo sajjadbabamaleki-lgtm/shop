@@ -121,6 +121,17 @@
                     <div class="vp-pdp-head">
                         <div class="vp-pdp-naming">
                             <h1 class="vp-pdp-title">{{ $product->title }}</h1>
+
+                            {{-- The line under the name. On the phone it is
+                                 the sale — «زیر اسم به جای اون گلدن گوس زرد
+                                 بنویس ۳۰٪ تخفیف پله ای» — and the number in it
+                                 is the offer's own cut, not the words'. A shoe
+                                 with no cut keeps the brand there, which is
+                                 what the desktop shows either way. --}}
+                            @if ($offer->discountPercent())
+                                <span class="vp-pdp-ladder">٪{{ fa_number($offer->discountPercent()) }} تخفیف پله‌ای</span>
+                            @endif
+
                             @if ($product->brand)
                                 <a class="vp-pdp-brand" href="{{ storefront_route('shop', ['brand' => $product->brand->slug]) }}">{{ $product->brand->name }}</a>
                             @endif

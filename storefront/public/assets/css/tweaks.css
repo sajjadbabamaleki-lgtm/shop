@@ -5714,6 +5714,7 @@ ul.vp-how-list.is-ticked li:before {
 .vp-pdp-rate,
 .vp-pdp-fav,
 .vp-pdp-colors,
+.vp-pdp-ladder,
 .vp-qty,
 .vp-pdp-desc.is-standin,
 .vp-pick-empty,
@@ -11612,10 +11613,35 @@ ul.vp-how-list.is-ticked li:before {
     color: #C0972F;
   }
 
+  /* The sale line under the name, where the brand was — «زیر اسم به جای اون
+     گلدن گوس زرد بنویس ۳۰٪ تخفیف پله ای». It takes the brand's own gold and
+     size, so the line reads the same and says something else. The number in it
+     is the offer's own cut rather than the words'.
+
+     The brand only steps aside when there is a cut to put there; a shoe at
+     full price keeps it, which is why this is `:has()` and not a flat
+     `display: none` on the brand. */
+  .vp-pdp-ladder {
+    display: inline-block;
+    margin-block-start: 2px;
+    font-size: 13px;
+    color: var(--theme-color);
+  }
+
+  .vp-pdp-naming:has(.vp-pdp-ladder) .vp-pdp-brand {
+    display: none;
+  }
+
+  /* The description comes off the phone — «بخش توضیحاتو حذف کن ارتفاع کارت
+     کوتاهتر بشه» — both of it: the shoe's own when it has one, and the
+     stand-in when it has not. The desktop still prints whichever it has. This
+     is about the card's height, and the card is the phone's.
+
+     `placeholders.description` stays in the config, because it is the desktop
+     that reads it and the panel's own field that replaces it. */
   .vp-pdp-desc,
   .vp-pdp-desc.is-standin {
-    display: block;
-    margin-block-start: 10px;
+    display: none;
   }
 
   /* ---- The colour row ----------------------------------------------------
