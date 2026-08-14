@@ -11997,7 +11997,19 @@ ul.vp-how-list.is-ticked li:before {
        line box measured 50 against the two squares, and the row beside a 48
        button reading 50 is a two-pixel step nobody meant. */
     height: 48px;
-    padding: 4px;
+    /* No padding above or below — «ارتفاع دکمه افزودن به سبد خرید باید اندازه
+       باکس انتخاب تعداد باشه».
+
+       The button and this trough were already the same 48, measured, to the
+       same top and bottom pixel. What was not 48 was the pair of white squares
+       inside it: they were 40, inset by 4 all round, and against a gold slab
+       that fills its whole height the eye compares the white shapes rather
+       than the grey they sit in. So the squares fill the trough's height and
+       the row is three objects of one height.
+
+       The trough keeps its 4 either side, so it still reads as the ground the
+       squares sit on rather than as a gap between them. */
+    padding: 0 4px;
     border-radius: 14.46px;
     background: rgba(16, 17, 17, 0.05);
   }
@@ -12006,11 +12018,11 @@ ul.vp-how-list.is-ticked li:before {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
+    width: 48px;
+    height: 48px;
     padding: 0;
     border: 0;
-    border-radius: 12.05px;
+    border-radius: 14.46px;
     background: #FFFFFF;
     box-shadow:
       0 0 2px rgba(16, 17, 17, 0.10),
