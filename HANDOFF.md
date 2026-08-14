@@ -2126,3 +2126,42 @@ taken effect is indistinguishable from one that has, right up until something
 else changes and it is finally asked to do its job. Nothing in this repo checks
 computed style against written style, so the only way this surfaces is somebody
 measuring — which is why every visual claim here gets measured.
+
+### The heel: a triangle out of its middle, not a different heel
+
+«فقط آیکون مجلسی زشته» → «چنتا آیکون مجلسی پیدا کن جایگذین کنیم».
+
+**Twenty-four replacement heels were shown across two rounds and every one was
+refused.** All twelve monochrome heels in the whole Iconify catalogue, then
+twelve more taken from the coloured cuts and flattened to gold. The catalogue is
+exhausted; do not go looking again without reading this.
+
+What the client wanted was not a different shoe: «میتونیم همین آیکون مجلسی
+فعلیرو یکم توشو خالی کنیم که **هم وزن** بشه با باقی آیکونامون». The complaint was
+weight. The heel is the only one of the eight that is a solid mass — the loafer
+carries a sole line, the boot a shaft seam, the sneaker its motion marks, and
+every one of them shows some ground through itself. This one showed none, so it
+read heavier than its neighbours at the same size.
+
+**The first attempt was refused too, and the reason is worth keeping.** It was
+two straight bars, one along the sole and one along the vamp: «خیلی مصنوعی
+هستن» — a ruled slot across a drawing whose every other edge is a curve. So the
+cut is a `roundedTriangle`, each corner turned with a quadratic through the
+corner itself, which is the same curve a rounded join is.
+
+**The corners are the client's own, measured off the drawing they sent.** Their
+image put the shoe's ink at x 285..835 and y 750..1290 — 20.95 and 22.04 pixels
+to the unit against this 32 grid — and the triangle they drew came to x
+12.3..20.2, y 12.6..20.1. What is not theirs is the slope: «وتر موازیِ رویه», so
+the hypotenuse is parallel to the shoe's own upper edge, which runs (10.37,
+5.13) to (24.23, 21.41) at 1.175. That lifts the apex from 12.6 to 10.9 and is
+what makes the cut read as drawn rather than as placed.
+
+**Clearance is what to preserve if those numbers are ever touched.** At the
+apex's height the shoe's upper edge is at x 15.28 and the cut stops at 12.4; at
+the base the edge is at 23.12 and the cut stops at 20.2. Under about two units
+the wall between the cut and the edge stops being visible at 26px.
+
+And then «سایزش ۵ درصد کوچیکتر بشه» a second time, which compounds like the
+boot's crops: 0.05 + 0.95 × 0.05, so the artwork ends at 0.9025 of its box.
+Measured in the strip: 25.00 wide before, 23.50 after, soles still on 211.

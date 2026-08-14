@@ -189,10 +189,83 @@ const EDITS = {
    * the cropped boot lie down — so they are the two that read as oversized in a
    * row fitted by the longer side. Five per cent of slack all round, which
    * shrinks the artwork without touching its shape.
+   *
+   * --------------------------------------------------------------------------
+   * And the heel is hollowed. «فقط آیکون مجلسی زشته», then — after twenty-four
+   * replacement heels across two rounds, every one refused — «میتونیم همین
+   * آیکون مجلسی فعلیرو یکم توشو خالی کنیم که هم وزن بشه با باقی آیکونامون /
+   * بنظرم یه مثلث مرتب اینجوری بزاری توش حله», with a drawing.
+   *
+   * The complaint underneath all of it is weight, not shape: the heel is the
+   * only one of the eight that is a solid mass. The loafer carries a sole line,
+   * the boot a shaft seam, the sneaker its motion marks — every other icon has
+   * some of its own ground showing through, and this one had none, so it read
+   * heavier than its neighbours at the same size.
+   *
+   * **The corners are the client's, measured off their drawing.** Their image
+   * put the shoe's ink at x 285..835 and y 750..1290, which is 20.95 and 22.04
+   * pixels to the unit against this 32 grid; the triangle they drew came to
+   * x 12.3..20.2, y 12.6..20.1. What is *not* theirs is the slope: «وتر موازیِ
+   * رویه», so the hypotenuse is set parallel to the shoe's own upper edge —
+   * that edge runs (10.37, 5.13) to (24.23, 21.41), a slope of 1.175, which
+   * lifts the apex from 12.6 to 10.9 and makes the cut read as drawn rather
+   * than as placed.
+   *
+   * An earlier attempt at this was two straight bars, one along the sole and
+   * one along the vamp: «خیلی مصنوعی هستن», and rightly — a ruled slot across a
+   * drawing whose every other edge is a curve. Hence `roundedTriangle`, which
+   * turns each corner the way the drawing turns its own.
+   *
+   * Clearance is the thing to preserve if these numbers are ever touched. At
+   * the apex's height the shoe's upper edge is at x 15.28 and the cut stops at
+   * 12.4; at the base it is at 23.12 and the cut stops at 20.2. Under about two
+   * units the wall between the cut and the edge starts to disappear at 26px.
    */
-  'vp-cat-heel': { shrink: 0.05 },
+  'vp-cat-heel': {
+    // Two rounds, and like the boot's crops they compound rather than add: the
+    // second five per cent was asked of a heel already at 0.95, so the slack is
+    // 0.05 + 0.95 × 0.05 and the artwork ends at 0.9025 of its box.
+    shrink: 0.05 + 0.95 * 0.05,
+    hollow: roundedTriangle([[12.4, 10.9], [20.2, 20.1], [12.4, 20.1]], 1.1),
+  },
+
   'vp-cat-sneaker': { shrink: 0.05 },
 };
+
+/**
+ * A triangle with its corners turned, as a closed sub-path.
+ *
+ * Each corner is cut back by `r` along both of its edges and the gap bridged
+ * with a quadratic through the corner itself — which is the same curve a
+ * rounded join is, and it is why this sits in a drawing full of them without
+ * looking like it was placed by a different hand.
+ */
+function roundedTriangle(corners, r) {
+  const sub = (p, q) => [p[0] - q[0], p[1] - q[1]];
+  const add = (p, q) => [p[0] + q[0], p[1] + q[1]];
+  const along = (from, to, d) => {
+    const v = sub(to, from);
+    const len = Math.hypot(v[0], v[1]);
+
+    return add(from, [(v[0] / len) * d, (v[1] / len) * d]);
+  };
+  const at = (p) => p.map((n) => Math.round(n * 100) / 100).join(' ');
+
+  let d = '';
+
+  corners.forEach((corner, i) => {
+    const before = corners[(i + corners.length - 1) % corners.length];
+    const after = corners[(i + 1) % corners.length];
+
+    d += i === 0
+      ? `M${at(along(corner, after, r))}`
+      : `L${at(along(corner, before, r))}Q${at(corner)} ${at(along(corner, after, r))}`;
+  });
+
+  const first = corners[0];
+
+  return `${d}L${at(along(first, corners[corners.length - 1], r))}Q${at(first)} ${at(along(first, corners[1], r))}z`;
+}
 
 /**
  * Where a rendered icon's ink actually starts and stops, top and bottom, in its
@@ -332,9 +405,19 @@ async function build() {
 
     const edit = EDITS[file] ?? {};
 
-    const body = edit.path
+    let body = edit.path
       ? `<path fill="${GOLD}" d="${edit.path}"/>`
       : art.body.replaceAll('currentColor', GOLD);
+
+    // The hole goes on the end of the same `d`, under even-odd, so it is a void
+    // in the shape rather than a shape of its own — which matters because these
+    // icons sit on white in the strip and on a gold tint in the drawer, and a
+    // "hole" painted in either colour would be wrong on the other.
+    if (edit.hollow) {
+      body = body
+        .replace(/(<path\b[^>]*\bd=")([^"]*)(")/, (_, open, d, close) => `${open}${d}${edit.hollow}${close}`)
+        .replace(/<path\b/, '<path fill-rule="evenodd"');
+    }
 
     /**
      * `width` and `height` follow the view box, and that is not decoration.
@@ -373,7 +456,7 @@ async function build() {
     const h = (ink.bottom - top) * grow;
     const viewBox = `${round(ink.left - (w - (ink.right - ink.left)) / 2)} ${round(ink.bottom - h)} ${round(w)} ${round(h)}`;
 
-    const note = edit.path || edit.topCut || edit.shrink
+    const note = edit.path || edit.topCut || edit.shrink || edit.hollow
       ? ' Altered at the client\'s request — see theme/make-category-icons.js.'
       : '';
 
