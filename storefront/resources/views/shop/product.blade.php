@@ -200,9 +200,33 @@
 
                             @include('shop.sizes')
 
+                            {{-- Inside the form, between the sizes and the buy
+                                 row, because that is the order asked for and
+                                 the buy row cannot leave the form it submits.
+                                 It contributes no field. --}}
+                            @include('shop.colors')
+
                             {{-- The bar the reference puts at the foot of the phone.
                                  It is part of this form, so the button adds whichever
                                  chip is checked. Above 992 it sits in the flow. --}}
+                            {{-- On the phone this is the last row of the card —
+                                 «باید اد تو کارت معادل فارسیش رو یه دکمه بیاد
+                                 راست / انتخاب تعداد هم چپ همون دکمه / همه اینا
+                                 باید رو کارت باشن». Above 992 it is what it has
+                                 always been: the price and the button, in the
+                                 flow under the sizes.
+
+                                 The stepper is the template's own control, not
+                                 a new one: `.quantity-plus` / `.quantity-minus`
+                                 with a sibling `.qty-input` is what
+                                 `assets/js/main.js` already binds on every
+                                 page, and `CartController@add` already reads
+                                 `quantity`. Nothing new had to run for it.
+
+                                 It is phone-only; on the desktop the field is
+                                 not drawn and the controller's own default of
+                                 1 is what a submit means there, exactly as
+                                 before. --}}
                             <div class="vp-pick-bar">
                                 {{-- The number and its unit in a box of their
                                      own: the label stacks above them on the
@@ -212,6 +236,17 @@
                                     <span class="vp-pick-label">قیمت</span>
                                     <span class="vp-pick-sum">{{ toman($offer->price) }} <em>تومان</em></span>
                                 </span>
+
+                                <div class="vp-qty">
+                                    <button type="button" class="quantity-minus qty-btn" aria-label="یکی کمتر">
+                                        <i class="fa-solid fa-minus" aria-hidden="true"></i>
+                                    </button>
+                                    <input class="qty-input" type="number" name="quantity" value="1" min="1" inputmode="numeric" aria-label="تعداد">
+                                    <button type="button" class="quantity-plus qty-btn" aria-label="یکی بیشتر">
+                                        <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                                    </button>
+                                </div>
+
                                 <button type="submit" class="vp-pick-go">افزودن به سبد</button>
                             </div>
                         </form>
@@ -229,31 +264,8 @@
                             </div>
 
                             @include('shop.sizes')
-                        </div>
-                    @endif
 
-                    {{-- The colour row — «یه لاین انتخاب رنگ هم نیاز داریم».
-
-                         Every variant in the catalogue says «نامشخص», so there
-                         is no colour to draw: these are
-                         `placeholders.colors`, a stand-in for the row, and
-                         nothing in it is selectable or named. The day a
-                         variant carries a real colour, the named block above
-                         («رنگ») is what the page draws and this row goes.
-
-                         Phone only, like everything else this round. --}}
-                    @php
-                        $swatches = $colorways->count() > 1 ? [] : config('storefront.placeholders.colors', []);
-                    @endphp
-
-                    @if ($swatches)
-                        <div class="vp-pdp-colors">
-                            <h2 class="vp-pdp-choice-title">رنگ</h2>
-                            <div class="vp-pdp-swatches" aria-hidden="true">
-                                @foreach ($swatches as $swatch)
-                                    <span @class(['vp-pdp-swatch', 'is-on' => $loop->first]) style="--vp-swatch: {{ $swatch }}"></span>
-                                @endforeach
-                            </div>
+                            @include('shop.colors')
                         </div>
                     @endif
 

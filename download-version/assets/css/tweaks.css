@@ -5714,6 +5714,7 @@ ul.vp-how-list.is-ticked li:before {
 .vp-pdp-rate,
 .vp-pdp-fav,
 .vp-pdp-colors,
+.vp-qty,
 .vp-pdp-desc.is-standin,
 .vp-pick-empty,
 .vp-pick-note.is-inline,
@@ -11055,28 +11056,16 @@ ul.vp-how-list.is-ticked li:before {
   filter: brightness(1.04);
 }
 
-/* On a phone the bar leaves the flow and sits against the foot, as an island —
-   the same 14 either side and 10 off the bottom the basket's totals take, and
-   the same glass. The page pads out by 100 so the last thing on it clears the
-   bar; the bar is out of flow and cannot push anything itself. */
-@media (max-width: 991.98px) {
-  .vp-pick-bar {
-    position: fixed;
-    z-index: 40;
-    inset-inline: 14px;
-    inset-block-end: calc(10px + env(safe-area-inset-bottom, 0px));
-    margin: 0;
-    padding: 12px;
-    border-radius: 24px;
-    background: rgba(16, 17, 17, 0.034);
-    -webkit-backdrop-filter: blur(22px) saturate(1.15);
-    backdrop-filter: blur(22px) saturate(1.15);
-  }
+/* The bar used to leave the flow on a phone and sit against the foot as a
+   glass island, with the page padded out by 110 to clear it.
 
-  .vp-shop-section:has(.vp-pick-bar) {
-    padding-block-end: 110px;
-  }
-}
+   It does not any more: «همه اینا باید رو کارت باشن» — the buy row is the last
+   row of the card now, in the flow, with the quantity stepper beside it. What
+   is left here is the desktop's arrangement, which never moved.
+
+   The rules that went with the island went with it: the page's 110 of bottom
+   padding, and the lift that kept the WhatsApp button off the top of the bar.
+   Nothing is fixed on this page now, so neither has anything to clear. */
 
 /* --------------------------------------------------------------------------
    The product page on a phone, in the reference's arrangement.
@@ -11472,10 +11461,21 @@ ul.vp-how-list.is-ticked li:before {
 
      The price is back in the card and comes off the bar at the foot with it.
      The reference's bar carries a button and nothing else, and the same number
-     twice on one screen reads as a mistake rather than as emphasis. */
+     twice on one screen reads as a mistake rather than as emphasis.
+
+     **On the name's own line, not merely on the same row** — «اون قیمت دقیقا
+     باید روبروی اسم قرار بگیره». `align-items: baseline` puts the price's
+     first baseline on the name's first baseline; `flex-start` had lined up the
+     tops of two boxes with different type sizes in them, which is not the same
+     thing and read as the price sitting high. Measured at 390: both baselines
+     on 411.5.
+
+     **And the cut chip comes off** — «اون ۳۰ درصد زیر قیمتو حذف کن». The price
+     it was stays, struck, directly under the price: that is the sale, and it
+     is one line rather than a block. The desktop keeps its chip. */
   .vp-pdp-head {
     flex-direction: row;
-    align-items: flex-start;
+    align-items: baseline;
     justify-content: space-between;
     gap: 12px;
     margin-block-start: 0;
@@ -11494,6 +11494,10 @@ ul.vp-how-list.is-ticked li:before {
     font-family: var(--body-font);
     font-size: 19px;
     white-space: nowrap;
+  }
+
+  .vp-pdp-head .vp-pdp-cut {
+    display: none;
   }
 
   .vp-pick-price {
@@ -11872,20 +11876,83 @@ ul.vp-how-list.is-ticked li:before {
      mistake. The button takes the whole bar, which is the reference's bar
      as well. */
 
-  /* And the WhatsApp button gets out from under it.
+  /* ---- The buy row, at the foot of the card ------------------------------
 
-     It is fixed 30 off the foot and 50 tall, so it occupies 30–80; the bar is
-     10 off the foot and measured 76 tall, so it occupies 10–86. They have
-     overlapped on every product page with a size chip since the bar was
-     written — the button only appears after the first scroll, which is why it
-     went unnoticed — and the bar is the one control on this screen the client
-     is asking to be seen. 98 puts the button 12 clear of the bar's top, on the
-     same safe-area offset the bar itself uses.
+     «باید اد تو کارت معادل فارسیش رو یه دکمه بیاد راست / انتخاب تعداد هم چپ
+     همون دکمه / همه اینا باید رو کارت باشن».
 
-     The 76 is a measurement, not a constant: the bar is 12 of padding either
-     side of a 52 button. If either changes, this changes with it. */
-  body:has(.vp-pick-bar) .vp-whatsapp {
-    bottom: calc(98px + env(safe-area-inset-bottom, 0px));
+     `row-reverse`, so the markup can stay in the order the form reads —
+     choose how many, then add — while the page shows the button on the right
+     and the stepper on its left. On an RTL page a plain row would have put the
+     first child on the right, which is the stepper.
+
+     The button takes what is left of the line; the stepper is its own width. */
+  .vp-pick-bar {
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    gap: 10px;
+    margin-block-start: 20px;
+  }
+
+  .vp-pick-go {
+    flex: 1;
+    height: 48px;
+    border-radius: 14.46px;
+    font-size: 14px;
+  }
+
+  /* The stepper is the template's control at this page's size: 48 tall to
+     match the button beside it, the card's own tint under it, and the header's
+     corner ratio on a 48 box — 48 × 0.30119 = 14.46, the button's too. */
+  .vp-qty {
+    display: flex;
+    flex: none;
+    align-items: center;
+    height: 48px;
+    padding-inline: 4px;
+    border-radius: 14.46px;
+    background: #FFFFFF;
+    box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.10);
+  }
+
+  .vp-qty .qty-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 40px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: #101111;
+    font-size: 12px;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  /* The field carries the number and nothing else — no spinners, no border, no
+     background. It is `type="number"` so a phone opens the number pad on it,
+     and the two buttons are what most people will use. */
+  .vp-qty .qty-input {
+    width: 30px;
+    padding: 0;
+    border: 0;
+    background: none;
+    font-family: 'Vazirmatn', var(--body-font);
+    font-weight: 700;
+    font-size: 15px;
+    font-feature-settings: 'tnum' 1;
+    text-align: center;
+    color: #101111;
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+
+  .vp-qty .qty-input::-webkit-outer-spin-button,
+  .vp-qty .qty-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
   }
 }
 
