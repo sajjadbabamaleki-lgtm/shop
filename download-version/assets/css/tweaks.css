@@ -11341,14 +11341,17 @@ ul.vp-how-list.is-ticked li:before {
      frame goes to 80% of the line and is centred, so the shoe comes down with
      it and the ratio is untouched: 362 × 256 at 390 becomes 289.6 × 204.8.
 
-     And then square again — «اون فضایی که در بالا محصول توش قرار میگیره باید
-     مربع باشه». The frame the shoe sits in is 1:1; the shoe inside it is not
-     resized by that, because `contain` fits it to the width and the extra
-     height is space above and below it. 289.59 × 289.59 at 390, with the shoe
-     painting 289.59 × 204.78 in the middle of it — the same shoe as before,
-     in a square. */
+     And then square — «اون فضایی که در بالا محصول توش قرار میگیره باید مربع
+     باشه» — and then a fifth off that square's height: «خیلی ارتفاع فضایی که
+     محصول توشه بلند شد ۲۰ درصد کم بشه». 5/4 is exactly that: the width is the
+     square's and the height is 0.8 of it. 289.59 × 231.67 at 390.
+
+     The shoe is untouched by either. `contain` fits it to the frame's width,
+     so it paints 289.59 × 204.78 whatever the frame's height is, and what
+     changes is the space above and below it — 42 a side in the square, 13 a
+     side now. */
   .vp-pdp-shot {
-    aspect-ratio: 1;
+    aspect-ratio: 5 / 4;
     width: 80%;
     margin-inline: auto;
   }
