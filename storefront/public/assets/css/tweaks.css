@@ -11592,16 +11592,32 @@ ul.vp-how-list.is-ticked li:before {
     margin-block-start: 18px;
   }
 
+  /* The line is the size row's, so the two read as one system: left to right
+     from the card's own edge, the count in its rectangle at the other end, and
+     `space-between` sharing what is left. */
   .vp-pdp-swatches {
     display: flex;
-    gap: 10px;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    direction: ltr;
   }
 
   .vp-pdp-swatch {
-    width: 26px;
-    height: 26px;
+    flex: none;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     background: var(--vp-swatch);
+  }
+
+  /* Out of stock, the size chips' answer: the colour drops back and nothing
+     else changes. `opacity` rather than a paler hex, because the swatch's
+     colour is the one thing on it that carries meaning and a second version of
+     it in the stylesheet would be a second colour to keep in step. */
+  .vp-pdp-swatch.is-off {
+    opacity: 0.3;
   }
 
   /* The ring sits off the dot rather than on it, so the colour underneath is

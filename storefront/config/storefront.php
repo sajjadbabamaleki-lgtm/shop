@@ -260,9 +260,20 @@ return [
          | a variant carries a real colour the page draws that instead and this
          | list is not consulted.
          |
+         | Five of them — «رنگها هم حداقل ۵ رنگ روبروش باشن» — of which the
+         | first `colors_available` are drawn as in stock and the rest greyed,
+         | the same three states the size row has. Both numbers are invented,
+         | which is the point of them being here rather than in the database.
+         |
          | Set it to [] to leave the row out entirely.
          */
-        'colors' => ['#3F4147', '#D98F6B', '#E4C378'],
+        'colors' => ['#3F4147', '#D98F6B', '#E4C378', '#8FA8B8', '#C9C2BA'],
+
+        /*
+         | How many of those are in stock — «توش نوشته باشه ۳ رنگ موجود».
+         | Counted from the front of the list.
+         */
+        'colors_available' => 3,
 
         /*
          | The product page's rating.

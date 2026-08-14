@@ -14,15 +14,28 @@
 --}}
 @php
     $swatches = $colorways->count() > 1 ? [] : config('storefront.placeholders.colors', []);
+    $inStock = min((int) config('storefront.placeholders.colors_available', 0), count($swatches));
 @endphp
 
 @if ($swatches)
     <div class="vp-pdp-colors">
         <h2 class="vp-pdp-choice-title">رنگ</h2>
-        <div class="vp-pdp-swatches" aria-hidden="true">
+
+        {{-- The row the size row is: the colours from one end, the count in a
+             rectangle at the other — «زیر انتخاب رنگ هم باید یک مستطیل بیاد که
+             توش نوشته باشه ۳ رنگ موجود و رنگها هم حداقل ۵ رنگ روبروش باشن».
+             The same `.vp-pick-note.is-inline` box the sizes use, so the two
+             lines read as one system rather than as two ideas. --}}
+        <div class="vp-pdp-swatches">
             @foreach ($swatches as $swatch)
-                <span @class(['vp-pdp-swatch', 'is-on' => $loop->first]) style="--vp-swatch: {{ $swatch }}"></span>
+                <span @class([
+                    'vp-pdp-swatch',
+                    'is-on' => $loop->first,
+                    'is-off' => $loop->iteration > $inStock,
+                ]) style="--vp-swatch: {{ $swatch }}" aria-hidden="true"></span>
             @endforeach
+
+            <span class="vp-pick-note is-inline">{{ fa_number($inStock) }} رنگ موجود</span>
         </div>
     </div>
 @endif
