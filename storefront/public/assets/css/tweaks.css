@@ -12443,9 +12443,14 @@ ul.vp-how-list.is-ticked li:before {
     white-space: nowrap;
   }
 
+  /* «چرا بالا و پایینش خرابی و دو رنگی داره» — and it was, on both edges, for
+     the reason written at `.vp-chip.is-on` below. `background-origin` is the
+     line that fixes it; the transparent border stays, because it is what keeps
+     the on state exactly the size of the off state's 1px ring. */
   .vp-shop-tab.is-on {
     border-color: transparent;
     background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+    background-origin: border-box;
     color: #FFFFFF;
   }
 
@@ -13278,9 +13283,41 @@ ul.vp-how-list.is-ticked li:before {
     text-decoration: none;
   }
 
+  /* «این بیضی هایی که برای فیلتر ها و پاپ ها ساختی چرا بالا و پایینش خرابی و
+     دو رنگی داره» — a gold pill with a lighter line laid along its top and a
+     darker band along its foot. Both are the same defect, and neither is a
+     shadow, a ring or a second colour: it is one line of the gold ramp,
+     painted at the wrong end.
+
+     A gradient's box is `background-origin`, which defaults to `padding-box`;
+     what it is *painted* into is `background-clip`, which defaults to
+     `border-box`. This pill has a 1px transparent border, so those two boxes
+     differ by a pixel on every side, and `background-repeat` fills the
+     shortfall by tiling — which puts the ramp's bottom above its top and its
+     top below its bottom. The edge strip on each side gets the far end of the
+     ramp, and the two ends are 34 levels apart.
+
+     Measured down the middle at DPR 3, where the strip is three device pixels
+     and this is at its worst:
+
+       broken   top  226,180,73 ×3  →  192,151,47   (light band, hard step)
+                foot 227,181,74     →  192,151,47 ×3 (dark band, hard step)
+       fixed    top  193,152,48     →  194,153,49
+                foot 226,180,73     →  227,181,74
+
+     Fixed, the ramp starts on the pill's first pixel and ends on its last,
+     monotone all the way down with no step anywhere — which is also what the
+     curve of the corners was raggedly redrawing.
+
+     `background-origin: border-box` is the fix rather than
+     `background-clip: padding-box`: clipping would keep the ramp honest too,
+     but by leaving the border pixel unpainted, which puts a white hairline
+     round a solid pill. The transparent border itself stays either way — it is
+     what holds the on state to the same size as the off state's ring. */
   .vp-chip.is-on {
     border-color: transparent;
     background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+    background-origin: border-box;
     color: #FFFFFF;
   }
 

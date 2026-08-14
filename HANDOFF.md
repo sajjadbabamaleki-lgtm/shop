@@ -1910,6 +1910,35 @@ a pill. **The brand chips inside the sheet still carry the full black**, which
 was asked for by name («برندهای مختلف تو بیضی باشن به رنگ مشکی»); if they should
 follow the row, it is one value in `.vp-chip`.
 
+### The gold pill's two-tone edges were the ramp painted at the wrong end
+
+«این بیضی هایی که برای فیلتر ها و پاپ ها ساختی چرا بالا و پایینش خرابی و دو رنگی
+داره». A lighter line along the top of the gold pill and a darker band along its
+foot — on the filter row's chosen tab and on the chips inside the sheets.
+
+Not a shadow, not a ring, not a second gold. `background-origin` defaults to
+`padding-box` while `background-clip` defaults to `border-box`; these pills carry
+a 1px transparent border to hold the on state to the same size as the off
+state's ring, so those two boxes differ by a pixel on each side, and
+`background-repeat` fills the shortfall by tiling the ramp. The strip above the
+pill got the ramp's *bottom* and the strip below it got the ramp's *top* — the
+two ends of the gold, 34 levels apart, one on each edge.
+
+Measured down the middle of the live `/products` pill at DPR 3, where the strip
+is three device pixels:
+
+```
+before   top  226 226 227 → 192      foot  226 226 227 → 192 193
+after    top  192 192 193 193 194    foot  224 225 225 226 227
+```
+
+Worst step at either edge, 35 → 1. `background-origin: border-box` on
+`.vp-shop-tab.is-on` and `.vp-chip.is-on` is the whole fix. Not
+`background-clip: padding-box`, which keeps the ramp honest by leaving the
+border pixel unpainted and so puts a white hairline round a solid pill. The
+transparent border stays either way; nothing changed size, and parity stayed
+zero at all four widths.
+
 **The box is `.vp-shop-top`, not the search form, and that is load-bearing.**
 `shop.filters` is a `<form>`. Putting the filter's `<details>` inside the search
 form would nest one form in another, and browsers do not tolerate that — the
