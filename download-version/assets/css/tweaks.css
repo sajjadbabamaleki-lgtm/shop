@@ -12834,14 +12834,9 @@ ul.vp-how-list.is-ticked li:before {
     outline: none;
   }
 
-  /* The number reads outward and the label sits on the inner edge: left box,
-     number left; right box, number right. */
-  .vp-price-box:first-child input {
+  /* Both boxes read the same way: label on the right, number on the left. */
+  .vp-price-box input {
     text-align: left;
-  }
-
-  .vp-price-box:last-child input {
-    text-align: right;
   }
 
   .vp-price-box span {
@@ -12860,11 +12855,35 @@ ul.vp-how-list.is-ticked li:before {
      and thumb are drawn here instead. White on a white sheet needs a line to
      exist at all, so the track carries one; the thumb is the page's gold and
      is the only filled thing in the control. */
+  /* `border: 0`, and this is why the slider looked like it was sitting in a
+     box: the template gives every input a 1px #E1E4E5 border, and
+     `appearance: none` does not touch it. The rail was fine — the frame round
+     it was the input's own, inherited and never reset. */
+  /* «رنج ۲۰ درصد از ۲ طرف جم بشه» — a fifth narrower, taken equally from the
+     two ends, so 80% centred rather than 60%. If the twenty was meant per side
+     it is one number here.
+
+     Measured at 390: the rail ran 22..368 and runs 56..334, which is 34 in
+     from each end of a panel whose boxes still run the full width — the rail
+     reads as sitting inside them rather than as another row of the same
+     length. */
   .vp-price-range {
     direction: ltr;
-    width: 100%;
+    /* `display: block` with the auto margins, or they centre nothing: an
+       input is inline-block, and auto margins on an inline-level box are
+       zero. Measured before: the rail sat 67 in from one end and 0 from the
+       other. */
+    display: block;
+    width: 80%;
+    margin-inline: auto;
     height: 22px;
-    margin-block: 14px 4px;
+    /* 14 → 2: «۱۲ پیکسل نوار رنج از جایی که هست بره بالاتر». Taken off the
+       rail's own top margin rather than added as a negative offset, so the
+       gap under the boxes is one number and the button below it does not
+       move. */
+    margin-block: 2px 4px;
+    padding: 0;
+    border: 0;
     background: none;
     -webkit-appearance: none;
     appearance: none;
@@ -12874,14 +12893,26 @@ ul.vp-how-list.is-ticked li:before {
     height: 8px;
     border: 1px solid rgba(16, 17, 17, 0.18);
     border-radius: 4px;
-    background: #FFFFFF;
+    /* «چپش گلد باشه راستش سفید» — gold behind the thumb, white ahead of it.
+       The stop is a custom property: the Blade sets it from the value it
+       renders, and the input handler moves it as the thumb moves, so the two
+       agree without the server and the browser each guessing. */
+    background: linear-gradient(to right,
+      #C0972F 0 var(--vp-fill, 100%),
+      #FFFFFF var(--vp-fill, 100%) 100%);
   }
 
   .vp-price-range::-moz-range-track {
     height: 8px;
     border: 1px solid rgba(16, 17, 17, 0.18);
     border-radius: 4px;
-    background: #FFFFFF;
+    /* «چپش گلد باشه راستش سفید» — gold behind the thumb, white ahead of it.
+       The stop is a custom property: the Blade sets it from the value it
+       renders, and the input handler moves it as the thumb moves, so the two
+       agree without the server and the browser each guessing. */
+    background: linear-gradient(to right,
+      #C0972F 0 var(--vp-fill, 100%),
+      #FFFFFF var(--vp-fill, 100%) 100%);
   }
 
   .vp-price-range::-webkit-slider-thumb {

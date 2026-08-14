@@ -2075,9 +2075,12 @@ html = html.replace('</body>',
   '            // function and left the footer\'s own block inside an\n' +
   '            // `if (false)`, which nothing would have reported.\n' +
   '            //\n' +
-  '            // Progressive: with this script gone the range is still a field\n' +
-  '            // the form submits, so it degrades to a third way of setting a\n' +
-  '            // maximum rather than to nothing.\n' +
+  '            // The range carries no name and submits nothing on its own — a\n' +
+  '            // named one would post a maximum on every apply, including one\n' +
+  '            // nobody dragged. So this handler is not decoration: without it\n' +
+  '            // the slider does nothing at all and the two boxes are the whole\n' +
+  '            // filter. It also repaints the track, which is gold to the left\n' +
+  '            // of the thumb and white to its right.\n' +
   '            var priceRange = document.querySelector("[data-vp-price-range]");\n' +
   '            var priceMax = document.querySelector("[data-vp-price-max]");\n' +
   '            // The shop\'s filter sheets close on their scrim and on their\n' +
@@ -2093,6 +2096,9 @@ html = html.replace('</body>',
   '            if (priceRange && priceMax) {\n' +
   '                priceRange.addEventListener("input", function () {\n' +
   '                    priceMax.value = Number(priceRange.value).toLocaleString("fa-IR");\n' +
+  '                    var lo = Number(priceRange.min), hi = Number(priceRange.max);\n' +
+  '                    var pct = hi > lo ? (Number(priceRange.value) - lo) / (hi - lo) * 100 : 100;\n' +
+  '                    priceRange.style.setProperty("--vp-fill", pct + "%");\n' +
   '                });\n' +
   '            }\n' +
   '        }());\n' +

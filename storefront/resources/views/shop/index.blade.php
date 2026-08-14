@@ -80,10 +80,16 @@
 
                      The two are one control, not two: the slider writes into
                      the «تا» box as it moves, so a drag and a typed number are
-                     the same filter arriving by different hands. Without
-                     JavaScript the slider is still a plain field the form
-                     submits — it degrades to a third way of setting a maximum
-                     rather than to nothing.
+                     the same filter arriving by different hands.
+
+                     **The slider carries no `name` and submits nothing.** An
+                     earlier comment here said it degraded to a third way of
+                     setting a maximum; it does not, and should not — a named
+                     range would post a maximum on every apply, including one
+                     nobody touched, and now that the thumb opens in the middle
+                     that maximum would be the midpoint. The box is the field.
+                     Without JavaScript the slider does nothing and the two
+                     boxes still work, which is the honest description.
 
                      The tab used to sort — cheapest, then dearest, on each tap
                      — and that has not been thrown away: the two sorts are the
@@ -108,10 +114,13 @@
                             @endforeach
                             <input type="hidden" name="sort" value="{{ $filters['sort'] }}">
 
-                            {{-- «از» in the left box and «تا» in the right, each
-                                 label on the box's inner edge and each number on
-                                 its outer one, so the two labels face each other
-                                 across the middle and the numbers read outward.
+                            {{-- «از» in the left box and «تا» in the right, both
+                                 labels on the right of their own box and both
+                                 numbers on the left — «تا باید مث از در سمت راست
+                                 کادر قرار بگیره». They were mirrored for one
+                                 round, facing each other across the middle, and
+                                 the client wants the two boxes to read the same
+                                 way rather than as a pair of bookends.
 
                                  The row runs ltr for that: on an rtl page the
                                  first child would sit at the right, and «از» has
@@ -125,8 +134,8 @@
                                     <span>از</span>
                                 </label>
                                 <label class="vp-price-box">
-                                    <span>تا</span>
                                     <input type="text" inputmode="numeric" name="max" data-vp-price-max value="{{ $filters['max'] ? fa_number(intdiv($filters['max'], 10)) : '' }}" placeholder="{{ toman($facets['price']['max']) }}" aria-label="بیشترین قیمت">
+                                    <span>تا</span>
                                 </label>
                             </div>
 
@@ -146,12 +155,20 @@
                             @php
                                 $lo = intdiv(intdiv($facets['price']['min'], 10), 100000) * 100000;
                                 $hi = (int) ceil(intdiv($facets['price']['max'], 10) / 100000) * 100000;
+                                // «دایره رنج وسط قرار بگیره» — the thumb opens in
+                                // the middle rather than at the top of the range.
+                                // The «تا» box stays empty until the slider is
+                                // moved, so a shopper who opens the sheet and
+                                // applies without touching it is not silently
+                                // filtered to the midpoint.
+                                $now = $filters['max'] ? intdiv($filters['max'], 10) : intdiv($lo + $hi, 2);
                             @endphp
                             <input class="vp-price-range" type="range" data-vp-price-range
                                    min="{{ $lo }}"
                                    max="{{ $hi }}"
                                    step="100000"
-                                   value="{{ $filters['max'] ? intdiv($filters['max'], 10) : $hi }}"
+                                   value="{{ $now }}"
+                                   style="--vp-fill: {{ $hi > $lo ? round(($now - $lo) / ($hi - $lo) * 100, 2) : 100 }}%"
                                    aria-label="بیشترین قیمت، کشویی">
 
                             <button type="submit" class="vp-price-apply">اعمال</button>

@@ -1860,9 +1860,12 @@ Brand Area
             // function and left the footer's own block inside an
             // `if (false)`, which nothing would have reported.
             //
-            // Progressive: with this script gone the range is still a field
-            // the form submits, so it degrades to a third way of setting a
-            // maximum rather than to nothing.
+            // The range carries no name and submits nothing on its own — a
+            // named one would post a maximum on every apply, including one
+            // nobody dragged. So this handler is not decoration: without it
+            // the slider does nothing at all and the two boxes are the whole
+            // filter. It also repaints the track, which is gold to the left
+            // of the thumb and white to its right.
             var priceRange = document.querySelector("[data-vp-price-range]");
             var priceMax = document.querySelector("[data-vp-price-max]");
             // The shop's filter sheets close on their scrim and on their
@@ -1878,6 +1881,9 @@ Brand Area
             if (priceRange && priceMax) {
                 priceRange.addEventListener("input", function () {
                     priceMax.value = Number(priceRange.value).toLocaleString("fa-IR");
+                    var lo = Number(priceRange.min), hi = Number(priceRange.max);
+                    var pct = hi > lo ? (Number(priceRange.value) - lo) / (hi - lo) * 100 : 100;
+                    priceRange.style.setProperty("--vp-fill", pct + "%");
                 });
             }
         }());
