@@ -2058,3 +2058,42 @@ fault this was meant to fix, still there and now invisible in the CSS. With
 The width is what must never be trimmed. Trim a side and that icon alone starts
 scaling by height, and it becomes the only one of the eight at a different size
 — the same fault arriving from the other direction.
+
+### One rule replaced two: the view box is the ink, on all four sides
+
+«الان سایز مجلسی و کتونی ۵ درصد کوچیکتر بشن / در قسمت منو باید آیکونها تو مربع
+هم اندازه قرار بگیرن».
+
+The second of those turned out to be the *same fault* as the shop's baseline,
+seen from the side. Both are the sets' built-in padding: eight icons drawn on
+eight different amounts of canvas, fitted into one box by something that
+centres. In the strip that showed up as soles at different heights; in the
+drawer's square it showed up as ink 11.5 to 14 wide and 5.5 to 13.5 tall, so a
+sandal read as a sliver beside a handbag.
+
+So the crop is now tight on all four sides, not just the bottom, and that one
+rule answers both:
+
+- the strip keeps `object-position: center bottom`, and because a file's bottom
+  edge *is* the sole, every sole lands on one line;
+- **the drawer needs no CSS at all.** `preserveAspectRatio` already fits and
+  centres; once the box is the ink, "fits" means every icon is as large as its
+  square allows — which is what equal size means for eight objects that are not
+  the same shape.
+
+It is a change of a few per cent, not a resize, because both boxes fit by the
+longer side: measured in the drawer, +3% on the handbag, +5% on the watch, +6%
+on the loafer, +14% on the heel.
+
+**The five per cent is slack, not a scale.** `shrink: 0.05` grows the view box
+around the ink in both dimensions, so the artwork paints smaller inside whatever
+box it is fitted to and its shape is untouched. The extra height comes off the
+top rather than being shared, because the bottom edge is load-bearing — it is
+the line the strip stands every icon on.
+
+**One measuring trap, for the next person.** The strip scrolls horizontally, so
+only five of the eight are on screen at 390. A scan that walks each icon's
+bounding rect will happily read the three off-screen ones as 44, 120 and 196
+pixels wide, because their rects lie outside the viewport and the window lands
+on whatever else is painted there. The visible five are the ones to trust; check
+`getBoundingClientRect()` against the viewport before believing a number.

@@ -180,6 +180,18 @@ const EDITS = {
    * this will be a third fifth and the sum has to stay readable.
    */
   'vp-cat-boot': { topCut: 0.2 + 0.8 * 0.2 },
+
+  /**
+   * «الان سایز مجلسی و کتونی ۵ درصد کوچیکتر بشن».
+   *
+   * These two are the tallest of the eight once every box is cropped to its
+   * ink — a heel and a high-top both stand up, where the loafer, the sandal and
+   * the cropped boot lie down — so they are the two that read as oversized in a
+   * row fitted by the longer side. Five per cent of slack all round, which
+   * shrinks the artwork without touching its shape.
+   */
+  'vp-cat-heel': { shrink: 0.05 },
+  'vp-cat-sneaker': { shrink: 0.05 },
 };
 
 /**
@@ -194,8 +206,8 @@ const EDITS = {
  * The same rule the rest of this repo works by, arriving inside a generator:
  * measure the thing that gets painted, never the box it sits in.
  */
-async function inkRows(svg, viewBox) {
-  const [, vy, vw, vh] = viewBox.split(/[\s,]+/).map(Number);
+async function inkBox(svg, viewBox) {
+  const [vx, vy, vw, vh] = viewBox.split(/[\s,]+/).map(Number);
   const w = 512;
   const h = Math.max(1, Math.round((w * vh) / vw));
 
@@ -206,26 +218,31 @@ async function inkRows(svg, viewBox) {
     .raw()
     .toBuffer({ resolveWithObject: true });
 
-  let first = null;
-  let last = null;
+  let x0 = Infinity;
+  let y0 = Infinity;
+  let x1 = -1;
+  let y1 = -1;
 
   for (let y = 0; y < info.height; y++) {
     for (let x = 0; x < info.width; x++) {
       if (data[y * info.width + x] < 230) {
-        if (first === null) first = y;
-        last = y;
-        break;
+        if (x < x0) x0 = x;
+        if (x > x1) x1 = x;
+        if (y < y0) y0 = y;
+        if (y > y1) y1 = y;
       }
     }
   }
 
-  if (first === null) {
+  if (x1 < 0) {
     throw new Error('An icon rendered blank — the fill colour or the body is wrong.');
   }
 
   return {
-    top: vy + (first / info.height) * vh,
-    bottom: vy + ((last + 1) / info.height) * vh,
+    left: vx + (x0 / info.width) * vw,
+    right: vx + ((x1 + 1) / info.width) * vw,
+    top: vy + (y0 / info.height) * vh,
+    bottom: vy + ((y1 + 1) / info.height) * vh,
   };
 }
 
@@ -274,25 +291,33 @@ for (const dir of TREES) {
 const used = new Set();
 
 /**
- * Every icon's view box ends on its own ink.
+ * **Every icon's view box is its own ink, on all four sides.** One rule, and it
+ * is what both of the client's complaints turn out to be.
  *
- * «تو قسمت فروشگاه همه آیکونها باید از پایین تو یک سطح قرار بگیرن». Their boxes
- * were already the same 26px square and their *feet* were not, because these
- * eight are drawn on different amounts of padding and `object-fit: contain`
- * centres what it fits. A loafer and a sandal are wide and flat — ink 53 and
- * 51.5 of 128 against a sneaker's 120 — so contain floated them in the middle
- * of the box and their soles hung above everybody else's.
+ * «تو قسمت فروشگاه همه آیکونها باید از پایین تو یک سطح قرار بگیرن» — the boxes
+ * were already the same 26px square and the *feet* were not, because these
+ * eight are drawn on different amounts of built-in padding and `object-fit:
+ * contain` centres what it fits. A loafer and a sandal are wide and flat — ink
+ * 53 and 51.5 of 128 against a sneaker's 120 — so contain floated them in the
+ * middle of the box and their soles hung above everybody else's.
  *
- * Cropping the box to the ink moves the problem into the file, where it can be
- * solved once: the strip then only needs `object-position: bottom` and every
- * sole lands on the same line. The top is cropped to the ink too, which costs
- * nothing — the width is untouched, so `contain` still scales every icon by the
- * same 26/32 and nothing changes size.
+ * «در قسمت منو باید آیکونها تو مربع هم اندازه قرار بگیرن» — the same padding,
+ * seen from the side. In the drawer's square the ink came out 11.5 to 14 wide
+ * and 5.5 to 13.5 tall, so a sandal read as a sliver beside a handbag.
  *
- * **The width is what must not move.** Trim a side and that icon alone starts
- * scaling by height instead, and it would be the only one of the eight drawn at
- * a different size — the exact fault this is fixing, arriving from the other
- * direction.
+ * Cropping to the ink answers both, because it makes the file say where the
+ * artwork is rather than where its author's canvas was:
+ *
+ *   - the strip adds `object-position: center bottom`, and since the box's
+ *     bottom edge *is* the sole, every sole lands on one line;
+ *   - the drawer needs nothing at all — `preserveAspectRatio` already fits and
+ *     centres, and once the box is the ink, "fits" means every icon is as large
+ *     as its square allows. Which is what equal size means for eight objects
+ *     that are not the same shape.
+ *
+ * Both boxes fit by the icon's longer side now, so this is a change of a few
+ * per cent and not a resize: measured in the drawer, +3% on the handbag, +5%
+ * on the watch, +6% on the loafer, +14% on the heel.
  */
 async function build() {
   for (const [file, [sourceName, name]] of Object.entries(ICONS)) {
@@ -334,13 +359,21 @@ async function build() {
       return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="${viewBox}">${body}</svg>\n`;
     };
 
-    const [, , width] = art.viewBox.split(/[\s,]+/).map(Number);
-    const ink = await inkRows(svg(art.viewBox), art.viewBox);
+    const ink = await inkBox(svg(art.viewBox), art.viewBox);
 
     const top = ink.top + (edit.topCut ?? 0) * (ink.bottom - ink.top);
-    const viewBox = `0 ${round(top)} ${width} ${round(ink.bottom - top)}`;
 
-    const note = edit.path || edit.topCut
+    // `shrink` is slack added around the ink, so the icon paints smaller inside
+    // whatever box it is fitted to. Both dimensions grow together, so the shape
+    // is untouched; the extra height is taken off the top rather than shared,
+    // because the bottom edge is load-bearing — it is the line the strip stands
+    // every icon on.
+    const grow = 1 / (1 - (edit.shrink ?? 0));
+    const w = (ink.right - ink.left) * grow;
+    const h = (ink.bottom - top) * grow;
+    const viewBox = `${round(ink.left - (w - (ink.right - ink.left)) / 2)} ${round(ink.bottom - h)} ${round(w)} ${round(h)}`;
+
+    const note = edit.path || edit.topCut || edit.shrink
       ? ' Altered at the client\'s request — see theme/make-category-icons.js.'
       : '';
 
@@ -351,7 +384,7 @@ async function build() {
       + svg(viewBox)
     );
 
-    console.log(`  + ${file}.svg  ←  ${sourceName}/${name}   ink ${round(ink.top)}..${round(ink.bottom)} of ${width}  →  ${viewBox}`);
+    console.log(`  + ${file}.svg  ←  ${sourceName}/${name}   ink ${round(ink.right - ink.left)}×${round(ink.bottom - ink.top)}  →  viewBox ${viewBox}`);
   }
 
   // One notice per set actually used, written every run so it cannot drift away
