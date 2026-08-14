@@ -13035,15 +13035,25 @@ ul.vp-how-list.is-ticked li:before {
      rounded on all four corners rather than two, and carried on a shadow so it
      reads as sitting above the blurred page rather than growing out of it.
 
-     `inset-block-start: 12%` puts its head at 101 on an 844 screen and its
-     foot well inside the halfway line, which is what «نیمه بالایی» asks for.
-     It is a percentage rather than a pixel offset so it holds the same
-     proportion on a short phone as on a tall one. */
+     It sat at `inset-block-start: 12%` for a round — «نیمه بالایی» — and
+     «پاپاپ ها خیلی بالان بهتره بیان پایینتر وسط قرار بگیرن» brought it to the
+     middle. Centred with `inset-block: 0` and auto margins rather than a
+     translate: the two sheets are different heights, and auto margins centre
+     whatever height each one turns out to be without either of them having to
+     know it.
+
+     `max-height` with it, so a sheet taller than the screen scrolls inside
+     itself instead of running off both ends — which centring would otherwise
+     do silently the first time one grew. */
   .vp-sheet {
     position: fixed;
     z-index: 91;
     inset-inline: 12px;
-    inset-block-start: 12%;
+    inset-block: 0;
+    margin-block: auto;
+    height: fit-content;
+    max-height: calc(100vh - 24px);
+    overflow-y: auto;
     padding: 16px;
     border-radius: 22px;
     background: #FFFFFF;
