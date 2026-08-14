@@ -1855,3 +1855,41 @@ scopes are written and commented so the difference arrives on its own.
 the account, and «باید بدونه قاب باشه» was about the listing. Measured at 390,
 the cards ran 34..356 inside the frame and 14..376 without it — 44px of
 picture back.
+
+### The tab row is pills, and the empty left was arithmetic
+
+«چرا با وجود اینکه فضا هست اون ردیف فیلترها سمت چپشون خالیه؟ بنظرم ردیف
+فیلترهارو تو بیضی قرار بدیم».
+
+The six labels paint 265.5px of type. Five 12px gaps took the row's content to
+325.5, and the row is the card grid's width — 336 at 360, 366 at 390, 388 at
+412, 406 at 430. The row was `nowrap` with fixed type and fixed gaps, so none of
+that grew, and on an rtl page the leftover falls at the inline end, which is the
+left: **31px at 360, 41 at 390, 63 at 412, 81 at 430.** The row's own hairline
+ran the full width underneath, so the emptiness was drawn rather than merely
+present. That is what the client was looking at.
+
+`flex: 1 0 auto` on all six spends it. The surplus is shared out as padding
+inside the pills instead of being stranded past the last one, and the row is
+exactly full at every width — measured `ink` and `row` now start and end on the
+same pixel from 360 to 430. Painted side padding: 4.2 at 360, 5.3 at 390, 6.3 at
+402, 7.1 at 412, 8.6 at 430.
+
+Two states, `.vp-chip`'s: outlined black off, gold solid on. The row's hairline
+and the per-tab underline both went — a pill marks itself, and a rule under a
+row of pills only redraws the problem above it.
+
+**The floor is a scroll, and it is newly available.** `flex-shrink: 0` with
+`overflow-x: auto` means that when the six genuinely do not fit — under about
+350 — the row scrolls instead of pushing the page sideways. The old block ruled
+scrolling out for a good reason: the price and brand panels were absolutely
+positioned *inside* this row, and a scroll container clipped them the moment
+they opened. They are `position: fixed` sheets over a scrim now, so they are not
+this box's to clip. Verified rather than assumed — both sheets measured at 390
+and 430 with the row scrolling: full width, `checkVisibility()` true, and the
+sheet's box 60–110px below the row's bottom edge.
+
+**Six is still the ceiling.** Under 381 the type drops to 11 and the gap to 4 to
+keep one line at 360 (333.9 needed against 336). A seventh control does not fit,
+and the answer then is a shorter label — 11px is as small as this row reads at
+arm's length.

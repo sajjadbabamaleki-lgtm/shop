@@ -12281,51 +12281,75 @@ ul.vp-how-list.is-ticked li:before {
     cursor: pointer;
   }
 
-  /* --- the sort tabs ----------------------------------------------------- */
-  /* One line, no scrolling, nothing wrapped — «نباید هیچی به هط دوم بره».
+  /* --- the sort tabs, as pills ------------------------------------------- */
+  /* «چرا با وجود اینکه فضا هست اون ردیف فیلترها سمت چپشون خالیه؟ بنظرم ردیف
+     فیلترهارو تو بیضی قرار بدیم».
 
-     Those three are harder together than any of them alone. It scrolled while
-     it held four sorts; six items do not fit 390 at the old size, and a scroll
-     container clips what overflows it, so the dropdowns were cut off at the
-     row's own edge the moment they opened. Wrapping fixed the clipping and put
-     the sale on a second line, which is what this instruction rules out.
+     The empty left was arithmetic rather than a bug, and the row drew a line
+     under it. The six labels are 265.5px of type; the row is the card grid's
+     width. Five 12px gaps take it to 325.5, and the row is 366 at 390, 388 at
+     412, 406 at 430 — so 41, 63 and 81 are left over, and because the row was
+     `nowrap` with fixed type and fixed gaps, none of that grew. On an rtl page
+     the surplus lands at the inline end, which is the left. The row's own
+     hairline ran the full width underneath, so the emptiness was underlined.
 
-     So the row is made to fit instead: 11.5px type and a 12px gap, measured to
-     land inside 366 — the card grid's own width at 390 — with the six labels
-     the page actually has. **That is a measured fit, not a comfortable one.**
-     A seventh control, or a longer word than «پرفروش‌ترین», will not fit, and
-     the answer then is a shorter label rather than a smaller size; below about
-     11px this row stops being readable at arm's length. */
+     The pills take it. `flex: 1 0 auto` on all six shares the surplus out as
+     padding inside them instead of stranding it past the last one, and the row
+     comes out exactly full at every width. Painted side padding, measured:
+     5.3 at 390, 6.3 at 402, 7.1 at 412, 8.6 at 430. The base is 4 because 4 is
+     what fits before anything grows — six controls are not a comfortable fit on
+     a phone row, and this spends the surplus rather than pretending it is not
+     there.
+
+     Outline off, gold solid on: `.vp-chip`'s two states, for the reason already
+     written there — an outline beside a solid reads as one chosen out of six
+     without a colour having to carry the meaning alone. The row's hairline and
+     the tab's underline both go with the change, because a pill marks itself
+     and a rule under a row of pills only redraws the problem above.
+
+     `flex-shrink: 0` with `overflow-x: auto` is the floor under all of it.
+     Below about 350 the six do not fit at any size this row can be read at, and
+     that is what happens then: the row scrolls rather than pushing the page
+     sideways. Scrolling was not available before — the panels were absolutely
+     positioned inside this row, and a scroll container clipped them the moment
+     they opened — but they are `position: fixed` sheets now, so they are not
+     this box's to clip. Verified by opening both over a scrolling row. */
   .vp-shop-tabs {
     display: flex;
-    align-items: stretch;
-    flex-wrap: nowrap;
-    gap: 12px;
-    margin-block-end: 12px;
-    border-block-end: 1px solid rgba(16, 17, 17, 0.08);
-  }
-
-  .vp-shop-tab {
-    font-size: 11.5px;
-  }
-
-  .vp-shop-tab {
-    flex: none;
-    display: inline-flex;
     align-items: center;
+    flex-wrap: nowrap;
     gap: 5px;
-    padding-block: 10px;
-    border-block-end: 2px solid transparent;
-    color: rgba(16, 17, 17, 0.5);
-    font-size: 13px;
+    margin-block-end: 12px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .vp-shop-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .vp-shop-tab {
+    flex: 1 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    height: 30px;
+    padding-inline: 4px;
+    border: 1px solid #101111;
+    border-radius: 15px;
+    background: none;
+    color: #101111;
+    font-size: 11.5px;
     font-weight: 700;
     text-decoration: none;
     white-space: nowrap;
   }
 
   .vp-shop-tab.is-on {
-    color: #A47F25;
-    border-block-end-color: #C0972F;
+    border-color: transparent;
+    background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+    color: #FFFFFF;
   }
 
   .vp-shop-tab i {
@@ -12966,19 +12990,24 @@ ul.vp-how-list.is-ticked li:before {
   }
 }
 
-/* Eight, not twelve, on the narrow phones.
+/* Tighter pills on the narrow phones.
 
-   The row fits 390 exactly — 366 needed against 366 available — and at 360 it
-   wanted 351 against 336. That is not a cosmetic overflow: the row no longer
-   scrolls and no longer wraps, so what does not fit escapes the page and
-   `check-overflow.js` fails on it.
+   A pill's base is its type plus 2 of border plus 8 of padding, so the six come
+   to 265.5 + 12 + 48, and five 5px gaps make 350.5. At 360 the row is 336 —
+   fifteen short, and short here means the row starts scrolling rather than
+   filling, which is the thing the block above is for.
 
-   The gap is what gives, not the type: 5 gaps × 4px is 20px back, which covers
-   the 15 it was short, and 11.5px type is already as small as this row reads
-   at arm's length. Measured after: 331 needed against 336 at 360. */
+   So under 381 the type drops to 11 and the gap to 4: 253.9 + 12 + 48 + 20 is
+   333.9, which fits 336 with two to spare and 351 at 375 with seventeen. That
+   is the bottom of what this row does on one line — 11px is as small as it
+   reads at arm's length, and under about 350 the scroll takes over. */
 @media (max-width: 380px) {
   .vp-shop-tabs {
-    gap: 8px;
+    gap: 4px;
+  }
+
+  .vp-shop-tab {
+    font-size: 11px;
   }
 }
 
