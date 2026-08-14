@@ -41,6 +41,7 @@
  */
 const fs = require('fs');
 const path = require('path');
+const sharp = require('sharp');
 
 const ROOT = path.join(__dirname, '..');
 const OUT = path.join(ROOT, 'download-version/assets/img/icon');
@@ -131,8 +132,8 @@ const ICONS = {
  * named, explained overrides rather than as a hand-edit to a generated file: a
  * re-run would silently undo a hand-edit, and nothing would say so.
  *
- * `path` replaces the whole `d`; `viewBox` replaces the crop. Anything not
- * named here ships exactly as Microsoft drew it.
+ * `path` replaces the whole `d`; `topCut` takes a fraction off the top of the
+ * ink. Anything not named here ships exactly as it was drawn.
  */
 const EDITS = {
   /**
@@ -165,20 +166,68 @@ const EDITS = {
   },
 
   /**
-   * بوت و نیم‌بوت — «از بالای قسمت بوت هم ۲۰ درصد حذف بشه».
+   * بوت و نیم‌بوت — «از بالای قسمت بوت هم ۲۰ درصد حذف بشه», and then again:
+   * «۲۰ درصد از بالای اون آیکون بوت و نیم بوتو ببری بنظرم خیلی بلنده».
    *
-   * Done as a crop, not a redraw: the shaft is a long straight wall, so moving
-   * the top of the view box down the same wall shortens the boot and leaves
-   * every curve in it untouched. The ink runs y 2..30.5, which is 28.5 units,
-   * and a fifth of that is 5.7 — so the box opens at 7.7 and is 24.3 tall.
+   * A crop, not a redraw: the shaft is a long straight wall, so moving the top
+   * of the view box down that same wall shortens the boot and leaves every
+   * curve in it untouched.
    *
-   * The box stays 32 wide on purpose. `object-fit: contain` in the strip and
-   * `preserveAspectRatio` in the drawer both fit the whole box, so keeping the
-   * width means the boot keeps the width it had beside the other seven and
-   * loses only the height that was asked for.
+   * **The two rounds compound, they do not add.** The second twenty per cent
+   * was asked of the boot as it then stood, which was already four fifths of
+   * the original — so it is 0.2 + 0.8 × 0.2 = 0.36 of the drawn ink, not 0.4.
+   * Written as the arithmetic rather than as 0.36, because the next round of
+   * this will be a third fifth and the sum has to stay readable.
    */
-  'vp-cat-boot': { viewBox: '0 7.7 32 24.3' },
+  'vp-cat-boot': { topCut: 0.2 + 0.8 * 0.2 },
 };
+
+/**
+ * Where a rendered icon's ink actually starts and stops, top and bottom, in its
+ * own view-box units.
+ *
+ * Measured rather than read off the path, because a path's numbers are control
+ * points and a curve leaves them behind — and because two of these eight are
+ * altered above, so the drawn `d` is not the shipped one. Rasterising the
+ * finished SVG is the only thing that answers for what a viewer sees.
+ *
+ * The same rule the rest of this repo works by, arriving inside a generator:
+ * measure the thing that gets painted, never the box it sits in.
+ */
+async function inkRows(svg, viewBox) {
+  const [, vy, vw, vh] = viewBox.split(/[\s,]+/).map(Number);
+  const w = 512;
+  const h = Math.max(1, Math.round((w * vh) / vw));
+
+  const { data, info } = await sharp(Buffer.from(svg))
+    .resize(w, h, { fit: 'fill' })
+    .flatten({ background: '#FFFFFF' })
+    .greyscale()
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+
+  let first = null;
+  let last = null;
+
+  for (let y = 0; y < info.height; y++) {
+    for (let x = 0; x < info.width; x++) {
+      if (data[y * info.width + x] < 230) {
+        if (first === null) first = y;
+        last = y;
+        break;
+      }
+    }
+  }
+
+  if (first === null) {
+    throw new Error('An icon rendered blank — the fill colour or the body is wrong.');
+  }
+
+  return {
+    top: vy + (first / info.height) * vh,
+    bottom: vy + ((last + 1) / info.height) * vh,
+  };
+}
 
 const FLUENT_NOTICE = [
   'The vp-cat-*.svg files in this directory, except vp-cat-sneaker.svg, are',
@@ -224,44 +273,102 @@ for (const dir of TREES) {
 
 const used = new Set();
 
-for (const [file, [sourceName, name]] of Object.entries(ICONS)) {
-  const source = SOURCES[sourceName];
-  const art = source.read(name);
+/**
+ * Every icon's view box ends on its own ink.
+ *
+ * «تو قسمت فروشگاه همه آیکونها باید از پایین تو یک سطح قرار بگیرن». Their boxes
+ * were already the same 26px square and their *feet* were not, because these
+ * eight are drawn on different amounts of padding and `object-fit: contain`
+ * centres what it fits. A loafer and a sandal are wide and flat — ink 53 and
+ * 51.5 of 128 against a sneaker's 120 — so contain floated them in the middle
+ * of the box and their soles hung above everybody else's.
+ *
+ * Cropping the box to the ink moves the problem into the file, where it can be
+ * solved once: the strip then only needs `object-position: bottom` and every
+ * sole lands on the same line. The top is cropped to the ink too, which costs
+ * nothing — the width is untouched, so `contain` still scales every icon by the
+ * same 26/32 and nothing changes size.
+ *
+ * **The width is what must not move.** Trim a side and that icon alone starts
+ * scaling by height instead, and it would be the only one of the eight drawn at
+ * a different size — the exact fault this is fixing, arriving from the other
+ * direction.
+ */
+async function build() {
+  for (const [file, [sourceName, name]] of Object.entries(ICONS)) {
+    const source = SOURCES[sourceName];
+    const art = source.read(name);
 
-  if (!art) {
-    throw new Error(`${source.label} has no icon named "${name}" — the set changed under this map.`);
+    if (!art) {
+      throw new Error(`${source.label} has no icon named "${name}" — the set changed under this map.`);
+    }
+
+    used.add(sourceName);
+
+    const edit = EDITS[file] ?? {};
+
+    const body = edit.path
+      ? `<path fill="${GOLD}" d="${edit.path}"/>`
+      : art.body.replaceAll('currentColor', GOLD);
+
+    /**
+     * `width` and `height` follow the view box, and that is not decoration.
+     *
+     * They were both 32 while the view box was square and it made no
+     * difference. It makes all the difference once the box is cropped: an
+     * <img>'s intrinsic ratio comes from the width and height attributes, not
+     * from the view box, so a 32×32 declaration on a `0 16 32 13.25` box tells
+     * the browser the picture is square. `object-fit: contain` then fits that
+     * square into the 26px box, `preserveAspectRatio` letterboxes the real
+     * artwork inside it — and `object-position: bottom` bottoms the square,
+     * which the artwork is floating in the middle of.
+     *
+     * Measured with them left at 32: the eight soles landed on 203, 203, 204,
+     * 205, 207, 208, 208, 209 — six pixels of scatter on a 26px icon, which is
+     * exactly the fault this was meant to fix, still there and now invisible in
+     * the CSS.
+     */
+    const svg = (viewBox) => {
+      const [, , w, h] = viewBox.split(/[\s,]+/).map(Number);
+
+      return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="${viewBox}">${body}</svg>\n`;
+    };
+
+    const [, , width] = art.viewBox.split(/[\s,]+/).map(Number);
+    const ink = await inkRows(svg(art.viewBox), art.viewBox);
+
+    const top = ink.top + (edit.topCut ?? 0) * (ink.bottom - ink.top);
+    const viewBox = `0 ${round(top)} ${width} ${round(ink.bottom - top)}`;
+
+    const note = edit.path || edit.topCut
+      ? ' Altered at the client\'s request — see theme/make-category-icons.js.'
+      : '';
+
+    fs.writeFileSync(
+      path.join(OUT, `${file}.svg`),
+      `<!-- ${name} — ${source.label}, MIT.${note} Cropped to its own ink so the strip can stand them on one line.`
+      + ` Generated by theme/make-category-icons.js; do not hand-edit. -->\n`
+      + svg(viewBox)
+    );
+
+    console.log(`  + ${file}.svg  ←  ${sourceName}/${name}   ink ${round(ink.top)}..${round(ink.bottom)} of ${width}  →  ${viewBox}`);
   }
 
-  used.add(sourceName);
+  // One notice per set actually used, written every run so it cannot drift away
+  // from the icons it covers. `ShippedAssetsTest` fails if either goes.
+  for (const sourceName of used) {
+    const source = SOURCES[sourceName];
 
-  const edit = EDITS[file] ?? {};
+    for (const dir of TREES) {
+      fs.writeFileSync(path.join(dir, source.notice), source.licence());
+    }
 
-  const body = edit.path
-    ? `<path fill="${GOLD}" d="${edit.path}"/>`
-    : art.body.replaceAll('currentColor', GOLD);
-
-  const note = edit.path || edit.viewBox
-    ? ' Altered at the client\'s request — see theme/make-category-icons.js.'
-    : '';
-
-  const svg =
-    `<!-- ${name} — ${source.label}, MIT.${note} Generated by theme/make-category-icons.js; do not hand-edit. -->\n`
-    + `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="${edit.viewBox ?? art.viewBox}">${body}</svg>\n`;
-
-  fs.writeFileSync(path.join(OUT, `${file}.svg`), svg);
-  console.log(`  + ${file}.svg  ←  ${sourceName}/${name}`);
-}
-
-// One notice per set actually used, written every run so it cannot drift away
-// from the icons it covers. `ShippedAssetsTest` fails if either goes.
-for (const sourceName of used) {
-  const source = SOURCES[sourceName];
-
-  for (const dir of TREES) {
-    fs.writeFileSync(path.join(dir, source.notice), source.licence());
+    console.log(`  + ${source.notice}  (${source.label})`);
   }
 
-  console.log(`  + ${source.notice}  (${source.label})`);
+  console.log(`${Object.keys(ICONS).length} category icons written, from ${used.size} sets.`);
 }
 
-console.log(`${Object.keys(ICONS).length} category icons written, from ${used.size} sets.`);
+const round = (n) => Math.round(n * 100) / 100;
+
+build();

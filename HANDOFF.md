@@ -2016,3 +2016,45 @@ curve untouched: ink y 2..30.5 is 28.5 units, a fifth is 5.7, box opens at 7.7.
 The box stays 32 wide on purpose — `object-fit: contain` and
 `preserveAspectRatio` both fit the whole box, so keeping the width means the
 boot keeps the width it had beside the other seven and loses only height.
+
+### One line under the shop's icons, and a shorter boot
+
+«۲۰ درصد از بالای اون آیکون بوت و نیم بوتو ببری بنظرم خیلی بلنده / تو قسمت
+فروشگاه همه آیکونها باید از پایین تو یک سطح قرار بگیرن».
+
+**The two rounds on the boot compound, they do not add.** The second twenty per
+cent was asked of the boot as it then stood, which was already four fifths — so
+the crop is 0.2 + 0.8 × 0.2 = **0.36** of the drawn ink, not 0.4. It is written
+in the generator as that arithmetic rather than as `0.36`, because the next
+round of this will be a third fifth and the sum has to stay readable.
+
+**The baseline is half in the files and half in the CSS, and neither half works
+alone.** The icon boxes were already the same 26px square and their *feet* were
+not: these eight are drawn on different amounts of built-in padding, and
+`object-fit: contain` centres what it fits. A loafer and a sandal are wide and
+flat — ink 53 and 51.5 of 128 against a sneaker's 120 — so contain floated them
+in the middle of the box and their soles hung above everyone else's. So
+`make-category-icons.js` now **crops every view box to its own ink**, which
+makes a file's bottom edge the sole of the shoe in it, and the strip adds
+`object-position: center bottom`. Without the crop, `bottom` only lines up eight
+different amounts of padding; without the CSS, the crop only recentres them.
+
+**The generator measures the ink itself**, by rasterising each finished SVG
+through sharp — not by reading the path, because a path's numbers are control
+points and a curve leaves them behind, and because two of these eight are
+altered so the drawn `d` is not the shipped one.
+
+**The trap, and it cost a round.** An `<img>`'s intrinsic ratio comes from the
+`width`/`height` attributes, **not** from the view box. With both left at 32 on
+a `0 16 32 13.25` box the browser believes the picture is square: `contain` fits
+that square, `preserveAspectRatio` letterboxes the real artwork inside it, and
+`object-position: bottom` bottoms the square the artwork is floating in the
+middle of. Measured with them at 32, the eight soles landed on 203, 203, 204,
+205, 207, 208, 208, 209 — six pixels of scatter on a 26px icon, which is the
+fault this was meant to fix, still there and now invisible in the CSS. With
+`width`/`height` following the view box: **210, 210, 210, 210, 210, 211, 211,
+211** — one pixel, and that one is the antialiased edge.
+
+The width is what must never be trimmed. Trim a side and that icon alone starts
+scaling by height, and it becomes the only one of the eight at a different size
+— the same fault arriving from the other direction.

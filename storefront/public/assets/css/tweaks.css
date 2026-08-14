@@ -12447,10 +12447,20 @@ ul.vp-how-list.is-ticked li:before {
     text-align: center;
   }
 
+  /* «تو قسمت فروشگاه همه آیکونها باید از پایین تو یک سطح قرار بگیرن».
+
+     Half of this is in the files and half is here, and neither works alone.
+     `make-category-icons.js` crops every icon's view box to its own ink, so a
+     file's bottom edge *is* the sole of the shoe in it; this line then puts
+     that edge on the bottom of the box instead of in the middle of it.
+
+     Without the crop, `bottom` would only line up eight different amounts of
+     built-in padding. Without this line, the crop would only recentre them. */
   .vp-shop-cat img {
     width: 26px;
     height: 26px;
     object-fit: contain;
+    object-position: center bottom;
   }
 
   .vp-shop-cat.is-on {
