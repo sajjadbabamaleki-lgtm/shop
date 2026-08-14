@@ -11465,8 +11465,13 @@ ul.vp-how-list.is-ticked li:before {
     margin-block-start: 4px;
     /* 12 either side, which is the number the size row's ends were asked to
        land on — so that row sits flush with the card's padding rather than
-       breaking out of it. */
-    padding: 18px 12px 20px;
+       breaking out of it.
+
+       And 12 at the foot: «فاصله لبه پایین کارت با اضافه کردن به سبد خرید باید
+       هم اندازه فاصله همین دکمه از لبه ی چپ کارت باشه». The button's distance
+       from the card's left edge *is* this padding, so the foot takes the same
+       number rather than one measured off it. 20 → 12. */
+    padding: 18px 12px 12px;
     border-radius: 24px;
     background: #FFFFFF;
     box-shadow:
@@ -12053,11 +12058,12 @@ ul.vp-how-list.is-ticked li:before {
     display: flex;
     align-items: center;
     gap: 10px;
-    /* Half again off the colour line above it, twice over: «فاصله افزودن به
-       سبد خرید و انتخاب تعداد با بهش انتخاب رنگ هم باید ۵۰ درصد بیشتر بشه»
-       took it 20 → 30, and «...و ردیف افزودن به سبد خرید باید ۵۰ درصد بیشتر
-       بشن» takes it 30 → 45. */
-    margin-block-start: 45px;
+    /* The gap to the colour line above it, three rounds of it: 20 → 30 at
+       «فاصله افزودن به سبد خرید و انتخاب تعداد با بهش انتخاب رنگ هم باید ۵۰
+       درصد بیشتر بشه», 30 → 45 at «...و ردیف افزودن به سبد خرید باید ۵۰ درصد
+       بیشتر بشن», and now a fifth back off it — «فاصله بین رنگها و ردیف اضافه
+       کردن به سبد خرید باید ۲۰ درصد کمتر بشه» — which is 36. */
+    margin-block-start: 36px;
   }
 
   /* Gold again — «دکمه افزودن به سبد خرید هم باید طلایی بشه». It was white for
