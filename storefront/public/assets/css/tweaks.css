@@ -12641,6 +12641,71 @@ ul.vp-how-list.is-ticked li:before {
   color: rgba(16, 17, 17, 0.5);
 }
 
+/* --------------------------------------------------------------------------
+   The card's tile, on the phone: the photograph 15 lower, the favourite as one
+   of the header's squares in the head corner, and the badge in gold.
+
+   «عکس محصول باید ۱۵ پیکسل بیاد پایینتر» / «لوگوی قلب باید تو یه مربع کرو مث
+   مربع های هدر بره گوشه ی بالا چپ» / «نوشته جدید باید رنگ گلد باشه نه مشکی».
+
+   Asked for the phone and written for the phone — «ما میخوایم رو نسخه موبایل
+   کار کنیم» — so it is scoped to the width the card was designed at. Above 992
+   the same card sits in the desktop grid and keeps the rules above; if these
+   three are ever wanted there too, this block is what moves out of the query.
+
+   **The 15 is a translate, not a new inset.** The tile is square and the
+   photograph is fitted inside a box of 80% of it, centred; moving that box by
+   changing `inset` would also change its size, and a fitted photograph that is
+   given a shorter box gets *smaller* rather than lower. A translate moves the
+   painted shoe and nothing else.
+
+   There is room for it. Measured at 390: the tile is 177, the fitted box 141.59
+   with 17.69 above and 17.72 below it, and the catalogue's photographs are
+   1400×990 — so inside that box the shoe paints 141.59 × 100.1 with a 20.7 band
+   of nothing above and below. After the 15 the box ends 2.72 short of the
+   tile's foot and the shoe itself 23.4 short of it, which is why nothing meets
+   the edge. A photograph squarer than 4:3 would eat that margin, so if the
+   catalogue ever carries one, measure this again before assuming it still
+   clears.
+
+   **The favourite is the header's square, at the same ratio, not the same
+   size.** The band's controls are 39.9 with a 12.0175 corner below 576 and 42
+   with 12.65 above it — one ratio, 0.30119, held at both. This control is 30,
+   because it sits on a 177 tile rather than in a 62.7 band, so it takes the
+   ratio: 30 × 0.30119 = 9.04. The fill and the lit edge come over unchanged,
+   including the mark's own two-stop shadow, so it reads as the header's
+   material at the card's scale.
+
+   Its ink stays #101111. «مث مربع های هدر» is about the square — and the
+   header's glyphs are gold because the band has no other gold in it, while
+   this tile now has the badge two corners away. Two golds on one photograph
+   would be the second gold this file's header block spends a paragraph
+   refusing.
+
+   **The badge takes the page's one gold**, the button ramp #C0972F → #E3B54A,
+   with #101111 on it — the basket count's exact pairing, already measured at
+   6.94:1 and AA. Not white on gold: at 10px that is 3.0:1 and fails.
+   -------------------------------------------------------------------------- */
+@media (max-width: 991.98px) {
+  .vp-card-shot img {
+    transform: translateY(15px);
+  }
+
+  .vp-card-fav {
+    inset-block-start: 8px;
+    inset-block-end: auto;
+    border-radius: 9.04px;
+    box-shadow:
+      0 0 2px rgba(16, 17, 17, 0.10),
+      0 0 8px -2px rgba(16, 17, 17, 0.14);
+  }
+
+  .vp-card-new {
+    background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+    color: #101111;
+  }
+}
+
 /* The filter rail, folded on a phone and in the sidebar above 992.
 
    The same `shop.filters` include is rendered twice — once inside the top
