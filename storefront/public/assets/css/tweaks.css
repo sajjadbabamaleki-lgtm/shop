@@ -11538,13 +11538,30 @@ ul.vp-how-list.is-ticked li:before {
      begins.
 
      The heading above it stays RTL. Only the strip of numbers turns, because
-     numbers are the one thing on this page that read the same way in both. */
+     numbers are the one thing on this page that read the same way in both.
+
+     **The line's own ends are 12 from the screen, and the gaps take the
+     difference** — «فاصله هارو باید یجوری تنظیم کنی که مستطیل از راست ۱۲ پیکسل
+     و مربع هم از چپ ۱۲ پیکسل باشه».
+
+     Two parts. The row steps outside the page's margin to sit 12 from each
+     edge of the screen: `calc(50% - 50vw + 12px)` is the full-bleed margin
+     with 12 given back, so it lands on 12 whatever the parent is inset by —
+     14 at 390 and 20 at 768, two numbers from two rules, which is why this is
+     not written as `-2px`.
+
+     Then `space-between` puts the first square on the left end and the box on
+     the right end and shares what is left between the five gaps. The `gap` is
+     the floor, not the spacing: measured at 390 the row is 366, its contents
+     318.9, and the five gaps come out 9.42 each. They re-share themselves if
+     the count's text ever changes width, which a fixed gap would not. */
   .vp-pick-sizes {
     flex-wrap: nowrap;
     gap: 8px;
     direction: ltr;
-    justify-content: flex-start;
+    justify-content: space-between;
     align-items: center;
+    margin-inline: calc(50% - 50vw + 12px);
   }
 
   /* The count as the row's last item, at the right-hand end of the line the
@@ -11561,10 +11578,33 @@ ul.vp-how-list.is-ticked li:before {
      way rather than push the line past the page. Its text stays RTL inside an
      LTR row: the row's direction is for the order of the squares, not for a
      Persian sentence. */
+  /* Sharing the free space is right on a phone and wrong on a tablet: at 768
+     the same rule put 85 between each square, because the line is 744 wide and
+     the six things on it come to 318.9. Above 576 the squares keep their 8 and
+     the box is pushed to the far end with an auto margin — both ends still
+     land on 12, which is what was asked; only the middle stops stretching. */
+  @media (min-width: 576px) {
+    .vp-pick-sizes {
+      justify-content: flex-start;
+    }
+
+    /* `margin-left`, not `margin-inline-start`. A logical margin resolves
+       against the *element's* own direction, and this box sets itself back to
+       rtl for its Persian text — so inline-start on it is the right-hand side
+       and the auto margin did nothing. The row is explicitly ltr; left is the
+       side the free space has to go on. */
+    .vp-pick-note.is-inline {
+      margin-left: auto;
+    }
+  }
+
   .vp-pick-note.is-inline {
     display: flex;
     align-items: center;
-    flex: 0 1 auto;
+    /* It does not shrink; the squares beside it do. Its text is bounded —
+       «N سایز موجود», N at most two digits — so it cannot be the thing that
+       widens the line. The ellipsis below stays as a belt on that. */
+    flex: none;
     min-width: 0;
     height: 45.98px;
     padding-inline: 12px;
@@ -11583,7 +11623,20 @@ ul.vp-how-list.is-ticked li:before {
   .vp-pick-size.is-off,
   .vp-pick-size.is-elsewhere {
     display: flex;
-    flex: none;
+    /* Shrinkable, and the only thing on the line that is. The row does not
+       wrap and its ends are pinned 12 off the screen, so on a narrower phone
+       something has to give: at 360 the five squares and the box want 358.8 of
+       a 336 line. The squares give — they keep `aspect-ratio: 1`, so they
+       stay square at 41.4 — and the count keeps its words. A number nobody can
+       read is worth less than a square a few pixels off its size, and 390 is
+       where the numbers below were measured anyway.
+
+       `min-width: 0` is what makes the shrink possible at all: a flex item's
+       automatic minimum is its content's size, and this one's content is a box
+       with a definite 45.98 width, so `auto` floors it at exactly the number
+       it is supposed to give way from. */
+    flex: 0 1 auto;
+    min-width: 0;
     /* The template gives every `label` on the page `margin: -4.8px 0 8px` —
        a form rule, from a stylesheet that never expected a label to be a chip
        in a row of spans. Measured, it sat the two selectable chips 4.8 above
@@ -11609,6 +11662,7 @@ ul.vp-how-list.is-ticked li:before {
      the 362 it has at 390. */
   .vp-pick-size span {
     width: 45.98px;
+    max-width: 100%;
     min-width: 0;
     height: auto;
     aspect-ratio: 1;
