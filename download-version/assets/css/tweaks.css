@@ -12282,18 +12282,21 @@ ul.vp-how-list.is-ticked li:before {
   }
 
   /* --- the sort tabs ----------------------------------------------------- */
+  /* Wraps rather than scrolls, and that is not a preference.
+
+     It scrolled while it held four sorts. Adding the brand and the sale made
+     six, which do not fit 390 — and a scroll container clips what overflows
+     it, so the brand's dropdown was cut off at the row's own edge the moment
+     it opened. `overflow-x: auto` and an absolutely positioned panel inside it
+     cannot both work. Wrapping loses the panel's clipping and the half-visible
+     last tab at once. */
   .vp-shop-tabs {
     display: flex;
     align-items: stretch;
-    gap: 18px;
+    flex-wrap: wrap;
+    gap: 0 18px;
     margin-block-end: 12px;
     border-block-end: 1px solid rgba(16, 17, 17, 0.08);
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-
-  .vp-shop-tabs::-webkit-scrollbar {
-    display: none;
   }
 
   .vp-shop-tab {
@@ -12664,4 +12667,65 @@ ul.vp-how-list.is-ticked li:before {
    goes — the row above carries the gap now. */
 .vp-card-meta + .vp-card-name {
   margin-block-start: 3px;
+}
+
+/* The brand and the sale, at the end of the tab row.
+
+   «فیلتر برند و حراج پله ای», pointed at the empty space past «قیمت». They are
+   filters where the three before them are sorts — a sort rearranges the list, a
+   filter shortens it — and they are in the same row anyway because they belong
+   to the same glance and the row had the room. The underline that marks a
+   running sort marks a running filter too, for the same reason.
+
+   The brand is a <details>, like the filter rail, so it opens with no
+   JavaScript. Its summary shows the brand in force rather than the word
+   «برند», so the row says what is on without being opened. */
+@media (max-width: 991.98px) {
+  .vp-shop-tab-drop {
+    position: relative;
+  }
+
+  .vp-shop-tab-drop > summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    list-style: none;
+    cursor: pointer;
+  }
+
+  .vp-shop-tab-drop > summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .vp-shop-tab-drop > summary i {
+    font-size: 9px;
+  }
+
+  .vp-shop-drop {
+    position: absolute;
+    z-index: 30;
+    inset-inline-start: 0;
+    inset-block-start: calc(100% + 2px);
+    min-width: 132px;
+    padding: 6px;
+    border-radius: 14px;
+    background: #FFFFFF;
+    box-shadow: 0 14px 32px -14px rgba(16, 17, 17, 0.38);
+  }
+
+  .vp-shop-drop a {
+    display: block;
+    padding: 7px 10px;
+    border-radius: 9px;
+    color: rgba(16, 17, 17, 0.72);
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .vp-shop-drop a.is-on {
+    background: rgba(192, 151, 47, 0.12);
+    color: #A47F25;
+  }
 }

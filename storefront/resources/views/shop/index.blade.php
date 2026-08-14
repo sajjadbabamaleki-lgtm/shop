@@ -77,6 +77,31 @@
                 @endforeach
                 <a class="vp-shop-tab vp-shop-tab-price{{ $priceOn ? ' is-on' : '' }}"
                    href="{{ storefront_route('shop') }}?{{ http_build_query($carry + ['sort' => $priceNext]) }}">قیمت<i class="fa-solid fa-chevron-{{ $filters['sort'] === 'dearest' ? 'up' : 'down' }}" aria-hidden="true"></i></a>
+
+                {{-- «فیلتر برند و حراج پله ای», in the space at the end of this
+                     row. They are filters and the three before them are sorts,
+                     which is a real difference — a sort rearranges the same
+                     list, a filter shortens it — but they belong to the same
+                     glance, and the row had the room.
+
+                     Both keep the sort that is running and every other filter,
+                     the same way the sorts keep the filters. --}}
+                <details class="vp-shop-tab vp-shop-tab-drop{{ $filters['brand'] ? ' is-on' : '' }}">
+                    <summary>{{ $filters['brand'] ? $facets['brands']->firstWhere('slug', $filters['brand'])?->name ?? 'برند' : 'برند' }}<i class="fa-solid fa-chevron-down" aria-hidden="true"></i></summary>
+                    <div class="vp-shop-drop">
+                        <a href="{{ storefront_route('shop') }}?{{ http_build_query(collect($carry)->except('brand')->all() + ['sort' => $filters['sort']]) }}">همه برندها</a>
+                        @foreach ($facets['brands'] as $brand)
+                            <a class="{{ $filters['brand'] === $brand->slug ? 'is-on' : '' }}"
+                               href="{{ storefront_route('shop') }}?{{ http_build_query($carry + ['brand' => $brand->slug, 'sort' => $filters['sort']]) }}">{{ $brand->name }}</a>
+                        @endforeach
+                    </div>
+                </details>
+
+                {{-- A toggle, not a link one way: tapping it again takes the
+                     filter off, which is what a shopper expects of a thing
+                     that looks switched on. --}}
+                <a class="vp-shop-tab{{ $filters['sale'] ? ' is-on' : '' }}"
+                   href="{{ storefront_route('shop') }}?{{ http_build_query(collect($carry)->except('sale')->all() + array_filter(['sort' => $filters['sort'], 'sale' => $filters['sale'] ? null : 1])) }}">حراج پله‌ای</a>
             </nav>
 
             {{-- The client's own categories, not the reference's watches and
