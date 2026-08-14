@@ -13051,6 +13051,16 @@ ul.vp-how-list.is-ticked li:before {
     inset-inline: 12px;
     inset-block: 0;
     margin-block: auto;
+    /* «اگه ۲۰ درصد بره بالاتر دیگه معرکست» — a fifth off the gap above, lifted
+       off dead centre.
+
+       7vh rather than a pixel figure, because the two sheets are different
+       heights and so are their gaps: at 844 the price sheet sat 287 from the
+       top and the brand 318, and a fifth of those is 57 and 64. One pixel
+       number cannot be both. 7vh is 59 on that screen — 20.6% of one gap and
+       18.6% of the other — and it keeps that proportion on a taller phone
+       instead of drifting toward the top of it. */
+    transform: translateY(-7vh);
     height: fit-content;
     max-height: calc(100vh - 24px);
     overflow-y: auto;
