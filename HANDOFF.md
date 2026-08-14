@@ -2231,16 +2231,17 @@ stepper as a column of its own. `.vp-cart-line` carries the reasoning.
 
 Three things about it are worth knowing before changing it:
 
-- **The stepper takes the *last* specification line's row, whichever that is.**
-  Not the colour's by name. Every variant in the catalogue is still
-  `color_family = 'unspecified'`, so the colour row is not drawn at all — and
-  pinning the stepper to a row that is not there left a card with a hole in the
-  middle. Built as a list with the last one popped off, so the card is 121 tall
-  with one spec line and grows a line at a time as real data arrives.
-- **«رنگ: نامشخص» is not printed**, for the same reason the shop rail leaves its
-  colour filter out and by the same test. Both come back on their own when real
-  colourways do. The seller line is the same idea from the other end: it appears
-  only on a vendor's line.
+- **Two specification lines: the size on one of its own, the colour on the
+  bottom row beside the stepper.** «حالا سایز کفش بره بالاتر که بتونی رنگ هم
+  بنویسی» — the reference's own arrangement. A pass before this one left the
+  colour out whenever a variant had no colourway and let the stepper take
+  whichever spec line came last; that was a judgement about the data, and the
+  row had been asked for.
+- **Every card reads «رنگ: نامشخص» today**, because every variant in the
+  catalogue is still `color_family = 'unspecified'`. The field is
+  `display_color` on the product screen in `/admin`; nothing in the view needs
+  changing when real colourways are typed in. The seller line is separate and
+  appears only on a vendor's line.
 - **The desktop caps the stack at 560.** The reference is a phone card and the
   desktop's line is about 1400 wide; `1fr` stretched it the whole way and
   `space-between` threw the stepper a screen's width from the size line.
@@ -2267,6 +2268,35 @@ are back. The row that was hardest to make honest is delivery, and that is what
 test that would have caught exactly that, and
 `test_the_basket_summary_shows_the_reference_four_rows` pins the four rows —
 worth having, since the shape they replaced was asked for by name too.
+
+### And then to the reference's proportions, not just its arrangement
+
+«کسخل من نسخه موبایلو بهت تصویر دادم / دقیقا شبیه این بساز جموجور مرتب فقط راست
+چین بشه». The first pass built the picture's *arrangement* and not its
+*proportions* — right parts, wrong sizes: a photograph too small for its card,
+type too large, lines too far apart, a stepper half again the reference's size.
+
+The block at the very end of `tweaks.css` is measured off the picture rather
+than chosen. In the picture the card is 264 wide and 93 tall, the photograph is
+64 square and the stepper's circles are 17 across; as fractions of the card's
+own width — the thing that survives the screenshot having been scaled — that is
+0.242, 0.352 and 0.064. Ours, at 390: **0.243, 0.332 and 0.066.**
+
+Three things make it read as tidy, and none of them are sizes:
+
+1. **The text block stretches to the photograph's height.** `align-items:
+   stretch` with the `margin-block-start: auto` already on `.vp-cart-last` puts
+   the name on the card's top line and the stepper on its bottom one. Loose,
+   unaligned space under the text was most of what looked untidy.
+2. **The lines are 2 apart.** Four short lines beside a photograph are a block;
+   the same four spread out are a list.
+3. **Both stepper buttons are quiet circles.** The gold `+` was right for the
+   earlier reference; this one draws both grey, so both are grey — and round,
+   which is what turned two rounded squares into one control.
+
+It is scoped to `.vp-cart-line`, because the same stepper classes are on the
+order pages, and it sits at the end of the file so source order cannot lose it
+to the four earlier basket blocks.
 
 244 tests, Pint clean, parity identical at 992/1200/1440/1920, and no sideways
 scroll on the basket at 320/360/390/430/575/768/992/1200/1920.

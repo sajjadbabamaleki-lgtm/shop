@@ -77,55 +77,39 @@
                                         @endif
                                     </div>
 
-                                    @php
-                                        // The reference's «Size: 7.5 / Color: Yellow», built
-                                        // as a list so the stepper can always take the last
-                                        // one's row.
-                                        //
-                                        // The colour is here only when there is a colourway
-                                        // to name. Every variant in the catalogue is still
-                                        // `unspecified`, and «رنگ: نامشخص» on every card is a
-                                        // row that tells the customer nothing and reads as a
-                                        // fault; the shop rail leaves its colour filter out
-                                        // for the same reason and by the same test, and both
-                                        // come back on their own when real colourways do.
-                                        //
-                                        // The seller is the same idea from the other end: a
-                                        // line the shop sold through somebody else says so,
-                                        // and a line the shop sold itself does not need a row
-                                        // to say it.
-                                        $specs = ['سایز: ' . fa_number((int) $variant->size_value)];
+                                    {{-- «حالا سایز کفش بره بالاتر که بتونی رنگ هم بنویسی» —
+                                         the size takes a line of its own above, which frees
+                                         the bottom row for the colour. That is the
+                                         reference's own arrangement: two specification lines,
+                                         the second of them level with the stepper.
 
-                                        if ($variant->color_family !== 'unspecified') {
-                                            $specs[] = 'رنگ: ' . $variant->display_color;
-                                        }
+                                         The colour is drawn whatever it says now. An earlier
+                                         pass here left it out when a variant had no
+                                         colourway, on the grounds that «رنگ: نامشخص» tells a
+                                         customer nothing — but that was a judgement about the
+                                         *data*, and the row was asked for. **Every variant in
+                                         the catalogue is still `color_family = 'unspecified'`,
+                                         so every card reads «رنگ: نامشخص» until real
+                                         colourways are typed in** — the field is
+                                         `display_color` on the product screen in `/admin`.
+                                         Nothing here needs changing when they are. --}}
+                                    <span class="vp-cart-spec">سایز: {{ fa_number((int) $variant->size_value) }}</span>
 
-                                        if ($line['item']->vendor_id) {
-                                            $specs[] = 'فروشنده: ' . $line['item']->sellerName();
-                                        }
+                                    {{-- A line the shop sold through somebody else says so; a
+                                         line the shop sold itself does not need a row for it. --}}
+                                    @if ($line['item']->vendor_id)
+                                        <span class="vp-cart-spec">فروشنده: {{ $line['item']->sellerName() }}</span>
+                                    @endif
 
-                                        $lastSpec = array_pop($specs);
-                                    @endphp
-
-                                    @foreach ($specs as $spec)
-                                        <span class="vp-cart-spec">{{ $spec }}</span>
-                                    @endforeach
-
-                                    {{-- The last specification line and the stepper share the
-                                         card's bottom row, as they do in the reference.
-
-                                         The *last* one, whichever it turns out to be, rather
-                                         than the colour by name: with no colourway the colour
-                                         row is not drawn, and pinning the stepper to it left
-                                         a card with a hole in the middle and the stepper
-                                         floating under nothing.
+                                    {{-- The colour and the stepper share the card's bottom
+                                         row, as they do in the reference.
 
                                          One flex row rather than the stepper being parked in
                                          the corner absolutely — a long colour name and an
                                          absolutely-placed stepper would eventually collide,
                                          and nothing would notice. --}}
                                     <div class="vp-cart-last">
-                                        <span class="vp-cart-spec">{{ $lastSpec }}</span>
+                                        <span class="vp-cart-spec">رنگ: {{ $variant->display_color }}</span>
 
                                         {{-- A stepper, not a number box and an update button.
                                              Two one-button forms posting the quantity either

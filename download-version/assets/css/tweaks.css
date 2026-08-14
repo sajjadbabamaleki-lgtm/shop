@@ -13375,3 +13375,124 @@ ul.vp-how-list.is-ticked li:before {
     padding: 16px;
   }
 }
+
+/* --------------------------------------------------------------------------
+   The basket card, to the reference's own proportions.
+
+   «کسخل من نسخه موبایلو بهت تصویر دادم / دقیقا شبیه این بساز جموجور مرتب فقط
+   راست چین بشه» — the picture *is* the phone design, and the first pass built
+   its arrangement without building its proportions. Right parts, wrong sizes:
+   a photograph too small for its card, type too large, lines too far apart,
+   and a stepper half again the size of the reference's.
+
+   So this block is measured off the picture rather than chosen. In it the card
+   is 264 wide and 93 tall, the photograph is 64 square, and the stepper's
+   circles are 17 across. As fractions of the card's own width — which is what
+   survives the screenshot having been scaled — that is:
+
+     photograph      64/264 = 0.242      ->  88 on our 362-wide card
+     card height     93/264 = 0.352      -> 127
+     stepper circle  17/264 = 0.064      ->  24
+
+   **The three things that make it read as tidy**, none of which are sizes:
+
+   1. The text block stretches to the photograph's height instead of sitting at
+      its own. `align-items: stretch` plus the `margin-block-start: auto`
+      already on `.vp-cart-last` puts the name on the card's top line and the
+      stepper on its bottom one, level with the photograph's foot. Loose,
+      unaligned space under the text was most of what looked untidy.
+   2. The lines are 2 apart, not 3 plus a 4 above the last row. Four short
+      lines beside a photograph are a block; the same four spread out are a
+      list.
+   3. Both stepper buttons are quiet circles. The gold `+` was right for the
+      earlier reference and this one draws both grey, so both are grey — and
+      round, which is what turned the two rounded squares into one control.
+
+   Kept scoped to `.vp-cart-line`: the same stepper classes are on the order
+   pages, which are not this card and were not asked about.
+
+   Below 992 only, and at the end of the file so source order cannot lose it to
+   the four earlier basket blocks. Measured after, at 390: card 112, photograph
+   88, stepper circles 24, name on the card's first line and the stepper level
+   with the photograph's foot. -------------------------------------------- */
+@media (max-width: 991.98px) {
+  .vp-cart-line {
+    align-items: stretch;
+    grid-template-columns: 88px minmax(0, 1fr);
+    column-gap: 12px;
+    padding: 12px;
+  }
+
+  /* Square, and it stays square however tall the card gets. */
+  .vp-cart-shot {
+    align-self: start;
+    width: 88px;
+    height: 88px;
+    border-radius: 18px;
+  }
+
+  .vp-cart-what {
+    gap: 2px;
+    padding-inline-end: 30px;
+  }
+
+  .vp-cart-name {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .vp-cart-money strong {
+    font-size: 15px;
+  }
+
+  .vp-cart-spec {
+    font-size: 11.5px;
+    line-height: 1.5;
+  }
+
+  /* No padding above it: the auto margin is what places this row now, and 4px
+     of padding on top of that was pushing it off the card's bottom line. */
+  .vp-cart-last {
+    padding-block-start: 0;
+  }
+
+  .vp-cart-line .vp-cart-qty {
+    gap: 6px;
+  }
+
+  .vp-cart-line .vp-cart-less,
+  .vp-cart-line .vp-cart-more {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    font-size: 17px;
+  }
+
+  /* Both quiet, as the reference draws them. */
+  .vp-cart-line .vp-cart-more {
+    background: rgba(16, 17, 17, 0.05);
+    color: #101111;
+  }
+
+  .vp-cart-line .vp-cart-more:hover:not(:disabled) {
+    background: rgba(16, 17, 17, 0.09);
+  }
+
+  .vp-cart-count {
+    min-width: 14px;
+    font-size: 13px;
+    text-align: center;
+  }
+
+  /* The bin, level with the name rather than floating above it. */
+  .vp-cart-line > form:not(.vp-cart-qty) {
+    inset-block-start: 8px;
+    inset-inline-end: 2px;
+  }
+
+  .vp-cart-drop {
+    width: 26px;
+    height: 26px;
+    font-size: 13px;
+  }
+}
