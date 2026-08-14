@@ -16,7 +16,93 @@
 @section('content')
 <section class="vp-shop-section">
     <div class="container th-container">
-        <div class="vp-shop-panel">
+        {{-- `vp-listing-panel` is the listing's own hook, and it exists so a
+             phone rule can take this page's frame off without taking it off
+             the basket, the product page, the checkout and the account, which
+             are all built on the same `.vp-shop-panel`. --}}
+        <div class="vp-shop-panel vp-listing-panel">
+
+            {{-- The phone's own top bar: back, search, filter.
+
+                 Built from the client's reference screenshot. It is one row on
+                 a phone and hidden above 992, where the page keeps the heading
+                 and the sidebar it already had — this is a phone layout laid
+                 over a desktop one, not a replacement for it.
+
+                 The filter is a <details>, so the panel opens with no
+                 JavaScript at all and the page keeps its promise that the URL
+                 decides what is shown. --}}
+            <div class="vp-shop-top">
+                {{-- A fixed destination, not `url()->previous()`.
+
+                     That was the first cut and it is a real fault, not a style
+                     preference: it puts the referrer into the page's HTML, so
+                     the same URL renders differently for two visitors and
+                     nothing downstream can cache it. `CataloguePagesTest`
+                     caught it by comparing two requests for the same listing.
+
+                     One step out, always: a category or a search result goes
+                     up to the whole shop, and the shop itself goes home. --}}
+                <a class="vp-shop-back" href="{{ ($filters['category'] || $filters['q']) ? storefront_route('shop') : storefront_route('home') }}" aria-label="بازگشت"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+
+                <form class="vp-shop-find" action="{{ storefront_route('search') }}" method="get" role="search">
+                    <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                    {{-- Shorter than the desktop's, which is a different input in a
+                         different box: at 390 the field is 215 wide and the long
+                         one was cut mid-word. --}}
+                    <input type="search" name="q" value="{{ $filters['q'] }}" placeholder="چی می‌خوای؟" aria-label="جست‌وجو در محصولات">
+                </form>
+
+                {{-- A <details>, so the panel opens with no JavaScript and the
+                     page keeps its promise that the URL decides what is shown.
+                     The rail itself is unchanged — it is the same include the
+                     desktop renders in its sidebar, just folded away here. --}}
+                <details class="vp-shop-filter">
+                    <summary class="vp-shop-filter-btn"><i class="fa-solid fa-sliders" aria-hidden="true"></i>فیلتر</summary>
+                    <div class="vp-shop-filter-panel">@include('shop.filters')</div>
+                </details>
+            </div>
+
+            {{-- «اون قسمت پاپلر و لاتستو اینا هم باید باشه». Links, not a
+                 select: a sort is a place you can be, so it belongs in the URL
+                 and in the back button. Each one carries the other filters
+                 with it or changing the order would throw the filters away. --}}
+            @php
+                $carry = array_filter([
+                    'q' => $filters['q'],
+                    'brand' => $filters['brand'],
+                    'size' => $filters['size'],
+                    'color' => $filters['color'],
+                    'category' => $filters['category']?->slug,
+                    'sale' => $filters['sale'] ? 1 : null,
+                ]);
+                $priceOn = in_array($filters['sort'], \App\Http\Controllers\ShopController::PRICE_TABS, true);
+                // The price tab toggles rather than picking: tapping it once
+                // sorts up, tapping it again sorts down, which is what the
+                // reference's caret means.
+                $priceNext = $filters['sort'] === 'cheapest' ? 'dearest' : 'cheapest';
+            @endphp
+            <nav class="vp-shop-tabs" aria-label="ترتیب">
+                @foreach (\App\Http\Controllers\ShopController::TABS as $key)
+                    <a class="vp-shop-tab{{ $filters['sort'] === $key ? ' is-on' : '' }}"
+                       href="{{ storefront_route('shop') }}?{{ http_build_query($carry + ['sort' => $key]) }}">{{ $sorts[$key] }}</a>
+                @endforeach
+                <a class="vp-shop-tab vp-shop-tab-price{{ $priceOn ? ' is-on' : '' }}"
+                   href="{{ storefront_route('shop') }}?{{ http_build_query($carry + ['sort' => $priceNext]) }}">قیمت<i class="fa-solid fa-chevron-{{ $filters['sort'] === 'dearest' ? 'up' : 'down' }}" aria-hidden="true"></i></a>
+            </nav>
+
+            {{-- The client's own categories, not the reference's watches and
+                 beauty. Same list and same order as the phone drawer and the
+                 home page's tiles, with the icons config/storefront.php already
+                 carries for them. --}}
+            <nav class="vp-shop-strip" aria-label="دسته‌بندی‌ها">
+                @foreach ($strip as $cat)
+                    <a class="vp-shop-cat{{ $filters['category']?->is($cat) ? ' is-on' : '' }}" href="{{ storefront_route('category', $cat) }}">
+                        <img src="{{ asset(config('storefront.category_icons.'.$cat->slug, config('storefront.category_icons.default'))) }}" alt="" aria-hidden="true">
+                        <span>{{ $cat->name }}</span>
+                    </a>
+                @endforeach
+            </nav>
 
             <div class="vp-shop-head">
                 <div class="vp-shop-heading">
@@ -33,7 +119,13 @@
 
             <div class="vp-shop-body">
 
-                @include('shop.filters')
+                {{-- The desktop's sidebar. On a phone the same include is
+                     inside the top bar's <details> instead, and this copy is
+                     hidden — one rail, rendered twice, only ever shown once.
+                     Rendering it twice rather than moving it keeps the desktop
+                     layout exactly as it was; the phone's copy is inside a
+                     closed <details>, so it costs markup and no paint. --}}
+                <div class="vp-shop-rail-desktop">@include('shop.filters')</div>
 
                 <div class="vp-shop-main">
 

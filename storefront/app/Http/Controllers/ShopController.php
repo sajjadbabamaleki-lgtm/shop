@@ -47,11 +47,24 @@ class ShopController extends Controller
      * store's prices.
      */
     private const SORTS = [
+        'popular' => ['پرطرفدار', 'units_sold_recent', 'desc'],
         'newest' => ['تازه‌ترین', 'published_at', 'desc'],
         'bestselling' => ['پرفروش‌ترین', 'units_sold', 'desc'],
         'cheapest' => ['ارزان‌ترین', 'branch_price', 'asc'],
         'dearest' => ['گران‌ترین', 'branch_price', 'desc'],
     ];
+
+    /**
+     * The four the phone's tab row offers, in its order.
+     *
+     * The listing's own select still carries all five; this is the reference's
+     * «Popular / Latest / Best Sellers / Price», with the last one a pair
+     * rather than a tab because a price sort has a direction and the other
+     * three do not.
+     */
+    public const TABS = ['popular', 'newest', 'bestselling'];
+
+    public const PRICE_TABS = ['cheapest', 'dearest'];
 
     public function __invoke(Request $request, ?Category $category = null): View
     {
@@ -65,6 +78,10 @@ class ShopController extends Controller
             'sorts' => array_map(fn (array $sort) => $sort[0], self::SORTS),
             'facets' => $this->facets(),
             'heading' => $this->heading($filters),
+            // The strip of categories above the grid. The same list the phone
+            // drawer and the home page's tiles read, in the same order, so a
+            // category is in the same place wherever it is offered.
+            'strip' => Category::query()->where('is_active', true)->orderBy('position')->get(),
         ]);
     }
 
@@ -127,6 +144,7 @@ class ShopController extends Controller
             ->purchasable()
             ->pricedHere()
             ->countingSales()
+            ->countingRecentSales()
             ->with(['brand', 'media', 'variants.offer', 'variants.stock', 'defaultVariant.offer']);
 
         if ($filters['category']) {

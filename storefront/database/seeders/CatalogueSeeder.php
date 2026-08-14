@@ -220,10 +220,16 @@ class CatalogueSeeder extends Seeder
                 'short_title' => $spec['short'],
                 'brand_id' => $brands[$spec['brand']]->id,
                 'status' => 'active',
-                // A day apart, in the order above, so the row of deal cards
-                // has a real ordering to read — newest first — instead of
-                // whatever order the rows happen to come back in.
-                'published_at' => now()->subMonth()->subDays($i),
+                // Twelve days apart rather than one, and starting today
+                // rather than a month back. The order is the same and the deal
+                // cards read the same; what changes is that the catalogue now
+                // spans about two months instead of five days, so «تازه‌ترین»
+                // sorts something visible and the listing's «جدید» badge —
+                // `Product::isNew()`, a 21-day window — lands on the newest
+                // two rather than on all five or none of them. All five were
+                // a month old to the day before this, which is why it did
+                // neither.
+                'published_at' => now()->subDays($i * 12),
             ]);
 
             $product->categories()->syncWithoutDetaching([$sneakers->id]);

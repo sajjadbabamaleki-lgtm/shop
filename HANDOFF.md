@@ -1790,3 +1790,68 @@ Measured after: 17 x 17.
 That is the third time this repo has been caught by equal boxes with unequal
 ink. **When two things are meant to look the same size, measure what they
 paint, not what they occupy.**
+
+## The shop, rebuilt to a reference — and what it has no data for
+
+«برای قسمت شاپ اینو پیاده سازی کن ... دسته بندی های خودمون باشه ... اون قسمت
+پاپلر و لاتستو اینا هم باید باشه / جایی که محصول قرار میگیره باید مربع باشه»,
+then «باید بدونه قاب باشه».
+
+Below 992. Above it the listing keeps its heading, its sidebar and its
+count-and-sort bar; the phone gets a top bar, a tab row, a category strip and a
+new card laid over that.
+
+**`check-parity.js` does not reach any of this.** It compares the *home* page
+against the static preview, and the shop has no preview — it is Blade written
+by hand. `check-overflow.js` and the feature tests are the whole of this page's
+automated cover. Screenshot it after changing it.
+
+### What is real and what is missing
+
+| on the card | backed by |
+|---|---|
+| name, price, cut, was-price | the catalogue |
+| «جدید» badge | `Product::isNew()` — `published_at` inside 21 days |
+| «۵۶ فروش» | `units_sold`, paid order items — **hidden while it is 0** |
+| ★ 4.9 | **nothing. Not built.** |
+
+There is no review table, so the reference's rating is the one element left
+out. A star with a number beside a real price is a claim, and an invented one
+has already been put in and taken out of this repo once.
+
+The sales line is wired and simply absent until something sells. The demo
+catalogue has no paid orders, so today it never shows — printing «۰ فروش» on
+every card of a shop that has not opened says less than nothing.
+
+### Two tabs that look identical and are not
+
+«پرطرفدار» sorts on `units_sold_recent` (a 30-day window) and «پرفروش‌ترین» on
+`units_sold` (all time). They return the same order today because every product
+ties on nought. **That is not a reason to collapse them into one sort** — on a
+shop that has been trading a while they are genuinely different lists, and the
+scopes are written and commented so the difference arrives on its own.
+
+### Three faults this round produced, all caught by something
+
+- **`url()->previous()` in the back link.** It puts the referrer into the
+  page's HTML, so one URL renders differently for two visitors and nothing
+  downstream can cache it. `CataloguePagesTest` caught it by requesting the
+  same listing twice. The arrow goes one step out now — category or search to
+  the shop, shop to home.
+- **The listing lost add-to-cart.** The reference's card carries only a
+  favourite, so the form went with the old card. Recorded in
+  `CataloguePagesTest`, whose assertion moved to the product page rather than
+  being deleted: the invariant it protects — a branch that stopped stocking the
+  default size can still sell one — is still checked end to end.
+- **The filter rail is rendered twice**, once in the phone's `<details>` and
+  once in the desktop sidebar, with exactly one shown. Two forms with the same
+  field names; only the visible one can submit, so nothing disagrees. **A third
+  copy would be a real bug.**
+
+### The frame
+
+`.vp-listing-panel` is the listing's own hook and the extra class is the point:
+`.vp-shop-panel` is shared with the basket, the product page, the checkout and
+the account, and «باید بدونه قاب باشه» was about the listing. Measured at 390,
+the cards ran 34..356 inside the frame and 14..376 without it — 44px of
+picture back.

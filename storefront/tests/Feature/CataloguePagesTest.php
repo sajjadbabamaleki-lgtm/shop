@@ -228,9 +228,18 @@ class CataloguePagesTest extends TestCase
     /**
      * `purchasable()` promises some size is sellable here, not that the
      * default one is. A shop that has stopped stocking the default size still
-     * has to show a price, and its card has to add a size it actually has.
+     * has to show a price, and the visitor still has to be able to buy a size
+     * it actually has.
+     *
+     * **The second half moved pages.** The listing's card used to carry an
+     * add-to-cart form and does not any more: the client's reference for the
+     * shop puts only a favourite on the card, so adding happens on the product
+     * page now. That is a real capability the listing lost, recorded here
+     * rather than quietly dropped — this test is the only thing that noticed.
+     * The invariant it protects is unchanged and still checked end to end; it
+     * is checked where the button now is.
      */
-    public function test_a_card_still_prices_and_adds_when_the_default_size_is_gone(): void
+    public function test_a_card_still_prices_and_the_product_page_adds_when_the_default_size_is_gone(): void
     {
         $product = Product::where('slug', 'golden-goose')->firstOrFail();
         $default = $product->defaultVariant;
@@ -246,10 +255,15 @@ class CataloguePagesTest extends TestCase
             $this->assertNotNull($product->offerHere());
         });
 
+        // The listing prices it.
         $this->get('/products')
             ->assertOk()
-            ->assertSee('کتونی گلدن گوس', false)
-            ->assertSee('name="variant" value="'.$other->id.'"', false);
+            ->assertSee('کتونی گلدن گوس', false);
+
+        // And the product page offers the size the branch actually has.
+        $this->get('/products/'.$product->slug)
+            ->assertOk()
+            ->assertSee('value="'.$other->id.'"', false);
     }
 
     public function test_the_size_filter_only_returns_shoes_in_that_size(): void
