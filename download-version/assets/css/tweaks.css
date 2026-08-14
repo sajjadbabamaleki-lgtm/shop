@@ -10123,6 +10123,18 @@ ul.vp-how-list.is-ticked li:before {
     margin: 13.5px 10px 0;
   }
 
+  /* Except on the listing, where it was asked for again — «تو قسمت فروشگاه
+     بالای سرچ برام ۵ استوری بزار». One selector turns this copy on and leaves
+     the home page's parked, which is what the note above is protecting.
+
+     No side margin here: inside the listing's panel the 14 is already spent,
+     and the 10 that suits the home page's full-width band would have set the
+     rings 24 in from a search bar sitting at 14. */
+  .vp-listing-panel .vp-stories {
+    display: block;
+    margin: 2px 0 14px;
+  }
+
   .vp-stories-row {
     display: flex;
     align-items: flex-start;

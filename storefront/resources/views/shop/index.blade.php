@@ -22,6 +22,26 @@
              are all built on the same `.vp-shop-panel`. --}}
         <div class="vp-shop-panel vp-listing-panel">
 
+            {{-- «تو قسمت فروشگاه بالای سرچ برام ۵ استوری بزار».
+
+                 The strip the home page was given and then had parked —
+                 «بنظرم استوری هارو هاید کن» — is the same five circles, so it
+                 is included here rather than built again. Its own file says
+                 what they are: the catalogue's first five sections, with the
+                 photographs and names the category tiles use, so the strip and
+                 the tiles cannot describe two different shops.
+
+                 `$strip` and not the facets' categories: it is every active
+                 section in `position` order, which is the list the drawer and
+                 the home page's tiles read. The facets' list drops a section
+                 with nothing purchasable in it, and a story that comes and
+                 goes with the stock is not a section of the shop.
+
+                 The home page's copy stays parked. This one is switched on by
+                 `.vp-listing-panel .vp-stories` in the stylesheet, so turning
+                 one on does not turn the other on. --}}
+            @include('home.stories', ['categories' => $strip])
+
             {{-- The phone's own top bar: back, search, filter.
 
                  Built from the client's reference screenshot. It is one row on
