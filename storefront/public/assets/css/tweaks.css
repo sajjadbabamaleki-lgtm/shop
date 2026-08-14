@@ -11527,6 +11527,19 @@ ul.vp-how-list.is-ticked li:before {
     display: flex;
   }
 
+  /* Four tiles, because the reference draws four — and the fifth is dropped
+     *here* rather than by turning `placeholders.colorway_shots` down to 4.
+
+     That number is one value read by both copies of the strip, so moving it
+     would have taken a tile off the desktop's row too. «ما الان فقط داریم
+     موبایل کار میکنیم»: the count stays 5, the desktop keeps the row it has,
+     and the phone hides what it does not draw. When real colourway
+     photographs arrive and that number goes to 0, this line is what limits the
+     phone's row to four of them — read it before assuming the row is short. */
+  .vp-pdp-strip .vp-pdp-thumb:nth-child(n + 5) {
+    display: none;
+  }
+
   /* All four the same, including the first. The lit tile and the hairline both
      go: the reference's gallery is four plain tiles, and while the row is one
      photograph repeated there is nothing for a ring to be pointing at. Written
