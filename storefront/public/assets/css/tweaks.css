@@ -5715,6 +5715,7 @@ ul.vp-how-list.is-ticked li:before {
 .vp-pdp-fav,
 .vp-pdp-colors,
 .vp-pdp-ladder,
+.vp-pdp-about,
 .vp-qty,
 .vp-pdp-desc.is-standin,
 .vp-pick-empty,
@@ -11642,16 +11643,51 @@ ul.vp-how-list.is-ticked li:before {
     display: none;
   }
 
-  /* The description comes off the phone — «بخش توضیحاتو حذف کن ارتفاع کارت
+  /* The description comes off the *card* — «بخش توضیحاتو حذف کن ارتفاع کارت
      کوتاهتر بشه» — both of it: the shoe's own when it has one, and the
-     stand-in when it has not. The desktop still prints whichever it has. This
-     is about the card's height, and the card is the phone's.
+     stand-in when it has not. The desktop still prints it inside its column.
 
-     `placeholders.description` stays in the config, because it is the desktop
-     that reads it and the panel's own field that replaces it. */
+     It is not off the page. «حالا توضیحات کفش بیاد اولین آیتم بعد از کارت»
+     puts it back as its own block below the card, with a heading, which is
+     `.vp-pdp-about` just under this. */
   .vp-pdp-desc,
   .vp-pdp-desc.is-standin {
     display: none;
+  }
+
+  /* ---- «توضیحات کفش», under the card -------------------------------------
+
+     The first thing after the card and before the related shelf. It sits on
+     the page rather than on a card of its own: two cards in a row would be the
+     «کادرها» the client took off this page in an earlier round, and the shelf
+     under it is not on one either.
+
+     The paragraph is the brand's, from `placeholders.brand_blurbs`, whenever
+     the shoe has no description of its own — see the note there for why it is
+     about the maker and not about the pair. */
+  /* It is a `.vp-shop-panel` in the markup and not a panel on the page: the
+     class is there for its margins, which are the card's — 14 at 390, 20 at
+     768, from one rule rather than from a number copied here — and everything
+     that makes a panel a card is taken back off, the way the panel around the
+     card itself has it taken off on a phone.
+
+     `.vp-shop-panel + .vp-shop-panel` sets a 40 top margin between panels and
+     is two classes deep, so this has to be two as well to say 26. */
+  .vp-shop-panel.vp-pdp-about {
+    display: block;
+    margin-block: 26px;
+    padding: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+  }
+
+  .vp-pdp-about p {
+    margin: 10px 0 0;
+    font-size: 13px;
+    line-height: 2;
+    color: rgba(16, 17, 17, 0.62);
+    text-align: justify;
   }
 
   /* ---- The colour row ----------------------------------------------------

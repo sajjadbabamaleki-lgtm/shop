@@ -361,6 +361,32 @@
             </div>
         </div>
 
+        {{-- «حالا توضیحات کفش بیاد اولین آیتم بعد از کارت بعد نمونه های مشابه /
+             عنوان توضیحات کفش و یه متن ۴ خطی در مورد گلدن گوس زیرش».
+
+             The first thing under the card and above the related shelf, on the
+             phone. The desktop's description is where it has always been,
+             inside the right-hand column, and this block is not drawn there.
+
+             Three things are looked for, in this order: the shoe's own
+             description, typed in the panel; the brand's paragraph from
+             `placeholders.brand_blurbs`; and the generic line. The brand's is
+             about the maker rather than about this pair — where it is from,
+             what it is known for — because a paragraph about this shoe's
+             leather or fit would be inventing its specification. --}}
+        @php
+            $about = $product->description
+                ?: (config('storefront.placeholders.brand_blurbs.'.($product->brand?->slug ?? '—'))
+                    ?: config('storefront.placeholders.description'));
+        @endphp
+
+        @if ($about)
+            <div class="vp-shop-panel vp-pdp-about">
+                <h2 class="vp-pdp-choice-title">توضیحات کفش</h2>
+                <p>{{ $about }}</p>
+            </div>
+        @endif
+
         @if ($related->isNotEmpty())
             <div class="vp-shop-panel vp-pdp-related">
                 <h2 class="vp-shop-title">نمونه‌های مشابه</h2>

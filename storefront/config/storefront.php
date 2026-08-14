@@ -310,6 +310,34 @@ return [
         'description' => 'مشخصات کامل این محصول هنوز ثبت نشده است. برای سایز، جنس و شرایط ارسال با پشتیبانی ویکی پلاس در تماس باشید.',
 
         /*
+         | The «توضیحات کفش» section, keyed by brand slug.
+         |
+         | «عنوان توضیحات کفش و یه متن ۴ خطی در مورد گلدن گوس زیرش». No product
+         | in the catalogue has a description, so the section had nothing to
+         | print for the shoe in front of it.
+         |
+         | What is here is about the *brand* and not about the shoe: where the
+         | maker is from, what it is known for, who wears it. That is the one
+         | kind of copy we can write without making a claim the catalogue has
+         | not made — a paragraph about this pair's leather, sole or fit would
+         | be inventing the shoe's specification, which is what the block this
+         | sits in exists to keep out.
+         |
+         | It is the *third* thing the section looks for. A product's own
+         | `description`, typed in the panel, wins over it; the generic line
+         | above is the fallback for a brand with no entry here. So filling a
+         | product in the panel is what takes its brand's paragraph off that
+         | page, one product at a time.
+         */
+        'brand_blurbs' => [
+            'golden-goose' => 'گلدن گوس برند ایتالیایی کفش‌های دست‌دوز است که از سال ۲۰۰۰ در ونیز کار می‌کند. امضای آن ظاهر عمداً کهنه و ستارهٔ دوخته‌شده روی بدنه است و هر جفت با پرداخت دستی ساخته می‌شود. به همین دلیل هیچ دو جفتی کاملاً شبیه هم نیستند.',
+            'nike' => 'نایک برند آمریکایی کفش ورزشی است که از سال ۱۹۶۴ در اورگان کار می‌کند. بسیاری از فناوری‌های امروزی کفش دویدن از آن آمده و سری‌های خیابانی‌اش از دههٔ هشتاد به سبک روزمره رسیدند. طراحی‌هایش میان راحتی و ظاهر ورزشی تعادل برقرار می‌کنند.',
+            'jordan' => 'جردن زیرمجموعهٔ نایک است که در سال ۱۹۸۴ برای مایکل جردن پایه‌گذاری شد. ایر جردن ۱ که کفش زمین بسکتبال بود، امروز یکی از شناخته‌شده‌ترین کتانی‌های خیابانی جهان است. نشان بال‌دار و طرح دورنگ، امضای ثابت این خانواده از کفش‌هاست.',
+            'new-balance' => 'نیوبالانس برند آمریکایی کفش است که از سال ۱۹۰۶ در بوستون کار می‌کند. سال‌ها با کفش دویدن و تنوع عرض قالب شناخته می‌شد و مدل‌های کلاسیکش مثل ۵۳۰ حالا کتانی روزمره‌اند. رنگ‌بندی خنثی و آرام، ویژگی همیشگی طراحی این برند است.',
+            'on' => 'اون برند سوئیسی کفش ورزشی است که در سال ۲۰۱۰ در زوریخ تأسیس شد. امضای آن زیرهٔ حفره‌دار است که فرود را نرم و رانش را سفت می‌کند؛ کفش‌هایش از دویدن به سبک روزمره رسیدند. ظاهر ساده و بی‌شلوغی، آن را برای پوشیدن طولانی‌مدت مناسب کرده.',
+        ],
+
+        /*
          | The brand strip.
          |
          | Each tile carries three photographs and a count. Neither is real:
