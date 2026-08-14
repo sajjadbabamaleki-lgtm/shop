@@ -5711,8 +5711,9 @@ ul.vp-how-list.is-ticked li:before {
    and a category page render 0 differing subpixels at 1200, 1440 and 1920
    against the tree before any of this. */
 .vp-pdp-mark,
-.vp-pdp-strip,
 .vp-pdp-rate,
+.vp-pdp-fav,
+.vp-pdp-colors,
 .vp-pdp-desc.is-standin,
 .vp-pick-empty,
 .vp-pick-note.is-inline,
@@ -11389,17 +11390,59 @@ ul.vp-how-list.is-ticked li:before {
     pointer-events: none;
   }
 
-  /* What was the sheet lifted over the tint is now just the block under the
-     photograph — with the ground white there is no edge for a corner to end
-     and nothing for it to be lifted over. The radius, the white fill and the
-     stacking context are gone with the tint that needed them; what is left is
-     the flex column, which the order below depends on, and the air between the
-     shoe and the name. */
+  /* ---- The card ----------------------------------------------------------
+
+     «باید موارد مث این بیان رو یه کارت». Everything under the photograph — the
+     name with the price opposite it, the description, the sizes, the colours —
+     goes on one card.
+
+     **It is the shop's pane, not the reference's white card, and that is
+     forced by the round before this one.** On the reference the ground is grey
+     and the card is white; here the ground is white, because «بکگراند محصول
+     باید سفید باشه» — so a white card would be invisible on it. The card takes
+     the tint the hero and the header island take, `rgba(16,17,17,0.034)`,
+     which is 247 on white: the same material the rest of this site's panes are
+     cut from, and the one thing on the page that reads as a card without
+     inventing a second colour.
+
+     **Its edges are the «لبه پنهان» remedy, and must stay that way.** The lit
+     hairline runs the top and the sides and stops short of the foot; the foot
+     is ink, 1.4px of it, the same weight as the hairline. No drop shadow. Read
+     that entry in CLAUDE.md before touching either — a soft shadow under this
+     card is exactly the fade the client rejected three times in one
+     afternoon. */
   .vp-pdp-info {
+    position: relative;
     display: flex;
     flex-direction: column;
-    margin-block-start: 0;
-    padding-block-start: 0;
+    margin-block-start: 4px;
+    /* 12 either side, which is the number the size row's ends were asked to
+       land on — so that row sits flush with the card's padding rather than
+       breaking out of it. */
+    padding: 18px 12px 20px;
+    border-radius: 24px;
+    background: rgba(16, 17, 17, 0.034);
+    box-shadow: inset 0 -1.4px 0 rgba(16, 17, 17, 0.07);
+  }
+
+  /* The lit hairline, drawn as a ring that leaves the foot alone — the mask
+     pair is `.heroSlide6 .hero-inner`'s, at this card's radius. */
+  .vp-pdp-info::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    padding: 1.4px 1.4px 0;
+    border-radius: inherit;
+    background: rgba(255, 255, 255, 0.5);
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
   }
 
   /* ---- The order inside the sheet ----------------------------------------
@@ -11415,58 +11458,97 @@ ul.vp-how-list.is-ticked li:before {
   .vp-pdp-info > .vp-pdp-head { order: 1; }
   .vp-pdp-info > .vp-pdp-from { order: 2; }
   .vp-pdp-info > .vp-pdp-desc { order: 3; }
-  .vp-pdp-info > .vp-pdp-choice { order: 4; }
-  .vp-pdp-info > .vp-pdp-out { order: 5; }
-  .vp-pdp-info > .vp-pick { order: 6; }
-  .vp-pdp-info > .vp-pdp-strip { order: 7; }
+  .vp-pdp-info > .vp-pdp-out { order: 4; }
+  .vp-pdp-info > .vp-pick { order: 5; }
+  .vp-pdp-info > .vp-pdp-colors { order: 6; }
+  .vp-pdp-info > .vp-pdp-choice { order: 7; }
   .vp-pdp-info > .vp-pdp-sizes-title { order: 8; }
   .vp-pdp-info > .vp-sellers { order: 9; }
   .vp-pdp-info > .vp-pdp-facts { order: 10; }
 
-  /* The name block, the reference's: the name on its own line, the brand under
-     it, and the price *not* here. The reference carries no price in the sheet
-     at all — it is in the bar at the foot, which is fixed and on screen the
-     whole time, so printing it twice would be printing it twice.
+  /* The name with the price opposite it — «اسم روبروی قیمت قرار بگیره». The
+     name and the brand on one side, the price and the sale on the other, both
+     starting on the card's first line.
 
-     What stays is the sale: the price it was and the cut, small, under the
-     brand. The bar has room for one number and the cut is the reason this
-     shop's number is what it is. */
+     The price is back in the card and comes off the bar at the foot with it.
+     The reference's bar carries a button and nothing else, and the same number
+     twice on one screen reads as a mistake rather than as emphasis. */
   .vp-pdp-head {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
     margin-block-start: 0;
   }
 
   .vp-pdp-head .vp-pdp-price {
-    flex-direction: row;
-    align-items: center;
-    gap: 8px;
-    margin-block-start: 6px;
+    flex: none;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+    margin-block-start: 0;
   }
 
   .vp-pdp-head .vp-pdp-price strong {
+    display: block;
+    font-family: var(--body-font);
+    font-size: 19px;
+    white-space: nowrap;
+  }
+
+  .vp-pick-price {
     display: none;
   }
 
-  /* The rating, on the name's line and hard against the other end of it — «اول
-     اسم کتونی روبروش امتیاز». It is inside the <h1>, floated to the far side,
-     so the name wraps around it instead of being pushed into a narrow column
-     by a flex row: a two-line Persian name and a five-character number on one
-     line is what «روبروش» asks for, and float is the only thing that gives the
-     second line the full width back.
+  .vp-pick-go {
+    flex: 1;
+  }
 
-     A star and a number and nothing else. The parentheses on the reference are
-     an English convention for an aside; in Persian they read as a correction.
+  /* ---- The photograph's two corners --------------------------------------
 
-     The gold is the page's, at the size the brand line under it takes. */
+     «امتیاز رو اون گوشه بالا راست و قلب فیوریت رو قسمت چپ بالا». The reference
+     puts its back button at one top corner of the shot and its rating at the
+     other; ours carries the favourite where the back button was, at the same
+     size and on the same line as the rating opposite it.
+
+     Physical left and right, not logical: the client named the corners of the
+     screen, and these two sit on a photograph rather than in a line of text.
+
+     They are the header's square at the card's scale — white, the mark's own
+     two-stop shadow, the 0.30119 corner — which is the same lockup the
+     listing's favourite takes. The rating is the same object stretched to fit
+     its number, so the pair reads as one set. */
+  .vp-pdp-fav,
   .vp-pdp-rate {
-    display: inline-flex;
-    float: inline-end;
+    display: flex;
+    position: absolute;
+    z-index: 2;
+    top: 12px;
     align-items: center;
-    gap: 4px;
-    margin-inline-start: 10px;
-    padding-block-start: 4px;
+    justify-content: center;
+    height: 34px;
+    padding: 0;
+    border: 0;
+    border-radius: 10.24px;
+    background: #FFFFFF;
+    box-shadow:
+      0 0 2px rgba(16, 17, 17, 0.10),
+      0 0 8px -2px rgba(16, 17, 17, 0.14);
+  }
+
+  .vp-pdp-fav {
+    left: 12px;
+    width: 34px;
+    color: #101111;
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .vp-pdp-rate {
+    right: 12px;
+    gap: 5px;
+    padding-inline: 10px;
     font-family: var(--body-font);
     font-weight: 700;
     font-size: 13px;
@@ -11483,6 +11565,41 @@ ul.vp-how-list.is-ticked li:before {
   .vp-pdp-desc.is-standin {
     display: block;
     margin-block-start: 10px;
+  }
+
+  /* ---- The colour row ----------------------------------------------------
+
+     «یه لاین انتخاب رنگ هم نیاز داریم». Dots, the reference's own device, with
+     the first ringed the way it rings its own.
+
+     What they are is in `config/storefront.php`: every variant in the
+     catalogue says «نامشخص», so these three are a stand-in for the row and the
+     markup marks them `aria-hidden` — a screen reader hearing three unnamed
+     colours would be hearing a claim the catalogue has not made. The named
+     block above is what the page draws the day a variant carries a colour. */
+  .vp-pdp-colors {
+    display: block;
+    margin-block-start: 18px;
+  }
+
+  .vp-pdp-swatches {
+    display: flex;
+    gap: 10px;
+  }
+
+  .vp-pdp-swatch {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--vp-swatch);
+  }
+
+  /* The ring sits off the dot rather than on it, so the colour underneath is
+     the whole of the circle and not a rim of it. */
+  .vp-pdp-swatch.is-on {
+    box-shadow:
+      0 0 0 2px #FFFFFF,
+      0 0 0 3.5px rgba(16, 17, 17, 0.35);
   }
 
   .vp-pdp-desc p {
@@ -11544,11 +11661,17 @@ ul.vp-how-list.is-ticked li:before {
      difference** — «فاصله هارو باید یجوری تنظیم کنی که مستطیل از راست ۱۲ پیکسل
      و مربع هم از چپ ۱۲ پیکسل باشه».
 
-     Two parts. The row steps outside the page's margin to sit 12 from each
-     edge of the screen: `calc(50% - 50vw + 12px)` is the full-bleed margin
-     with 12 given back, so it lands on 12 whatever the parent is inset by —
-     14 at 390 and 20 at 768, two numbers from two rules, which is why this is
-     not written as `-2px`.
+     Two parts. The 12 is the card's own padding now, so the row simply fills
+     it — it was `calc(50% - 50vw + 12px)`, 12 off the *screen*, while the
+     block under the photograph was not a card and its edges were the page's
+     own margin. With a card around it, 12 off the screen is 2 outside the
+     card, which reads as the row having escaped it.
+
+     The squares give way for that. The card's line is 338 at 390 where the
+     page's was 366, and five 45.98 squares and the box want 358.9 of it, so
+     they shrink to 41.81 — the same mechanism that already handled a 360
+     screen. The box on the line is what was asked for twice; the square's
+     exact size is what has moved to make room for it each time.
 
      Then `space-between` puts the first square on the left end and the box on
      the right end and shares what is left between the five gaps. The `gap` is
@@ -11561,7 +11684,6 @@ ul.vp-how-list.is-ticked li:before {
     direction: ltr;
     justify-content: space-between;
     align-items: center;
-    margin-inline: calc(50% - 50vw + 12px);
   }
 
   /* The count as the row's last item, at the right-hand end of the line the
@@ -11706,51 +11828,30 @@ ul.vp-how-list.is-ticked li:before {
     margin-block-start: 20px;
   }
 
-  /* ---- The gallery -------------------------------------------------------
+  /* ---- The five photographs, straight under the big one -------------------
 
-     The strip moves under the sizes and takes a heading, so the copy that
-     lives under the photograph is the desktop's and is not drawn here. The
-     dots go with it: they were the first reference's device for a strip
-     directly under the shot, and there is no shot above this one to be the
-     current frame of.
+     «لاین گالری حذف بشه و بجاش ۵ عکس بیاد زیر عکس بزرگ قرار بگیره». The
+     labelled «گالری» section under the sizes is gone — markup and all — and
+     the strip is the copy that has always lived under the shot, which is where
+     the desktop draws it too. One less copy of the row on the page.
 
-     Nothing in the row is lit, either. A ringed tile says "this is the one you
-     are looking at", and while the row is one photograph repeated
-     (`placeholders.colorway_shots`) there is no such tile — the first one is
-     ringed on the desktop for the same reason it is not here, which is that up
-     there it sits under the shot it repeats. */
-  .vp-pdp-gallery .vp-pdp-thumbs,
+     Five of them, `placeholders.colorway_shots`, spread across the line. The
+     dots stay off: they were the first reference's device for a slider, and
+     nothing here slides.
+
+     Nothing in the row is lit. A ringed tile says "this is the one you are
+     looking at", and while the row is one photograph repeated there is no such
+     tile — the desktop rings its first for the reason this does not, which is
+     that up there it sits in a column under the shot it repeats. */
   .vp-pdp-dots {
     display: none;
   }
 
-  .vp-pdp-strip {
-    display: block;
-    margin-block-start: 22px;
-  }
-
-  .vp-pdp-strip .vp-pdp-thumbs {
+  .vp-pdp-gallery .vp-pdp-thumbs {
     display: flex;
+    margin-block-start: 12px;
   }
 
-  /* Four tiles, because the reference draws four — and the fifth is dropped
-     *here* rather than by turning `placeholders.colorway_shots` down to 4.
-
-     That number is one value read by both copies of the strip, so moving it
-     would have taken a tile off the desktop's row too. «ما الان فقط داریم
-     موبایل کار میکنیم»: the count stays 5, the desktop keeps the row it has,
-     and the phone hides what it does not draw. When real colourway
-     photographs arrive and that number goes to 0, this line is what limits the
-     phone's row to four of them — read it before assuming the row is short. */
-  .vp-pdp-strip .vp-pdp-thumb:nth-child(n + 5) {
-    display: none;
-  }
-
-  /* All four the same, including the first. The lit tile and the hairline both
-     go: the reference's gallery is four plain tiles, and while the row is one
-     photograph repeated there is nothing for a ring to be pointing at. Written
-     against `.is-on` as well as the tile, because the hairline is on the
-     desktop rule and the gold ring is on the first reference's. */
   .vp-pdp-thumb,
   .vp-pdp-thumb.is-on {
     background: rgba(16, 17, 17, 0.034);
@@ -11760,25 +11861,16 @@ ul.vp-how-list.is-ticked li:before {
   /* ---- The bar at the foot -----------------------------------------------
 
      The reference labels its price «Price» and stacks the number under it, so
-     the label is drawn and the two go in a column. The button keeps the shop's
-     gold rather than the reference's near-black: every other buy button in
-     this storefront is that ramp — the ladder's, the basket's, the seller
-     rows' — and one page's own black CTA would be a second answer to the same
-     question. The shape is the reference's. */
-  .vp-pick-price {
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
-    line-height: 1.25;
-  }
+     The button keeps the shop's gold rather than the reference's near-black:
+     every other buy button in this storefront is that ramp — the ladder's, the
+     basket's, the seller rows' — and one page's own black CTA would be a
+     second answer to the same question. The shape is the reference's.
 
-  .vp-pick-label {
-    display: block;
-    font-family: var(--body-font);
-    font-weight: 600;
-    font-size: 11px;
-    color: #6E7070;
-  }
+     The price and its «قیمت» label are not in the bar any more. They were
+     drawn there while the card had no price on it; the card has one now, on
+     the name's line, and the same number twice on one screen reads as a
+     mistake. The button takes the whole bar, which is the reference's bar
+     as well. */
 
   /* And the WhatsApp button gets out from under it.
 

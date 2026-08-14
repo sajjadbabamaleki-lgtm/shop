@@ -70,6 +70,26 @@
                         @if ($product->primaryMedia())
                             <img src="{{ asset($product->primaryMedia()->path) }}" alt="{{ $product->title }}">
                         @endif
+
+                        {{-- The two corners of the photograph, from the
+                             reference: the favourite at the top left, the
+                             rating at the top right. Phone only — the desktop
+                             page has neither, and its rules turn both off.
+
+                             The heart is still outline rather than the
+                             reference's filled one: there is no wishlist table
+                             behind it, and a filled heart on every product is
+                             a state that is not true. --}}
+                        <button type="button" class="vp-pdp-fav" aria-label="افزودن {{ $product->title }} به علاقه‌مندی‌ها">
+                            <i class="fa-regular fa-heart" aria-hidden="true"></i>
+                        </button>
+
+                        @if (config('storefront.placeholders.rating'))
+                            <span class="vp-pdp-rate">
+                                {{ fa_number(config('storefront.placeholders.rating')) }}
+                                <i class="fa-solid fa-star" aria-hidden="true"></i>
+                            </span>
+                        @endif
                     </div>
 
                     @if ($shots->count() > 1)
@@ -94,24 +114,7 @@
                          was, under the title, where there is room for it. --}}
                     <div class="vp-pdp-head">
                         <div class="vp-pdp-naming">
-                            <h1 class="vp-pdp-title">
-                                {{ $product->title }}
-
-                                {{-- The rating, opposite the name — «اول اسم
-                                     کتونی روبروش امتیاز». It is
-                                     `placeholders.rating` and not an average of
-                                     anything: there is no review table yet. It
-                                     is inside the heading so the two sit on one
-                                     line however long the name runs, and it is
-                                     the same number on every shoe, which is
-                                     what a stand-in should look like. --}}
-                                @if (config('storefront.placeholders.rating'))
-                                    <span class="vp-pdp-rate">
-                                        <i class="fa-solid fa-star" aria-hidden="true"></i>
-                                        {{ fa_number(config('storefront.placeholders.rating')) }}
-                                    </span>
-                                @endif
-                            </h1>
+                            <h1 class="vp-pdp-title">{{ $product->title }}</h1>
                             @if ($product->brand)
                                 <a class="vp-pdp-brand" href="{{ storefront_route('shop', ['brand' => $product->brand->slug]) }}">{{ $product->brand->name }}</a>
                             @endif
@@ -229,13 +232,28 @@
                         </div>
                     @endif
 
-                    {{-- The «گالری» section, the reference's, under the sizes.
-                         Phone only — above 992 the same strip is already in the
-                         left column under the photograph. --}}
-                    @if ($shots->count() > 1)
-                        <div class="vp-pdp-strip">
-                            <h2 class="vp-pdp-choice-title">گالری</h2>
-                            @include('shop.gallery', ['shots' => $shots])
+                    {{-- The colour row — «یه لاین انتخاب رنگ هم نیاز داریم».
+
+                         Every variant in the catalogue says «نامشخص», so there
+                         is no colour to draw: these are
+                         `placeholders.colors`, a stand-in for the row, and
+                         nothing in it is selectable or named. The day a
+                         variant carries a real colour, the named block above
+                         («رنگ») is what the page draws and this row goes.
+
+                         Phone only, like everything else this round. --}}
+                    @php
+                        $swatches = $colorways->count() > 1 ? [] : config('storefront.placeholders.colors', []);
+                    @endphp
+
+                    @if ($swatches)
+                        <div class="vp-pdp-colors">
+                            <h2 class="vp-pdp-choice-title">رنگ</h2>
+                            <div class="vp-pdp-swatches" aria-hidden="true">
+                                @foreach ($swatches as $swatch)
+                                    <span @class(['vp-pdp-swatch', 'is-on' => $loop->first]) style="--vp-swatch: {{ $swatch }}"></span>
+                                @endforeach
+                            </div>
                         </div>
                     @endif
 
@@ -294,6 +312,10 @@
                         <div @class(['vp-pdp-desc', 'is-standin' => ! $product->description])><p>{{ $blurb }}</p></div>
                     @endif
 
+                    {{-- Only when there is a fact to list. An empty <dl> is
+                         invisible on a page that ends in white space and a hole
+                         at the foot of a card, which is what this is now. --}}
+                    @if ($product->material || $product->use_case || $product->care_instructions)
                     <dl class="vp-pdp-facts">
                         @if ($product->material)
                             <div><dt>جنس</dt><dd>{{ $product->material }}</dd></div>
@@ -305,6 +327,7 @@
                             <div><dt>نگهداری</dt><dd>{{ $product->care_instructions }}</dd></div>
                         @endif
                     </dl>
+                    @endif
                 </div>
             </div>
         </div>

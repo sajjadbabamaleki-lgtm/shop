@@ -247,6 +247,24 @@ return [
         'colorway_shots' => 5,
 
         /*
+         | The product page's colour row.
+         |
+         | «یه لاین انتخاب رنگ هم نیاز داریم». Every variant in the catalogue
+         | carries `display_color = نامشخص` and `color_family = unspecified` —
+         | the shop has not told us the colours yet — so there is nothing to
+         | build a row of swatches from.
+         |
+         | These three are a stand-in for the layout, the same as the colourway
+         | strip above: nothing in the row is selectable and no colour is
+         | named, because a named colour is a claim about the shoe. The moment
+         | a variant carries a real colour the page draws that instead and this
+         | list is not consulted.
+         |
+         | Set it to [] to leave the row out entirely.
+         */
+        'colors' => ['#3F4147', '#D98F6B', '#E4C378'],
+
+        /*
          | The product page's rating.
          |
          | There is no review table, so there is nothing to average. The client
