@@ -108,10 +108,26 @@
                             @endforeach
                             <input type="hidden" name="sort" value="{{ $filters['sort'] }}">
 
+                            {{-- «از» in the left box and «تا» in the right, each
+                                 label on the box's inner edge and each number on
+                                 its outer one, so the two labels face each other
+                                 across the middle and the numbers read outward.
+
+                                 The row runs ltr for that: on an rtl page the
+                                 first child would sit at the right, and «از» has
+                                 to be the left one. It is the same direction the
+                                 slider under it now runs in, which is the point —
+                                 low on the left, high on the right, one axis for
+                                 both controls. --}}
                             <div class="vp-price-boxes">
-                                <input type="text" inputmode="numeric" name="min" data-vp-price-min value="{{ $filters['min'] ? fa_number(intdiv($filters['min'], 10)) : '' }}" placeholder="از {{ toman($facets['price']['min']) }}" aria-label="کمترین قیمت">
-                                <span>تا</span>
-                                <input type="text" inputmode="numeric" name="max" data-vp-price-max value="{{ $filters['max'] ? fa_number(intdiv($filters['max'], 10)) : '' }}" placeholder="تا {{ toman($facets['price']['max']) }}" aria-label="بیشترین قیمت">
+                                <label class="vp-price-box">
+                                    <input type="text" inputmode="numeric" name="min" data-vp-price-min value="{{ $filters['min'] ? fa_number(intdiv($filters['min'], 10)) : '' }}" placeholder="{{ toman($facets['price']['min']) }}" aria-label="کمترین قیمت">
+                                    <span>از</span>
+                                </label>
+                                <label class="vp-price-box">
+                                    <span>تا</span>
+                                    <input type="text" inputmode="numeric" name="max" data-vp-price-max value="{{ $filters['max'] ? fa_number(intdiv($filters['max'], 10)) : '' }}" placeholder="{{ toman($facets['price']['max']) }}" aria-label="بیشترین قیمت">
+                                </label>
                             </div>
 
                             {{-- Toman, like the boxes beside it: the offers are

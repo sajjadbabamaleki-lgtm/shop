@@ -12800,34 +12800,108 @@ ul.vp-how-list.is-ticked li:before {
     color: #A47F25;
   }
 
+  /* ltr, so «از» is the left box: on an rtl page the first child sits at the
+     right, and the whole point of this pair is that low is on the left. */
   .vp-price-boxes {
+    direction: ltr;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .vp-price-box {
+    flex: 1 1 0;
+    min-width: 0;
     display: flex;
     align-items: center;
     gap: 6px;
+    height: 38px;
+    padding-inline: 10px;
+    border: 1px solid rgba(16, 17, 17, 0.12);
+    border-radius: 10px;
   }
 
-  .vp-price-boxes input {
-    flex: 1 1 0;
+  .vp-price-box input {
+    flex: 1 1 auto;
     min-width: 0;
-    height: 34px;
-    padding-inline: 8px;
-    border: 1px solid rgba(16, 17, 17, 0.12);
-    border-radius: 9px;
+    border: 0;
     background: none;
-    font-size: 11.5px;
+    font-size: 12px;
     color: #101111;
   }
 
-  .vp-price-boxes span {
+  .vp-price-box input:focus {
+    outline: none;
+  }
+
+  /* The number reads outward and the label sits on the inner edge: left box,
+     number left; right box, number right. */
+  .vp-price-box:first-child input {
+    text-align: left;
+  }
+
+  .vp-price-box:last-child input {
+    text-align: right;
+  }
+
+  .vp-price-box span {
     flex: none;
     font-size: 11px;
     color: rgba(16, 17, 17, 0.45);
   }
 
+  /* «رنج باید از چپ به راست کشیده بشه» — ltr, so dragging right raises the
+     maximum. Inherited rtl was reversing it: the thumb started at the left and
+     moving it right made the number smaller, which is the opposite of what a
+     price slider means anywhere.
+
+     «بجای مشکی وقتی خالیه سفید باشه» — the track is white. `accent-color` was
+     painting the unfilled part in the UA's own dark, so it goes and the track
+     and thumb are drawn here instead. White on a white sheet needs a line to
+     exist at all, so the track carries one; the thumb is the page's gold and
+     is the only filled thing in the control. */
   .vp-price-range {
+    direction: ltr;
     width: 100%;
-    margin-block: 12px 4px;
-    accent-color: #C0972F;
+    height: 22px;
+    margin-block: 14px 4px;
+    background: none;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  .vp-price-range::-webkit-slider-runnable-track {
+    height: 8px;
+    border: 1px solid rgba(16, 17, 17, 0.18);
+    border-radius: 4px;
+    background: #FFFFFF;
+  }
+
+  .vp-price-range::-moz-range-track {
+    height: 8px;
+    border: 1px solid rgba(16, 17, 17, 0.18);
+    border-radius: 4px;
+    background: #FFFFFF;
+  }
+
+  .vp-price-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    margin-block-start: -7px;
+    border: 0;
+    border-radius: 50%;
+    background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+    box-shadow: 0 2px 6px -2px rgba(16, 17, 17, 0.45);
+  }
+
+  .vp-price-range::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border: 0;
+    border-radius: 50%;
+    background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
   }
 
   /* `display: block`, and it is not decoration. A <button> is inline-block by
