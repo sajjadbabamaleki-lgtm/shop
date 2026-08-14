@@ -19,7 +19,7 @@
 
 @if ($swatches)
     <div class="vp-pdp-colors">
-        <h2 class="vp-pdp-choice-title">رنگ</h2>
+        <h2 class="vp-pdp-choice-title">انتخاب رنگ</h2>
 
         {{-- The row the size row is: the colours from one end, the count in a
              rectangle at the other — «زیر انتخاب رنگ هم باید یک مستطیل بیاد که

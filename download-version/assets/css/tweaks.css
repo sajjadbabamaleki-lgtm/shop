@@ -11410,6 +11410,15 @@ ul.vp-how-list.is-ticked li:before {
     position: relative;
     display: flex;
     flex-direction: column;
+    /* The chip. One number, because three things are measured off it: the size
+       squares, the box at the end of their line, and the colour line's own
+       height — «ارتفاع مشتطیل ۳ رنگ موجود باید اندازه مستطیل ۱ سایز موجود
+       باشه».
+       41.8 is what the squares had settled at anyway once the card's 338 line
+       had taken the count box and the five gaps out of it; stating it stops
+       the two boxes drifting apart every time something else on the line
+       changes width, which is how they came apart the last time. */
+    --vp-chip: 41.8px;
     margin-block-start: 4px;
     /* 12 either side, which is the number the size row's ends were asked to
        land on — so that row sits flush with the card's padding rather than
@@ -11602,6 +11611,9 @@ ul.vp-how-list.is-ticked li:before {
     justify-content: space-between;
     gap: 8px;
     direction: ltr;
+    /* The line is as tall as the size line, so the box that stretches to it is
+       as tall as the size line's box. The swatches stay 32 and centre in it. */
+    min-height: var(--vp-chip);
   }
 
   .vp-pdp-swatch {
@@ -11816,7 +11828,7 @@ ul.vp-how-list.is-ticked li:before {
      13.85. The row now holds five squares, the box and five 8 gaps in 358.9 of
      the 362 it has at 390. */
   .vp-pick-size span {
-    width: 45.98px;
+    width: var(--vp-chip);
     max-width: 100%;
     min-width: 0;
     height: auto;
@@ -11921,28 +11933,25 @@ ul.vp-how-list.is-ticked li:before {
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-block-start: 20px;
+    /* Half again off the colour line above it — «فاصله افزودن به سبد خرید و
+       انتخاب تعداد با بهش انتخاب رنگ هم باید ۵۰ درصد بیشتر بشه». 20 → 30. */
+    margin-block-start: 30px;
   }
 
-  /* White, at the client's word — «به رنگ سفید». It is the one control on this
-     page that is not the shop's gold, so it needs an edge to be a button at
-     all: white on the card's 247 is a 8-level step, which is a shape you can
-     see and not one you can press. The hairline is the size chips', and the
-     ink is the page's. */
+  /* Gold again — «دکمه افزودن به سبد خرید هم باید طلایی بشه». It was white for
+     one round, at «به رنگ سفید», and white on the card's 247 is an eight-level
+     step: a shape you can see rather than one you can press. It is back on the
+     shop's own ramp, which is what every other buy button on the site is, so
+     the hairline and the ink it needed to read as a control both go with the
+     white. */
   .vp-pick-go {
     flex: 1;
     height: 48px;
     border-radius: 14.46px;
-    background: #FFFFFF;
-    box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.12);
-    color: #101111;
+    background: linear-gradient(96deg, #C0972F 0%, #E3B54A 100%);
+    box-shadow: none;
+    color: #FFFFFF;
     font-size: 14px;
-  }
-
-  .vp-pick-go:hover {
-    filter: none;
-    background: #FFFFFF;
-    box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.28);
   }
 
   /* Two squares with the number between them — «مثبت باید تو یه مربع سمت راست
@@ -11960,7 +11969,9 @@ ul.vp-how-list.is-ticked li:before {
     flex: none;
     flex-direction: row-reverse;
     align-items: center;
-    gap: 8px;
+    /* Halved against the number between them — «فاصله بین مربع مثبت و منفی با
+       عدد وسطش باید نصف بشه». 8 → 4. */
+    gap: 4px;
     /* Stated, not inherited from the tallest child: the number field's own
        line box measured 50 against the two 48 squares, and the row beside a
        48 button reading 50 is a two-pixel step nobody meant. */
