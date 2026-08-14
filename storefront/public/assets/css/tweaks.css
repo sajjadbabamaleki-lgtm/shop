@@ -11406,15 +11406,30 @@ ul.vp-how-list.is-ticked li:before {
 
      **A white card on a white page has that problem worse, not better**, since
      the fill no longer differs from the ground at all: the shadow is the only
-     thing left to say where the card ends. So this is not one soft shadow but
-     three layers doing three jobs — a hairline-weight ring for the edge
-     itself, a short shadow for the lift, and a wide soft one for the spread.
-     The ring is what the «لبه پنهان» remedy insisted on and the reason this
-     does not read as a fade; it is 0.05, four levels, so it is an edge and not
-     the «خطی و تیز» line the client rejected in the same thread.
+     thing left to say where the card ends.
 
-     Measured across the card's left edge after: 255 page, 249 at the shadow's
-     darkest, 254, then 255 inside the card — a step, then the card. */
+     There is no ring around it. It had one for a round — a hairline weight,
+     the thing the «لبه پنهان» remedy insisted on — and «خط دور کارت سفیدو حذف
+     کن» takes it off. What carries the edge instead is the first of the three
+     layers: `0 0 3px` at 0.13, tight enough that its darkest is at the card's
+     own boundary rather than spread over thirty pixels of page. The other two
+     are the lift and the spread.
+
+     **All three are offset by nothing** — «یه سایه مث همونکه دادی پایینش بده ۲
+     طرف و بالاش» — so the sides and the top get what the foot had. A shadow
+     with a y offset is a light source above the card; this one is the card
+     lifted off the page, which is what a shadow on all four sides means.
+
+     Measured after, page → card, at 8px out and then every pixel in:
+
+         left  246 245 244 242 240 236 231 222 | 255
+         top   246 245 244 242 240 236 231 222 | 255
+         foot  255 | 222 236 242 245 247 249 … 255 over 24
+
+     The same profile on all four sides, and the darkest value sits on the
+     card's own boundary: 222 against the card's 255 is a 33-level step, where
+     the arrangement that entry is about had four values within a few levels of
+     each other and no step anywhere. */
   .vp-pdp-info {
     position: relative;
     display: flex;
@@ -11436,9 +11451,9 @@ ul.vp-how-list.is-ticked li:before {
     border-radius: 24px;
     background: #FFFFFF;
     box-shadow:
-      0 0 0 1px rgba(16, 17, 17, 0.05),
-      0 2px 6px -3px rgba(16, 17, 17, 0.14),
-      0 14px 30px -14px rgba(16, 17, 17, 0.22);
+      0 0 3px rgba(16, 17, 17, 0.13),
+      0 0 10px -3px rgba(16, 17, 17, 0.12),
+      0 0 34px -12px rgba(16, 17, 17, 0.30);
   }
 
   /* ---- The order inside the sheet ----------------------------------------
@@ -11588,9 +11603,11 @@ ul.vp-how-list.is-ticked li:before {
      markup marks them `aria-hidden` — a screen reader hearing three unnamed
      colours would be hearing a claim the catalogue has not made. The named
      block above is what the page draws the day a variant carries a colour. */
+  /* Half again off the size line above it — «فاصله بین انتخاب سایز و انتخاب
+     رنگ ... باید ۵۰ درصد بیشتر بشن». 18 → 27. */
   .vp-pdp-colors {
     display: block;
-    margin-block-start: 18px;
+    margin-block-start: 27px;
   }
 
   /* The line is the size row's, so the two read as one system: left to right
@@ -11939,9 +11956,11 @@ ul.vp-how-list.is-ticked li:before {
     display: flex;
     align-items: center;
     gap: 10px;
-    /* Half again off the colour line above it — «فاصله افزودن به سبد خرید و
-       انتخاب تعداد با بهش انتخاب رنگ هم باید ۵۰ درصد بیشتر بشه». 20 → 30. */
-    margin-block-start: 30px;
+    /* Half again off the colour line above it, twice over: «فاصله افزودن به
+       سبد خرید و انتخاب تعداد با بهش انتخاب رنگ هم باید ۵۰ درصد بیشتر بشه»
+       took it 20 → 30, and «...و ردیف افزودن به سبد خرید باید ۵۰ درصد بیشتر
+       بشن» takes it 30 → 45. */
+    margin-block-start: 45px;
   }
 
   /* Gold again — «دکمه افزودن به سبد خرید هم باید طلایی بشه». It was white for
