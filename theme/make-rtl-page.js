@@ -2080,6 +2080,16 @@ html = html.replace('</body>',
   '            // maximum rather than to nothing.\n' +
   '            var priceRange = document.querySelector("[data-vp-price-range]");\n' +
   '            var priceMax = document.querySelector("[data-vp-price-max]");\n' +
+  '            // The shop\'s filter sheets close on their scrim and on their\n' +
+  '            // own X. The tab that opened one is behind the scrim, so without\n' +
+  '            // this there is no way back out except the browser\'s.\n' +
+  '            document.addEventListener("click", function (e) {\n' +
+  '                var hit = e.target.closest && e.target.closest("[data-vp-sheet-close]");\n' +
+  '                if (!hit) return;\n' +
+  '                var sheet = hit.closest("details");\n' +
+  '                if (sheet) { e.preventDefault(); sheet.open = false; }\n' +
+  '            });\n' +
+  '\n' +
   '            if (priceRange && priceMax) {\n' +
   '                priceRange.addEventListener("input", function () {\n' +
   '                    priceMax.value = Number(priceRange.value).toLocaleString("fa-IR");\n' +

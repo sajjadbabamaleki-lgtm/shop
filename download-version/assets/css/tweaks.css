@@ -12864,3 +12864,159 @@ ul.vp-how-list.is-ticked li:before {
     gap: 8px;
   }
 }
+
+/* The filter sheets: a popup over a blurred page, not a dropdown.
+
+   «بجای کشو پاپاپ باز بشه و صفحه بلور و تیره بشه», and the carets went with the
+   change — «فلش کنار قیمت و برند باید حذف بشن».
+
+   Still a <details>, so the tab opens it with no JavaScript; what the script
+   adds is the way out, because the tab that opened the sheet is behind the
+   scrim. Without the script the sheet still opens and the browser's back
+   button still works.
+
+   The scrim is fixed and covers the viewport rather than the page, so it does
+   not grow with the document or move with the scroll.
+
+   --------------------------------------------------------------------------
+   The brand sheet: «یه فضای خالی بالای یه خط ... زیر اون خط برندهای مختلف تو
+   بیضی ... وقتی انتخاب میشن بیان بالای خط به رنگ گلد».
+
+   The chip crosses the line by being rendered on the other side of it, not by
+   script — the brand in force is printed above, the rest below, and choosing
+   one is a link that reloads with it above. The filter stays in the URL, which
+   is how every other control on this page works.
+
+   The empty space above the line is empty on purpose while nothing is chosen.
+   It has a minimum height so the line does not jump up the sheet when the
+   first chip lands in it. */
+@media (max-width: 991.98px) {
+  .vp-shop-sheet > summary {
+    display: inline-flex;
+    align-items: center;
+    list-style: none;
+    cursor: pointer;
+  }
+
+  .vp-shop-sheet > summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .vp-sheet-scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    background: rgba(16, 17, 17, 0.45);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+  }
+
+  /* An island in the upper half, not a drawer on the foot.
+
+     «پاپاپ باید تو نیمه بالایی باشه و جزیره ای نه این پایین». So it is off
+     every edge — 12 at the sides, the same number the grid and the page use —
+     rounded on all four corners rather than two, and carried on a shadow so it
+     reads as sitting above the blurred page rather than growing out of it.
+
+     `inset-block-start: 12%` puts its head at 101 on an 844 screen and its
+     foot well inside the halfway line, which is what «نیمه بالایی» asks for.
+     It is a percentage rather than a pixel offset so it holds the same
+     proportion on a short phone as on a tall one. */
+  .vp-sheet {
+    position: fixed;
+    z-index: 91;
+    inset-inline: 12px;
+    inset-block-start: 12%;
+    padding: 16px;
+    border-radius: 22px;
+    background: #FFFFFF;
+    box-shadow: 0 26px 60px -24px rgba(16, 17, 17, 0.55);
+  }
+
+  .vp-sheet-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-block-end: 12px;
+  }
+
+  .vp-sheet-title {
+    font-family: 'Cairo', var(--title-font);
+    font-weight: 700;
+    font-size: 15px;
+    color: #101111;
+  }
+
+  .vp-sheet-x {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(16, 17, 17, 0.06);
+    color: #101111;
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  .vp-sheet-picked {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-height: 34px;
+  }
+
+  .vp-sheet-rule {
+    height: 1px;
+    margin-block: 12px;
+    background: rgba(16, 17, 17, 0.12);
+  }
+
+  .vp-sheet-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  /* «بیضیشون باید مشکی تو خالی باشه نه تو پر» — outlined, not filled.
+
+     Which also does the work the two states need: off is a line, on is a
+     solid. A filled black beside a filled gold reads as two choices both
+     switched on; an outline beside a solid reads as one chosen out of five,
+     with no colour having to carry the meaning on its own. */
+  .vp-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 34px;
+    padding-inline: 14px;
+    border: 1px solid #101111;
+    border-radius: 17px;
+    background: none;
+    color: #101111;
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .vp-chip.is-on {
+    border-color: transparent;
+    background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+    color: #FFFFFF;
+  }
+
+  .vp-chip i {
+    font-size: 11px;
+    opacity: 0.8;
+  }
+
+  /* The price sheet reuses the shell exactly; nothing of its old dropdown
+     placement survives. */
+  .vp-sheet-price {
+    width: auto;
+    padding: 16px;
+  }
+}

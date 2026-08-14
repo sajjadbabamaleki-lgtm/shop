@@ -89,9 +89,11 @@
                      — and that has not been thrown away: the two sorts are the
                      first thing in the panel. It is the same word doing the
                      same job with more room. --}}
-                <details class="vp-shop-tab vp-shop-tab-drop vp-shop-tab-wide{{ ($priceOn || $filters['min'] || $filters['max']) ? ' is-on' : '' }}">
-                    <summary>قیمت<i class="fa-solid fa-chevron-down" aria-hidden="true"></i></summary>
-                    <div class="vp-shop-drop vp-shop-drop-price">
+                <details class="vp-shop-tab vp-shop-sheet{{ ($priceOn || $filters['min'] || $filters['max']) ? ' is-on' : '' }}">
+                    <summary>قیمت</summary>
+                    <div class="vp-sheet-scrim" data-vp-sheet-close></div>
+                    <div class="vp-sheet vp-sheet-price">
+                        <div class="vp-sheet-head"><span class="vp-sheet-title">قیمت</span><button type="button" class="vp-sheet-x" data-vp-sheet-close aria-label="بستن"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></div>
                         <div class="vp-price-sorts">
                             @foreach (\App\Http\Controllers\ShopController::PRICE_TABS as $key)
                                 <a class="{{ $filters['sort'] === $key ? 'is-on' : '' }}"
@@ -150,14 +152,47 @@
 
                      Both keep the sort that is running and every other filter,
                      the same way the sorts keep the filters. --}}
-                <details class="vp-shop-tab vp-shop-tab-drop{{ $filters['brand'] ? ' is-on' : '' }}">
-                    <summary>{{ $filters['brand'] ? $facets['brands']->firstWhere('slug', $filters['brand'])?->name ?? 'برند' : 'برند' }}<i class="fa-solid fa-chevron-down" aria-hidden="true"></i></summary>
-                    <div class="vp-shop-drop">
-                        <a href="{{ storefront_route('shop') }}?{{ http_build_query(collect($carry)->except('brand')->all() + ['sort' => $filters['sort']]) }}">همه برندها</a>
-                        @foreach ($facets['brands'] as $brand)
-                            <a class="{{ $filters['brand'] === $brand->slug ? 'is-on' : '' }}"
-                               href="{{ storefront_route('shop') }}?{{ http_build_query($carry + ['brand' => $brand->slug, 'sort' => $filters['sort']]) }}">{{ $brand->name }}</a>
-                        @endforeach
+                {{-- The brand picker: a sheet, not a dropdown.
+
+                     «یه کشوی مستطیل افقی باز بشه که یه فضای خالی بالای یه خط
+                     باشه زیر اون خط برندهای مختلف تو بیضی باشن به رنگ مشکی و
+                     وقتی انتخاب میشن بیان بالای خط به رنگ گلد».
+
+                     The chip moves across the line by being *rendered* on the
+                     other side of it, not by script: the brand in force is
+                     printed above, the rest below, and choosing one is a link
+                     that reloads with it above. That keeps the filter in the
+                     URL, which is how every other control on this page works.
+
+                     One brand at a time, because that is what the filter
+                     takes — `slugOrNull`, a single slug. The space above the
+                     line holds one chip today; making chips accumulate there
+                     is a controller change, not a template one. --}}
+                <details class="vp-shop-tab vp-shop-sheet{{ $filters['brand'] ? ' is-on' : '' }}">
+                    <summary>برند</summary>
+                    <div class="vp-sheet-scrim" data-vp-sheet-close></div>
+                    <div class="vp-sheet">
+                        <div class="vp-sheet-head">
+                            <span class="vp-sheet-title">برند</span>
+                            <button type="button" class="vp-sheet-x" data-vp-sheet-close aria-label="بستن"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+                        </div>
+
+                        <div class="vp-sheet-picked">
+                            @if ($filters['brand'])
+                                <a class="vp-chip is-on" href="{{ storefront_route('shop') }}?{{ http_build_query(collect($carry)->except('brand')->all() + ['sort' => $filters['sort']]) }}">
+                                    {{ $facets['brands']->firstWhere('slug', $filters['brand'])?->name }}<i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                                </a>
+                            @endif
+                        </div>
+
+                        <div class="vp-sheet-rule"></div>
+
+                        <div class="vp-sheet-chips">
+                            @foreach ($facets['brands'] as $brand)
+                                @continue($filters['brand'] === $brand->slug)
+                                <a class="vp-chip" href="{{ storefront_route('shop') }}?{{ http_build_query($carry + ['brand' => $brand->slug, 'sort' => $filters['sort']]) }}">{{ $brand->name }}</a>
+                            @endforeach
+                        </div>
                     </div>
                 </details>
 
