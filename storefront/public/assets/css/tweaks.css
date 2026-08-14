@@ -11282,28 +11282,17 @@ ul.vp-how-list.is-ticked li:before {
    ========================================================================== */
 @media (max-width: 991.98px) {
 
-  /* ---- Nothing above the photograph --------------------------------------
+  /* ---- Nothing written above the photograph -------------------------------
 
-     «اون فلش بک و آیکون قلب از بالا حذف بشه / عکس اصلی هم نباید هدر داشته باشه
-     / بالاش ننویس هیچی». Three asks, one result: the back chevron, the
-     favourite and then the screen's own title are all out of the markup, and
-     the site's header band comes off this page.
+     «اون فلش بک و آیکون قلب از بالا حذف بشه / بالاش ننویس هیچی». The back
+     chevron, the favourite and the screen's own title are all out of the
+     markup; the favourite came back later as one of the photograph's corners.
 
-     The header is hidden rather than left out of the layout, because the
-     layout is one file for every page and this is one page's decision. Scoped
-     by `:has()` to the product page and to the phone, the way the basket's
-     footer rule directly above does it — the desktop page keeps its header,
-     and so does every other page on the phone.
-
-     **The menu and the basket are in that band.** Hiding it takes both off
-     this page; the way on from here is the «افزودن به سبد» bar at the foot,
-     and every other page still has the header. The mini-basket panel and the
-     drawer are siblings of the header in the layout rather than children of
-     it, so they are still in the document — nothing that was reachable from
-     another page has become unreachable from it. */
-  body:has(.vp-pdp-body) .th-header {
-    display: none;
-  }
+     **The site's header band is not hidden any more.** It was, for
+     «عکس اصلی هم نباید هدر داشته باشه» — and «چرا هدر بالای این صفحه نیست؟؟»
+     is the answer to that arrangement, so the band is back on this page as it
+     is on every other. The menu and the basket come back with it, which is
+     what that round cost while it lasted. */
 
   /* ---- The ground under the shoe -----------------------------------------
 
@@ -11438,17 +11427,24 @@ ul.vp-how-list.is-ticked li:before {
      piles the same ink onto the foot: at the first try the foot read 190,
      which is a heavier card than anything else on this page wears.
 
+     **And softened once more** — «سایه ۲ طرف و پایین کارت فیدش خطیه یذره سایش
+     محوتر بشه». The blurs went up and the alphas came down together: a wider
+     blur on its own only spreads more ink over more pixels, which measured
+     *darker* rather than softer, and the pair is what turns the ramp from
+     eight levels in eight pixels into one a pixel.
+
      Measured after, page → card, at 8px out and then every pixel in:
 
-         top   254 254 253 253 253 252 252 252 251 250 248 245 | 255
-         left  248 248 247 245 244 242 237 229 | 255
-         foot  255 | 204 222 235 240 243 245 … 255 over 26
+         top   254 254 254 253 252 252 251 251 250 249 248 248 | 255
+         left  244 243 242 240 240 238 236 235 | 255
+         foot  255 | 219 222 225 229 231 233 … 248 over 30
 
-     A step at every edge — 10 levels at the top, 26 at the sides, 51 at the
-     foot — and the darkest value of each sits on the card's own boundary. That
-     is what keeps this on the right side of «لبه پنهان», where the arrangement
+     A step at every edge still — 7 levels at the top, 20 at the sides, 36 at
+     the foot — with the darkest of each on the card's own boundary. That is
+     what keeps this on the right side of «لبه پنهان», where the arrangement
      the entry is about had four values within a few levels of each other and
-     no step anywhere. */
+     no step anywhere. Softer than this and there is no boundary left to read;
+     that is the floor, not a preference. */
   .vp-pdp-info {
     position: relative;
     display: flex;
@@ -11475,9 +11471,9 @@ ul.vp-how-list.is-ticked li:before {
     border-radius: 24px;
     background: #FFFFFF;
     box-shadow:
-      0 1.5px 3px rgba(16, 17, 17, 0.11),
-      0 3px 10px -3px rgba(16, 17, 17, 0.09),
-      0 8px 34px -12px rgba(16, 17, 17, 0.22);
+      0 3px 18px -4px rgba(16, 17, 17, 0.06),
+      0 10px 32px -8px rgba(16, 17, 17, 0.08),
+      0 22px 64px -20px rgba(16, 17, 17, 0.16);
   }
 
   /* ---- The order inside the sheet ----------------------------------------
