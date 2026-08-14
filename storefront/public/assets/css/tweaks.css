@@ -13431,14 +13431,34 @@ ul.vp-how-list.is-ticked li:before {
     border-radius: 18px;
   }
 
+  /* «باید فاصله بین ردیفارو کم میکردی که رنگ هم تو همون ابعاد ارتفاع جا میشد
+     چرا چند پیکسل به ارتفاع اضافه کردی» — the colour line is the fourth row,
+     and it was paid for out of the card's height instead of out of the leading.
+
+     The card is 88 of photograph and 24 of padding, so the text block has 88 to
+     fit four rows into and had grown to 96.25. The 8.25 came back off the
+     spacing, not off any type size — nothing here is smaller to read than it
+     was:
+
+       row gap        2 -> 1     over three gaps      -3
+       price leading  26 -> 19.5 (it was `normal`)    -6.5
+
+     The price was much the loosest line on the card: 26px of box around 15px of
+     figure, where the name sat in 21 and the size in 17.25. Measured after:
+     text block 86.75 into the photograph's 88, so the photograph is what sets
+     the card's height again and the card is back to 112. */
   .vp-cart-what {
-    gap: 2px;
+    gap: 1px;
     padding-inline-end: 30px;
   }
 
   .vp-cart-name {
     font-size: 14px;
     line-height: 1.5;
+  }
+
+  .vp-cart-money {
+    line-height: 1.3;
   }
 
   .vp-cart-money strong {

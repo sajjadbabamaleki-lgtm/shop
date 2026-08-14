@@ -2298,5 +2298,22 @@ It is scoped to `.vp-cart-line`, because the same stepper classes are on the
 order pages, and it sits at the end of the file so source order cannot lose it
 to the four earlier basket blocks.
 
+**The fourth row is paid for out of the leading, not out of the height.**
+«باید فاصله بین ردیفارو کم میکردی که رنگ هم تو همون ابعاد ارتفاع جا میشد چرا
+چند پیکسل به ارتفاع اضافه کردی» — adding the colour line had taken the card from
+112 to 120.25. The card is 88 of photograph and 24 of padding, so the text block
+has exactly 88 to fit four rows into, and it had grown to 96.25. The 8.25 came
+back off the spacing and **nothing on the card is smaller to read**:
+
+| | was | now |
+| --- | --- | --- |
+| row gap, over three gaps | 2 | 1 |
+| price line box | 26 (`normal`) | 20.8 (`line-height: 1.3`) |
+
+The price was much the loosest line on the card — 26px of box around 15px of
+figure, where the name sat in 21 and the size in 17.25 — so it is where the
+room was. Text block 88.05 into the photograph's 88: the photograph sets the
+card's height again and the card is back to **112 with four rows in it**.
+
 244 tests, Pint clean, parity identical at 992/1200/1440/1920, and no sideways
 scroll on the basket at 320/360/390/430/575/768/992/1200/1920.
