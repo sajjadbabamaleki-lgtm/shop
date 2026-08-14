@@ -12282,21 +12282,31 @@ ul.vp-how-list.is-ticked li:before {
   }
 
   /* --- the sort tabs ----------------------------------------------------- */
-  /* Wraps rather than scrolls, and that is not a preference.
+  /* One line, no scrolling, nothing wrapped — «نباید هیچی به هط دوم بره».
 
-     It scrolled while it held four sorts. Adding the brand and the sale made
-     six, which do not fit 390 — and a scroll container clips what overflows
-     it, so the brand's dropdown was cut off at the row's own edge the moment
-     it opened. `overflow-x: auto` and an absolutely positioned panel inside it
-     cannot both work. Wrapping loses the panel's clipping and the half-visible
-     last tab at once. */
+     Those three are harder together than any of them alone. It scrolled while
+     it held four sorts; six items do not fit 390 at the old size, and a scroll
+     container clips what overflows it, so the dropdowns were cut off at the
+     row's own edge the moment they opened. Wrapping fixed the clipping and put
+     the sale on a second line, which is what this instruction rules out.
+
+     So the row is made to fit instead: 11.5px type and a 12px gap, measured to
+     land inside 366 — the card grid's own width at 390 — with the six labels
+     the page actually has. **That is a measured fit, not a comfortable one.**
+     A seventh control, or a longer word than «پرفروش‌ترین», will not fit, and
+     the answer then is a shorter label rather than a smaller size; below about
+     11px this row stops being readable at arm's length. */
   .vp-shop-tabs {
     display: flex;
     align-items: stretch;
-    flex-wrap: wrap;
-    gap: 0 18px;
+    flex-wrap: nowrap;
+    gap: 12px;
     margin-block-end: 12px;
     border-block-end: 1px solid rgba(16, 17, 17, 0.08);
+  }
+
+  .vp-shop-tab {
+    font-size: 11.5px;
   }
 
   .vp-shop-tab {
@@ -12727,5 +12737,130 @@ ul.vp-how-list.is-ticked li:before {
   .vp-shop-drop a.is-on {
     background: rgba(192, 151, 47, 0.12);
     color: #A47F25;
+  }
+}
+
+/* The price panel: two boxes and a slider, one filter.
+
+   «هم ۲ کادر که قیمت از فلان تا فلان زده بشه هم یه حالت رنج که با کشیدنش به
+   راست قیمتو مشخص کنه». The slider writes into the «تا» box, so the two modes
+   are one control with two hands on it rather than two filters that can
+   disagree. The panel opens on the tab that used to sort, and the two sorts
+   are still in it — the word «قیمت» does the same job with more room.
+
+   Wider than the brand's drop, because a pair of number fields needs it. It is
+   pinned to the inline end so it cannot run off the narrow side of a 390
+   screen. */
+@media (max-width: 991.98px) {
+  /* The price panel hangs off the whole row, not off its own tab.
+
+     Anchoring it to the tab was wrong in both directions and the reason is
+     that «قیمت» sits in the middle of the row: pinned by one edge it ran off
+     the right, pinned by the other it ran off the left — measured at 390 it
+     opened at -95..193 with the tab at 190..250. A panel 288 wide cannot hang
+     from a tab 60 wide in the middle of a 366 row and stay on screen.
+
+     So the row is the positioned ancestor and the panel spans it. The tab goes
+     `position: static` for that to work, which is why it carries its own class
+     rather than sharing the brand's. */
+  .vp-shop-tabs {
+    position: relative;
+  }
+
+  .vp-shop-tab-wide {
+    position: static;
+  }
+
+  .vp-shop-drop-price {
+    inset-inline: 0;
+    width: auto;
+    padding: 10px;
+  }
+
+  .vp-price-sorts {
+    display: flex;
+    gap: 6px;
+    margin-block-end: 10px;
+  }
+
+  .vp-price-sorts a {
+    flex: 1 1 0;
+    padding: 7px 4px;
+    border-radius: 9px;
+    background: rgba(16, 17, 17, 0.045);
+    color: rgba(16, 17, 17, 0.72);
+    font-size: 11.5px;
+    font-weight: 700;
+    text-align: center;
+    text-decoration: none;
+  }
+
+  .vp-price-sorts a.is-on {
+    background: rgba(192, 151, 47, 0.14);
+    color: #A47F25;
+  }
+
+  .vp-price-boxes {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .vp-price-boxes input {
+    flex: 1 1 0;
+    min-width: 0;
+    height: 34px;
+    padding-inline: 8px;
+    border: 1px solid rgba(16, 17, 17, 0.12);
+    border-radius: 9px;
+    background: none;
+    font-size: 11.5px;
+    color: #101111;
+  }
+
+  .vp-price-boxes span {
+    flex: none;
+    font-size: 11px;
+    color: rgba(16, 17, 17, 0.45);
+  }
+
+  .vp-price-range {
+    width: 100%;
+    margin-block: 12px 4px;
+    accent-color: #C0972F;
+  }
+
+  /* `display: block`, and it is not decoration. A <button> is inline-block by
+     default, and an inline-block at `width: 100%` of its container has no room
+     left on its own line — measured, it landed at -327..18.7 inside a panel
+     that runs 12..378, a full width off to the side. Block takes it out of the
+     line box and the width means what it says. */
+  .vp-price-apply {
+    display: block;
+    width: 100%;
+    height: 36px;
+    border: 0;
+    border-radius: 10px;
+    background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+    color: #FFFFFF;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+}
+
+/* Eight, not twelve, on the narrow phones.
+
+   The row fits 390 exactly — 366 needed against 366 available — and at 360 it
+   wanted 351 against 336. That is not a cosmetic overflow: the row no longer
+   scrolls and no longer wraps, so what does not fit escapes the page and
+   `check-overflow.js` fails on it.
+
+   The gap is what gives, not the type: 5 gaps × 4px is 20px back, which covers
+   the 15 it was short, and 11.5px type is already as small as this row reads
+   at arm's length. Measured after: 331 needed against 336 at 360. */
+@media (max-width: 380px) {
+  .vp-shop-tabs {
+    gap: 8px;
   }
 }

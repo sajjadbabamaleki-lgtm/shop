@@ -2066,6 +2066,25 @@ html = html.replace('</body>',
   '\n' +
   '            remeasure();\n' +
   '            apply(window.pageYOffset);\n' +
+  '\n' +
+  '            // The shop\'s price slider writes into the «تا» box as it moves,\n' +
+  '            // so a drag and a typed number are the same filter arriving by\n' +
+  '            // different hands. It sits here, after the scroll handler and\n' +
+  '            // inside the same guard-free tail, rather than in the middle of\n' +
+  '            // that handler — the first attempt spliced it into the frame\n' +
+  '            // function and left the footer\'s own block inside an\n' +
+  '            // `if (false)`, which nothing would have reported.\n' +
+  '            //\n' +
+  '            // Progressive: with this script gone the range is still a field\n' +
+  '            // the form submits, so it degrades to a third way of setting a\n' +
+  '            // maximum rather than to nothing.\n' +
+  '            var priceRange = document.querySelector("[data-vp-price-range]");\n' +
+  '            var priceMax = document.querySelector("[data-vp-price-max]");\n' +
+  '            if (priceRange && priceMax) {\n' +
+  '                priceRange.addEventListener("input", function () {\n' +
+  '                    priceMax.value = Number(priceRange.value).toLocaleString("fa-IR");\n' +
+  '                });\n' +
+  '            }\n' +
   '        }());\n' +
   '    </script>\n</body>');
 

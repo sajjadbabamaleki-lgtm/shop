@@ -1851,6 +1851,25 @@ Brand Area
 
             remeasure();
             apply(window.pageYOffset);
+
+            // The shop's price slider writes into the «تا» box as it moves,
+            // so a drag and a typed number are the same filter arriving by
+            // different hands. It sits here, after the scroll handler and
+            // inside the same guard-free tail, rather than in the middle of
+            // that handler — the first attempt spliced it into the frame
+            // function and left the footer's own block inside an
+            // `if (false)`, which nothing would have reported.
+            //
+            // Progressive: with this script gone the range is still a field
+            // the form submits, so it degrades to a third way of setting a
+            // maximum rather than to nothing.
+            var priceRange = document.querySelector("[data-vp-price-range]");
+            var priceMax = document.querySelector("[data-vp-price-max]");
+            if (priceRange && priceMax) {
+                priceRange.addEventListener("input", function () {
+                    priceMax.value = Number(priceRange.value).toLocaleString("fa-IR");
+                });
+            }
         }());
     </script>
 </body>

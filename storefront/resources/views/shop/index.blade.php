@@ -75,8 +75,72 @@
                     <a class="vp-shop-tab{{ $filters['sort'] === $key ? ' is-on' : '' }}"
                        href="{{ storefront_route('shop') }}?{{ http_build_query($carry + ['sort' => $key]) }}">{{ $sorts[$key] }}</a>
                 @endforeach
-                <a class="vp-shop-tab vp-shop-tab-price{{ $priceOn ? ' is-on' : '' }}"
-                   href="{{ storefront_route('shop') }}?{{ http_build_query($carry + ['sort' => $priceNext]) }}">قیمت<i class="fa-solid fa-chevron-{{ $filters['sort'] === 'dearest' ? 'up' : 'down' }}" aria-hidden="true"></i></a>
+                {{-- «فیلتر قیمت وقتی باز میشه باید ۲ حالته باشه» — two boxes and
+                     a slider, in one panel.
+
+                     The two are one control, not two: the slider writes into
+                     the «تا» box as it moves, so a drag and a typed number are
+                     the same filter arriving by different hands. Without
+                     JavaScript the slider is still a plain field the form
+                     submits — it degrades to a third way of setting a maximum
+                     rather than to nothing.
+
+                     The tab used to sort — cheapest, then dearest, on each tap
+                     — and that has not been thrown away: the two sorts are the
+                     first thing in the panel. It is the same word doing the
+                     same job with more room. --}}
+                <details class="vp-shop-tab vp-shop-tab-drop vp-shop-tab-wide{{ ($priceOn || $filters['min'] || $filters['max']) ? ' is-on' : '' }}">
+                    <summary>قیمت<i class="fa-solid fa-chevron-down" aria-hidden="true"></i></summary>
+                    <div class="vp-shop-drop vp-shop-drop-price">
+                        <div class="vp-price-sorts">
+                            @foreach (\App\Http\Controllers\ShopController::PRICE_TABS as $key)
+                                <a class="{{ $filters['sort'] === $key ? 'is-on' : '' }}"
+                                   href="{{ storefront_route('shop') }}?{{ http_build_query($carry + ['sort' => $key]) }}">{{ $sorts[$key] }}</a>
+                            @endforeach
+                        </div>
+
+                        @if ($facets['price']['min'] !== null)
+                        <form class="vp-price-form" method="get" action="{{ storefront_route('shop') }}">
+                            @foreach ($carry as $name => $value)
+                                @if ($name !== 'min' && $name !== 'max')<input type="hidden" name="{{ $name }}" value="{{ $value }}">@endif
+                            @endforeach
+                            <input type="hidden" name="sort" value="{{ $filters['sort'] }}">
+
+                            <div class="vp-price-boxes">
+                                <input type="text" inputmode="numeric" name="min" data-vp-price-min value="{{ $filters['min'] ? fa_number(intdiv($filters['min'], 10)) : '' }}" placeholder="از {{ toman($facets['price']['min']) }}" aria-label="کمترین قیمت">
+                                <span>تا</span>
+                                <input type="text" inputmode="numeric" name="max" data-vp-price-max value="{{ $filters['max'] ? fa_number(intdiv($filters['max'], 10)) : '' }}" placeholder="تا {{ toman($facets['price']['max']) }}" aria-label="بیشترین قیمت">
+                            </div>
+
+                            {{-- Toman, like the boxes beside it: the offers are
+                                 stored in rial and every price the shopper sees
+                                 is a tenth of it. The step is a hundred thousand
+                                 toman, the smallest move worth having on a range
+                                 this wide.
+
+                                 The ends are rounded down and up to that step,
+                                 and that is not tidiness. A range snaps to
+                                 `min + n × step`, so a min of ۳۴۱٬۶۰۰ makes every
+                                 stop end in 1,600 — the first drag produced
+                                 ۴٬۰۱۶٬۰۰۰, which reads like a bug in a price
+                                 filter. Rounded ends make every stop a round
+                                 hundred thousand. --}}
+                            @php
+                                $lo = intdiv(intdiv($facets['price']['min'], 10), 100000) * 100000;
+                                $hi = (int) ceil(intdiv($facets['price']['max'], 10) / 100000) * 100000;
+                            @endphp
+                            <input class="vp-price-range" type="range" data-vp-price-range
+                                   min="{{ $lo }}"
+                                   max="{{ $hi }}"
+                                   step="100000"
+                                   value="{{ $filters['max'] ? intdiv($filters['max'], 10) : $hi }}"
+                                   aria-label="بیشترین قیمت، کشویی">
+
+                            <button type="submit" class="vp-price-apply">اعمال</button>
+                        </form>
+                        @endif
+                    </div>
+                </details>
 
                 {{-- «فیلتر برند و حراج پله ای», in the space at the end of this
                      row. They are filters and the three before them are sorts,
