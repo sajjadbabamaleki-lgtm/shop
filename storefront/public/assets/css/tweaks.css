@@ -11339,9 +11339,16 @@ ul.vp-how-list.is-ticked li:before {
 
      Then a fifth off it — «اندازه عکس محصول اون بالا ۲۰ درصد کوچیکتر بشه». The
      frame goes to 80% of the line and is centred, so the shoe comes down with
-     it and the ratio is untouched: 362 × 256 at 390 becomes 289.6 × 204.8. */
+     it and the ratio is untouched: 362 × 256 at 390 becomes 289.6 × 204.8.
+
+     And then square again — «اون فضایی که در بالا محصول توش قرار میگیره باید
+     مربع باشه». The frame the shoe sits in is 1:1; the shoe inside it is not
+     resized by that, because `contain` fits it to the width and the extra
+     height is space above and below it. 289.59 × 289.59 at 390, with the shoe
+     painting 289.59 × 204.78 in the middle of it — the same shoe as before,
+     in a square. */
   .vp-pdp-shot {
-    aspect-ratio: 1400 / 990;
+    aspect-ratio: 1;
     width: 80%;
     margin-inline: auto;
   }
