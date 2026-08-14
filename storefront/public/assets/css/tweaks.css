@@ -12883,13 +12883,17 @@ ul.vp-how-list.is-ticked li:before {
        The input's box is 22 tall around an 8px track, so it carries 7 of dead
        space above and below the rail before any margin is counted. Measured,
        the visible gaps were 9 above (2 margin + 7) and 11 below (4 + 7).
-       Doubling those to 18 and 22 means margins of 11 and 15 — doubling the
+       Doubling those to 18 and 22 meant margins of 11 and 15 — doubling the
        margins instead would have moved the gaps to 11 and 15, which is a
        quarter more, not twice.
 
+       Then «فضای بالا و پایین رنج ۵۰ درصد بیشتر بشه» on top of that: 18 and 22
+       become 27 and 33, so the margins are 20 and 26. Same arithmetic, same
+       reason — the 7px of dead box comes off the number first, every time.
+
        The 12px lift from the round before survives this: it came off the same
        top margin and is still in the arithmetic. */
-    margin-block: 11px 15px;
+    margin-block: 20px 26px;
     padding: 0;
     border: 0;
     background: none;
