@@ -11334,9 +11334,15 @@ ul.vp-how-list.is-ticked li:before {
 
      `contain` still decides, so a photograph that arrives at another shape
      letterboxes rather than crops — the fit-don't-crop rule holds. If the
-     shop's photographs change shape, this is the number that changes. */
+     shop's photographs change shape, this is the number that changes.
+
+     Then a fifth off it — «اندازه عکس محصول اون بالا ۲۰ درصد کوچیکتر بشه». The
+     frame goes to 80% of the line and is centred, so the shoe comes down with
+     it and the ratio is untouched: 362 × 256 at 390 becomes 289.6 × 204.8. */
   .vp-pdp-shot {
     aspect-ratio: 1400 / 990;
+    width: 80%;
+    margin-inline: auto;
   }
 
   /* The brand behind the shoe. Big, faint and inert — `aria-hidden`, so it is
@@ -11732,7 +11738,14 @@ ul.vp-how-list.is-ticked li:before {
        widens the line. The ellipsis below stays as a belt on that. */
     flex: none;
     min-width: 0;
-    height: 45.98px;
+    /* Its height is the squares' height, whatever that has come to — «ارتفاع
+       مستطیل یک سایز موجود باید هم اندازه مربع ها بشه». It was written as the
+       squares' number, 45.98, and then the squares started shrinking to fit
+       the card and the two came apart. `stretch` takes the line's height,
+       which is the squares'; the row centres everything else, so this says so
+       for itself. */
+    align-self: stretch;
+    height: auto;
     padding-inline: 12px;
     border-radius: 13.85px;
     background: rgba(16, 17, 17, 0.034);
@@ -11881,50 +11894,74 @@ ul.vp-how-list.is-ticked li:before {
      «باید اد تو کارت معادل فارسیش رو یه دکمه بیاد راست / انتخاب تعداد هم چپ
      همون دکمه / همه اینا باید رو کارت باشن».
 
-     `row-reverse`, so the markup can stay in the order the form reads —
-     choose how many, then add — while the page shows the button on the right
-     and the stepper on its left. On an RTL page a plain row would have put the
-     first child on the right, which is the stepper.
+     The stepper is on the right and the button on the left — «دکمه افزودن به
+     سبد خرید باید چپ قرار بگیره / انتخاب تعداد باید بیاد راست». The markup is
+     stepper then button, which on an RTL row is exactly that order, so the row
+     is a plain `row` again; it was `row-reverse` while the button was on the
+     right.
 
      The button takes what is left of the line; the stepper is its own width. */
   .vp-pick-bar {
     display: flex;
-    flex-direction: row-reverse;
     align-items: center;
     gap: 10px;
     margin-block-start: 20px;
   }
 
+  /* White, at the client's word — «به رنگ سفید». It is the one control on this
+     page that is not the shop's gold, so it needs an edge to be a button at
+     all: white on the card's 247 is a 8-level step, which is a shape you can
+     see and not one you can press. The hairline is the size chips', and the
+     ink is the page's. */
   .vp-pick-go {
     flex: 1;
     height: 48px;
     border-radius: 14.46px;
+    background: #FFFFFF;
+    box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.12);
+    color: #101111;
     font-size: 14px;
   }
 
-  /* The stepper is the template's control at this page's size: 48 tall to
-     match the button beside it, the card's own tint under it, and the header's
-     corner ratio on a 48 box — 48 × 0.30119 = 14.46, the button's too. */
+  .vp-pick-go:hover {
+    filter: none;
+    background: #FFFFFF;
+    box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.28);
+  }
+
+  /* Two squares with the number between them — «مثبت باید تو یه مربع سمت راست
+     ۱ و منفی سمت چپ یک قرار بگیره». The pill around the three is gone; each
+     sign is its own 48 square on the size chips' material, and the count sits
+     between them on the card.
+
+     On an RTL row the first child is the rightmost, and the markup is minus,
+     field, plus — so the plus lands on the left of the number and the minus on
+     its right, which is backwards from the ask. `row-reverse` turns the three
+     around without touching the markup, which has to stay in the order the
+     template's own handler expects to find them in. */
   .vp-qty {
     display: flex;
     flex: none;
+    flex-direction: row-reverse;
     align-items: center;
+    gap: 8px;
+    /* Stated, not inherited from the tallest child: the number field's own
+       line box measured 50 against the two 48 squares, and the row beside a
+       48 button reading 50 is a two-pixel step nobody meant. */
     height: 48px;
-    padding-inline: 4px;
-    border-radius: 14.46px;
-    background: #FFFFFF;
-    box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.10);
   }
 
   .vp-qty .qty-btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 40px;
+    width: 48px;
+    height: 48px;
     padding: 0;
     border: 0;
-    background: none;
+    border-radius: 14.46px;
+    background: #FFFFFF;
+    box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.10);
     color: #101111;
     font-size: 12px;
     line-height: 1;
