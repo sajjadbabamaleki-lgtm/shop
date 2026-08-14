@@ -11873,34 +11873,48 @@ ul.vp-how-list.is-ticked li:before {
     margin-block-start: 20px;
   }
 
-  /* ---- The five photographs, straight under the big one -------------------
+  /* ---- Five dots under the photograph ------------------------------------
 
-     «لاین گالری حذف بشه و بجاش ۵ عکس بیاد زیر عکس بزرگ قرار بگیره». The
-     labelled «گالری» section under the sizes is gone — markup and all — and
-     the strip is the copy that has always lived under the shot, which is where
-     the desktop draws it too. One less copy of the row on the page.
+     «اون ۵ تا عکس زیر عکس اصلیرو حذف کن ۵ تا نقطه بیار که اولیش گلد باشه». The
+     strip of five thumbnails comes off the phone and five dots take its place,
+     the first in the shop's gold.
 
-     Five of them, `placeholders.colorway_shots`, spread across the line. The
-     dots stay off: they were the first reference's device for a slider, and
-     nothing here slides.
+     They are the dots that have been in this page's markup all along — one per
+     shot, `placeholders.colorway_shots` — so nothing was added for them; the
+     row above only stops being drawn. The desktop keeps the thumbnails in its
+     own column, which is why this hides them here rather than removing them.
 
-     Nothing in the row is lit. A ringed tile says "this is the one you are
-     looking at", and while the row is one photograph repeated there is no such
-     tile — the desktop rings its first for the reason this does not, which is
-     that up there it sits in a column under the shot it repeats. */
-  .vp-pdp-dots {
+     Round, all five. The old rule stretched the lit one into an 18px pill,
+     which is a slider's device for "you are on the first of five"; the ask is
+     five dots with one of them gold. */
+  .vp-pdp-gallery .vp-pdp-thumbs {
     display: none;
   }
 
-  .vp-pdp-gallery .vp-pdp-thumbs {
+  /* `ltr`, so the gold one is the leftmost. The two rows in the card below
+     were both turned left-to-right at the client's word — the sizes by name
+     and the colours to match them — and their first item is the one on the
+     left; a row of dots whose first is on the right would be the only
+     sequence on this screen counting the other way. */
+  .vp-pdp-dots {
     display: flex;
-    margin-block-start: 12px;
+    justify-content: center;
+    gap: 7px;
+    margin-block-start: 16px;
+    direction: ltr;
   }
 
-  .vp-pdp-thumb,
-  .vp-pdp-thumb.is-on {
-    background: rgba(16, 17, 17, 0.034);
-    box-shadow: none;
+  .vp-pdp-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: rgba(16, 17, 17, 0.16);
+  }
+
+  .vp-pdp-dot.is-on {
+    width: 7px;
+    border-radius: 50%;
+    background: #C0972F;
   }
 
   /* ---- The bar at the foot -----------------------------------------------
@@ -11954,16 +11968,23 @@ ul.vp-how-list.is-ticked li:before {
     font-size: 14px;
   }
 
-  /* Two squares with the number between them — «مثبت باید تو یه مربع سمت راست
-     ۱ و منفی سمت چپ یک قرار بگیره». The pill around the three is gone; each
-     sign is its own 48 square on the size chips' material, and the count sits
-     between them on the card.
+  /* The stepper, to the shape the client drew: a grey trough with two white
+     squares in it and the number between them, on the grey.
+
+     The three sit on a ground of their own rather than on the card, so it is
+     one object; the squares are lit by the mark's two-stop shadow, the same
+     light the header's squares and this page's two photo corners take, which
+     is what makes them read as raised out of the trough rather than as holes
+     cut in it.
+
+     48 overall — the button's height — is 40 of square inside 4 of padding.
+     The corner is the header's ratio at each size: 48 × 0.30119 = 14.46 on the
+     trough, 40 × 0.30119 = 12.05 on the squares.
 
      On an RTL row the first child is the rightmost, and the markup is minus,
-     field, plus — so the plus lands on the left of the number and the minus on
-     its right, which is backwards from the ask. `row-reverse` turns the three
-     around without touching the markup, which has to stay in the order the
-     template's own handler expects to find them in. */
+     field, plus — so the plus would land left of the number. `row-reverse`
+     turns the three around without touching the markup, which has to stay in
+     the order the template's own handler expects to find them in. */
   .vp-qty {
     display: flex;
     flex: none;
@@ -11973,22 +11994,27 @@ ul.vp-how-list.is-ticked li:before {
        عدد وسطش باید نصف بشه». 8 → 4. */
     gap: 4px;
     /* Stated, not inherited from the tallest child: the number field's own
-       line box measured 50 against the two 48 squares, and the row beside a
-       48 button reading 50 is a two-pixel step nobody meant. */
+       line box measured 50 against the two squares, and the row beside a 48
+       button reading 50 is a two-pixel step nobody meant. */
     height: 48px;
+    padding: 4px;
+    border-radius: 14.46px;
+    background: rgba(16, 17, 17, 0.05);
   }
 
   .vp-qty .qty-btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 48px;
-    height: 48px;
+    width: 40px;
+    height: 40px;
     padding: 0;
     border: 0;
-    border-radius: 14.46px;
+    border-radius: 12.05px;
     background: #FFFFFF;
-    box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.10);
+    box-shadow:
+      0 0 2px rgba(16, 17, 17, 0.10),
+      0 0 8px -2px rgba(16, 17, 17, 0.14);
     color: #101111;
     font-size: 12px;
     line-height: 1;
