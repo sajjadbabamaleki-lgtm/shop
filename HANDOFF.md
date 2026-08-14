@@ -1937,3 +1937,49 @@ the hero card's 13-level edge was allowed to be, and is the trade the
 instruction asked for.
 
 Side effect worth having: the field went from 215 wide to 266.
+
+### The category icons are Microsoft's now, not hand-drawn
+
+«یه دسته بندی آیکون حرفه ای برام پیدا کن دانلود کن که از اونا استفاده کنیم», then
+«نه اینایی که پیدا کردی بدرد نمیخورن دوباره بگرد چیزای بهتر پیدا کن», then «B»
+off the second sheet.
+
+The eight were drawn by hand in this repo by a session with no illustrator.
+That is what «حرفه‌ای» was about, and no amount of measuring fixes it.
+
+**What the search actually found, so nobody repeats it.** Nine sets were
+measured against these eight categories, by name, out of the full Iconify
+bundle. The obvious modern line sets each cover **six of eight** and each is
+missing one that matters:
+
+| set | licence | gaps |
+|---|---|---|
+| Phosphor | MIT | صندل، کالج |
+| Huge Icons | MIT | کالج، and its only boot is `armored-boot` |
+| IconPark Outline | Apache 2.0 | **ونس و کتونی** |
+| Material Design Icons | Apache 2.0 | صندل، بوت |
+
+A shoe shop whose sneaker tile is a gap is not a set, which is what ruled out
+IconPark. The sets that have **all eight drawn** are the emoji families —
+Fluent, Noto, OpenMoji, Streamline, Twemoji — because the Unicode footwear
+block happens to be exactly this shop's catalogue: `high-heeled-shoe`,
+`running-shoe`, `mans-shoe`, `womans-sandal`, `womans-boot`, `handbag`,
+`watch`, `running-shirt`.
+
+**The client chose Fluent Emoji High Contrast** — Microsoft's monochrome cut of
+Fluent Emoji, MIT, so it takes the page's gold and needs no attribution line in
+the footer. `theme/make-category-icons.js` writes the eight, recoloured to
+`#A47F25`, under the filenames that were already in `config/storefront.php` and
+`theme/make-rtl-page.js` — so swapping the artwork touched no markup and no
+config. Re-run it after changing the map, then `sync-storefront-assets.js`.
+
+**MIT is not the same as free, and the notice is a shipped file.**
+`LICENSE-fluent-emoji.txt` sits beside the icons in both trees. It is written
+into `storefront/public/` directly by the generator rather than carried by the
+sync, because `sync-storefront-assets.js` copies what the *page reaches* and
+nothing links a licence file — the reachability walk cannot see it.
+`ShippedAssetsTest::test_the_category_icons_ship_with_the_licence_they_are_under`
+is what fails if either the notice or the provenance line inside the SVGs goes.
+
+The eight land in two places at once: the shop's category strip and the phone
+drawer's list. Same files, so they cannot come apart.

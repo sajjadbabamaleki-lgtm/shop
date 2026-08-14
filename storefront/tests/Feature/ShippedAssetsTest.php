@@ -183,4 +183,41 @@ class ShippedAssetsTest extends TestCase
             ));
         }
     }
+
+    /**
+     * The category icons are Microsoft's, and MIT's one condition travels with
+     * them.
+     *
+     * The eight vp-cat-*.svg files come from Fluent Emoji via
+     * theme/make-category-icons.js. MIT asks that the copyright notice be
+     * included in copies of the work, so the licence sits in the same directory
+     * and ships with them. Deleting it while keeping the icons is not a tidy-up
+     * — it is the one edit in that folder that is actually a breach, and it is
+     * exactly the kind of file a cleanup pass removes without noticing.
+     *
+     * Asserted against config rather than a hard-coded list, so a ninth
+     * category added to `category_icons` is covered the day it appears.
+     */
+    public function test_the_category_icons_ship_with_the_licence_they_are_under(): void
+    {
+        $icons = array_unique(array_values(config('storefront.category_icons')));
+
+        $this->assertNotEmpty($icons);
+
+        foreach ($icons as $icon) {
+            $this->assertFileExists(public_path($icon));
+
+            $this->assertStringContainsString(
+                'Fluent Emoji',
+                file_get_contents(public_path($icon)),
+                "{$icon} has lost the line naming where its artwork came from."
+            );
+        }
+
+        $licence = public_path(dirname($icons[0]).'/LICENSE-fluent-emoji.txt');
+
+        $this->assertFileExists($licence, 'The category icons ship without the MIT notice they are under.');
+        $this->assertStringContainsString('MIT License', file_get_contents($licence));
+        $this->assertStringContainsString('Microsoft Corporation', file_get_contents($licence));
+    }
 }
