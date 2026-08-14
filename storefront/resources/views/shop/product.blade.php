@@ -73,23 +73,32 @@
 
                     </div>
 
-                    {{-- The two top corners: the favourite on the left, the
+                    {{-- The two top corners: the close on the left, the
                          rating on the right. Phone only — the desktop page has
                          neither, and its rules turn both off.
+
+                         **A close, not a favourite.** «فقط یک آیکون مربع ضبدر
+                         بیار بجای مربع قلب» — and with the header off this page
+                         again, it is also the only way off the screen, so it is
+                         a link to somewhere rather than `history.back()`:
+                         somebody who arrived from a search engine or a shared
+                         link has no history to go back to, and it lands on the
+                         shoe's own category instead.
 
                          Outside the shot rather than inside it. They were its
                          children until the photograph went to 80% and centred,
                          which took them in with it; they belong to the screen's
                          corners — «از راست ۱۲ پیکسل و از چپ هم ۱۲ پیکسل» — so
-                         they hang off the block that spans the full line.
+                         they hang off the block that spans the full line. --}}
+                    @php
+                        $back = $product->categories->isNotEmpty()
+                            ? storefront_route('category', $product->categories->first())
+                            : storefront_route('shop');
+                    @endphp
 
-                         The heart is still outline rather than the reference's
-                         filled one: there is no wishlist table behind it, and a
-                         filled heart on every product is a state that is not
-                         true. --}}
-                    <button type="button" class="vp-pdp-fav" aria-label="افزودن {{ $product->title }} به علاقه‌مندی‌ها">
-                        <i class="fa-regular fa-heart" aria-hidden="true"></i>
-                    </button>
+                    <a class="vp-pdp-close" href="{{ $back }}" aria-label="بستن">
+                        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                    </a>
 
                     @if (config('storefront.placeholders.rating'))
                         <span class="vp-pdp-rate">

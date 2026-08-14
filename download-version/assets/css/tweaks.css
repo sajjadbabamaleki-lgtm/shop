@@ -5712,7 +5712,7 @@ ul.vp-how-list.is-ticked li:before {
    against the tree before any of this. */
 .vp-pdp-mark,
 .vp-pdp-rate,
-.vp-pdp-fav,
+.vp-pdp-close,
 .vp-pdp-colors,
 .vp-pdp-ladder,
 .vp-pdp-about,
@@ -11316,11 +11316,20 @@ ul.vp-how-list.is-ticked li:before {
      chevron, the favourite and the screen's own title are all out of the
      markup; the favourite came back later as one of the photograph's corners.
 
-     **The site's header band is not hidden any more.** It was, for
-     «عکس اصلی هم نباید هدر داشته باشه» — and «چرا هدر بالای این صفحه نیست؟؟»
-     is the answer to that arrangement, so the band is back on this page as it
-     is on every other. The menu and the basket come back with it, which is
-     what that round cost while it lasted. */
+     **And the site's header band comes off this page.** It went for «عکس اصلی
+     هم نباید هدر داشته باشه», came back for «چرا هدر بالای این صفحه نیست؟؟»,
+     and goes again for «تو این صفحه هدر حذف کن» — with, this time, the thing
+     that was missing the first time: a way off the screen. The × at the
+     photograph's corner is it.
+
+     Scoped by `:has()` to the product page and to the phone, the way the
+     basket's footer rule above does it. The desktop page keeps its header and
+     so does every other page on the phone. The basket is still reachable —
+     adding to it redirects there — and the menu is the drawer, which the ×
+     leads back to a page carrying. */
+  body:has(.vp-pdp-body) .th-header {
+    display: none;
+  }
 
   /* ---- The ground under the shoe -----------------------------------------
 
@@ -11590,10 +11599,11 @@ ul.vp-how-list.is-ticked li:before {
 
   /* ---- The photograph's two corners --------------------------------------
 
-     «امتیاز رو اون گوشه بالا راست و قلب فیوریت رو قسمت چپ بالا». The reference
-     puts its back button at one top corner of the shot and its rating at the
-     other; ours carries the favourite where the back button was, at the same
-     size and on the same line as the rating opposite it.
+     «امتیاز رو اون گوشه بالا راست و قلب فیوریت رو قسمت چپ بالا», then «فقط یک
+     آیکون مربع ضبدر بیار بجای مربع قلب». The reference puts its back button at
+     one top corner of the shot and its rating at the other; ours carries a
+     close where the back button was — it was the favourite for a few rounds —
+     at the same size and on the same line as the rating opposite it.
 
      Physical left and right, not logical: the client named the corners of the
      screen, and these two sit on a photograph rather than in a line of text.
@@ -11609,7 +11619,7 @@ ul.vp-how-list.is-ticked li:before {
      two-stop shadow, the 0.30119 corner — which is the same lockup the
      listing's favourite takes. The rating is the same object stretched to fit
      its number, so the pair reads as one set. */
-  .vp-pdp-fav,
+  .vp-pdp-close,
   .vp-pdp-rate {
     display: flex;
     position: absolute;
@@ -11628,12 +11638,13 @@ ul.vp-how-list.is-ticked li:before {
       0 0 8px -2px rgba(16, 17, 17, 0.14);
   }
 
-  .vp-pdp-fav {
+  .vp-pdp-close {
     left: calc(50% - 50vw + 12px);
     width: 34px;
     color: #101111;
     font-size: 14px;
     line-height: 1;
+    text-decoration: none;
     cursor: pointer;
   }
 
@@ -13955,8 +13966,12 @@ ul.vp-how-list.is-ticked li:before {
     margin-block-end: 10px;
   }
 
-  .vp-price-sorts a {
+  /* Labels around a radio now, not links — see the note in the sheet. The
+     selector keeps the anchor as well so nothing depends on which it is. */
+  .vp-price-sorts a,
+  .vp-price-sorts label {
     flex: 1 1 0;
+    cursor: pointer;
     padding: 7px 4px;
     border-radius: 9px;
     background: rgba(16, 17, 17, 0.045);
@@ -13967,9 +13982,19 @@ ul.vp-how-list.is-ticked li:before {
     text-decoration: none;
   }
 
-  .vp-price-sorts a.is-on {
+  .vp-price-sorts a.is-on,
+  .vp-price-sorts label:has(:checked) {
     background: rgba(192, 151, 47, 0.14);
     color: #A47F25;
+  }
+
+  /* The radio itself is not drawn; the label is the control. */
+  .vp-price-sorts input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
   }
 
   /* ltr, so «از» is the left box: on an rtl page the first child sits at the
@@ -14316,10 +14341,43 @@ ul.vp-how-list.is-ticked li:before {
     text-decoration: none;
   }
 
-  .vp-chip.is-on {
+  /* On, either because the server said so — the chips above the rule — or
+     because the shopper has just ticked it in an open sheet. The second is
+     what stops the sheet having to reload to show a choice. */
+  .vp-chip.is-on,
+  .vp-chip:has(:checked) {
     border-color: transparent;
     background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
     color: #FFFFFF;
+  }
+
+  .vp-chip input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .vp-chip {
+    cursor: pointer;
+  }
+
+  /* «باید یه دکمه اعمال فیلتر به پایین این اضافه بشه». The brand sheet's own,
+     at the price sheet's — one button, one behaviour, both sheets. */
+  .vp-sheet-apply {
+    display: block;
+    width: 100%;
+    height: 44px;
+    margin-block-start: 16px;
+    border: 0;
+    border-radius: 13.25px;
+    background: linear-gradient(96deg, #C0972F 0%, #E3B54A 100%);
+    font-family: 'Vazirmatn', var(--body-font);
+    font-weight: 700;
+    font-size: 14px;
+    color: #FFFFFF;
+    cursor: pointer;
   }
 
   .vp-chip i {

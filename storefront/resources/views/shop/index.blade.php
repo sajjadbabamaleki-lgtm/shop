@@ -135,19 +135,38 @@
                     <div class="vp-sheet-scrim" data-vp-sheet-close></div>
                     <div class="vp-sheet vp-sheet-price">
                         <div class="vp-sheet-head"><span class="vp-sheet-title">قیمت</span><button type="button" class="vp-sheet-x" data-vp-sheet-close aria-label="بستن"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></div>
-                        <div class="vp-price-sorts">
-                            @foreach (\App\Http\Controllers\ShopController::PRICE_TABS as $key)
-                                <a class="{{ $filters['sort'] === $key ? 'is-on' : '' }}"
-                                   href="{{ storefront_route('shop') }}?{{ http_build_query($carry + ['sort' => $key]) }}">{{ $sorts[$key] }}</a>
-                            @endforeach
-                        </div>
+                        {{-- The whole sheet is one form, and the two sorts are
+                             radios in it.
 
-                        @if ($facets['price']['min'] !== null)
+                             They were links, so tapping «ارزان‌ترین» navigated
+                             and the sheet shut on the spot — «وقتی مثلا رو
+                             ارزانترین زده میشه پاپاپ بسته میشه در صورتی که باید
+                             با زدن دکمه اعمال فیلتر بسته بشه». A radio changes
+                             nothing but itself; the button at the foot is what
+                             applies the order *and* the two boxes together,
+                             which is also the only way to set both in one go.
+
+                             The hidden `sort` that used to ride along is gone
+                             with them — the radios carry it now, and two fields
+                             of the same name would have posted the old value. --}}
                         <form class="vp-price-form" method="get" action="{{ storefront_route('shop') }}">
-                            @foreach ($carry as $name => $value)
-                                @if ($name !== 'min' && $name !== 'max')<input type="hidden" name="{{ $name }}" value="{{ $value }}">@endif
+                            @foreach (collect($carry)->except(['min', 'max', 'brand'])->all() as $name => $value)
+                                @if ($value)<input type="hidden" name="{{ $name }}" value="{{ $value }}">@endif
                             @endforeach
-                            <input type="hidden" name="sort" value="{{ $filters['sort'] }}">
+                            @foreach ($filters['brand'] as $slug)
+                                <input type="hidden" name="brand[]" value="{{ $slug }}">
+                            @endforeach
+
+                            <div class="vp-price-sorts">
+                                @foreach (\App\Http\Controllers\ShopController::PRICE_TABS as $key)
+                                    <label class="{{ $filters['sort'] === $key ? 'is-on' : '' }}">
+                                        <input type="radio" name="sort" value="{{ $key }}" @checked($filters['sort'] === $key)>
+                                        <span>{{ $sorts[$key] }}</span>
+                                    </label>
+                                @endforeach
+                            </div>
+
+                            @if ($facets['price']['min'] !== null)
 
                             {{-- «از» in the left box and «تا» in the right, both
                                  labels on the right of their own box and both
@@ -206,9 +225,10 @@
                                    style="--vp-fill: {{ $hi > $lo ? round(($now - $lo) / ($hi - $lo) * 100, 2) : 100 }}%"
                                    aria-label="بیشترین قیمت، کشویی">
 
-                            <button type="submit" class="vp-price-apply">اعمال</button>
+                            @endif
+
+                            <button type="submit" class="vp-price-apply">اعمال فیلتر</button>
                         </form>
-                        @endif
                     </div>
                 </details>
 
@@ -226,16 +246,29 @@
                      باشه زیر اون خط برندهای مختلف تو بیضی باشن به رنگ مشکی و
                      وقتی انتخاب میشن بیان بالای خط به رنگ گلد».
 
-                     The chip moves across the line by being *rendered* on the
-                     other side of it, not by script: the brand in force is
-                     printed above, the rest below, and choosing one is a link
-                     that reloads with it above. That keeps the filter in the
-                     URL, which is how every other control on this page works.
+                     **It is a form now, and the chips are checkboxes.** They
+                     were links: tapping one navigated, which reloaded the page
+                     and shut the sheet — «وقتی مثلا رو یه برند زده میشه پاپاپ
+                     بسته میشه و نمیتونم دوتا یا چنتا برند انتخاب کنم». A
+                     checkbox changes nothing but itself, so the sheet stays
+                     open and several brands can be chosen; «اعمال فیلتر» at the
+                     foot is what applies them.
 
-                     One brand at a time, because that is what the filter
-                     takes — `slugOrNull`, a single slug. The space above the
-                     line holds one chip today; making chips accumulate there
-                     is a controller change, not a template one. --}}
+                     No script in it. A label over a hidden checkbox is the same
+                     device the size chips on the product page use, and the gold
+                     comes from `:checked` rather than from a class the server
+                     had to guess.
+
+                     The chips still sort themselves across the rule, but only
+                     on the way back: what is in force is rendered above, the
+                     rest below. Moving one the moment it is tapped would need
+                     script, and the client's ask is that the sheet stop closing
+                     — not that the chip jump. --}}
+                @php
+                    $brandOn = collect($facets['brands'])->filter(fn ($b) => in_array($b->slug, $filters['brand'], true));
+                    $brandOff = collect($facets['brands'])->reject(fn ($b) => in_array($b->slug, $filters['brand'], true));
+                @endphp
+
                 <details class="vp-shop-tab vp-shop-sheet{{ $filters['brand'] ? ' is-on' : '' }}">
                     <summary>برند</summary>
                     <div class="vp-sheet-scrim" data-vp-sheet-close></div>
@@ -245,22 +278,34 @@
                             <button type="button" class="vp-sheet-x" data-vp-sheet-close aria-label="بستن"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
                         </div>
 
-                        <div class="vp-sheet-picked">
-                            @if ($filters['brand'])
-                                <a class="vp-chip is-on" href="{{ storefront_route('shop') }}?{{ http_build_query(collect($carry)->except('brand')->all() + ['sort' => $filters['sort']]) }}">
-                                    {{ $facets['brands']->firstWhere('slug', $filters['brand'])?->name }}<i class="fa-solid fa-xmark" aria-hidden="true"></i>
-                                </a>
-                            @endif
-                        </div>
-
-                        <div class="vp-sheet-rule"></div>
-
-                        <div class="vp-sheet-chips">
-                            @foreach ($facets['brands'] as $brand)
-                                @continue($filters['brand'] === $brand->slug)
-                                <a class="vp-chip" href="{{ storefront_route('shop') }}?{{ http_build_query($carry + ['brand' => $brand->slug, 'sort' => $filters['sort']]) }}">{{ $brand->name }}</a>
+                        <form class="vp-sheet-form" method="get" action="{{ storefront_route('shop') }}">
+                            @foreach (collect($carry)->except('brand')->all() as $name => $value)
+                                @if ($value)<input type="hidden" name="{{ $name }}" value="{{ $value }}">@endif
                             @endforeach
-                        </div>
+                            <input type="hidden" name="sort" value="{{ $filters['sort'] }}">
+
+                            <div class="vp-sheet-picked">
+                                @foreach ($brandOn as $brand)
+                                    <label class="vp-chip">
+                                        <input type="checkbox" name="brand[]" value="{{ $brand->slug }}" checked>
+                                        <span>{{ $brand->name }}</span>
+                                    </label>
+                                @endforeach
+                            </div>
+
+                            <div class="vp-sheet-rule"></div>
+
+                            <div class="vp-sheet-chips">
+                                @foreach ($brandOff as $brand)
+                                    <label class="vp-chip">
+                                        <input type="checkbox" name="brand[]" value="{{ $brand->slug }}">
+                                        <span>{{ $brand->name }}</span>
+                                    </label>
+                                @endforeach
+                            </div>
+
+                            <button type="submit" class="vp-sheet-apply">اعمال فیلتر</button>
+                        </form>
                     </div>
                 </details>
 
@@ -317,8 +362,14 @@
 
                         <form class="vp-shop-sort" method="get" action="{{ storefront_route('shop') }}">
                             {{-- Sorting must not throw the other filters away, so they ride along hidden. --}}
-                            @foreach (['q' => $filters['q'], 'brand' => $filters['brand'], 'size' => $filters['size'], 'color' => $filters['color']] as $name => $value)
+                            @foreach (['q' => $filters['q'], 'size' => $filters['size'], 'color' => $filters['color']] as $name => $value)
                                 @if ($value)<input type="hidden" name="{{ $name }}" value="{{ $value }}">@endif
+                            @endforeach
+                            {{-- One field per brand: `brand` is a list now, and a
+                                 single hidden input would have posted the word
+                                 «Array». --}}
+                            @foreach ($filters['brand'] as $slug)
+                                <input type="hidden" name="brand[]" value="{{ $slug }}">
                             @endforeach
                             @if ($filters['category'])<input type="hidden" name="category" value="{{ $filters['category']->slug }}">@endif
                             @if ($filters['sale'])<input type="hidden" name="sale" value="1">@endif

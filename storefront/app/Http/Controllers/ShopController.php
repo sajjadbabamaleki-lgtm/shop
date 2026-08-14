@@ -95,7 +95,7 @@ class ShopController extends Controller
      * types into the box, and become Rial here — the one place the conversion
      * happens on the way in.
      *
-     * @return array{category: ?Category, brand: ?string, size: ?string, color: ?string, min: ?int, max: ?int, sale: bool, sort: string, q: ?string}
+     * @return array{category: ?Category, brand: list<string>, size: ?string, color: ?string, min: ?int, max: ?int, sale: bool, sort: string, q: ?string}
      */
     private function filters(Request $request, ?Category $category): array
     {
@@ -107,7 +107,7 @@ class ShopController extends Controller
 
         return [
             'category' => $category ?? Category::where('slug', $request->query('category'))->first(),
-            'brand' => $this->slugOrNull($request->query('brand')),
+            'brand' => $this->slugList($request->query('brand')),
             'size' => $this->trimmedOrNull($request->query('size')),
             'color' => $this->slugOrNull($request->query('color')),
             'min' => $toman($request->query('min')),
@@ -123,6 +123,27 @@ class ShopController extends Controller
     private function slugOrNull(mixed $value): ?string
     {
         return is_string($value) && preg_match('/^[a-z0-9-]{1,64}$/', $value) ? $value : null;
+    }
+
+    /**
+     * Brands, of which there can now be several.
+     *
+     * «وقتی مثلا در اینجا رو یه برند زده میشه پاپاپ بسته میشه و نمیتونم دوتا
+     * یا چنتا برند انتخاب کنم» — the sheet posts `brand[]` and this reads it.
+     *
+     * A bare `?brand=nike` still works and still means one brand: every link
+     * this application has written until today is that shape, and so is every
+     * one a customer has bookmarked or shared. Both arrive here as a list.
+     *
+     * @return list<string>
+     */
+    private function slugList(mixed $value): array
+    {
+        $values = is_array($value) ? $value : [$value];
+
+        return array_values(array_unique(array_filter(
+            array_map(fn ($one) => $this->slugOrNull($one), $values)
+        )));
     }
 
     private function trimmedOrNull(mixed $value): ?string
@@ -152,7 +173,7 @@ class ShopController extends Controller
         }
 
         if ($filters['brand']) {
-            $query->whereHas('brand', fn (Builder $b) => $b->where('slug', $filters['brand']));
+            $query->whereHas('brand', fn (Builder $b) => $b->whereIn('slug', $filters['brand']));
         }
 
         // Size and colour are asked of the *sellable* variants only. A shoe

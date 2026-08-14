@@ -49,7 +49,7 @@
                 @foreach ($facets['brands'] as $brand)
                     <li>
                         <label>
-                            <input type="radio" name="brand" value="{{ $brand->slug }}" @checked($filters['brand'] === $brand->slug)>
+                            <input type="radio" name="brand" value="{{ $brand->slug }}" @checked(in_array($brand->slug, $filters['brand'], true))>
                             <span>{{ $brand->name }}</span>
                         </label>
                     </li>
