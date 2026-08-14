@@ -15,6 +15,7 @@
     "vazirmatn": "^33.0.3"
   },
   "dependencies": {
-    "@iconify-json/fluent-emoji-high-contrast": "^1.2.5"
+    "@iconify-json/fluent-emoji-high-contrast": "^1.2.5",
+    "@phosphor-icons/core": "^2.1.1"
   }
 }

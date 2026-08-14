@@ -185,39 +185,57 @@ class ShippedAssetsTest extends TestCase
     }
 
     /**
-     * The category icons are Microsoft's, and MIT's one condition travels with
-     * them.
+     * The category icons are somebody else's artwork, and MIT's one condition
+     * travels with them.
      *
-     * The eight vp-cat-*.svg files come from Fluent Emoji via
-     * theme/make-category-icons.js. MIT asks that the copyright notice be
-     * included in copies of the work, so the licence sits in the same directory
-     * and ships with them. Deleting it while keeping the icons is not a tidy-up
-     * — it is the one edit in that folder that is actually a breach, and it is
-     * exactly the kind of file a cleanup pass removes without noticing.
+     * They come from two sets — Fluent Emoji for seven, Phosphor for the
+     * sneaker — via theme/make-category-icons.js, and MIT asks that the
+     * copyright notice be included in copies of the work. So each set's notice
+     * sits in the same directory and ships with the icons. Deleting one while
+     * keeping the icons is not a tidy-up: it is the one edit in that folder
+     * that is actually a breach, and it is exactly the sort of file a cleanup
+     * pass removes without noticing.
      *
-     * Asserted against config rather than a hard-coded list, so a ninth
-     * category added to `category_icons` is covered the day it appears.
+     * Driven off what the icons themselves say rather than a list kept here,
+     * so a ninth category, or a third set, is covered the day it appears — the
+     * generator writes the set's name into every file it emits, and this reads
+     * it back.
      */
-    public function test_the_category_icons_ship_with_the_licence_they_are_under(): void
+    public function test_the_category_icons_ship_with_the_licences_they_are_under(): void
     {
-        $icons = array_unique(array_values(config('storefront.category_icons')));
+        $notices = [
+            'Fluent Emoji' => ['LICENSE-fluent-emoji.txt', 'Microsoft Corporation'],
+            'Phosphor Icons' => ['LICENSE-phosphor.txt', 'Phosphor Icons'],
+        ];
 
+        $icons = array_unique(array_values(config('storefront.category_icons')));
         $this->assertNotEmpty($icons);
+
+        $seen = [];
 
         foreach ($icons as $icon) {
             $this->assertFileExists(public_path($icon));
 
-            $this->assertStringContainsString(
-                'Fluent Emoji',
-                file_get_contents(public_path($icon)),
-                "{$icon} has lost the line naming where its artwork came from."
-            );
+            $svg = file_get_contents(public_path($icon));
+            $named = array_values(array_filter(array_keys($notices), fn ($set) => str_contains($svg, $set)));
+
+            $this->assertCount(1, $named, "{$icon} does not say which set its artwork came from.");
+            $seen[$named[0]] = true;
         }
 
-        $licence = public_path(dirname($icons[0]).'/LICENSE-fluent-emoji.txt');
+        // Every set actually in use has its notice beside the icons — and no
+        // set is claimed that nothing uses.
+        $this->assertSame(array_keys($notices), array_keys($seen));
 
-        $this->assertFileExists($licence, 'The category icons ship without the MIT notice they are under.');
-        $this->assertStringContainsString('MIT License', file_get_contents($licence));
-        $this->assertStringContainsString('Microsoft Corporation', file_get_contents($licence));
+        foreach ($seen as $set => $_) {
+            [$file, $holder] = $notices[$set];
+            $licence = public_path(dirname($icons[0]).'/'.$file);
+
+            $this->assertFileExists($licence, "The category icons ship without {$set}'s MIT notice.");
+
+            $text = file_get_contents($licence);
+            $this->assertStringContainsString('MIT License', $text);
+            $this->assertStringContainsString($holder, $text);
+        }
     }
 }

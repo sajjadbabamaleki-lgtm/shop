@@ -1983,3 +1983,36 @@ is what fails if either the notice or the provenance line inside the SVGs goes.
 
 The eight land in two places at once: the shop's category strip and the phone
 drawer's list. Same files, so they cannot come apart.
+
+### Three changes to the set, and a second source
+
+«کتونی باید آیکونش عوض بشه بری یه آیکون دیگه براش پیدا کنی / ست ورزشی اون خط کج
+وسطش پاک بشه بجاش ۳۰ درصد از قسمت پایینش پر بشه / از بالای قسمت بوت هم ۲۰ درصد
+حذف بشه».
+
+All three live in `theme/make-category-icons.js` as named, explained overrides.
+None of them is a hand-edit to a generated file: a re-run would silently undo
+one, and nothing on this project would say so.
+
+**The sneaker is now Phosphor's**, `sneaker-move-fill` — «شماره ۳ خوبه اونکه
+انگار در حال دویدنه», off a sheet of ten monochrome candidates rendered in gold
+beside their neighbours. So the generator has two sources, each icon names its
+own in a comment at the top of its file, and each set's MIT notice is written
+beside the icons. One catch worth knowing: **Phosphor puts `fill="currentColor"`
+on the `<svg>` element, not on the paths**, so dropping the wrapper drops the
+fill and the icon renders black. The colour is carried back in on a `<g>`.
+
+**The sport vest's sash was never drawn.** The vest is one compound path — an
+outer outline plus two inner subpaths that are holes — and the diagonal is the
+*gap left between the two holes*. So removing it is not deleting a stroke, it is
+merging the holes into one, tracing the two outlines end to end with the sash's
+own two diagonals dropped. Then three tenths: the ink runs y 1..31, so 9 units,
+and the interior's walls are vertical below the shoulders — a plain rectangle
+from y 22 to the interior floor at 29 leaves the icon solid from 22 to 31.
+
+**The boot is a crop, not a redraw.** Its shaft is a long straight wall, so
+moving the top of the view box down that same wall shortens it and leaves every
+curve untouched: ink y 2..30.5 is 28.5 units, a fifth is 5.7, box opens at 7.7.
+The box stays 32 wide on purpose — `object-fit: contain` and
+`preserveAspectRatio` both fit the whole box, so keeping the width means the
+boot keeps the width it had beside the other seven and loses only height.

@@ -1,31 +1,38 @@
 #!/usr/bin/env node
 /**
- * The category icons, from Microsoft's Fluent Emoji.
+ * The category icons: seven from Microsoft's Fluent Emoji, one from Phosphor.
  *
  * «یه دسته بندی آیکون حرفه ای برام پیدا کن دانلود کن که از اونا استفاده کنیم»,
  * and after three line sets were shown and rejected, «B» off the sheet: Fluent
  * Emoji High Contrast — the monochrome cut of the same artwork, so it takes the
  * page's gold and sits beside everything else that is drawn in it.
  *
- * The eight it were hand-drawn before this, in this repo, by a session with no
+ * The eight were hand-drawn before this, in this repo, by a session with no
  * illustrator. That is what the client was looking at when they said the ones
  * found were no good, and it is why this file exists rather than eight more
  * hand-drawn paths: the artwork is somebody else's job and there is a set that
  * has done it.
  *
- * **Why this set and not a line set.** Five sets were measured against these
- * eight categories. Phosphor, Huge Icons and IconPark — the obvious modern line
- * sets — each cover six of the eight and are missing either صندل or ونس و
- * کتونی, and a shoe shop whose sneaker tile is a gap is not a set. Fluent has
- * all eight drawn: `high-heeled-shoe`, `running-shoe`, `mans-shoe`,
- * `womans-sandal`, `womans-boot`, `handbag`, `watch`, `running-shirt`.
+ * **Why this set and not a line set.** Nine sets were measured against these
+ * eight categories. Phosphor, Huge Icons, IconPark and Material Design — the
+ * obvious modern line sets — each cover six of the eight, and each is missing
+ * one that matters; IconPark has no sneaker at all, which for a shoe shop ends
+ * it. The families that have all eight drawn are the emoji ones, because the
+ * Unicode footwear block is very nearly this catalogue.
  *
- * **Licence: MIT, which is not the same as "free".** MIT asks that the
- * copyright notice travel with the copies, so it does — LICENSE-fluent-emoji.txt
- * is written beside the icons on every run, and deleting it while keeping the
- * icons is the one edit here that is actually a licence breach.
+ * **The sneaker is the exception, and it was asked for.** «کتونی باید آیکونش
+ * عوض بشه بری یه آیکون دیگه براش پیدا کنی», then «شماره ۳ خوبه اونکه انگار در
+ * حال دویدنه» off a sheet of ten — Phosphor's `sneaker-move-fill`, the one with
+ * motion lines behind it. So this generator has two sources, and every icon
+ * carries the name of its own in a comment at the top of its file.
  *
- * Re-run after changing the map or bumping the package:
+ * **A licence is not a formality, it is a shipped file.** Both sets are MIT,
+ * and MIT asks that the copyright notice travel with the copies — so one notice
+ * per source is written beside the icons on every run. Deleting one while
+ * keeping the icons is the single edit in that folder that is actually a
+ * breach, and `ShippedAssetsTest` is what fails when it happens.
+ *
+ * Re-run after changing the map or bumping a package:
  *
  *     node theme/make-category-icons.js
  *
@@ -37,92 +44,224 @@ const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
 const OUT = path.join(ROOT, 'download-version/assets/img/icon');
-const PKG = '@iconify-json/fluent-emoji-high-contrast';
 
 /** The page's gold on a white ground. Baked in, because these are <img> and an
  *  <img> does not inherit `currentColor` from the page around it. */
 const GOLD = '#A47F25';
 
-/** slug -> [file written, icon taken]. The filenames are the ones already in
+/**
+ * Where artwork comes from, and the notice that has to ship with it.
+ *
+ * `read` returns `{ viewBox, body }`. Phosphor's package ships its own LICENSE,
+ * so that one is copied verbatim rather than retyped — a licence somebody typed
+ * out is a licence that can be typed wrong. Iconify's package ships none, so
+ * Fluent's is written here.
+ */
+const SOURCES = {
+  fluent: {
+    label: 'Fluent Emoji (Microsoft)',
+    notice: 'LICENSE-fluent-emoji.txt',
+    read(name) {
+      const set = (this._set ??= JSON.parse(
+        fs.readFileSync(require.resolve('@iconify-json/fluent-emoji-high-contrast/icons.json'), 'utf8')
+      ));
+      const icon = set.icons[name];
+      if (!icon) return null;
+
+      return {
+        viewBox: `0 0 ${icon.width ?? set.width ?? 32} ${icon.height ?? set.height ?? 32}`,
+        body: icon.body,
+      };
+    },
+    licence: () => FLUENT_NOTICE,
+  },
+
+  phosphor: {
+    label: 'Phosphor Icons',
+    notice: 'LICENSE-phosphor.txt',
+    read(name) {
+      let file;
+      try {
+        file = require.resolve(`@phosphor-icons/core/assets/fill/${name}.svg`);
+      } catch {
+        return null;
+      }
+
+      const svg = fs.readFileSync(file, 'utf8');
+
+      // Phosphor puts `fill="currentColor"` on the <svg> element and nothing on
+      // the paths inside it. Dropping the wrapper therefore drops the fill, and
+      // the icon renders black — so the colour is carried back in on a <g>
+      // rather than left to be inherited from a tag that is not there any more.
+      return {
+        viewBox: svg.match(/viewBox="([^"]+)"/)[1],
+        body: `<g fill="currentColor">${svg.replace(/^[\s\S]*?<svg[^>]*>/, '').replace(/<\/svg>\s*$/, '')}</g>`,
+      };
+    },
+    licence: () =>
+      'The vp-cat-sneaker.svg icon in this directory is from Phosphor Icons,\n'
+      + 'recoloured to this site\'s gold. It is generated by\n'
+      + 'theme/make-category-icons.js.\n\n'
+      + 'https://github.com/phosphor-icons/core\n\n'
+      + fs.readFileSync(
+        path.join(path.dirname(require.resolve('@phosphor-icons/core/assets/fill/sneaker-move-fill.svg')), '../../LICENSE'),
+        'utf8'
+      ),
+  },
+};
+
+/** file written -> [source, icon taken]. The filenames are the ones already in
  *  config/storefront.php and theme/make-rtl-page.js, so swapping the artwork
  *  touches no markup and no config at all. */
 const ICONS = {
-  'vp-cat-heel': 'high-heeled-shoe',      // مجلسی
-  'vp-cat-sneaker': 'running-shoe',       // ونس و کتونی
-  'vp-cat-college': 'mans-shoe',          // کالج
-  'vp-cat-sandal': 'womans-sandal',       // صندل
-  'vp-cat-boot': 'womans-boot',           // بوت و نیم‌بوت
-  'vp-cat-bagset': 'handbag',             // ست کیف و کفش
-  'vp-cat-watch': 'watch',                // اکسسوری
-  'vp-cat-sport': 'running-shirt',        // ست ورزشی
+  'vp-cat-heel': ['fluent', 'high-heeled-shoe'],      // مجلسی
+  'vp-cat-sneaker': ['phosphor', 'sneaker-move-fill'], // ونس و کتونی
+  'vp-cat-college': ['fluent', 'mans-shoe'],          // کالج
+  'vp-cat-sandal': ['fluent', 'womans-sandal'],       // صندل
+  'vp-cat-boot': ['fluent', 'womans-boot'],           // بوت و نیم‌بوت
+  'vp-cat-bagset': ['fluent', 'handbag'],             // ست کیف و کفش
+  'vp-cat-watch': ['fluent', 'watch'],                // اکسسوری
+  'vp-cat-sport': ['fluent', 'running-shirt'],        // ست ورزشی
 };
 
-const set = JSON.parse(fs.readFileSync(require.resolve(`${PKG}/icons.json`), 'utf8'));
+/**
+ * The two the client asked to be altered, and what the alteration is.
+ *
+ * Both are edits to somebody else's artwork, which is why they live here as
+ * named, explained overrides rather than as a hand-edit to a generated file: a
+ * re-run would silently undo a hand-edit, and nothing would say so.
+ *
+ * `path` replaces the whole `d`; `viewBox` replaces the crop. Anything not
+ * named here ships exactly as Microsoft drew it.
+ */
+const EDITS = {
+  /**
+   * ست ورزشی — «اون خط کج وسطش پاک بشه بجاش ۳۰ درصد از قسمت پایینش پر بشه».
+   *
+   * The vest is one compound path: an outer outline plus two inner subpaths
+   * that are holes, and the sash is not drawn at all — it is the gap left
+   * between those two holes. So removing it is not deleting a stroke, it is
+   * merging the two holes into one, and the merged outline is the two traced
+   * end to end with the sash's own two diagonals dropped:
+   *
+   *   hole A ended at (6, 26.672) and ran the diagonal up to (23.014, 7.735)
+   *   hole B ran the other diagonal from (23.244, 12.192) down to (8.143, 29)
+   *
+   * The union keeps A's left wall down to the interior floor, B's floor and
+   * right wall, and joins them at the corners the diagonals used to cut off:
+   * `v15` carries the left wall from (6,14) to (6,29), `h20` crosses the floor.
+   *
+   * Then the fill. The vest's ink runs y 1..31, so three tenths of it is 9
+   * units, and the interior's own walls are vertical below the shoulders — so
+   * the fill is a plain rectangle across the interior from y 22 to the
+   * interior floor at 29, which together with the 2 units of outer shell below
+   * it makes the icon solid from y 22 to y 31. Nine of thirty.
+   */
+  'vp-cat-sport': {
+    path:
+      'M26.25 31H6a2 2 0 0 1-2-2V13.75A1.75 1.75 0 0 1 5.75 12H6a1 1 0 0 0 1-1V2.75A1.75 1.75 0 0 1 8.75 1h3.5A1.75 1.75 0 0 1 14 2.75V7a2 2 0 0 0 .09.593A4.7 4.7 0 0 0 16 8a4.7 4.7 0 0 0 1.91-.407A2 2 0 0 0 18 7V2.75A1.75 1.75 0 0 1 19.75 1h3.5A1.75 1.75 0 0 1 25 2.75l.025 8.477A1 1 0 0 0 26 12h.25A1.75 1.75 0 0 1 28 13.75v15.5A1.75 1.75 0 0 1 26.25 31'
+      + 'M20 7a4 4 0 1 1-8 0V3H9v8a3 3 0 0 1-3 3v15h20V14a2.99 2.99 0 0 1-2.756-1.808L23.014 7.735L23 3h-3z'
+      + 'M6 22h20v7H6z',
+  },
 
-fs.mkdirSync(OUT, { recursive: true });
+  /**
+   * بوت و نیم‌بوت — «از بالای قسمت بوت هم ۲۰ درصد حذف بشه».
+   *
+   * Done as a crop, not a redraw: the shaft is a long straight wall, so moving
+   * the top of the view box down the same wall shortens the boot and leaves
+   * every curve in it untouched. The ink runs y 2..30.5, which is 28.5 units,
+   * and a fifth of that is 5.7 — so the box opens at 7.7 and is 24.3 tall.
+   *
+   * The box stays 32 wide on purpose. `object-fit: contain` in the strip and
+   * `preserveAspectRatio` in the drawer both fit the whole box, so keeping the
+   * width means the boot keeps the width it had beside the other seven and
+   * loses only the height that was asked for.
+   */
+  'vp-cat-boot': { viewBox: '0 7.7 32 24.3' },
+};
 
-for (const [file, name] of Object.entries(ICONS)) {
-  const icon = set.icons[name];
-
-  if (!icon) {
-    throw new Error(`${PKG} has no icon named "${name}" — the set changed under this map.`);
-  }
-
-  const w = icon.width ?? set.width ?? 32;
-  const h = icon.height ?? set.height ?? 32;
-  const body = icon.body.replaceAll('currentColor', GOLD);
-
-  const svg =
-    `<!-- ${name} — Fluent Emoji (Microsoft), MIT. Generated by theme/make-category-icons.js; do not hand-edit. -->\n` +
-    `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 ${w} ${h}">${body}</svg>\n`;
-
-  fs.writeFileSync(path.join(OUT, `${file}.svg`), svg);
-  console.log(`  + ${file}.svg  ←  ${name}`);
-}
-
-// MIT's one condition. Written every run so it cannot drift away from the
-// icons it covers.
-//
-// Written into **both** trees, and that is the one thing here that is not
-// symmetrical with the icons themselves. `sync-storefront-assets.js` copies
-// what the page reaches, and nothing on the page links a licence file — so the
-// reachability walk cannot see it and the notice would ship to Liara only by
-// accident. `ShippedAssetsTest` is what fails if this stops happening.
-const LICENCE = [
-    'The eight vp-cat-*.svg files in this directory are from Fluent Emoji',
-    'by Microsoft Corporation, taken from the High Contrast set and recoloured',
-    'to this site\'s gold. They are generated by theme/make-category-icons.js.',
-    '',
-    'https://github.com/microsoft/fluentui-emoji',
-    '',
-    'MIT License',
-    '',
-    'Copyright (c) Microsoft Corporation.',
-    '',
-    'Permission is hereby granted, free of charge, to any person obtaining a copy',
-    'of this software and associated documentation files (the "Software"), to deal',
-    'in the Software without restriction, including without limitation the rights',
-    'to use, copy, modify, merge, publish, distribute, sublicense, and/or sell',
-    'copies of the Software, and to permit persons to whom the Software is',
-    'furnished to do so, subject to the following conditions:',
-    '',
-    'The above copyright notice and this permission notice shall be included in all',
-    'copies or substantial portions of the Software.',
-    '',
-    'THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR',
-    'IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,',
-    'FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE',
-    'AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER',
-    'LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,',
-    'OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE',
+const FLUENT_NOTICE = [
+  'The vp-cat-*.svg files in this directory, except vp-cat-sneaker.svg, are',
+  'from Fluent Emoji by Microsoft Corporation, taken from the High Contrast set',
+  'and recoloured to this site\'s gold. They are generated by',
+  'theme/make-category-icons.js.',
+  '',
+  'https://github.com/microsoft/fluentui-emoji',
+  '',
+  'MIT License',
+  '',
+  'Copyright (c) Microsoft Corporation.',
+  '',
+  'Permission is hereby granted, free of charge, to any person obtaining a copy',
+  'of this software and associated documentation files (the "Software"), to deal',
+  'in the Software without restriction, including without limitation the rights',
+  'to use, copy, modify, merge, publish, distribute, sublicense, and/or sell',
+  'copies of the Software, and to permit persons to whom the Software is',
+  'furnished to do so, subject to the following conditions:',
+  '',
+  'The above copyright notice and this permission notice shall be included in all',
+  'copies or substantial portions of the Software.',
+  '',
+  'THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR',
+  'IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,',
+  'FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE',
+  'AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER',
+  'LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,',
+  'OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE',
   'SOFTWARE.',
   '',
 ].join('\n');
 
-for (const dir of [OUT, path.join(ROOT, 'storefront/public/assets/img/icon')]) {
+// Both trees, and that is the one thing here not symmetrical with the icons
+// themselves. `sync-storefront-assets.js` copies what the page *reaches*, and
+// nothing on the page links a licence file — so the reachability walk cannot
+// see it, and the notice would ship to Liara only by accident.
+const TREES = [OUT, path.join(ROOT, 'storefront/public/assets/img/icon')];
+
+for (const dir of TREES) {
   fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(path.join(dir, 'LICENSE-fluent-emoji.txt'), LICENCE);
-  console.log(`  + ${path.relative(ROOT, path.join(dir, 'LICENSE-fluent-emoji.txt'))}`);
 }
 
-console.log(`${Object.keys(ICONS).length} category icons written.`);
+const used = new Set();
+
+for (const [file, [sourceName, name]] of Object.entries(ICONS)) {
+  const source = SOURCES[sourceName];
+  const art = source.read(name);
+
+  if (!art) {
+    throw new Error(`${source.label} has no icon named "${name}" — the set changed under this map.`);
+  }
+
+  used.add(sourceName);
+
+  const edit = EDITS[file] ?? {};
+
+  const body = edit.path
+    ? `<path fill="${GOLD}" d="${edit.path}"/>`
+    : art.body.replaceAll('currentColor', GOLD);
+
+  const note = edit.path || edit.viewBox
+    ? ' Altered at the client\'s request — see theme/make-category-icons.js.'
+    : '';
+
+  const svg =
+    `<!-- ${name} — ${source.label}, MIT.${note} Generated by theme/make-category-icons.js; do not hand-edit. -->\n`
+    + `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="${edit.viewBox ?? art.viewBox}">${body}</svg>\n`;
+
+  fs.writeFileSync(path.join(OUT, `${file}.svg`), svg);
+  console.log(`  + ${file}.svg  ←  ${sourceName}/${name}`);
+}
+
+// One notice per set actually used, written every run so it cannot drift away
+// from the icons it covers. `ShippedAssetsTest` fails if either goes.
+for (const sourceName of used) {
+  const source = SOURCES[sourceName];
+
+  for (const dir of TREES) {
+    fs.writeFileSync(path.join(dir, source.notice), source.licence());
+  }
+
+  console.log(`  + ${source.notice}  (${source.label})`);
+}
+
+console.log(`${Object.keys(ICONS).length} category icons written, from ${used.size} sets.`);
