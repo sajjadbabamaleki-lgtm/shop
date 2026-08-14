@@ -12615,3 +12615,50 @@ ul.vp-how-list.is-ticked li:before {
    «فیلتر هم باید راست باشه» — first child, which on this rtl page is the
    right-hand end. The back arrow that used to sit there is gone: «فلش برگشت
    اضافست». Nothing replaced it, so the search field takes the width it left. */
+
+/* The card's first line: the brand, and whether this is a stepped sale.
+
+   «تخفیف پله ای و برند بیان تو اون ردیف اول قبل قیمت». One row above the name,
+   so it is read before the price rather than after it.
+
+   The brand is quiet and the sale marker is not. That is the point of putting
+   them together: on a 169px card the eye takes the row as one glance, and what
+   should survive that glance is «حراج پله‌ای», not the maker's name. The brand
+   is there because the client asked for it and because a shopper scanning for
+   one brand needs it; it is not there to be the loudest thing on the card.
+
+   `min-width: 0` and the ellipsis on the brand, not on the marker: if the two
+   cannot both fit it is the brand that gets cut, because the marker is a fixed
+   phrase that means nothing at half length. */
+.vp-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-block-start: 10px;
+}
+
+.vp-card-brand {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(16, 17, 17, 0.45);
+}
+
+.vp-card-ladder {
+  flex: none;
+  padding: 1px 6px;
+  border-radius: 5px;
+  background: rgba(192, 151, 47, 0.14);
+  color: #A47F25;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+/* The name follows the row instead of opening the card, so its own top margin
+   goes — the row above carries the gap now. */
+.vp-card-meta + .vp-card-name {
+  margin-block-start: 3px;
+}

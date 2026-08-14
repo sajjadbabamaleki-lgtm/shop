@@ -47,6 +47,21 @@
         </button>
     </div>
 
+    {{-- «تخفیف پله ای و برند بیان تو اون ردیف اول قبل قیمت» — the first line
+         under the photograph, above the name and so above the price.
+
+         The sale marker is not a second badge for the same fact as the chip
+         further down. The chip says how much is off; this says *which* offer
+         it is, and on this site that matters: a stepped sale's price falls
+         again next week, and a shopper who knows that reads the same number
+         differently. It shows when the product carries a live promotion, which
+         is what being in the stepped sale is — see CLAUDE.md: the sale is a
+         price on an offer, not a flag on a product. --}}
+    <span class="vp-card-meta">
+        @if ($product->brand)<span class="vp-card-brand">{{ $product->brand->name }}</span>@endif
+        @if ($cut)<span class="vp-card-ladder">حراج پله‌ای</span>@endif
+    </span>
+
     <a class="vp-card-name" href="{{ storefront_route('product', $product) }}">{{ $product->title }}</a>
 
     <strong class="vp-card-price">{{ toman($offer->price) }} <span>تومان</span></strong>
