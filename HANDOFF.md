@@ -1893,3 +1893,47 @@ sheet's box 60–110px below the row's bottom edge.
 keep one line at 360 (333.9 needed against 336). A seventh control does not fit,
 and the answer then is a shorter label — 11px is as small as this row reads at
 arm's length.
+
+### The top bar is one white box, and the pills' black came down
+
+«رنگ مشکی که برای بیضی و مواردی که توش گذاشتی انتخاب کردی خیلی پررنگه باید
+متعادلتر بشه / سرچ بار باید سفید بشه و دورش سایه بیاد و فیلتر هم بیاد داخل باکس
+سرچ سمت چپش», then «خط ننداز دور سرچ / باید همون سایه ای که دور مربع منو تو هدر
+انداختیرو بندازی دورش».
+
+**The tab pills.** The ring is `rgba(16,17,17,0.2)` (204 on white) and the label
+`0.55` (124), down from a full `#101111` on both. Six hard black outlines on a
+white row were competing with the one gold pill that is actually saying
+something. `.55` is where this page already keeps secondary type — the category
+strip under the row is `.62`, and the tab's own label was `.5` before it became
+a pill. **The brand chips inside the sheet still carry the full black**, which
+was asked for by name («برندهای مختلف تو بیضی باشن به رنگ مشکی»); if they should
+follow the row, it is one value in `.vp-chip`.
+
+**The box is `.vp-shop-top`, not the search form, and that is load-bearing.**
+`shop.filters` is a `<form>`. Putting the filter's `<details>` inside the search
+form would nest one form in another, and browsers do not tolerate that — the
+inner one is dropped, and the phone's whole filter rail would stop submitting
+with nothing visible to explain it. So the bar is the box, the form goes
+transparent inside it, and the two stay siblings. The form is first and the
+filter second, which on this rtl page puts the field right and the filter left.
+
+Two things moved with it. `.vp-shop-filter` is `position: static` and the panel
+takes `inset-inline: 0` off the bar, because the button is at the *left* end
+now and a 320-wide panel pinned to the left edge of a 66-wide button runs off
+the screen — the same fault, and the same fix, as the price sheet's. And the
+button dropped 42 → 34 so it sits inside a 46 box with 6 of air rather than
+filling it like a lid.
+
+**No ring. The shadow is the header menu square's, copied literally.** The first
+attempt put a 1px ring shadow under two blurred layers on «لبه پنهان»'s
+reasoning that white on white needs a drawn edge; the client does not want a
+line there and named the shadow they do want. Measured across this box's left
+edge at 390: `253 251 248 → 240 → 255`. Across the menu square's on the same
+page: `245 244 242 240 → 232 → 255`. Same shadow — the 8 levels between them are
+the ground, since the header island is a tinted pane at 245 and this bar is on
+the white page. 15 levels of step here against 23 there, which is softer than
+the hero card's 13-level edge was allowed to be, and is the trade the
+instruction asked for.
+
+Side effect worth having: the field went from 215 wide to 266.

@@ -32,15 +32,22 @@
                  The filter is a <details>, so the panel opens with no
                  JavaScript at all and the page keeps its promise that the URL
                  decides what is shown. --}}
+            {{-- «سرچ بار باید سفید بشه و دورش سایه بیاد و فیلتر هم بیاد داخل
+                 باکس سرچ سمت چپش» — one white box carrying both.
+
+                 The box is `.vp-shop-top` itself rather than the form, and that
+                 is not a shortcut: `shop.filters` is a <form>, so putting the
+                 filter's <details> inside the search form would nest one form
+                 in another. That is invalid, and browsers do not merely
+                 tolerate it — the inner form is dropped, and the phone's whole
+                 filter rail would stop submitting with nothing to see. So the
+                 bar is the box, the search form is transparent inside it, and
+                 the two stay siblings.
+
+                 The form comes first and the filter second, which on this rtl
+                 page puts the field at the right and the filter at the left —
+                 «سمت چپش». --}}
             <div class="vp-shop-top">
-                {{-- A <details>, so the panel opens with no JavaScript and the
-                     page keeps its promise that the URL decides what is shown.
-                     The rail itself is unchanged — it is the same include the
-                     desktop renders in its sidebar, just folded away here. --}}
-                <details class="vp-shop-filter">
-                    <summary class="vp-shop-filter-btn"><i class="fa-solid fa-sliders" aria-hidden="true"></i>فیلتر</summary>
-                    <div class="vp-shop-filter-panel">@include('shop.filters')</div>
-                </details>
                 <form class="vp-shop-find" action="{{ storefront_route('search') }}" method="get" role="search">
                     <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
                     {{-- Shorter than the desktop's, which is a different input in a
@@ -49,6 +56,14 @@
                     <input type="search" name="q" value="{{ $filters['q'] }}" placeholder="چی می‌خوای؟" aria-label="جست‌وجو در محصولات">
                 </form>
 
+                {{-- A <details>, so the panel opens with no JavaScript and the
+                     page keeps its promise that the URL decides what is shown.
+                     The rail itself is unchanged — it is the same include the
+                     desktop renders in its sidebar, just folded away here. --}}
+                <details class="vp-shop-filter">
+                    <summary class="vp-shop-filter-btn"><i class="fa-solid fa-sliders" aria-hidden="true"></i>فیلتر</summary>
+                    <div class="vp-shop-filter-panel">@include('shop.filters')</div>
+                </details>
             </div>
 
             {{-- «اون قسمت پاپلر و لاتستو اینا هم باید باشه». Links, not a

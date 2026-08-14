@@ -12213,11 +12213,56 @@ ul.vp-how-list.is-ticked li:before {
    every card of a new shop says less than nothing at all. */
 @media (max-width: 991.98px) {
   /* --- the top bar ------------------------------------------------------- */
+  /* «سرچ بار باید سفید بشه و دورش سایه بیاد و فیلتر هم بیاد داخل باکس سرچ سمت
+     چپش».
+
+     The bar is the box. The search form used to be the tinted pill and the
+     filter a separate pill beside it; now one white capsule holds both, with
+     the field at the inline start (the right) and the filter at the end (the
+     left). The form itself goes transparent and keeps only its own layout.
+
+     **The box is `.vp-shop-top`, not the form, and that is load-bearing.**
+     `shop.filters` is a <form>, so moving the filter's <details> inside the
+     search form would nest one form inside another — which browsers do not
+     merely tolerate: the inner one is dropped, and the phone's filter rail
+     would silently stop submitting. The two stay siblings inside a box that is
+     neither of them.
+
+     **The shadow is the header menu square's, exactly, and there is no ring.**
+     «خط ننداز دور سرچ / باید همون سایه ای که دور مربع منو تو هدر انداختیرو
+     بندازی دورش». It went out first with a 1px ring shadow under two blurred
+     layers, on «لبه پنهان»'s reasoning that white on white needs a drawn edge;
+     the client does not want a line there and named the shadow they do want, so
+     it is copied literally from `.th-header .th-menu-toggle.d-block` rather
+     than re-derived. Those two zero-offset layers are an even glow all round —
+     «دورش» — which is what a 46px capsule wants anyway; a shadow with a drop
+     lights a card, and this is a control.
+
+     What it measures, so the next round knows. Across this box's left edge at
+     390: 253 251 248 → **240** → 255 inside. Across the menu square's, on the
+     same page: 245 244 242 240 → **232** → 255. The shadow is identical; the
+     8-level difference is the ground, because the header island is a tinted
+     pane at 245 and this bar sits on the white page. So the edge is 15 levels
+     of step here against 23 there — softer than «لبه پنهان» settled on for the
+     hero card, and softer than the ring this replaced, which is the trade the
+     instruction asked for.
+
+     The page's own ground is white here, so the tint the field used to carry
+     could not stay: a tinted pill inside a white capsule reads as a box in a
+     box. */
   .vp-shop-top {
+    position: relative;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
+    height: 46px;
+    padding-inline: 16px 6px;
     margin-block-end: 14px;
+    border-radius: 23px;
+    background: #FFFFFF;
+    box-shadow:
+      0 0 2px rgba(16, 17, 17, 0.1),
+      0 0 8px -2px rgba(16, 17, 17, 0.14);
   }
 
   .vp-shop-back {
@@ -12232,16 +12277,16 @@ ul.vp-how-list.is-ticked li:before {
     text-decoration: none;
   }
 
+  /* The field is now part of the box above rather than a pill of its own: no
+     ground, no radius, no padding, no height. It keeps the icon-and-input
+     layout and nothing else. */
   .vp-shop-find {
     flex: 1 1 auto;
     min-width: 0;
     display: flex;
     align-items: center;
     gap: 8px;
-    height: 42px;
-    padding-inline: 14px;
-    border-radius: 21px;
-    background: rgba(16, 17, 17, 0.045);
+    background: none;
   }
 
   .vp-shop-find i {
@@ -12264,16 +12309,21 @@ ul.vp-how-list.is-ticked li:before {
   }
 
   /* The reference's outlined pill. Gold rather than its red, because this page
-     has one accent and it is not red. */
+     has one accent and it is not red.
+
+     Sized down from 42 to 34 now that it sits inside the 46px box rather than
+     beside it — 6px of air above and below, against the 6px the box's own
+     inline-end padding gives it. A 42 pill in a 46 box reads as a lid rather
+     than a control. */
   .vp-shop-filter-btn {
     flex: none;
     display: flex;
     align-items: center;
     gap: 6px;
-    height: 42px;
-    padding-inline: 14px;
+    height: 34px;
+    padding-inline: 12px;
     border: 1px solid rgba(192, 151, 47, 0.55);
-    border-radius: 21px;
+    border-radius: 17px;
     background: none;
     color: #A47F25;
     font-size: 13px;
@@ -12307,6 +12357,20 @@ ul.vp-how-list.is-ticked li:before {
      the tab's underline both go with the change, because a pill marks itself
      and a rule under a row of pills only redraws the problem above.
 
+     **The black is not the chips' black.** «رنگ مشکی که برای بیضی و مواردی که
+     توش گذاشتی انتخاب کردی خیلی پررنگه باید متعادلتر بشه» — a full #101111
+     outline six times across a white row is six hard rectangles competing with
+     the one gold pill that is actually saying something. So the ring is 0.2 of
+     it (204 on white) and the label 0.55 (124), which is where this page
+     already keeps its secondary type: the category strip under this row is
+     0.62 and the tab's own label was 0.5 before it became a pill. The gold
+     state is untouched, and it now has more to be louder than.
+
+     The brand chips inside the sheet keep the full black — «برندهای مختلف تو
+     بیضی باشن به رنگ مشکی» was asked for them by name, and this instruction
+     came in looking at this row. If they should follow, it is one value in
+     `.vp-chip`.
+
      `flex-shrink: 0` with `overflow-x: auto` is the floor under all of it.
      Below about 350 the six do not fit at any size this row can be read at, and
      that is what happens then: the row scrolls rather than pushing the page
@@ -12336,10 +12400,10 @@ ul.vp-how-list.is-ticked li:before {
     gap: 5px;
     height: 30px;
     padding-inline: 4px;
-    border: 1px solid #101111;
+    border: 1px solid rgba(16, 17, 17, 0.2);
     border-radius: 15px;
     background: none;
-    color: #101111;
+    color: rgba(16, 17, 17, 0.55);
     font-size: 11.5px;
     font-weight: 700;
     text-decoration: none;
@@ -12550,8 +12614,12 @@ ul.vp-how-list.is-ticked li:before {
     display: none;
   }
 
+  /* Static, so the panel below hangs off the whole bar instead of off this
+     button. The button is at the bar's inline end now — the left — and a
+     320-wide panel pinned to the left edge of a 66-wide button runs straight
+     off the screen. Same fix, and same reason, as the price sheet's. */
   .vp-shop-filter {
-    position: relative;
+    position: static;
     flex: none;
   }
 
@@ -12566,14 +12634,13 @@ ul.vp-how-list.is-ticked li:before {
   }
 
   /* Over the page rather than pushing it down — the grid should not jump when
-     the rail opens. Anchored to the bar's inline end so it cannot run off the
-     screen on the narrow side. */
+     the rail opens. It spans the bar, which is both wider than the 320 it used
+     to ask for and incapable of running off either side. */
   .vp-shop-filter-panel {
     position: absolute;
     z-index: 30;
-    inset-inline-end: 0;
+    inset-inline: 0;
     inset-block-start: calc(100% + 8px);
-    width: min(320px, calc(100vw - 40px));
     max-height: 70vh;
     overflow-y: auto;
     border-radius: 18px;
