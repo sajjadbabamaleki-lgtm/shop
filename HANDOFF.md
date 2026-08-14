@@ -1207,6 +1207,28 @@ at 992 and up.
 Measured at 360, 390 and 768: all seven exactly 60. At 992 and 1440: unchanged.
 Parity identical at all four widths.
 
+### …and then the first of the seven left it again, at 13.5
+
+«فاصله این ۶ تا آیتم با اون ۸ آیتم بالا بشه اندازه فاصله ۸ آیتم با هیرو».
+
+Asked by geometry rather than by a number: the gap **under** the eight tiles is
+to equal the gap **above** them. That one is the hero's foot to the first tile
+— 523.1 to 536.6 at 390, so **13.5**. `.vp-trust-row-wrap` margin-top goes
+60 → 13.5 and the other six of the seven stay at 60.
+
+**This is a reversal, and it is the second time this number has been here.**
+The paragraph above records 13.5 being tried under almost the same instruction
+(«این دوتا فاصله بشه اندازه فاصله هدر با هیرو») and rejected with «جالب نشد» —
+that time it was the header-to-hero distance, this time the hero-to-tiles one,
+and the two happen to be the same 13.5. So the tiles and the badges now read as
+one block under the hero rather than as two bands 60 apart, which is what was
+asked for. If it reads too tight a second time, it is one line in
+`tweaks.css`, and the numbers already passed through on the way are 30 and 60.
+
+Measured at 360, 390 and 430: tile foot to badge top exactly 13.5 at all three,
+equal to the hero's foot to the tile top at all three. Parity identical at
+992/1200/1440/1920, no sideways scroll at 390/768/1200/1920.
+
 ## The mini basket as an island, and its X
 
 «بنظرم این سبد خرید باید جزیره ای بشه اندازه اون ضبدر هم اندازه ضبدر منو بشه» —
@@ -2194,3 +2216,57 @@ the wall between the cut and the edge stops being visible at 26px.
 And then «سایزش ۵ درصد کوچیکتر بشه» a second time, which compounds like the
 boot's crops: 0.05 + 0.95 × 0.05, so the artwork ends at 0.9025 of its box.
 Measured in the strip: 25.00 wide before, 23.50 after, soles still on 211.
+
+## The basket, rebuilt to the client's reference
+
+«دقیقا این ui بساز ولی از راست چین و به شکل جزیره ای فعلی» — a screenshot of a
+basket card and its summary, to be built exactly, mirrored, and in the island
+treatment this page already has.
+
+**The card was five columns and is now two.** Photograph, then one stack beside
+it: name, the price under it in the shop's gold, then the specification lines.
+The bin is in the far corner and the stepper is at the foot of the stack. What
+went: the price as a separate column aligned to the line's far edge, and the
+stepper as a column of its own. `.vp-cart-line` carries the reasoning.
+
+Three things about it are worth knowing before changing it:
+
+- **The stepper takes the *last* specification line's row, whichever that is.**
+  Not the colour's by name. Every variant in the catalogue is still
+  `color_family = 'unspecified'`, so the colour row is not drawn at all — and
+  pinning the stepper to a row that is not there left a card with a hole in the
+  middle. Built as a list with the last one popped off, so the card is 121 tall
+  with one spec line and grows a line at a time as real data arrives.
+- **«رنگ: نامشخص» is not printed**, for the same reason the shop rail leaves its
+  colour filter out and by the same test. Both come back on their own when real
+  colourways do. The seller line is the same idea from the other end: it appears
+  only on a vendor's line.
+- **The desktop caps the stack at 560.** The reference is a phone card and the
+  desktop's line is about 1400 wide; `1fr` stretched it the whole way and
+  `space-between` threw the stepper a screen's width from the size line.
+
+**The summary is the reference's four rows** — جمع کالاها, تخفیف, هزینه ارسال,
+then مبلغ قابل پرداخت under a rule — and the button carries the figure, «ادامه
+(… تومان)».
+
+**This is also a reversal.** «کلا اینجا یدونه فقط تعداد خرید باشه و جمع کل» had
+cut this block down to two rows on the grounds that delivery was decided at the
+next step and the code was typed there; the reference has all four, so all four
+are back. The row that was hardest to make honest is delivery, and that is what
+`App\Support\Checkout\Shipping` is for:
+
+> The fee is now printed twice on the way to an order — quoted on the basket,
+> charged by `PlaceOrder`. It used to be a private method on `PlaceOrder`, so a
+> basket printing it would have needed a second copy of the rule. It is one
+> class now and both read it. It is also applied to the subtotal **before** the
+> discount, because that is the number `PlaceOrder` passes it; the first draft
+> here passed the discounted total, which would have put a basket one code away
+> from quoting a fee the order then contradicted.
+
+`CheckoutTest::test_the_basket_quotes_the_delivery_fee_the_order_charges` is the
+test that would have caught exactly that, and
+`test_the_basket_summary_shows_the_reference_four_rows` pins the four rows —
+worth having, since the shape they replaced was asked for by name too.
+
+244 tests, Pint clean, parity identical at 992/1200/1440/1920, and no sideways
+scroll on the basket at 320/360/390/430/575/768/992/1200/1920.

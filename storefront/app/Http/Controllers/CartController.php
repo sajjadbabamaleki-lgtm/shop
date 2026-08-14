@@ -6,6 +6,7 @@ use App\Models\Variant;
 use App\Models\Vendor;
 use App\Support\Checkout\CartManager;
 use App\Support\Checkout\Discounts;
+use App\Support\Checkout\Shipping;
 use App\Support\Marketplace\Sellers;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -34,9 +35,21 @@ class CartController extends Controller
     {
         $cart = $this->carts->current()->load('items.variant.product', 'items.variant.offer', 'items.variant.stock', 'items.vendor');
 
+        $discount = $this->discounts->on($cart);
+
+        // The summary prints «هزینه ارسال», so the basket has to know it. It
+        // comes from the same Shipping rule the order will use, rather than
+        // this page working it out its own way — a fee that changes between
+        // the basket and the confirmation is the one thing a summary must
+        // never do.
         return view('shop.cart', [
             'cart' => $cart,
-            'discount' => $this->discounts->on($cart),
+            'discount' => $discount,
+            // On the subtotal *before* the discount, because that is the number
+            // PlaceOrder passes it. Feeding it the discounted total here would
+            // put a basket one code away from quoting a delivery fee the order
+            // then contradicts.
+            'shipping' => Shipping::on($cart->subtotal()),
         ]);
     }
 

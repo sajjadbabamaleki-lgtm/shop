@@ -14,6 +14,7 @@ use App\Support\Checkout\CannotFulfil;
 use App\Support\Checkout\CartManager;
 use App\Support\Checkout\PlaceOrder;
 use App\Support\Checkout\SettleOrder;
+use App\Support\Checkout\Shipping;
 use App\Support\Tenancy\TenantContext;
 use Database\Seeders\BranchSeeder;
 use Database\Seeders\CatalogueSeeder;
@@ -177,6 +178,59 @@ class CheckoutTest extends TestCase
 
         $this->assertSame($variant->offer->price, $order->subtotal);
         $this->assertSame($order->subtotal - $order->discount_total + $order->shipping_total, $order->grand_total);
+    }
+
+    /**
+     * The basket quotes the delivery fee the order then charges.
+     *
+     * «دقیقا این ui بساز» put «هزینه ارسال» on the basket's summary, so the fee
+     * is now printed twice on the way to an order — once as a quote and once as
+     * a charge. The rule lives in Shipping precisely so those cannot be two
+     * rules; this is the test that says so, and it would have failed while the
+     * basket worked the fee out from the discounted total and PlaceOrder worked
+     * it out from the subtotal.
+     */
+    public function test_the_basket_quotes_the_delivery_fee_the_order_charges(): void
+    {
+        $variant = $this->variant('nike-v2k-run');
+
+        $this->post('/cart', ['variant' => $variant->id]);
+
+        $quoted = Shipping::on($variant->offer->price);
+
+        $this->get('/cart')->assertOk()
+            ->assertSee('هزینه ارسال', false)
+            ->assertSee($quoted === 0 ? 'رایگان' : toman($quoted), false);
+
+        $this->post('/checkout', $this->contact());
+
+        $this->assertSame($quoted, Order::latest('id')->firstOrFail()->shipping_total);
+    }
+
+    /**
+     * The four rows the client asked for, and the total being their sum.
+     *
+     * The summary was «تعداد» and «جمع کل» before this; the reference the client
+     * sent has goods, discount, delivery and a payable total under a rule, and
+     * the button carries the figure. Worth pinning, because the last shape of
+     * this block was asked for by name too and a later round replaced it.
+     */
+    public function test_the_basket_summary_shows_the_reference_four_rows(): void
+    {
+        $variant = $this->variant('nike-v2k-run');
+
+        $this->post('/cart', ['variant' => $variant->id]);
+
+        $price = $variant->offer->price;
+        $payable = $price + Shipping::on($price);
+
+        $this->get('/cart')->assertOk()
+            ->assertSee('جمع کالاها', false)
+            ->assertSee('تخفیف', false)
+            ->assertSee('هزینه ارسال', false)
+            ->assertSee('مبلغ قابل پرداخت', false)
+            // The figure rides inside the button, as it does in the reference.
+            ->assertSee('ادامه ('.toman($payable).' تومان)', false);
     }
 
     public function test_the_customer_is_found_or_made_by_phone(): void

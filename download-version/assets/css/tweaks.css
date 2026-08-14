@@ -5915,13 +5915,37 @@ ul.vp-how-list.is-ticked li:before {
   color: var(--theme-color);
 }
 
+/* «دقیقا این ui بساز ولی از راست چین و به شکل جزیره ای فعلی» — the reference's
+   basket card, mirrored, in this page's own materials.
+
+   The line was five columns: photograph, description, stepper, price, ×. The
+   reference is two — photograph, and one stack beside it holding the name, the
+   price, and the specification lines — with the bin in the far corner and the
+   stepper at the foot of the stack. So the grid loses three tracks and the two
+   controls move inside the description, which is also what stopped the price
+   and the stepper having to negotiate for one row at 360.
+
+   `align-items: start` because the stack is now taller than the photograph and
+   a centred one floated off the top of it. `position: relative` is for the
+   bin, which comes out of the flow at every width now rather than only below
+   575 — as a column it cost 32 plus a gap on a row that no longer has spare
+   width to give it. */
 .vp-cart-line {
+  position: relative;
   display: grid;
-  grid-template-columns: 84px minmax(0, 1fr) auto auto 32px;
-  align-items: center;
+  grid-template-columns: 84px minmax(0, 1fr);
+  align-items: start;
   gap: 16px;
   padding-block: 16px;
   box-shadow: inset 0 -1px 0 rgba(16, 17, 17, 0.08);
+}
+
+/* The bin, in the corner the reference puts it — which on an rtl page is the
+   left. `inset-inline-end` says that once for both directions. */
+.vp-cart-line > form:not(.vp-cart-qty) {
+  position: absolute;
+  inset-block-start: 12px;
+  inset-inline-end: 0;
 }
 
 /* A line the shop cannot supply. Marked at its reading edge rather than
@@ -5955,6 +5979,28 @@ ul.vp-how-list.is-ticked li:before {
   flex-direction: column;
   gap: 3px;
   min-width: 0;
+  /* Clear of the bin, so a long title cannot run underneath it. */
+  padding-inline-end: 34px;
+}
+
+/* «Size: 7.5» and «Color: Yellow» — the reference's two quiet lines under the
+   price. 0.55 of the ink is where this site already keeps secondary type; the
+   filter pills' labels are the same value. */
+.vp-cart-spec {
+  font-size: 12.5px;
+  color: rgba(16, 17, 17, 0.55);
+}
+
+/* The card's last row: the colour on the reading edge, the stepper on the far
+   one. `margin-block-start: auto` pins it to the foot of the stack so cards of
+   different heights still line their steppers up with each other. */
+.vp-cart-last {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-block-start: auto;
+  padding-block-start: 4px;
 }
 
 .vp-cart-name {
@@ -5997,9 +6043,14 @@ ul.vp-how-list.is-ticked li:before {
   white-space: nowrap;
 }
 
+/* The price sits under the name in the accent, where the reference puts it —
+   it was at the end of the line's second row, aligned to the far edge, when
+   the price and the stepper shared that row. Nothing is aligned to the far
+   edge in the stack, so `text-align` goes with the move. */
 .vp-cart-money {
-  text-align: end;
+  text-align: start;
   white-space: nowrap;
+  color: var(--theme-color);
 }
 
 .vp-cart-money strong {
@@ -6019,15 +6070,23 @@ ul.vp-how-list.is-ticked li:before {
   opacity: 0.6;
 }
 
+/* A bin rather than a `×`, which is the reference's mark and the plainer one:
+   an × beside a price reads as "times" often enough to be worth avoiding.
+   14px, because it sits alone in the corner with nothing to be measured
+   against — the same size as the specification lines it is level with. */
 .vp-cart-drop {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 32px;
   height: 32px;
   border: 0;
   border-radius: 50%;
   background: transparent;
-  font-size: 20px;
+  font-size: 14px;
   line-height: 1;
-  color: var(--body-color);
+  color: rgba(16, 17, 17, 0.55);
+  cursor: pointer;
 }
 
 .vp-cart-drop:hover {
@@ -7021,8 +7080,15 @@ ul.vp-how-list.is-ticked li:before {
   border-radius: 22px;
 }
 
+/* Capped, and packed against the reading edge.
+   The reference is a phone card and the desktop's line is about 1400 wide, so
+   `1fr` stretched the stack the whole way and `space-between` threw the
+   stepper a screen's width from the size line it belongs to. 560 is the width
+   at which the card still reads as the reference's card; the rest of the row
+   stays empty, which is what a card in a wide panel looks like. */
 .vp-cart-line {
-  grid-template-columns: 96px minmax(0, 1fr) auto auto 32px;
+  grid-template-columns: 96px minmax(0, 560px);
+  justify-content: start;
   padding-block: 18px;
 }
 
@@ -7053,67 +7119,24 @@ ul.vp-how-list.is-ticked li:before {
    the earlier one and changed nothing on the page at all.
 
    Measured at 320, 390, 430 and 575: nothing of the line outside the viewport,
-   the price whole, and the name back on one line from 390 up. */
+   the price whole, and the name back on one line from 390 up.
+
+   **All of that is history now.** The named areas were the answer to a
+   five-part line, and the line has two parts — see `.vp-cart-line` far above,
+   where the reference's card is built. The price no longer shares a row with
+   the stepper, so the arithmetic those paragraphs were settling does not
+   arise, and the bin is out of the flow at every width rather than only here.
+   What is left of this block is the phone's smaller photograph. */
 @media (max-width: 575px) {
   .vp-cart-line {
-    position: relative;
-    grid-template-columns: 72px auto minmax(0, 1fr);
-    grid-template-areas:
-      "shot what what"
-      "shot qty  money";
-    align-items: start;
-    /* 8 rather than 12. The price and the stepper have to share the second row
-       at every width now, and at 360 the two of them plus a 12 gap came to one
-       pixel more than the line had. */
-    column-gap: 8px;
-    row-gap: 12px;
+    grid-template-columns: 72px minmax(0, 1fr);
+    column-gap: 10px;
   }
 
   .vp-cart-shot {
-    grid-area: shot;
     width: 72px;
     height: 72px;
   }
-
-  .vp-cart-what { grid-area: what; }
-
-  .vp-cart-qty {
-    grid-area: qty;
-    align-self: center;
-  }
-
-  .vp-cart-money {
-    grid-area: money;
-    align-self: center;
-    /* Let «تومان» drop under the figure when the row is genuinely too tight —
-       at 320 it is. A wrapped price is still a price beside the quantity; a
-       `nowrap` price in a track it does not fit runs out of the card, and a
-       price on a row of its own is what the client asked to stop seeing. */
-    white-space: normal;
-  }
-
-  /* The × comes out of the flow and sits in the corner of the card. As a
-     column it cost 30 plus a gap on every row of the line — 42 of a 360-wide
-     phone spent on a control that is one glyph — and that was the difference
-     between the price and the stepper sharing a row and not.
-     `inset-inline-end` is the left of an rtl card, where it already was. */
-  .vp-cart-line > form:not(.vp-cart-qty) {
-    position: absolute;
-    inset-block-start: 12px;
-    inset-inline-end: 12px;
-  }
-
-  /* And the name stops short of it, so a long title cannot run underneath. */
-  .vp-cart-what {
-    padding-inline-end: 26px;
-  }
-
-  /* The stepper's two buttons are squares and stay squares. This block used to
-     hold `height: 34px; padding-inline: 10px` from when the quantity was a
-     number box with an update button beside it — left in place, it stretched
-     the new `+` and `−` into rectangles. Nothing here sizes them any more; the
-     rule that does is `.vp-cart-less, .vp-cart-more`, and it sets one number
-     for both sides. */
 }
 
 /* «چرا تو این صفحه تو گوشی من تعداد میفته پایین؟ قیمت و تعداد باید تو یک ردیف
@@ -9690,9 +9713,28 @@ ul.vp-how-list.is-ticked li:before {
    Measured at 360, 390 and 768: all seven exactly 60. At 992 and 1440:
    unchanged. */
 @media (max-width: 991.98px) {
+  /* «فاصله این ۶ تا آیتم با اون ۸ آیتم بالا بشه اندازه فاصله ۸ آیتم با هیرو».
+     Asked by geometry rather than by a number: the gap under the eight tiles
+     is to equal the gap above them. That one is the hero's foot to the first
+     tile, measured at 390 — 523.1 to 536.6, so 13.5.
+
+     This is the seventh member of the phone rhythm and it now steps out of it:
+     the other six stay at 60. That is what was asked for — the tiles and the
+     badges are being made to read as one block under the hero, not as two
+     bands 60 apart.
+
+     **13.5 has been here before and was rejected.** The note above records the
+     three steps this number came in — 13.5 «جالب نشد», then 30, then 60 — so
+     this is a reversal of that, asked for in the client's own words above and
+     with the whole page a good deal further along than it was then. If it
+     reads too tight a second time, this line is the only thing to change; the
+     numbers that were passed through on the way are 30 and 60.
+
+     Measured after, at 360/390/430: tile foot to badge top exactly 13.5, the
+     same as the hero's foot to the tile top. */
   .vp-trust-row-wrap {
     margin-inline: 10px;
-    margin-top: 60px;
+    margin-top: 13.5px;
   }
 
   .collection-area {
