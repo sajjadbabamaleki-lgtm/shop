@@ -11191,6 +11191,22 @@ ul.vp-how-list.is-ticked li:before {
     object-fit: contain;
   }
 
+  /* The shelf's heading, at the headings' size and a heading's distance from
+     what it heads — «نمونه های مشابه باید عنوانش هم اندازه عنوان های بالا و رو
+     کارت باشه و یه فاصله استاندارد با کارتهای پایینش داشته باشه».
+
+     15 is `.vp-pdp-choice-title`'s, which «انتخاب سایز», «انتخاب رنگ» and
+     «توضیحات کفش» all are. The standard gap on this page is 10, measured at
+     the size row and at the description.
+
+     The 20 is that 10 plus the row's own negative top margin: a Bootstrap row
+     pulls itself up by `--bs-gutter-y`, which this shelf sets to 10, so a 10
+     written here would have measured 0. Change one and the other follows. */
+  .vp-pdp-related .vp-shop-title {
+    font-size: 15px;
+    margin-block-end: 20px;
+  }
+
   /* «فاصله بین اون ۴ تا محصول باید ۱۰ بشه». The shelf under the product is a
      Bootstrap row with `gy-4` on it — 24 down and 24 across, which is the air
      the desktop grid wants and twice what everything else on this phone stands
@@ -13641,9 +13657,13 @@ ul.vp-how-list.is-ticked li:before {
       0 0 8px -2px rgba(16, 17, 17, 0.14);
   }
 
+  /* «اون جدید رو کارتها باید با سفید نوشته بشه». It was #101111 on the gold,
+     which is the pairing the basket count uses and measures 6.94:1. White on
+     the same ramp is 3.0:1, which is under AA for text this size — said once,
+     here, because the ask is explicit and the client has now seen both. */
   .vp-card-new {
     background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
-    color: #101111;
+    color: #FFFFFF;
   }
 }
 
