@@ -18,6 +18,40 @@
     <div class="container th-container">
         <div class="vp-shop-panel vp-pdp">
 
+            {{-- The phone's own head, from the reference: back, the screen's
+                 name, the favourite. It replaces nothing — the site header is
+                 still above it, because it carries the basket and the menu and
+                 this is a page of the shop rather than a screen of an app.
+
+                 The back arrow is a link to somewhere, not `history.back()`: a
+                 visitor who opened this page from a search result or a shared
+                 link has no history to go back to, and a chevron that does
+                 nothing on those visits is worse than one that always lands on
+                 the shoe's own category. --}}
+            @php
+                $back = $product->categories->isNotEmpty()
+                    ? storefront_route('category', $product->categories->first())
+                    : storefront_route('shop');
+            @endphp
+
+            <div class="vp-pdp-bar d-lg-none">
+                <a class="vp-pdp-back" href="{{ $back }}" aria-label="بازگشت">
+                    <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+                </a>
+
+                <h2 class="vp-pdp-bar-name">جزئیات محصول</h2>
+
+                {{-- The reference's heart is filled red — a shoe that is
+                     already saved. Nothing can save one: there is no wishlist
+                     table and no route behind it, so a filled heart on every
+                     product would be a state that is not true. It is drawn
+                     outline, the same control the listing's cards carry, and it
+                     turns red the day there is something for it to write to. --}}
+                <button type="button" class="vp-pdp-fav" aria-label="افزودن {{ $product->title }} به علاقه‌مندی‌ها">
+                    <i class="fa-regular fa-heart" aria-hidden="true"></i>
+                </button>
+            </div>
+
             <nav class="vp-pdp-crumbs d-none d-lg-flex" aria-label="مسیر">
                 <a href="{{ storefront_route('home') }}">خانه</a>
                 <span aria-hidden="true">/</span>
@@ -44,6 +78,17 @@
 
                 <div class="vp-pdp-gallery">
                     <div class="vp-pdp-shot">
+                        {{-- The reference's watermark: the brand's name, very
+                             faint, behind the shoe. `brands.name_latin` is a
+                             real column with a real value in it — this is the
+                             one part of that screen's furniture the catalogue
+                             can already fill. Before the <img>, so the
+                             photograph paints over it without either needing a
+                             z-index. --}}
+                        @if ($product->brand?->name_latin)
+                            <span class="vp-pdp-mark" aria-hidden="true">{{ $product->brand->name_latin }}</span>
+                        @endif
+
                         @if ($product->primaryMedia())
                             <img src="{{ asset($product->primaryMedia()->path) }}" alt="{{ $product->title }}">
                         @endif
@@ -60,11 +105,7 @@
                             @endforeach
                         </div>
 
-                        <div class="vp-pdp-thumbs">
-                            @foreach ($shots as $shot)
-                                <span @class(['vp-pdp-thumb', 'is-on' => $loop->first])><img src="{{ asset($shot->path) }}" alt="" loading="lazy"></span>
-                            @endforeach
-                        </div>
+                        @include('shop.gallery', ['shots' => $shots])
                     @endif
                 </div>
 
@@ -172,10 +213,27 @@
                                  It is part of this form, so the button adds whichever
                                  chip is checked. Above 992 it sits in the flow. --}}
                             <div class="vp-pick-bar">
-                                <span class="vp-pick-price">{{ toman($offer->price) }} <em>تومان</em></span>
+                                {{-- The number and its unit in a box of their
+                                     own: the label stacks above them on the
+                                     phone, and without the wrapper «تومان»
+                                     becomes a third line of that column. --}}
+                                <span class="vp-pick-price">
+                                    <span class="vp-pick-label">قیمت</span>
+                                    <span class="vp-pick-sum">{{ toman($offer->price) }} <em>تومان</em></span>
+                                </span>
                                 <button type="submit" class="vp-pick-go">افزودن به سبد</button>
                             </div>
                         </form>
+                    @endif
+
+                    {{-- The «گالری» section, the reference's, under the sizes.
+                         Phone only — above 992 the same strip is already in the
+                         left column under the photograph. --}}
+                    @if ($shots->count() > 1)
+                        <div class="vp-pdp-strip">
+                            <h2 class="vp-pdp-choice-title">گالری</h2>
+                            @include('shop.gallery', ['shots' => $shots])
+                        </div>
                     @endif
 
                     @if ($contested->isNotEmpty())

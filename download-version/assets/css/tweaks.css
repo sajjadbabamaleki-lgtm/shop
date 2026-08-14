@@ -5697,6 +5697,17 @@ ul.vp-how-list.is-ticked li:before {
   object-fit: contain;
 }
 
+/* Two pieces of the phone's «Details» screen, off by default and turned on in
+   its own block far below: the brand watermarked behind the shoe, and the
+   «گالری» section under the size chips. Both are in the markup at every width —
+   the watermark because it belongs inside the shot, the strip because it is a
+   second copy of the thumbnails that the phone's order needs — so the desktop
+   has to say no to them here rather than rely on never having said yes. */
+.vp-pdp-mark,
+.vp-pdp-strip {
+  display: none;
+}
+
 .vp-pdp-brand {
   display: inline-block;
   margin-bottom: 8px;
@@ -11006,6 +11017,13 @@ ul.vp-how-list.is-ticked li:before {
   color: #6E7070;
 }
 
+/* «قیمت» over the number, from the phone's reference — and the phone's alone.
+   Above 992 the bar is in the flow under the size chips, where the word would
+   be a caption on a number that already reads as one. */
+.vp-pick-label {
+  display: none;
+}
+
 .vp-pick-go {
   flex: 1;
   height: 52px;
@@ -11220,6 +11238,343 @@ ul.vp-how-list.is-ticked li:before {
     font-family: var(--body-font);
     font-size: 19px;
     white-space: nowrap;
+  }
+}
+
+/* ==========================================================================
+   The product page on a phone, to the second reference — the «Details» screen.
+
+   «حالا وقتی روی هر محصول کلیک میشه باید به یه همچین جایی بره یعنی جای جزئیات
+   محصول».
+
+   The screen the client sent, top to bottom: a head with a back arrow, the
+   word «Details» and a favourite; the shoe on a tinted ground with the brand
+   watermarked behind it; a white sheet lifted over that ground carrying the
+   name, the description, the sizes and a gallery; and a bar at the foot with
+   the price on one side and the basket button on the other.
+
+   Everything below is inside `max-width: 991.98px`. The desktop page is two
+   columns and untouched.
+
+   **Three things on that screen have no data behind them, and none of them is
+   drawn.** This is the same rule the colourway strip is under and the reason
+   `config('storefront.placeholders')` exists at all — a layout may stand in
+   for itself, a claim may not:
+
+   - **The rating, «( 4.9 ★ )».** There is no review table. A star with a
+     number beside a real price is a claim about a real shoe, and this repo has
+     taken an invented one off the card already.
+   - **The «360°» badge.** There is one photograph per product. A control that
+     promises a spin and has nothing to spin is worse than no control.
+   - **The description.** `products.description` is a real column, editable in
+     the panel, and the page has always printed it when it is filled — it is
+     null for all five demo products, so the paragraph is absent rather than
+     invented. The slot is in the reference's place: the moment the client
+     types one it appears under the name.
+
+   What the catalogue *can* fill, it fills: the watermark is `brands.name_latin`
+   and the gallery is the colourway strip that already exists.
+   ========================================================================== */
+@media (max-width: 991.98px) {
+
+  /* ---- The head: back, name, favourite -----------------------------------
+
+     The three squares in the band above this one are 39.9 with a 12.0175
+     corner, white, lit by the mark's own two-stop shadow, with a gold glyph in
+     them. This row sits directly under that band, so its two controls are that
+     control — same size, same corner, same light, same gold.
+
+     The gold is worth one line, because the card's heart two pages back is
+     ink and this one is not. That heart sits on a photograph with the «جدید»
+     badge two corners away and a second gold there would be the one this
+     file's header block spends a paragraph refusing. Here there is no other
+     gold in the row, so the rule is the header's: a square control in the
+     chrome is white with a gold glyph. */
+  .vp-pdp-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-block-end: 10px;
+  }
+
+  .vp-pdp-back,
+  .vp-pdp-fav {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 39.9px;
+    height: 39.9px;
+    padding: 0;
+    border: 0;
+    border-radius: 12.0175px;
+    background: #FFFFFF;
+    color: #C0972F;
+    font-size: 16px;
+    line-height: 1;
+    text-decoration: none;
+    cursor: pointer;
+    box-shadow:
+      0 0 2px rgba(16, 17, 17, 0.10),
+      0 0 8px -2px rgba(16, 17, 17, 0.14);
+  }
+
+  /* Centred between the two squares, and it stays centred whichever of them is
+     wider, because the middle takes all the free space and centres its own
+     text. */
+  .vp-pdp-bar-name {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    font-family: 'Cairo', var(--title-font);
+    font-weight: 700;
+    font-size: 16px;
+    text-align: center;
+  }
+
+  /* ---- The tinted ground, and the sheet over it --------------------------
+
+     The reference runs its tint to the edges of the screen and starts the
+     sheet's corners there. Ours stops at the page's own margin instead, and
+     that is a measurement rather than a preference: the panel is inset 14 at
+     390 and 20 at 768, two different numbers from two different rules, so a
+     full-bleed would have to be a negative margin that is right at one width
+     and wrong at the other. Held to the margin, the tint is 93% of the screen
+     at 390 and the sheet's corners land on the same line as everything else on
+     the page.
+
+     The tint is the page's one gold at a tenth of an alpha, fading out before
+     the sheet reaches it, so the ground under the shoe is warm rather than
+     grey and there is no second colour on the page.
+
+     No ring, no shadow, no drawn edge: «اون کادرهای گوهو برداااار» still
+     stands. What ends the tint is the sheet's own corner. */
+  .vp-pdp-body {
+    gap: 0;
+  }
+
+  .vp-pdp-gallery {
+    padding-block: 4px 34px;
+    border-radius: 28px 28px 0 0;
+    background: linear-gradient(
+      180deg,
+      rgba(192, 151, 47, 0.11) 0%,
+      rgba(192, 151, 47, 0.04) 58%,
+      rgba(192, 151, 47, 0) 100%
+    );
+  }
+
+  /* The brand behind the shoe. Big, faint and inert — `aria-hidden`, so it is
+     furniture rather than a second heading for a screen reader to read out
+     before the name. Centred on the tile rather than on its text box, which is
+     why it is a positioned box the full width of the shot with the line
+     centred inside it. */
+     **14% down, not the middle.** Measured off the render at 390 — the shoe's
+     own ink, row by row, across the 362 tile: nothing above y=200, 153..160 at
+     205, 125..167 at 220, 51..170 at 250, and past 280 it is most of the
+     width. A word set across the middle would have its whole left half behind
+     the shoe and read as the fragment that is left. At 14% it crosses the
+     collar only, which is what the reference's own watermark does.
+
+     **Sized off the viewport, and clipped.** `Golden Goose` is twelve
+     characters where `Jordan` is six, so a size that suits one runs past the
+     tile on the other — and this box is `nowrap` and absolutely positioned, so
+     running past the tile means running past the page, which
+     `check-overflow.js` fails on. The clamp keeps it 44–88, and the tile is
+     `overflow: hidden` underneath so the longest name is trimmed at the edges
+     rather than widening anything. */
+  .vp-pdp-shot {
+    overflow: hidden;
+  }
+
+  .vp-pdp-mark {
+    display: block;
+    position: absolute;
+    inset-inline: 0;
+    inset-block-start: 14%;
+    font-family: 'Cairo', var(--title-font);
+    font-weight: 700;
+    font-size: clamp(44px, 14vw, 88px);
+    line-height: 1;
+    letter-spacing: 0.02em;
+    text-align: center;
+    white-space: nowrap;
+    color: rgba(16, 17, 17, 0.055);
+    pointer-events: none;
+  }
+
+  /* The sheet. White on a white page, so what it draws is not itself — it is
+     the curve where the tint stops, which is what the reference's corner is
+     doing too. It has to be lifted over the ground for that corner to be on
+     top of anything, hence the negative margin and the stacking context. */
+  .vp-pdp-info {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    margin-block-start: -26px;
+    padding-block-start: 22px;
+    border-radius: 28px 28px 0 0;
+    background: #FFFFFF;
+  }
+
+  /* ---- The order inside the sheet ----------------------------------------
+
+     The reference reads name → description → size → gallery, and the markup
+     is in the order the desktop's two columns want. Every child is given a
+     number rather than only the ones that move: an unnumbered flex child is
+     `order: 0` and would jump ahead of all of them.
+
+     The sellers' rows and the facts keep the foot of the page. They are not on
+     the reference at all — it draws one seller and no material — and dropping
+     them would take the marketplace's own listing off the phone. */
+  .vp-pdp-info > .vp-pdp-head { order: 1; }
+  .vp-pdp-info > .vp-pdp-from { order: 2; }
+  .vp-pdp-info > .vp-pdp-desc { order: 3; }
+  .vp-pdp-info > .vp-pdp-choice { order: 4; }
+  .vp-pdp-info > .vp-pdp-out { order: 5; }
+  .vp-pdp-info > .vp-pick { order: 6; }
+  .vp-pdp-info > .vp-pdp-strip { order: 7; }
+  .vp-pdp-info > .vp-pdp-sizes-title { order: 8; }
+  .vp-pdp-info > .vp-sellers { order: 9; }
+  .vp-pdp-info > .vp-pdp-facts { order: 10; }
+
+  /* The name block, the reference's: the name on its own line, the brand under
+     it, and the price *not* here. The reference carries no price in the sheet
+     at all — it is in the bar at the foot, which is fixed and on screen the
+     whole time, so printing it twice would be printing it twice.
+
+     What stays is the sale: the price it was and the cut, small, under the
+     brand. The bar has room for one number and the cut is the reason this
+     shop's number is what it is. */
+  .vp-pdp-head {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    margin-block-start: 0;
+  }
+
+  .vp-pdp-head .vp-pdp-price {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    margin-block-start: 6px;
+  }
+
+  .vp-pdp-head .vp-pdp-price strong {
+    display: none;
+  }
+
+  .vp-pdp-desc {
+    margin-block-start: 10px;
+  }
+
+  .vp-pdp-desc p {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.9;
+    color: rgba(16, 17, 17, 0.62);
+  }
+
+  .vp-pick-head {
+    margin-block-start: 20px;
+  }
+
+  /* ---- The size chips ----------------------------------------------------
+
+     The reference draws them white with a hairline and fills the chosen one.
+     Ours were filled grey and gold; they become the reference's, on the page's
+     own numbers: a 44 square with the header's corner ratio, 44 × 0.30119 =
+     13.25, and the hairline `.vp-pdp-option` already uses one line up. The
+     fill is the same gold ramp it always was. */
+  .vp-pick-size span {
+    min-width: 44px;
+    height: 44px;
+    padding-inline: 10px;
+    border-radius: 13.25px;
+    background: #FFFFFF;
+    box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.10);
+  }
+
+  .vp-pick-size input:checked + span {
+    box-shadow: none;
+  }
+
+  /* ---- The gallery -------------------------------------------------------
+
+     The strip moves under the sizes and takes a heading, so the copy that
+     lives under the photograph is the desktop's and is not drawn here. The
+     dots go with it: they were the first reference's device for a strip
+     directly under the shot, and there is no shot above this one to be the
+     current frame of.
+
+     Nothing in the row is lit, either. A ringed tile says "this is the one you
+     are looking at", and while the row is one photograph repeated
+     (`placeholders.colorway_shots`) there is no such tile — the first one is
+     ringed on the desktop for the same reason it is not here, which is that up
+     there it sits under the shot it repeats. */
+  .vp-pdp-gallery .vp-pdp-thumbs,
+  .vp-pdp-dots {
+    display: none;
+  }
+
+  .vp-pdp-strip {
+    display: block;
+    margin-block-start: 22px;
+  }
+
+  .vp-pdp-strip .vp-pdp-thumbs {
+    display: flex;
+  }
+
+  /* All four the same, including the first. The lit tile and the hairline both
+     go: the reference's gallery is four plain tiles, and while the row is one
+     photograph repeated there is nothing for a ring to be pointing at. Written
+     against `.is-on` as well as the tile, because the hairline is on the
+     desktop rule and the gold ring is on the first reference's. */
+  .vp-pdp-thumb,
+  .vp-pdp-thumb.is-on {
+    background: rgba(16, 17, 17, 0.034);
+    box-shadow: none;
+  }
+
+  /* ---- The bar at the foot -----------------------------------------------
+
+     The reference labels its price «Price» and stacks the number under it, so
+     the label is drawn and the two go in a column. The button keeps the shop's
+     gold rather than the reference's near-black: every other buy button in
+     this storefront is that ramp — the ladder's, the basket's, the seller
+     rows' — and one page's own black CTA would be a second answer to the same
+     question. The shape is the reference's. */
+  .vp-pick-price {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    line-height: 1.25;
+  }
+
+  .vp-pick-label {
+    display: block;
+    font-family: var(--body-font);
+    font-weight: 600;
+    font-size: 11px;
+    color: #6E7070;
+  }
+
+  /* And the WhatsApp button gets out from under it.
+
+     It is fixed 30 off the foot and 50 tall, so it occupies 30–80; the bar is
+     10 off the foot and measured 76 tall, so it occupies 10–86. They have
+     overlapped on every product page with a size chip since the bar was
+     written — the button only appears after the first scroll, which is why it
+     went unnoticed — and the bar is the one control on this screen the client
+     is asking to be seen. 98 puts the button 12 clear of the bar's top, on the
+     same safe-area offset the bar itself uses.
+
+     The 76 is a measurement, not a constant: the bar is 12 of padding either
+     side of a 52 button. If either changes, this changes with it. */
+  body:has(.vp-pick-bar) .vp-whatsapp {
+    bottom: calc(98px + env(safe-area-inset-bottom, 0px));
   }
 }
 

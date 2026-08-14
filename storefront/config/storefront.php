@@ -223,7 +223,7 @@ return [
          | row falls back to the product's actual media. It is here rather than
          | in the view so that removing it is one number in one file.
          */
-        'colorway_shots' => 5,
+        'colorway_shots' => 4,
 
         /*
          | The brand strip.
