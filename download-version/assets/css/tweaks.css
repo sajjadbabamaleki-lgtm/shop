@@ -11529,11 +11529,21 @@ ul.vp-how-list.is-ticked li:before {
     margin-block-start: 0;
   }
 
+  /* A tenth off the price — «سایز قیمت ۱۰ درصد کوچیکتر بشه». 19 → 17.1. The
+     «تومان» beside it keeps its own size; the ask is the number. */
   .vp-pdp-head .vp-pdp-price strong {
     display: block;
     font-family: var(--body-font);
-    font-size: 19px;
+    font-size: 17.1px;
     white-space: nowrap;
+  }
+
+  /* And the name comes down to the size of the headings inside the card —
+     «سایز اسم کفش هم بشه هم اندازه اون عنوان (انتخاب رنگ)». That heading is
+     `.vp-pdp-choice-title` at 15, near the top of this file; if it ever moves,
+     this moves with it by hand, because they are two rules and one intent. */
+  .vp-pdp-title {
+    font-size: 15px;
   }
 
   .vp-pdp-head .vp-pdp-cut {
