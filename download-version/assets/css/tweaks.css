@@ -11415,21 +11415,27 @@ ul.vp-how-list.is-ticked li:before {
      own boundary rather than spread over thirty pixels of page. The other two
      are the lift and the spread.
 
-     **All three are offset by nothing** — «یه سایه مث همونکه دادی پایینش بده ۲
-     طرف و بالاش» — so the sides and the top get what the foot had. A shadow
-     with a y offset is a light source above the card; this one is the card
-     lifted off the page, which is what a shadow on all four sides means.
+     **On all four sides, and lightest at the top** — «یه سایه مث همونکه دادی
+     پایینش بده ۲ طرف و بالاش», then «سایه‌رو از بالای کارت کمتر کن». The three
+     layers carry a small downward offset, which is what makes the top the
+     lightest edge and the foot the darkest without any of the four losing its
+     shadow.
+
+     Their alphas came down with it, because the offset that lightens the top
+     piles the same ink onto the foot: at the first try the foot read 190,
+     which is a heavier card than anything else on this page wears.
 
      Measured after, page → card, at 8px out and then every pixel in:
 
-         left  246 245 244 242 240 236 231 222 | 255
-         top   246 245 244 242 240 236 231 222 | 255
-         foot  255 | 222 236 242 245 247 249 … 255 over 24
+         top   254 254 253 253 253 252 252 252 251 250 248 245 | 255
+         left  248 248 247 245 244 242 237 229 | 255
+         foot  255 | 204 222 235 240 243 245 … 255 over 26
 
-     The same profile on all four sides, and the darkest value sits on the
-     card's own boundary: 222 against the card's 255 is a 33-level step, where
-     the arrangement that entry is about had four values within a few levels of
-     each other and no step anywhere. */
+     A step at every edge — 10 levels at the top, 26 at the sides, 51 at the
+     foot — and the darkest value of each sits on the card's own boundary. That
+     is what keeps this on the right side of «لبه پنهان», where the arrangement
+     the entry is about had four values within a few levels of each other and
+     no step anywhere. */
   .vp-pdp-info {
     position: relative;
     display: flex;
@@ -11451,9 +11457,9 @@ ul.vp-how-list.is-ticked li:before {
     border-radius: 24px;
     background: #FFFFFF;
     box-shadow:
-      0 0 3px rgba(16, 17, 17, 0.13),
-      0 0 10px -3px rgba(16, 17, 17, 0.12),
-      0 0 34px -12px rgba(16, 17, 17, 0.30);
+      0 1.5px 3px rgba(16, 17, 17, 0.11),
+      0 3px 10px -3px rgba(16, 17, 17, 0.09),
+      0 8px 34px -12px rgba(16, 17, 17, 0.22);
   }
 
   /* ---- The order inside the sheet ----------------------------------------
