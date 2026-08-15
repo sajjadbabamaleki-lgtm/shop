@@ -46,7 +46,10 @@
                     <img src="{{ asset('assets/img/vikyplus-appicon.png') }}" alt="">
                 </span>
                 <h1 class="vp-enter-title">به ویکی پلاس خوش آمدی</h1>
-                <p class="vp-enter-say">با شماره موبایل وارد شو — سفارش‌هایت یک‌جا جمع می‌شود و خرید بعدی سریع‌تر است.</p>
+                {{-- One line, and that is a measurement rather than a
+                     preference: at two lines this sentence was 22px of the
+                     card's height, and the card had 20% to give up. --}}
+                <p class="vp-enter-say">با شماره موبایل وارد شو؛ خرید بعدی سریع‌تر است.</p>
             </div>
 
             @foreach ($errors->all() as $error)

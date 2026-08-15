@@ -8082,7 +8082,13 @@ ul.vp-how-list.is-ticked li:before {
 #vp-signin-login:checked ~ .vp-signin-tabs label[for="vp-signin-login"],
 #vp-signin-register:checked ~ .vp-signin-tabs label[for="vp-signin-register"] {
   background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
-  color: #101111;
+  /* «اون ورود و ثبت نام نوشتشون باید سفید باشه رو گلد نه مشکی». It took ink
+     because the stepped sale's lit step and the drawer's lit shortcut do, and
+     those are the two this borrowed from — but neither of them is a control
+     with an unchosen twin beside it in grey ink. On this strip the two halves
+     have to read as one on and one off, and white against #101111 says that in
+     a way two darks cannot. */
+  color: #FFFFFF;
 }
 
 .vp-signin-pane {
@@ -15910,8 +15916,13 @@ html {
 
    Below 576 only, so the desktop keeps its centring. */
 @media (max-width: 575px) {
+  /* 10, not the 14 the other panels take: «اون حریم دور که چسبیده باید فاصلش
+     ۱۰ پیکسل باشه». The rest of `.vp-shop-section`'s panels are still at 14 —
+     the block far above sets that for the set — so this one card is now 4
+     narrower than its neighbours on a phone. Said out loud because that is the
+     drift this file exists to notice, and it is here on purpose. */
   .vp-shop-panel.vp-track {
-    margin-inline: 14px;
+    margin-inline: 10px;
   }
 }
 
@@ -15931,8 +15942,9 @@ html {
    rather than another paragraph of the form, and the link carries an underline
    instead of the extra weight, so the two lines read as one sentence. */
 .vp-signin-alt {
-  margin-top: 22px;
-  padding-top: 16px;
+  margin-top: 14px;
+  padding-top: 12px;
+  font-size: 12.5px;
   box-shadow: inset 0 1px 0 rgba(16, 17, 17, 0.08);
 }
 
@@ -15979,13 +15991,13 @@ html {
 
 .vp-enter-card {
   max-width: 420px;
-  padding: 30px 24px 26px;
+  padding: 22px 22px 20px;
 }
 
 /* --- the head ------------------------------------------------------------- */
 
 .vp-enter-head {
-  margin-bottom: 22px;
+  margin-bottom: 16px;
   text-align: center;
 }
 
@@ -15998,28 +16010,28 @@ html {
    container — it *is* one. */
 .vp-enter-mark {
   display: block;
-  width: 58px;
-  margin: 0 auto 14px;
+  width: 46px;
+  margin: 0 auto 10px;
 }
 
 .vp-enter-mark img {
   display: block;
-  width: 58px;
-  height: 58px;
+  width: 46px;
+  height: 46px;
 }
 
 .vp-enter-title {
-  margin: 0 0 6px;
+  margin: 0 0 4px;
   font-family: 'Cairo', var(--title-font);
   font-weight: 700;
-  font-size: 20px;
-  line-height: 1.5;
+  font-size: 19px;
+  line-height: 1.45;
 }
 
 .vp-enter-say {
   margin: 0;
-  font-size: 13px;
-  line-height: 2;
+  font-size: 12.5px;
+  line-height: 1.8;
   color: #6E7070;
 }
 
@@ -16029,16 +16041,16 @@ html {
    #6E7070 on a light tint, which is what made the strip read as disabled
    rather than as one of two states. */
 .vp-signin-tabs {
-  margin: 0 0 22px;
+  margin: 0 0 14px;
   padding: 4px;
   border-radius: 999px;
   gap: 4px;
 }
 
 .vp-signin-tabs label {
-  padding: 10px 0;
+  padding: 8px 0;
   border-radius: 999px;
-  font-size: 14.5px;
+  font-size: 14px;
 }
 
 /* --- the fields ----------------------------------------------------------- */
@@ -16046,7 +16058,7 @@ html {
 .vp-signin-pane {
   display: none;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 #vp-signin-login:checked ~ .vp-signin-login,
@@ -16062,8 +16074,8 @@ html {
   display: grid;
   grid-template-columns: 44px minmax(0, 1fr) auto;
   align-items: center;
-  height: 52px;
-  border-radius: 16px;
+  height: 46px;
+  border-radius: 15px;
   background: #FFFFFF;
   box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.12);
   transition: box-shadow 0.2s ease;
@@ -16129,8 +16141,8 @@ html {
 /* --- the tick, the button, the receipt ------------------------------------ */
 
 .vp-signin-pane .vp-admin-remember {
-  margin: 2px 0 4px;
-  font-size: 13.5px;
+  margin: 0 0 2px;
+  font-size: 13px;
 }
 
 /* The page's own gold, at the field's height. `.vp-filter-apply`, which this
@@ -16140,7 +16152,7 @@ html {
   display: grid;
   place-items: center;
   width: 100%;
-  height: 52px;
+  height: 48px;
   border: 0;
   border-radius: 999px;
   background: linear-gradient(90deg, #C0972F 0%, #E3B54A 100%);
@@ -16161,26 +16173,26 @@ html {
    only when the phone turns out to have bought here before, so it keeps the
    rule above it and its sentence underneath. */
 .vp-signin-claim {
-  margin-top: 4px;
-  padding-top: 16px;
+  margin-top: 2px;
+  padding-top: 12px;
   border-top: 1px solid rgba(16, 17, 17, 0.08);
 }
 
 .vp-signin-claim small {
   display: block;
-  margin-top: 8px;
+  margin-top: 6px;
   padding-inline: 4px;
-  font-size: 12px;
-  line-height: 1.9;
+  font-size: 11.5px;
+  line-height: 1.75;
   color: #6E7070;
 }
 
 @media (max-width: 575px) {
   .vp-enter-card {
-    padding: 26px 18px 22px;
+    padding: 18px 16px 16px;
   }
 
   .vp-enter-title {
-    font-size: 18px;
+    font-size: 17px;
   }
 }
