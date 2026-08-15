@@ -61,7 +61,7 @@ Three things fall out of the wiring that are worth knowing:
 - **«فقط ۱ عدد باقی مانده» is a count.** It follows `sellable_stock`, and a
   product whose stock reaches zero leaves the sale rather than being offered.
 - **What is invented did not go into the catalogue.** The brand strip's
-  counts, the mosaic photographs of the three brands still borrowing them, and
+  counts, the mosaic photographs of the one brand still borrowing them, and
   the pairing that puts a shoe's price under a category's photograph are all
   in `config/storefront.php` under `placeholders`. Seeding an invented number into the tables would make it
   indistinguishable from a counted one, which is the whole thing that block
@@ -177,21 +177,36 @@ three live in one array (`BRANDS`) at the top of the brand block in
   it belongs; the other three are the template's own abstract marks. The slot
   is a fixed 30×30 box rather than sized off the artwork, so a real logo drops
   in without touching the CSS.
-- **the photographs** — **Nike's three are its own now**, supplied by the
-  client for this tile («این ۳ تصویر در ۳ کادر اول که نایک هستش بیاد») with
-  the shoe carrying the NIKE wordmark named for the large cell. They are
-  sources in `theme/brand-src`, built by `node theme/make-brand-photos.js`
-  into `assets/img/brand/vikyplus-nike-*.webp`, and named twice — in `BRANDS`
-  for the static page and in `placeholders.brand_strip` for Laravel. The other
-  three tiles still borrow the category photographs from the top of the page,
-  because we hold one product photograph per those brands and this shape wants
-  three. Each of them stops borrowing the way Nike just did: three files into
-  `brand-src`, a line in `make-brand-photos.js`, `photos` in place of the
-  category slugs in both lists. No two tiles open on the same lead image.
-  `HomePageTest` asserts Nike's three are named *and that the files are in
-  `public/`* — the build and the asset sync are two steps outside the
-  application, and a src that points at nothing looks perfectly correct in the
-  markup.
+- **the photographs** — **three of the four tiles carry the brand's own now.**
+  The client supplied a set of three per brand for Nike, Jordan and New
+  Balance («این ۳ تصویر در ۳ کادر اول که نایک هستش بیاد») and named which one
+  leads: the shoe on its own, «اون کفش تکی که پشتش نوشته نایک برای تصویر
+  بزرگس». Every set therefore reads the same way down the tile — **shoe, kit,
+  athlete** — so a fourth set needs no decision made about it. Sources live in
+  `theme/brand-src`, `node theme/make-brand-photos.js` builds them into
+  `assets/img/brand/vikyplus-*.webp`, and each path is named twice: in
+  `BRANDS` for the static page and in `placeholders.brand_strip` for Laravel.
+  The fourth tile still borrows the category photographs from the top of the
+  page and stops the same way the others did — three files into `brand-src`,
+  three lines in `make-brand-photos.js`, `photos` in place of the category
+  slugs in both lists. `HomePageTest` asserts every brand carrying `photos`
+  names all three *and that the files are in `public/`* — the build and the
+  asset sync are two steps outside the application, and a src that points at
+  nothing looks perfectly correct in the markup.
+
+  The size is computed, not typed: each file is scaled to the smallest size
+  that still *covers* its cell, which is the same arithmetic `object-fit`
+  does, against the cell as measured at 1920 and doubled for a 2x screen —
+  520×680 for the lead, 384×336 for a small one. That matters because the
+  cells are two shapes and the sources are too: a square shot in the tall lead
+  cell is bound by its height, a 4:5 poster in the same cell by its width, and
+  one typed width would be wrong for one of them. The row is fluid and keeps
+  growing past 1920, so this is a stated ceiling rather than a guarantee.
+
+  **Three tiles now show photographs carrying the brand's real mark**, which
+  makes the template's abstract stand-in on the plate beside them a good deal
+  more visible than it used to be. That is the next thing to fix on this
+  block, and it is a logo file each, nothing more.
 - **the counts** — invented. There is no inventory behind this page; the
   Laravel app has the tables, the static page has no data. They are shaped
   like real numbers and are not real numbers.

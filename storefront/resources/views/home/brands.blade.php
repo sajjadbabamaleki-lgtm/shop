@@ -2,10 +2,11 @@
     «برندهای موجود» — four brands, each a photo mosaic with a glass plate
     floating in it.
 
-    The name and the mark are the brand's own, and Nike's three photographs
-    are too — the client supplied them for this tile. The other three tiles
-    still borrow the category photographs from the top of the page, because we
-    hold one product photograph per brand and a tile wants three. No count is
+    The name and the mark are the brand's own, and so are the photographs of
+    the three tiles the client has supplied a set for — Nike, Jordan and New
+    Balance, each reading shoe, kit, athlete down the tile. The fourth still
+    borrows the category photographs from the top of the page, because we hold
+    one product photograph for that brand and a tile wants three. No count is
     real; they are invented outright.
 
     Photographs and counts alike come out of

@@ -4,24 +4,34 @@
  *
  * Until now every tile in «برندهای موجود» borrowed the eight category
  * photographs from the top of the page, because we held one product shot per
- * brand and each tile wants three. Nike's three arrived, so Nike's tile stops
- * borrowing; the other three still do, and the moment their photographs arrive
- * they get an entry here and a `photos` key in the two places listed below.
+ * brand and each tile wants three. Nike's, Jordan's and New Balance's three
+ * have arrived, so those three tiles stop borrowing; the fourth still does,
+ * and the moment its photographs arrive it gets three entries here and a
+ * `photos` key in the two places listed at the bottom.
  *
  * Same rule as the category photographs: **resize only, no crop.** Each file
  * goes in as supplied and the framing stays where it belongs, in the CSS —
  * `.vp-brand-cell img` is `object-fit: cover`, so the cell decides what is
  * shown and a build that also cropped would be cropping twice.
  *
- * The widths are set per cell rather than one size for all three, because the
- * mosaic's cells are not the same size or the same shape. Measured at 1440,
- * where a tile is 324x243: the lead is 183x243 and each small cell is
- * 135x119. Widest they ever get is the one-column layout under 576, where a
- * tile is about 500 across — lead 282, small 210. These are set at well over
- * twice that, so both still hold up on a 2x screen.
+ * The size is computed rather than typed, because the two cells are different
+ * shapes and the sources are not all the same shape either. A square shot in
+ * the tall lead cell is bound by its *height*; a 4:5 poster in the same cell
+ * is bound by its width. So each file is scaled to the smallest size that
+ * still covers its cell — the same arithmetic `object-fit: cover` does — and
+ * everything else falls out of that:
+ *
+ *     scale = max(cell width / source width, cell height / source height)
+ *
+ * The cell sizes below are measured off the page at 1920, which is the widest
+ * anything in this repo checks (`check-parity.js` and `check-overflow.js` both
+ * stop there), and doubled so they still hold up on a 2x screen. The tiles do
+ * go on growing past 1920 — the row is fluid and has no max width — so this is
+ * a stated ceiling rather than a guarantee; at 2560 a lead cell is 344 wide and
+ * a 2x screen there would be reading these at about 1.5x.
  *
  * WebP rather than JPEG, and this one is measured rather than inherited. The
- * three photographs are dark teal gradients over most of their area, which is
+ * photographs are dark saturated gradients over most of their area, which is
  * what JPEG is worst at, so the encoder was compared against the resized
  * source at the sizes actually shipped (mean absolute error per channel):
  *
@@ -52,17 +62,26 @@ const sharp = require('./node_modules/sharp');
 const SRC = path.resolve(__dirname, 'brand-src');
 const OUT = path.resolve(__dirname, '../download-version/assets/img/brand');
 
-// `lead` is the tall cell that spans both rows; `small` is one of the stacked
-// pair. Height is never given — resizing by width alone is what keeps this a
-// straight resize.
-const WIDTH = { lead: 600, small: 480 };
+// What each cell measures at 1920, doubled. `lead` is the tall cell that spans
+// both rows; `small` is one of the stacked pair.
+const CELL = {
+  lead: { width: 520, height: 680 },
+  small: { width: 384, height: 336 },
+};
 
 // Named for what is in them, not for where they sit, so a re-ordering is a
-// change to the two lists that name them and not to a filename.
+// change to the lists that name them and not to a filename. The order within
+// each brand is the order on the tile: lead first, then the stacked pair.
 const SOURCES = [
   { name: 'nike-vomero', cell: 'lead' },
   { name: 'nike-kit', cell: 'small' },
   { name: 'nike-athlete', cell: 'small' },
+  { name: 'jordan-one', cell: 'lead' },
+  { name: 'jordan-kit', cell: 'small' },
+  { name: 'jordan-athlete', cell: 'small' },
+  { name: 'nb-530', cell: 'lead' },
+  { name: 'nb-kit', cell: 'small' },
+  { name: 'nb-athlete', cell: 'small' },
 ];
 
 (async () => {
@@ -73,19 +92,24 @@ const SOURCES = [
     if (!fs.existsSync(src)) throw new Error(`missing source: ${name}.png`);
 
     const m = await sharp(src).metadata();
-    const width = WIDTH[cell];
+    const box = CELL[cell];
+    const scale = Math.max(box.width / m.width, box.height / m.height);
 
     // Enlarging a photograph past its own resolution is not a resize, it is an
     // invention — so it stops rather than shipping something soft.
-    if (m.width < width) {
-      throw new Error(`${name}.png is ${m.width}px wide; the ${cell} cell wants ${width}`);
+    if (scale > 1) {
+      throw new Error(
+        `${name}.png is ${m.width}x${m.height}; covering the ${cell} cell at 2x wants ${box.width}x${box.height}`
+      );
     }
+
+    const width = Math.round(m.width * scale);
 
     const dest = path.join(OUT, `vikyplus-${name}.webp`);
     const info = await sharp(src).resize(width).webp({ quality: 88, effort: 6 }).toFile(dest);
 
     console.log(
-      `  ${name.padEnd(13)} ${cell.padEnd(5)} ${m.width}x${m.height} -> ${info.width}x${info.height}` +
+      `  ${name.padEnd(15)} ${cell.padEnd(5)} ${m.width}x${m.height} -> ${info.width}x${info.height}` +
       `  ${Math.round(fs.statSync(dest).size / 1024)}KB`
     );
   }

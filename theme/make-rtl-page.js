@@ -1604,28 +1604,32 @@ html = html.replace('</body>', HOW_HTML + '</body>');
 // substitutions rather than wait for the real assets, so the layout can be
 // settled now and the content dropped in later.
 const BRANDS = [
-  // **Nike's three photographs are the brand's own** — supplied by the client
-  // for this tile and for this arrangement: «این ۳ تصویر در ۳ کادر اول که نایک
-  // هستش بیاد», with the single shoe carrying the NIKE wordmark named for the
-  // large cell, «اون کفش تکی که پشتش نوشته نایک برای تصویر بزرگس». So the
-  // order below is stated, not chosen: vomero leads, the kit and the athlete
-  // take the stacked pair. They are prepared by theme/make-brand-photos.js,
-  // which resizes and does not crop; the cell's `object-fit: cover` does the
-  // framing, as it does for every other photograph on this page.
+  // **Three of the four tiles carry the brand's own photographs now** —
+  // supplied by the client, three per brand, for this arrangement: «این ۳
+  // تصویر در ۳ کادر اول که نایک هستش بیاد». Nike came first and set the order
+  // for the rest, because the client named which of the three leads: the shoe
+  // on its own, «اون کفش تکی که پشتش نوشته نایک برای تصویر بزرگس». So every
+  // set reads the same way down the tile — the shoe alone in the large cell,
+  // then the kit, then the athlete — and a fourth set dropped in tomorrow
+  // needs no decision made about it.
   //
-  // The other three tiles still borrow the category photographs from the top
-  // of the page — the client's own call («از عکس های اون قسمت هشتایی بالای
-  // وبسایت استفاده کن») from when we held one product photograph per brand and
-  // this shape wanted three. Nine slots against eight photographs now, and
-  // what does not repeat is the lead photograph of each tile, so no two tiles
-  // open on the same image. Each of those three stops borrowing the same way
-  // Nike just did: three files into theme/brand-src, a line in
-  // make-brand-photos.js, and `photos` here instead of lead/a/b.
+  // They are prepared by theme/make-brand-photos.js, which resizes and does
+  // not crop; the cell's `object-fit: cover` does the framing, as it does for
+  // every other photograph on this page.
+  //
+  // The fourth tile still borrows the category photographs from the top of the
+  // page — the client's own call («از عکس های اون قسمت هشتایی بالای وبسایت
+  // استفاده کن») from when we held one product photograph per brand and this
+  // shape wanted three. It stops borrowing the way the other three did: three
+  // files into theme/brand-src, three lines in make-brand-photos.js, and
+  // `photos` here instead of lead/a/b.
   //
   // The logos are the template's own. brand_5_2 is genuinely the Nike swoosh
   // and is used where it belongs; the other three are the template's abstract
   // marks from one family, standing in until real ones arrive. Swap the file
-  // and nothing else has to change.
+  // and nothing else has to change. **Three of the tiles now hold photographs
+  // carrying the brand's real mark**, which makes the stand-in on the plate
+  // beside them a good deal more visible than it was.
   //
   // The counts are invented. There is no inventory behind this page — the
   // Laravel app has the tables, this static page has no data — so they are
@@ -1638,8 +1642,22 @@ const BRANDS = [
       'assets/img/brand/vikyplus-nike-athlete.webp',
     ],
   },
-  { name: 'جردن',       logo: 'brand_1_6.svg', stock: '۲۸', lead: 'boot',    a: 'college',   b: 'accessory' },
-  { name: 'نیوبالانس',  logo: 'brand_1_5.svg', stock: '۳۵', lead: 'college', a: 'bag-set',   b: 'sneaker' },
+  {
+    name: 'جردن', logo: 'brand_1_6.svg', stock: '۲۸',
+    photos: [
+      'assets/img/brand/vikyplus-jordan-one.webp',
+      'assets/img/brand/vikyplus-jordan-kit.webp',
+      'assets/img/brand/vikyplus-jordan-athlete.webp',
+    ],
+  },
+  {
+    name: 'نیوبالانس', logo: 'brand_1_5.svg', stock: '۳۵',
+    photos: [
+      'assets/img/brand/vikyplus-nb-530.webp',
+      'assets/img/brand/vikyplus-nb-kit.webp',
+      'assets/img/brand/vikyplus-nb-athlete.webp',
+    ],
+  },
   { name: 'گلدن گوس',   logo: 'brand_1_3.svg', stock: '۱۹', lead: 'majlesi', a: 'accessory', b: 'sport-set' },
 ];
 
