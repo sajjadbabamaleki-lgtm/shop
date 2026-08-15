@@ -13427,33 +13427,33 @@ ul.vp-how-list.is-ticked li:before {
   }
 
   /* --- the category strip ------------------------------------------------ */
-  /* «از وسط هم فاصلشون کمتر بشه که موارد بیشتری جا بشه» — the centres closer
-     together, so more of the eight are on screen at once.
+  /* All eight on the screen, with no writing under them — «اون بخش آیکون هارو
+     در فروشگاه بدونه نوشته زیرشون بزار فقط ۸ آیکونو بیار داخل که نیاز به اسکرول
+     نباشه».
 
-     **The whole cut comes out of the gap: 18 → 2, and the item keeps its 58.**
-     What decides how many fit is 6w + 5g against the strip's 366 at 390. It was
-     6×58 + 5×18 = 438, so five fitted and the sixth was cut off; it is 348 + 10
-     = 358 now, and six fit with 8px to spare.
+     **The label is what was making this row scroll, not the gap.** Two rounds
+     were spent buying items back a few at a time — 18 → 2 on the gap, which
+     took it from five visible to six — and both were working against a 58px
+     item that was 58 only because «ست کیف و کفش» needed the width. Take the
+     writing away and the item is the tile: 34. Eight of those is 272 against
+     the strip's 366 at 390, so they fit with 94px to spare and there is nothing
+     left to scroll.
 
-     The item is not free to give, and two rounds proved it in opposite
-     directions. At 50 (with a gap of 8, the same six items) «ونس و کتونی»
-     ellipsised — a name that has fitted for as long as the strip has existed.
-     At 56 the label measures 56 exactly, which passed a `scrollWidth` check and
-     still ellipsised on screen, because equal is not slack. So the width stays
-     where it was and the gap does the work. Two names are too long at any width
-     this row can afford — «بوت و نیم‌بوت» at 60 and «ست کیف و کفش» at 76, both
-     already ellipsised before this round — and they stay the only two.
+     **`space-between` rather than a chosen gap, so this holds at every width.**
+     A fixed gap has to be picked for the narrowest screen or it overflows
+     there; distributing the slack instead means the row fits wherever 8 × 34
+     plus the 2px floor does, which is 286px of strip — a 310px screen, narrower
+     than any phone this site is opened on. Measured, tile to tile: 13.4px at
+     390, 16.6 at 412, 19.1 at 430, 9.1 on a 360 screen and 3.4 on a 320, which
+     is the floor doing its job rather than a scrollbar appearing. The `gap`
+     under it is that floor.
 
-     **2px of gap is not what it reads as, because the tile is 34 inside a 58
-     item.** The eye spaces the tiles, not the item boxes, and tile to tile is
-     2 + 24 = 26px of air, against 30 before — so the gap the client asked to
-     shrink shrank by a seventh of what the number suggests, which is the right
-     amount for a row that now has a drawn box on every item.
-
-     Seven was looked at and refused: it needs 7w + 6g ≤ 366, which is a 50px
-     item at a 2px gap, and 50 is the width that ellipsised «ونس و کتونی». */
+     `overflow-x: auto` stays as the safety net. Nothing scrolls at eight, but a
+     ninth section is one row in the database away, and the alternative to a
+     scrollbar there is a row that runs off the screen. */
   .vp-shop-strip {
     display: flex;
+    justify-content: space-between;
     gap: 2px;
     margin-block-end: 16px;
     padding-block-end: 2px;
@@ -13465,15 +13465,24 @@ ul.vp-how-list.is-ticked li:before {
     display: none;
   }
 
-  /* «فاصله آیکون ها با نوشته زیرشون باید نصف بشه سایز آیکون ها باید ۳۰ درصد
-     کوچیکتر بشن» — the gap 6 → 3, the mark 26 → 18.2. */
+  /* The item is the tile, now that the label under it is not drawn.
+
+     It was 58 wide with the name beneath — and the gap between the two was 3,
+     «فاصله آیکون ها با نوشته زیرشون باید نصف بشه» having halved it from 6. Both
+     numbers are gone rather than left sitting here inert: with the label out of
+     the flow (see the rule below) a `gap` on this column has nothing to space,
+     and a declaration that does nothing looks exactly like one that does until
+     somebody puts the label back and cannot see why it will not move.
+
+     `position: relative` is not decoration either — it is what the hidden label
+     is positioned against, so it cannot escape to the page and stretch it. */
   .vp-shop-cat {
+    position: relative;
     flex: none;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 3px;
-    width: 58px;
+    width: 34px;
     color: rgba(16, 17, 17, 0.62);
     font-size: 11px;
     text-decoration: none;
@@ -13546,11 +13555,30 @@ ul.vp-how-list.is-ticked li:before {
     background: rgba(192, 151, 47, 0.14);
   }
 
+  /* The name comes off the screen but stays in the page.
+
+     «بدونه نوشته زیرشون» is about what is drawn, and `display: none` would go
+     further than that: the mark is an `<img>` with `alt=""` and `aria-hidden`,
+     because it is decoration beside a word — so hiding the word outright leaves
+     eight links to eight sections of the shop with no accessible name at all,
+     announced as nothing but "link". Clipped to a pixel, the name is still what
+     a screen reader reads and what a browser's find-in-page matches, and the
+     row draws as eight icons.
+
+     The three lines that used to be here — nowrap, hidden, ellipsis — were the
+     truncation this row needed while the name was under the tile, and there is
+     nothing left to truncate. What the ellipsis was hiding is the reason this
+     round exists. */
   .vp-shop-cat span {
-    white-space: nowrap;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    border: 0;
     overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 100%;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
 
   /* The heading and the old search box are the desktop's. */
