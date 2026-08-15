@@ -84,10 +84,31 @@
                 {{-- A <details>, so the panel opens with no JavaScript and the
                      page keeps its promise that the URL decides what is shown.
                      The rail itself is unchanged — it is the same include the
-                     desktop renders in its sidebar, just folded away here. --}}
+                     desktop renders in its sidebar, just folded away here.
+
+                     «دکمه فیلتر وقتی زده میشه باید به شکل پاپاپ باز بشه» — so
+                     it opens as the popup the other two filters already open
+                     as, rather than as a panel hanging off the bar. The last
+                     round put the sheets' *language* inside this panel; this
+                     one makes the container a sheet too, which is the half that
+                     was still missing.
+
+                     The scrim and the head are the brand sheet's, element for
+                     element, so the close behaves the same way: the document's
+                     `[data-vp-sheet-close]` handler shuts the nearest <details>,
+                     and it does not care which of the three sheets it is in.
+                     Without script the scrim is still just a div and the
+                     <summary> still toggles, which is how this closed before. --}}
                 <details class="vp-shop-filter">
                     <summary class="vp-shop-filter-btn"><i class="fa-solid fa-sliders" aria-hidden="true"></i>فیلتر</summary>
-                    <div class="vp-shop-filter-panel">@include('shop.filters')</div>
+                    <div class="vp-sheet-scrim" data-vp-sheet-close></div>
+                    <div class="vp-shop-filter-panel">
+                        <div class="vp-sheet-head">
+                            <span class="vp-sheet-title">فیلتر</span>
+                            <button type="button" class="vp-sheet-x" data-vp-sheet-close aria-label="بستن"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+                        </div>
+                        @include('shop.filters')
+                    </div>
                 </details>
             </div>
 

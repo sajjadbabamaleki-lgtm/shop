@@ -10231,6 +10231,166 @@ ul.vp-how-list.is-ticked li:before {
   }
 }
 
+/* --------------------------------------------------------------------------
+   The story viewer.
+
+   «به شکل جزیره ای یه تصویر با تایم ۱۵ ثانیه باز بشه یعنی استوری باید کار کنه».
+
+   **It is the sheets' island, at the sheets' numbers.** The 12px inset, the
+   centring by `inset-block: 0` with auto margins, the 22px corner, the shadow,
+   and the scrim's blur are all `.vp-sheet`'s and `.vp-sheet-scrim`'s — this is
+   the fourth thing on this page that opens over a blurred page, and a fifth set
+   of numbers that were nearly the same would read as a mistake. The one it does
+   not take is the `-7vh` lift: that was measured for two short sheets, and this
+   island is a square photograph plus a bar row plus a caption, which is most of
+   a phone screen already. It sits centred.
+
+   Not styled through `.vp-sheet` itself because the sheets are `<details>`
+   children on the listing's tab row and this is a `hidden` overlay that the
+   script shows — the two are opened by different mechanisms, and sharing a
+   class would tie this to the tab row's markup.
+
+   The photograph is square and the frame is square, so nothing is cropped —
+   the files are 420×420 and `object-fit: contain` is a promise rather than a
+   fit. Same rule the category tiles are made under: resize only.
+   -------------------------------------------------------------------------- */
+.vp-story-view[hidden] {
+  display: none;
+}
+
+.vp-story-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(16, 17, 17, 0.45);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+
+.vp-story-island {
+  position: fixed;
+  z-index: 101;
+  inset-inline: 12px;
+  inset-block: 0;
+  margin: auto;
+  height: fit-content;
+  max-height: calc(100vh - 24px);
+  max-width: 420px;
+  overflow: hidden;
+  padding: 10px;
+  border-radius: 22px;
+  background: #FFFFFF;
+  box-shadow: 0 26px 60px -24px rgba(16, 17, 17, 0.55);
+}
+
+/* One bar per story, above the picture — the row is what says how many there
+   are and which one this is, which a single bar cannot. Built by the script
+   from the circles themselves, so it counts whatever the catalogue has. */
+.vp-story-bars {
+  display: flex;
+  gap: 4px;
+  margin-block-end: 8px;
+}
+
+.vp-story-bar {
+  flex: 1 1 0;
+  height: 2.5px;
+  border-radius: 2px;
+  background: rgba(16, 17, 17, 0.14);
+  overflow: hidden;
+}
+
+.vp-story-bar i {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #C0972F 0%, #E3B54A 100%);
+}
+
+/* The one already seen stays full; the one running fills over its 15 seconds.
+   **The duration is set by the script, not written here** — the timer that
+   turns the story and the bar that shows it running read one number, and a
+   duration in this file would be a second copy of it that nothing keeps in
+   step. `forwards` so the bar is still full at the moment the story turns
+   rather than snapping back to empty a frame early. */
+.vp-story-bar i.is-done {
+  width: 100%;
+}
+
+.vp-story-bar i.is-running {
+  animation-name: vp-story-run;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+@keyframes vp-story-run {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+/* Reduced motion gets the bar filled rather than animating: the story still
+   turns on its timer, and the progress bar stops being a moving thing on a
+   screen for somebody who has asked for fewer of those. */
+@media (prefers-reduced-motion: reduce) {
+  .vp-story-bar i.is-running {
+    animation: none;
+    width: 100%;
+  }
+}
+
+.vp-story-x {
+  position: absolute;
+  z-index: 1;
+  inset-block-start: 20px;
+  inset-inline-end: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  color: #101111;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.vp-story-shot {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 14px;
+  object-fit: contain;
+  background: #F5F5F5;
+}
+
+.vp-story-cap {
+  margin: 0;
+  padding-block-start: 10px;
+  text-align: center;
+}
+
+/* The way out to the section, which is where the circle went before it opened
+   a story. The gold pill the sheets apply with, at the size a caption wants. */
+.vp-story-go {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 60%;
+  height: 38px;
+  padding-inline: 18px;
+  border-radius: 19px;
+  background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+  background-origin: border-box;
+  color: #FFFFFF;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
 /* The ink foot off the hero card and the trust cards, on a phone.
 
    «پایین کارتهای هیرو و پایین این کارتا تو حالت موبایل یه خط خاکستری هست باید
@@ -13819,19 +13979,43 @@ ul.vp-how-list.is-ticked li:before {
     display: none;
   }
 
-  /* Over the page rather than pushing it down — the grid should not jump when
-     the rail opens. It spans the bar, which is both wider than the 320 it used
-     to ask for and incapable of running off either side. */
+  /* A popup, like the two beside it — «دکمه فیلتر وقتی زده میشه باید به شکل
+     پاپاپ باز بشه».
+
+     It was a panel hanging off the bar: absolute, spanning the row, dropped 8px
+     under it. The brand and the price open as an island over a blurred page,
+     and this is the third of the same three controls, so it opens that way too.
+
+     **Every number here is `.vp-sheet`'s, not a second set that looks like
+     it** — the 12px inset, the centring by `inset-block: 0` with auto margins,
+     the `-7vh` lift off dead centre («اگه ۲۰ درصد بره بالاتر دیگه معرکست»), the
+     22px corner and the shadow. Read the note over `.vp-sheet` for why each of
+     them is what it is; if any of them moves, it moves here as well or the
+     three sheets stop agreeing. It is written out rather than shared through a
+     class because `.vp-shop-filter-panel` is also the hook the whole block
+     below scopes its contents to, and giving this element two names for one
+     job is what makes a stylesheet hard to read later.
+
+     The scrim comes from the markup, and it is the same `.vp-sheet-scrim` the
+     others use, so the blur and the tap-to-close come free.
+
+     `max-height` and the scroll matter more here than in the other two: this
+     panel holds every facet at once — sections, brands, sizes, colours and the
+     price — so it is the one that will outgrow a short screen first. */
   .vp-shop-filter-panel {
-    position: absolute;
-    z-index: 30;
-    inset-inline: 0;
-    inset-block-start: calc(100% + 8px);
-    max-height: 70vh;
+    position: fixed;
+    z-index: 91;
+    inset-inline: 12px;
+    inset-block: 0;
+    margin-block: auto;
+    transform: translateY(-7vh);
+    height: fit-content;
+    max-height: calc(100vh - 24px);
     overflow-y: auto;
-    border-radius: 18px;
+    padding: 16px;
+    border-radius: 22px;
     background: #FFFFFF;
-    box-shadow: 0 18px 40px -18px rgba(16, 17, 17, 0.4);
+    box-shadow: 0 26px 60px -24px rgba(16, 17, 17, 0.55);
   }
 
   /* ---- and what is inside it, in the sheets' language ---------------------
@@ -13849,8 +14033,29 @@ ul.vp-how-list.is-ticked li:before {
      desktop sidebar renders as well — every rule below is scoped to
      `.vp-shop-filter-panel`, so the rail on the desktop is untouched. Nothing
      here changes what the form submits. */
+  /* Inside the sheet the rail is a plain container, not a panel.
+
+     `.vp-shop-rail` draws itself a ground, a 1px ring and a 28px corner,
+     because on the desktop it is a card sitting on the listing's white page.
+     Dropped into an island it is a panel inside a panel — and measured, it is
+     worse than it sounds: the ring lands at 28..362 and the island's content
+     box is 28..362, so every heading and every chip sits *on* the line. The
+     first render of this read as text clipped at the edge, which is what a
+     hairline touching type looks like.
+
+     So the ground, the ring and the corner come off, and the 20px padding with
+     them: the island already pads itself by 16, and two paddings would set the
+     rail's contents 36 in while the head above stayed at 16, with the title and
+     the first heading out of line down the same edge.
+
+     This is the note over `.vp-shop-top` again in another place — a tinted box
+     inside a white box reads as a mistake. Scoped to the panel, so the
+     desktop's sidebar keeps its card. */
   .vp-shop-filter-panel > .vp-shop-rail {
-    padding: 16px;
+    padding: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
   }
 
   /* No rules anywhere in it — «دیزاین خیلی خط خطی». The rail draws a hairline
