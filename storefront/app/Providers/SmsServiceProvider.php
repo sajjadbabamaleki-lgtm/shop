@@ -43,25 +43,25 @@ class SmsServiceProvider extends ServiceProvider
     }
 
     /**
-     * The same check again, at boot, so a production deploy configured to
-     * deliver nothing fails on its first request rather than on its first
-     * customer.
+     * `log` delivers nothing. In production that is a sign-in where a shopper
+     * waits for a message only ever written to a file on the server — the exact
+     * shape of silent failure this repository keeps being bitten by — so asking
+     * for a sender there is refused with the reason attached rather than
+     * answered with one that quietly throws the code away.
      *
-     * `register()` cannot be where this lives on its own: the binding is a
-     * singleton and nothing resolves it until somebody asks for a code, which
-     * is a shopper standing at the sign-in wondering why no message came.
-     */
-    public function boot(): void
-    {
-        $this->refuseSilentDelivery((string) config('services.sms.driver', 'log'));
-    }
-
-    /**
-     * `log` delivers nothing. In production that is a sign-in where every
-     * shopper waits for a message that is only ever written to a file on the
-     * server — the exact shape of silent failure this repository keeps being
-     * bitten by, so it is refused with the reason attached rather than
-     * discovered by a customer.
+     * **This is deliberately inside the singleton's factory and not in
+     * `boot()`.** It was in `boot()` for one commit and CI went red on the spot:
+     * `composer install` runs `artisan package:discover`, which boots the
+     * application before any `.env` exists, and Laravel's own default for a
+     * missing `APP_ENV` is «production» — so every install everywhere looked
+     * like a misconfigured production deploy. The same throw on Liara would
+     * have taken the whole shop down over a messaging setting; a shop that
+     * mostly sells shoes without anybody signing in must not stop serving
+     * because the SMS account is not open yet.
+     *
+     * Here, only the code path that would have sent something pays: the
+     * sign-in 500s, loudly, and the catalogue, the basket and the checkout are
+     * untouched.
      */
     private function refuseSilentDelivery(string $driver): void
     {

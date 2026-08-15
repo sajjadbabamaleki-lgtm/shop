@@ -540,18 +540,38 @@ class CustomerAccountTest extends TestCase
 
     /**
      * The `log` sender writes the code to a file and delivers nothing. That is
-     * the right default for a shop with no provider yet and the wrong thing
-     * everywhere else, so production refuses it — loudly, at the first request,
-     * rather than quietly at the first customer.
+     * the right default for a shop with no provider yet and the wrong thing in
+     * production, so asking for a sender there is refused rather than answered
+     * with one that throws the code away.
      */
-    public function test_a_production_deploy_that_delivers_nothing_refuses_to_boot(): void
+    public function test_a_production_deploy_that_delivers_nothing_refuses_to_send(): void
+    {
+        config(['services.sms.driver' => 'log']);
+        $this->app->detectEnvironment(fn () => 'production');
+        $this->app->forgetInstance(Sender::class);
+
+        $this->expectException(RuntimeException::class);
+
+        $this->app->make(Sender::class);
+    }
+
+    /**
+     * And it refuses at the point of sending, **not at boot**. That distinction
+     * cost a red CI run and would have cost the live site: `composer install`
+     * runs `artisan package:discover`, which boots the application before any
+     * `.env` exists, and Laravel's default for a missing `APP_ENV` is
+     * «production» — so a boot-time throw failed every install everywhere, and
+     * on Liara it would have stopped a shop from serving its catalogue over a
+     * messaging setting. Registering the provider must be quiet.
+     */
+    public function test_booting_in_production_without_a_provider_does_not_stop_the_shop(): void
     {
         config(['services.sms.driver' => 'log']);
         $this->app->detectEnvironment(fn () => 'production');
 
-        $this->expectException(RuntimeException::class);
+        (new SmsServiceProvider($this->app))->register();
 
-        (new SmsServiceProvider($this->app))->boot();
+        $this->get('/')->assertOk();
     }
 
     /** A provider named in the environment and implemented nowhere says so. */
