@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\Category;
+use App\Models\Product;
 use App\Support\Checkout\CartManager;
 use App\Support\Tenancy\TenantContext;
 use Illuminate\Support\Facades\View;
@@ -86,6 +87,38 @@ class AppServiceProvider extends ServiceProvider
                     ->get(),
                 'basketCount' => app(CartManager::class)->count(),
             ]);
+        });
+
+        /*
+         * The stories.
+         *
+         * **They are products, not categories.** They were the catalogue's
+         * first five sections, and «اصلا استوری ها نباید دسته بندی باشن باید
+         * همون ماهیت استوری اینستاگرامو داشته باشن» ended that: a story is a
+         * thing you look at and can buy, which is what the two buttons under
+         * the picture now do. A category has no price, no stock and no variant,
+         * so «افزودن به سبد خرید» on one had nothing to add.
+         *
+         * A composer for the same reason the drawer has one: the strip is a
+         * partial included by two pages — the listing, where it is shown, and
+         * the home page, where it is still parked — and a variable passed from
+         * one controller is a strip that breaks on the other.
+         *
+         * `purchasable()` and `pricedHere()` are what make the buttons honest:
+         * every story is a shoe this branch can actually sell today, so the
+         * basket button never offers something the checkout would refuse. The
+         * eager loads are what `addableVariant()`, `offerHere()` and
+         * `primaryMedia()` read — without them the strip is five products and
+         * about twenty queries.
+         */
+        View::composer('home.stories', function ($view): void {
+            $view->with('stories', Product::query()
+                ->purchasable()
+                ->pricedHere()
+                ->with(['brand', 'media', 'variants.offer', 'variants.stock', 'defaultVariant.offer', 'defaultVariant.stock'])
+                ->latest('id')
+                ->take(5)
+                ->get());
         });
     }
 }

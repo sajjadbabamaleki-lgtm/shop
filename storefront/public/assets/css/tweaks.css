@@ -10267,15 +10267,30 @@ ul.vp-how-list.is-ticked li:before {
   backdrop-filter: blur(6px);
 }
 
+/* An Instagram story less ten percent — «ابعاد استوری که باز میشه باید فقط ۱۰
+   درصد از ابعاد استوری اینستاگرام کوچیکتر باشه».
+
+   An Instagram story is 9:16, and on a phone it is the largest 9:16 box the
+   screen will hold: `min(100vw, 100vh × 9/16)` wide. Ninety percent of that is
+   this line, and the aspect ratio gives the height, so the box stays a story
+   shape on a screen of any proportion rather than becoming the screen's own
+   shape at 90%.
+
+   Measured at 390×844: an Instagram story is 390 × 693 there, and this is
+   351 × 624 — 90.0% of each side. At 412×915 it is 370.8 × 659.2 against
+   412 × 732.4, the same 90%.
+
+   It was a square card 366 wide, which is what the picture is; it is a story
+   frame now and the picture sits inside it. */
 .vp-story-island {
   position: fixed;
   z-index: 101;
-  inset-inline: 12px;
-  inset-block: 0;
+  inset: 0;
   margin: auto;
-  height: fit-content;
-  max-height: calc(100vh - 24px);
-  max-width: 420px;
+  width: min(90vw, 90vh * 9 / 16);
+  aspect-ratio: 9 / 16;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
   padding: 10px;
   border-radius: 22px;
@@ -10358,37 +10373,153 @@ ul.vp-how-list.is-ticked li:before {
   cursor: pointer;
 }
 
+/* The picture takes whatever the frame has left after the bars and the buttons,
+   and is shown whole inside it.
+
+   `contain` and not `cover`: the photographs are square and the frame is 9:16,
+   so covering would cut a third of the height off every one of them — and this
+   repo's rule for these files is resize only, no crop, which is why the
+   category tiles are `contain` too. The ground behind is the tiles' own #F5F5F5
+   rather than white, so the letterboxing reads as the frame's material instead
+   of as the picture failing to arrive.
+
+   `min-height: 0` is load-bearing on a flex child: without it the picture's own
+   height wins over `flex: 1` and the buttons under it are pushed out of the
+   island, which `overflow: hidden` then silently clips. */
 .vp-story-shot {
   display: block;
+  flex: 1 1 auto;
+  min-height: 0;
   width: 100%;
-  aspect-ratio: 1 / 1;
   border-radius: 14px;
   object-fit: contain;
   background: #F5F5F5;
 }
 
+/* What the story is, and the two things you can do about it.
+
+   `flex: none` so the caption keeps its height and the picture above gives up
+   the rest — the other way round, a long product name would push the buttons
+   out of the island and `overflow: hidden` would swallow them silently. */
 .vp-story-cap {
+  flex: none;
   margin: 0;
-  padding-block-start: 10px;
+  padding-block-start: 8px;
   text-align: center;
 }
 
-/* The way out to the section, which is where the circle went before it opened
-   a story. The gold pill the sheets apply with, at the size a caption wants. */
-.vp-story-go {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 60%;
-  height: 38px;
-  padding-inline: 18px;
-  border-radius: 19px;
-  background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
-  background-origin: border-box;
-  color: #FFFFFF;
+/* The name is the way through to the product page, which is where the circle
+   itself went before it opened a story. A link and not a button: it navigates,
+   and the two below it do not. */
+.vp-story-name {
+  display: block;
+  color: #101111;
   font-size: 13px;
   font-weight: 700;
   text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vp-story-price {
+  display: block;
+  margin-block-start: 2px;
+  color: #A47F25;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* «زیرش باید دکمه اضافه کردن به لیست علاقمندی [و] اضافه کردن به سبد خرید
+   باشه» — two, stacked, with the basket first.
+
+   Stacked rather than side by side because both labels are long: «افزودن به
+   لیست علاقمندی» is 132px of type at 12.5px, and two of those in a 351px island
+   leaves each about 165 with its padding — the wishlist one wraps or
+   ellipsises at every width this island has. A story is read down anyway.
+
+   Two forms, so `display: contents` on each: they carry the POST and the token
+   and should add nothing to the layout, or the gap between the buttons would be
+   the gap between two form boxes that are not the buttons. */
+.vp-story-acts {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-block-start: 8px;
+}
+
+.vp-story-acts form {
+  display: contents;
+}
+
+.vp-story-buy,
+.vp-story-fav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  height: 38px;
+  padding-inline: 14px;
+  border: 0;
+  border-radius: 19px;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* The basket is the sheets' gold, because it is the same "do the thing"
+   button as «اعمال فیلتر» and the product page's own. */
+.vp-story-buy {
+  background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+  background-origin: border-box;
+  color: #FFFFFF;
+}
+
+/* Nothing to add — no size of this shoe is sellable here. It should read as
+   unavailable rather than as a button that does nothing when pressed. */
+.vp-story-buy[disabled] {
+  background: rgba(16, 17, 17, 0.12);
+  color: rgba(16, 17, 17, 0.45);
+  cursor: default;
+}
+
+/* The wishlist is the outlined chip, for the reason the brand chips are
+   outlined: an outline beside a solid reads as the second choice of two, and
+   two solids read as two equal calls to action. */
+.vp-story-fav {
+  border: 1px solid rgba(16, 17, 17, 0.35);
+  background: none;
+  color: #101111;
+}
+
+/* The account head's two controls — the wishlist and the sign-out — which used
+   to be one form on its own. A row, so the second does not drop under the
+   first and leave the heading beside a gap. */
+.vp-account-acts {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Taking a shoe back off the list. Quiet, under its card: it is the page's own
+   control, not the card's, and it should not compete with the card's price. */
+.vp-fav-drop button {
+  display: block;
+  width: 100%;
+  margin-block-start: 8px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: rgba(16, 17, 17, 0.5);
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+  cursor: pointer;
+}
+
+.vp-fav-drop button:hover {
+  color: #101111;
 }
 
 /* The ink foot off the hero card and the trust cards, on a phone.

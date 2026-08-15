@@ -26,21 +26,19 @@
 
                  The strip the home page was given and then had parked —
                  «بنظرم استوری هارو هاید کن» — is the same five circles, so it
-                 is included here rather than built again. Its own file says
-                 what they are: the catalogue's first five sections, with the
-                 photographs and names the category tiles use, so the strip and
-                 the tiles cannot describe two different shops.
+                 is included here rather than built again.
 
-                 `$strip` and not the facets' categories: it is every active
-                 section in `position` order, which is the list the drawer and
-                 the home page's tiles read. The facets' list drops a section
-                 with nothing purchasable in it, and a story that comes and
-                 goes with the stock is not a section of the shop.
+                 **Nothing is passed in.** The five used to be the catalogue's
+                 first five sections and arrived here as `$strip`; they are five
+                 products now — «اصلا استوری ها نباید دسته بندی باشن» — and they
+                 come from a view composer, because this partial is on two pages
+                 and only one of them has a controller that could hand them
+                 over. Its own file says what they are.
 
                  The home page's copy stays parked. This one is switched on by
                  `.vp-listing-panel .vp-stories` in the stylesheet, so turning
                  one on does not turn the other on. --}}
-            @include('home.stories', ['categories' => $strip])
+            @include('home.stories')
 
             {{-- The phone's own top bar: back, search, filter.
 
