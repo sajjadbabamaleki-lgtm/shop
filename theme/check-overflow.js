@@ -28,6 +28,9 @@ const PAGES = (process.env.VP_PAGES || [
   '/cart',
   '/orders',
   '/vendors/apply',
+  // «ورود / ثبت‌نام». Two forms on one pane and a tab strip above them, and
+  // the register one is the longest form on the storefront.
+  '/account/enter',
   // The content pages. The size guide is the one that earns its place here: it
   // is the only page on this site with a table on it, and a four-column table
   // is exactly the thing that is two centimetres wider than a phone.

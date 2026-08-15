@@ -15820,3 +15820,164 @@ ul.vp-how-list.is-ticked li:before {
 html {
   touch-action: manipulation;
 }
+
+/* --------------------------------------------------------------------------
+   «ورود / ثبت‌نام» — «دیزاین این قسمت خیلی بد و قدیمی طور و نامنظمه».
+
+   Four things, and the first one is not a matter of taste.
+   -------------------------------------------------------------------------- */
+
+/* 1. THE CHECKBOX WAS NOT THERE.
+
+   «مرا به خاطر بسپار» had no box beside it — not a faint one, none: the
+   template's stylesheet carries a global
+
+       input[type="checkbox"] { visibility: hidden; opacity: 0;
+                                display: inline-block; width: 0; height: 0;
+                                display: none; }
+
+   because its own pattern draws the box on a *sibling* label's `:before`
+   (`input ~ label:before`). Our markup wraps the input inside its label, so
+   there is no sibling to draw on and the control simply vanished. It still
+   toggled — the label is its label — so nothing errored and no test noticed;
+   there was just no way to see whether it was on.
+
+   **Undoing it takes five properties, and `display` is the one to notice.**
+   That rule declares `display` twice — `inline-block` on its fourth line and
+   `none` on its last — so the second wins and a rule that only restores
+   visibility, opacity and size leaves the box still not laid out at all.
+   Measured that way once: visibility visible, opacity 1, 20×20, and
+   `display: none` in the computed style, which is a box that does not exist.
+
+   It is on three screens, and the third is the one that matters: `/admin` →
+   «تخفیف‌ها» has «برای همه شعبه‌ها» in this same markup, an invisible tick
+   that decides whether a discount applies to every branch.
+
+   So the box is drawn here rather than the markup being reshaped to the
+   template's sibling pattern: one rule fixes all three, and the pattern our
+   Blade uses is the accessible one — the input is inside its label, so the
+   whole row is the hit area without an `id`/`for` pair to keep in step. */
+.vp-admin-remember input[type='checkbox'] {
+  -webkit-appearance: none;
+  appearance: none;
+  display: inline-block;
+  visibility: visible;
+  opacity: 1;
+  flex: 0 0 auto;
+  width: 20px;
+  min-width: 0;
+  height: 20px;
+  margin: 0;
+  /* The template's form reset pads every `input` `0 25px 0 45px` and gives it
+     a 1px border. A flex item's `min-width` is `auto`, which floors it at its
+     own content box — 45 + 25 + 2 = 72 — so the box came out 72 wide however
+     often `width: 20px` was written above it. Measured: 72×20. The padding and
+     the border have to go too, and `min-width: 0` with them. */
+  padding: 0;
+  border: 0;
+  border-radius: 7px;
+  background: #FFFFFF;
+  box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.2);
+  cursor: pointer;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* Ticked: the page's own gold, and the tick as a background image rather than
+   a pseudo-element — an input is a replaced element and `::after` on one is
+   not something to rely on across engines. */
+.vp-admin-remember input[type='checkbox']:checked {
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.2 8.4l3 3 6.6-6.6' fill='none' stroke='%23FFFFFF' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 14px 14px no-repeat,
+    linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+  box-shadow: inset 0 0 0 1.5px rgba(164, 127, 37, 0.55);
+}
+
+.vp-admin-remember input[type='checkbox']:focus-visible {
+  outline: 2px solid rgba(164, 127, 37, 0.65);
+  outline-offset: 2px;
+}
+
+/* 2. THE PANEL SAT EDGE TO EDGE.
+
+   Every other panel on a phone is inset 14 — the block far above sets it for
+   `.vp-shop-section` as a set, «a basket 10 from the edge beside a listing at
+   24 is the kind of drift this file exists to stop». This page lost it:
+   `.vp-track` is declared after that media block and its `margin-inline: auto`
+   is what centres the card on a desktop, so it also overwrote the 14 on a
+   phone. Measured: the card was 390 wide in a 390 window, corners cut off at
+   both edges, while the card above it in the same screenshot — the header
+   island — stands 9 clear.
+
+   Below 576 only, so the desktop keeps its centring. */
+@media (max-width: 575px) {
+  .vp-shop-panel.vp-track {
+    margin-inline: 14px;
+  }
+}
+
+/* 3. THE SUBMIT BUTTON WAS THE OLDEST THING ON THE PAGE.
+
+   `.vp-filter-apply` is the listing's filter button: 40px tall and filled with
+   a flat `var(--theme-color)`, #A47F25, which is the dark end of the shop's
+   gold used as a solid. Every primary button the client has approved since is
+   the gradient — the hero's «خرید محصول», the drawer's shortcut, the content
+   pages' links — and next to a 50px field a 40px button reads as a leftover.
+
+   So: the field's height, and the page's own gold. Scoped to this page's
+   forms; the listing's filter button is not this button and keeps its own. */
+.vp-signin-pane .vp-cart-go {
+  height: 50px;
+  margin-top: 20px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #C0972F 0%, #E3B54A 100%);
+  font-size: 15px;
+}
+
+.vp-signin-pane .vp-cart-go:hover {
+  background: linear-gradient(90deg, #C0972F 0%, #E3B54A 100%);
+  filter: brightness(1.04);
+}
+
+/* The tick sits between the last field and that button and had the same 20 on
+   both sides, so it read as a third field rather than as an option on the
+   form. */
+.vp-signin-pane .vp-admin-remember {
+  margin-top: 16px;
+  font-size: 13.5px;
+}
+
+/* The checkout's form gap is 14 and its fields sit inside a page that has a
+   summary beside them. Here the form *is* the page, and with the button now
+   50 tall the 14 read tight against it. 18 between fields, and the 6 inside a
+   field is untouched — a label has to stay nearer its own input than the
+   field above it, or the grouping inverts. */
+.vp-signin-pane {
+  gap: 18px;
+}
+
+/* 4. THE FOOTNOTE READ AS LOOSE TEXT.
+
+   «سفارش داده‌ای و حساب نمی‌خواهی؟ …» wraps to two lines at 390, and with the
+   link at 600 in gold the second line was a gold fragment hanging under a grey
+   one — which is most of «نامنظم». A hairline above it makes it a footnote
+   rather than another paragraph of the form, and the link carries an underline
+   instead of the extra weight, so the two lines read as one sentence. */
+.vp-signin-alt {
+  margin-top: 22px;
+  padding-top: 16px;
+  box-shadow: inset 0 1px 0 rgba(16, 17, 17, 0.08);
+}
+
+.vp-signin-alt a {
+  font-weight: 400;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
+}
+
+/* The unchosen tab was #6E7070 on the pane's own tint — a light grey on a
+   light grey, which is what made the strip look washed rather than like a
+   control with two states. */
+.vp-signin-tabs label {
+  color: #4F5050;
+}
