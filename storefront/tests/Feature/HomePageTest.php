@@ -106,11 +106,19 @@ class HomePageTest extends TestCase
         // thing to what it was standing in for on this site.
         $this->assertSame(route('size-guide'), page_url('course.html'));
 
-        // Still unbuilt, so still '#'. `wishlist.html` is the one to watch:
-        // the footer had two items naming features this shop does not have,
-        // and they were given honest labels rather than a wrong destination.
+        // The wishlist, which was '#' and then wore a different label for a
+        // while — the slot was in the footer, the feature was not built, and a
+        // link called «علاقه‌مندی‌ها» landing on the size guide is a wrong
+        // answer rather than no answer. It is `account.wishlist` rather than
+        // `wishlist` so that a guest tapping it reaches the *shopper's*
+        // sign-in; `redirectGuestsTo` picks by matching `*account*`.
+        $this->assertSame(route('account.wishlist'), page_url('wishlist.html'));
+
+        // Still unbuilt, so still '#'. «مقایسه» is the one left of the two
+        // that named features this shop does not have: its slot still carries
+        // an honest label rather than a wrong destination.
         $this->assertSame('#', page_url('blog.html'));
-        $this->assertSame('#', page_url('wishlist.html'));
+        $this->assertSame('#', page_url('compare.html'));
     }
 
     /**

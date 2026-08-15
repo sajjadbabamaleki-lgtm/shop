@@ -102,7 +102,7 @@
                                         <li><a href="{{ page_url('cart.html') }}">سبد خرید</a></li>
                                         <li><a href="{{ page_url('faq.html') }}">تعویض و مرجوعی</a></li>
                                         <li><a href="{{ page_url('contact.html') }}">پشتیبانی</a></li>
-                                        <li><a href="{{ page_url('size-guide.html') }}">راهنمای سایز</a></li>
+                                        <li><a href="{{ page_url('wishlist.html') }}">علاقه‌مندی‌ها</a></li>
                                     </ul>
                                 </div>
                             </div>

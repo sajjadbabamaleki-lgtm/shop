@@ -84,6 +84,22 @@ return [
          */
         'wholesale.html' => 'wholesale',
         'franchise.html' => 'franchise',
+
+        /*
+         | «علاقه‌مندی‌ها», which now exists.
+         |
+         | The footer item was given a different label for a while — the slot
+         | was there, the feature was not, and a link called «علاقه‌مندی‌ها»
+         | landing on the size guide is a wrong answer rather than no answer.
+         | `/account/wishlist` was built since, so the label is back and this
+         | is the line that was promised.
+         |
+         | `account.wishlist`, not `wishlist`: the route sits behind
+         | `auth:customer` and `redirectGuestsTo` chooses between the two
+         | sign-ins by matching `*account*` on the route name, so a guest
+         | tapping this reaches the shopper's form and not the staff one.
+         */
+        'wishlist.html' => 'account.wishlist',
     ],
 
     /*

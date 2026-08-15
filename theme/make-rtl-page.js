@@ -2503,11 +2503,20 @@ if (!html.includes('vp-foot-m-head')) {
    * shop has had customer accounts since `AccountController`, and the footer
    * item named after them pointed at contact.html.
    *
-   * The wishlist slot goes the way «مقایسه» did — a real destination under a
-   * label the shop can honour, until there is a wishlist to point it at.
+   * The wishlist slot went the way «مقایسه» did — a real destination under a
+   * label the shop could honour — and it has its own name back now: the
+   * wishlist exists, at `/account/wishlist`, so «علاقه‌مندی‌ها» names something
+   * again. That is what the note said to do the day it was built.
+   *
+   * `wishlist.html` is a filename of its own so this slot alone points there,
+   * and config/storefront.php maps it to `account.wishlist`. The route is
+   * behind `auth:customer`, so a visitor who is not signed in lands on the
+   * shopper's sign-in rather than the staff one — `redirectGuestsTo` in
+   * bootstrap/app.php picks by matching `*account*` on the route name, which
+   * is why that route is called `account.wishlist` and not `wishlist`.
    */
   ['<a href="contact.html">حساب کاربری</a>', '<a href="my-account.html">حساب کاربری</a>'],
-  ['<a href="contact.html">علاقه‌مندی‌ها</a>', '<a href="size-guide.html">راهنمای سایز</a>'],
+  ['<a href="contact.html">علاقه‌مندی‌ها</a>', '<a href="wishlist.html">علاقه‌مندی‌ها</a>'],
   /*
    * «ویکی پلاس روی موبایل», rewritten to describe something that exists.
    *
