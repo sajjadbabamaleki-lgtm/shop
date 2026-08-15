@@ -37,11 +37,10 @@
     with the circles.
 
     ---------------------------------------------------------------------------
-    **The circles are the sale now, not the shoe.** «بجای تصویر کفش یک انیمیشن
-    لوپ داشته باشم از نوشته ۳۰٪» — so the ring carries «٪۳۰», moving, and the
-    photograph stays where the story opens. Only the thumbnail changed: the
-    viewer still shows the shoe, both buttons still post the same product and
-    variant, and every `data-vp-story-*` on the link is untouched.
+    **The circles carry the sale.** «بجای تصویر کفش یک انیمیشن لوپ داشته باشم
+    از نوشته ۳۰٪» — so the ring carries «٪۳۰», moving. Both buttons still post
+    the same product and variant they always did; nothing about what a story
+    *is* moved, only what its circle shows and when.
 
     The movement was picked off nine built and shown side by side, at size, on
     a phone: «ترکیب گزینه ۸ و گزینه یک یعنی نبض خوب بود بشرطی که اون مسیر دور
@@ -49,6 +48,18 @@
     the breath is drawn out rather than quick. The first attempt at this was a
     2px wave and was rejected in one word; that is worth knowing before anybody
     trims this one back down for being loud.
+
+    **And then the photograph comes back** — «اول به اندازه یه رفت و برگشت ۳۰
+    درصدو داشته باشیم بعد یه عکس ظاهر بشه», held «حداقل ۸ ثانیه». So the circle
+    is a cycle of 11: three seconds of «٪۳۰» taking one breath, then eight of
+    the shoe. Three shapes of this were built and shown; this is the first of
+    them, with the hold the client set.
+
+    The photograph is the same file the viewer opens with, so nothing new is
+    downloaded — but five requests the strip had stopped making do come back,
+    which was said before it was chosen rather than after. `loading="lazy"` is
+    what keeps that bill off the home page, where this strip is parked and
+    never painted.
 
     **The number is read, never typed.** ۳۰ is not a number about this strip: it
     is `config('storefront.ladder')`'s live step, the same source the board, the
@@ -60,21 +71,40 @@
     With no live step there is no sale to announce, and the circle falls back to
     the photograph rather than drawing «٪۰».
 
-    The picture the viewer opens is the same file the strip used to load, so a
-    story still fetches nothing new when it opens — but the strip itself no
-    longer fetches five photographs to show three glyphs, which is five requests
-    a phone does not make before the listing settles.
+    ---------------------------------------------------------------------------
+    **The photograph is campaign art, not the shoe's own.** «عکسای استوری ها
+    اینا باشن» — five images the client supplied, listed in
+    `config('storefront.stories.photos')` and painted in that order. Asked
+    whether to bind each to the product it depicts, they chose «هر پنج را روی
+    استوری‌ها بگذار», so the link under a circle still goes wherever the composer
+    pointed it and **two of the five circles show a shoe they do not sell you**:
+    the Nike image is a Vomero on a V2K Run's circle, and the last is a New
+    Balance on a Golden Goose's. Written in the config too, because it will
+    otherwise be read as a bug by whoever finds it next.
+
+    `$picture` is one variable on purpose. The circle's `<img>` and the link's
+    `data-vp-story-src` both take it, so the thumbnail and the story it opens
+    cannot come apart — `StoriesTest` asserts the two are equal, and that is the
+    assertion that would catch a second source being introduced here.
 --}}
 @php
     $ladder = config('storefront.ladder');
     $cut = $ladder['steps'][$ladder['live'] - 1]['cut'] ?? null;
+    $storyPhotos = config('storefront.stories.photos', []);
 @endphp
 <section class="vp-stories" aria-label="استوری‌ها">
         <div class="vp-stories-row">
             @foreach ($stories as $story)
             @php
-                $shot = $story->primaryMedia();
                 $addable = $story->addableVariant();
+
+                // The campaign photograph if there is one at this position, and
+                // the shoe's own otherwise — so an emptied or shortened list
+                // degrades to what the strip showed before, never to a blank
+                // circle. One `$picture` from here on: the circle and the
+                // viewer must not be able to disagree about what a story shows.
+                $own = $story->primaryMedia();
+                $picture = $storyPhotos[$loop->index] ?? ($own ? $own->path : null);
             @endphp
             {{-- No caption under the circle. The name becomes the link's
                  accessible name rather than being dropped — a link whose whole
@@ -83,7 +113,7 @@
                  holds its place now. --}}
             <a class="vp-story" href="{{ storefront_route('product', $story) }}" aria-label="{{ $story->title }}"
                data-vp-story
-               data-vp-story-src="{{ $shot ? asset($shot->path) : '' }}"
+               data-vp-story-src="{{ $picture ? asset($picture) : '' }}"
                data-vp-story-name="{{ $story->title }}"
                data-vp-story-product="{{ $story->id }}"
                data-vp-story-variant="{{ $addable?->id }}">
@@ -109,12 +139,13 @@
                 @if ($cut)
                     <span class="vp-story-ring is-cut">
                         <span class="vp-story-disc" aria-hidden="true">
+                            @if ($picture)<img class="vp-story-photo" src="{{ asset($picture) }}" alt="" loading="lazy">@endif
                             <span class="vp-story-cut"><b>٪</b>@foreach (mb_str_split(fa_number($cut)) as $digit)<i>{{ $digit }}</i>@endforeach</span>
                         </span>
                     </span>
                 @else
                     <span class="vp-story-ring">
-                        @if ($shot)<img src="{{ asset($shot->path) }}" alt="" loading="lazy">@endif
+                        @if ($picture)<img src="{{ asset($picture) }}" alt="" loading="lazy">@endif
                     </span>
                 @endif
             </a>

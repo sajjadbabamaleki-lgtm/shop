@@ -10414,7 +10414,18 @@ button.vp-cart-keep {
 
      `#F5F5F5` is the tiles' own ground and the story island's, so a shoe sits
      on the same grey wherever this site shows one on a panel. */
-  .vp-story-ring img {
+  /* **`>`, and it is load-bearing.** This is the fallback circle — no live
+     sale, so the ring holds the shoe directly — and it draws its own border and
+     ground because there is no disc under it to do that.
+
+     Left as a descendant selector it also caught `.vp-story-shot` inside the
+     disc, at one class and one type against that rule's one class, so it won
+     on specificity and quietly handed the campaign photograph a second white
+     border inside the disc's own and an `object-fit` it had not asked for.
+     Measured, not noticed: `objectFit` read `cover` where the rule twenty lines
+     down says `contain`. It is the collision `CLAUDE.md` warns about, found the
+     way it says to find it. */
+  .vp-story-ring > img {
     display: block;
     width: 100%;
     height: 100%;
@@ -10470,16 +10481,69 @@ button.vp-cart-keep {
      ground, the white border and the round live on `.vp-story-disc` and the
      glyphs live on `.vp-story-cut` inside it, each with one transform of its
      own. */
+  /* **A grid of one cell, and both faces sit in it.** The mark and the
+     photograph take turns, and they have to occupy the same 55px without
+     either one moving when the other arrives — so they are stacked in a single
+     `grid-area`, and the whole swap is opacity. Absolute positioning would do
+     it too and would take the disc's height with it; a one-cell grid keeps the
+     circle sized by its own content the way it always was. */
   .vp-story-disc {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: grid;
     width: 100%;
     height: 100%;
     box-sizing: border-box;
     border: 2px solid #FFFFFF;
     border-radius: 50%;
     background: #F5F5F5;
+    overflow: hidden;
+  }
+
+  .vp-story-disc > * {
+    grid-area: 1 / 1;
+    align-self: center;
+    justify-self: center;
+  }
+
+  /* **`cover` here, and `contain` in the island, and both are right.**
+
+     The island shows a shoe on transparency, where the #F5F5F5 behind it is
+     ground rather than letterboxing, and cropping a product shot would take a
+     heel off. These five are full-bleed campaign pictures — a lit shoe on its
+     own dark set, with a numeral behind it — so there is no subject to clip at
+     the edges and a band of grey down each side of a dark picture inside a
+     coloured ring is the only thing that would read as a mistake.
+
+     Two of the five are not square (0.800 and 0.937), so this is not academic:
+     measured at 4×, `contain` puts 5.5px of ground down each flank of the Nike
+     picture at the widest row of a 55px circle. With `cover` the waist row runs
+     picture to picture, edge to edge.
+
+     No border and no ground of its own — the disc above carries both, and the
+     rule that used to give this one a second white ring is scoped off it now.
+
+     («resize only, no crop» is about how the file is prepared, and it was: all
+     five went through `fit: inside` at 900 and were not cut. How a prepared
+     photograph is fitted to a round 55px hole is a different question.)
+
+     **`aspect-ratio: 1`, not `height: 100%`, and that is not a preference.**
+     The ring takes its height from an `aspect-ratio` rather than a stated
+     value, so a percentage height inside it has no definite containing block
+     to resolve against and falls back to `auto` — measured, `height: 100%` on
+     this picture computed to `68.75px`, which is 55 divided by the Nike
+     picture's own 0.8 ratio. The element was then a tall rectangle behind a
+     round hole and the disc's `overflow` was doing the cropping that
+     `object-fit` is here to do. A ratio of its own needs nothing resolved: 55
+     wide, 55 tall, cropped by `cover` on purpose.
+
+     `stretch` against the `center` the disc gives its children — the mark stays
+     centred in the cell, the picture fills it. */
+  .vp-story-photo {
+    align-self: stretch;
+    justify-self: stretch;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    border-radius: 50%;
   }
 
   .vp-story-cut {
@@ -10541,8 +10605,34 @@ button.vp-cart-keep {
     animation: vp-story-disc-turn 6s linear infinite;
   }
 
+  /* --- and then the photograph -------------------------------------------
+
+     «اول به اندازه یه رفت و برگشت ۳۰ درصدو داشته باشیم بعد یه عکس ظاهر بشه»,
+     «حداقل ۸ ثانیه». Three of the eleven seconds are the mark taking one
+     breath; the other eight are the shoe.
+
+     **The breath is written inside the cycle rather than beside it, and that
+     is the whole trick.** Left on its own 3s clock against an 11s cycle the two
+     would only agree on the first lap — 3 does not divide 11 — and from the
+     second onward «٪۳۰» would fade in halfway through a breath, then a
+     different fraction of one, then another. It was caught by sampling the
+     picker rather than by watching it. So one 11s keyframe set does the
+     excursion in its first 27.273% and holds the mark at 0.86 for the rest,
+     where it is invisible anyway.
+
+     27.273% is 3s of 11, 30.455% is 3.35s — the 0.35 the two faces cross over
+     in, long enough not to blink and short enough not to read as a dissolve.
+     96.818% is 10.65s, where the mark fades back up for the seam so the loop
+     does not snap. Change the 8 and every one of those numbers moves; they are
+     `3 / 11`, `3.35 / 11` and `10.65 / 11` rather than taste. */
   .vp-story-cut {
-    animation: vp-story-cut-breathe 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    animation:
+      vp-story-cut-breathe 11s cubic-bezier(0.4, 0, 0.2, 1) infinite,
+      vp-story-cut-show 11s linear infinite;
+  }
+
+  .vp-story-photo {
+    animation: vp-story-photo-show 11s linear infinite;
   }
 
 }
@@ -10582,12 +10672,46 @@ button.vp-cart-keep {
    if 1.3 is ever raised again — the crown at the narrow width runs out before
    anything else does. */
 @keyframes vp-story-cut-breathe {
-  0%, 100% {
+  0% {
     transform: scale(0.86);
   }
 
-  50% {
+  13.636% {
     transform: scale(1.3);
+  }
+
+  27.273%, 100% {
+    transform: scale(0.86);
+  }
+}
+
+/* The two faces, one window each. The mark opens the cycle and comes back for
+   the last 0.35s so the seam is a fade rather than a cut. */
+@keyframes vp-story-cut-show {
+  0%, 27.273% {
+    opacity: 1;
+  }
+
+  30.455%, 96.818% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes vp-story-photo-show {
+  0%, 27.273% {
+    opacity: 0;
+  }
+
+  30.455%, 96.818% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
   }
 }
 
@@ -10633,8 +10757,27 @@ button.vp-cart-keep {
 @media (prefers-reduced-motion: reduce) {
   .vp-story-ring.is-cut,
   .vp-story-disc,
-  .vp-story-cut {
+  .vp-story-cut,
+  .vp-story-photo {
     animation: none;
+  }
+
+  /* **Stopping four animations is not enough here — it would show both faces
+     at once.** The mark and the photograph share one grid cell and are told
+     apart by opacity alone, so with the animations off they both sit at 1 and
+     «٪۳۰» prints over a shoe. A stopped animation should show its first frame,
+     and the first frame of this cycle is the mark; the photograph goes out of
+     the layout rather than to `opacity: 0`, which is the free half of the
+     decision — `display: none` on a `loading="lazy"` image is never fetched, so
+     a visitor who asked for less motion does not pay for five photographs they
+     were never going to be shown. The shoe is still one tap away in the
+     viewer, which is where the story opens. */
+  .vp-story-cut {
+    opacity: 1;
+  }
+
+  .vp-story-photo {
+    display: none;
   }
 }
 

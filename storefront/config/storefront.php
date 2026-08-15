@@ -283,6 +283,43 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | The story strip's own photographs
+    |--------------------------------------------------------------------------
+    |
+    | «عکسای استوری ها اینا باشن» — five images the client supplied for the
+    | circles above the listing's search line, and they are campaign art rather
+    | than catalogue art.
+    |
+    | **This deliberately decouples the story's picture from the product's.**
+    | Asked how to bind them, the client chose «هر پنج را روی استوری‌ها بگذار»
+    | over binding each to the shoe it depicts, so the strip paints these five
+    | in this order and the link under each circle still goes to whatever the
+    | composer picked. Three of the five match the shoe they sit on — Jordan,
+    | New Balance 530, On Cloudtilt. **Two do not**: the Nike image is a Vomero
+    | and the circle it lands on is a V2K Run, and the fifth circle is a Golden
+    | Goose wearing the second New Balance photograph. That was said before it
+    | was chosen and is repeated here because a circle whose picture and basket
+    | disagree is exactly the kind of thing the next person will read as a bug.
+    |
+    | Positional, so it is one line to re-order and one line to correct. A story
+    | past the end of this list falls back to its product's own photograph, and
+    | so does every story if this is emptied — nothing here can leave a circle
+    | with no picture at all.
+    |
+    */
+
+    'stories' => [
+        'photos' => [
+            'assets/img/story/story-jordan-bag.webp',
+            'assets/img/story/story-vomero.webp',
+            'assets/img/story/story-nb530.webp',
+            'assets/img/story/story-cloudtilt.webp',
+            'assets/img/story/story-nb530-bag.webp',
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | The mark beside a category in the phone drawer
     |--------------------------------------------------------------------------
     |
