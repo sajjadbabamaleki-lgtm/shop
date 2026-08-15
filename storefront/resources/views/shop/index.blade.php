@@ -115,12 +115,26 @@
                  and in the back button. Each one carries the other filters
                  with it or changing the order would throw the filters away. --}}
             @php
+                // The two price boxes are in here, and they were not. Every
+                // control in this row carries `$carry` and drops what is not in
+                // it, so a typed price was thrown away by the next tap on
+                // «پرطرفدار» or on a brand — and now by «پاک کردن فیلتر» in the
+                // brand sheet, which is what turned this up. The price form
+                // below already excludes them by name, which says plainly that
+                // they were meant to be here.
+                //
+                // In Toman, like everything else this page writes: the
+                // controller reads these boxes in Toman and multiplies by ten
+                // on the way in, so a Rial figure here would filter at ten
+                // times the price on the first tap.
                 $carry = array_filter([
                     'q' => $filters['q'],
                     'brand' => $filters['brand'],
                     'size' => $filters['size'],
                     'color' => $filters['color'],
                     'category' => $filters['category']?->slug,
+                    'min' => $filters['min'] ? intdiv($filters['min'], 10) : null,
+                    'max' => $filters['max'] ? intdiv($filters['max'], 10) : null,
                     'sale' => $filters['sale'] ? 1 : null,
                 ]);
                 $priceOn = in_array($filters['sort'], \App\Http\Controllers\ShopController::PRICE_TABS, true);
@@ -251,7 +265,27 @@
 
                             @endif
 
-                            <button type="submit" class="vp-price-apply">اعمال فیلتر</button>
+                            {{-- «کنار دکمه اعمال فیلتر یه دکمه سفید باشه پاک
+                                 کردن فیلتر» — the way out of a filter, beside
+                                 the way in, in both sheets.
+
+                                 A link, not a button: clearing is a place —
+                                 the same listing without this sheet's filter —
+                                 so it belongs in the URL and in the back
+                                 button, the same as every other control on
+                                 this page. It also means the clear works with
+                                 the form untouched and no script.
+
+                                 What it clears is *this sheet's* filter and
+                                 nothing else: the two boxes, and the price
+                                 sort if one is running. A sort from the row
+                                 above — «پرطرفدار», «تازه‌ترین» — is not the
+                                 price filter and rides along, which is what
+                                 `$priceOn` is asked here. --}}
+                            <div class="vp-sheet-actions">
+                                <button type="submit" class="vp-sheet-apply">اعمال فیلتر</button>
+                                <a class="vp-sheet-clear" href="{{ storefront_route('shop') }}?{{ http_build_query(collect($carry)->except(['min', 'max'])->all() + array_filter(['sort' => $priceOn ? null : $filters['sort']])) }}">پاک کردن فیلتر</a>
+                            </div>
                         </form>
                     </div>
                 </details>
@@ -343,7 +377,18 @@
                                 @endforeach
                             </div>
 
-                            <button type="submit" class="vp-sheet-apply">اعمال فیلتر</button>
+                            {{-- The pair the price sheet carries, in the same
+                                 classes so the two sheets cannot come apart —
+                                 «ارتفاع و طول هر دو دکمه هر دوجا باید یک اندازه
+                                 باشه».
+
+                                 This one drops every brand and keeps the sort
+                                 and the rest, which is what the form beside it
+                                 would post with every chip unticked. --}}
+                            <div class="vp-sheet-actions">
+                                <button type="submit" class="vp-sheet-apply">اعمال فیلتر</button>
+                                <a class="vp-sheet-clear" href="{{ storefront_route('shop') }}?{{ http_build_query(collect($carry)->except('brand')->all() + ['sort' => $filters['sort']]) }}">پاک کردن فیلتر</a>
+                            </div>
                         </form>
                     </div>
                 </details>

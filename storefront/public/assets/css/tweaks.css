@@ -14976,23 +14976,12 @@ button.vp-cart-keep {
     background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
   }
 
-  /* `display: block`, and it is not decoration. A <button> is inline-block by
-     default, and an inline-block at `width: 100%` of its container has no room
-     left on its own line — measured, it landed at -327..18.7 inside a panel
-     that runs 12..378, a full width off to the side. Block takes it out of the
-     line box and the width means what it says. */
-  .vp-price-apply {
-    display: block;
-    width: 100%;
-    height: 36px;
-    border: 0;
-    border-radius: 10px;
-    background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
-    color: #FFFFFF;
-    font-size: 12px;
-    font-weight: 700;
-    cursor: pointer;
-  }
+  /* The price sheet's foot is `.vp-sheet-actions` — the brand sheet's own
+     pair, in the brand sheet's own classes. It had a button of its own here,
+     `.vp-price-apply`, 36px tall at 12px in a 10px radius against the other
+     sheet's 44/14/13.25, and the two drifted apart precisely because they were
+     two rules for one control. «ارتفاع و طول هر دو دکمه هر دوجا باید یک اندازه
+     باشه» is one rule for both, so the class went with it. */
 }
 
 /* Tighter pills on the narrow phones.
@@ -15232,21 +15221,77 @@ button.vp-cart-keep {
     cursor: pointer;
   }
 
-  /* «باید یه دکمه اعمال فیلتر به پایین این اضافه بشه». The brand sheet's own,
-     at the price sheet's — one button, one behaviour, both sheets. */
-  .vp-sheet-apply {
-    display: block;
-    width: 100%;
-    height: 44px;
+  /* «باید یه دکمه اعمال فیلتر به پایین این اضافه بشه», and beside it the way
+     back out: «این دو جا باید کنار دکمه اعمال فیلتر یه دکمه سفید باشه پاک کردن
+     فیلتر».
+
+     Both sheets' feet are this row and these two rules — the price sheet had a
+     button of its own and it was 36 tall where this one was 44, which is
+     exactly the drift «ارتفاع و طول هر دو دکمه هر دوجا باید یک اندازه باشه»
+     names. There is one size here now and it is not written down twice.
+
+     `flex: 1 1 0` on both, so the two are the same width whatever is written
+     in them: `1 1 auto` would size them by their type and «پاک کردن فیلتر» is
+     four characters longer than «اعمال فیلتر». Measured at 390 the pair comes
+     to 169 each side of a 12px gap, in a sheet whose content runs 12..378.
+
+     The clear is an <a>, so it needs the height drawn rather than inherited —
+     hence the flex centring on the row's children rather than a line-height on
+     the button. */
+  .vp-sheet-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
     margin-block-start: 16px;
-    border: 0;
+  }
+
+  .vp-sheet-apply,
+  .vp-sheet-clear {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 44px;
+    padding: 0;
     border-radius: 13.25px;
-    background: linear-gradient(96deg, #C0972F 0%, #E3B54A 100%);
     font-family: 'Vazirmatn', var(--body-font);
     font-weight: 700;
     font-size: 14px;
-    color: #FFFFFF;
+    text-decoration: none;
     cursor: pointer;
+  }
+
+  .vp-sheet-apply {
+    border: 0;
+    background: linear-gradient(96deg, #C0972F 0%, #E3B54A 100%);
+    color: #FFFFFF;
+  }
+
+  /* White, as asked, which on a white sheet means the line is the button: the
+     fill cannot mark it out because the fill is the sheet's own. It is the
+     chips' outline at the price boxes' weight — 0.18 rather than the chip's
+     solid #101111, because a black ring 44 tall beside the gold reads as a
+     second primary, and rather than the boxes' 0.12, which at this size
+     disappeared. The ink stays full strength; only the edge is quiet.
+
+     **An inset ring, not a border, and that is the equal width.** A border on
+     one of two `flex: 1 1 0` items is not inside the share it is given: a
+     border-box item's flex base is clamped up to its own borders, so the ring
+     came off the free space first and then went back on. Measured, the pair
+     ran 160 and 162 in a 334 row — the two pixels of the ring, which is
+     precisely what «ارتفاع و طول هر دو دکمه» rules out. A shadow is painted,
+     not laid out, so both bases are 0 and both come to 161.
+
+     Putting a transparent border on the gold to match would have evened it,
+     and would have re-opened «بالا و پایینش دو رنگی داره»: this button's fill
+     is a gradient, and a gradient in a box with a transparent border tiles its
+     own ramp into the border strip. See the note on `.vp-chip.is-on`. */
+  .vp-sheet-clear {
+    border: 0;
+    background: #FFFFFF;
+    box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.18);
+    color: #101111;
   }
 
   .vp-chip i {

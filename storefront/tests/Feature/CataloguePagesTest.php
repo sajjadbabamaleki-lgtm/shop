@@ -104,6 +104,98 @@ class CataloguePagesTest extends TestCase
         return substr($html, $from, $to === false ? null : $to - $from);
     }
 
+    /**
+     * The two «پاک کردن فیلتر» buttons, one per sheet.
+     *
+     * Each one clears its own sheet and keeps everything else, and that is the
+     * whole of what can go wrong with it: a clear that also drops the brand, or
+     * the search, or the category, is indistinguishable from a working one
+     * until somebody has narrowed a listing twice and lost the first narrowing.
+     * Nothing else on this page notices — the button renders, it is the right
+     * size, and it goes to a listing.
+     *
+     * @return array{price: string, brand: string} the two clears' query strings
+     */
+    private function clears(string $url): array
+    {
+        $html = $this->get($url)->assertOk()->getContent();
+
+        preg_match_all('/class="vp-sheet-clear" href="([^"]*)"/', $html, $matches);
+
+        $this->assertCount(2, $matches[1], 'both sheets carry a clear');
+
+        // In the page's order: the price sheet, then the brand sheet.
+        return [
+            'price' => html_entity_decode((string) parse_url($matches[1][0], PHP_URL_QUERY)),
+            'brand' => html_entity_decode((string) parse_url($matches[1][1], PHP_URL_QUERY)),
+        ];
+    }
+
+    public function test_each_sheets_clear_drops_its_own_filter_and_keeps_the_rest(): void
+    {
+        $clears = $this->clears('/products?'.http_build_query([
+            'q' => 'کتونی',
+            'brand' => ['nike'],
+            'min' => 400000,
+            'max' => 900000,
+            'sort' => 'popular',
+            'sale' => 1,
+        ]));
+
+        parse_str($clears['price'], $price);
+        $this->assertArrayNotHasKey('min', $price);
+        $this->assertArrayNotHasKey('max', $price);
+        $this->assertSame(['nike'], $price['brand']);
+        $this->assertSame('کتونی', $price['q']);
+        $this->assertSame('popular', $price['sort']);
+        $this->assertSame('1', $price['sale']);
+
+        parse_str($clears['brand'], $brand);
+        $this->assertArrayNotHasKey('brand', $brand);
+        $this->assertSame('400000', $brand['min']);
+        $this->assertSame('900000', $brand['max']);
+        $this->assertSame('کتونی', $brand['q']);
+        $this->assertSame('popular', $brand['sort']);
+        $this->assertSame('1', $brand['sale']);
+    }
+
+    /**
+     * A price sort *is* the price sheet's, so clearing that sheet lets it go —
+     * but a sort from the row above the sheets is not, and stays.
+     */
+    public function test_the_price_clear_lets_go_of_a_price_sort_and_only_that(): void
+    {
+        parse_str($this->clears('/products?sort=cheapest&min=400000')['price'], $priceSort);
+        $this->assertArrayNotHasKey('sort', $priceSort);
+
+        parse_str($this->clears('/products?sort=bestselling&min=400000')['price'], $otherSort);
+        $this->assertSame('bestselling', $otherSort['sort']);
+    }
+
+    /**
+     * The price boxes ride along with every other control in that row.
+     *
+     * They did not: `$carry` — what a sort tab, a brand and the sale toggle all
+     * hand on — never held them, so a typed price was thrown away by the next
+     * tap on «پرطرفدار». It filtered correctly, said nothing, and came back
+     * unfiltered.
+     */
+    public function test_a_typed_price_survives_the_row_above_it(): void
+    {
+        $html = $this->get('/products?min=400000&max=900000')->assertOk()->getContent();
+
+        preg_match_all('/class="vp-shop-tab[^"]*"\s+href="([^"]*)"/', $html, $matches);
+
+        $this->assertNotEmpty($matches[1]);
+
+        foreach ($matches[1] as $href) {
+            parse_str(html_entity_decode((string) parse_url($href, PHP_URL_QUERY)), $query);
+
+            $this->assertSame('400000', $query['min'] ?? null, "min lost by $href");
+            $this->assertSame('900000', $query['max'] ?? null, "max lost by $href");
+        }
+    }
+
     public function test_search_finds_by_title_and_by_brand(): void
     {
         $found = $this->results($this->get('/search?q='.urlencode('نیوبالانس'))->assertOk()->getContent());

@@ -2424,3 +2424,49 @@ threw them onto the basket page — which the `×` had always done too.
 Measured in the open drawer at 390: panel 370 wide, card 350, nothing clipped,
 and the card is the page's — photograph 88, stepper circles 24, bin in the
 corner. 244 tests, Pint clean, parity identical at 992/1200/1440/1920.
+
+
+## The two filter sheets get a way back out, at one size
+
+«این دو جا باید کنار دکمه اعمال فیلتر یه دکمه سفید باشه پاک کردن فیلتر / ارتفاع
+و طول هر دو دکمه هر دوجا باید یک اندازه باشه» — a white «پاک کردن فیلتر» beside
+the gold «اعمال فیلتر», in both the price sheet and the brand sheet, and the
+same size in both.
+
+**The two applies were never the same button.** The price sheet had
+`.vp-price-apply` and the brand sheet `.vp-sheet-apply`, 36px tall at 12px in a
+10px radius against 44 at 14 in 13.25 — two rules for one control, drifting
+apart quietly because nothing rendered them side by side. The class is gone;
+both feet are now `.vp-sheet-actions` with the same pair inside it, so the size
+is written down once and cannot come apart again.
+
+**The clear is an inset ring, not a border, and that is the equal width.** With
+`flex: 1 1 0` on both, a border on one of them is not inside the share it is
+given — a border-box item's flex base is clamped up to its own borders, so the
+ring comes off the free space and then goes back on. Measured at 390 the first
+attempt ran 160 and 162 in a 334 row, which is exactly what the instruction
+rules out. `box-shadow: inset 0 0 0 1px` is painted rather than laid out: both
+bases are 0 and both buttons come to **161 × 44, in both sheets, at the same
+y**. Matching it with a transparent border on the gold would have evened the
+widths and re-opened «بالا و پایینش دو رنگی داره» — a gradient in a box with a
+transparent border tiles its own ramp into the border strip. See `.vp-chip.is-on`.
+
+**Each clear clears its own sheet and keeps everything else.** They are links,
+not buttons: clearing is a place — the same listing without this sheet's filter
+— so it belongs in the URL and in the back button, and it works with no script.
+The price clear drops the two boxes and the price sort, but a sort from the row
+above («پرطرفدار», «تازه‌ترین») is not the price filter and rides along. The
+brand clear drops every brand and keeps the sort.
+
+**It turned up a filter this page was already losing.** `$carry` — what every
+control in that row hands on — never held `min` and `max`, so a typed price was
+thrown away by the next tap on a sort tab, on a brand, or on «حراج پله‌ای». It
+filtered correctly, said nothing, and came back unfiltered. The price form
+below already excluded them by name, which says plainly they were meant to be
+there. They are in it now, in Toman, because that is the unit the boxes are
+read in and a Rial figure would have filtered at ten times the price.
+
+`CataloguePagesTest` is what watches all of it: both clears' query strings, the
+price sort going and the other sorts staying, and every link in the row keeping
+a typed price. 306 tests, Pint clean, parity identical at 992/1200/1440/1920,
+and no sideways scroll at 390/768/1200/1920.
