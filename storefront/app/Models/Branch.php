@@ -36,12 +36,13 @@ class Branch extends Model
      * of naming is cheaper than explaining it later.
      */
     public const RESERVED_SLUGS = [
-        'admin', 'api', 'assets', 'account', 'auth', 'blog', 'branch', 'branches',
-        'cart', 'categories', 'category', 'checkout', 'contact', 'customer',
-        'dashboard', 'faq', 'health', 'home', 'livewire', 'login', 'logout',
-        'orders', 'pages', 'panel', 'password', 'payment', 'product', 'products',
-        'profile', 'register', 'search', 'shop', 'sitemap', 'storage', 'store',
-        'up', 'vendor', 'vendors', 'wishlist',
+        'about', 'admin', 'api', 'assets', 'account', 'auth', 'blog', 'branch',
+        'branches', 'cart', 'categories', 'category', 'checkout', 'contact',
+        'customer', 'dashboard', 'faq', 'health', 'home', 'livewire', 'login',
+        'logout', 'orders', 'pages', 'panel', 'password', 'payment', 'privacy',
+        'product', 'products', 'profile', 'register', 'search', 'shop',
+        'size-guide', 'sitemap', 'storage', 'store', 'terms', 'up', 'vendor',
+        'vendors', 'wishlist',
     ];
 
     protected $fillable = [

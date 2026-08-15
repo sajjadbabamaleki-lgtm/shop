@@ -92,9 +92,25 @@ class HomePageTest extends TestCase
         // The account, which was '#' until shoppers had one.
         $this->assertSame(route('account.enter'), page_url('my-account.html'));
 
-        // Still unbuilt, so still '#'.
+        // The content pages. All six were '#' — between them they were most of
+        // the twenty-one footer links that went nowhere.
+        $this->assertSame(route('about'), page_url('about.html'));
+        $this->assertSame(route('contact'), page_url('contact.html'));
+        $this->assertSame(route('faq'), page_url('faq.html'));
+        $this->assertSame(route('terms'), page_url('terms.html'));
+        $this->assertSame(route('privacy'), page_url('privacy.html'));
+        $this->assertSame(route('size-guide'), page_url('size-guide.html'));
+
+        // `course.html` is the template's filename for a page that will never
+        // exist here. It resolves to the size guide, which is the closest
+        // thing to what it was standing in for on this site.
+        $this->assertSame(route('size-guide'), page_url('course.html'));
+
+        // Still unbuilt, so still '#'. `wishlist.html` is the one to watch:
+        // the footer had two items naming features this shop does not have,
+        // and they were given honest labels rather than a wrong destination.
         $this->assertSame('#', page_url('blog.html'));
-        $this->assertSame('#', page_url('faq.html'));
+        $this->assertSame('#', page_url('wishlist.html'));
     }
 
     /**

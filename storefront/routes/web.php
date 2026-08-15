@@ -5,6 +5,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\PageController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\VendorApplicationController;
@@ -93,6 +94,20 @@ $storefront = function (): void {
     Route::post('/account/logout', [AccountController::class, 'logout'])->name('account.logout');
     Route::get('/account', [AccountController::class, 'index'])
         ->middleware('auth:customer')->name('account');
+
+    /*
+     * The content pages. Fixed paths, one controller, no parameters — the
+     * segment is a route default rather than something a visitor supplies, so
+     * /about is the only way to reach the about page and there is no
+     * /pages/{anything} to walk.
+     *
+     * Registered before the tracking routes for no reason other than reading
+     * order; none of these paths can collide with a branch, because every one
+     * of them is in Branch::RESERVED_SLUGS.
+     */
+    foreach (PageController::PAGES as $path => $name) {
+        Route::get("/{$path}", PageController::class)->defaults('page', $path)->name($name);
+    }
 
     Route::get('/orders', [OrderController::class, 'track'])->name('orders.track');
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('order');

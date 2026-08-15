@@ -24,15 +24,15 @@
                             <li><a href="{{ page_url('shop.html') }}">فروشگاه</a></li>
                             <li><a href="{{ page_url('about.html') }}">درباره ما</a></li>
                             <li><a href="{{ page_url('contact.html') }}">ارتباط با ما</a></li>
-                            <li><a href="{{ page_url('course.html') }}">راهنمای سایز</a></li>
+                            <li><a href="{{ page_url('size-guide.html') }}">راهنمای سایز</a></li>
                         </ul>
                     </div>
                     <div class="vp-foot-m-col">
                         <h3 class="vp-foot-m-col-title"><span class="vp-foot-m-rule" aria-hidden="true"></span>خدمات<span class="vp-foot-m-rule" aria-hidden="true"></span></h3>
                         <ul>
-                            <li><a href="{{ page_url('course.html') }}">حریم خصوصی</a></li>
-                            <li><a href="{{ page_url('course.html') }}">قوانین و مقررات</a></li>
-                            <li><a href="{{ page_url('contact.html') }}">سوالات متداول</a></li>
+                            <li><a href="{{ page_url('privacy.html') }}">حریم خصوصی</a></li>
+                            <li><a href="{{ page_url('terms.html') }}">قوانین و مقررات</a></li>
+                            <li><a href="{{ page_url('faq.html') }}">سوالات متداول</a></li>
                             <li><a href="{{ page_url('shop.html') }}">حراج پله‌ای</a></li>
                         </ul>
                     </div>
@@ -69,10 +69,10 @@
                                     <ul class="menu">
                                         <li><a href="{{ page_url('vendor-register.html') }}">فروشنده شوید</a></li>
                                         <li><a href="{{ page_url('contact.html') }}">همکاری در فروش</a></li>
-                                        <li><a href="{{ page_url('course.html') }}">حریم خصوصی</a></li>
-                                        <li><a href="{{ page_url('course.html') }}">تأمین‌کنندگان</a></li>
-                                        <li><a href="{{ page_url('contact.html') }}">خدمات پس از فروش</a></li>
-                                        <li><a href="{{ page_url('contact.html') }}">درباره ما</a></li>
+                                        <li><a href="{{ page_url('privacy.html') }}">حریم خصوصی</a></li>
+                                        <li><a href="{{ page_url('vendor-register.html') }}">تأمین‌کنندگان</a></li>
+                                        <li><a href="{{ page_url('faq.html') }}">خدمات پس از فروش</a></li>
+                                        <li><a href="{{ page_url('about.html') }}">درباره ما</a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -82,12 +82,12 @@
                                 <h3 class="widget_title">پشتیبانی</h3>
                                 <div class="menu-all-pages-container">
                                     <ul class="menu">
-                                        <li><a href="{{ page_url('contact.html') }}">راهنما</a></li>
+                                        <li><a href="{{ page_url('faq.html') }}">راهنما</a></li>
                                         <li><a href="{{ page_url('contact.html') }}">تماس با ما</a></li>
                                         <li><a href="{{ page_url('contact.html') }}">گزارش تخلف</a></li>
                                         <li><a href="{{ page_url('contact.html') }}">ثبت شکایت</a></li>
-                                        <li><a href="{{ page_url('contact.html') }}">قوانین</a></li>
-                                        <li><a href="{{ page_url('contact.html') }}">خرید اینترنتی</a></li>
+                                        <li><a href="{{ page_url('terms.html') }}">قوانین</a></li>
+                                        <li><a href="{{ page_url('faq.html') }}">خرید اینترنتی</a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -97,12 +97,12 @@
                                 <h3 class="widget_title">حساب کاربری</h3>
                                 <div class="menu-all-pages-container">
                                     <ul class="menu">
-                                        <li><a href="{{ page_url('contact.html') }}">حساب کاربری</a></li>
+                                        <li><a href="{{ page_url('my-account.html') }}">حساب کاربری</a></li>
                                         <li><a href="{{ page_url('order-tracking.html') }}">سفارش‌های من</a></li>
                                         <li><a href="{{ page_url('cart.html') }}">سبد خرید</a></li>
-                                        <li><a href="{{ page_url('course.html') }}">مقایسه</a></li>
+                                        <li><a href="{{ page_url('faq.html') }}">تعویض و مرجوعی</a></li>
                                         <li><a href="{{ page_url('contact.html') }}">پشتیبانی</a></li>
-                                        <li><a href="{{ page_url('contact.html') }}">علاقه‌مندی‌ها</a></li>
+                                        <li><a href="{{ page_url('size-guide.html') }}">راهنمای سایز</a></li>
                                     </ul>
                                 </div>
                             </div>

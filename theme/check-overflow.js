@@ -28,6 +28,18 @@ const PAGES = (process.env.VP_PAGES || [
   '/cart',
   '/orders',
   '/vendors/apply',
+  // The content pages. The size guide is the one that earns its place here: it
+  // is the only page on this site with a table on it, and a four-column table
+  // is exactly the thing that is two centimetres wider than a phone.
+  '/about',
+  '/contact',
+  '/size-guide',
+  '/faq',
+  '/terms',
+  '/privacy',
+  // A 404. It has a shell of its own — layouts/error.blade.php — so nothing
+  // else in this list covers it.
+  '/no-such-page-as-this',
   '/admin/login',
 ].join(',')).split(',');
 

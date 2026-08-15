@@ -47,6 +47,110 @@ return [
         // Its own filename so that only the footer's «فروشنده شوید» points
         // here — every other footer item still shares contact.html.
         'vendor-register.html' => 'vendors.apply',
+
+        /*
+         | The content pages.
+         |
+         | Until these were built, `contact.html`, `about.html` and
+         | `course.html` were unmapped and the footer sent **21 of its 47
+         | links** to '#' — «راهنمای سایز», «قوانین و مقررات», «حریم خصوصی»,
+         | «سوالات متداول», «تماس با ما» and a dozen more. The footer was
+         | promising the shop had pages it did not have.
+         |
+         | `course.html` is the template's own filename for a page we do not
+         | have and never will; the footer items that shared it have been
+         | pointed at their real filenames in theme/make-rtl-page.js. It stays
+         | mapped to the size guide because that is the closest thing to what
+         | it was standing in for, and an old link is better resolved than
+         | broken.
+         */
+        'about.html' => 'about',
+        'contact.html' => 'contact',
+        'faq.html' => 'faq',
+        'size-guide.html' => 'size-guide',
+        'course.html' => 'size-guide',
+        'terms.html' => 'terms',
+        'privacy.html' => 'privacy',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | How to reach the shop
+    |--------------------------------------------------------------------------
+    |
+    | The address, the telephone and the WhatsApp number, in one place, because
+    | the contact page and the footer must never disagree about where the shop
+    | is. **These are the client's own details, not placeholders**: the address
+    | and the telephone came off the footer screenshot they sent, and the
+    | WhatsApp number is the one behind the floating button on every page.
+    |
+    | The footer keeps its own copy of the address and the telephone — it is
+    | generated markup, ported from the static preview by theme/make-blade.js,
+    | so it cannot read this file. `ContentPagesTest` asserts the two agree, so
+    | correcting one and forgetting the other fails the suite rather than
+    | putting two addresses on one site.
+    |
+    */
+
+    'contact' => [
+        'address' => 'تهران، سعدی شمالی، روبه‌روی بانک ملی، پلاک ۵۶۵',
+        'phone' => '021-3398-3125',
+        'phone_href' => 'tel:02133983125',
+        'whatsapp' => '۰۹۹۱۸۹۰۵۹۹۳',
+        'whatsapp_href' => 'https://wa.me/989918905993',
+
+        /*
+         | When somebody answers.
+         |
+         | A PLACEHOLDER. Nobody has said what the shop's hours are, and a
+         | contact page with no hours on it invites the phone call at eleven
+         | at night that nobody picks up. These are ordinary Tehran retail
+         | hours, written down so they can be corrected in one edit — and
+         | said here rather than in the view so that nobody mistakes them for
+         | something the client told us.
+         */
+        'hours' => 'شنبه تا پنجشنبه، ۱۰ تا ۲۰',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | The content pages
+    |--------------------------------------------------------------------------
+    |
+    | Everything on «قوانین و مقررات», «حریم خصوصی», «سوالات متداول» and the
+    | rest is written to describe what this application actually does — the
+    | payment method the checkout really offers, the cancellation rule
+    | `Order::isCancellable()` really applies, the data the tables really hold.
+    | The two numbers below are the exceptions: they are business decisions
+    | nobody has made yet, so they sit here where the client can see them.
+    |
+    | ⚠️ **The legal text on those two pages is a draft and has not been
+    | reviewed by anybody qualified.** It is accurate about the software; it is
+    | not a substitute for somebody who knows Iranian consumer law reading it.
+    | Say so when handing this over.
+    |
+    */
+
+    'content' => [
+        /*
+         | How long somebody has to ask for an exchange, in days.
+         |
+         | A PLACEHOLDER, and a consequential one. There is no returns flow in
+         | this application at all — no route, no table, no order status — so
+         | this number is not enforced anywhere; it is what the FAQ tells
+         | somebody to phone about. Seven days is the usual Iranian retail
+         | answer. When returns get built, this becomes the window the code
+         | checks and this comment goes.
+         */
+        'exchange_days' => 7,
+
+        /*
+         | The date on the foot of the two legal pages, ISO in, Jalali out
+         | through fa_date(). Move it when the text changes and not before —
+         | a date that says today on a page nobody has edited for a year is
+         | worse than no date.
+         */
+        'legal_updated' => '2026-08-15',
     ],
 
     /*

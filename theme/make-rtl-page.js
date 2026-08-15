@@ -2326,17 +2326,21 @@ html = html.replace(
 // colours. Three are certain — WhatsApp, Telegram, Instagram. The second is a
 // multi-coloured mark this cannot identify with confidence; it is drawn as a
 // neutral one and its link is `#` until the client says which service it is.
+//
+// Four of the twelve links below named `course.html` or `contact.html` — the
+// template's filenames for pages this shop did not have — and so resolved to
+// '#' through page_url(). The content pages exist now, and these name them.
 const FOOT_COLS = [
   ['لینک\u200cها', [
     ['shop.html', 'فروشگاه'],
     ['about.html', 'درباره ما'],
     ['contact.html', 'ارتباط با ما'],
-    ['course.html', 'راهنمای سایز'],
+    ['size-guide.html', 'راهنمای سایز'],
   ]],
   ['خدمات', [
-    ['course.html', 'حریم خصوصی'],
-    ['course.html', 'قوانین و مقررات'],
-    ['contact.html', 'سوالات متداول'],
+    ['privacy.html', 'حریم خصوصی'],
+    ['terms.html', 'قوانین و مقررات'],
+    ['faq.html', 'سوالات متداول'],
     ['shop.html', 'حراج پله\u200cای'],
   ]],
   ['دسته\u200cها', [
@@ -2414,21 +2418,52 @@ if (!html.includes('vp-foot-m-head')) {
   ['<h3 class="widget_title">فروشگاه on The Go</h3>', '<h3 class="widget_title">ویکی پلاس روی موبایل</h3>'],
   ['<a href="contact.html">Become a Vendor</a>', '<a href="vendor-register.html">فروشنده شوید</a>'],
   ['<a href="contact.html">Affiliate Program</a>', '<a href="contact.html">همکاری در فروش</a>'],
-  ['<a href="course.html">Privacy Policy</a>', '<a href="course.html">حریم خصوصی</a>'],
-  ['<a href="course.html">Our Suppliers</a>', '<a href="course.html">تأمین‌کنندگان</a>'],
-  ['<a href="contact.html">Extended Plan</a>', '<a href="contact.html">خدمات پس از فروش</a>'],
-  ['<a href="contact.html">Community</a>', '<a href="contact.html">درباره ما</a>'],
-  ['<a href="contact.html">Help Center</a>', '<a href="contact.html">راهنما</a>'],
+  ['<a href="course.html">Privacy Policy</a>', '<a href="privacy.html">حریم خصوصی</a>'],
+  // «تأمین‌کنندگان» is «فروشنده شوید» asked from the other side, and the
+  // application form is the only page that answers it.
+  ['<a href="course.html">Our Suppliers</a>', '<a href="vendor-register.html">تأمین‌کنندگان</a>'],
+  // After-sales, help and buying online are all questions the FAQ answers —
+  // the exchange window, the payment method, the delivery charge. They shared
+  // contact.html because until now there was nowhere else for them to go.
+  ['<a href="contact.html">Extended Plan</a>', '<a href="faq.html">خدمات پس از فروش</a>'],
+  ['<a href="contact.html">Community</a>', '<a href="about.html">درباره ما</a>'],
+  ['<a href="contact.html">Help Center</a>', '<a href="faq.html">راهنما</a>'],
   ['<a href="contact.html">Report Abuse</a>', '<a href="contact.html">گزارش تخلف</a>'],
   ['<a href="contact.html">Submit and Dispute</a>', '<a href="contact.html">ثبت شکایت</a>'],
-  ['<a href="contact.html">Policies & Rules</a>', '<a href="contact.html">قوانین</a>'],
-  ['<a href="contact.html">Online فروشگاهping</a>', '<a href="contact.html">خرید اینترنتی</a>'],
+  ['<a href="contact.html">Policies & Rules</a>', '<a href="terms.html">قوانین</a>'],
+  ['<a href="contact.html">Online فروشگاهping</a>', '<a href="faq.html">خرید اینترنتی</a>'],
   // The real tracking page, not contact.html. The top bar carried the only
   // other link to it and the top bar is gone.
   ['<a href="contact.html">Order History</a>', '<a href="order-tracking.html">سفارش‌های من</a>'],
   ['<a href="course.html">فروشگاهing سبد خرید</a>', '<a href="cart.html">سبد خرید</a>'],
-  ['<a href="course.html">Compare</a>', '<a href="course.html">مقایسه</a>'],
+  /*
+   * «مقایسه» and «علاقه‌مندی‌ها» named two features this shop does not have —
+   * no compare, no wishlist, no table behind either — and both went to '#'.
+   * Pointing them at a page that exists would be worse than the dead link:
+   * a footer item called «مقایسه» that lands on the size guide is a wrong
+   * answer rather than no answer.
+   *
+   * So the two slots keep their place in the column and say something the
+   * shop can actually do. Put the old labels back the day the features are
+   * built — the slots are here, and `wishlist.html` is a filename
+   * config/storefront.php can be given in one line.
+   */
+  ['<a href="course.html">Compare</a>', '<a href="faq.html">تعویض و مرجوعی</a>'],
   ['<a href="contact.html">Help Ticket</a>', '<a href="contact.html">پشتیبانی</a>'],
+  /*
+   * These two are matched in Persian, not English: DICT (line ~1362) has
+   * already translated «My Account» and «Wishlist» by the time this list runs,
+   * which is also why «Online Shopping» reads «Online فروشگاهping» above.
+   *
+   * The account link is the plainest of the twenty-one that went nowhere: the
+   * shop has had customer accounts since `AccountController`, and the footer
+   * item named after them pointed at contact.html.
+   *
+   * The wishlist slot goes the way «مقایسه» did — a real destination under a
+   * label the shop can honour, until there is a wishlist to point it at.
+   */
+  ['<a href="contact.html">حساب کاربری</a>', '<a href="my-account.html">حساب کاربری</a>'],
+  ['<a href="contact.html">علاقه‌مندی‌ها</a>', '<a href="size-guide.html">راهنمای سایز</a>'],
   ['From App Store or Google Play App is available. Get it now', 'اپلیکیشن ویکی پلاس به‌زودی روی کافه‌بازار و اپ‌استور.'],
 ].forEach(([from, to]) => {
   if (!html.includes(from)) {

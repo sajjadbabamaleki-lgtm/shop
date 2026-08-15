@@ -118,6 +118,27 @@ the client saw an old page and had no way to tell why. So, plainly:
   with an order history on it. Claiming one asks for the number off one of their
   own orders, because there is no SMS provider to send a code with. See
   `AccountController`.
+- **The content pages are `/about`, `/contact`, `/size-guide`, `/faq`, `/terms`
+  and `/privacy`** — `PageController`, one view each under `resources/views/pages/`,
+  copy and no database. They exist because the footer had been linking to them
+  since the template arrived: `page_url()` resolves an unmapped filename to `'#'`,
+  and **21 of the footer's 47 links were one**. `ContentPagesTest` counts that
+  failure directly, so adding a footer item for a page nobody built fails the
+  suite rather than shipping a link that goes nowhere. Everything the pages
+  state is read off the application — the FAQ quotes `storefront.checkout`'s own
+  delivery charge, the cancellation answer is `Order::isCancellable()` in words.
+  **The legal text on `/terms` and `/privacy` is a draft nobody qualified has
+  read.** It is accurate about the software; that is not the same thing.
+- **The error pages have a shell of their own**, `layouts/error.blade.php`, and
+  it must stay that way. The storefront shell's composers query the database and
+  the mini basket's *throws* when no branch is bound — which is exactly the state
+  a 404 for an unmatched route is in, so rendering the ordinary shell there turns
+  a 404 into a 500. `ErrorPagesTest` asks for one with the tenant forgotten.
+- **`.vp-page` is one link in the paginator**, not a page. It carries
+  `display: grid; height: 38px`, and a panel that wore the name came out 64px
+  tall with its whole content spilling out under the footer. The content pages
+  are `.vp-doc`. Check a class name against `tweaks.css` before choosing it —
+  the file is 15,000 lines and the collision is silent.
 - The panel is at `/admin`, hand-built (no Filament, at the client's request)
   in the storefront's own materials — `resources/views/admin/` and
   `layouts/admin.blade.php`. Its branch comes from the **signed-in user**, not
