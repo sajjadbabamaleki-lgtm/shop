@@ -241,8 +241,9 @@ the client saw an old page and had no way to tell why. So, plainly:
 - Preview server:
   `cd download-version && setsid nohup python3 -m http.server 8811 &`
   It dies often; restart it with `setsid` rather than assuming it is up.
-- **`.claude/skills/` carries 29 vendored design skills** — `ui-ux-pro-max`,
-  `impeccable`, eight `gsap-*`, Emil Kowalski's ten, and nine `hyperframes-*`.
+- **`.claude/skills/` carries 30 vendored design skills** — `ui-ux-pro-max`,
+  `impeccable`, `design-taste-frontend`, eight `gsap-*`, Emil Kowalski's ten,
+  and nine `hyperframes-*`.
   They are committed rather than installed as plugins because the container is
   thrown away and the repo is not. `.claude/skills/INSTALL-NOTES.md` says where
   each came from, what was deliberately left out (impeccable's hooks and
