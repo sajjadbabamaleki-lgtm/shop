@@ -13222,19 +13222,25 @@ ul.vp-how-list.is-ticked li:before {
      The page's own ground is white here, so the tint the field used to carry
      could not stay: a tinted pill inside a white capsule reads as a box in a
      box. */
+  /* Two boxes on one line, not one box holding two things — «باکس سرچو از
+     فیلتر جدا کن و باکس سرچ ارتفاعش بشه اندازه فیلتر».
+
+     The row keeps the layout; the white, the corner and the light move off it
+     onto the search form and onto the filter's own summary, so each is a box
+     in its own right. 46 both, which is what the row was: the filter's pill
+     was 34 inside a 46 bar and is now the bar's own height, and the search box
+     is the same 46 beside it.
+
+     The two stay siblings for the reason the note above this one gives —
+     `shop.filters` is a <form>, and a <form> inside a <form> is dropped by the
+     browser, taking the whole filter rail with it. Boxing them separately is
+     what that constraint always wanted. */
   .vp-shop-top {
     position: relative;
     display: flex;
     align-items: center;
-    gap: 8px;
-    height: 46px;
-    padding-inline: 16px 6px;
+    gap: 10px;
     margin-block-end: 14px;
-    border-radius: 23px;
-    background: #FFFFFF;
-    box-shadow:
-      0 0 2px rgba(16, 17, 17, 0.1),
-      0 0 8px -2px rgba(16, 17, 17, 0.14);
   }
 
   .vp-shop-back {
@@ -13258,7 +13264,13 @@ ul.vp-how-list.is-ticked li:before {
     display: flex;
     align-items: center;
     gap: 8px;
-    background: none;
+    height: 46px;
+    padding-inline: 16px;
+    border-radius: 23px;
+    background: #FFFFFF;
+    box-shadow:
+      0 0 2px rgba(16, 17, 17, 0.1),
+      0 0 8px -2px rgba(16, 17, 17, 0.14);
   }
 
   .vp-shop-find i {
@@ -13292,11 +13304,14 @@ ul.vp-how-list.is-ticked li:before {
     display: flex;
     align-items: center;
     gap: 6px;
-    height: 34px;
-    padding-inline: 12px;
-    border: 1px solid rgba(192, 151, 47, 0.55);
-    border-radius: 17px;
-    background: none;
+    height: 46px;
+    padding-inline: 16px;
+    border: 0;
+    border-radius: 23px;
+    background: #FFFFFF;
+    box-shadow:
+      0 0 2px rgba(16, 17, 17, 0.1),
+      0 0 8px -2px rgba(16, 17, 17, 0.14);
     color: #A47F25;
     font-size: 13px;
     font-weight: 700;
@@ -13411,12 +13426,14 @@ ul.vp-how-list.is-ticked li:before {
     display: none;
   }
 
+  /* «فاصله آیکون ها با نوشته زیرشون باید نصف بشه سایز آیکون ها باید ۳۰ درصد
+     کوچیکتر بشن» — the gap 6 → 3, the mark 26 → 18.2. */
   .vp-shop-cat {
     flex: none;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 6px;
+    gap: 3px;
     width: 58px;
     color: rgba(16, 17, 17, 0.62);
     font-size: 11px;
@@ -13434,8 +13451,8 @@ ul.vp-how-list.is-ticked li:before {
      Without the crop, `bottom` would only line up eight different amounts of
      built-in padding. Without this line, the crop would only recentre them. */
   .vp-shop-cat img {
-    width: 26px;
-    height: 26px;
+    width: 18.2px;
+    height: 18.2px;
     object-fit: contain;
     object-position: center bottom;
   }
@@ -13702,6 +13719,153 @@ ul.vp-how-list.is-ticked li:before {
     border-radius: 18px;
     background: #FFFFFF;
     box-shadow: 0 18px 40px -18px rgba(16, 17, 17, 0.4);
+  }
+
+  /* ---- and what is inside it, in the sheets' language ---------------------
+
+     «در صفحه فیلتر دیزاین خیلی خط خطی و غیره حرفه ای ... و با زبان طراحی اون
+     پاپاپ هامون یکی نیستن».
+
+     What was in here was the desktop's rail dropped into a phone panel: a
+     column of radio buttons with a hairline under every heading, which is a
+     form and not a sheet. The two brand and price sheets beside it are chips
+     in a wrapped row with a title above them and one gold button at the foot,
+     and this is now that.
+
+     **All of it is CSS.** The markup is `shop/filters.blade.php`, which the
+     desktop sidebar renders as well — every rule below is scoped to
+     `.vp-shop-filter-panel`, so the rail on the desktop is untouched. Nothing
+     here changes what the form submits. */
+  .vp-shop-filter-panel > .vp-shop-rail {
+    padding: 16px;
+  }
+
+  /* No rules anywhere in it — «دیزاین خیلی خط خطی». The rail draws a hairline
+     above every group and a gold thread out of the side of every heading; in a
+     column of headings on a phone that is six lines of furniture around four
+     rows of chips. The sheets have neither: a title, its chips, and air. */
+  .vp-shop-filter-panel .vp-filter + .vp-filter,
+  .vp-shop-filter-panel .vp-filter + .vp-filter-actions {
+    margin-top: 22px;
+    padding-top: 0;
+    box-shadow: none;
+  }
+
+  .vp-shop-filter-panel .vp-filter-title::after {
+    display: none;
+  }
+
+  /* The sheets' own title: no rule under it, and the same 14 they use. */
+  .vp-shop-filter-panel .vp-filter-title {
+    margin: 0 0 10px;
+    font-size: 14px;
+  }
+
+  /* A wrapped row of chips rather than a column of radios. The list keeps its
+     <li>s — they are the markup the desktop needs — and they simply stop being
+     rows. */
+  .vp-shop-filter-panel .vp-filter-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .vp-shop-filter-panel .vp-filter-list li + li {
+    margin-top: 0;
+  }
+
+  .vp-shop-filter-panel .vp-filter-list label,
+  .vp-shop-filter-panel .vp-filter-sizes .vp-size {
+    display: inline-flex;
+    align-items: center;
+    height: 34px;
+    padding-inline: 14px;
+    border: 1px solid #101111;
+    border-radius: 17px;
+    background: none;
+    color: #101111;
+    font-size: 12px;
+    font-weight: 700;
+    gap: 0;
+  }
+
+  .vp-shop-filter-panel .vp-filter-list label:has(:checked),
+  .vp-shop-filter-panel .vp-filter-sizes .vp-size:has(:checked) {
+    border-color: transparent;
+    background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+    color: #FFFFFF;
+  }
+
+  /* The radio itself goes; the chip is the control, the way it is in the
+     sheets and on the product page's sizes. */
+  .vp-shop-filter-panel .vp-filter-list input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* The size chips are already labels over a hidden input on the desktop, so
+     only their inner box has to stop drawing its own square. */
+  .vp-shop-filter-panel .vp-filter-sizes .vp-size span {
+    display: inline;
+    min-width: 0;
+    width: auto;
+    height: auto;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    color: inherit;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  /* The price pair, the price sheet's: two boxes on one line, ltr so «از» is
+     the left one. */
+  .vp-shop-filter-panel .vp-filter-price {
+    direction: ltr;
+    gap: 10px;
+  }
+
+  .vp-shop-filter-panel .vp-filter-price span {
+    display: none;
+  }
+
+  .vp-shop-filter-panel .vp-filter-price input {
+    height: 44px;
+    border-radius: 13.25px;
+    font-size: 13px;
+    text-align: center;
+  }
+
+  /* One gold button at the foot, and the clear as the quiet thing beside it —
+     the sheets' «اعمال فیلتر», at the sheets' size. */
+  .vp-shop-filter-panel .vp-filter-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-block-start: 20px;
+  }
+
+  .vp-shop-filter-panel .vp-filter-apply {
+    flex: 1;
+    height: 44px;
+    border: 0;
+    border-radius: 13.25px;
+    background: linear-gradient(96deg, #C0972F 0%, #E3B54A 100%);
+    font-family: 'Vazirmatn', var(--body-font);
+    font-weight: 700;
+    font-size: 14px;
+    color: #FFFFFF;
+  }
+
+  .vp-shop-filter-panel .vp-filter-clear {
+    flex: none;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: rgba(16, 17, 17, 0.55);
+    text-decoration: none;
   }
 }
 
