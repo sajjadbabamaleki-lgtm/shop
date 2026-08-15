@@ -1,34 +1,64 @@
 # VikyPlus — notes for whoever picks this up next
 
-## ⛔ Which branch is the work — read this before you touch anything.
+## ⛔ `main` is the work and `main` is the site — read this before you touch anything.
 
-**The work is `claude/wiki-plus-latest-work-enpjl1`, and `main` now carries it
-too.** PR #45 was merged on 2026-08-13; before that, `main` sat **88 commits
-behind** and was the wrong version of this site. A session started an afternoon
-on it, built there, and the client's reply was «این دیگه چه کوفتیه؟ داری رو جای
-اشتباه کار میکنی». Nothing in the repository said which branch was the work, so
-the next session would have done the same. That is what this block is for.
+**The client runs several sessions on this repository at once, from more than
+one account.** You are probably not the only one working right now. Everything
+in this block exists because of that.
 
-Before you write a line, check that the two are still in step:
+**`main` is the only branch that reaches the live site.** Work wherever you
+like; a push to a working branch runs the whole test suite and deploys
+*nothing*. A change is «فرستاده شده» when `main` carries it and not before.
+
+### Start every session here
 
 ```
-git fetch origin main claude/wiki-plus-latest-work-enpjl1
-git rev-list --left-right --count origin/main...origin/claude/wiki-plus-latest-work-enpjl1
+git fetch origin main
+git merge origin/main          # or branch from it, if you are starting fresh
 ```
 
-`0	0` — or a small number on the left, which is main's merge commits — means
-they agree. **A number on the right is `main` gone stale again**: the branch is
-the work, and `main` is a version of this site the client stopped recognising.
-Work on the branch, and say so rather than quietly picking one.
+### Ship like this
 
-**And know what a push to `main` does.** `main` is listed in
-`.github/workflows/deploy-liara.yml`'s `on.push`, and the deploy job's only
-guard is `if: github.event_name != 'pull_request'` — so *any* push to `main`,
-including a one-line change to a README, runs the tests and then deploys
-`main`'s own tree to Liara. While the two branches agree that is harmless. While
-`main` is behind it replaces the live site with the old version, silently, and
-the client finds it before you do. So: **never push to a stale `main`.** Bring
-it up to the branch first, which is the client's call, not yours.
+```
+git fetch origin main
+git merge origin/main          # again — somebody may have shipped meanwhile
+# run the checks, then:
+git push origin HEAD:main
+```
+
+If that push is rejected, `main` moved while you worked. Merge it and push
+again. **Never force.** A rejected push is the system working; a forced one is
+somebody's afternoon deleted.
+
+### Why it is arranged this way
+
+The workflow used to name four branches as deploy branches, and every one of
+them deployed *its own tree* to the same Liara app. There is no merge step in a
+deploy, so the live site was never a combination of two branches — it was
+whichever pushed last, whole. On 2026-08-15 two sessions ran in parallel and the
+second one's pushes silently replaced the first one's work on the live site
+while losing nothing in git:
+
+```
+#214  07:12  shop-search-filter-height   its work live
+#215  08:59  shoe-store-ui-review        that work gone from the site
+```
+
+The client found it on their phone hours later — «چرا موارد برمیگرده به نسخه
+قبل؟ این چه ایراد مزخرفیه؟» — because nothing anywhere had gone red. Before
+that, the opposite failure: `main` sat **88 commits behind**, a session spent an
+afternoon building on it, and the reply was «این دیگه چه کوفتیه؟ داری رو جای
+اشتباه کار میکنی».
+
+Both are the same disease — no single answer to "what is the site?" — and one
+deploy branch is the cure for both. A guard in the deploy job closes the last
+gap: it refuses to deploy anything that is not the current tip of `main`, so two
+pushes landing together cannot end with the older tree going live. A superseded
+run goes red on purpose. Red means "this did not ship", which is the truth, and
+the truth on a screen is the whole point.
+
+**Do not add branch names back to `on.push`.** If a branch needs to be seen
+running, that is what `php artisan serve` and the Netlify preview are for.
 
 **`HANDOFF.md` says what is finished, what is not, and which numbers the
 finished part is not allowed to lose. Read it after this.**
