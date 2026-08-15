@@ -37,10 +37,17 @@ const PAGES = (process.env.VP_PAGES || [
   '/faq',
   '/terms',
   '/privacy',
+  // The two enquiry pages. Each ends in a form, which is the other thing that
+  // reliably overflows a phone.
+  '/wholesale',
+  '/franchise',
   // A 404. It has a shell of its own — layouts/error.blade.php — so nothing
   // else in this list covers it.
   '/no-such-page-as-this',
   '/admin/login',
+  // The panel's enquiry screen, reached only with VP_LOGIN. Seven columns and
+  // a sentence in one of them — the exact shape this check exists for.
+  '/admin/enquiries',
 ].join(',')).split(',');
 
 (async () => {

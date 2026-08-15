@@ -2417,11 +2417,23 @@ if (!html.includes('vp-foot-m-head')) {
   ['<h3 class="widget_title">Customer Support</h3>', '<h3 class="widget_title">پشتیبانی</h3>'],
   ['<h3 class="widget_title">فروشگاه on The Go</h3>', '<h3 class="widget_title">ویکی پلاس روی موبایل</h3>'],
   ['<a href="contact.html">Become a Vendor</a>', '<a href="vendor-register.html">فروشنده شوید</a>'],
-  ['<a href="contact.html">Affiliate Program</a>', '<a href="contact.html">همکاری در فروش</a>'],
+  /*
+   * «همکاری در فروش» named an affiliate programme this shop does not have and
+   * pointed at contact.html. The slot goes to «فروش عمده», which the shop
+   * *does* offer — the front page's trust row has advertised «خرید تکی و
+   * عمده» since the template was dressed, and until now there was no page
+   * behind it anywhere on the site.
+   */
+  ['<a href="contact.html">Affiliate Program</a>', '<a href="wholesale.html">فروش عمده</a>'],
   ['<a href="course.html">Privacy Policy</a>', '<a href="privacy.html">حریم خصوصی</a>'],
-  // «تأمین‌کنندگان» is «فروشنده شوید» asked from the other side, and the
-  // application form is the only page that answers it.
-  ['<a href="course.html">Our Suppliers</a>', '<a href="vendor-register.html">تأمین‌کنندگان</a>'],
+  /*
+   * «تأمین‌کنندگان» was pointed at «فروشنده شوید» — near enough to look right
+   * and not the page anybody was after. The slot goes to «اخذ نمایندگی»,
+   * which had no link anywhere on the site: the branch network is the largest
+   * thing in this application and a prospective franchisee had the telephone
+   * number and nothing else.
+   */
+  ['<a href="course.html">Our Suppliers</a>', '<a href="franchise.html">اخذ نمایندگی</a>'],
   // After-sales, help and buying online are all questions the FAQ answers —
   // the exchange window, the payment method, the delivery charge. They shared
   // contact.html because until now there was nowhere else for them to go.

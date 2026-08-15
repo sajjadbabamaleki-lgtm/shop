@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\CatalogueController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DiscountController;
+use App\Http\Controllers\Admin\EnquiryController;
 use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Admin\MarketplaceController;
 use App\Http\Controllers\Admin\OrderController;
@@ -184,6 +185,22 @@ Route::middleware('auth:web')->group(function (): void {
     Route::post('/commissions', [MarketplaceController::class, 'storeCommission'])
         ->middleware(RequirePlatformPermission::class.':marketplace.commission.manage')
         ->name('commissions.store');
+
+    /*
+     * The wholesale and franchise enquiries. Platform-scoped like the
+     * marketplace above and for the same reason: somebody asking to open a
+     * branch in Shiraz is not Shiraz's enquiry to answer.
+     *
+     * `platform.enquiry.manage` rather than a marketplace or a branch
+     * permission — it is neither, and borrowing one of theirs would put this
+     * screen in front of whoever happened to hold it.
+     */
+    Route::get('/enquiries', [EnquiryController::class, 'index'])
+        ->middleware(RequirePlatformPermission::class.':platform.enquiry.manage')
+        ->name('enquiries');
+    Route::post('/enquiries/{enquiry}', [EnquiryController::class, 'update'])
+        ->middleware(RequirePlatformPermission::class.':platform.enquiry.manage')
+        ->name('enquiry.status');
 
     Route::get('/settlements', [MarketplaceController::class, 'settlements'])
         ->middleware(RequirePlatformPermission::class.':marketplace.settlement.view')

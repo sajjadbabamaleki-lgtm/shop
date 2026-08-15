@@ -39,10 +39,10 @@ class Branch extends Model
         'about', 'admin', 'api', 'assets', 'account', 'auth', 'blog', 'branch',
         'branches', 'cart', 'categories', 'category', 'checkout', 'contact',
         'customer', 'dashboard', 'faq', 'health', 'home', 'livewire', 'login',
-        'logout', 'orders', 'pages', 'panel', 'password', 'payment', 'privacy',
-        'product', 'products', 'profile', 'register', 'search', 'shop',
-        'size-guide', 'sitemap', 'storage', 'store', 'terms', 'up', 'vendor',
-        'vendors', 'wishlist',
+        'franchise', 'logout', 'orders', 'pages', 'panel', 'password',
+        'payment', 'privacy', 'product', 'products', 'profile', 'register',
+        'search', 'shop', 'size-guide', 'sitemap', 'storage', 'store', 'terms',
+        'up', 'vendor', 'vendors', 'wholesale', 'wishlist',
     ];
 
     protected $fillable = [

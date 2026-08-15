@@ -14989,3 +14989,59 @@ ul.vp-how-list.is-ticked li:before {
     font-size: 52px;
   }
 }
+
+/* --------------------------------------------------------------------------
+   «فروش عمده» and «اخذ نمایندگی», and the panel screen that reads them.
+
+   The two things the shop had been advertising with nowhere to say yes: the
+   trust row on the front page has offered «خرید تکی و عمده» since the template
+   was dressed, and the branch network — the largest thing in this application
+   — had no way in from outside at all.
+
+   Both pages are `.vp-doc`, so nothing here restyles them. What this adds is
+   the form on the end of each, which is the checkout's own fields with the
+   measure they need, and two columns in the panel's table.
+   -------------------------------------------------------------------------- */
+
+/* The checkout's form is built for a page with a summary beside it, so its
+   fields stop at that column's width. Here the panel *is* the measure, and a
+   name field ending two-thirds of the way across a paragraph that runs the
+   full width reads as a mistake. */
+.vp-enquiry {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.vp-enquiry .vp-field.is-wide {
+  grid-column: 1 / -1;
+}
+
+.vp-enquiry textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+/* --- the panel's table ---------------------------------------------------- */
+
+/* What somebody typed. `.is-wide` puts `white-space: nowrap` on every cell so
+   the table keeps its columns; a sentence is the one cell that must not obey
+   it, or a paragraph becomes a column two metres wide. */
+.vp-admin-table .vp-admin-said {
+  max-width: 320px;
+  white-space: normal;
+  line-height: 1.9;
+}
+
+/* A telephone number is read left-to-right whatever the page's direction. It
+   is the only thing on this screen somebody is going to act on, so it is a
+   link rather than text — a tap dials it. */
+.vp-admin-tel {
+  direction: ltr;
+  unicode-bidi: isolate;
+  display: inline-block;
+  color: var(--title-color);
+}
+
+.vp-admin-tel:hover {
+  color: var(--theme-color);
+}

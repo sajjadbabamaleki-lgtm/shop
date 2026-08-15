@@ -129,6 +129,18 @@ the client saw an old page and had no way to tell why. So, plainly:
   delivery charge, the cancellation answer is `Order::isCancellable()` in words.
   **The legal text on `/terms` and `/privacy` is a draft nobody qualified has
   read.** It is accurate about the software; that is not the same thing.
+- **`/wholesale` and `/franchise` are the two things the shop advertises and
+  had no way of hearing about.** «خرید تکی و عمده» has been on the front page's
+  trust row and in the footer's strap since the template was dressed with no
+  page behind it; the branch network is the largest thing in this application
+  and a prospective franchisee had the telephone number and nothing else. Both
+  are `EnquiryController`, one `enquiries` table with a `kind`, **not
+  branch-scoped** (a franchise application is not Shiraz's to answer). The kind
+  comes from the route, never the request body. **There is no mail provider, so
+  the row is the delivery** — `/admin/enquiries` under
+  `platform.enquiry.manage` is the other half of the feature, not an extra.
+  Neither page quotes a wholesale price: there is no wholesale tier in the
+  catalogue, so any number printed there would be one nobody decided.
 - **The error pages have a shell of their own**, `layouts/error.blade.php`, and
   it must stay that way. The storefront shell's composers query the database and
   the mini basket's *throws* when no branch is bound — which is exactly the state

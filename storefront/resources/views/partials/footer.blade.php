@@ -68,9 +68,9 @@
                                 <div class="menu-all-pages-container">
                                     <ul class="menu">
                                         <li><a href="{{ page_url('vendor-register.html') }}">فروشنده شوید</a></li>
-                                        <li><a href="{{ page_url('contact.html') }}">همکاری در فروش</a></li>
+                                        <li><a href="{{ page_url('wholesale.html') }}">فروش عمده</a></li>
                                         <li><a href="{{ page_url('privacy.html') }}">حریم خصوصی</a></li>
-                                        <li><a href="{{ page_url('vendor-register.html') }}">تأمین‌کنندگان</a></li>
+                                        <li><a href="{{ page_url('franchise.html') }}">اخذ نمایندگی</a></li>
                                         <li><a href="{{ page_url('faq.html') }}">خدمات پس از فروش</a></li>
                                         <li><a href="{{ page_url('about.html') }}">درباره ما</a></li>
                                     </ul>

@@ -71,6 +71,19 @@ return [
         'course.html' => 'size-guide',
         'terms.html' => 'terms',
         'privacy.html' => 'privacy',
+
+        /*
+         | The two things the shop advertises and had no page for.
+         |
+         | «خرید تکی و عمده» is on the front page's trust row and in the
+         | footer's strap line; the branch network is the largest thing in
+         | this application. Neither had anywhere for somebody to ask.
+         | Filenames of their own, because the footer items that carry them
+         | were pointing at contact.html and vendor-register.html — near
+         | enough to look right and not the page anybody wanted.
+         */
+        'wholesale.html' => 'wholesale',
+        'franchise.html' => 'franchise',
     ],
 
     /*
