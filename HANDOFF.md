@@ -2470,3 +2470,14 @@ read in and a Rial figure would have filtered at ten times the price.
 price sort going and the other sorts staying, and every link in the row keeping
 a typed price. 306 tests, Pint clean, parity identical at 992/1200/1440/1920,
 and no sideways scroll at 390/768/1200/1920.
+
+**The pills came down 15% after it.** «این بیضی ها خیلی بزرگن اندازشون باید ۱۵
+درصد کوچیکتر بشه», in the filter panel and the brand sheet alike — the two are
+the same pill in two panels, kept in step by hand. Every number times 0.85:
+34 → 28.9 tall, 14 → 11.9 of padding, 12 → 10.2 of type, radius still half the
+height at 14.45. The type had to come with it or the pill would have stayed as
+wide as it was, since the word inside is most of its width. Measured at 390,
+«ونس و کتونی» went 34 × 92.3 → 28.9 × 78.7 and «نایک» 34 × 52.1 → 28.9 × 44.6,
+and the filter panel is 507 → 486 tall in an 844 screen. `.vp-sheet-picked`'s
+`min-height` followed, or the empty space above the rule would have been the
+one thing that grew.

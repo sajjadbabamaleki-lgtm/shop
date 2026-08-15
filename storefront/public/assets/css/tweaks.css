@@ -14478,17 +14478,25 @@ button.vp-cart-keep {
     margin-top: 0;
   }
 
+  /* «این بیضی ها خیلی بزرگن اندازشون باید ۱۵ درصد کوچیکتر بشه» — every number
+     that makes the pill, times 0.85, in this panel and in the brand sheet
+     alike: 34 → 28.9 tall, 14 → 11.9 of padding, 12 → 10.2 of type, and the
+     radius stays half the height at 14.45. Scaling the height alone would have
+     made a squat pill rather than a smaller one, and leaving the type would
+     have left the pill as wide as it was — the word inside is most of its
+     width. Measured at 390, «ونس و کتونی» went 34 × 92.3 → 28.9 × 78.7 and
+     «نایک» 34 × 52.1 → 28.9 × 44.6, which is 15% off both sides of both. */
   .vp-shop-filter-panel .vp-filter-list label,
   .vp-shop-filter-panel .vp-filter-sizes .vp-size {
     display: inline-flex;
     align-items: center;
-    height: 34px;
-    padding-inline: 14px;
+    height: 28.9px;
+    padding-inline: 11.9px;
     border: 1px solid #101111;
-    border-radius: 17px;
+    border-radius: 14.45px;
     background: none;
     color: #101111;
-    font-size: 12px;
+    font-size: 10.2px;
     font-weight: 700;
     gap: 0;
   }
@@ -14521,7 +14529,7 @@ button.vp-cart-keep {
     background: none;
     box-shadow: none;
     color: inherit;
-    font-size: 12px;
+    font-size: 10.2px;
     font-weight: 700;
   }
 
@@ -15126,7 +15134,7 @@ button.vp-cart-keep {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    min-height: 34px;
+    min-height: 28.9px;
   }
 
   .vp-sheet-rule {
@@ -15147,17 +15155,25 @@ button.vp-cart-keep {
      solid. A filled black beside a filled gold reads as two choices both
      switched on; an outline beside a solid reads as one chosen out of five,
      with no colour having to carry the meaning on its own. */
+  /* A fifteenth off every number, the same as the filter panel's pills —
+     «این بیضی ها خیلی بزرگن اندازشون باید ۱۵ درصد کوچیکتر بشه». The two are
+     the same pill in two panels and are kept in step by hand, so they move
+     together or the shopper meets two sizes of the same control.
+
+     The empty space above the rule follows the chip down: `min-height` is
+     there so the rule does not jump when the first chip lands in it, and it is
+     the chip's own height. Left at 34 it would have been the gap that grew. */
   .vp-chip {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    height: 34px;
-    padding-inline: 14px;
+    height: 28.9px;
+    padding-inline: 11.9px;
     border: 1px solid #101111;
-    border-radius: 17px;
+    border-radius: 14.45px;
     background: none;
     color: #101111;
-    font-size: 12px;
+    font-size: 10.2px;
     font-weight: 700;
     text-decoration: none;
   }
@@ -15295,7 +15311,7 @@ button.vp-cart-keep {
   }
 
   .vp-chip i {
-    font-size: 11px;
+    font-size: 9.35px;
     opacity: 0.8;
   }
 
