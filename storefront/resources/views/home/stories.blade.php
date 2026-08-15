@@ -42,7 +42,6 @@
             @foreach ($stories as $story)
             @php
                 $shot = $story->primaryMedia();
-                $offer = $story->offerHere();
                 $addable = $story->addableVariant();
             @endphp
             {{-- No caption under the circle. The name becomes the link's
@@ -52,7 +51,6 @@
                data-vp-story
                data-vp-story-src="{{ $shot ? asset($shot->path) : '' }}"
                data-vp-story-name="{{ $story->title }}"
-               data-vp-story-price="{{ $offer ? toman($offer->price).' تومان' : '' }}"
                data-vp-story-product="{{ $story->id }}"
                data-vp-story-variant="{{ $addable?->id }}">
                 <span class="vp-story-ring">
@@ -62,8 +60,8 @@
             @endforeach
         </div>
 
-        {{-- The viewer. One island, not five — the picture, the name, the price
-             and the two hidden fields are swapped as it advances.
+        {{-- The viewer. One island, not five — the picture, the name and the
+             two hidden fields are swapped as it advances.
 
              `hidden` rather than a class, so it is inert to everything —
              assistive technology included — until the script opens it, and so
@@ -85,15 +83,27 @@
 
                 <img class="vp-story-shot" data-vp-story-shot src="" alt="">
 
-                <figcaption class="vp-story-cap">
-                    <a class="vp-story-name" data-vp-story-go href="#"></a>
-                    <strong class="vp-story-price" data-vp-story-price></strong>
+                {{-- Under the picture: the two buttons, and nothing else.
+                     «دکمه ها باید کنار هم باشن جلوی یکیش قلب باشه یکیش سبد
+                     خرید» — one row, a mark in front of each, short labels so
+                     the two fit on one line.
 
+                     No price and no name. Both were written here and both were
+                     told off: «نیاز به نوشتن قیمت نیست», and then «مگه بهت
+                     گفتم اون پایین فقط اون دوتا دکمه باشن چرا اسم مینویسی».
+                     The foot of a story is two controls.
+
+                     The name is not lost to anybody who cannot see the
+                     photograph — the script writes it onto the picture's `alt`,
+                     which is where the name of a picture belongs. --}}
+                <figcaption class="vp-story-cap">
                     <div class="vp-story-acts">
                         <form method="post" action="{{ storefront_route('cart.add') }}">
                             @csrf
                             <input type="hidden" name="variant" data-vp-story-variant value="">
-                            <button type="submit" class="vp-story-buy">افزودن به سبد خرید</button>
+                            <button type="submit" class="vp-story-buy">
+                                <i class="fa-solid fa-bag-shopping" aria-hidden="true"></i>سبد خرید
+                            </button>
                         </form>
 
                         {{-- Signed out, this posts to a route the guest
@@ -105,7 +115,7 @@
                             @csrf
                             <input type="hidden" name="product" data-vp-story-product value="">
                             <button type="submit" class="vp-story-fav">
-                                <i class="fa-regular fa-heart" aria-hidden="true"></i>افزودن به لیست علاقمندی
+                                <i class="fa-regular fa-heart" aria-hidden="true"></i>علاقمندی
                             </button>
                         </form>
                     </div>
@@ -123,12 +133,10 @@
 
         var shot = view.querySelector("[data-vp-story-shot]");
         var barRow = view.querySelector("[data-vp-story-bars]");
-        var go = view.querySelector("[data-vp-story-go]");
-        var price = view.querySelector("[data-vp-story-price]");
         var variantField = view.querySelector("[data-vp-story-variant]");
         var productField = view.querySelector("[data-vp-story-product]");
         var buy = view.querySelector(".vp-story-buy");
-        if (!shot || !barRow || !go || !price || !variantField || !productField || !buy) return;
+        if (!shot || !barRow || !variantField || !productField || !buy) return;
 
         // «تایم ۱۵ ثانیه». One number, used by the timer and written onto the
         // bar as its animation duration, so the two cannot disagree — a bar
@@ -166,9 +174,6 @@
             var circle = circles[i];
             shot.src = circle.getAttribute("data-vp-story-src");
             shot.alt = circle.getAttribute("data-vp-story-name");
-            go.href = circle.getAttribute("href");
-            go.textContent = circle.getAttribute("data-vp-story-name");
-            price.textContent = circle.getAttribute("data-vp-story-price") || "";
             productField.value = circle.getAttribute("data-vp-story-product") || "";
 
             // A shoe with no sellable size cannot be added, and a button that

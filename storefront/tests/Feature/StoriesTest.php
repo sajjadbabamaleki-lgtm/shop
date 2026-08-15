@@ -92,8 +92,10 @@ class StoriesTest extends TestCase
         $this->get('/products')->assertOk()
             ->assertSee('action="'.storefront_route('cart.add').'"', false)
             ->assertSee('action="'.storefront_route('account.wishlist.add').'"', false)
-            ->assertSee('افزودن به سبد خرید')
-            ->assertSee('افزودن به لیست علاقمندی');
+            // Short labels beside their marks — the two buttons sit on one row
+            // now, and the full sentences they used to read could only stack.
+            ->assertSee('سبد خرید')
+            ->assertSee('علاقمندی');
     }
 
     /**

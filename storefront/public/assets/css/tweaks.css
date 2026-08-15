@@ -10300,8 +10300,20 @@ ul.vp-how-list.is-ticked li:before {
 
 /* One bar per story, above the picture — the row is what says how many there
    are and which one this is, which a single bar cannot. Built by the script
-   from the circles themselves, so it counts whatever the catalogue has. */
+   from the circles themselves, so it counts whatever the catalogue has.
+
+   **`direction: ltr` on this row alone** — «شمارنده استپر استوری باید از چپ
+   باشه». The page is rtl, so the row was reading right to left: the first
+   story's bar sat at the right and each one filled from the right edge
+   inwards. A story stepper is not text; it is a progress meter, and time runs
+   left to right in one regardless of the language around it — which is also
+   what every phone owner has already learned from the app this is modelled on.
+
+   One declaration does both halves of it, and that is why it is here rather
+   than on the fill: it puts bar one at the left *and* makes each `i` grow from
+   its own left edge, because a block's width grows from the inline start. */
 .vp-story-bars {
+  direction: ltr;
   display: flex;
   gap: 4px;
   margin-block-end: 8px;
@@ -10401,51 +10413,43 @@ ul.vp-how-list.is-ticked li:before {
    `flex: none` so the caption keeps its height and the picture above gives up
    the rest — the other way round, a long product name would push the buttons
    out of the island and `overflow: hidden` would swallow them silently. */
+/* The foot of the island: the two buttons, and nothing else. `flex: none` so
+   it keeps its height and the picture above gives up the rest.
+
+   **The 10 is the island's own padding, and that is the whole point of it** —
+   «فضای خالی بالا و پایین دکمه ها یکی باشه». The space under the buttons is
+   not set anywhere: it is the island's bottom padding, 10. So the space above
+   them has to be the same 10, and it is one declaration rather than two,
+   because the row below used to add a margin of its own on top of this — the
+   two came to 16 above against 10 below, which is the gap this fixes. Anything
+   added to this foot later takes its spacing from here, not from a second
+   margin. */
 .vp-story-cap {
   flex: none;
   margin: 0;
-  padding-block-start: 8px;
-  text-align: center;
+  padding-block-start: 10px;
 }
 
-/* The name is the way through to the product page, which is where the circle
-   itself went before it opened a story. A link and not a button: it navigates,
-   and the two below it do not. */
-.vp-story-name {
-  display: block;
-  color: #101111;
-  font-size: 13px;
-  font-weight: 700;
-  text-decoration: none;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+/* «دکمه ها باید کنار هم باشن جلوی یکیش قلب باشه یکیش سبد خرید» — one row, a
+   mark in front of each.
 
-.vp-story-price {
-  display: block;
-  margin-block-start: 2px;
-  color: #A47F25;
-  font-size: 13px;
-  font-weight: 700;
-}
+   They were stacked, under a price and a name, and all of that was wrong. Both
+   lines are gone — «نیاز به نوشتن قیمت نیست», then «فقط اون دوتا دکمه باشن» —
+   and the row is what the short labels buy: «افزودن به لیست علاقمندی» is 132px
+   of type at 12.5px, so two full sentences in a 331px content box could only
+   ever have stacked. «سبد خرید» and «علاقمندی» with their marks fit side by
+   side with room to spare.
 
-/* «زیرش باید دکمه اضافه کردن به لیست علاقمندی [و] اضافه کردن به سبد خرید
-   باشه» — two, stacked, with the basket first.
-
-   Stacked rather than side by side because both labels are long: «افزودن به
-   لیست علاقمندی» is 132px of type at 12.5px, and two of those in a 351px island
-   leaves each about 165 with its padding — the wishlist one wraps or
-   ellipsises at every width this island has. A story is read down anyway.
+   `flex: 1 1 0` on both, so the two are the same width whatever their labels
+   measure — two buttons of different widths beside each other read as a primary
+   and an afterthought, and these are one choice with two answers.
 
    Two forms, so `display: contents` on each: they carry the POST and the token
-   and should add nothing to the layout, or the gap between the buttons would be
+   and must add nothing to the layout, or the gap between the buttons would be
    the gap between two form boxes that are not the buttons. */
 .vp-story-acts {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-block-start: 8px;
+  gap: 8px;
 }
 
 .vp-story-acts form {
@@ -10454,17 +10458,19 @@ ul.vp-how-list.is-ticked li:before {
 
 .vp-story-buy,
 .vp-story-fav {
+  flex: 1 1 0;
+  min-width: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  width: 100%;
   height: 38px;
-  padding-inline: 14px;
+  padding-inline: 12px;
   border: 0;
   border-radius: 19px;
   font-size: 12.5px;
   font-weight: 700;
+  white-space: nowrap;
   cursor: pointer;
 }
 
@@ -10486,9 +10492,19 @@ ul.vp-how-list.is-ticked li:before {
 
 /* The wishlist is the outlined chip, for the reason the brand chips are
    outlined: an outline beside a solid reads as the second choice of two, and
-   two solids read as two equal calls to action. */
+   two solids read as two equal calls to action.
+
+   **The outline is an inset ring, not a border**, and that is what keeps the
+   two buttons the same width. With a real border only one of the pair has one,
+   and it lands outside the flex basis whatever `box-sizing` says — measured,
+   the outlined button came out 162.5 against the solid one's 160.5, which is
+   exactly its 1px each side. `box-sizing: border-box` was tried first and moved
+   neither number. A ring painted inside the box has no layout at all, so both
+   buttons are the same box and the line is in the same place it was. Same
+   device, and the same reason, as `.vp-shop-rail`'s. */
 .vp-story-fav {
-  border: 1px solid rgba(16, 17, 17, 0.35);
+  border: 0;
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.35);
   background: none;
   color: #101111;
 }
