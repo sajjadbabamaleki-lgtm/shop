@@ -2567,6 +2567,33 @@ if (!html.includes('vp-foot-m-head')) {
   html = html.split(from).join(to);
 });
 
+/*
+ * The hero's buy button says «خرید محصول».
+ *
+ * Not through DICT: its «Shop Now» becomes «خرید کنید» and that word is on the
+ * offer banner's two buttons as well, which were not asked about. The six hero
+ * buttons are told apart by the `btn-group` wrapper the offer banner's do not
+ * have — matched with the whole opening tag rather than by the label alone, so
+ * this cannot start catching them if the template's markup shifts.
+ *
+ * Six, because the deck runs three products twice.
+ */
+{
+  const heroButton = '<div class="btn-group" data-ani="slideinup" data-ani-delay="0.7s">' +
+    '<a href="shop.html" class="th-btn th-icon">خرید کنید</a>';
+
+  const heroButtons = html.split(heroButton).length - 1;
+
+  if (heroButtons !== 6) {
+    throw new Error(`expected the hero's six buy buttons, found ${heroButtons} — check before renaming them`);
+  }
+
+  html = html.split(heroButton).join(
+    '<div class="btn-group" data-ani="slideinup" data-ani-delay="0.7s">' +
+    '<a href="shop.html" class="th-btn th-icon">خرید محصول</a>'
+  );
+}
+
 // The basket's badge starts at nothing. It was the template's «5» — a number
 // that never moved however full the basket was, which is worse than no number
 // at all. The Laravel page renders the real count in its place; both read ۰

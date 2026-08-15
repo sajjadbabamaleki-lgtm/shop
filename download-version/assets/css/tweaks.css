@@ -8379,8 +8379,14 @@ ul.vp-how-list.is-ticked li:before {
    gap 40, the name 67/75 with no stroke and the padding 94 at all four, as
    they were. */
 @media (max-width: 991.98px) {
+  /* 23.25 became 13.25: «اسم کفش و دکمه خرید کنید باید باهم ۱۰ پیکسل برن
+     بالاتر». The ten comes off the block's own top padding rather than out of
+     the two margins below it, so the eyebrow, the name and the button rise
+     together and the rhythm between them — 15.71 and 18.85, both measured — is
+     untouched. The card ends 10px shorter, which is what "higher" means when
+     the thing above is a photograph that is not moving. Phone only. */
   .heroSlide6 .hero-style6 {
-    padding-block: 23.25px 12.57px;
+    padding-block: 13.25px 12.57px;
   }
 
   .heroSlide6 .hero-inner .sub-title {
@@ -8389,6 +8395,21 @@ ul.vp-how-list.is-ticked li:before {
 
   .heroSlide6 .hero-inner .hero-title {
     margin-bottom: 18.85px;
+  }
+
+  /* «اون فلش هم در نسخه موبایل حذف بشه». The arrow is the template's
+     `.th-icon::after`, a mask of arrow-right.svg — the rule far above flips it
+     with scaleX so it faces the shoe. On a phone it comes off entirely.
+
+     `content: none` rather than `display: none`, because the button is a flex
+     row with a 6.4px gap: a box that is `display: none` is not a flex item and
+     leaves no gap, but a pseudo-element with no content is not generated at
+     all, which is the same thing said once. The label is then the button's
+     only child and centres on its own.
+
+     The desktop keeps its arrow — this is inside the phone block on purpose. */
+  .heroSlide6 .hero-inner .th-btn.th-icon::after {
+    content: none;
   }
 }
 
