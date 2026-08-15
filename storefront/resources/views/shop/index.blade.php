@@ -52,17 +52,22 @@
                  The filter is a <details>, so the panel opens with no
                  JavaScript at all and the page keeps its promise that the URL
                  decides what is shown. --}}
-            {{-- «سرچ بار باید سفید بشه و دورش سایه بیاد و فیلتر هم بیاد داخل
-                 باکس سرچ سمت چپش» — one white box carrying both.
+            {{-- The search line: two white boxes, side by side.
 
-                 The box is `.vp-shop-top` itself rather than the form, and that
-                 is not a shortcut: `shop.filters` is a <form>, so putting the
-                 filter's <details> inside the search form would nest one form
-                 in another. That is invalid, and browsers do not merely
-                 tolerate it — the inner form is dropped, and the phone's whole
-                 filter rail would stop submitting with nothing to see. So the
-                 bar is the box, the search form is transparent inside it, and
-                 the two stay siblings.
+                 It was one box carrying both — «سرچ بار باید سفید بشه و دورش
+                 سایه بیاد و فیلتر هم بیاد داخل باکس سرچ سمت چپش» — and then
+                 «باکس سرچو از فیلتر جدا کن و باکس سرچ ارتفاعش بشه اندازه فیلتر»
+                 split them again at equal heights. `.vp-shop-top` is the row
+                 now and nothing else: the white, the corner and the light are
+                 on `.vp-shop-find` and on the filter's own `<summary>`, and the
+                 two heights are one number, set together in the stylesheet.
+
+                 **They are siblings under every version of this, and that is
+                 not a layout preference.** `shop.filters` is a <form>, so
+                 putting the filter's <details> inside the search form would
+                 nest one form in another — which browsers do not merely
+                 tolerate: the inner one is dropped, and the phone's whole
+                 filter rail would stop submitting with nothing to see.
 
                  The form comes first and the filter second, which on this rtl
                  page puts the field at the right and the filter at the left —
@@ -259,14 +264,29 @@
                      comes from `:checked` rather than from a class the server
                      had to guess.
 
-                     The chips still sort themselves across the rule, but only
-                     on the way back: what is in force is rendered above, the
-                     rest below. Moving one the moment it is tapped would need
-                     script, and the client's ask is that the sheet stop closing
-                     — not that the chip jump. --}}
+                     **The chip crosses the rule when it is tapped, not when the
+                     page comes back.** «وقتی یه مورد یا چن مورد انتخاب میشه
+                     همون موقه که انتخاب میشه باید بره بالای خط قبل از اینکه
+                     اعمال فیلتر زده بشه». That does need script — this file's
+                     own note used to say so and leave it — and the script is
+                     pushed at the foot of this view. The server still renders
+                     the two lists correctly on its own, so what arrives is
+                     right before a line of JavaScript has run and the move is
+                     the only thing the script is for.
+
+                     `data-vp-rank` is the catalogue's own order, stamped on
+                     every chip. Without it a chip sent back below the rule
+                     could only be appended to the end, and a shopper who ticked
+                     and unticked would slowly shuffle the list; with it, both
+                     sides stay in the order `$facets['brands']` came in. It has
+                     to come from the whole list rather than from either loop's
+                     index, because the two loops are a filter and a reject of
+                     the same list and neither one's position survives the
+                     split. --}}
                 @php
                     $brandOn = collect($facets['brands'])->filter(fn ($b) => in_array($b->slug, $filters['brand'], true));
                     $brandOff = collect($facets['brands'])->reject(fn ($b) => in_array($b->slug, $filters['brand'], true));
+                    $brandRank = collect($facets['brands'])->values()->mapWithKeys(fn ($b, $i) => [$b->slug => $i])->all();
                 @endphp
 
                 <details class="vp-shop-tab vp-shop-sheet{{ $filters['brand'] ? ' is-on' : '' }}">
@@ -284,9 +304,9 @@
                             @endforeach
                             <input type="hidden" name="sort" value="{{ $filters['sort'] }}">
 
-                            <div class="vp-sheet-picked">
+                            <div class="vp-sheet-picked" data-vp-chips-on>
                                 @foreach ($brandOn as $brand)
-                                    <label class="vp-chip">
+                                    <label class="vp-chip" data-vp-rank="{{ $brandRank[$brand->slug] }}">
                                         <input type="checkbox" name="brand[]" value="{{ $brand->slug }}" checked>
                                         <span>{{ $brand->name }}</span>
                                     </label>
@@ -295,9 +315,9 @@
 
                             <div class="vp-sheet-rule"></div>
 
-                            <div class="vp-sheet-chips">
+                            <div class="vp-sheet-chips" data-vp-chips-off>
                                 @foreach ($brandOff as $brand)
-                                    <label class="vp-chip">
+                                    <label class="vp-chip" data-vp-rank="{{ $brandRank[$brand->slug] }}">
                                         <input type="checkbox" name="brand[]" value="{{ $brand->slug }}">
                                         <span>{{ $brand->name }}</span>
                                     </label>
@@ -408,3 +428,71 @@
     </div>
 </section>
 @endsection
+
+{{--
+    The brand sheet's chips cross the rule as they are tapped.
+
+    «تو قسمت فیلترا وقتی یه مورد یا چن مورد انتخاب میشه همون موقه که انتخاب
+    میشه باید بره بالای خط قبل از اینکه اعمال فیلتر زده بشه» — picked belongs
+    above the line the moment it is picked, not after «اعمال فیلتر» has been
+    pressed and the page has come back.
+
+    **Pushed from this view rather than added to `partials/scripts`.** That
+    partial is generated by `theme/make-blade.js` out of the preview page, so
+    hand-editing it is undone by the next run — and the preview page is the
+    home page, which has no brand sheet in it, so the code would ship to every
+    page on the site to run on markup only this one has. `@stack('scripts')` is
+    what the layout provides for exactly this.
+
+    **It moves the label and nothing else, and that is what keeps the form
+    honest.** The checkbox travels inside its own <label>, so it is still the
+    same field with the same `name="brand[]"` and the same value; a moved node
+    keeps its `checked` state, because that state is a property and not the
+    attribute the server wrote. Nothing here writes a value, removes a field or
+    remembers a choice of its own — «اعمال فیلتر» still submits the form, and
+    with the script blocked or broken the sheet behaves exactly as it did
+    before: the chip turns gold where it stands, via `.vp-chip:has(:checked)`,
+    and the server sorts the two lists on the way back.
+
+    `data-vp-rank` is what it inserts by, so a chip put back below the rule
+    lands where the catalogue says rather than on the end of the row.
+--}}
+@push('scripts')
+<script>
+    (function () {
+        // Delegated from the document: the sheets are <details>, so a chip can
+        // be in a panel that has never been opened, and binding per-element on
+        // load would still work — but this also survives anything that
+        // re-renders a sheet later, and costs one listener.
+        document.addEventListener("change", function (e) {
+            var input = e.target;
+            if (!input || !input.matches) return;
+            // Scoped to the brand sheet's own checkboxes. The price sheet's
+            // radios are in `.vp-price-form` and must not be touched: they are
+            // a sort, they have no rule to cross, and moving one would tear it
+            // out of the group it belongs to.
+            if (!input.matches(".vp-sheet-form .vp-chip input[type=checkbox]")) return;
+
+            var chip = input.closest(".vp-chip");
+            var form = input.closest(".vp-sheet-form");
+            if (!chip || !form) return;
+
+            var to = form.querySelector(input.checked ? "[data-vp-chips-on]" : "[data-vp-chips-off]");
+            if (!to || chip.parentNode === to) return;
+
+            // In catalogue order: before the first chip already there that
+            // ranks after this one, or at the end if there is no such chip.
+            var rank = Number(chip.getAttribute("data-vp-rank"));
+            var before = null;
+            for (var i = 0; i < to.children.length; i++) {
+                if (Number(to.children[i].getAttribute("data-vp-rank")) > rank) {
+                    before = to.children[i];
+                    break;
+                }
+            }
+
+            to.insertBefore(chip, before);
+        });
+    }());
+</script>
+@endpush

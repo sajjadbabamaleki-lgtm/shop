@@ -13227,14 +13227,27 @@ ul.vp-how-list.is-ticked li:before {
 
      The row keeps the layout; the white, the corner and the light move off it
      onto the search form and onto the filter's own summary, so each is a box
-     in its own right. 46 both, which is what the row was: the filter's pill
-     was 34 inside a 46 bar and is now the bar's own height, and the search box
-     is the same 46 beside it.
+     in its own right. The filter's pill was 34 inside a 46 bar and is now a
+     box of its own, and the search box is the same height beside it.
 
      The two stay siblings for the reason the note above this one gives —
      `shop.filters` is a <form>, and a <form> inside a <form> is dropped by the
      browser, taking the whole filter rail with it. Boxing them separately is
-     what that constraint always wanted. */
+     what that constraint always wanted.
+
+     **Both are 39 now, which is 46 less fifteen percent** — «ارتفاع باکس سرچ و
+     فیلتر ۱۵ درصد کمتر بشه». 46 × 0.85 = 39.1, taken to 39, and the radius goes
+     with it, 23 → 19.5, so each stays a capsule rather than becoming a rounded
+     rectangle.
+
+     **The two heights are one number and have to move together.** «باکس سرچ
+     ارتفاعش بشه اندازه فیلتر» is the instruction that made them equal in the
+     first place; taking fifteen percent off one of them would answer this round
+     by undoing the last one. Same for the radius: two capsules of the same
+     height with different corners read as two different controls.
+
+     The type inside is untouched — 13px in a 39px box is the same reading it
+     was in a 46px one, and shrinking it was not what was asked. */
   .vp-shop-top {
     position: relative;
     display: flex;
@@ -13264,9 +13277,9 @@ ul.vp-how-list.is-ticked li:before {
     display: flex;
     align-items: center;
     gap: 8px;
-    height: 46px;
+    height: 39px;
     padding-inline: 16px;
-    border-radius: 23px;
+    border-radius: 19.5px;
     background: #FFFFFF;
     box-shadow:
       0 0 2px rgba(16, 17, 17, 0.1),
@@ -13292,22 +13305,23 @@ ul.vp-how-list.is-ticked li:before {
     outline: none;
   }
 
-  /* The reference's outlined pill. Gold rather than its red, because this page
-     has one accent and it is not red.
+  /* The reference's pill, in the search box's own material. Gold type rather
+     than the reference's red, because this page has one accent and it is not
+     red.
 
-     Sized down from 42 to 34 now that it sits inside the 46px box rather than
-     beside it — 6px of air above and below, against the 6px the box's own
-     inline-end padding gives it. A 42 pill in a 46 box reads as a lid rather
-     than a control. */
+     It was an outlined 34px pill inside the 46px bar; it is a box in its own
+     right now, so it carries the white, the corner and the light instead of a
+     ring, and its height is the search box's — see the note over `.vp-shop-top`
+     for why those two numbers are one number. */
   .vp-shop-filter-btn {
     flex: none;
     display: flex;
     align-items: center;
     gap: 6px;
-    height: 46px;
+    height: 39px;
     padding-inline: 16px;
     border: 0;
-    border-radius: 23px;
+    border-radius: 19.5px;
     background: #FFFFFF;
     box-shadow:
       0 0 2px rgba(16, 17, 17, 0.1),
@@ -13413,9 +13427,34 @@ ul.vp-how-list.is-ticked li:before {
   }
 
   /* --- the category strip ------------------------------------------------ */
+  /* «از وسط هم فاصلشون کمتر بشه که موارد بیشتری جا بشه» — the centres closer
+     together, so more of the eight are on screen at once.
+
+     **The whole cut comes out of the gap: 18 → 2, and the item keeps its 58.**
+     What decides how many fit is 6w + 5g against the strip's 366 at 390. It was
+     6×58 + 5×18 = 438, so five fitted and the sixth was cut off; it is 348 + 10
+     = 358 now, and six fit with 8px to spare.
+
+     The item is not free to give, and two rounds proved it in opposite
+     directions. At 50 (with a gap of 8, the same six items) «ونس و کتونی»
+     ellipsised — a name that has fitted for as long as the strip has existed.
+     At 56 the label measures 56 exactly, which passed a `scrollWidth` check and
+     still ellipsised on screen, because equal is not slack. So the width stays
+     where it was and the gap does the work. Two names are too long at any width
+     this row can afford — «بوت و نیم‌بوت» at 60 and «ست کیف و کفش» at 76, both
+     already ellipsised before this round — and they stay the only two.
+
+     **2px of gap is not what it reads as, because the tile is 34 inside a 58
+     item.** The eye spaces the tiles, not the item boxes, and tile to tile is
+     2 + 24 = 26px of air, against 30 before — so the gap the client asked to
+     shrink shrank by a seventh of what the number suggests, which is the right
+     amount for a row that now has a drawn box on every item.
+
+     Seven was looked at and refused: it needs 7w + 6g ≤ 366, which is a 50px
+     item at a 2px gap, and 50 is the width that ellipsised «ونس و کتونی». */
   .vp-shop-strip {
     display: flex;
-    gap: 18px;
+    gap: 2px;
     margin-block-end: 16px;
     padding-block-end: 2px;
     overflow-x: auto;
@@ -13441,24 +13480,70 @@ ul.vp-how-list.is-ticked li:before {
     text-align: center;
   }
 
-  /* «تو قسمت فروشگاه همه آیکونها باید از پایین تو یک سطح قرار بگیرن».
+  /* «آیکون های مجلسی و… در فروشگاه مث منو بیان تو مربع» — the drawer's tile,
+     brought to the strip.
 
-     Half of this is in the files and half is here, and neither works alone.
+     It is the drawer's `.vp-cat-icon` scaled rather than a second tile that is
+     nearly the same. The drawer's is 28 outside with 6.5 of padding, so 15 of
+     drawing; this one is 34 outside with 7.9, so 18.2 of drawing — the same
+     0.536 of tile that is ink, the same gold at `rgba(192, 151, 47, 0.07)`, and
+     the 9px radius scaled by the same 34/28 to 10.9. The two marks read as one
+     material because they are one, at two sizes.
+
+     **34 is derived from the mark, not chosen for the tile.** «سایز آیکون ها
+     باید ۳۰ درصد کوچیکتر بشن» put the drawing at 18.2 one round ago, and that
+     number survives this one untouched: the square is built outwards from it
+     (18.2 ÷ 0.536 = 34) rather than the drawing being resized to suit a square.
+     Sizing the tile first and letting the ink fall where it may is how a
+     thirty-percent reduction quietly becomes something else.
+
+     **`box-sizing: border-box` is load-bearing** — without it the padding lands
+     outside the 34 and the tile is 49.8 wide, which all but fills the 58px item
+     that holds it and leaves the row with no gap at all.
+
+     --------------------------------------------------------------------------
+     «تو قسمت فروشگاه همه آیکونها باید از پایین تو یک سطح قرار بگیرن», kept.
+
+     Half of that is in the files and half is here, and neither works alone.
      `make-category-icons.js` crops every icon's view box to its own ink, so a
-     file's bottom edge *is* the sole of the shoe in it; this line then puts
-     that edge on the bottom of the box instead of in the middle of it.
+     file's bottom edge *is* the sole of the shoe in it; `object-position` then
+     puts that edge on the bottom of the box instead of in the middle of it.
 
-     Without the crop, `bottom` would only line up eight different amounts of
-     built-in padding. Without this line, the crop would only recentre them. */
+     The tile does not replace that line — it moves the box the line refers to.
+     Every sole now sits on the content box's floor, which is one 7.9px inset
+     off every tile's floor, and the tiles are all the same size, so the eight
+     soles are still on one level. Take `center bottom` away and they float to
+     eight different heights inside eight identical squares, which is the same
+     complaint with a box drawn round it.
+
+     Also worth knowing here: the template resets
+     `img:not([draggable]) { height: auto }` at the same specificity this rule
+     has, so the 34 only holds because tweaks.css is loaded last. That is the
+     bug the drawer's own tile hit and needed a stronger selector for; this one
+     is measured after every change rather than assumed. */
   .vp-shop-cat img {
-    width: 18.2px;
-    height: 18.2px;
+    box-sizing: border-box;
+    width: 34px;
+    height: 34px;
+    padding: 7.9px;
+    border-radius: 10.9px;
+    background: rgba(192, 151, 47, 0.07);
     object-fit: contain;
     object-position: center bottom;
   }
 
+  /* The section being looked at, on the tile as well as in the label.
+
+     The drawer lights its own tile the same way under the finger
+     (`rgba(192, 151, 47, 0.14)`), and now that every icon carries a square the
+     label's colour is doing the work alone against eight identical marks. Same
+     tint, for the same reason, at the state this row actually has. */
   .vp-shop-cat.is-on {
     color: #A47F25;
+  }
+
+  .vp-shop-cat.is-on img {
+    background: rgba(192, 151, 47, 0.14);
   }
 
   .vp-shop-cat span {

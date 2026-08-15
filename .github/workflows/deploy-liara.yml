@@ -17,6 +17,11 @@ on:
       # deploys nothing, silently, and CLAUDE.md says this file is where that
       # gets fixed. It comes off the list when the branch is merged.
       - claude/shop-section-image-sw2i3a
+      # The shop's search box height, its category tiles, and the brand chips
+      # crossing the rule as they are tapped. Same reason as the line above:
+      # without it this branch's pushes run the tests and deploy nothing, and
+      # «بیلد تغییراتو بفرست» would be answered by a build the client cannot see.
+      - claude/shop-search-filter-height-qb1nxx
   pull_request:
   workflow_dispatch:
 
