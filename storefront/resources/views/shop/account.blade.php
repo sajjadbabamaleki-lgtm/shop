@@ -21,7 +21,7 @@
     <div class="container th-container">
         <div class="vp-shop-panel">
 
-            <div class="vp-shop-head">
+            <div class="vp-shop-head vp-acct-head">
                 <div class="vp-shop-heading">
                     <h1 class="vp-shop-title">{{ $customer->name ?: 'حساب من' }}</h1>
                     <p class="vp-shop-count">{{ $customer->phone }}</p>
@@ -38,6 +38,50 @@
             @if (session('status'))
                 <p class="vp-note is-good">{{ session('status') }}</p>
             @endif
+
+            {{-- The password, changeable from inside.
+
+                 It has to live somewhere: a shopper sets one on the screen that
+                 verified their number and would otherwise never be able to
+                 change it. Folded into a `<details>` because it is not what the
+                 page is for — the orders are.
+
+                 The old password is asked for even though this session is
+                 already signed in. A session left open on a shared telephone is
+                 the ordinary way an account is taken, and a password change is
+                 what makes that permanent. Somebody who has genuinely forgotten
+                 it signs out and comes back with a code, which is the stronger
+                 proof anyway. --}}
+            <details class="vp-acct-pass">
+                <summary>تغییر رمز عبور</summary>
+
+                <form method="post" action="{{ storefront_route('account.password.change') }}">
+                    @csrf
+
+                    <div class="vp-inp">
+                        <i class="fa-solid fa-lock" aria-hidden="true"></i>
+                        <input id="in-current" name="current" type="password" maxlength="72"
+                               autocomplete="current-password" placeholder="رمز فعلی">
+                        <label class="visually-hidden" for="in-current">رمز فعلی</label>
+                    </div>
+
+                    <div class="vp-inp">
+                        <i class="fa-solid fa-key" aria-hidden="true"></i>
+                        <input id="in-new" name="password" type="password" required maxlength="72"
+                               autocomplete="new-password" placeholder="رمز تازه">
+                        <label class="visually-hidden" for="in-new">رمز تازه</label>
+                    </div>
+
+                    <div class="vp-inp">
+                        <i class="fa-solid fa-key" aria-hidden="true"></i>
+                        <input id="in-new2" name="password_confirmation" type="password" required maxlength="72"
+                               autocomplete="new-password" placeholder="رمز تازه، دوباره">
+                        <label class="visually-hidden" for="in-new2">تکرار رمز تازه</label>
+                    </div>
+
+                    <button type="submit" class="vp-enter-go">ذخیره</button>
+                </form>
+            </details>
 
             <h2 class="vp-filter-title">سفارش‌های من</h2>
 

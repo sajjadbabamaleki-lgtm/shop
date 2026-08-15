@@ -90,13 +90,37 @@ $storefront = function (): void {
      * list of numbers if nothing stops it.
      */
     Route::get('/account/enter', [AccountController::class, 'show'])->name('account.enter');
-    Route::post('/account/login', [AccountController::class, 'login'])
-        ->middleware('throttle:10,10')->name('account.login');
-    Route::post('/account/register', [AccountController::class, 'register'])
-        ->middleware('throttle:10,60')->name('account.register');
+
+    /*
+     * The number first, then either a password or a code. Every one of these is
+     * throttled, and not all with the same number — they are different risks.
+     *
+     * Sending a code is the expensive one: every request is an SMS somebody
+     * pays for, and a script pointed at it is both a bill and a way to flood
+     * one person's phone. `LoginCode::nextSendAllowedAt` already holds each
+     * number to one code every 90 seconds; this holds each *browser* to ten an
+     * hour, for the case where the numbers are all different. `start` sends one
+     * too, for a number with no password, so it carries the same limit.
+     *
+     * Verifying and the password are throttled against guessing. The password
+     * has no minimum length by explicit instruction, so this limit is not a
+     * belt beside a brace — it is most of what stands there.
+     */
+    Route::post('/account/start', [AccountController::class, 'start'])
+        ->middleware('throttle:10,60')->name('account.start');
+    Route::post('/account/code', [AccountController::class, 'code'])
+        ->middleware('throttle:10,60')->name('account.code');
+    Route::post('/account/password', [AccountController::class, 'password'])
+        ->middleware('throttle:20,10')->name('account.password');
+    Route::post('/account/verify', [AccountController::class, 'verify'])
+        ->middleware('throttle:20,10')->name('account.verify');
+    Route::post('/account/restart', [AccountController::class, 'restart'])->name('account.restart');
+
     Route::post('/account/logout', [AccountController::class, 'logout'])->name('account.logout');
     Route::get('/account', [AccountController::class, 'index'])
         ->middleware('auth:customer')->name('account');
+    Route::post('/account/password/change', [AccountController::class, 'changePassword'])
+        ->middleware('auth:customer')->name('account.password.change');
 
     /*
      * The content pages. Fixed paths, one controller, no parameters — the

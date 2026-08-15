@@ -4,9 +4,8 @@
             <div class="widget-area">
                 <div class="vp-foot-m">
                 <div class="vp-foot-m-head">
-                    <span class="vp-foot-m-rule" aria-hidden="true"></span>
+                    <img class="vp-foot-m-mark" src="{{ asset('assets/img/vikyplus-appicon.png') }}" alt="" width="56" height="56">
                     <b class="vp-foot-m-name">ویکی پلاس</b>
-                    <span class="vp-foot-m-rule" aria-hidden="true"></span>
                 </div>
                 <p class="vp-foot-m-strap">ارائه‌دهنده انواع کیف و کفش زنانه با تضمین کیفیت، ارسال سریع و امکان خرید تکی و عمده.</p>
                 <p class="vp-foot-m-line"><i class="fa-solid fa-location-dot" aria-hidden="true"></i><span>تهران، سعدی شمالی، روبه‌روی بانک ملی، پلاک ۵۶۵</span></p>
@@ -14,8 +13,9 @@
                 <div class="vp-foot-m-social">
                     <a class="vp-foot-m-soc is-instagram" href="#" aria-label="Instagram"><i class="fa-brands fa-instagram" aria-hidden="true"></i></a>
                     <a class="vp-foot-m-soc is-telegram" href="#" aria-label="تلگرام"><i class="fa-brands fa-telegram" aria-hidden="true"></i></a>
-                    <a class="vp-foot-m-soc is-bale" href="#" aria-label="پیام‌رسان"><i class="fa-solid fa-comment-dots" aria-hidden="true"></i></a>
-                    <a class="vp-foot-m-soc is-whatsapp" href="#" aria-label="واتساپ"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i></a>
+                    <a class="vp-foot-m-soc is-whatsapp" href="https://wa.me/989918905993" aria-label="واتساپ"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i></a>
+                    <a class="vp-foot-m-soc is-bale" href="#" aria-label="بله"><i class="fa-solid fa-comment-dots" aria-hidden="true"></i></a>
+                    <a class="vp-foot-m-soc is-rubika" href="#" aria-label="روبیکا"><b class="vp-foot-m-soc-letter" aria-hidden="true">R</b></a>
                 </div>
                 <div class="vp-foot-m-cols">
                     <div class="vp-foot-m-col">

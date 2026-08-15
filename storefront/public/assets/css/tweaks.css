@@ -5950,6 +5950,19 @@ ul.vp-how-list.is-ticked li:before {
   color: var(--theme-color);
 }
 
+/* «خروج» is a button because signing out is a POST, and the template's own
+   reset leaves a real `<button>` with its border, its grey fill and 45px of
+   padding — which nobody had seen, because the head this sits in was
+   `display: none` on a phone and on a desktop the eye reads it as a field.
+   Everything the anchor beside it does not have, off. */
+button.vp-cart-keep {
+  padding: 0;
+  border: 0;
+  background: none;
+  line-height: inherit;
+  cursor: pointer;
+}
+
 /* «دقیقا این ui بساز ولی از راست چین و به شکل جزیره ای فعلی» — the reference's
    basket card, mirrored, in this page's own materials.
 
@@ -8138,6 +8151,64 @@ ul.vp-how-list.is-ticked li:before {
    The account: a list of what this customer has bought here.
    -------------------------------------------------------------------------- */
 
+/* «تغییر رمز عبور», folded away. A `<details>`, because the page is for the
+   orders and this is housekeeping — but it has to be here, since a shopper
+   sets the password on the screen that verified their number and would
+   otherwise have no way back to it.
+
+   `.vp-doc-q`, the FAQ's own fold, is the same idea drawn for a page of prose;
+   this one is narrower and sits on the panel rather than in a column of text,
+   so it is its own three rules rather than a borrowed class that would have to
+   answer to both. */
+.vp-acct-pass {
+  margin: 18px 0 6px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: rgba(16, 17, 17, 0.028);
+  box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.07);
+}
+
+.vp-acct-pass > summary {
+  cursor: pointer;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--title-color);
+  list-style: none;
+}
+
+/* Safari draws its own triangle through a pseudo-element the standard rule
+   above does not reach. */
+.vp-acct-pass > summary::-webkit-details-marker {
+  display: none;
+}
+
+/* The chevron. `Font Awesome 6 Pro` is the family this theme actually ships —
+   the `Free` name draws nothing, silently, and a pseudo-element that resolves
+   to no glyph leaves no trace to notice. */
+.vp-acct-pass > summary::after {
+  content: '\f078';
+  float: left;
+  font-family: 'Font Awesome 6 Pro';
+  font-weight: 900;
+  font-size: 11px;
+  color: #9A9C9C;
+  transition: transform 0.2s ease;
+}
+
+.vp-acct-pass[open] > summary::after {
+  transform: rotate(180deg);
+}
+
+.vp-acct-pass form {
+  display: grid;
+  gap: 10px;
+  margin: 14px 0 0;
+  /* The panel is as wide as the orders table; three password fields stretched
+     to that width read as a form somebody else's page lost. */
+  max-width: 340px;
+}
+
 .vp-account-orders {
   list-style: none;
   margin: 14px 0 0;
@@ -9397,13 +9468,38 @@ ul.vp-how-list.is-ticked li:before {
     text-align: center;
   }
 
-  /* The mark, centred with a rule running out to either side. The rules take
-     the space that is left, so the name stays centred whatever its width. */
+  /* The mark above the name, and nothing either side of it — «تو فوتر موبایل
+     باید لوگو بیاد بالای ویکی پلاس و اون خطهای ۲ طرفش پاک بشن».
+
+     It used to be the name centred with a gold rule running out to either
+     side. Those two rules are gone; the ones in the column headings below are
+     a different thing and stay, because the instruction named the pair beside
+     the shop's name. `.vp-foot-m-rule` therefore still has work to do — see
+     `.vp-foot-m-col-title` further down before deleting it. */
   .vp-foot-m-head {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    gap: 14px;
+    gap: 10px;
+  }
+
+  /* 56px, which is the header lockup's mark at 40 taken up by the same ratio
+     the name is: the foot of the page is the head of it, read larger because
+     there is room. Sized in the markup as well, so the line does not jump
+     while the image is still coming. */
+  .vp-foot-m-mark {
+    width: 56px;
+    height: 56px;
+    object-fit: contain;
+    /* The artwork is a mark on a white ground. Everywhere else on the site it
+       lands on white and the ground is invisible; here the band is grey, so
+       without this it reads as a white square somebody forgot to cut out.
+       Rounded at 0.292 of the box — the header's controls and the social tiles
+       below use the same ratio — it reads as the app icon it is. */
+    border-radius: 16.35px;
+    box-shadow:
+      0 0 2px rgba(16, 17, 17, 0.10),
+      0 0 8px -2px rgba(16, 17, 17, 0.14);
   }
 
   .vp-foot-m-rule {
@@ -9456,9 +9552,13 @@ ul.vp-how-list.is-ticked li:before {
     direction: ltr;
   }
 
-  /* The four marks. Rounded squares at the icons' own size — the same corner
+  /* The five marks. Rounded squares at the icons' own size — the same corner
      ratio the header's controls carry, 0.292 of the box, so the foot of the
-     page and the head of it are drawn by the same hand. */
+     page and the head of it are drawn by the same hand.
+
+     Five at 42 with 12 between them is 258, which clears 390 with the page's
+     own margins and clears 360 too. A sixth would not, so if one is ever added
+     the row wraps or the tile shrinks — measure it. */
   .vp-foot-m-social {
     display: flex;
     justify-content: center;
@@ -9489,12 +9589,24 @@ ul.vp-how-list.is-ticked li:before {
     color: #FFFFFF;
   }
 
-  /* The second mark is a service this could not identify from the screenshot —
-     a multi-coloured cube. It is neutral here and its link is '#'; see the
-     comment in make-rtl-page.js. */
-  .vp-foot-m-soc.is-bale { background: linear-gradient(135deg, #F0A020, #E0457B 55%, #4A6CF7); }
+  /* بله and روبیکا have no mark in Font Awesome and no artwork here, so both
+     are a tile in the service's colour with a glyph on it rather than a
+     trademark drawn from memory. **They are stand-ins.** When the client sends
+     the two logos, each becomes an `<img>` in make-rtl-page.js's FOOT_SOCIAL
+     and these two rules keep only the ground behind it. */
+  .vp-foot-m-soc.is-bale { background: linear-gradient(135deg, #2FC4B2, #1177C4); }
+  .vp-foot-m-soc.is-rubika { background: linear-gradient(135deg, #8A4FE0, #5B2BC4); }
   .vp-foot-m-soc.is-telegram { background: #2AABEE; }
   .vp-foot-m-soc.is-instagram { background: linear-gradient(135deg, #F9CE34, #EE2A7B 55%, #6228D7); }
+
+  /* روبیکا's stand-in is a letter rather than a second chat bubble: two
+     bubbles side by side in one row of five read as one service drawn twice. */
+  .vp-foot-m-soc-letter {
+    font-family: 'Cairo', var(--title-font);
+    font-weight: 800;
+    font-size: 19px;
+    line-height: 1;
+  }
 
   /* Three columns side by side, as narrow as they need to be. `1fr` each
      rather than auto, so the three read as one grid and the middle one does
@@ -13988,9 +14100,36 @@ ul.vp-how-list.is-ticked li:before {
     white-space: nowrap;
   }
 
-  /* The heading and the old search box are the desktop's. */
-  .vp-shop-head {
+  /* The heading and the old search box are the desktop's.
+
+     `:not(.vp-acct-head)` is the account's exemption, and it is not a taste:
+     this rule was written for the listing, and `.vp-shop-head` turned out to be
+     shared by the cart, the checkout, an order, the wishlist and the account
+     too — so on a phone all six lost their heading and everything sitting
+     beside it. On the account that is the customer's own name, «لیست علاقمندی»
+     and **«خروج»**, which left a shopper on a telephone with no way to sign out
+     at all. The account is exempted here because the account is what this round
+     rebuilt; the other four are still hiding theirs, and «ادامه خرید» on the
+     cart is the next one that matters. Do not widen this rule again without
+     rendering each of those pages at 390 — the heads were laid out for a
+     desktop and none of them has been measured narrow. */
+  .vp-shop-head:not(.vp-acct-head) {
     display: none;
+  }
+
+  /* The account's, laid out for the width it actually gets: the name over the
+     number, and the two controls on their own line under both. Side by side at
+     390 the name wraps to three lines and «خروج» ends up under «لیست
+     علاقمندی» anyway. */
+  .vp-acct-head {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+
+  .vp-acct-head .vp-account-acts {
+    justify-content: flex-start;
   }
 }
 
@@ -16234,4 +16373,94 @@ html {
     border-radius: 0;
     box-shadow: none;
   }
+}
+
+/* --------------------------------------------------------------------------
+   The sign-in's second step: the code.
+
+   The tab strip is gone — there is one way in now, a phone number and a code —
+   so what this adds is the code field and the two quiet actions under it.
+   Everything else on the screen is the block above this one.
+   -------------------------------------------------------------------------- */
+
+.vp-enter-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* The number the code went to, read left to right like every other
+   telephone number on this site. */
+.vp-enter-phone {
+  direction: ltr;
+  unicode-bidi: isolate;
+  font-weight: 700;
+  color: var(--title-color);
+}
+
+/* Five digits and nothing else in the box, so they are set large, spaced and
+   centred — the field is read back against an SMS, and a digit at 15px in a
+   line of Persian is not. No glyph either: there is only one thing this field
+   could be, and the icon column would only push the digits off centre. */
+.vp-inp-code {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.vp-inp-code input {
+  padding: 0;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 700;
+  font-size: 22px;
+  letter-spacing: 0.35em;
+  /* The letter-spacing puts a gap after the last digit too, which reads as the
+     row being off-centre by half a space. Half of it back. */
+  text-indent: 0.35em;
+  text-align: center;
+  direction: ltr;
+}
+
+.vp-inp-code input::placeholder {
+  font-size: 18px;
+  letter-spacing: 0.2em;
+}
+
+/* --- resend, and changing the number -------------------------------------- */
+
+.vp-enter-again {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.vp-enter-resend,
+.vp-enter-change {
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 13px;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.vp-enter-resend {
+  color: #6E5416;
+  font-weight: 600;
+}
+
+.vp-enter-resend:disabled {
+  color: #9A9C9C;
+  font-weight: 400;
+  cursor: default;
+}
+
+.vp-enter-change {
+  color: #6E7070;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.vp-enter-change:hover {
+  color: var(--title-color);
 }

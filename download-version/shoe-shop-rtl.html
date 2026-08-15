@@ -1041,9 +1041,8 @@ Brand Area
             <div class="widget-area">
                 <div class="vp-foot-m">
                 <div class="vp-foot-m-head">
-                    <span class="vp-foot-m-rule" aria-hidden="true"></span>
+                    <img class="vp-foot-m-mark" src="assets/img/vikyplus-appicon.png" alt="" width="56" height="56">
                     <b class="vp-foot-m-name">ویکی پلاس</b>
-                    <span class="vp-foot-m-rule" aria-hidden="true"></span>
                 </div>
                 <p class="vp-foot-m-strap">ارائه‌دهنده انواع کیف و کفش زنانه با تضمین کیفیت، ارسال سریع و امکان خرید تکی و عمده.</p>
                 <p class="vp-foot-m-line"><i class="fa-solid fa-location-dot" aria-hidden="true"></i><span>تهران، سعدی شمالی، روبه‌روی بانک ملی، پلاک ۵۶۵</span></p>
@@ -1051,8 +1050,9 @@ Brand Area
                 <div class="vp-foot-m-social">
                     <a class="vp-foot-m-soc is-instagram" href="#" aria-label="Instagram"><i class="fa-brands fa-instagram" aria-hidden="true"></i></a>
                     <a class="vp-foot-m-soc is-telegram" href="#" aria-label="تلگرام"><i class="fa-brands fa-telegram" aria-hidden="true"></i></a>
-                    <a class="vp-foot-m-soc is-bale" href="#" aria-label="پیام‌رسان"><i class="fa-solid fa-comment-dots" aria-hidden="true"></i></a>
-                    <a class="vp-foot-m-soc is-whatsapp" href="#" aria-label="واتساپ"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i></a>
+                    <a class="vp-foot-m-soc is-whatsapp" href="https://wa.me/989918905993" aria-label="واتساپ"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i></a>
+                    <a class="vp-foot-m-soc is-bale" href="#" aria-label="بله"><i class="fa-solid fa-comment-dots" aria-hidden="true"></i></a>
+                    <a class="vp-foot-m-soc is-rubika" href="#" aria-label="روبیکا"><b class="vp-foot-m-soc-letter" aria-hidden="true">R</b></a>
                 </div>
                 <div class="vp-foot-m-cols">
                     <div class="vp-foot-m-col">
@@ -1534,7 +1534,17 @@ Brand Area
                 // ring's old 50. The button fades in on its own transition,
                 // so "the first scroll" is where the fade starts, not where
                 // it finishes.
-                if (corner) corner.classList.toggle("show", y > 0);
+                //
+                // And out again at the footer: «اسکرول وقتی به فوتر میرسه
+                // اون آیکون شناور واتسپ باید حذف بشه». The footer carries
+                // its own WhatsApp mark, so down there the floating one is
+                // a second copy of a button sitting right behind it — and
+                // on a phone it lands on top of the copyright line. The
+                // test is the footer's top crossing the bottom of the
+                // viewport; screenTop is already measured for the band
+                // below, so this costs no layout read.
+                var atFoot = screenEl ? (y + winH > screenTop) : false;
+                if (corner) corner.classList.toggle("show", y > 0 && !atFoot);
                 if (screenEl) {
                     // The template's own test, unchanged: the footer is left
                     // alone while it sits whole in the viewport, allowing 200.

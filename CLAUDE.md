@@ -143,11 +143,29 @@ the client saw an old page and had no way to tell why. So, plainly:
 - **Two sign-ins, two guards.** Staff are `web` at `/admin/login`; shoppers are
   `customer` at `/account/enter`. Every staff route says `auth:web` explicitly —
   the bare `auth` means "whichever guard is default", which is a runtime value.
-  Registration is the interesting part: checkout has always created `customers`
-  rows keyed on a phone number, so most people who register already have one,
-  with an order history on it. Claiming one asks for the number off one of their
-  own orders, because there is no SMS provider to send a code with. See
-  `AccountController`.
+  **The shopper's sign-in is the number first, then a password or a code.**
+  «ورود با رمز باشه، ورود با کد یکبار مصرف هم یه آپشن باشه چون اصلا ممکنه اون
+  شماره اون لحظه در دسترس شخص نباشه که کد بیاد» — so a number with a password is
+  asked for it (and **no SMS is sent**), a number without one is sent a code
+  straight away, and the password step carries «ورود با کد یکبار مصرف» for when
+  the telephone is not in the room. **A password is only ever set behind a
+  code**: on the code step for a number that has none, or on `/account` behind
+  the old one. That is not ceremony — checkout has always created `customers`
+  rows keyed on a phone number, a phone number is not a secret, and letting
+  anybody set a password on one of those rows would hand over a stranger's order
+  history. There is no registration form; the code step is it. The password has
+  **no minimum length**, at the client's explicit instruction, so the throttles
+  on `/account/password` and `/account/verify` are most of what stands against
+  guessing. See `AccountController` and `LoginCode`.
+- **The code is a credential and is stored hashed**, good once, for two minutes,
+  for five guesses; the number it was sent to lives in the *session*, never in
+  the form, or a code could be verified against a number of the sender's
+  choosing. **The SMS goes nowhere yet**: `config('services.sms.driver')` is
+  `log`, and `SmsServiceProvider` **throws at boot** if that is still true in
+  production, so the shop cannot go live silently swallowing its own sign-in
+  codes. Going live is a provider account, `SMS_KEY`, a service line and an
+  approved pattern, plus a `Sender` implementation registered in that provider's
+  `DRIVERS` map — the interface is one method.
 - **The content pages are `/about`, `/contact`, `/size-guide`, `/faq`, `/terms`
   and `/privacy`** — `PageController`, one view each under `resources/views/pages/`,
   copy and no database. They exist because the footer had been linking to them

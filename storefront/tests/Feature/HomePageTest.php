@@ -122,15 +122,21 @@ class HomePageTest extends TestCase
     }
 
     /**
-     * The shop's own mark leads home, in all three places it appears.
+     * The shop's own mark leads home, in all three places it is a lockup.
      *
      * It did not. The brand lockup links to `index.html` — the file the static
      * preview is served as — and that filename was not in the map, so every
      * copy of the logo resolved to '#'. Nobody noticed because the most obvious
      * link on a page is the last one anybody clicks.
      *
-     * The count is asserted too: header, footer, and the drawer that opens on a
-     * phone. If a fourth appears, or one goes, this says so.
+     * Both counts are asserted, and they are deliberately different. The mark
+     * is on the page four times: the header, the desktop footer, the drawer
+     * that opens on a phone, and — since «تو فوتر موبایل باید لوگو بیاد بالای
+     * ویکی پلاس» — above the name in the phone footer. Three of those are the
+     * lockup, mark beside name beside strapline, and lead home. The fourth is
+     * the mark alone, stacked over a name that is not a link, in a footer that
+     * is already twelve links deep. If a fifth appears, or a lockup goes, this
+     * says so.
      */
     public function test_the_brand_mark_leads_home_everywhere_it_appears(): void
     {
@@ -138,7 +144,7 @@ class HomePageTest extends TestCase
 
         $page = $this->get('/')->assertOk()->getContent();
 
-        $this->assertSame(3, substr_count($page, 'vikyplus-appicon.png'));
+        $this->assertSame(4, substr_count($page, 'vikyplus-appicon.png'));
         $this->assertSame(3, substr_count($page, 'href="'.route('home').'" class="vp-logo'));
 
         // And the template's own marks are gone with its company.

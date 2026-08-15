@@ -471,14 +471,97 @@ signing into it. What was missing was four routes and two pages.
 `customers` rows all along, keyed on the phone typed at checkout — so most
 people who would register already have a row, and that row carries their name,
 their address and everything they have bought. Setting a password on it is
-therefore handing that over, and a phone number is not a secret. The usual
-answer is a one-time code by SMS and this shop has no SMS provider.
+therefore handing that over, and a phone number is not a secret.
 
-So claiming an existing customer asks for the number off one of their own
-orders. It is the same proof `/orders` already accepts from somebody not signed
-in, and it is a receipt, which a stranger with a phone number does not have. A
-row with no orders has nothing to protect and is claimed without one. When SMS
-arrives, that check becomes a code.
+The first answer was to ask for the number off one of their own orders — the
+same proof `/orders` already accepts from somebody not signed in, a receipt,
+which a stranger with a phone number does not have. It was a stand-in for the
+usual answer, a one-time code by SMS, and the note here said «when SMS arrives,
+that check becomes a code».
+
+### It became a code — and then the password came back beside it
+
+The first cut of this went all the way: **no password at all**, for anybody,
+ever. One way in, a number and a five-digit code. The client looked at it and
+gave the reason it could not be the only way:
+
+> بنظرم ورود با رمز باشه، ورود با کد یبار مصرف هم یه آپشن باشه چون اصلا ممکنه
+> اون شماره اون لحظه در دسترس شخص نباشه که کد بیاد
+
+A one-time code is only a way in *while the telephone is in the room*. A phone
+that is flat, lost, or on a desk in another city locks a customer out of their
+own order history, and «wait until you are near your phone» is not an answer a
+shop gets to give. So both, and the screen asks for the number first:
+
+| the number | what the screen asks for next |
+|---|---|
+| has a password | the password — and **no SMS is sent**, because sending one costs money and the phone may not be to hand |
+| has none | a code, straight away; asking twice would be a screen that says nothing |
+
+The password step carries «ورود با کد یکبار مصرف» under it, which is the case
+above said out loud. The code step carries the resend and «شماره را عوض کن».
+
+**A password is only ever set behind a code.** On the code step for a number
+that has none — which is every new number and every row checkout has made — and
+on `/account` behind the old one. That is the receipt claim's job, done
+properly: the reason a password could never simply be set on a
+checkout-made row was that a phone number is not a secret, and a code sent to
+the number is exactly the secret that was missing. There is still no
+registration form. The code step is it.
+
+**The password has no minimum length**, at the client's explicit instruction —
+«رمز در اینجا کاربر هرچه زد اوکییه، مهم نیست حتما ۸ نویسه باشه». Nothing in the
+application may lean on a shopper's password being hard to guess;
+`test_a_password_of_any_length_is_allowed` says so out loud, because a
+validation rule quietly growing back is the kind of thing nobody notices until
+a customer cannot sign in with the password they were allowed to set. What
+stands against guessing is the throttle on `/account/password` and the fact
+that the number has to be established first.
+
+What holds the code up is in `LoginCode` and nowhere else, so the answer to
+"how long is a code good for" is one place:
+
+| | |
+|---|---|
+| stored | **hashed** — a dump of `login_codes` must not sign anybody in, not even for two minutes |
+| good for | 120 seconds |
+| good for | **one** use — `consumed_at` is stamped the moment it works, because an SMS stays on a phone |
+| survives | 5 wrong guesses |
+| one at a time | a new code spends the one before it; the same number waits 90 seconds |
+
+**The number is the session's, never the form's** — for the code *and* for the
+password. Posting somebody else's number alongside your own code is the attack
+this shape of screen has, and two tests hold each half of it down:
+`test_the_number_comes_from_the_session_and_not_from_the_form` and
+`test_a_password_posted_with_no_number_in_play_goes_back_to_the_start`. Every
+route is throttled, and not all with the same number: sending is ten an hour per
+browser because every request is an SMS somebody pays for; verifying and the
+password are twenty per ten minutes, on top of the five attempts a code carries.
+
+The reply to «send me a code» is the same whether or not the number is known
+here. Saying «this number is not registered» would turn the form into a way of
+asking the shop which of its customers a number belongs to.
+
+### The SMS goes nowhere yet — and it says so
+
+`config('services.sms.driver')` is `log`, so a code lands in
+`storage/logs/laravel.log` and on no telephone. **`SmsServiceProvider` throws at
+boot if that is still true in production**, so the shop cannot go live quietly
+swallowing its own sign-in codes — the failure is at the first request, not at
+the first customer.
+
+Going live needs four things from the client and one small class:
+
+1. an account with an Iranian SMS provider — Kavenegar, SMS.ir, Ghasedak, any of
+   them; they all do the same thing,
+2. `SMS_KEY`, the API key,
+3. `SMS_LINE`, the service line number the message is sent from,
+4. `SMS_PATTERN`, the approved pattern («کد ورود شما به ویکی پلاس: %code%») —
+   Iranian providers will not send an unapproved transactional template,
+
+then a `Sender` beside `LogSender` and one line in `SmsServiceProvider::DRIVERS`.
+The interface is a single method, `send(string $phone, string $message)`, on
+purpose: swapping providers later is that class and nothing else.
 
 Two smaller things fell out of it:
 

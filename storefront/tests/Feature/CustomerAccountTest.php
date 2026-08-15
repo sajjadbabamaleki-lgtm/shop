@@ -4,31 +4,40 @@ namespace Tests\Feature;
 
 use App\Models\Branch;
 use App\Models\Customer;
+use App\Models\LoginCode;
 use App\Models\Order;
 use App\Models\Role;
 use App\Models\User;
+use App\Providers\SmsServiceProvider;
 use App\Support\Branches\BranchOpener;
+use App\Support\Sms\Sender;
 use App\Support\Tenancy\TenantContext;
 use Database\Seeders\BranchSeeder;
 use Database\Seeders\CatalogueSeeder;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use RuntimeException;
 use Tests\TestCase;
 
 /**
- * «ورود / ثبت‌نام» — a shopper's own account.
+ * «ورود / ثبت‌نام» — a phone number and a code, and no password anywhere.
  *
  * Most of this file is about one thing: checkout has been creating `customers`
  * rows all along, keyed on a phone number, and those rows carry an order
- * history. Letting anybody set a password on one would hand over a stranger's
- * name, address and purchases — and a phone number is not a secret. The shop
- * has no SMS provider to send a code with, so claiming an existing customer
- * asks for the number off one of their own orders instead.
+ * history — a name, an address, what somebody bought. A phone number is not a
+ * secret, so the question every sign-in has to answer is «does the person
+ * typing this number actually have it». A code sent to it answers that. The
+ * form used to ask for the number off one of their own orders instead, because
+ * there was no way to send anything; that is gone.
  *
- * The other thing worth holding down is the guard. A shopper signs in on
- * `customer`, never on `web`, so no customer session can ever satisfy a staff
- * authorization check.
+ * What is held down here is what a code is worth: it is hashed at rest, good
+ * once, good for two minutes, good for five guesses, and verified against the
+ * number in the *session* rather than the one in the form.
+ *
+ * The other thing is the guard. A shopper signs in on `customer`, never on
+ * `web`, so no customer session can ever satisfy a staff authorization check.
  */
 class CustomerAccountTest extends TestCase
 {
@@ -66,173 +75,494 @@ class CustomerAccountTest extends TestCase
         ]));
     }
 
-    // --- registering ------------------------------------------------------
-
-    public function test_a_new_phone_registers_and_is_signed_in(): void
+    /**
+     * A `Sender` that keeps what it was asked to send, so a test can read the
+     * code the way a phone would. The real one is chosen by SmsServiceProvider;
+     * this replaces it in the container for the length of a test.
+     *
+     * @return object{messages: array<int, array{phone: string, message: string}>}
+     */
+    private function catchSms(): object
     {
-        $this->post('/account/register', [
-            'name' => 'مریم',
-            'phone' => '۰۹۱۲۳۴۵۶۷۸۹',
-            'password' => 'password-1234',
-            'password_confirmation' => 'password-1234',
-        ])->assertRedirect(route('account'));
+        $box = new class implements Sender
+        {
+            /** @var array<int, array{phone: string, message: string}> */
+            public array $messages = [];
 
-        // Typed in Persian digits and stored in one shape, so that the number
-        // means the same thing however the keyboard wrote it.
-        $customer = Customer::where('phone', '09123456789')->firstOrFail();
+            public function send(string $phone, string $message): void
+            {
+                $this->messages[] = ['phone' => $phone, 'message' => $message];
+            }
+        };
 
-        $this->assertSame('مریم', $customer->name);
-        $this->assertTrue(Auth::guard('customer')->check());
+        $this->app->instance(Sender::class, $box);
+
+        return $box;
+    }
+
+    /**
+     * Walk step one for a number with no password, which sends a code, and read
+     * it back the way a phone would.
+     */
+    private function codeSentTo(string $phone): string
+    {
+        $box = $this->catchSms();
+
+        $this->post('/account/start', ['phone' => $phone])->assertRedirect(route('account.enter'));
+
+        return $this->readCode($box);
+    }
+
+    /** The code out of the most recent message. */
+    private function readCode(object $box): string
+    {
+        $this->assertNotEmpty($box->messages, 'no message was sent');
+
+        $last = $box->messages[array_key_last($box->messages)]['message'];
+
+        preg_match('/(\d{'.LoginCode::LENGTH.'})/', $last, $found);
+
+        return $found[1];
+    }
+
+    // --- step one: the number ---------------------------------------------
+
+    /**
+     * A number the shop has met and that has a password is asked for the
+     * password, and **no code is sent** — the SMS costs money and the phone may
+     * not even be in the room, which is the whole reason this step exists.
+     */
+    public function test_a_number_with_a_password_is_asked_for_it_and_no_code_is_sent(): void
+    {
+        Customer::create(['name' => 'مریم', 'phone' => '09123456789', 'password' => 'x']);
+
+        $box = $this->catchSms();
+
+        $this->post('/account/start', ['phone' => '09123456789'])->assertRedirect(route('account.enter'));
+
+        $this->get('/account/enter')->assertOk()->assertSee('رمزت را بنویس', false);
+
+        $this->assertEmpty($box->messages);
+        $this->assertSame(0, LoginCode::count());
+    }
+
+    /**
+     * A number with no password has no password step to send anybody to, so the
+     * code goes out on the first press rather than after a screen that says
+     * nothing. That is both a new number and every customer checkout has made.
+     */
+    public function test_a_number_with_no_password_is_sent_a_code_straight_away(): void
+    {
+        $box = $this->catchSms();
+
+        $this->post('/account/start', ['phone' => '09123456789'])->assertRedirect(route('account.enter'));
+
+        $this->assertCount(1, $box->messages);
+        $this->get('/account/enter')->assertOk()->assertSee('کد را بنویس', false);
+    }
+
+    public function test_a_number_that_is_not_a_mobile_is_refused_and_no_code_is_made(): void
+    {
+        $box = $this->catchSms();
+
+        foreach (['123', '02112345678', '0912345678'] as $bad) {
+            $this->post('/account/start', ['phone' => $bad])->assertSessionHasErrors('phone');
+        }
+
+        $this->assertSame(0, LoginCode::count());
+        $this->assertEmpty($box->messages);
+    }
+
+    // --- the password ------------------------------------------------------
+
+    public function test_the_password_signs_somebody_in(): void
+    {
+        $customer = Customer::create(['name' => 'مریم', 'phone' => '09123456789', 'password' => 'گل']);
+
+        $this->post('/account/start', ['phone' => '09123456789']);
+
+        $this->post('/account/password', ['password' => 'گل'])->assertRedirect(route('account'));
+
         $this->assertSame($customer->id, Auth::guard('customer')->id());
     }
 
-    public function test_a_phone_that_is_already_registered_is_sent_to_sign_in(): void
+    /**
+     * «رمز در اینجا کاربر هرچه زد اوکییه» — no minimum length, at the client's
+     * instruction. This says so out loud, because a validation rule quietly
+     * growing back is exactly the kind of thing nobody notices until a customer
+     * cannot sign in with the password they were allowed to set.
+     */
+    public function test_a_password_of_any_length_is_allowed(): void
     {
-        Customer::create(['name' => 'مریم', 'phone' => '09123456789', 'password' => 'password-1234']);
+        $code = $this->codeSentTo('09123456789');
 
-        $this->post('/account/register', [
-            'name' => 'کس دیگر',
-            'phone' => '09123456789',
-            'password' => 'another-1234',
-            'password_confirmation' => 'another-1234',
-        ])->assertSessionHasErrors('phone');
+        $this->post('/account/verify', ['code' => $code, 'name' => 'مریم', 'password' => 'a'])
+            ->assertRedirect(route('account'));
+
+        $this->assertTrue(Hash::check('a', Customer::sole()->password));
+    }
+
+    public function test_a_wrong_password_is_refused(): void
+    {
+        Customer::create(['name' => 'مریم', 'phone' => '09123456789', 'password' => 'گل']);
+
+        $this->post('/account/start', ['phone' => '09123456789']);
+
+        $this->post('/account/password', ['password' => 'برگ'])->assertSessionHasErrors('password');
 
         $this->assertGuest('customer');
-        // And nothing about the existing account moved.
-        $this->assertSame('مریم', Customer::where('phone', '09123456789')->firstOrFail()->name);
     }
 
     /**
-     * The one that matters. A customer checkout created has orders on it, and
-     * a phone number is not proof of anything.
+     * The number is the session's here too. Without that, posting a password
+     * beside a number of the sender's choosing is a sign-in form with no first
+     * step at all.
      */
-    public function test_claiming_a_customer_with_orders_needs_one_of_their_order_numbers(): void
+    public function test_a_password_posted_with_no_number_in_play_goes_back_to_the_start(): void
     {
-        $guest = Customer::create(['name' => 'مریم', 'phone' => '09123456789']);
-        $order = $this->orderFor($guest);
+        Customer::create(['name' => 'مریم', 'phone' => '09123456789', 'password' => 'گل']);
 
-        $attempt = fn (array $extra = []) => $this->post('/account/register', [
-            'name' => 'کس دیگر',
-            'phone' => '09123456789',
-            'password' => 'password-1234',
-            'password_confirmation' => 'password-1234',
-        ] + $extra);
-
-        $attempt()->assertSessionHasErrors('order_number');
-        $attempt(['order_number' => 'VP-000000'])->assertSessionHasErrors('order_number');
+        $this->post('/account/password', ['password' => 'گل', 'phone' => '09123456789'])
+            ->assertRedirect(route('account.enter'));
 
         $this->assertGuest('customer');
-        $this->assertNull($guest->fresh()->password);
-
-        // With a receipt in hand, it is theirs.
-        $attempt(['order_number' => $order->number])->assertRedirect(route('account'));
-
-        $this->assertTrue(Auth::guard('customer')->check());
-        $this->assertNotNull($guest->fresh()->password);
     }
 
     /**
-     * A row with no orders has nothing to protect. It happens: a customer can
-     * exist without having bought anything.
+     * «چون اصلا ممکنه اون شماره اون لحظه در دسترس شخص نباشه که کد بیاد» — and
+     * the other way about: the password may be the one that is not to hand.
      */
-    public function test_claiming_a_customer_with_no_orders_needs_no_receipt(): void
+    public function test_the_password_step_can_ask_for_a_code_instead(): void
     {
-        $empty = Customer::create(['name' => 'مریم', 'phone' => '09123456789']);
+        Customer::create(['name' => 'مریم', 'phone' => '09123456789', 'password' => 'گل']);
 
-        $this->post('/account/register', [
-            'name' => 'مریم',
-            'phone' => '09123456789',
-            'password' => 'password-1234',
-            'password_confirmation' => 'password-1234',
-        ])->assertRedirect(route('account'));
+        $this->post('/account/start', ['phone' => '09123456789']);
 
-        $this->assertNotNull($empty->fresh()->password);
+        $box = $this->catchSms();
+        $this->post('/account/code')->assertRedirect(route('account.enter'));
+
+        $this->assertCount(1, $box->messages);
+
+        $this->post('/account/verify', ['code' => $this->readCode($box)])->assertRedirect(route('account'));
+        $this->assertSame('09123456789', Auth::guard('customer')->user()->phone);
+    }
+
+    // --- asking for a code -------------------------------------------------
+
+    public function test_a_number_gets_a_code_and_the_code_is_not_stored_in_the_clear(): void
+    {
+        $code = $this->codeSentTo('09123456789');
+
+        $row = LoginCode::sole();
+
+        $this->assertSame('09123456789', $row->phone);
+        $this->assertNotSame($code, $row->code_hash);
+        $this->assertTrue($row->matches($code));
+        $this->assertTrue($row->expires_at->isFuture());
     }
 
     /**
-     * An order placed at a franchise proves the phone just as well as one
-     * placed here — the customer is one identity across every storefront, and
-     * the check says so with `acrossAllBranches()`.
+     * Persian digits and a +98 are the two ways this arrives that are not the
+     * way it is stored — and the code has to be findable afterwards by
+     * somebody who typed it the other way.
      */
-    public function test_an_order_from_another_branch_still_proves_the_phone(): void
+    public function test_the_number_is_folded_before_a_code_is_made(): void
     {
-        $shiraz = app(BranchOpener::class)->open('shiraz', 'ویکی پلاس شیراز', openingStock: 1);
+        $this->codeSentTo('+۹۸۹۱۲۳۴۵۶۷۸۹');
 
+        $this->assertSame('09123456789', LoginCode::sole()->phone);
+    }
+
+    /**
+     * One code out at a time. Two live codes means the older SMS still works,
+     * which is a second door for as long as it lives.
+     */
+    public function test_a_second_code_inside_the_wait_is_refused(): void
+    {
+        $this->codeSentTo('09123456789');
+
+        $this->post('/account/code')->assertSessionHasErrors('phone');
+
+        $this->assertSame(1, LoginCode::count());
+    }
+
+    public function test_a_later_code_spends_the_one_before_it(): void
+    {
+        $first = $this->codeSentTo('09123456789');
+
+        $this->travel(LoginCode::RESEND_AFTER_SECONDS + 1)->seconds();
+
+        $box = $this->catchSms();
+        $this->post('/account/code')->assertRedirect(route('account.enter'));
+        $second = $this->readCode($box);
+
+        $this->assertNotSame($first, $second);
+        $this->assertSame(1, LoginCode::live()->count());
+        $this->assertTrue(LoginCode::live()->sole()->matches($second));
+    }
+
+    // --- the code, and what it makes --------------------------------------
+
+    public function test_a_new_number_becomes_an_account_and_is_signed_in(): void
+    {
+        $code = $this->codeSentTo('09123456789');
+
+        $this->post('/account/verify', ['code' => $code, 'name' => 'مریم رضایی', 'password' => 'گل'])
+            ->assertRedirect(route('account'));
+
+        $customer = Customer::sole();
+
+        $this->assertSame('مریم رضایی', $customer->name);
+        $this->assertSame('09123456789', $customer->phone);
+        $this->assertTrue($customer->is_active, 'a brand-new account is not deactivated');
+        $this->assertTrue(Hash::check('گل', $customer->password));
+        $this->assertNotNull($customer->phone_verified_at);
+        $this->assertSame($customer->id, Auth::guard('customer')->id());
+    }
+
+    /**
+     * The row checkout made. It has a name and an order history already, and
+     * the code is what proves the number belongs to whoever is typing — which
+     * is the whole reason a password may not simply be set on one of these.
+     */
+    public function test_a_number_checkout_already_knows_is_not_asked_for_a_name(): void
+    {
         $guest = Customer::create(['name' => 'مریم', 'phone' => '09123456789']);
-        $order = $this->orderFor($guest, $shiraz);
+        $this->orderFor($guest);
 
-        $this->post('/account/register', [
-            'name' => 'مریم',
-            'phone' => '09123456789',
-            'password' => 'password-1234',
-            'password_confirmation' => 'password-1234',
-            'order_number' => $order->number,
-        ])->assertRedirect(route('account'));
+        $code = $this->codeSentTo('09123456789');
 
-        $this->assertNotNull($guest->fresh()->password);
+        $this->get('/account/enter')->assertOk()
+            ->assertDontSee('نام و نام خانوادگی', false)
+            ->assertSee('یک رمز برای دفعه‌های بعد', false);
+
+        $this->post('/account/verify', ['code' => $code, 'password' => 'گل'])
+            ->assertRedirect(route('account'));
+
+        $this->assertSame($guest->id, Auth::guard('customer')->id());
+        $this->assertSame(1, Customer::count());
+        $this->assertTrue(Hash::check('گل', $guest->fresh()->password));
     }
 
-    public function test_a_phone_that_is_not_a_mobile_number_is_refused(): void
+    public function test_a_number_with_no_name_yet_is_asked_for_one(): void
     {
-        foreach (['123', '02112345678', '0912345678'] as $bad) {
-            $this->post('/account/register', [
-                'name' => 'مریم',
-                'phone' => $bad,
-                'password' => 'password-1234',
-                'password_confirmation' => 'password-1234',
-            ])->assertSessionHasErrors('phone');
-        }
+        $code = $this->codeSentTo('09123456789');
 
+        $this->post('/account/verify', ['code' => $code, 'password' => 'گل'])
+            ->assertSessionHasErrors('name');
+
+        $this->assertGuest('customer');
         $this->assertSame(0, Customer::count());
     }
 
-    // --- signing in -------------------------------------------------------
-
-    public function test_signing_in_and_out(): void
+    /**
+     * A code proves the number; a password is what makes «ورود با رمز» a way in
+     * for anybody at all. So the one screen that has just proved the number is
+     * where it is set, and it is not optional — otherwise the password step
+     * exists for nobody.
+     */
+    public function test_a_number_with_no_password_yet_is_asked_for_one(): void
     {
-        $customer = Customer::create(['name' => 'مریم', 'phone' => '09123456789', 'password' => 'password-1234']);
+        $code = $this->codeSentTo('09123456789');
 
-        // In Persian digits, because that is what the keyboard sends.
-        $this->post('/account/login', ['phone' => '۰۹۱۲۳۴۵۶۷۸۹', 'password' => 'password-1234'])
+        $this->post('/account/verify', ['code' => $code, 'name' => 'مریم'])
+            ->assertSessionHasErrors('password');
+
+        $this->assertGuest('customer');
+        $this->assertSame(0, Customer::count());
+    }
+
+    public function test_a_wrong_code_is_refused_and_counts_against_the_five(): void
+    {
+        $this->codeSentTo('09123456789');
+
+        $this->post('/account/verify', ['code' => '00000', 'name' => 'مریم', 'password' => 'گل'])
+            ->assertSessionHasErrors('code');
+
+        $this->assertSame(1, LoginCode::sole()->attempts);
+        $this->assertGuest('customer');
+    }
+
+    public function test_five_wrong_guesses_spend_the_code(): void
+    {
+        $code = $this->codeSentTo('09123456789');
+
+        for ($i = 0; $i < LoginCode::MAX_ATTEMPTS; $i++) {
+            $this->post('/account/verify', ['code' => '00000', 'name' => 'مریم', 'password' => 'گل']);
+        }
+
+        // Even the right one, now.
+        $this->post('/account/verify', ['code' => $code, 'name' => 'مریم', 'password' => 'گل'])
+            ->assertSessionHasErrors('code');
+
+        $this->assertGuest('customer');
+    }
+
+    public function test_a_code_works_once(): void
+    {
+        $code = $this->codeSentTo('09123456789');
+
+        $this->post('/account/verify', ['code' => $code, 'name' => 'مریم', 'password' => 'گل'])
             ->assertRedirect(route('account'));
 
-        $this->assertSame($customer->id, Auth::guard('customer')->id());
+        $this->post('/account/logout');
+
+        // The SMS is still on the phone. The code is not still good.
+        $this->post('/account/verify', ['code' => $code, 'name' => 'مریم', 'password' => 'گل'])
+            ->assertRedirect(route('account.enter'));
+
+        $this->assertGuest('customer');
+    }
+
+    public function test_an_expired_code_is_refused(): void
+    {
+        $code = $this->codeSentTo('09123456789');
+
+        $this->travel(LoginCode::LIVES_FOR_SECONDS + 1)->seconds();
+
+        $this->post('/account/verify', ['code' => $code, 'name' => 'مریم', 'password' => 'گل'])
+            ->assertRedirect(route('account.enter'));
+
+        $this->assertGuest('customer');
+    }
+
+    /**
+     * The number is the session's, never the form's. Posting one alongside a
+     * code must not verify that code against a number of the sender's
+     * choosing.
+     */
+    public function test_the_number_comes_from_the_session_and_not_from_the_form(): void
+    {
+        $victim = Customer::create(['name' => 'مریم', 'phone' => '09120000000']);
+
+        $code = $this->codeSentTo('09123456789');
+
+        $this->post('/account/verify', [
+            'code' => $code,
+            'phone' => '09120000000',
+            'name' => 'کس دیگر',
+            'password' => 'گل',
+        ])->assertRedirect(route('account'));
+
+        // Signed in as the number the code was sent to, not the one posted.
+        $this->assertSame('09123456789', Auth::guard('customer')->user()->phone);
+        $this->assertSame('مریم', $victim->fresh()->name);
+        $this->assertNull($victim->fresh()->password);
+    }
+
+    public function test_a_deactivated_customer_cannot_sign_in(): void
+    {
+        Customer::create(['name' => 'مریم', 'phone' => '09123456789', 'is_active' => false]);
+
+        $code = $this->codeSentTo('09123456789');
+
+        $this->post('/account/verify', ['code' => $code, 'password' => 'گل'])
+            ->assertSessionHasErrors('code');
+
+        $this->assertGuest('customer');
+    }
+
+    public function test_changing_the_number_throws_the_code_away(): void
+    {
+        $code = $this->codeSentTo('09123456789');
+
+        $this->post('/account/restart')->assertRedirect(route('account.enter'));
+
+        // Back to the first step, and the code that was out is spent.
+        $this->get('/account/enter')->assertOk()->assertSee('شماره موبایلت را بنویس', false);
+        $this->assertSame(0, LoginCode::live()->count());
+
+        $this->post('/account/verify', ['code' => $code, 'name' => 'مریم', 'password' => 'گل'])
+            ->assertRedirect(route('account.enter'));
+
+        $this->assertGuest('customer');
+    }
+
+    public function test_signing_out(): void
+    {
+        $code = $this->codeSentTo('09123456789');
+        $this->post('/account/verify', ['code' => $code, 'name' => 'مریم', 'password' => 'گل']);
 
         $this->post('/account/logout')->assertRedirect(route('home'));
 
         $this->assertGuest('customer');
     }
 
-    /**
-     * A wrong password and a phone nobody has give the same message, so this
-     * form cannot be used to find out which numbers belong to customers.
-     */
-    public function test_a_wrong_password_and_an_unknown_phone_say_the_same_thing(): void
+    // --- changing the password from inside -------------------------------
+
+    public function test_the_password_can_be_changed_from_the_account(): void
     {
-        Customer::create(['name' => 'مریم', 'phone' => '09123456789', 'password' => 'password-1234']);
+        $customer = Customer::create(['name' => 'مریم', 'phone' => '09123456789', 'password' => 'گل']);
 
-        $said = 'شماره موبایل یا رمز درست نیست.';
+        $this->actingAs($customer, 'customer')
+            ->post('/account/password/change', [
+                'current' => 'گل',
+                'password' => 'برگ',
+                'password_confirmation' => 'برگ',
+            ])->assertRedirect(route('account'));
 
-        $this->post('/account/login', ['phone' => '09123456789', 'password' => 'not-the-password'])
-            ->assertSessionHasErrors(['phone' => $said]);
-
-        $this->post('/account/login', ['phone' => '09120000000', 'password' => 'password-1234'])
-            ->assertSessionHasErrors(['phone' => $said]);
-
-        $this->assertGuest('customer');
+        $this->assertTrue(Hash::check('برگ', $customer->fresh()->password));
     }
 
-    public function test_a_deactivated_customer_cannot_sign_in(): void
+    /**
+     * A session left open on a shared telephone is the ordinary way an account
+     * is taken, and a password change is what makes that permanent.
+     */
+    public function test_changing_the_password_needs_the_old_one(): void
     {
-        Customer::create([
-            'name' => 'مریم', 'phone' => '09123456789',
-            'password' => 'password-1234', 'is_active' => false,
-        ]);
+        $customer = Customer::create(['name' => 'مریم', 'phone' => '09123456789', 'password' => 'گل']);
 
-        $this->post('/account/login', ['phone' => '09123456789', 'password' => 'password-1234'])
-            ->assertSessionHasErrors('phone');
+        $this->actingAs($customer, 'customer')
+            ->post('/account/password/change', [
+                'current' => 'اشتباه',
+                'password' => 'برگ',
+                'password_confirmation' => 'برگ',
+            ])->assertSessionHasErrors('current');
 
-        $this->assertGuest('customer');
+        $this->assertTrue(Hash::check('گل', $customer->fresh()->password));
+    }
+
+    public function test_the_two_new_passwords_have_to_agree(): void
+    {
+        $customer = Customer::create(['name' => 'مریم', 'phone' => '09123456789', 'password' => 'گل']);
+
+        $this->actingAs($customer, 'customer')
+            ->post('/account/password/change', [
+                'current' => 'گل',
+                'password' => 'برگ',
+                'password_confirmation' => 'شاخه',
+            ])->assertSessionHasErrors('password');
+
+        $this->assertTrue(Hash::check('گل', $customer->fresh()->password));
+    }
+
+    // --- the sender -------------------------------------------------------
+
+    /**
+     * The `log` sender writes the code to a file and delivers nothing. That is
+     * the right default for a shop with no provider yet and the wrong thing
+     * everywhere else, so production refuses it — loudly, at the first request,
+     * rather than quietly at the first customer.
+     */
+    public function test_a_production_deploy_that_delivers_nothing_refuses_to_boot(): void
+    {
+        config(['services.sms.driver' => 'log']);
+        $this->app->detectEnvironment(fn () => 'production');
+
+        $this->expectException(RuntimeException::class);
+
+        (new SmsServiceProvider($this->app))->boot();
+    }
+
+    /** A provider named in the environment and implemented nowhere says so. */
+    public function test_an_unknown_driver_is_named_rather_than_ignored(): void
+    {
+        config(['services.sms.driver' => 'kavenegar']);
+        $this->app->forgetInstance(Sender::class);
+
+        $this->expectException(RuntimeException::class);
+
+        $this->app->make(Sender::class);
     }
 
     // --- the account ------------------------------------------------------

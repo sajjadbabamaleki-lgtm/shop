@@ -2094,7 +2094,17 @@ html = html.replace('</body>',
   '                // ring\'s old 50. The button fades in on its own transition,\n' +
   '                // so "the first scroll" is where the fade starts, not where\n' +
   '                // it finishes.\n' +
-  '                if (corner) corner.classList.toggle("show", y > 0);\n' +
+  '                //\n' +
+  '                // And out again at the footer: «اسکرول وقتی به فوتر میرسه\n' +
+  '                // اون آیکون شناور واتسپ باید حذف بشه». The footer carries\n' +
+  '                // its own WhatsApp mark, so down there the floating one is\n' +
+  '                // a second copy of a button sitting right behind it — and\n' +
+  '                // on a phone it lands on top of the copyright line. The\n' +
+  '                // test is the footer\'s top crossing the bottom of the\n' +
+  '                // viewport; screenTop is already measured for the band\n' +
+  '                // below, so this costs no layout read.\n' +
+  '                var atFoot = screenEl ? (y + winH > screenTop) : false;\n' +
+  '                if (corner) corner.classList.toggle("show", y > 0 && !atFoot);\n' +
   '                if (screenEl) {\n' +
   '                    // The template\'s own test, unchanged: the footer is left\n' +
   '                    // alone while it sits whole in the viewport, allowing 200.\n' +
@@ -2386,9 +2396,24 @@ const FOOT_COLS = [
 ];
 
 // Listed in the order they are *read* in RTL, so the row comes out as the
-// screenshot has it: WhatsApp at the left of the row, Instagram at the right.
-// Written the other way round first and the row came out mirrored — the page
-// is RTL, so the first child sits at the right.
+// screenshot has it: Instagram at the right of the row, and what follows runs
+// leftwards. Written the other way round first and the row came out mirrored —
+// the page is RTL, so the first child sits at the right.
+//
+// «تو فوتر باید آیکون واتسپ تلگرام اینستا بله و روبیکا باشه» — five now, and the fourth is no
+// longer «the multi-coloured mark this could not identify from the
+// screenshot»: it is بله, and روبیکا joins it.
+//
+// **بله and روبیکا have no mark in Font Awesome and no artwork in this
+// repository**, so both are drawn rather than reproduced: a tile in the
+// service's own colour with a glyph on it. That is a stand-in and it is meant
+// to be replaced — send the two logos the way `vikyplus-appicon.png` was sent
+// and each becomes an `<img>` on this line, with nothing else in the footer
+// changing. Drawing a trademark from memory is the one thing worse than saying
+// out loud that it is a stand-in.
+//
+// WhatsApp's link is the shop's own number, the same one the floating corner
+// button opens. The other four are '#' until the client sends the addresses.
 const FOOT_SOCIAL = [
   // Named in Latin, and deliberately: `HomePageTest` guards the four sections
   // taken off the page by their headings, and one of those headings is the
@@ -2398,16 +2423,20 @@ const FOOT_SOCIAL = [
   // said in Persian anyway.
   ['instagram', 'Instagram', '#', '<i class="fa-brands fa-instagram" aria-hidden="true"></i>'],
   ['telegram', 'تلگرام', '#', '<i class="fa-brands fa-telegram" aria-hidden="true"></i>'],
-  ['bale', 'پیام\u200cرسان', '#', '<i class="fa-solid fa-comment-dots" aria-hidden="true"></i>'],
-  ['whatsapp', 'واتساپ', '#', '<i class="fa-brands fa-whatsapp" aria-hidden="true"></i>'],
+  ['whatsapp', 'واتساپ', 'https://wa.me/989918905993', '<i class="fa-brands fa-whatsapp" aria-hidden="true"></i>'],
+  ['bale', 'بله', '#', '<i class="fa-solid fa-comment-dots" aria-hidden="true"></i>'],
+  ['rubika', 'روبیکا', '#', '<b class="vp-foot-m-soc-letter" aria-hidden="true">R</b>'],
 ];
 
 const FOOT_PHONE_HTML =
   '<div class="vp-foot-m">\n' +
+  // «تو فوتر موبایل باید لوگو بیاد بالای ویکی پلاس و اون خطهای ۲ طرفش پاک
+  // بشن» — the mark above the name, and the two rules gone. The rules in the
+  // column headings below are a different thing and stay; the instruction
+  // named the ones beside the shop's name.
   '                <div class="vp-foot-m-head">\n' +
-  '                    <span class="vp-foot-m-rule" aria-hidden="true"></span>\n' +
+  '                    <img class="vp-foot-m-mark" src="assets/img/vikyplus-appicon.png" alt="" width="56" height="56">\n' +
   '                    <b class="vp-foot-m-name">ویکی پلاس</b>\n' +
-  '                    <span class="vp-foot-m-rule" aria-hidden="true"></span>\n' +
   '                </div>\n' +
   '                <p class="vp-foot-m-strap">ارائه\u200cدهنده انواع کیف و کفش زنانه با تضمین کیفیت، ارسال سریع و امکان خرید تکی و عمده.</p>\n' +
   '                <p class="vp-foot-m-line"><i class="fa-solid fa-location-dot" aria-hidden="true"></i><span>تهران، سعدی شمالی، روبه\u200cروی بانک ملی، پلاک ۵۶۵</span></p>\n' +

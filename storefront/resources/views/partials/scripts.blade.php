@@ -157,7 +157,17 @@
                 // ring's old 50. The button fades in on its own transition,
                 // so "the first scroll" is where the fade starts, not where
                 // it finishes.
-                if (corner) corner.classList.toggle("show", y > 0);
+                //
+                // And out again at the footer: «اسکرول وقتی به فوتر میرسه
+                // اون آیکون شناور واتسپ باید حذف بشه». The footer carries
+                // its own WhatsApp mark, so down there the floating one is
+                // a second copy of a button sitting right behind it — and
+                // on a phone it lands on top of the copyright line. The
+                // test is the footer's top crossing the bottom of the
+                // viewport; screenTop is already measured for the band
+                // below, so this costs no layout read.
+                var atFoot = screenEl ? (y + winH > screenTop) : false;
+                if (corner) corner.classList.toggle("show", y > 0 && !atFoot);
                 if (screenEl) {
                     // The template's own test, unchanged: the footer is left
                     // alone while it sits whole in the viewport, allowing 200.
