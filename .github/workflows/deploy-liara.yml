@@ -17,6 +17,11 @@ on:
       # deploys nothing, silently, and CLAUDE.md says this file is where that
       # gets fixed. It comes off the list when the branch is merged.
       - claude/shop-section-image-sw2i3a
+      # This round: the content pages, the error pages, and «فروش عمده» /
+      # «اخذ نمایندگی». Two pushes to this branch deployed nothing at all
+      # before it was added here, which is exactly the silent failure the note
+      # above describes. It comes off the list when the branch is merged.
+      - claude/shoe-store-ui-review-kgk2m9
   pull_request:
   workflow_dispatch:
 
