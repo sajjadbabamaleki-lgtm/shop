@@ -43,6 +43,13 @@
     viewer still shows the shoe, both buttons still post the same product and
     variant, and every `data-vp-story-*` on the link is untouched.
 
+    The movement was picked off nine built and shown side by side, at size, on
+    a phone: «ترکیب گزینه ۸ و گزینه یک یعنی نبض خوب بود بشرطی که اون مسیر دور
+    شدن و برگشتش طولانی تر بشه». So the ring turns and the mark breathes, and
+    the breath is drawn out rather than quick. The first attempt at this was a
+    2px wave and was rejected in one word; that is worth knowing before anybody
+    trims this one back down for being loud.
+
     **The number is read, never typed.** ۳۰ is not a number about this strip: it
     is `config('storefront.ladder')`'s live step, the same source the board, the
     track and every card's cut already read. Typed here as a literal it would go
@@ -80,22 +87,36 @@
                data-vp-story-name="{{ $story->title }}"
                data-vp-story-product="{{ $story->id }}"
                data-vp-story-variant="{{ $addable?->id }}">
-                {{-- One glyph per element, the way the ladder's own rate is
-                     built: the wave that runs across «٪۳۰» is three delays on
-                     one animation, and it cannot be done to a single text node.
+                {{-- **Three elements, because two transforms cannot share one.**
+                     The ring turns, the disc turns back by exactly as much so
+                     the number never leaves upright, and the mark breathes.
+                     Rotation and scale are both `transform`, so the second
+                     animation on an element silently replaces the first — the
+                     disc exists to give the counter-turn somewhere of its own
+                     to live. The ground, the white border and the round moved
+                     onto it with the same values they had on the mark.
+
+                     `is-cut` rather than styling `.vp-story-ring` outright:
+                     with no live step this falls back to the photograph, and
+                     nothing counter-turns a photograph — the ring may only spin
+                     when there is a disc inside it to hold the number still.
 
                      Decorative, because the link is already named: `aria-label`
                      above carries the shoe's own name, which is what the circle
                      is a link to. Five circles each announcing the same cut
                      would be five repetitions of something the cards under them
                      already say. --}}
-                <span class="vp-story-ring">
-                    @if ($cut)
-                        <span class="vp-story-cut" aria-hidden="true"><b>٪</b>@foreach (mb_str_split(fa_number($cut)) as $digit)<i>{{ $digit }}</i>@endforeach</span>
-                    @elseif ($shot)
-                        <img src="{{ asset($shot->path) }}" alt="" loading="lazy">
-                    @endif
-                </span>
+                @if ($cut)
+                    <span class="vp-story-ring is-cut">
+                        <span class="vp-story-disc" aria-hidden="true">
+                            <span class="vp-story-cut"><b>٪</b>@foreach (mb_str_split(fa_number($cut)) as $digit)<i>{{ $digit }}</i>@endforeach</span>
+                        </span>
+                    </span>
+                @else
+                    <span class="vp-story-ring">
+                        @if ($shot)<img src="{{ asset($shot->path) }}" alt="" loading="lazy">@endif
+                    </span>
+                @endif
             </a>
             @endforeach
         </div>

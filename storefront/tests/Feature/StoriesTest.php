@@ -196,6 +196,82 @@ class StoriesTest extends TestCase
     }
 
     /**
+     * **A ring may only turn when something inside it turns back.**
+     *
+     * `.is-cut` is what lets the ring spin, and the disc under it is what keeps
+     * the number upright while it does. Ship one without the other and the
+     * fallback state — no live sale, so the circle shows the shoe again —
+     * becomes a photograph rotating once every six seconds.
+     */
+    public function test_a_turning_ring_always_has_a_disc_to_hold_the_number_still(): void
+    {
+        $page = $this->get('/products')->assertOk()->getContent();
+
+        preg_match_all('/<span class="vp-story-ring([^"]*)">(.*?)<\/span>\s*<\/span>\s*<\/a>/s', $page, $rings, PREG_SET_ORDER);
+
+        $this->assertNotEmpty($rings, 'the strip should render its circles');
+
+        foreach ($rings as $ring) {
+            if (str_contains($ring[1], 'is-cut')) {
+                $this->assertStringContainsString('vp-story-disc', $ring[2], 'a ring that turns has nothing holding its number upright');
+                $this->assertStringNotContainsString('<img', $ring[2], 'a turning ring is carrying a photograph, which nothing counter-turns');
+            }
+        }
+    }
+
+    /**
+     * The strip is invisible to `check-parity.js` and `check-overflow.js` both,
+     * so the reduced-motion guard on three infinite animations has no other
+     * watcher. It is written after the rules it names for a reason recorded in
+     * `tweaks.css`; this is what notices if somebody moves it back above them.
+     */
+    public function test_the_movement_stops_for_anybody_who_asked_for_less_of_it(): void
+    {
+        $css = file_get_contents(public_path('assets/css/tweaks.css'));
+
+        // The *story's* guard, not whichever `prefers-reduced-motion` block
+        // happens to sit last in a 16,000-line file. Written loosely enough to
+        // survive reformatting and tightly enough to name the right block.
+        $found = preg_match(
+            '/@media \(prefers-reduced-motion: reduce\)\s*\{[^{]*\.vp-story-cut\s*\{[^}]*animation:\s*none/',
+            $css,
+            $m,
+            PREG_OFFSET_CAPTURE,
+        );
+
+        $this->assertSame(1, $found, 'the story circles have lost their reduced-motion guard');
+
+        $guard = $m[0][1];
+
+        foreach (['.vp-story-ring.is-cut', '.vp-story-disc', '.vp-story-cut'] as $selector) {
+            // Every rule that *starts* one of the three animations, not every
+            // rule that mentions the selector — the font-size at the 375.98
+            // breakpoint is not what the guard has to outrank.
+            $starts = [];
+            $at = 0;
+
+            while (($at = strpos($css, $selector.' {', $at)) !== false) {
+                $body = substr($css, $at, strcspn($css, '}', $at));
+
+                if (str_contains($body, 'animation:') && ! str_contains($body, 'animation: none')) {
+                    $starts[] = $at;
+                }
+
+                $at++;
+            }
+
+            $this->assertNotEmpty($starts, $selector.' no longer animates at all, so this test is watching nothing');
+
+            $this->assertGreaterThan(
+                max($starts),
+                $guard,
+                $selector.' starts an infinite animation after the guard meant to stop it. Source order decides at equal '
+                    .'specificity, so the guard is dead — which is exactly how the sale burst lost its own for months.',
+            );
+        }
+    }
+
+    /**
      * The categories have not simply been dropped on the floor — the row of
      * eight icons under the search line is still the catalogue's sections, and
      * that is a different control from the stories. This is here because the

@@ -2810,6 +2810,7 @@ option:hover {
    source order handed it back to them and the guard has been dead ever since:
    measured, `animationName` on a sale burst under
    `prefers-reduced-motion: reduce` was `vp-burst-turn`, not `none`.
+   The story circles' guard is written below their rules for this reason.
 
    It also cost `check-parity.js` its determinism: that check renders both pages
    with reduced motion emulated, so a 12s rotation that would not stop meant the
@@ -10460,18 +10461,32 @@ button.vp-cart-keep {
      of the white border on each side. Under 376 the ring closes to 53.59 and
      its inside to 48.59, where 18 would leave 9.2 — so the mark goes to 16
      there and keeps 11. Same breakpoint as the strip's own gap change, for the
-     same reason. */
-  .vp-story-cut {
+     same reason.
+
+     The disc is the photograph's stand-in and the mark is what it holds. They
+     were one element until the movement below arrived: the ring's counter-turn
+     and the mark's breath are both `transform`, and two animations on one
+     element do not compose — the second simply replaces the first. So the
+     ground, the white border and the round live on `.vp-story-disc` and the
+     glyphs live on `.vp-story-cut` inside it, each with one transform of its
+     own. */
+  .vp-story-disc {
     display: flex;
     align-items: center;
     justify-content: center;
-    direction: ltr;
     width: 100%;
     height: 100%;
     box-sizing: border-box;
     border: 2px solid #FFFFFF;
     border-radius: 50%;
     background: #F5F5F5;
+  }
+
+  .vp-story-cut {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    direction: ltr;
     color: #A47F25;
     font-size: 18px;
     font-weight: 700;
@@ -10479,39 +10494,78 @@ button.vp-cart-keep {
     letter-spacing: -0.2px;
   }
 
-  /* The loop. One animation, three delays — «٪» leads and the two digits follow
-     it, so the mark reads as one thing moving rather than three things bouncing
-     together. The row is `ltr` above, so the wave runs the way the rate is
-     read: ٪ then ۳ then ۰, left to right.
-
-     2px, not more. What carries this at 18px is the stagger, not the distance —
-     the three glyphs are never level with each other, and that is the whole
-     effect. A bigger lift only pushes the digits' tops toward the white border
-     the mark is already sitting 14.54 clear of on the sides but only ~4 clear
-     of at the crown, because the circle is round and the ink is not. */
   .vp-story-cut b,
   .vp-story-cut i {
     font-style: normal;
-    animation: vp-story-cut-lift 2.4s ease-in-out infinite;
   }
 
-  .vp-story-cut i:nth-child(2) {
-    animation-delay: 0.16s;
+  /* --- the movement ------------------------------------------------------
+
+     Chosen off nine built and shown at size on a phone: «ترکیب گزینه ۸ و گزینه
+     یک یعنی نبض خوب بود بشرطی که اون مسیر دور شدن و برگشتش طولانی تر بشه».
+     The ring turns, the mark breathes, and the breath is long.
+
+     **3s against 6s, and the pair is deliberate.** Two breaths to one turn of
+     the ring means the two never drift against each other: the mark is at its
+     widest at the top of the ring's revolution and again at its half, every
+     time, instead of landing somewhere new each pass. Any other pairing runs a
+     slow beat between the two that nobody asked for and everybody would see.
+
+     The first cut of this was 1.6s and was told it was too quick — «مسیر دور
+     شدن و برگشتش» is the excursion, and the instruction was to lengthen it,
+     not to widen it. So the time doubled and 1.16 did not move: the client
+     said the pulse itself was right.
+
+     `linear` on both halves of the turn, and the *same* duration, or the number
+     does not stay upright — the disc's counter-turn only cancels the ring's if
+     the two are the same speed at every instant, which no easing curve is.
+
+     The ring is only allowed to turn when it has a disc inside it: `.is-cut`.
+     Fall back to the photograph and there is nothing counter-turning, so an
+     unqualified rule would spin the shoe. */
+  .vp-story-ring.is-cut {
+    animation: vp-story-ring-turn 6s linear infinite;
   }
 
-  .vp-story-cut i:nth-child(3) {
-    animation-delay: 0.32s;
+  .vp-story-disc {
+    animation: vp-story-disc-turn 6s linear infinite;
+  }
+
+  .vp-story-cut {
+    animation: vp-story-cut-breathe 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
   }
 
 }
 
-@keyframes vp-story-cut-lift {
-  0%, 55%, 100% {
-    transform: translateY(0);
+@keyframes vp-story-ring-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes vp-story-disc-turn {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+/* Out and back with nothing held at either end, so the whole 3s is travel —
+   which is what «مسیر دور شدن و برگشتش طولانی تر» asks for.
+
+   Measured across a full revolution at 390, sampled every 500ms: the mark goes
+   29.96 → 34.67 → 29.96 twice, and the disc's own inside is 55 (64 less the
+   ring's 2.5 of padding each side, less the 2 of white border each side), so
+   the widest frame still stands 10.17 clear of the border on each side. At 320
+   the ring closes to 53.59 and the 16px mark peaks at 30.84 inside 44.59,
+   which is 6.88 — tighter, and still not touching. Widening 1.16 is what would
+   end that, not lengthening the 3s. */
+@keyframes vp-story-cut-breathe {
+  0%, 100% {
+    transform: scale(1);
   }
 
-  27% {
-    transform: translateY(-2px);
+  50% {
+    transform: scale(1.16);
   }
 }
 
@@ -10538,8 +10592,15 @@ button.vp-cart-keep {
    for months: it was written before the rules it names, at the same
    specificity, so source order handed the animation straight back. That is
    recorded at `.vp-deal-burst`'s own block and it is the reason this one sits
-   below rather than beside. Measured after: `animationName` on all three
-   glyphs of all five circles is `none` under `prefers-reduced-motion: reduce`.
+   below rather than beside. Measured after: `animationName` on the ring, the
+   disc and the mark of all five circles is `none` under
+   `prefers-reduced-motion: reduce`.
+
+   **All three, or none of them.** Stopping the ring and leaving the disc
+   turning would not calm the circle down, it would set the number spinning
+   backwards at a full revolution every six seconds — the counter-turn is only
+   ever correct in company. The mark's scale is listed with them for the same
+   reason it is listed at all: it is the loudest of the three.
 
    An infinite loop that will not stop is not only a preference ignored — it is
    `check-parity.js` losing its determinism, because that check renders both
@@ -10548,8 +10609,9 @@ button.vp-cart-keep {
    page, so parity cannot see it today; the day somebody sets that `display` to
    `block` is not the day to discover this. */
 @media (prefers-reduced-motion: reduce) {
-  .vp-story-cut b,
-  .vp-story-cut i {
+  .vp-story-ring.is-cut,
+  .vp-story-disc,
+  .vp-story-cut {
     animation: none;
   }
 }
