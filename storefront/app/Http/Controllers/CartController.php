@@ -97,13 +97,25 @@ class CartController extends Controller
         return redirect()->to(storefront_route('cart'));
     }
 
+    /**
+     * Back where it was pressed, not to the basket page.
+     *
+     * These two are posted from two places now: the basket page's card, and the
+     * same card inside the header's drawer. From the page, "back" *is* the
+     * basket, so nothing there changes. From the drawer it is the page the
+     * shopper was reading — and landing them on the basket because they nudged
+     * a quantity from a panel that floats over the page is the drawer throwing
+     * them out of whatever they were doing.
+     *
+     * The fallback is the basket, which is what a post with no referrer gets.
+     */
     public function update(Request $request): RedirectResponse
     {
         [$variant, $vendor] = $this->seller($request);
 
         $this->carts->setQuantity($variant, $request->integer('quantity'), $vendor);
 
-        return redirect()->to(storefront_route('cart'));
+        return redirect()->back(fallback: storefront_route('cart'));
     }
 
     public function remove(Request $request): RedirectResponse
@@ -112,7 +124,7 @@ class CartController extends Controller
 
         $this->carts->remove($variant, $vendor);
 
-        return redirect()->to(storefront_route('cart'));
+        return redirect()->back(fallback: storefront_route('cart'));
     }
 
     /**

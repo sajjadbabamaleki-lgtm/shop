@@ -134,8 +134,18 @@ class MiniCartTest extends TestCase
 
         $this->assertStringContainsString($variant->product->title, $panel);
         $this->assertStringContainsString(toman($cart->subtotal()), $panel);
-        $this->assertStringContainsString(fa_number($cart->count()).' × سایز', $panel);
         $this->assertStringContainsString('جمع کالاها', $panel);
+
+        // The panel draws the basket page's own card — «باید بشه شکل این چیز
+        // جدیدی که ساختی» — so what is asserted is that card's parts, and the
+        // quantity is in its stepper rather than in a «۱ × سایز» line.
+        $this->assertStringContainsString('vp-cart-line', $panel);
+        $this->assertStringContainsString('سایز: '.fa_number((int) $variant->size_value), $panel);
+        $this->assertStringContainsString('رنگ: '.$variant->display_color, $panel);
+        $this->assertMatchesRegularExpression(
+            '/vp-cart-count[^>]*>\s*'.preg_quote(fa_number($cart->count()), '/').'\s*</u',
+            $panel,
+        );
         $this->assertStringContainsString(route('cart'), $panel);
         $this->assertStringContainsString(route('checkout'), $panel);
         $this->assertStringNotContainsString('سبد خریدت خالی است.', $panel);

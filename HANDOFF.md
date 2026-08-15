@@ -2317,3 +2317,27 @@ card's height again and the card is back to **112 with four rows in it**.
 
 244 tests, Pint clean, parity identical at 992/1200/1440/1920, and no sideways
 scroll on the basket at 320/360/390/430/575/768/992/1200/1920.
+
+
+## The header's basket panel draws the page's card
+
+«سبد خریدی که تو هدر بصورت جزیره ای باز میشه نسخه قدیمیه باید بشه شکل این چیز
+جدیدی که ساختی» — the island behind the header's basket button was still the
+old row: a 56px photograph, «۱ × سایز ۳۷», the price off to one side and a `×`.
+
+It is not styled *like* the basket page's card now, it **is** it. The panel's
+lines are `.vp-cart-line` with the same children, so they take the same block
+measured off the client's reference and cannot drift again. `.vp-mini-*` is now
+only the panel *around* the cards — head, foot, empty state, and the scrolling
+list. The 97 lines of dead line rules were deleted rather than left: they were
+more specific than the card's own and would have gone on winning.
+
+**The stepper made `cart.update` and `cart.remove` return to where they were
+pressed** (`redirect()->back(fallback: cart)`). From the basket page "back" *is*
+the basket, so nothing there changed; from the drawer it is the page the shopper
+was reading. Before, nudging a quantity from a panel floating over the home page
+threw them onto the basket page — which the `×` had always done too.
+
+Measured in the open drawer at 390: panel 370 wide, card 350, nothing clipped,
+and the card is the page's — photograph 88, stepper circles 24, bin in the
+corner. 244 tests, Pint clean, parity identical at 992/1200/1440/1920.
