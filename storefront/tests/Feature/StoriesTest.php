@@ -125,6 +125,77 @@ class StoriesTest extends TestCase
     }
 
     /**
+     * The circle is the sale now — «بجای تصویر کفش یک انیمیشن لوپ داشته باشم از
+     * نوشته ۳۰٪» — and the number on it is the stepped sale's live step.
+     *
+     * Read out of the same config the board, the track and every card's cut
+     * read, so the strip cannot announce one number while the page under it
+     * shows another.
+     */
+    public function test_the_circle_carries_the_live_step_of_the_stepped_sale(): void
+    {
+        $ladder = config('storefront.ladder');
+        $cut = $ladder['steps'][$ladder['live'] - 1]['cut'];
+
+        $page = $this->get('/products')->assertOk();
+
+        // ٪ first, then a digit per element — the ladder's own spelling of a
+        // rate, and the three elements are what the wave's three delays need.
+        $mark = '<b>٪</b>';
+
+        foreach (mb_str_split(fa_number($cut)) as $digit) {
+            $mark .= '<i>'.$digit.'</i>';
+        }
+
+        $page->assertSee($mark, false);
+    }
+
+    /**
+     * **This is the test that earns its place.** A literal ۳۰ typed into the
+     * strip would pass everything above and go on saying ۳۰ the week the sale
+     * steps to ۴۵ — on the phone, in the client's hand, with nothing anywhere
+     * gone red. So move the sale on and watch the strip move with it.
+     */
+    public function test_the_strip_steps_when_the_sale_does(): void
+    {
+        // The third step is ٪۴۵. Nothing is seeded or migrated for this: the
+        // strip reads config on render, which is the whole claim being made.
+        config(['storefront.ladder.live' => 3]);
+
+        $this->get('/products')->assertOk()
+            ->assertSee('<i>۴</i><i>۵</i>', false)
+            ->assertDontSee('<i>۳</i><i>۰</i>', false);
+    }
+
+    /**
+     * Only the thumbnail changed. The photograph is what the story still opens
+     * with, and it rides on the link, so taking the shoe off the circle must
+     * not have taken it out of the viewer.
+     */
+    public function test_the_shoe_is_still_what_the_story_opens(): void
+    {
+        $page = $this->get('/products')->assertOk()->getContent();
+
+        preg_match_all('/data-vp-story-src="([^"]*)"/', $page, $found);
+
+        $this->assertNotEmpty($found[1], 'the strip should render its circles');
+
+        foreach ($found[1] as $src) {
+            $this->assertNotSame('', $src, 'a story with no picture opens onto an empty island');
+        }
+
+        // And the ring itself no longer loads one: five photographs fetched to
+        // be covered by three glyphs is five requests a phone does not make.
+        // Matched rather than compared, because what sits between the ring and
+        // its content is whatever whitespace Blade leaves behind a directive.
+        $this->assertSame(
+            0,
+            preg_match('/<span class="vp-story-ring">\s*<img/', $page),
+            'the circle is still loading the photograph it no longer shows',
+        );
+    }
+
+    /**
      * The categories have not simply been dropped on the floor — the row of
      * eight icons under the search line is still the catalogue's sections, and
      * that is a different control from the stories. This is here because the

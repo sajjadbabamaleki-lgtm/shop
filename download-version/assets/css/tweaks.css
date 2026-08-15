@@ -10424,6 +10424,95 @@ button.vp-cart-keep {
     object-fit: cover;
   }
 
+  /* «بجای تصویر کفش یک انیمیشن لوپ داشته باشم از نوشته ۳۰٪».
+
+     The mark stands in the photograph's place exactly — the same white border,
+     the same #F5F5F5 ground, the same round — so the ring above it does not
+     know the difference and none of its arithmetic moves. The rule above is
+     kept and is not dead: with no live step the circle falls back to the shoe.
+
+     **#A47F25 is this site's gold for a small rate on a light ground** — it is
+     `.vp-card-cut`'s, the chip on every product card, which is the same thing
+     said at 10px. The page's other golds are ramps (the burst, the buy button,
+     the search disc), and a ramp was tried here first: across an 18px glyph
+     #C0972F to #E3B54A is about two levels per pixel and reads as flat anyway,
+     while `background-clip: text` takes the #F5F5F5 ground with it and hands
+     the circle back to the ring's gradient — which is the cut-out bug written
+     up on the rule above, arrived at from the other direction.
+
+     Contrast, measured rather than assumed: #A47F25 on #F5F5F5 is 3.42:1. That
+     is short of 4.5 and it is the pairing the cards already ship, so this is
+     the page's existing decision rather than a new one — the burst's own white
+     on gold is 2.6. Worth raising with the client as a set; not worth inventing
+     a sixth gold here to fix one circle.
+
+     **`direction: ltr`, and without it the circle says ۰۳٪.** A rate is a
+     number and numbers are set left to right on this page as much as on any
+     other; put three glyphs in a flex row that inherits the page's `rtl` and
+     the row hands the first child the right-hand end, so «٪۳۰» comes out
+     reversed, glyph for glyph. It is not a subtle wrongness — measured on the
+     first build, left to right, the circle read `۰۳٪`. The ladder's board hit
+     this first and answers it the same way (`.vp-ladder-steps`), and so does
+     the story viewer's own bar row twenty lines down. Three places, one rule.
+
+     Sized off the ring, and these are measured at 3× rather than reasoned
+     about: 18 inside the 59 the ring leaves sets «٪۳۰» 29.91 wide, 14.54 clear
+     of the white border on each side. Under 376 the ring closes to 53.59 and
+     its inside to 48.59, where 18 would leave 9.2 — so the mark goes to 16
+     there and keeps 11. Same breakpoint as the strip's own gap change, for the
+     same reason. */
+  .vp-story-cut {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    direction: ltr;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    border: 2px solid #FFFFFF;
+    border-radius: 50%;
+    background: #F5F5F5;
+    color: #A47F25;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.2px;
+  }
+
+  /* The loop. One animation, three delays — «٪» leads and the two digits follow
+     it, so the mark reads as one thing moving rather than three things bouncing
+     together. The row is `ltr` above, so the wave runs the way the rate is
+     read: ٪ then ۳ then ۰, left to right.
+
+     2px, not more. What carries this at 18px is the stagger, not the distance —
+     the three glyphs are never level with each other, and that is the whole
+     effect. A bigger lift only pushes the digits' tops toward the white border
+     the mark is already sitting 14.54 clear of on the sides but only ~4 clear
+     of at the crown, because the circle is round and the ink is not. */
+  .vp-story-cut b,
+  .vp-story-cut i {
+    font-style: normal;
+    animation: vp-story-cut-lift 2.4s ease-in-out infinite;
+  }
+
+  .vp-story-cut i:nth-child(2) {
+    animation-delay: 0.16s;
+  }
+
+  .vp-story-cut i:nth-child(3) {
+    animation-delay: 0.32s;
+  }
+
+}
+
+@keyframes vp-story-cut-lift {
+  0%, 55%, 100% {
+    transform: translateY(0);
+  }
+
+  27% {
+    transform: translateY(-2px);
+  }
 }
 
 /* Under 376 the five 64s and their gaps want 352 against the 300 the page
@@ -10432,6 +10521,36 @@ button.vp-cart-keep {
 @media (max-width: 375.98px) {
   .vp-stories-row {
     gap: 6px;
+  }
+
+  /* The ring loses 8.8 here and the mark loses 2 with it, so the glyphs keep
+     the same clearance from the white border they have at 390 instead of
+     growing into it as the circle shrinks. */
+  .vp-story-cut {
+    font-size: 16px;
+  }
+}
+
+/* The reduced-motion guard, and it is written **here**, after every rule that
+   sets the animation, on purpose.
+
+   The sale burst nine hundred lines above has the same guard and it was dead
+   for months: it was written before the rules it names, at the same
+   specificity, so source order handed the animation straight back. That is
+   recorded at `.vp-deal-burst`'s own block and it is the reason this one sits
+   below rather than beside. Measured after: `animationName` on all three
+   glyphs of all five circles is `none` under `prefers-reduced-motion: reduce`.
+
+   An infinite loop that will not stop is not only a preference ignored — it is
+   `check-parity.js` losing its determinism, because that check renders both
+   pages with reduced motion emulated and would screenshot this mark at
+   whatever frame each run happened to land on. The strip is parked on the home
+   page, so parity cannot see it today; the day somebody sets that `display` to
+   `block` is not the day to discover this. */
+@media (prefers-reduced-motion: reduce) {
+  .vp-story-cut b,
+  .vp-story-cut i {
+    animation: none;
   }
 }
 

@@ -34,9 +34,34 @@
 
     Everything the viewer shows rides on the link as `data-vp-story-*`, so the
     overlay carries no second copy of the catalogue and cannot drift out of step
-    with the circles. The photograph is the same file at the same size the ring
-    already loaded, so opening a story fetches nothing new.
+    with the circles.
+
+    ---------------------------------------------------------------------------
+    **The circles are the sale now, not the shoe.** «بجای تصویر کفش یک انیمیشن
+    لوپ داشته باشم از نوشته ۳۰٪» — so the ring carries «٪۳۰», moving, and the
+    photograph stays where the story opens. Only the thumbnail changed: the
+    viewer still shows the shoe, both buttons still post the same product and
+    variant, and every `data-vp-story-*` on the link is untouched.
+
+    **The number is read, never typed.** ۳۰ is not a number about this strip: it
+    is `config('storefront.ladder')`'s live step, the same source the board, the
+    track and every card's cut already read. Typed here as a literal it would go
+    on saying ۳۰ the week the sale steps to ۴۵, and nothing would go red — the
+    same reason the product page's «٪۳۰ تخفیف پله ای» reads the offer instead of
+    the words. `StoriesTest` checks the two agree.
+
+    With no live step there is no sale to announce, and the circle falls back to
+    the photograph rather than drawing «٪۰».
+
+    The picture the viewer opens is the same file the strip used to load, so a
+    story still fetches nothing new when it opens — but the strip itself no
+    longer fetches five photographs to show three glyphs, which is five requests
+    a phone does not make before the listing settles.
 --}}
+@php
+    $ladder = config('storefront.ladder');
+    $cut = $ladder['steps'][$ladder['live'] - 1]['cut'] ?? null;
+@endphp
 <section class="vp-stories" aria-label="استوری‌ها">
         <div class="vp-stories-row">
             @foreach ($stories as $story)
@@ -46,15 +71,30 @@
             @endphp
             {{-- No caption under the circle. The name becomes the link's
                  accessible name rather than being dropped — a link whose whole
-                 content is a decorative photograph announces nothing. --}}
+                 content is decorative announces nothing, and that was true of
+                 the photograph this used to hold and is true of the mark that
+                 holds its place now. --}}
             <a class="vp-story" href="{{ storefront_route('product', $story) }}" aria-label="{{ $story->title }}"
                data-vp-story
                data-vp-story-src="{{ $shot ? asset($shot->path) : '' }}"
                data-vp-story-name="{{ $story->title }}"
                data-vp-story-product="{{ $story->id }}"
                data-vp-story-variant="{{ $addable?->id }}">
+                {{-- One glyph per element, the way the ladder's own rate is
+                     built: the wave that runs across «٪۳۰» is three delays on
+                     one animation, and it cannot be done to a single text node.
+
+                     Decorative, because the link is already named: `aria-label`
+                     above carries the shoe's own name, which is what the circle
+                     is a link to. Five circles each announcing the same cut
+                     would be five repetitions of something the cards under them
+                     already say. --}}
                 <span class="vp-story-ring">
-                    @if ($shot)<img src="{{ asset($shot->path) }}" alt="" loading="lazy">@endif
+                    @if ($cut)
+                        <span class="vp-story-cut" aria-hidden="true"><b>٪</b>@foreach (mb_str_split(fa_number($cut)) as $digit)<i>{{ $digit }}</i>@endforeach</span>
+                    @elseif ($shot)
+                        <img src="{{ asset($shot->path) }}" alt="" loading="lazy">
+                    @endif
                 </span>
             </a>
             @endforeach
