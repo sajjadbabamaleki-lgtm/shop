@@ -64,6 +64,38 @@ html = html.replace(
   '<meta name="keywords" content="کفش زنانه, کیف زنانه, کتانی زنانه, کفش مجلسی, بوت زنانه, ویکی پلاس">'
 );
 
+/*
+ * The page does not zoom.
+ *
+ * «وقتی رو باکس سرچ تو فروشگاه زده میشه تصویر زوم و ناقص میشه» — tapping the
+ * listing's search box on a phone zoomed the page in and cut the shot off at
+ * the edge. That is not our layout: iOS Safari and Android Chrome zoom to any
+ * form field whose text is under 16px, and every field on this site is 14 or
+ * 15 because that is what the design was measured at. The page never zooms
+ * back out on its own afterwards, so the visitor is left looking at a
+ * magnified corner of a card.
+ *
+ * `maximum-scale=1` is what stops that particular zoom, and `user-scalable=no`
+ * answers the rest of the instruction — «هیچ جا نباید تصویر زوم بشه، همه جا ui
+ * و دیزاین قفل بشه». `touch-action: manipulation` in tweaks.css takes the
+ * double-tap zoom with it.
+ *
+ * **The cost, said plainly**: this also takes away pinch-to-zoom, which is how
+ * somebody with poor sight reads a page. It is WCAG 1.4.4, and it is the
+ * client's decision rather than an oversight. Raising every field to 16px
+ * would have fixed the reported symptom without that cost, and would have
+ * changed type sizes across the shop — including the header's, which is not to
+ * be touched. If the two are ever weighed again, that is the other road.
+ */
+html = html.replace(
+  /<meta name="viewport"[^>]*>/i,
+  '<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, shrink-to-fit=no">'
+);
+
+if (!html.includes('user-scalable=no')) {
+  throw new Error('the viewport meta did not take — the template head has moved');
+}
+
 // --- the preloader comes off ------------------------------------------------
 //
 // The template covers the whole page with a white curtain and lifts it in

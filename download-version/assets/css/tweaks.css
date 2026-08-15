@@ -868,9 +868,14 @@ option:hover {
    this element computes direction: ltr whatever the page does, so the logical
    start is its left and setting that sends it the wrong way — measured, 160px
    the wrong way. The flipped sheet has already turned the template's left into
-   a right here, so the right is what to add to. */
+   a right here, so the right is what to add to.
+
+   41 became 61: «ستاره تخفیف تو هیرو باید ۲۰ پیکسل بیاد چپ». Adding to `right`
+   is what moves it left, which is why the 20 goes on here rather than into a
+   transform — the star inside is already turning on one of its own, and a
+   second on the wrapper is a thing to trip over later. */
 .heroSlide6 .discount-wrapp {
-  right: calc(9% + 41px);
+  right: calc(9% + 61px);
   left: auto;
 }
 
@@ -15044,4 +15049,50 @@ ul.vp-how-list.is-ticked li:before {
 
 .vp-admin-tel:hover {
   color: var(--theme-color);
+}
+
+/* --------------------------------------------------------------------------
+   The Golden Goose sits 30 lower than the other two, and the page does not
+   zoom.
+   -------------------------------------------------------------------------- */
+
+/* «کفش گلدن گوس تو هیرو باید ۳۰ پیکسل بیاد پایینتر — فقط گلدن گوس».
+
+   One slide out of three, and the deck has nothing on a slide that says which
+   product it is: the hero renders six identical `.swiper-slide`s from a loop,
+   and the only thing that differs is the photograph's own filename. So that is
+   what this selects on. It is the same handle the deck's own script already
+   uses to tint the marks behind the card — `tones` in hero.blade.php is keyed
+   by these filenames — so the page has been identifying its slides this way
+   since the tinting was built.
+
+   `transform`, not a margin. The shot is centred in a flex box that the card's
+   height is levelled from, so 30px of margin would move the shoe *and* make
+   the card 30px taller on the slides that carry it — which is every third one.
+   A transform moves what is painted and leaves the layout where it was, and
+   the two neighbouring slides keep the height they were measured at.
+
+   The wrapper's entrance animation is untouched: `data-ani` is on `.hero-img`,
+   this is on the `img` inside it, so nothing overwrites anything. */
+.heroSlide6 .hero-img img[src*="goldengoose"] {
+  transform: translateY(30px);
+}
+
+/* Nothing on this site zooms.
+
+   The reported symptom was the listing's search box: tapping it on a phone
+   zoomed the page and cut the shot off, and it never zoomed back. That is the
+   browser, not the layout — iOS Safari and Android Chrome zoom to any field
+   whose text is under 16px, and every field here is 14 or 15 because that is
+   what the design was measured at.
+
+   `maximum-scale=1, user-scalable=no` in the viewport meta stops that one
+   (theme/make-rtl-page.js writes it, and the note there records what it costs).
+   This is the other half: `touch-action: manipulation` tells the browser no
+   element on the page has a double-tap gesture, which removes both the
+   double-tap zoom and the 300ms wait that goes with it. It changes nothing
+   about how the page looks — scrolling, panning and every tap behave exactly
+   as before. */
+html {
+  touch-action: manipulation;
 }
