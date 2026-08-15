@@ -280,6 +280,39 @@ class HomePageTest extends TestCase
     }
 
     /**
+     * Nike's three photographs are the brand's own, and they are files.
+     *
+     * Two ways this can break silently, so both are checked. The tile can go
+     * back to borrowing the category photographs — it did until Nike's three
+     * arrived, and the fallback is still there for the other three brands, so
+     * losing the `photos` key renders a perfectly ordinary tile with the wrong
+     * pictures in it. And the files can simply not be in public/, because they
+     * are built by theme/make-brand-photos.js and carried over by
+     * theme/sync-storefront-assets.js — two steps outside this application,
+     * either of which can be forgotten. A missing image is invisible to an
+     * assertion on the markup: the src is right there in the HTML either way.
+     */
+    public function test_nike_shows_its_own_photographs_and_they_exist(): void
+    {
+        $photos = config('storefront.placeholders.brand_strip.nike.photos');
+
+        $this->assertNotEmpty($photos, 'Nike is meant to carry its own three photographs');
+
+        $page = $this->get('/');
+
+        foreach ($photos as $photo) {
+            $page->assertSee($photo, false);
+            $this->assertFileExists(public_path($photo));
+        }
+
+        // The lead is the large cell, and which photograph leads was the
+        // client's own instruction: «اون کفش تکی که پشتش نوشته نایک برای تصویر
+        // بزرگس». The order in config is the order in the markup, so the
+        // first entry has to be the one the `is-lead` cell carries.
+        $page->assertSee('class="vp-brand-cell is-lead"><img src="'.asset($photos[0]).'"', false);
+    }
+
+    /**
      * A product that sells out drops off the page rather than being offered.
      */
     public function test_a_sold_out_product_leaves_the_sale(): void

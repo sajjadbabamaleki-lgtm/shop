@@ -61,9 +61,9 @@ Three things fall out of the wiring that are worth knowing:
 - **«فقط ۱ عدد باقی مانده» is a count.** It follows `sellable_stock`, and a
   product whose stock reaches zero leaves the sale rather than being offered.
 - **What is invented did not go into the catalogue.** The brand strip's
-  counts, its mosaic photographs, and the pairing that puts a shoe's price
-  under a category's photograph are all in `config/storefront.php` under
-  `placeholders`. Seeding an invented number into the tables would make it
+  counts, the mosaic photographs of the three brands still borrowing them, and
+  the pairing that puts a shoe's price under a category's photograph are all
+  in `config/storefront.php` under `placeholders`. Seeding an invented number into the tables would make it
   indistinguishable from a counted one, which is the whole thing that block
   exists to prevent.
 
@@ -177,10 +177,21 @@ three live in one array (`BRANDS`) at the top of the brand block in
   it belongs; the other three are the template's own abstract marks. The slot
   is a fixed 30×30 box rather than sized off the artwork, so a real logo drops
   in without touching the CSS.
-- **the photographs** — the eight category tiles from the top of the page. We
-  hold one product photograph per brand and this shape wants three, so twelve
-  slots against eight images means four repeat. No two tiles open on the same
-  lead image.
+- **the photographs** — **Nike's three are its own now**, supplied by the
+  client for this tile («این ۳ تصویر در ۳ کادر اول که نایک هستش بیاد») with
+  the shoe carrying the NIKE wordmark named for the large cell. They are
+  sources in `theme/brand-src`, built by `node theme/make-brand-photos.js`
+  into `assets/img/brand/vikyplus-nike-*.webp`, and named twice — in `BRANDS`
+  for the static page and in `placeholders.brand_strip` for Laravel. The other
+  three tiles still borrow the category photographs from the top of the page,
+  because we hold one product photograph per those brands and this shape wants
+  three. Each of them stops borrowing the way Nike just did: three files into
+  `brand-src`, a line in `make-brand-photos.js`, `photos` in place of the
+  category slugs in both lists. No two tiles open on the same lead image.
+  `HomePageTest` asserts Nike's three are named *and that the files are in
+  `public/`* — the build and the asset sync are two steps outside the
+  application, and a src that points at nothing looks perfectly correct in the
+  markup.
 - **the counts** — invented. There is no inventory behind this page; the
   Laravel app has the tables, the static page has no data. They are shaped
   like real numbers and are not real numbers.

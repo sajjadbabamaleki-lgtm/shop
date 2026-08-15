@@ -1604,12 +1604,23 @@ html = html.replace('</body>', HOW_HTML + '</body>');
 // substitutions rather than wait for the real assets, so the layout can be
 // settled now and the content dropped in later.
 const BRANDS = [
-  // The mosaic photographs are the eight category tiles from the top of the
-  // page — the client's own call («از عکس های اون قسمت هشتایی بالای وبسایت
-  // استفاده کن») when it turned out we hold one product photograph per brand
-  // and this shape wants three. Twelve slots against eight photographs means
-  // four repeat; what does not repeat is the lead photograph of each tile, so
-  // no two tiles open on the same image.
+  // **Nike's three photographs are the brand's own** — supplied by the client
+  // for this tile and for this arrangement: «این ۳ تصویر در ۳ کادر اول که نایک
+  // هستش بیاد», with the single shoe carrying the NIKE wordmark named for the
+  // large cell, «اون کفش تکی که پشتش نوشته نایک برای تصویر بزرگس». So the
+  // order below is stated, not chosen: vomero leads, the kit and the athlete
+  // take the stacked pair. They are prepared by theme/make-brand-photos.js,
+  // which resizes and does not crop; the cell's `object-fit: cover` does the
+  // framing, as it does for every other photograph on this page.
+  //
+  // The other three tiles still borrow the category photographs from the top
+  // of the page — the client's own call («از عکس های اون قسمت هشتایی بالای
+  // وبسایت استفاده کن») from when we held one product photograph per brand and
+  // this shape wanted three. Nine slots against eight photographs now, and
+  // what does not repeat is the lead photograph of each tile, so no two tiles
+  // open on the same image. Each of those three stops borrowing the same way
+  // Nike just did: three files into theme/brand-src, a line in
+  // make-brand-photos.js, and `photos` here instead of lead/a/b.
   //
   // The logos are the template's own. brand_5_2 is genuinely the Nike swoosh
   // and is used where it belongs; the other three are the template's abstract
@@ -1619,11 +1630,24 @@ const BRANDS = [
   // The counts are invented. There is no inventory behind this page — the
   // Laravel app has the tables, this static page has no data — so they are
   // shaped like real numbers and are not real numbers.
-  { name: 'نایک',       logo: 'brand_5_2.png', stock: '۴۲', lead: 'sneaker', a: 'sport-set', b: 'sandal' },
+  {
+    name: 'نایک', logo: 'brand_5_2.png', stock: '۴۲',
+    photos: [
+      'assets/img/brand/vikyplus-nike-vomero.webp',
+      'assets/img/brand/vikyplus-nike-kit.webp',
+      'assets/img/brand/vikyplus-nike-athlete.webp',
+    ],
+  },
   { name: 'جردن',       logo: 'brand_1_6.svg', stock: '۲۸', lead: 'boot',    a: 'college',   b: 'accessory' },
   { name: 'نیوبالانس',  logo: 'brand_1_5.svg', stock: '۳۵', lead: 'college', a: 'bag-set',   b: 'sneaker' },
   { name: 'گلدن گوس',   logo: 'brand_1_3.svg', stock: '۱۹', lead: 'majlesi', a: 'accessory', b: 'sport-set' },
 ];
+
+// A tile's three photographs, whether they are the brand's own or the category
+// tiles standing in for them. The first is the lead; the two after it are the
+// stacked pair, in order.
+const brandPhotos = b =>
+  b.photos ?? [b.lead, b.a, b.b].map(slug => `assets/img/category/${slug}.jpg`);
 
 const BRANDS_HTML =
   '    <section class="vp-brands-section space">\n' +
@@ -1639,9 +1663,10 @@ const BRANDS_HTML =
     // what it holds in text, so the photographs carry nothing a reader would
     // otherwise lose and are hidden rather than given invented alt copy.
     '                    <span class="vp-brand-mosaic" aria-hidden="true">\n' +
-    `                        <span class="vp-brand-cell is-lead"><img src="assets/img/category/${b.lead}.jpg" alt="" loading="lazy"></span>\n` +
-    `                        <span class="vp-brand-cell"><img src="assets/img/category/${b.a}.jpg" alt="" loading="lazy"></span>\n` +
-    `                        <span class="vp-brand-cell"><img src="assets/img/category/${b.b}.jpg" alt="" loading="lazy"></span>\n` +
+    brandPhotos(b).map((photo, i) =>
+      `                        <span class="vp-brand-cell${i === 0 ? ' is-lead' : ''}">` +
+      `<img src="${photo}" alt="" loading="lazy"></span>\n`
+    ).join('') +
     '                    </span>\n' +
     '                    <span class="vp-brand-plate">\n' +
     `                        <img class="vp-brand-logo" src="assets/img/brand/${b.logo}" alt="" loading="lazy">\n` +
