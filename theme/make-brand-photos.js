@@ -2,12 +2,12 @@
 /**
  * Prepares the brand strip's own photographs.
  *
- * Until now every tile in «برندهای موجود» borrowed the eight category
+ * Until recently every tile in «برندهای موجود» borrowed the eight category
  * photographs from the top of the page, because we held one product shot per
- * brand and each tile wants three. Nike's, Jordan's and New Balance's three
- * have arrived, so those three tiles stop borrowing; the fourth still does,
- * and the moment its photographs arrive it gets three entries here and a
- * `photos` key in the two places listed at the bottom.
+ * brand and each tile wants three. The client has now sent a set of three for
+ * each of the four, so nothing on that block borrows any more. A brand that
+ * ever needs a set again gets three entries here and a `photos` key in the two
+ * places listed at the bottom.
  *
  * Same rule as the category photographs: **resize only, no crop.** Each file
  * goes in as supplied and the framing stays where it belongs, in the CSS —
@@ -82,14 +82,21 @@ const SOURCES = [
   { name: 'nb-530', cell: 'lead' },
   { name: 'nb-kit', cell: 'small' },
   { name: 'nb-athlete', cell: 'small' },
+  // On's poster is the one source that is not a PNG — it arrived as a JPEG,
+  // and re-encoding it to PNG first would only have made a larger file of the
+  // same pixels. It is also where On's mark comes from; see make-brand-marks.js.
+  { name: 'on-running', cell: 'lead', file: 'on-running.jpg' },
+  { name: 'on-kit', cell: 'small' },
+  { name: 'on-athlete', cell: 'small' },
 ];
 
 (async () => {
   fs.mkdirSync(OUT, { recursive: true });
 
-  for (const { name, cell } of SOURCES) {
-    const src = path.join(SRC, `${name}.png`);
-    if (!fs.existsSync(src)) throw new Error(`missing source: ${name}.png`);
+  for (const { name, cell, file } of SOURCES) {
+    const source = file ?? `${name}.png`;
+    const src = path.join(SRC, source);
+    if (!fs.existsSync(src)) throw new Error(`missing source: ${source}`);
 
     const m = await sharp(src).metadata();
     const box = CELL[cell];

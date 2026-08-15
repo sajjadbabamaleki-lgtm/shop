@@ -1604,32 +1604,34 @@ html = html.replace('</body>', HOW_HTML + '</body>');
 // substitutions rather than wait for the real assets, so the layout can be
 // settled now and the content dropped in later.
 const BRANDS = [
-  // **Three of the four tiles carry the brand's own photographs now** —
-  // supplied by the client, three per brand, for this arrangement: «این ۳
-  // تصویر در ۳ کادر اول که نایک هستش بیاد». Nike came first and set the order
-  // for the rest, because the client named which of the three leads: the shoe
-  // on its own, «اون کفش تکی که پشتش نوشته نایک برای تصویر بزرگس». So every
-  // set reads the same way down the tile — the shoe alone in the large cell,
-  // then the kit, then the athlete — and a fourth set dropped in tomorrow
-  // needs no decision made about it.
+  // **Every tile carries the brand's own photographs now** — supplied by the
+  // client, three per brand, for this arrangement: «این ۳ تصویر در ۳ کادر اول
+  // که نایک هستش بیاد». Nike came first and set the order for the rest,
+  // because the client named which of the three leads: the shoe on its own,
+  // «اون کفش تکی که پشتش نوشته نایک برای تصویر بزرگس». So every set reads the
+  // same way down the tile — the shoe alone in the large cell, then the kit,
+  // then the athlete — and a set sent tomorrow needs no decision made about it.
   //
   // They are prepared by theme/make-brand-photos.js, which resizes and does
   // not crop; the cell's `object-fit: cover` does the framing, as it does for
-  // every other photograph on this page.
+  // every other photograph on this page. Nothing here borrows the category
+  // photographs any more — that stand-in, and the client's own call behind it
+  // («از عکس های اون قسمت هشتایی بالای وبسایت استفاده کن»), is finished with.
   //
-  // The fourth tile still borrows the category photographs from the top of the
-  // page — the client's own call («از عکس های اون قسمت هشتایی بالای وبسایت
-  // استفاده کن») from when we held one product photograph per brand and this
-  // shape wanted three. It stops borrowing the way the other three did: three
-  // files into theme/brand-src, three lines in make-brand-photos.js, and
-  // `photos` here instead of lead/a/b.
+  // **The fourth tile is On rather than گلدن گوس**, at the client's
+  // instruction, because the fourth set they sent is On's. That is a change of
+  // which brand the strip *features*, not of the catalogue: On already sells
+  // the daily deal and گلدن گوس still sells its shoe, still appears in the
+  // best-sellers filter and still has its own page. The strip's four are
+  // whichever four `placeholders.brand_strip` names.
   //
-  // The logos are the template's own. brand_5_2 is genuinely the Nike swoosh
-  // and is used where it belongs; the other three are the template's abstract
-  // marks from one family, standing in until real ones arrive. Swap the file
-  // and nothing else has to change. **Three of the tiles now hold photographs
-  // carrying the brand's real mark**, which makes the stand-in on the plate
-  // beside them a good deal more visible than it was.
+  // The logos are still mostly the template's own. brand_5_2 is genuinely the
+  // Nike swoosh, and On's is genuinely On's — lifted off the poster the client
+  // sent by theme/make-brand-marks.js, because that tile shows the real mark
+  // three times over and an abstract shape beside it would read as a mistake.
+  // Jordan's and New Balance's are the template's marks still, and now that
+  // their photographs carry the real ones, the substitution is a good deal
+  // more visible than it used to be. Swap the file and nothing else changes.
   //
   // The counts are invented. There is no inventory behind this page — the
   // Laravel app has the tables, this static page has no data — so they are
@@ -1658,7 +1660,14 @@ const BRANDS = [
       'assets/img/brand/vikyplus-nb-athlete.webp',
     ],
   },
-  { name: 'گلدن گوس',   logo: 'brand_1_3.svg', stock: '۱۹', lead: 'majlesi', a: 'accessory', b: 'sport-set' },
+  {
+    name: 'اون', logo: 'vikyplus-on.png', stock: '۱۹',
+    photos: [
+      'assets/img/brand/vikyplus-on-running.webp',
+      'assets/img/brand/vikyplus-on-kit.webp',
+      'assets/img/brand/vikyplus-on-athlete.webp',
+    ],
+  },
 ];
 
 // A tile's three photographs, whether they are the brand's own or the category

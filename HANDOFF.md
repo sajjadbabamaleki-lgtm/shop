@@ -61,8 +61,8 @@ Three things fall out of the wiring that are worth knowing:
 - **«فقط ۱ عدد باقی مانده» is a count.** It follows `sellable_stock`, and a
   product whose stock reaches zero leaves the sale rather than being offered.
 - **What is invented did not go into the catalogue.** The brand strip's
-  counts, the mosaic photographs of the one brand still borrowing them, and
-  the pairing that puts a shoe's price under a category's photograph are all
+  counts, which four brands it features, and the pairing that puts a shoe's
+  price under a category's photograph are all
   in `config/storefront.php` under `placeholders`. Seeding an invented number into the tables would make it
   indistinguishable from a counted one, which is the whole thing that block
   exists to prevent.
@@ -173,26 +173,44 @@ in it are stand-ins, each chosen by the client rather than waited for, and all
 three live in one array (`BRANDS`) at the top of the brand block in
 `theme/make-rtl-page.js`:
 
-- **the marks** — `brand_5_2.png` is genuinely the Nike swoosh and sits where
-  it belongs; the other three are the template's own abstract marks. The slot
-  is a fixed 30×30 box rather than sized off the artwork, so a real logo drops
-  in without touching the CSS.
-- **the photographs** — **three of the four tiles carry the brand's own now.**
-  The client supplied a set of three per brand for Nike, Jordan and New
-  Balance («این ۳ تصویر در ۳ کادر اول که نایک هستش بیاد») and named which one
-  leads: the shoe on its own, «اون کفش تکی که پشتش نوشته نایک برای تصویر
-  بزرگس». Every set therefore reads the same way down the tile — **shoe, kit,
-  athlete** — so a fourth set needs no decision made about it. Sources live in
+- **the marks** — `brand_5_2.png` is genuinely the Nike swoosh, and On's is
+  genuinely On's: `theme/make-brand-marks.js` lifts it off the poster the
+  client supplied for that tile, cuts it out on a luminance ramp and paints it
+  in the page's ink, because the plate is white glass and a white mark on it
+  is an empty slot. Jordan's and New Balance's are still the template's own
+  abstract marks. The slot is a fixed 36×36 box rather than sized off the
+  artwork, so a real logo drops in without touching the CSS — **and that only
+  became true when On arrived.** `.vp-brand-logo` alone loses on specificity
+  to the template's `img:not([draggable]) { height: auto }`, which is (0,1,1)
+  against a lone class's (0,1,0), so every mark was being sized by its own file
+  the whole time. It never showed because every mark until On's was wider than
+  it was tall. On's is 51×104 and drew 73px tall, across the plate and over the
+  name. The rule is `.vp-brand-plate .vp-brand-logo` now. Same trap as the
+  phone drawer's tile; the note on `.vp-shop-cat img` names it too.
+- **the photographs** — **all four tiles carry the brand's own now, and this
+  part is finished.** The client supplied a set of three per brand («این ۳
+  تصویر در ۳ کادر اول که نایک هستش بیاد») and named which one leads: the shoe
+  on its own, «اون کفش تکی که پشتش نوشته نایک برای تصویر بزرگس». Every set
+  therefore reads the same way down the tile — **shoe, kit, athlete** — so a
+  set sent tomorrow needs no decision made about it. Sources live in
   `theme/brand-src`, `node theme/make-brand-photos.js` builds them into
   `assets/img/brand/vikyplus-*.webp`, and each path is named twice: in
   `BRANDS` for the static page and in `placeholders.brand_strip` for Laravel.
-  The fourth tile still borrows the category photographs from the top of the
-  page and stops the same way the others did — three files into `brand-src`,
-  three lines in `make-brand-photos.js`, `photos` in place of the category
-  slugs in both lists. `HomePageTest` asserts every brand carrying `photos`
-  names all three *and that the files are in `public/`* — the build and the
-  asset sync are two steps outside the application, and a src that points at
-  nothing looks perfectly correct in the markup.
+  `HomePageTest` asserts every brand carrying `photos` names all three *and
+  that the files are in `public/`* — the build and the asset sync are two steps
+  outside the application, and a src that points at nothing looks perfectly
+  correct in the markup.
+
+  **The fourth tile is On, not گلدن گوس.** The client's fourth set was On's, and
+  «کادر چهارم آن رانینگ بشه». That is a change of which brand the strip
+  *features* and nothing else: `placeholders.brand_strip` is the `whereIn` the
+  query runs, so removing گلدن گوس from it takes it off this block while
+  leaving it an active brand with its shoe, its product page, its place in the
+  best-sellers filter and its hero slide. On was already in the catalogue —
+  it sells the daily deal — so nothing was invented to make this work. **Its
+  name on the tile reads «اون»**, which is the spelling the catalogue already
+  uses in «کتونی اون کلادتیلت» on the same page; if the client wants «آن
+  رانینگ» that is the `name` in `CatalogueSeeder::BRANDS` and a re-seed.
 
   The size is computed, not typed: each file is scaled to the smallest size
   that still *covers* its cell, which is the same arithmetic `object-fit`

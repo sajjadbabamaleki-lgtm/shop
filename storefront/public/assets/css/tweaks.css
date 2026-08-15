@@ -4998,8 +4998,25 @@ ul.vp-how-list.is-ticked li:before {
 
 /* Held to a box rather than sized by the file: the marks in here are the
    template's placeholders and the real ones will not share their proportions,
-   so the slot has to be the constant, not the artwork. */
-.vp-brand-logo {
+   so the slot has to be the constant, not the artwork.
+
+   **Two classes, and that is the whole point of the selector.** Written as
+   `.vp-brand-logo` this rule said 36x36 and did not get it: the template
+   resets `img:not([draggable]) { height: auto }`, and `:not()` takes its
+   argument's specificity, so that selector is (0,1,1) against a lone class's
+   (0,1,0) and wins outright — loading tweaks.css last does not save a rule
+   that loses on specificity. Every mark here was being sized by its own
+   artwork the entire time, and it never showed because every mark until now
+   was wider than it is tall: at `width: 36` a wide file lands *under* 36 tall
+   and looks exactly as if the box were holding it.
+
+   On's mark is the first tall one — 51x104 — and at `height: auto` it drew
+   73px tall, twice its slot, straight across the plate and over the name. The
+   same trap, in the same file, that the phone drawer's tile hit; see the note
+   on `.vp-shop-cat img`. Measured after: all four marks 36x36, and the plate's
+   own height is unchanged because the two text lines were always the taller
+   half of that row. */
+.vp-brand-plate .vp-brand-logo {
   flex: 0 0 auto;
   width: 36px;
   height: 36px;

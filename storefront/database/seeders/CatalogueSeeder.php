@@ -60,19 +60,26 @@ class CatalogueSeeder extends Seeder
     ];
 
     /**
-     * The brand strip's four, in the order it reads, and then On — which sells
-     * one of the five shoes but is not one of the four tiles.
+     * The five brands, in the order the strip reads them.
      *
-     * Only the Nike mark is real. The other three are the template's own
+     * Which four the strip *shows* is `placeholders.brand_strip`'s decision,
+     * not this list's — it is گلدن گوس that sits out now, at the client's
+     * instruction, and it keeps its shoe, its page and its place in the
+     * best-sellers filter regardless.
+     *
+     * Two of the marks are real: Nike's swoosh, and On's, which
+     * theme/make-brand-marks.js lifts off the poster the client supplied for
+     * that tile. Jordan's, New Balance's and گلدن گوس's are the template's own
      * abstract marks standing in until real ones arrive, which is why they are
-     * `brand_1_*` files from one family.
+     * `brand_1_*` files from one family. On had no mark at all until now, and
+     * a null here draws a broken image on the plate rather than nothing.
      */
     private const BRANDS = [
         ['nike', 'نایک', 'Nike', 'assets/img/brand/brand_5_2.png'],
         ['jordan', 'جردن', 'Jordan', 'assets/img/brand/brand_1_6.svg'],
         ['new-balance', 'نیوبالانس', 'New Balance', 'assets/img/brand/brand_1_5.svg'],
         ['golden-goose', 'گلدن گوس', 'Golden Goose', 'assets/img/brand/brand_1_3.svg'],
-        ['on', 'اون', 'On', null],
+        ['on', 'اون', 'On', 'assets/img/brand/vikyplus-on.png'],
     ];
 
     /**
