@@ -8307,22 +8307,33 @@ ul.vp-how-list.is-ticked li:before {
    to need stays behind — the same reason the halving took the line box with
    it. */
 @media (max-width: 991.98px) {
+  /* «ضخامت اسم کفش تو هیرو باید نرمال بشه — الان مثلا گلدن گوس اون قسمت گ
+     بالاش به هم چسبیده».
+
+     Two things were making it heavy and only one of them was a font weight.
+     The other was a **painted stroke**: 1.53px of `-webkit-text-stroke` in the
+     type's own colour, added in an earlier round to answer «ضخامتش ده درصد
+     کمتر بشه» while keeping 900 — Cairo is variable and 900 is the top of its
+     axis, so a stroke was the only way left to move the stem at all.
+
+     A stroke is drawn *outward from every edge*, which is what closed the گ.
+     Its sarkesh — the small slanted stroke over the ک — clears the letter's
+     body by a couple of pixels at this size, and 1.53px of ink on both facing
+     edges is more than that gap. The same happens to the ک in «کتونی». It is
+     not a weight problem in the usual sense; nothing about the letterform
+     changed, the ink simply grew into the space between two parts of it.
+
+     So the stroke goes entirely, and the weight comes off the top of the axis
+     to 700 — a heading weight rather than the heaviest one the font has, which
+     is what «نرمال» asks for. Rendered at 4x and read: the sarkesh is clear of
+     the body on «گلدن» and on «گوس», and on the ک of «کتونی».
+
+     Phone only. The desktop title has never carried the stroke — that rule was
+     always inside this media block — and it keeps its 900. */
   .heroSlide6 .hero-inner .hero-title {
     font-size: 30.15px;
     line-height: 33.75px;
-    /* Measured, not guessed, and re-measured for the tenth: the stroke does
-       not scale with the type, so it cannot be left where it was when the size
-       moves. Method is the one that set 1.7 — render at 4x, take every run of
-       ink across every row of the heading, and read the median as the stem.
-
-       At 33.5/900 with 1.7 the stem read 7.50. A tenth off that is 6.75, which
-       is what this is set against: 1.53 lands it on 6.75 exactly. The type
-       coming down a tenth carries most of the way there on its own (the
-       untouched stem falls to about 5.18) and the stroke supplies the rest, so
-       both halves of the client's sentence are in one number. */
-    -webkit-text-stroke-width: 1.53px;
-    -webkit-text-stroke-color: currentColor;
-    paint-order: stroke fill;
+    font-weight: 700;
   }
 }
 
@@ -8384,9 +8395,15 @@ ul.vp-how-list.is-ticked li:before {
      the two margins below it, so the eyebrow, the name and the button rise
      together and the rhythm between them — 15.71 and 18.85, both measured — is
      untouched. The card ends 10px shorter, which is what "higher" means when
-     the thing above is a photograph that is not moving. Phone only. */
+     the thing above is a photograph that is not moving. Phone only.
+
+     And 12.57 became 22.57: «۱۰ پیکسل به ارتفاع هیرو اضافه بشه از پایین دکمه
+     خرید محصول». The ten goes on the *foot* of the same block, so it is air
+     under the button rather than anywhere else, and the card grows by it. The
+     two together leave the copy sitting ten higher than it was inside a card
+     back at the height it started — 436.9 → 426.9 → 436.9. */
   .heroSlide6 .hero-style6 {
-    padding-block: 13.25px 12.57px;
+    padding-block: 13.25px 22.57px;
   }
 
   .heroSlide6 .hero-inner .sub-title {
