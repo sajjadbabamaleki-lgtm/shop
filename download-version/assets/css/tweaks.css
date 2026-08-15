@@ -15915,45 +15915,13 @@ html {
   }
 }
 
-/* 3. THE SUBMIT BUTTON WAS THE OLDEST THING ON THE PAGE.
+/* 3. THE FORM ITSELF — see the block at the end of this file.
 
-   `.vp-filter-apply` is the listing's filter button: 40px tall and filled with
-   a flat `var(--theme-color)`, #A47F25, which is the dark end of the shop's
-   gold used as a solid. Every primary button the client has approved since is
-   the gradient — the hero's «خرید محصول», the drawer's shortcut, the content
-   pages' links — and next to a 50px field a 40px button reads as a leftover.
-
-   So: the field's height, and the page's own gold. Scoped to this page's
-   forms; the listing's filter button is not this button and keeps its own. */
-.vp-signin-pane .vp-cart-go {
-  height: 50px;
-  margin-top: 20px;
-  border-radius: 999px;
-  background: linear-gradient(90deg, #C0972F 0%, #E3B54A 100%);
-  font-size: 15px;
-}
-
-.vp-signin-pane .vp-cart-go:hover {
-  background: linear-gradient(90deg, #C0972F 0%, #E3B54A 100%);
-  filter: brightness(1.04);
-}
-
-/* The tick sits between the last field and that button and had the same 20 on
-   both sides, so it read as a third field rather than as an option on the
-   form. */
-.vp-signin-pane .vp-admin-remember {
-  margin-top: 16px;
-  font-size: 13.5px;
-}
-
-/* The checkout's form gap is 14 and its fields sit inside a page that has a
-   summary beside them. Here the form *is* the page, and with the button now
-   50 tall the 14 read tight against it. 18 between fields, and the 6 inside a
-   field is untouched — a label has to stay nearer its own input than the
-   field above it, or the grouping inverts. */
-.vp-signin-pane {
-  gap: 18px;
-}
+   The first pass at this page raised the submit button and loosened the gaps
+   and left everything else where it was, and the client's answer was that
+   nothing had changed but the button. They were right: a label stacked over an
+   empty rounded box is the dated part, and touching its spacing does not move
+   it. The page is redrawn at the foot of this file. */
 
 /* 4. THE FOOTNOTE READ AS LOOSE TEXT.
 
@@ -15980,4 +15948,239 @@ html {
    control with two states. */
 .vp-signin-tabs label {
   color: #4F5050;
+}
+
+/* --------------------------------------------------------------------------
+   «ورود / ثبت‌نام», redrawn.
+
+   The first pass moved the button's height and the gaps between the fields and
+   left the shape of the page alone — «هیچ تغییری بجز دکمه ندادی». Correct: the
+   thing that read as old was a 24px title over a subtitle over a grey tab slab
+   over four labels each sitting on an empty rounded box. Nothing about that is
+   fixed by spacing.
+
+   What is here instead is the shop's own kit, rearranged:
+
+     the mark in its gold tile — the drawer and the footer both open this way
+     one line of type, not a title and a subtitle
+     a segmented control that reads as a control
+     fields with the glyph inside and the placeholder doing the label's work
+     an eye on the password
+
+   The fourth is the one that does the work. A label above a box costs a line of
+   type and a gap per field and says nothing the placeholder cannot; putting the
+   glyph inside and the name in the placeholder took the login form from 462 to
+   276 tall, which is the whole difference between a form that fills a phone
+   screen and one that sits on it.
+
+   The labels are still in the markup, on `.visually-hidden` — a placeholder is
+   not an accessible name, and a screen reader gets the same page it always did.
+   -------------------------------------------------------------------------- */
+
+.vp-enter-card {
+  max-width: 420px;
+  padding: 30px 24px 26px;
+}
+
+/* --- the head ------------------------------------------------------------- */
+
+.vp-enter-head {
+  margin-bottom: 22px;
+  text-align: center;
+}
+
+/* The mark, so the page opens on the shop rather than on a heading.
+
+   Bare, the way the header and the footer carry it. It sat in a gold-tinted
+   tile first and that was a box inside a box: `vikyplus-appicon.png` is a
+   rounded white square with the mark on it, so a second rounded square behind
+   it drew a white tile inside a gold one. The mark already has its own
+   container — it *is* one. */
+.vp-enter-mark {
+  display: block;
+  width: 58px;
+  margin: 0 auto 14px;
+}
+
+.vp-enter-mark img {
+  display: block;
+  width: 58px;
+  height: 58px;
+}
+
+.vp-enter-title {
+  margin: 0 0 6px;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 1.5;
+}
+
+.vp-enter-say {
+  margin: 0;
+  font-size: 13px;
+  line-height: 2;
+  color: #6E7070;
+}
+
+/* --- the segmented control ------------------------------------------------ */
+
+/* Slimmer than the slab it replaces, and the unchosen half is legible: it was
+   #6E7070 on a light tint, which is what made the strip read as disabled
+   rather than as one of two states. */
+.vp-signin-tabs {
+  margin: 0 0 22px;
+  padding: 4px;
+  border-radius: 999px;
+  gap: 4px;
+}
+
+.vp-signin-tabs label {
+  padding: 10px 0;
+  border-radius: 999px;
+  font-size: 14.5px;
+}
+
+/* --- the fields ----------------------------------------------------------- */
+
+.vp-signin-pane {
+  display: none;
+  flex-direction: column;
+  gap: 12px;
+}
+
+#vp-signin-login:checked ~ .vp-signin-login,
+#vp-signin-register:checked ~ .vp-signin-register {
+  display: flex;
+}
+
+/* One box, three things in it: the glyph, the field, and — on a password — the
+   eye. `grid` rather than padding on the input, so the glyph is placed rather
+   than guessed at, and the field's own hit area still runs the whole width. */
+.vp-inp {
+  position: relative;
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  align-items: center;
+  height: 52px;
+  border-radius: 16px;
+  background: #FFFFFF;
+  box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.12);
+  transition: box-shadow 0.2s ease;
+}
+
+.vp-inp:focus-within {
+  box-shadow: inset 0 0 0 1.5px rgba(164, 127, 37, 0.55);
+}
+
+.vp-inp > i {
+  justify-self: center;
+  font-size: 15px;
+  color: #9A9C9C;
+  transition: color 0.2s ease;
+}
+
+.vp-inp:focus-within > i {
+  color: var(--theme-color);
+}
+
+/* The template's form reset gives every input a height, a border, a background
+   and 45px of padding — all of it now belongs to the box around it. */
+.vp-inp input {
+  width: 100%;
+  height: 100%;
+  padding: 0 0 0 14px;
+  border: 0;
+  background: none;
+  border-radius: 16px;
+  font-size: 15px;
+  color: var(--title-color);
+}
+
+.vp-inp input:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.vp-inp input::placeholder {
+  color: #9A9C9C;
+  font-size: 14px;
+}
+
+/* The eye. A button, so it is reachable from a keyboard, and 44 wide so it is
+   reachable from a thumb. */
+.vp-inp-eye {
+  width: 44px;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #9A9C9C;
+  font-size: 15px;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.vp-inp-eye:hover,
+.vp-inp-eye:focus-visible {
+  color: var(--theme-color);
+}
+
+/* --- the tick, the button, the receipt ------------------------------------ */
+
+.vp-signin-pane .vp-admin-remember {
+  margin: 2px 0 4px;
+  font-size: 13.5px;
+}
+
+/* The page's own gold, at the field's height. `.vp-filter-apply`, which this
+   used to borrow, is the listing's filter button — 40 tall and a flat
+   `var(--theme-color)` — and next to a 52 field it read as a leftover. */
+.vp-enter-go {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 52px;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #C0972F 0%, #E3B54A 100%);
+  color: #FFFFFF;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 700;
+  font-size: 15.5px;
+  cursor: pointer;
+  transition: filter 0.2s ease;
+}
+
+.vp-enter-go:hover {
+  color: #FFFFFF;
+  filter: brightness(1.04);
+}
+
+/* The receipt field is not a fifth thing to fill in — it is the one asked for
+   only when the phone turns out to have bought here before, so it keeps the
+   rule above it and its sentence underneath. */
+.vp-signin-claim {
+  margin-top: 4px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(16, 17, 17, 0.08);
+}
+
+.vp-signin-claim small {
+  display: block;
+  margin-top: 8px;
+  padding-inline: 4px;
+  font-size: 12px;
+  line-height: 1.9;
+  color: #6E7070;
+}
+
+@media (max-width: 575px) {
+  .vp-enter-card {
+    padding: 26px 18px 22px;
+  }
+
+  .vp-enter-title {
+    font-size: 18px;
+  }
 }
