@@ -870,12 +870,14 @@ option:hover {
    the wrong way. The flipped sheet has already turned the template's left into
    a right here, so the right is what to add to.
 
-   41 became 61: «ستاره تخفیف تو هیرو باید ۲۰ پیکسل بیاد چپ». Adding to `right`
-   is what moves it left, which is why the 20 goes on here rather than into a
-   transform — the star inside is already turning on one of its own, and a
-   second on the wrapper is a thing to trip over later. */
+   **This is the desktop's number and only the desktop's.** The 20px the client
+   asked the star to move is a phone instruction — «من فقط نسخه موبایلو گفتم» —
+   and it is applied in the phone block far below, where the star is pinned by
+   `top`/`left` instead. Putting it here moved the desktop and left the phone
+   exactly where it was, because the phone rule sets `right: auto` and this
+   offset never reaches it. */
 .heroSlide6 .discount-wrapp {
-  right: calc(9% + 61px);
+  right: calc(9% + 41px);
   left: auto;
 }
 
@@ -8578,8 +8580,15 @@ ul.vp-how-list.is-ticked li:before {
        going 9 → 13.5 carrying the whole card down 4.5. The circle was drawn
        around a place on the shoe, not a place on the screen, and the star is
        still on it. */
+    /* 220 became 200: «ستاره تخفیف تو هیرو باید ۲۰ پیکسل بیاد چپ», and this is
+       where that 20 belongs. The star is pinned by `left` on a phone, so left
+       is the number to take it off — the desktop's `right: calc(9% + …)` never
+       reaches this rule, which sets `right: auto` three lines down. Measured
+       at 390 against the card rather than against this box's own parent: the
+       star's drawn box, `.discount-tag`, starts 212.0 from the card's left and
+       its centre sits at 254.4, twenty left of the 274.4 it was at. */
     top: 31px;
-    left: 220px;
+    left: 200px;
     right: auto;
     margin: 0;
     z-index: 2;
@@ -15058,6 +15067,15 @@ ul.vp-how-list.is-ticked li:before {
 
 /* «کفش گلدن گوس تو هیرو باید ۳۰ پیکسل بیاد پایینتر — فقط گلدن گوس».
 
+   **On the phone, and nowhere else** — «من فقط نسخه موبایلو گفتم». Written
+   unscoped first, which moved the desktop's shoe as well and, worse, moved the
+   phone's by ten rather than thirty. Both from the same cause: the phone block
+   above already gives every hero shot `transform: translateY(20px)`, and an
+   unscoped rule with an attribute selector outranks it, so the 30 *replaced*
+   the 20 instead of adding to it. Hence 50 here — the phone's own 20 plus the
+   client's 30 — and the whole thing behind the same 991.98 the rest of the
+   phone hero is behind.
+
    One slide out of three, and the deck has nothing on a slide that says which
    product it is: the hero renders six identical `.swiper-slide`s from a loop,
    and the only thing that differs is the photograph's own filename. So that is
@@ -15066,16 +15084,16 @@ ul.vp-how-list.is-ticked li:before {
    by these filenames — so the page has been identifying its slides this way
    since the tinting was built.
 
-   `transform`, not a margin. The shot is centred in a flex box that the card's
-   height is levelled from, so 30px of margin would move the shoe *and* make
-   the card 30px taller on the slides that carry it — which is every third one.
-   A transform moves what is painted and leaves the layout where it was, and
-   the two neighbouring slides keep the height they were measured at.
+   `transform`, not a margin, and that is the phone block's own reasoning
+   quoted: the column is only as tall as what it holds, so a margin would push
+   the card 30px taller on every third slide.
 
    The wrapper's entrance animation is untouched: `data-ani` is on `.hero-img`,
    this is on the `img` inside it, so nothing overwrites anything. */
-.heroSlide6 .hero-img img[src*="goldengoose"] {
-  transform: translateY(30px);
+@media (max-width: 991.98px) {
+  .heroSlide6 .hero-img > img[src*="goldengoose"] {
+    transform: translateY(50px);
+  }
 }
 
 /* Nothing on this site zooms.
