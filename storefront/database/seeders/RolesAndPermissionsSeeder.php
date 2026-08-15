@@ -65,6 +65,11 @@ class RolesAndPermissionsSeeder extends Seeder
         'platform' => [
             'platform.settings.manage' => 'تنظیمات کلی پلتفرم',
             'platform.audit.view' => 'دیدن تاریخچه تغییرات',
+            // The wholesale and franchise enquiries. Its own permission rather
+            // than a borrowed one: the screen is neither the marketplace's nor
+            // a branch's, and lending it either would put somebody's telephone
+            // number in front of whoever happened to hold that.
+            'platform.enquiry.manage' => 'رسیدگی به درخواست‌های عمده و نمایندگی',
         ],
     ];
 
@@ -93,7 +98,7 @@ class RolesAndPermissionsSeeder extends Seeder
                 'branch.settings.manage', 'branch.staff.manage',
                 'vendor.view', 'vendor.manage',
                 'order.view', 'order.manage', 'order.refund',
-                'report.view', 'platform.audit.view',
+                'report.view', 'platform.audit.view', 'platform.enquiry.manage',
             ],
         ],
         Role::MARKETPLACE_MANAGER => [

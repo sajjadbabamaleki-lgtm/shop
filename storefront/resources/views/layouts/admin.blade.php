@@ -62,6 +62,9 @@
             @if (auth()->user()->hasPermissionTo('marketplace.settlement.view'))
                 <a href="{{ route('admin.settlements') }}" @class(['is-on' => request()->routeIs('admin.settlement*')])>تسویه‌ها</a>
             @endif
+            @if (auth()->user()->hasPermissionTo('platform.enquiry.manage'))
+                <a href="{{ route('admin.enquiries') }}" @class(['is-on' => request()->routeIs('admin.enquir*')])>درخواست‌ها</a>
+            @endif
             @if (auth()->user()->hasPermissionTo('marketplace.commission.manage'))
                 <a href="{{ route('admin.commissions') }}" @class(['is-on' => request()->routeIs('admin.commissions*')])>کارمزد</a>
             @endif

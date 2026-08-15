@@ -3,13 +3,16 @@
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\EnquiryController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\PageController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\VendorApplicationController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Middleware\ResolveTenant;
+use App\Models\Enquiry;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -94,6 +97,38 @@ $storefront = function (): void {
     Route::post('/account/logout', [AccountController::class, 'logout'])->name('account.logout');
     Route::get('/account', [AccountController::class, 'index'])
         ->middleware('auth:customer')->name('account');
+
+    /*
+     * The content pages. Fixed paths, one controller, no parameters — the
+     * segment is a route default rather than something a visitor supplies, so
+     * /about is the only way to reach the about page and there is no
+     * /pages/{anything} to walk.
+     *
+     * Registered before the tracking routes for no reason other than reading
+     * order; none of these paths can collide with a branch, because every one
+     * of them is in Branch::RESERVED_SLUGS.
+     */
+    foreach (PageController::PAGES as $path => $name) {
+        Route::get("/{$path}", PageController::class)->defaults('page', $path)->name($name);
+    }
+
+    /*
+     * «فروش عمده» and «اخذ نمایندگی». A page and a form each, one controller,
+     * the kind fixed by the route rather than posted — a `kind` that arrived
+     * in the request body is a franchise application filed as a wholesale
+     * enquiry by anybody who edits a hidden field.
+     *
+     * Both throttled: they are public forms that write a row.
+     */
+    foreach (Enquiry::kinds() as $kind => $label) {
+        Route::get("/{$kind}", [EnquiryController::class, 'show'])
+            ->defaults('kind', $kind)->name($kind);
+
+        Route::post("/{$kind}/enquiry", [EnquiryController::class, 'store'])
+            ->defaults('kind', $kind)
+            ->middleware('throttle:6,60')
+            ->name("{$kind}.send");
+    }
 
     /*
      * «لیست علاقمندی». Saved on the account, so it survives a new phone.

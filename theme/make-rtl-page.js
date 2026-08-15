@@ -64,6 +64,38 @@ html = html.replace(
   '<meta name="keywords" content="کفش زنانه, کیف زنانه, کتانی زنانه, کفش مجلسی, بوت زنانه, ویکی پلاس">'
 );
 
+/*
+ * The page does not zoom.
+ *
+ * «وقتی رو باکس سرچ تو فروشگاه زده میشه تصویر زوم و ناقص میشه» — tapping the
+ * listing's search box on a phone zoomed the page in and cut the shot off at
+ * the edge. That is not our layout: iOS Safari and Android Chrome zoom to any
+ * form field whose text is under 16px, and every field on this site is 14 or
+ * 15 because that is what the design was measured at. The page never zooms
+ * back out on its own afterwards, so the visitor is left looking at a
+ * magnified corner of a card.
+ *
+ * `maximum-scale=1` is what stops that particular zoom, and `user-scalable=no`
+ * answers the rest of the instruction — «هیچ جا نباید تصویر زوم بشه، همه جا ui
+ * و دیزاین قفل بشه». `touch-action: manipulation` in tweaks.css takes the
+ * double-tap zoom with it.
+ *
+ * **The cost, said plainly**: this also takes away pinch-to-zoom, which is how
+ * somebody with poor sight reads a page. It is WCAG 1.4.4, and it is the
+ * client's decision rather than an oversight. Raising every field to 16px
+ * would have fixed the reported symptom without that cost, and would have
+ * changed type sizes across the shop — including the header's, which is not to
+ * be touched. If the two are ever weighed again, that is the other road.
+ */
+html = html.replace(
+  /<meta name="viewport"[^>]*>/i,
+  '<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, shrink-to-fit=no">'
+);
+
+if (!html.includes('user-scalable=no')) {
+  throw new Error('the viewport meta did not take — the template head has moved');
+}
+
 // --- the preloader comes off ------------------------------------------------
 //
 // The template covers the whole page with a white curtain and lifts it in
@@ -2326,17 +2358,21 @@ html = html.replace(
 // colours. Three are certain — WhatsApp, Telegram, Instagram. The second is a
 // multi-coloured mark this cannot identify with confidence; it is drawn as a
 // neutral one and its link is `#` until the client says which service it is.
+//
+// Four of the twelve links below named `course.html` or `contact.html` — the
+// template's filenames for pages this shop did not have — and so resolved to
+// '#' through page_url(). The content pages exist now, and these name them.
 const FOOT_COLS = [
   ['لینک\u200cها', [
     ['shop.html', 'فروشگاه'],
     ['about.html', 'درباره ما'],
     ['contact.html', 'ارتباط با ما'],
-    ['course.html', 'راهنمای سایز'],
+    ['size-guide.html', 'راهنمای سایز'],
   ]],
   ['خدمات', [
-    ['course.html', 'حریم خصوصی'],
-    ['course.html', 'قوانین و مقررات'],
-    ['contact.html', 'سوالات متداول'],
+    ['privacy.html', 'حریم خصوصی'],
+    ['terms.html', 'قوانین و مقررات'],
+    ['faq.html', 'سوالات متداول'],
     ['shop.html', 'حراج پله\u200cای'],
   ]],
   ['دسته\u200cها', [
@@ -2413,29 +2449,150 @@ if (!html.includes('vp-foot-m-head')) {
   ['<h3 class="widget_title">Customer Support</h3>', '<h3 class="widget_title">پشتیبانی</h3>'],
   ['<h3 class="widget_title">فروشگاه on The Go</h3>', '<h3 class="widget_title">ویکی پلاس روی موبایل</h3>'],
   ['<a href="contact.html">Become a Vendor</a>', '<a href="vendor-register.html">فروشنده شوید</a>'],
-  ['<a href="contact.html">Affiliate Program</a>', '<a href="contact.html">همکاری در فروش</a>'],
-  ['<a href="course.html">Privacy Policy</a>', '<a href="course.html">حریم خصوصی</a>'],
-  ['<a href="course.html">Our Suppliers</a>', '<a href="course.html">تأمین‌کنندگان</a>'],
-  ['<a href="contact.html">Extended Plan</a>', '<a href="contact.html">خدمات پس از فروش</a>'],
-  ['<a href="contact.html">Community</a>', '<a href="contact.html">درباره ما</a>'],
-  ['<a href="contact.html">Help Center</a>', '<a href="contact.html">راهنما</a>'],
+  /*
+   * «همکاری در فروش» named an affiliate programme this shop does not have and
+   * pointed at contact.html. The slot goes to «فروش عمده», which the shop
+   * *does* offer — the front page's trust row has advertised «خرید تکی و
+   * عمده» since the template was dressed, and until now there was no page
+   * behind it anywhere on the site.
+   */
+  ['<a href="contact.html">Affiliate Program</a>', '<a href="wholesale.html">فروش عمده</a>'],
+  ['<a href="course.html">Privacy Policy</a>', '<a href="privacy.html">حریم خصوصی</a>'],
+  /*
+   * «تأمین‌کنندگان» was pointed at «فروشنده شوید» — near enough to look right
+   * and not the page anybody was after. The slot goes to «اخذ نمایندگی»,
+   * which had no link anywhere on the site: the branch network is the largest
+   * thing in this application and a prospective franchisee had the telephone
+   * number and nothing else.
+   */
+  ['<a href="course.html">Our Suppliers</a>', '<a href="franchise.html">اخذ نمایندگی</a>'],
+  // After-sales, help and buying online are all questions the FAQ answers —
+  // the exchange window, the payment method, the delivery charge. They shared
+  // contact.html because until now there was nowhere else for them to go.
+  ['<a href="contact.html">Extended Plan</a>', '<a href="faq.html">خدمات پس از فروش</a>'],
+  ['<a href="contact.html">Community</a>', '<a href="about.html">درباره ما</a>'],
+  ['<a href="contact.html">Help Center</a>', '<a href="faq.html">راهنما</a>'],
   ['<a href="contact.html">Report Abuse</a>', '<a href="contact.html">گزارش تخلف</a>'],
   ['<a href="contact.html">Submit and Dispute</a>', '<a href="contact.html">ثبت شکایت</a>'],
-  ['<a href="contact.html">Policies & Rules</a>', '<a href="contact.html">قوانین</a>'],
-  ['<a href="contact.html">Online فروشگاهping</a>', '<a href="contact.html">خرید اینترنتی</a>'],
+  ['<a href="contact.html">Policies & Rules</a>', '<a href="terms.html">قوانین</a>'],
+  ['<a href="contact.html">Online فروشگاهping</a>', '<a href="faq.html">خرید اینترنتی</a>'],
   // The real tracking page, not contact.html. The top bar carried the only
   // other link to it and the top bar is gone.
   ['<a href="contact.html">Order History</a>', '<a href="order-tracking.html">سفارش‌های من</a>'],
   ['<a href="course.html">فروشگاهing سبد خرید</a>', '<a href="cart.html">سبد خرید</a>'],
-  ['<a href="course.html">Compare</a>', '<a href="course.html">مقایسه</a>'],
+  /*
+   * «مقایسه» and «علاقه‌مندی‌ها» named two features this shop does not have —
+   * no compare, no wishlist, no table behind either — and both went to '#'.
+   * Pointing them at a page that exists would be worse than the dead link:
+   * a footer item called «مقایسه» that lands on the size guide is a wrong
+   * answer rather than no answer.
+   *
+   * So the two slots keep their place in the column and say something the
+   * shop can actually do. Put the old labels back the day the features are
+   * built — the slots are here, and `wishlist.html` is a filename
+   * config/storefront.php can be given in one line.
+   */
+  ['<a href="course.html">Compare</a>', '<a href="faq.html">تعویض و مرجوعی</a>'],
   ['<a href="contact.html">Help Ticket</a>', '<a href="contact.html">پشتیبانی</a>'],
-  ['From App Store or Google Play App is available. Get it now', 'اپلیکیشن ویکی پلاس به‌زودی روی کافه‌بازار و اپ‌استور.'],
+  /*
+   * These two are matched in Persian, not English: DICT (line ~1362) has
+   * already translated «My Account» and «Wishlist» by the time this list runs,
+   * which is also why «Online Shopping» reads «Online فروشگاهping» above.
+   *
+   * The account link is the plainest of the twenty-one that went nowhere: the
+   * shop has had customer accounts since `AccountController`, and the footer
+   * item named after them pointed at contact.html.
+   *
+   * The wishlist slot goes the way «مقایسه» did — a real destination under a
+   * label the shop can honour, until there is a wishlist to point it at.
+   */
+  ['<a href="contact.html">حساب کاربری</a>', '<a href="my-account.html">حساب کاربری</a>'],
+  ['<a href="contact.html">علاقه‌مندی‌ها</a>', '<a href="size-guide.html">راهنمای سایز</a>'],
+  /*
+   * «ویکی پلاس روی موبایل», rewritten to describe something that exists.
+   *
+   * There is no application. The line promised one on Cafe Bazaar and the App
+   * Store, under two store badges linking to apple.com and play.google.com —
+   * the template's own, pointing at the shops' front doors rather than at
+   * anything of ours. «بجای کافه بازار روش اد هوم اسکرینو بزن»: the answer is
+   * Add to Home Screen, which this site can actually do today. `head.blade.php`
+   * links a `manifest.json` (theme/make-favicons.js writes it) with the shop's
+   * mark and name in it, so a phone that adds this page gets the icon and the
+   * title rather than a screenshot of a browser tab.
+   *
+   * **The two store badges go with the sentence.** They are one message, and
+   * leaving them under a line that says "add it from your browser" would say
+   * both things at once — which is the state the footer was just taken out of.
+   * They are one entry to put back if the shop ever ships an application.
+   */
+  ['From App Store or Google Play App is available. Get it now', 'برای دسترسی سریع‌تر، ویکی پلاس را از منوی مرورگرتان به صفحه اصلی گوشی اضافه کنید.'],
+  [
+    '<div class="download-btn-wrap style2 d-flex">\n' +
+    '                                        <div class="">\n' +
+    '                                            <a target="_blank" href="https://www.apple.com/store" class="download-btn">\n' +
+    '                                                <img src="assets/img/normal/app.png" alt="">\n' +
+    '                                            </a>\n' +
+    '                                        </div>\n' +
+    '                                        <div>\n' +
+    '                                            <a target="_blank" href="https://play.google.com/" class="download-btn">\n' +
+    '                                                <img src="assets/img/normal/play.png" alt="">\n' +
+    '                                            </a>\n' +
+    '                                        </div>\n' +
+    '                                    </div>\n' +
+    '                                    ',
+    '',
+  ],
+  /*
+   * The social row, down to the two the shop is on.
+   *
+   * «این موارد اضافی شبکه های اجتماعی حذف بشه» — Facebook, Twitter and
+   * LinkedIn come off. All five were the template's, and all five pointed at
+   * the *service's* home page rather than at an account of ours, which is why
+   * three of them could sit there for the whole port without anybody noticing
+   * they were not links to anything.
+   *
+   * WhatsApp is repointed while it is being kept: the shop's own number, the
+   * one behind the floating button on every page and on the contact page.
+   * Instagram is left where the template put it — we still have no handle for
+   * it, and that is the one thing here still waiting on the client.
+   */
+  ['<a href="https://www.facebook.com/"><i class="fab fa-facebook-f"></i></a>\n                                        ', ''],
+  ['<a href="https://www.twitter.com/"><i class="fab fa-twitter"></i></a>\n                                        ', ''],
+  ['<a href="https://www.linkedin.com/"><i class="fab fa-linkedin-in"></i></a>\n                                        ', ''],
+  ['<a href="https://www.whatsapp.com/">', '<a href="https://wa.me/989918905993" target="_blank" rel="noopener" aria-label="واتساپ">'],
 ].forEach(([from, to]) => {
   if (!html.includes(from)) {
     throw new Error(`the footer no longer contains ${from.slice(0, 40)} — check before assuming it is gone`);
   }
   html = html.split(from).join(to);
 });
+
+/*
+ * The hero's buy button says «خرید محصول».
+ *
+ * Not through DICT: its «Shop Now» becomes «خرید کنید» and that word is on the
+ * offer banner's two buttons as well, which were not asked about. The six hero
+ * buttons are told apart by the `btn-group` wrapper the offer banner's do not
+ * have — matched with the whole opening tag rather than by the label alone, so
+ * this cannot start catching them if the template's markup shifts.
+ *
+ * Six, because the deck runs three products twice.
+ */
+{
+  const heroButton = '<div class="btn-group" data-ani="slideinup" data-ani-delay="0.7s">' +
+    '<a href="shop.html" class="th-btn th-icon">خرید کنید</a>';
+
+  const heroButtons = html.split(heroButton).length - 1;
+
+  if (heroButtons !== 6) {
+    throw new Error(`expected the hero's six buy buttons, found ${heroButtons} — check before renaming them`);
+  }
+
+  html = html.split(heroButton).join(
+    '<div class="btn-group" data-ani="slideinup" data-ani-delay="0.7s">' +
+    '<a href="shop.html" class="th-btn th-icon">خرید محصول</a>'
+  );
+}
 
 // The basket's badge starts at nothing. It was the template's «5» — a number
 // that never moved however full the basket was, which is worse than no number

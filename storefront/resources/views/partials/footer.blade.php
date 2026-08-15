@@ -24,15 +24,15 @@
                             <li><a href="{{ page_url('shop.html') }}">فروشگاه</a></li>
                             <li><a href="{{ page_url('about.html') }}">درباره ما</a></li>
                             <li><a href="{{ page_url('contact.html') }}">ارتباط با ما</a></li>
-                            <li><a href="{{ page_url('course.html') }}">راهنمای سایز</a></li>
+                            <li><a href="{{ page_url('size-guide.html') }}">راهنمای سایز</a></li>
                         </ul>
                     </div>
                     <div class="vp-foot-m-col">
                         <h3 class="vp-foot-m-col-title"><span class="vp-foot-m-rule" aria-hidden="true"></span>خدمات<span class="vp-foot-m-rule" aria-hidden="true"></span></h3>
                         <ul>
-                            <li><a href="{{ page_url('course.html') }}">حریم خصوصی</a></li>
-                            <li><a href="{{ page_url('course.html') }}">قوانین و مقررات</a></li>
-                            <li><a href="{{ page_url('contact.html') }}">سوالات متداول</a></li>
+                            <li><a href="{{ page_url('privacy.html') }}">حریم خصوصی</a></li>
+                            <li><a href="{{ page_url('terms.html') }}">قوانین و مقررات</a></li>
+                            <li><a href="{{ page_url('faq.html') }}">سوالات متداول</a></li>
                             <li><a href="{{ page_url('shop.html') }}">حراج پله‌ای</a></li>
                         </ul>
                     </div>
@@ -68,11 +68,11 @@
                                 <div class="menu-all-pages-container">
                                     <ul class="menu">
                                         <li><a href="{{ page_url('vendor-register.html') }}">فروشنده شوید</a></li>
-                                        <li><a href="{{ page_url('contact.html') }}">همکاری در فروش</a></li>
-                                        <li><a href="{{ page_url('course.html') }}">حریم خصوصی</a></li>
-                                        <li><a href="{{ page_url('course.html') }}">تأمین‌کنندگان</a></li>
-                                        <li><a href="{{ page_url('contact.html') }}">خدمات پس از فروش</a></li>
-                                        <li><a href="{{ page_url('contact.html') }}">درباره ما</a></li>
+                                        <li><a href="{{ page_url('wholesale.html') }}">فروش عمده</a></li>
+                                        <li><a href="{{ page_url('privacy.html') }}">حریم خصوصی</a></li>
+                                        <li><a href="{{ page_url('franchise.html') }}">اخذ نمایندگی</a></li>
+                                        <li><a href="{{ page_url('faq.html') }}">خدمات پس از فروش</a></li>
+                                        <li><a href="{{ page_url('about.html') }}">درباره ما</a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -82,12 +82,12 @@
                                 <h3 class="widget_title">پشتیبانی</h3>
                                 <div class="menu-all-pages-container">
                                     <ul class="menu">
-                                        <li><a href="{{ page_url('contact.html') }}">راهنما</a></li>
+                                        <li><a href="{{ page_url('faq.html') }}">راهنما</a></li>
                                         <li><a href="{{ page_url('contact.html') }}">تماس با ما</a></li>
                                         <li><a href="{{ page_url('contact.html') }}">گزارش تخلف</a></li>
                                         <li><a href="{{ page_url('contact.html') }}">ثبت شکایت</a></li>
-                                        <li><a href="{{ page_url('contact.html') }}">قوانین</a></li>
-                                        <li><a href="{{ page_url('contact.html') }}">خرید اینترنتی</a></li>
+                                        <li><a href="{{ page_url('terms.html') }}">قوانین</a></li>
+                                        <li><a href="{{ page_url('faq.html') }}">خرید اینترنتی</a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -97,12 +97,12 @@
                                 <h3 class="widget_title">حساب کاربری</h3>
                                 <div class="menu-all-pages-container">
                                     <ul class="menu">
-                                        <li><a href="{{ page_url('contact.html') }}">حساب کاربری</a></li>
+                                        <li><a href="{{ page_url('my-account.html') }}">حساب کاربری</a></li>
                                         <li><a href="{{ page_url('order-tracking.html') }}">سفارش‌های من</a></li>
                                         <li><a href="{{ page_url('cart.html') }}">سبد خرید</a></li>
-                                        <li><a href="{{ page_url('course.html') }}">مقایسه</a></li>
+                                        <li><a href="{{ page_url('faq.html') }}">تعویض و مرجوعی</a></li>
                                         <li><a href="{{ page_url('contact.html') }}">پشتیبانی</a></li>
-                                        <li><a href="{{ page_url('contact.html') }}">علاقه‌مندی‌ها</a></li>
+                                        <li><a href="{{ page_url('size-guide.html') }}">راهنمای سایز</a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -111,25 +111,10 @@
                             <div class="widget footer-widget">
                                 <h3 class="widget_title">ویکی پلاس روی موبایل</h3>
                                 <div class="widget-content2">
-                                    <p class="title mb-20">اپلیکیشن ویکی پلاس به‌زودی روی کافه‌بازار و اپ‌استور.</p>
-                                    <div class="download-btn-wrap style2 d-flex">
-                                        <div class="">
-                                            <a target="_blank" href="https://www.apple.com/store" class="download-btn">
-                                                <img src="{{ asset('assets/img/normal/app.png') }}" alt="">
-                                            </a>
-                                        </div>
-                                        <div>
-                                            <a target="_blank" href="https://play.google.com/" class="download-btn">
-                                                <img src="{{ asset('assets/img/normal/play.png') }}" alt="">
-                                            </a>
-                                        </div>
-                                    </div>
+                                    <p class="title mb-20">برای دسترسی سریع‌تر، ویکی پلاس را از منوی مرورگرتان به صفحه اصلی گوشی اضافه کنید.</p>
                                     <div class="th-social style2 mt-40">
-                                        <a href="https://www.facebook.com/"><i class="fab fa-facebook-f"></i></a>
-                                        <a href="https://www.twitter.com/"><i class="fab fa-twitter"></i></a>
                                         <a href="https://www.instagram.com/"><i class="fab fa-instagram"></i></a>
-                                        <a href="https://www.linkedin.com/"><i class="fab fa-linkedin-in"></i></a>
-                                        <a href="https://www.whatsapp.com/"><i class="fab fa-whatsapp"></i></a>
+                                        <a href="https://wa.me/989918905993" target="_blank" rel="noopener" aria-label="واتساپ"><i class="fab fa-whatsapp"></i></a>
                                     </div>
                                 </div>
                             </div>

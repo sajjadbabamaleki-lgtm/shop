@@ -868,7 +868,14 @@ option:hover {
    this element computes direction: ltr whatever the page does, so the logical
    start is its left and setting that sends it the wrong way — measured, 160px
    the wrong way. The flipped sheet has already turned the template's left into
-   a right here, so the right is what to add to. */
+   a right here, so the right is what to add to.
+
+   **This is the desktop's number and only the desktop's.** The 20px the client
+   asked the star to move is a phone instruction — «من فقط نسخه موبایلو گفتم» —
+   and it is applied in the phone block far below, where the star is pinned by
+   `top`/`left` instead. Putting it here moved the desktop and left the phone
+   exactly where it was, because the phone rule sets `right: auto` and this
+   offset never reaches it. */
 .heroSlide6 .discount-wrapp {
   right: calc(9% + 41px);
   left: auto;
@@ -8372,8 +8379,14 @@ ul.vp-how-list.is-ticked li:before {
    gap 40, the name 67/75 with no stroke and the padding 94 at all four, as
    they were. */
 @media (max-width: 991.98px) {
+  /* 23.25 became 13.25: «اسم کفش و دکمه خرید کنید باید باهم ۱۰ پیکسل برن
+     بالاتر». The ten comes off the block's own top padding rather than out of
+     the two margins below it, so the eyebrow, the name and the button rise
+     together and the rhythm between them — 15.71 and 18.85, both measured — is
+     untouched. The card ends 10px shorter, which is what "higher" means when
+     the thing above is a photograph that is not moving. Phone only. */
   .heroSlide6 .hero-style6 {
-    padding-block: 23.25px 12.57px;
+    padding-block: 13.25px 12.57px;
   }
 
   .heroSlide6 .hero-inner .sub-title {
@@ -8382,6 +8395,21 @@ ul.vp-how-list.is-ticked li:before {
 
   .heroSlide6 .hero-inner .hero-title {
     margin-bottom: 18.85px;
+  }
+
+  /* «اون فلش هم در نسخه موبایل حذف بشه». The arrow is the template's
+     `.th-icon::after`, a mask of arrow-right.svg — the rule far above flips it
+     with scaleX so it faces the shoe. On a phone it comes off entirely.
+
+     `content: none` rather than `display: none`, because the button is a flex
+     row with a 6.4px gap: a box that is `display: none` is not a flex item and
+     leaves no gap, but a pseudo-element with no content is not generated at
+     all, which is the same thing said once. The label is then the button's
+     only child and centres on its own.
+
+     The desktop keeps its arrow — this is inside the phone block on purpose. */
+  .heroSlide6 .hero-inner .th-btn.th-icon::after {
+    content: none;
   }
 }
 
@@ -8573,8 +8601,15 @@ ul.vp-how-list.is-ticked li:before {
        going 9 → 13.5 carrying the whole card down 4.5. The circle was drawn
        around a place on the shoe, not a place on the screen, and the star is
        still on it. */
+    /* 220 became 200: «ستاره تخفیف تو هیرو باید ۲۰ پیکسل بیاد چپ», and this is
+       where that 20 belongs. The star is pinned by `left` on a phone, so left
+       is the number to take it off — the desktop's `right: calc(9% + …)` never
+       reaches this rule, which sets `right: auto` three lines down. Measured
+       at 390 against the card rather than against this box's own parent: the
+       star's drawn box, `.discount-tag`, starts 212.0 from the card's left and
+       its centre sits at 254.4, twenty left of the 274.4 it was at. */
     top: 31px;
-    left: 220px;
+    left: 200px;
     right: auto;
     margin: 0;
     z-index: 2;
@@ -15162,4 +15197,570 @@ ul.vp-how-list.is-ticked li:before {
     height: 26px;
     font-size: 13px;
   }
+}
+
+/* --------------------------------------------------------------------------
+   The content pages, and the pages an error lands on.
+
+   «درباره ما», «تماس با ما», «راهنمای سایز», «سوالات متداول», «قوانین و
+   مقررات» و «حریم خصوصی» — the six pages the footer has been linking to since
+   the template arrived, and which sent 21 of its 47 links to '#'.
+
+   Nothing new is drawn here. The pane is `.vp-shop-panel`, which is
+   `.vp-best-panel`'s pane quoted; the buttons are the listing's
+   `.vp-filter-apply`; the type sizes are the ones already on the shop pages.
+   What this block adds is the one thing those pages have never needed — a
+   measure for running prose. 68 characters is where a line of Persian text
+   stops being comfortable to track back from, so the column is capped rather
+   than run to the full width of a 1920 pane.
+
+   **`vp-doc`, not `vp-page`.** `.vp-page` was the obvious name and it is
+   already taken: it is *one link in the paginator*, at line 5587, and it
+   carries `display: grid; height: 38px`. A panel wearing it came out 64px
+   tall — its padding and nothing else — with every paragraph, the whole size
+   table and the buttons spilling out of the bottom and the footer drawn over
+   the top of them. Nothing in the markup looked wrong, and the CSS that did
+   it was 9,000 lines away. Check a class name against this file before
+   choosing it.
+   -------------------------------------------------------------------------- */
+
+.vp-doc {
+  max-width: 820px;
+  margin-inline: auto;
+  padding: 32px;
+}
+
+.vp-doc .vp-shop-title {
+  margin-bottom: 18px;
+}
+
+/* The opening paragraph, a step up from the body and a step down from the
+   title — the same relationship `.vp-shop-count` has to its heading. */
+.vp-doc-lead {
+  margin: 0 0 28px;
+  font-size: 16px;
+  line-height: 2.1;
+}
+
+.vp-doc h2 {
+  margin: 32px 0 10px;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 1.6;
+}
+
+.vp-doc p {
+  margin: 0 0 14px;
+  font-size: 15px;
+  line-height: 2.2;
+}
+
+.vp-doc a:not(.vp-doc-link):not(.vp-logo) {
+  color: #6E5416;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
+}
+
+.vp-doc a:not(.vp-doc-link):not(.vp-logo):hover {
+  color: var(--theme-color);
+}
+
+.vp-doc-list,
+.vp-doc-steps {
+  margin: 0 0 16px;
+  padding-inline-start: 22px;
+  font-size: 15px;
+  line-height: 2.2;
+}
+
+.vp-doc-list li,
+.vp-doc-steps li {
+  margin-bottom: 6px;
+}
+
+/* A step of the measuring instructions, numbered by the list itself so the
+   numbers cannot fall out of step with the steps. */
+.vp-doc-steps {
+  padding-inline-start: 20px;
+}
+
+.vp-doc-steps::marker {
+  font-weight: 700;
+}
+
+/* The two quiet blocks: a tip somebody should read twice, and a caveat under
+   a table. Same tint as `.vp-note`, which is the page's own way of saying
+   "this is an aside" — a second one would be a second vocabulary. */
+.vp-doc-tip,
+.vp-doc-note {
+  margin: 0 0 16px;
+  padding: 14px 18px;
+  border-radius: 18px;
+  background: rgba(16, 17, 17, 0.04);
+  font-size: 14px;
+  line-height: 2.1;
+}
+
+.vp-doc-note {
+  background: rgba(164, 127, 37, 0.1);
+  color: #6E5416;
+}
+
+/* --- the size chart ------------------------------------------------------- */
+
+/* The wrapper scrolls, not the page. Four columns of Persian numerals fit a
+   375 screen at this size, but a longer heading must never be what puts a
+   sideways scrollbar on the document — check-overflow.js fails the build for
+   that, and it is right to. */
+.vp-doc-table {
+  margin: 0 0 16px;
+  overflow-x: auto;
+}
+
+.vp-doc-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+
+.vp-doc-table th,
+.vp-doc-table td {
+  padding: 12px 10px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.vp-doc-table thead th {
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 700;
+  font-size: 14px;
+  box-shadow: inset 0 -1.4px 0 rgba(16, 17, 17, 0.12);
+}
+
+.vp-doc-table tbody tr + tr th,
+.vp-doc-table tbody tr + tr td {
+  box-shadow: inset 0 1px 0 rgba(16, 17, 17, 0.07);
+}
+
+/* The EU column is the answer somebody came for, so it is the one that is
+   set. */
+.vp-doc-table tbody th {
+  font-weight: 700;
+  font-size: 16px;
+}
+
+/* --- the questions -------------------------------------------------------- */
+
+/* `<details>`, not the template's accordion: no script to load, it opens with
+   the keyboard, and find-in-page can see inside a closed one. */
+.vp-faq details {
+  padding: 4px 0;
+  box-shadow: inset 0 -1px 0 rgba(16, 17, 17, 0.09);
+}
+
+.vp-faq details:last-child {
+  box-shadow: none;
+}
+
+.vp-faq summary {
+  position: relative;
+  padding: 16px 0 16px 34px;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 1.8;
+  cursor: pointer;
+  list-style: none;
+}
+
+.vp-faq summary::-webkit-details-marker {
+  display: none;
+}
+
+/* The chevron sits at the *left* of the row on an RTL page, which is where
+   the eye ends the line. It turns rather than being swapped for a minus, so
+   the open and closed states are one mark and not two. */
+.vp-faq summary::after {
+  content: '';
+  position: absolute;
+  inset-inline-start: 6px;
+  inset-block-start: 22px;
+  width: 8px;
+  height: 8px;
+  border-inline-end: 1.8px solid rgba(16, 17, 17, 0.45);
+  border-block-end: 1.8px solid rgba(16, 17, 17, 0.45);
+  transform: rotate(45deg);
+  transition: transform 0.18s ease;
+}
+
+.vp-faq details[open] summary::after {
+  transform: rotate(-135deg);
+  inset-block-start: 25px;
+}
+
+.vp-faq summary:hover {
+  color: #6E5416;
+}
+
+.vp-faq details p {
+  margin: 0 0 14px;
+  padding-inline-end: 2px;
+  font-size: 15px;
+}
+
+/* --- how to reach the shop ------------------------------------------------ */
+
+.vp-contact-list {
+  margin: 0 0 8px;
+  padding: 0;
+  list-style: none;
+}
+
+.vp-contact-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px 0;
+  box-shadow: inset 0 -1px 0 rgba(16, 17, 17, 0.09);
+}
+
+.vp-contact-list li:last-child {
+  box-shadow: none;
+}
+
+.vp-contact-mark {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  background: rgba(164, 127, 37, 0.12);
+  color: #6E5416;
+  font-size: 16px;
+}
+
+.vp-contact-mark.is-whatsapp {
+  background: rgba(37, 211, 102, 0.14);
+  color: #1B8F49;
+}
+
+.vp-contact-what {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 15px;
+  line-height: 2;
+}
+
+.vp-contact-what b {
+  font-family: 'Cairo', var(--title-font);
+  font-size: 14px;
+  opacity: 0.65;
+  font-weight: 600;
+}
+
+/* A telephone number is read left-to-right whatever the page's direction, and
+   an RTL page will otherwise put the dashes in the wrong places.
+
+   `align-self` with it, and not as an afterthought: the row is a column flex,
+   so the anchor stretches the full width, and an `ltr` box that wide starts
+   its text at the *left* edge — the number ended up adrift from the label
+   sitting right above it. Shrinking the box to its content puts it back under
+   the label's own edge. */
+.vp-contact-what a[href^='tel'],
+.vp-contact-what a[href*='wa.me'] {
+  align-self: flex-start;
+  direction: ltr;
+  unicode-bidi: isolate;
+  font-size: 17px;
+}
+
+.vp-contact-what small {
+  font-size: 13px;
+  opacity: 0.6;
+}
+
+/* --- the way on ----------------------------------------------------------- */
+
+.vp-doc-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.vp-doc-link {
+  display: inline-grid;
+  place-items: center;
+  min-width: 160px;
+  height: 44px;
+  padding-inline: 22px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #C0972F 0%, #E3B54A 100%);
+  color: #FFFFFF;
+  font-size: 15px;
+}
+
+.vp-doc-link:hover {
+  color: #FFFFFF;
+  filter: brightness(1.04);
+}
+
+/* The second way out is an outline, not a second gold pill: two filled
+   buttons side by side is two first choices. */
+.vp-doc-link.is-quiet {
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.16);
+  color: #101111;
+}
+
+.vp-doc-link.is-quiet:hover {
+  background: rgba(16, 17, 17, 0.04);
+  color: #101111;
+}
+
+.vp-legal-date {
+  margin-top: 28px;
+  padding-top: 16px;
+  box-shadow: inset 0 1px 0 rgba(16, 17, 17, 0.1);
+  font-size: 13px;
+  opacity: 0.65;
+}
+
+/* --------------------------------------------------------------------------
+   The error pages.
+
+   404, 403, 419, 429, 500 and 503, all one card in the middle of the screen.
+   They are drawn on their own shell — `layouts/error.blade.php` — because the
+   storefront's shell asks the database three questions before it draws
+   anything, and the whole job of these pages is to work when it cannot. So
+   there is no header and no footer here, and the card carries the mark and the
+   ways back itself.
+   -------------------------------------------------------------------------- */
+
+.vp-error {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 40px 20px;
+}
+
+.vp-error-card {
+  width: 100%;
+  max-width: 520px;
+  padding: 40px 32px;
+  border-radius: 50px;
+  background: #FFFFFF;
+  box-shadow:
+    inset 0 0 0 1.5px rgba(16, 17, 17, 0.12),
+    0 18px 32px -22px rgba(16, 17, 17, 0.18);
+  text-align: center;
+}
+
+.vp-error-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.vp-error-logo img {
+  width: 46px;
+  height: 46px;
+}
+
+/* The number, drawn as the ghost behind the sentence rather than as the
+   headline. «۴۰۴» is not what somebody needs to read first, but it is what
+   they will quote on the telephone. */
+.vp-error-code {
+  margin: 0;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 700;
+  font-size: 64px;
+  line-height: 1;
+  color: rgba(16, 17, 17, 0.1);
+}
+
+.vp-error-title {
+  margin: 6px 0 12px;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 700;
+  font-size: 22px;
+  line-height: 1.6;
+}
+
+.vp-error-say {
+  margin: 0 0 26px;
+  font-size: 15px;
+  line-height: 2.1;
+}
+
+.vp-error-say a {
+  direction: ltr;
+  unicode-bidi: isolate;
+  color: #6E5416;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.vp-error-ways {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.vp-error-ways .vp-doc-link {
+  min-width: 140px;
+}
+
+.vp-error-help {
+  margin: 24px 0 0;
+  font-size: 13px;
+  opacity: 0.7;
+}
+
+.vp-error-help a {
+  color: #6E5416;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+@media (max-width: 575.98px) {
+  .vp-doc {
+    padding: 22px 18px;
+    border-radius: 32px;
+  }
+
+  .vp-doc-lead {
+    font-size: 15px;
+  }
+
+  .vp-doc-links .vp-doc-link {
+    flex: 1 1 100%;
+  }
+
+  .vp-error-card {
+    padding: 32px 22px;
+    border-radius: 34px;
+  }
+
+  .vp-error-code {
+    font-size: 52px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   «فروش عمده» and «اخذ نمایندگی», and the panel screen that reads them.
+
+   The two things the shop had been advertising with nowhere to say yes: the
+   trust row on the front page has offered «خرید تکی و عمده» since the template
+   was dressed, and the branch network — the largest thing in this application
+   — had no way in from outside at all.
+
+   Both pages are `.vp-doc`, so nothing here restyles them. What this adds is
+   the form on the end of each, which is the checkout's own fields with the
+   measure they need, and two columns in the panel's table.
+   -------------------------------------------------------------------------- */
+
+/* The checkout's form is built for a page with a summary beside it, so its
+   fields stop at that column's width. Here the panel *is* the measure, and a
+   name field ending two-thirds of the way across a paragraph that runs the
+   full width reads as a mistake. */
+.vp-enquiry {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.vp-enquiry .vp-field.is-wide {
+  grid-column: 1 / -1;
+}
+
+.vp-enquiry textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+/* --- the panel's table ---------------------------------------------------- */
+
+/* What somebody typed. `.is-wide` puts `white-space: nowrap` on every cell so
+   the table keeps its columns; a sentence is the one cell that must not obey
+   it, or a paragraph becomes a column two metres wide. */
+.vp-admin-table .vp-admin-said {
+  max-width: 320px;
+  white-space: normal;
+  line-height: 1.9;
+}
+
+/* A telephone number is read left-to-right whatever the page's direction. It
+   is the only thing on this screen somebody is going to act on, so it is a
+   link rather than text — a tap dials it. */
+.vp-admin-tel {
+  direction: ltr;
+  unicode-bidi: isolate;
+  display: inline-block;
+  color: var(--title-color);
+}
+
+.vp-admin-tel:hover {
+  color: var(--theme-color);
+}
+
+/* --------------------------------------------------------------------------
+   The Golden Goose sits 30 lower than the other two, and the page does not
+   zoom.
+   -------------------------------------------------------------------------- */
+
+/* «کفش گلدن گوس تو هیرو باید ۳۰ پیکسل بیاد پایینتر — فقط گلدن گوس».
+
+   **On the phone, and nowhere else** — «من فقط نسخه موبایلو گفتم». Written
+   unscoped first, which moved the desktop's shoe as well and, worse, moved the
+   phone's by ten rather than thirty. Both from the same cause: the phone block
+   above already gives every hero shot `transform: translateY(20px)`, and an
+   unscoped rule with an attribute selector outranks it, so the 30 *replaced*
+   the 20 instead of adding to it. Hence 50 here — the phone's own 20 plus the
+   client's 30 — and the whole thing behind the same 991.98 the rest of the
+   phone hero is behind.
+
+   One slide out of three, and the deck has nothing on a slide that says which
+   product it is: the hero renders six identical `.swiper-slide`s from a loop,
+   and the only thing that differs is the photograph's own filename. So that is
+   what this selects on. It is the same handle the deck's own script already
+   uses to tint the marks behind the card — `tones` in hero.blade.php is keyed
+   by these filenames — so the page has been identifying its slides this way
+   since the tinting was built.
+
+   `transform`, not a margin, and that is the phone block's own reasoning
+   quoted: the column is only as tall as what it holds, so a margin would push
+   the card 30px taller on every third slide.
+
+   The wrapper's entrance animation is untouched: `data-ani` is on `.hero-img`,
+   this is on the `img` inside it, so nothing overwrites anything. */
+@media (max-width: 991.98px) {
+  .heroSlide6 .hero-img > img[src*="goldengoose"] {
+    transform: translateY(50px);
+  }
+}
+
+/* Nothing on this site zooms.
+
+   The reported symptom was the listing's search box: tapping it on a phone
+   zoomed the page and cut the shot off, and it never zoomed back. That is the
+   browser, not the layout — iOS Safari and Android Chrome zoom to any field
+   whose text is under 16px, and every field here is 14 or 15 because that is
+   what the design was measured at.
+
+   `maximum-scale=1, user-scalable=no` in the viewport meta stops that one
+   (theme/make-rtl-page.js writes it, and the note there records what it costs).
+   This is the other half: `touch-action: manipulation` tells the browser no
+   element on the page has a double-tap gesture, which removes both the
+   double-tap zoom and the 300ms wait that goes with it. It changes nothing
+   about how the page looks — scrolling, panning and every tap behave exactly
+   as before. */
+html {
+  touch-action: manipulation;
 }

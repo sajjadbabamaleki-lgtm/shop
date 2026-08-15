@@ -1,0 +1,78 @@
+@extends('layouts.storefront')
+
+@section('title', 'درباره ویکی پلاس')
+
+{{--
+    «درباره ما».
+
+    Every sentence here is either something the client has told us or something
+    this application demonstrably does. There is no founding year, no number of
+    customers and no number of pairs sold, because nobody has given us any of
+    those and a made-up one on an about page is the kind of thing that gets
+    quoted back at the shop.
+
+    The strap line, the address and the telephone are the footer's own — the
+    ones off the screenshot the client sent. They come from
+    `storefront.contact` here so that the two cannot drift apart.
+--}}
+
+@section('content')
+<section class="vp-shop-section">
+    <div class="container th-container">
+        <div class="vp-shop-panel vp-doc">
+
+            <h1 class="vp-shop-title">درباره ویکی پلاس</h1>
+
+            <p class="vp-doc-lead">
+                ویکی پلاس فروشگاه کیف و کفش زنانه است: کتانی، مجلسی، بوت، صندل
+                و کیف، با تضمین کیفیت، ارسال سریع و امکان خرید تکی و عمده.
+            </p>
+
+            <h2>ما کجاییم</h2>
+            <p>
+                فروشگاه ما در {{ config('storefront.contact.address') }} است و
+                همان کالاهایی که روی این سایت می‌بینید، آن‌جا هم هست. اگر ترجیح
+                می‌دهید کفش را از نزدیک ببینید و پرو کنید، سری بزنید؛ اگر نه،
+                سفارشتان را به سراسر ایران می‌فرستیم.
+            </p>
+
+            <h2>چطور می‌فروشیم</h2>
+            <p>
+                قیمت هر کالا روی صفحه‌اش نوشته است و همان است که در سبد خرید و
+                در فاکتور می‌آید. «حراج پله‌ای» هم یک تخفیف واقعی روی همان قیمت
+                است، نه عددی که فقط کنار کالا نوشته شود: درصدی که روی کارت
+                می‌بینید، همان درصدی است که از قیمت کم می‌شود.
+            </p>
+            <p>
+                موجودی هر سایز شمرده می‌شود. وقتی روی کالایی نوشته «فقط ۱ عدد
+                باقی مانده»، یعنی واقعاً یکی مانده، و کالایی که تمام شود از
+                فهرست فروش بیرون می‌رود تا کسی چیزی را سفارش ندهد که نداریم.
+            </p>
+
+            <h2>فروشندگان دیگر</h2>
+            <p>
+                کنار کالاهای خودمان، فروشندگان دیگری هم می‌توانند در ویکی پلاس
+                بفروشند. هر فروشنده با نام خودش کنار کالا نوشته می‌شود، پس همیشه
+                معلوم است کالا را از چه کسی می‌خرید. اگر خودتان تولیدکننده یا
+                فروشنده‌اید،
+                <a href="{{ storefront_route('vendors.apply') }}">درخواست همکاری</a>
+                بدهید.
+            </p>
+
+            <h2>تماس</h2>
+            <p>
+                تلفن فروشگاه
+                <a href="{{ config('storefront.contact.phone_href') }}">{{ config('storefront.contact.phone') }}</a>
+                است و
+                <a href="{{ storefront_route('contact') }}">صفحه تماس با ما</a>
+                همه راه‌های دیگر را دارد.
+            </p>
+
+            <div class="vp-doc-links">
+                <a class="vp-doc-link" href="{{ storefront_route('shop') }}">دیدن محصولات</a>
+                <a class="vp-doc-link is-quiet" href="{{ storefront_route('size-guide') }}">راهنمای سایز</a>
+            </div>
+        </div>
+    </div>
+</section>
+@endsection

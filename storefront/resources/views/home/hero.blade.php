@@ -30,7 +30,7 @@
                                             <span class="sub-title" data-ani="slideinleft" data-ani-delay="0.2s">{{ $slide['product']->title }}</span>
                                             <h1 class="hero-title" data-ani="slideinleft" data-ani-delay="0.4s">
                                                 {{ $slide['kind'] }}<br>{{ $slide['model'] }} </h1>
-                                            <div class="btn-group" data-ani="slideinup" data-ani-delay="0.7s"><a href="{{ page_url('shop.html') }}" class="th-btn th-icon">خرید کنید</a>
+                                            <div class="btn-group" data-ani="slideinup" data-ani-delay="0.7s"><a href="{{ page_url('shop.html') }}" class="th-btn th-icon">خرید محصول</a>
                                             </div>
                                         </div>
                                     </div>
