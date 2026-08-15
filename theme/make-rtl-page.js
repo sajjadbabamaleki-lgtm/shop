@@ -2464,7 +2464,58 @@ if (!html.includes('vp-foot-m-head')) {
    */
   ['<a href="contact.html">حساب کاربری</a>', '<a href="my-account.html">حساب کاربری</a>'],
   ['<a href="contact.html">علاقه‌مندی‌ها</a>', '<a href="size-guide.html">راهنمای سایز</a>'],
-  ['From App Store or Google Play App is available. Get it now', 'اپلیکیشن ویکی پلاس به‌زودی روی کافه‌بازار و اپ‌استور.'],
+  /*
+   * «ویکی پلاس روی موبایل», rewritten to describe something that exists.
+   *
+   * There is no application. The line promised one on Cafe Bazaar and the App
+   * Store, under two store badges linking to apple.com and play.google.com —
+   * the template's own, pointing at the shops' front doors rather than at
+   * anything of ours. «بجای کافه بازار روش اد هوم اسکرینو بزن»: the answer is
+   * Add to Home Screen, which this site can actually do today. `head.blade.php`
+   * links a `manifest.json` (theme/make-favicons.js writes it) with the shop's
+   * mark and name in it, so a phone that adds this page gets the icon and the
+   * title rather than a screenshot of a browser tab.
+   *
+   * **The two store badges go with the sentence.** They are one message, and
+   * leaving them under a line that says "add it from your browser" would say
+   * both things at once — which is the state the footer was just taken out of.
+   * They are one entry to put back if the shop ever ships an application.
+   */
+  ['From App Store or Google Play App is available. Get it now', 'برای دسترسی سریع‌تر، ویکی پلاس را از منوی مرورگرتان به صفحه اصلی گوشی اضافه کنید.'],
+  [
+    '<div class="download-btn-wrap style2 d-flex">\n' +
+    '                                        <div class="">\n' +
+    '                                            <a target="_blank" href="https://www.apple.com/store" class="download-btn">\n' +
+    '                                                <img src="assets/img/normal/app.png" alt="">\n' +
+    '                                            </a>\n' +
+    '                                        </div>\n' +
+    '                                        <div>\n' +
+    '                                            <a target="_blank" href="https://play.google.com/" class="download-btn">\n' +
+    '                                                <img src="assets/img/normal/play.png" alt="">\n' +
+    '                                            </a>\n' +
+    '                                        </div>\n' +
+    '                                    </div>\n' +
+    '                                    ',
+    '',
+  ],
+  /*
+   * The social row, down to the two the shop is on.
+   *
+   * «این موارد اضافی شبکه های اجتماعی حذف بشه» — Facebook, Twitter and
+   * LinkedIn come off. All five were the template's, and all five pointed at
+   * the *service's* home page rather than at an account of ours, which is why
+   * three of them could sit there for the whole port without anybody noticing
+   * they were not links to anything.
+   *
+   * WhatsApp is repointed while it is being kept: the shop's own number, the
+   * one behind the floating button on every page and on the contact page.
+   * Instagram is left where the template put it — we still have no handle for
+   * it, and that is the one thing here still waiting on the client.
+   */
+  ['<a href="https://www.facebook.com/"><i class="fab fa-facebook-f"></i></a>\n                                        ', ''],
+  ['<a href="https://www.twitter.com/"><i class="fab fa-twitter"></i></a>\n                                        ', ''],
+  ['<a href="https://www.linkedin.com/"><i class="fab fa-linkedin-in"></i></a>\n                                        ', ''],
+  ['<a href="https://www.whatsapp.com/">', '<a href="https://wa.me/989918905993" target="_blank" rel="noopener" aria-label="واتساپ">'],
 ].forEach(([from, to]) => {
   if (!html.includes(from)) {
     throw new Error(`the footer no longer contains ${from.slice(0, 40)} — check before assuming it is gone`);

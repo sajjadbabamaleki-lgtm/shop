@@ -111,25 +111,10 @@
                             <div class="widget footer-widget">
                                 <h3 class="widget_title">ویکی پلاس روی موبایل</h3>
                                 <div class="widget-content2">
-                                    <p class="title mb-20">اپلیکیشن ویکی پلاس به‌زودی روی کافه‌بازار و اپ‌استور.</p>
-                                    <div class="download-btn-wrap style2 d-flex">
-                                        <div class="">
-                                            <a target="_blank" href="https://www.apple.com/store" class="download-btn">
-                                                <img src="{{ asset('assets/img/normal/app.png') }}" alt="">
-                                            </a>
-                                        </div>
-                                        <div>
-                                            <a target="_blank" href="https://play.google.com/" class="download-btn">
-                                                <img src="{{ asset('assets/img/normal/play.png') }}" alt="">
-                                            </a>
-                                        </div>
-                                    </div>
+                                    <p class="title mb-20">برای دسترسی سریع‌تر، ویکی پلاس را از منوی مرورگرتان به صفحه اصلی گوشی اضافه کنید.</p>
                                     <div class="th-social style2 mt-40">
-                                        <a href="https://www.facebook.com/"><i class="fab fa-facebook-f"></i></a>
-                                        <a href="https://www.twitter.com/"><i class="fab fa-twitter"></i></a>
                                         <a href="https://www.instagram.com/"><i class="fab fa-instagram"></i></a>
-                                        <a href="https://www.linkedin.com/"><i class="fab fa-linkedin-in"></i></a>
-                                        <a href="https://www.whatsapp.com/"><i class="fab fa-whatsapp"></i></a>
+                                        <a href="https://wa.me/989918905993" target="_blank" rel="noopener" aria-label="واتساپ"><i class="fab fa-whatsapp"></i></a>
                                     </div>
                                 </div>
                             </div>
