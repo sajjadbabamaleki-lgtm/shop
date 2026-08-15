@@ -36,33 +36,77 @@
                 <ul class="vp-mini-lines">
                     @foreach ($miniCart->lines() as $line)
                     @php $variant = $line['item']->variant; @endphp
-                    <li class="vp-mini-line">
-                        <a class="vp-mini-shot" href="{{ storefront_route('product', $variant->product) }}">
+                    {{-- «سبد خریدی که تو هدر بصورت جزیره ای باز میشه نسخه قدیمیه باید
+                         بشه شکل این چیز جدیدی که ساختی» — so it is not *like* the
+                         basket page's card, it *is* it: the same `.vp-cart-line`
+                         and the same children, sized by the same block measured
+                         off the client's reference. Two copies of one card styled
+                         apart is how this panel came to be a version behind in the
+                         first place, and `vp-mini-*` line classes are what let that
+                         happen quietly. What stays `vp-mini-*` is the panel around
+                         the cards — its head, its foot and its empty state. --}}
+                    <li class="vp-cart-line{{ $line['offer'] === null || $line['available'] < $line['quantity'] ? ' is-short' : '' }}">
+                        <a class="vp-cart-shot" href="{{ storefront_route('product', $variant->product) }}">
                             @if ($variant->product?->primaryMedia())
                                 <img src="{{ asset($variant->product->primaryMedia()->path) }}" alt="" loading="lazy">
                             @endif
                         </a>
-                        <div class="vp-mini-what">
-                            <a class="vp-mini-name" href="{{ storefront_route('product', $variant->product) }}">{{ $variant->product?->title }}</a>
-                            <span class="vp-mini-meta">{{ fa_number($line['quantity']) }} × سایز {{ fa_number((int) $variant->size_value) }}</span>
+                        <div class="vp-cart-what">
+                            <a class="vp-cart-name" href="{{ storefront_route('product', $variant->product) }}">{{ $variant->product?->title }}</a>
+
+                            <div class="vp-cart-money">
+                                @if ($line['offer'])
+                                    <strong>{{ toman($line['line_total']) }} <span>تومان</span></strong>
+                                @else
+                                    <strong>—</strong>
+                                @endif
+                            </div>
+
+                            <span class="vp-cart-spec">سایز: {{ fa_number((int) $variant->size_value) }}</span>
+
+                            <div class="vp-cart-last">
+                                <span class="vp-cart-spec">رنگ: {{ $variant->display_color }}</span>
+
+                                {{-- The same stepper as the page's card. Both of its
+                                     forms post to `cart.update`, which returns to the
+                                     page they were pressed on — see CartController;
+                                     before that it always landed on the basket page,
+                                     which from inside a drawer means being thrown off
+                                     whatever you were reading to change a quantity by
+                                     one. --}}
+                                <div class="vp-cart-qty">
+                                    <form method="post" action="{{ storefront_route('cart.update') }}">
+                                        @csrf
+                                        <input type="hidden" name="variant" value="{{ $variant->id }}">
+                                        <input type="hidden" name="vendor" value="{{ $line['item']->vendor_id }}">
+                                        <input type="hidden" name="quantity" value="{{ $line['quantity'] - 1 }}">
+                                        <button type="submit" class="vp-cart-less" aria-label="یکی کمتر" @disabled($line['quantity'] <= 1)>&minus;</button>
+                                    </form>
+                                    <span class="vp-cart-count" aria-label="تعداد">{{ fa_number($line['quantity']) }}</span>
+                                    <form method="post" action="{{ storefront_route('cart.update') }}">
+                                        @csrf
+                                        <input type="hidden" name="variant" value="{{ $variant->id }}">
+                                        <input type="hidden" name="vendor" value="{{ $line['item']->vendor_id }}">
+                                        <input type="hidden" name="quantity" value="{{ $line['quantity'] + 1 }}">
+                                        <button type="submit" class="vp-cart-more" aria-label="یکی بیشتر" @disabled($line['quantity'] >= $line['available'])>+</button>
+                                    </form>
+                                </div>
+                            </div>
+
                             @if ($line['offer'] === null)
-                                <span class="vp-mini-warn">دیگر موجود نیست</span>
+                                <span class="vp-cart-warn">دیگر موجود نیست</span>
                             @elseif ($line['available'] < $line['quantity'])
-                                <span class="vp-mini-warn">فقط {{ fa_number($line['available']) }} عدد موجود است</span>
+                                <span class="vp-cart-warn">فقط {{ fa_number($line['available']) }} عدد موجود است</span>
                             @endif
                         </div>
-                        <div class="vp-mini-money">
-                            @if ($line['offer'])
-                                <strong>{{ toman($line['line_total']) }} <span>تومان</span></strong>
-                            @else
-                                <strong>—</strong>
-                            @endif
-                        </div>
+
                         <form method="post" action="{{ storefront_route('cart.remove') }}">
                             @csrf
                             <input type="hidden" name="variant" value="{{ $variant->id }}">
                             <input type="hidden" name="vendor" value="{{ $line['item']->vendor_id }}">
-                            <button type="submit" class="vp-mini-drop" aria-label="حذف {{ $variant->product?->title }}">&times;</button>
+                            <button type="submit" class="vp-cart-drop" aria-label="حذف {{ $variant->product?->title }}">
+                                <i class="fa-regular fa-trash-can" aria-hidden="true"></i>
+                            </button>
                         </form>
                     </li>
                     @endforeach
