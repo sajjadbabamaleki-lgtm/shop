@@ -76,16 +76,45 @@ class CataloguePagesTest extends TestCase
         $this->get('/categories/sandal')->assertOk()->assertSee('پیدا نشد', false);
     }
 
+    /**
+     * Just the results, without the rest of the page.
+     *
+     * **`assertDontSee` on the whole document stopped meaning "not in the
+     * results" when the story strip became products.** The strip names five
+     * shoes in `aria-label` and `data-vp-story-name` — it has to, or the
+     * circles announce nothing and the viewer has no caption to show — and it
+     * is above the search box on every listing, so one of those names being in
+     * the markup says nothing about what was found. Nothing is drawn under the
+     * circles, so this was never visible to a shopper; it was visible to the
+     * assertion, which is the more dangerous of the two, because it would have
+     * gone on passing for the wrong reason if the strip had happened to hold
+     * different shoes.
+     */
+    private function results(string $html): string
+    {
+        $from = strpos($html, 'vp-shop-grid');
+
+        if ($from === false) {
+            // No grid means the empty state, which is a result in itself.
+            return substr($html, (int) strpos($html, 'vp-empty'));
+        }
+
+        $to = strpos($html, 'vp-shop-pages', $from);
+
+        return substr($html, $from, $to === false ? null : $to - $from);
+    }
+
     public function test_search_finds_by_title_and_by_brand(): void
     {
-        $this->get('/search?q='.urlencode('نیوبالانس'))
-            ->assertOk()
-            ->assertSee('کتونی نیوبالانس ۵۳۰', false)
-            ->assertDontSee('کتونی جردن وان ایر', false);
+        $found = $this->results($this->get('/search?q='.urlencode('نیوبالانس'))->assertOk()->getContent());
 
-        $this->get('/search?q='.urlencode('Jordan'))
-            ->assertOk()
-            ->assertSee('کتونی جردن وان ایر', false);
+        $this->assertStringContainsString('کتونی نیوبالانس ۵۳۰', $found);
+        $this->assertStringNotContainsString('کتونی جردن وان ایر', $found);
+
+        $this->assertStringContainsString(
+            'کتونی جردن وان ایر',
+            $this->results($this->get('/search?q='.urlencode('Jordan'))->assertOk()->getContent()),
+        );
     }
 
     /**
@@ -190,7 +219,7 @@ class CataloguePagesTest extends TestCase
         $persian = $this->get('/products?min='.urlencode('۵۰۰۰۰۰۰'))->assertOk()->getContent();
 
         $this->assertSame($latin, $persian);
-        $this->assertStringNotContainsString('کتونی اون کلادتیلت', $latin);
+        $this->assertStringNotContainsString('کتونی اون کلادتیلت', $this->results($latin));
     }
 
     /**
@@ -268,10 +297,10 @@ class CataloguePagesTest extends TestCase
 
     public function test_the_size_filter_only_returns_shoes_in_that_size(): void
     {
-        $this->get('/products?size=40')
-            ->assertOk()
-            ->assertSee('کتونی نیوبالانس ۵۳۰', false)
-            ->assertDontSee('کتونی جردن وان ایر', false);
+        $found = $this->results($this->get('/products?size=40')->assertOk()->getContent());
+
+        $this->assertStringContainsString('کتونی نیوبالانس ۵۳۰', $found);
+        $this->assertStringNotContainsString('کتونی جردن وان ایر', $found);
     }
 
     // --- the two the phone drawer opens ----------------------------------
@@ -353,14 +382,18 @@ class CataloguePagesTest extends TestCase
         $this->assertNotContains($full->title, $onSale->all());
 
         $response = $this->get('/products?sale=1')->assertOk()->assertSee('تخفیف‌دارها', false);
+        $found = $this->results($response->getContent());
 
         foreach ($onSale as $title) {
-            $response->assertSee($title, false);
+            $this->assertStringContainsString($title, $found);
         }
 
         // The one at full price is the one that is not there.
-        $response->assertDontSee($full->title, false);
-        $this->get('/products')->assertOk()->assertSee($full->title, false);
+        $this->assertStringNotContainsString($full->title, $found);
+        $this->assertStringContainsString(
+            $full->title,
+            $this->results($this->get('/products')->assertOk()->getContent()),
+        );
     }
 
     /**

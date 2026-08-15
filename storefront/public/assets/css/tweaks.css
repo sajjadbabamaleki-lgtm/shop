@@ -10251,6 +10251,21 @@ ul.vp-how-list.is-ticked li:before {
      screen offers 300, so a stated 64 overflowed its column and the rings
      overlapped by 2.4 with the outer two hanging past the page's 10. Fluid to
      the column with 64 as the ceiling: 53.6 at 320, 64 from 375 up. */
+  /* Instagram's ring, colour for colour — «خط دور استوری دقیقا هم رنگ خط دور
+     استوری اینستاگرام بشه دقیقا همون رنگ همون گردینت».
+
+     This is their gradient as published rather than five colours picked to look
+     like it: yellow at the bottom-left, through orange and red to magenta, and
+     into blue at the top-right. The `circle at 30% 107%` origin is what puts
+     the yellow off the bottom-left corner instead of inside the ring, which is
+     the thing that makes a copy of this look wrong when it is done as a plain
+     45° linear.
+
+     **It is the one place on this site that is not the shop's gold**, and that
+     is the instruction rather than an oversight: a story ring is a borrowed
+     convention, and the client asked for the convention exactly. The gold
+     stays on everything else, including the tiles under the search line, so
+     nothing else needs to be read against this. */
   .vp-story-ring {
     display: block;
     flex: none;
@@ -10259,9 +10274,24 @@ ul.vp-how-list.is-ticked li:before {
     aspect-ratio: 1 / 1;
     padding: 2.5px;
     border-radius: 50%;
-    background: linear-gradient(160deg, #C0972F 0%, #E3B54A 100%);
+    background: radial-gradient(circle at 30% 107%,
+      #FDF497 0%,
+      #FDF497 5%,
+      #FD5949 45%,
+      #D6249F 60%,
+      #285AEB 90%);
   }
 
+  /* **The ground is not decoration: without it the ring shows through the
+     shoe.** These were category photographs — opaque JPEGs — and they are
+     product shots now, which are cut-outs on transparency. An `<img>` with no
+     background of its own lets whatever is behind it come through the cut-out,
+     and what is behind it here is the gradient above, so every circle drew a
+     shoe standing in a pink and orange sky. It only became visible when the
+     ring stopped being a flat gold.
+
+     `#F5F5F5` is the tiles' own ground and the story island's, so a shoe sits
+     on the same grey wherever this site shows one on a panel. */
   .vp-story-ring img {
     display: block;
     width: 100%;
@@ -10269,6 +10299,7 @@ ul.vp-how-list.is-ticked li:before {
     box-sizing: border-box;
     border: 2px solid #FFFFFF;
     border-radius: 50%;
+    background: #F5F5F5;
     object-fit: cover;
   }
 
@@ -10319,15 +10350,38 @@ ul.vp-how-list.is-ticked li:before {
   backdrop-filter: blur(6px);
 }
 
+/* An Instagram story less ten percent — «ابعاد استوری که باز میشه باید فقط ۱۰
+   درصد از ابعاد استوری اینستاگرام کوچیکتر باشه».
+
+   An Instagram story is 9:16, and on a phone it is the largest 9:16 box the
+   screen will hold: `min(100vw, 100vh × 9/16)` wide. Ninety percent of that is
+   this line, and the aspect ratio gives the height, so the box stays a story
+   shape on a screen of any proportion rather than becoming the screen's own
+   shape at 90%.
+
+   **Then ten percent off the height, and the height alone** — «باید ارتفاع
+   استوری ده درصد کمتر بشه». The width is untouched: the previous round set both
+   sides against Instagram's and only the height was asked to come down, so the
+   box is no longer 9:16. It is 9:14.4, written `1 / 1.6` because that is the
+   number this is — the height is 1.6 widths where a story's is 1.777.
+
+   Measured at 390×844: the width is still 351, which is 90% of Instagram's 390
+   there, and the height is 561.6 against the 624 it was — 90.0% of it. The
+   width formula still reserves room for a 9:16 box in 90vh, which is more
+   height than this now needs; that is deliberate slack rather than an oversight,
+   and it is what keeps the island clear of the screen's ends on a short phone.
+
+   It was a square card 366 wide, which is what the picture is; it is a story
+   frame now and the picture sits inside it. */
 .vp-story-island {
   position: fixed;
   z-index: 101;
-  inset-inline: 12px;
-  inset-block: 0;
+  inset: 0;
   margin: auto;
-  height: fit-content;
-  max-height: calc(100vh - 24px);
-  max-width: 420px;
+  width: min(90vw, 90vh * 9 / 16);
+  aspect-ratio: 1 / 1.6;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
   padding: 10px;
   border-radius: 22px;
@@ -10337,8 +10391,20 @@ ul.vp-how-list.is-ticked li:before {
 
 /* One bar per story, above the picture — the row is what says how many there
    are and which one this is, which a single bar cannot. Built by the script
-   from the circles themselves, so it counts whatever the catalogue has. */
+   from the circles themselves, so it counts whatever the catalogue has.
+
+   **`direction: ltr` on this row alone** — «شمارنده استپر استوری باید از چپ
+   باشه». The page is rtl, so the row was reading right to left: the first
+   story's bar sat at the right and each one filled from the right edge
+   inwards. A story stepper is not text; it is a progress meter, and time runs
+   left to right in one regardless of the language around it — which is also
+   what every phone owner has already learned from the app this is modelled on.
+
+   One declaration does both halves of it, and that is why it is here rather
+   than on the fill: it puts bar one at the left *and* makes each `i` grow from
+   its own left edge, because a block's width grows from the inline start. */
 .vp-story-bars {
+  direction: ltr;
   display: flex;
   gap: 4px;
   margin-block-end: 8px;
@@ -10410,37 +10476,157 @@ ul.vp-how-list.is-ticked li:before {
   cursor: pointer;
 }
 
+/* The picture takes whatever the frame has left after the bars and the buttons,
+   and is shown whole inside it.
+
+   `contain` and not `cover`: the photographs are square and the frame is 9:16,
+   so covering would cut a third of the height off every one of them — and this
+   repo's rule for these files is resize only, no crop, which is why the
+   category tiles are `contain` too. The ground behind is the tiles' own #F5F5F5
+   rather than white, so the letterboxing reads as the frame's material instead
+   of as the picture failing to arrive.
+
+   `min-height: 0` is load-bearing on a flex child: without it the picture's own
+   height wins over `flex: 1` and the buttons under it are pushed out of the
+   island, which `overflow: hidden` then silently clips. */
 .vp-story-shot {
   display: block;
+  flex: 1 1 auto;
+  min-height: 0;
   width: 100%;
-  aspect-ratio: 1 / 1;
   border-radius: 14px;
   object-fit: contain;
   background: #F5F5F5;
 }
 
+/* What the story is, and the two things you can do about it.
+
+   `flex: none` so the caption keeps its height and the picture above gives up
+   the rest — the other way round, a long product name would push the buttons
+   out of the island and `overflow: hidden` would swallow them silently. */
+/* The foot of the island: the two buttons, and nothing else. `flex: none` so
+   it keeps its height and the picture above gives up the rest.
+
+   **The 10 is the island's own padding, and that is the whole point of it** —
+   «فضای خالی بالا و پایین دکمه ها یکی باشه». The space under the buttons is
+   not set anywhere: it is the island's bottom padding, 10. So the space above
+   them has to be the same 10, and it is one declaration rather than two,
+   because the row below used to add a margin of its own on top of this — the
+   two came to 16 above against 10 below, which is the gap this fixes. Anything
+   added to this foot later takes its spacing from here, not from a second
+   margin. */
 .vp-story-cap {
+  flex: none;
   margin: 0;
   padding-block-start: 10px;
-  text-align: center;
 }
 
-/* The way out to the section, which is where the circle went before it opened
-   a story. The gold pill the sheets apply with, at the size a caption wants. */
-.vp-story-go {
-  display: inline-flex;
+/* «دکمه ها باید کنار هم باشن جلوی یکیش قلب باشه یکیش سبد خرید» — one row, a
+   mark in front of each.
+
+   They were stacked, under a price and a name, and all of that was wrong. Both
+   lines are gone — «نیاز به نوشتن قیمت نیست», then «فقط اون دوتا دکمه باشن» —
+   and the row is what the short labels buy: «افزودن به لیست علاقمندی» is 132px
+   of type at 12.5px, so two full sentences in a 331px content box could only
+   ever have stacked. «سبد خرید» and «علاقمندی» with their marks fit side by
+   side with room to spare.
+
+   `flex: 1 1 0` on both, so the two are the same width whatever their labels
+   measure — two buttons of different widths beside each other read as a primary
+   and an afterthought, and these are one choice with two answers.
+
+   Two forms, so `display: contents` on each: they carry the POST and the token
+   and must add nothing to the layout, or the gap between the buttons would be
+   the gap between two form boxes that are not the buttons. */
+.vp-story-acts {
+  display: flex;
+  gap: 8px;
+}
+
+.vp-story-acts form {
+  display: contents;
+}
+
+.vp-story-buy,
+.vp-story-fav {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 60%;
+  gap: 6px;
   height: 38px;
-  padding-inline: 18px;
+  padding-inline: 12px;
+  border: 0;
   border-radius: 19px;
+  font-size: 12.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+/* The basket is the sheets' gold, because it is the same "do the thing"
+   button as «اعمال فیلتر» and the product page's own. */
+.vp-story-buy {
   background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
   background-origin: border-box;
   color: #FFFFFF;
-  font-size: 13px;
+}
+
+/* Nothing to add — no size of this shoe is sellable here. It should read as
+   unavailable rather than as a button that does nothing when pressed. */
+.vp-story-buy[disabled] {
+  background: rgba(16, 17, 17, 0.12);
+  color: rgba(16, 17, 17, 0.45);
+  cursor: default;
+}
+
+/* The wishlist is the outlined chip, for the reason the brand chips are
+   outlined: an outline beside a solid reads as the second choice of two, and
+   two solids read as two equal calls to action.
+
+   **The outline is an inset ring, not a border**, and that is what keeps the
+   two buttons the same width. With a real border only one of the pair has one,
+   and it lands outside the flex basis whatever `box-sizing` says — measured,
+   the outlined button came out 162.5 against the solid one's 160.5, which is
+   exactly its 1px each side. `box-sizing: border-box` was tried first and moved
+   neither number. A ring painted inside the box has no layout at all, so both
+   buttons are the same box and the line is in the same place it was. Same
+   device, and the same reason, as `.vp-shop-rail`'s. */
+.vp-story-fav {
+  border: 0;
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.35);
+  background: none;
+  color: #101111;
+}
+
+/* The account head's two controls — the wishlist and the sign-out — which used
+   to be one form on its own. A row, so the second does not drop under the
+   first and leave the heading beside a gap. */
+.vp-account-acts {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Taking a shoe back off the list. Quiet, under its card: it is the page's own
+   control, not the card's, and it should not compete with the card's price. */
+.vp-fav-drop button {
+  display: block;
+  width: 100%;
+  margin-block-start: 8px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: rgba(16, 17, 17, 0.5);
+  font-size: 12px;
   font-weight: 700;
-  text-decoration: none;
+  text-align: center;
+  cursor: pointer;
+}
+
+.vp-fav-drop button:hover {
+  color: #101111;
 }
 
 /* The ink foot off the hero card and the trust cards, on a phone.

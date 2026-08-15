@@ -10,6 +10,7 @@ use App\Http\Controllers\PageController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\VendorApplicationController;
+use App\Http\Controllers\WishlistController;
 use App\Http\Middleware\ResolveTenant;
 use App\Models\Enquiry;
 use Illuminate\Support\Facades\Route;
@@ -128,6 +129,24 @@ $storefront = function (): void {
             ->middleware('throttle:6,60')
             ->name("{$kind}.send");
     }
+
+    /*
+     * «لیست علاقمندی». Saved on the account, so it survives a new phone.
+     *
+     * Named `account.wishlist*` and not `wishlist*`, and that is not a
+     * tidiness: `redirectGuestsTo` above decides which of the two sign-ins a
+     * guest is sent to by matching `*account*` on the route name, so a shopper
+     * who taps the heart without being signed in lands on the shopper's form.
+     * Renaming these drops them into the staff sign-in, which is a dead end
+     * their account cannot satisfy.
+     *
+     * `auth:customer` explicitly, never the bare `auth` — §21.
+     */
+    Route::middleware('auth:customer')->group(function (): void {
+        Route::get('/account/wishlist', [WishlistController::class, 'index'])->name('account.wishlist');
+        Route::post('/account/wishlist', [WishlistController::class, 'store'])->name('account.wishlist.add');
+        Route::post('/account/wishlist/remove', [WishlistController::class, 'destroy'])->name('account.wishlist.remove');
+    });
 
     Route::get('/orders', [OrderController::class, 'track'])->name('orders.track');
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('order');

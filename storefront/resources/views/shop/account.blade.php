@@ -6,8 +6,10 @@
     A shopper's own account.
 
     What an account is *for* here is the orders, so that is what the page is.
-    There is nothing else true to put on it yet — an address book is a table
-    that does not exist, and a wishlist is a feature nobody has asked for.
+    The one other thing on it is the wishlist, which is a table now — it was
+    «a feature nobody has asked for» in this comment until «اضافه کردن به لیست
+    علاقمندی» arrived with the story buttons. An address book is still a table
+    that does not exist, and still not linked to from here.
 
     The orders are this branch's, because `Order` is branch-scoped. A customer
     standing in the Shiraz shop sees what they bought in Shiraz, which is also
@@ -24,10 +26,13 @@
                     <h1 class="vp-shop-title">{{ $customer->name ?: 'حساب من' }}</h1>
                     <p class="vp-shop-count">{{ $customer->phone }}</p>
                 </div>
-                <form method="post" action="{{ storefront_route('account.logout') }}">
-                    @csrf
-                    <button type="submit" class="vp-cart-keep">خروج</button>
-                </form>
+                <div class="vp-account-acts">
+                    <a class="vp-cart-keep" href="{{ storefront_route('account.wishlist') }}">لیست علاقمندی</a>
+                    <form method="post" action="{{ storefront_route('account.logout') }}">
+                        @csrf
+                        <button type="submit" class="vp-cart-keep">خروج</button>
+                    </form>
+                </div>
             </div>
 
             @if (session('status'))
