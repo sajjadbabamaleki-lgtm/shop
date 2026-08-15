@@ -10245,6 +10245,166 @@ ul.vp-how-list.is-ticked li:before {
   }
 }
 
+/* --------------------------------------------------------------------------
+   The story viewer.
+
+   «به شکل جزیره ای یه تصویر با تایم ۱۵ ثانیه باز بشه یعنی استوری باید کار کنه».
+
+   **It is the sheets' island, at the sheets' numbers.** The 12px inset, the
+   centring by `inset-block: 0` with auto margins, the 22px corner, the shadow,
+   and the scrim's blur are all `.vp-sheet`'s and `.vp-sheet-scrim`'s — this is
+   the fourth thing on this page that opens over a blurred page, and a fifth set
+   of numbers that were nearly the same would read as a mistake. The one it does
+   not take is the `-7vh` lift: that was measured for two short sheets, and this
+   island is a square photograph plus a bar row plus a caption, which is most of
+   a phone screen already. It sits centred.
+
+   Not styled through `.vp-sheet` itself because the sheets are `<details>`
+   children on the listing's tab row and this is a `hidden` overlay that the
+   script shows — the two are opened by different mechanisms, and sharing a
+   class would tie this to the tab row's markup.
+
+   The photograph is square and the frame is square, so nothing is cropped —
+   the files are 420×420 and `object-fit: contain` is a promise rather than a
+   fit. Same rule the category tiles are made under: resize only.
+   -------------------------------------------------------------------------- */
+.vp-story-view[hidden] {
+  display: none;
+}
+
+.vp-story-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(16, 17, 17, 0.45);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+
+.vp-story-island {
+  position: fixed;
+  z-index: 101;
+  inset-inline: 12px;
+  inset-block: 0;
+  margin: auto;
+  height: fit-content;
+  max-height: calc(100vh - 24px);
+  max-width: 420px;
+  overflow: hidden;
+  padding: 10px;
+  border-radius: 22px;
+  background: #FFFFFF;
+  box-shadow: 0 26px 60px -24px rgba(16, 17, 17, 0.55);
+}
+
+/* One bar per story, above the picture — the row is what says how many there
+   are and which one this is, which a single bar cannot. Built by the script
+   from the circles themselves, so it counts whatever the catalogue has. */
+.vp-story-bars {
+  display: flex;
+  gap: 4px;
+  margin-block-end: 8px;
+}
+
+.vp-story-bar {
+  flex: 1 1 0;
+  height: 2.5px;
+  border-radius: 2px;
+  background: rgba(16, 17, 17, 0.14);
+  overflow: hidden;
+}
+
+.vp-story-bar i {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #C0972F 0%, #E3B54A 100%);
+}
+
+/* The one already seen stays full; the one running fills over its 15 seconds.
+   **The duration is set by the script, not written here** — the timer that
+   turns the story and the bar that shows it running read one number, and a
+   duration in this file would be a second copy of it that nothing keeps in
+   step. `forwards` so the bar is still full at the moment the story turns
+   rather than snapping back to empty a frame early. */
+.vp-story-bar i.is-done {
+  width: 100%;
+}
+
+.vp-story-bar i.is-running {
+  animation-name: vp-story-run;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+@keyframes vp-story-run {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+/* Reduced motion gets the bar filled rather than animating: the story still
+   turns on its timer, and the progress bar stops being a moving thing on a
+   screen for somebody who has asked for fewer of those. */
+@media (prefers-reduced-motion: reduce) {
+  .vp-story-bar i.is-running {
+    animation: none;
+    width: 100%;
+  }
+}
+
+.vp-story-x {
+  position: absolute;
+  z-index: 1;
+  inset-block-start: 20px;
+  inset-inline-end: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  color: #101111;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.vp-story-shot {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 14px;
+  object-fit: contain;
+  background: #F5F5F5;
+}
+
+.vp-story-cap {
+  margin: 0;
+  padding-block-start: 10px;
+  text-align: center;
+}
+
+/* The way out to the section, which is where the circle went before it opened
+   a story. The gold pill the sheets apply with, at the size a caption wants. */
+.vp-story-go {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 60%;
+  height: 38px;
+  padding-inline: 18px;
+  border-radius: 19px;
+  background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+  background-origin: border-box;
+  color: #FFFFFF;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
 /* The ink foot off the hero card and the trust cards, on a phone.
 
    «پایین کارتهای هیرو و پایین این کارتا تو حالت موبایل یه خط خاکستری هست باید
@@ -13236,19 +13396,38 @@ ul.vp-how-list.is-ticked li:before {
      The page's own ground is white here, so the tint the field used to carry
      could not stay: a tinted pill inside a white capsule reads as a box in a
      box. */
+  /* Two boxes on one line, not one box holding two things — «باکس سرچو از
+     فیلتر جدا کن و باکس سرچ ارتفاعش بشه اندازه فیلتر».
+
+     The row keeps the layout; the white, the corner and the light move off it
+     onto the search form and onto the filter's own summary, so each is a box
+     in its own right. The filter's pill was 34 inside a 46 bar and is now a
+     box of its own, and the search box is the same height beside it.
+
+     The two stay siblings for the reason the note above this one gives —
+     `shop.filters` is a <form>, and a <form> inside a <form> is dropped by the
+     browser, taking the whole filter rail with it. Boxing them separately is
+     what that constraint always wanted.
+
+     **Both are 39 now, which is 46 less fifteen percent** — «ارتفاع باکس سرچ و
+     فیلتر ۱۵ درصد کمتر بشه». 46 × 0.85 = 39.1, taken to 39, and the radius goes
+     with it, 23 → 19.5, so each stays a capsule rather than becoming a rounded
+     rectangle.
+
+     **The two heights are one number and have to move together.** «باکس سرچ
+     ارتفاعش بشه اندازه فیلتر» is the instruction that made them equal in the
+     first place; taking fifteen percent off one of them would answer this round
+     by undoing the last one. Same for the radius: two capsules of the same
+     height with different corners read as two different controls.
+
+     The type inside is untouched — 13px in a 39px box is the same reading it
+     was in a 46px one, and shrinking it was not what was asked. */
   .vp-shop-top {
     position: relative;
     display: flex;
     align-items: center;
-    gap: 8px;
-    height: 46px;
-    padding-inline: 16px 6px;
+    gap: 10px;
     margin-block-end: 14px;
-    border-radius: 23px;
-    background: #FFFFFF;
-    box-shadow:
-      0 0 2px rgba(16, 17, 17, 0.1),
-      0 0 8px -2px rgba(16, 17, 17, 0.14);
   }
 
   .vp-shop-back {
@@ -13272,7 +13451,13 @@ ul.vp-how-list.is-ticked li:before {
     display: flex;
     align-items: center;
     gap: 8px;
-    background: none;
+    height: 39px;
+    padding-inline: 16px;
+    border-radius: 19.5px;
+    background: #FFFFFF;
+    box-shadow:
+      0 0 2px rgba(16, 17, 17, 0.1),
+      0 0 8px -2px rgba(16, 17, 17, 0.14);
   }
 
   .vp-shop-find i {
@@ -13294,23 +13479,27 @@ ul.vp-how-list.is-ticked li:before {
     outline: none;
   }
 
-  /* The reference's outlined pill. Gold rather than its red, because this page
-     has one accent and it is not red.
+  /* The reference's pill, in the search box's own material. Gold type rather
+     than the reference's red, because this page has one accent and it is not
+     red.
 
-     Sized down from 42 to 34 now that it sits inside the 46px box rather than
-     beside it — 6px of air above and below, against the 6px the box's own
-     inline-end padding gives it. A 42 pill in a 46 box reads as a lid rather
-     than a control. */
+     It was an outlined 34px pill inside the 46px bar; it is a box in its own
+     right now, so it carries the white, the corner and the light instead of a
+     ring, and its height is the search box's — see the note over `.vp-shop-top`
+     for why those two numbers are one number. */
   .vp-shop-filter-btn {
     flex: none;
     display: flex;
     align-items: center;
     gap: 6px;
-    height: 34px;
-    padding-inline: 12px;
-    border: 1px solid rgba(192, 151, 47, 0.55);
-    border-radius: 17px;
-    background: none;
+    height: 39px;
+    padding-inline: 16px;
+    border: 0;
+    border-radius: 19.5px;
+    background: #FFFFFF;
+    box-shadow:
+      0 0 2px rgba(16, 17, 17, 0.1),
+      0 0 8px -2px rgba(16, 17, 17, 0.14);
     color: #A47F25;
     font-size: 13px;
     font-weight: 700;
@@ -13412,9 +13601,34 @@ ul.vp-how-list.is-ticked li:before {
   }
 
   /* --- the category strip ------------------------------------------------ */
+  /* All eight on the screen, with no writing under them — «اون بخش آیکون هارو
+     در فروشگاه بدونه نوشته زیرشون بزار فقط ۸ آیکونو بیار داخل که نیاز به اسکرول
+     نباشه».
+
+     **The label is what was making this row scroll, not the gap.** Two rounds
+     were spent buying items back a few at a time — 18 → 2 on the gap, which
+     took it from five visible to six — and both were working against a 58px
+     item that was 58 only because «ست کیف و کفش» needed the width. Take the
+     writing away and the item is the tile: 34. Eight of those is 272 against
+     the strip's 366 at 390, so they fit with 94px to spare and there is nothing
+     left to scroll.
+
+     **`space-between` rather than a chosen gap, so this holds at every width.**
+     A fixed gap has to be picked for the narrowest screen or it overflows
+     there; distributing the slack instead means the row fits wherever 8 × 34
+     plus the 2px floor does, which is 286px of strip — a 310px screen, narrower
+     than any phone this site is opened on. Measured, tile to tile: 13.4px at
+     390, 16.6 at 412, 19.1 at 430, 9.1 on a 360 screen and 3.4 on a 320, which
+     is the floor doing its job rather than a scrollbar appearing. The `gap`
+     under it is that floor.
+
+     `overflow-x: auto` stays as the safety net. Nothing scrolls at eight, but a
+     ninth section is one row in the database away, and the alternative to a
+     scrollbar there is a row that runs off the screen. */
   .vp-shop-strip {
     display: flex;
-    gap: 18px;
+    justify-content: space-between;
+    gap: 2px;
     margin-block-end: 16px;
     padding-block-end: 2px;
     overflow-x: auto;
@@ -13425,44 +13639,120 @@ ul.vp-how-list.is-ticked li:before {
     display: none;
   }
 
+  /* The item is the tile, now that the label under it is not drawn.
+
+     It was 58 wide with the name beneath — and the gap between the two was 3,
+     «فاصله آیکون ها با نوشته زیرشون باید نصف بشه» having halved it from 6. Both
+     numbers are gone rather than left sitting here inert: with the label out of
+     the flow (see the rule below) a `gap` on this column has nothing to space,
+     and a declaration that does nothing looks exactly like one that does until
+     somebody puts the label back and cannot see why it will not move.
+
+     `position: relative` is not decoration either — it is what the hidden label
+     is positioned against, so it cannot escape to the page and stretch it. */
   .vp-shop-cat {
+    position: relative;
     flex: none;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 6px;
-    width: 58px;
+    width: 34px;
     color: rgba(16, 17, 17, 0.62);
     font-size: 11px;
     text-decoration: none;
     text-align: center;
   }
 
-  /* «تو قسمت فروشگاه همه آیکونها باید از پایین تو یک سطح قرار بگیرن».
+  /* «آیکون های مجلسی و… در فروشگاه مث منو بیان تو مربع» — the drawer's tile,
+     brought to the strip.
 
-     Half of this is in the files and half is here, and neither works alone.
+     It is the drawer's `.vp-cat-icon` scaled rather than a second tile that is
+     nearly the same. The drawer's is 28 outside with 6.5 of padding, so 15 of
+     drawing; this one is 34 outside with 7.9, so 18.2 of drawing — the same
+     0.536 of tile that is ink, the same gold at `rgba(192, 151, 47, 0.07)`, and
+     the 9px radius scaled by the same 34/28 to 10.9. The two marks read as one
+     material because they are one, at two sizes.
+
+     **34 is derived from the mark, not chosen for the tile.** «سایز آیکون ها
+     باید ۳۰ درصد کوچیکتر بشن» put the drawing at 18.2 one round ago, and that
+     number survives this one untouched: the square is built outwards from it
+     (18.2 ÷ 0.536 = 34) rather than the drawing being resized to suit a square.
+     Sizing the tile first and letting the ink fall where it may is how a
+     thirty-percent reduction quietly becomes something else.
+
+     **`box-sizing: border-box` is load-bearing** — without it the padding lands
+     outside the 34 and the tile is 49.8 wide, which all but fills the 58px item
+     that holds it and leaves the row with no gap at all.
+
+     --------------------------------------------------------------------------
+     «تو قسمت فروشگاه همه آیکونها باید از پایین تو یک سطح قرار بگیرن», kept.
+
+     Half of that is in the files and half is here, and neither works alone.
      `make-category-icons.js` crops every icon's view box to its own ink, so a
-     file's bottom edge *is* the sole of the shoe in it; this line then puts
-     that edge on the bottom of the box instead of in the middle of it.
+     file's bottom edge *is* the sole of the shoe in it; `object-position` then
+     puts that edge on the bottom of the box instead of in the middle of it.
 
-     Without the crop, `bottom` would only line up eight different amounts of
-     built-in padding. Without this line, the crop would only recentre them. */
+     The tile does not replace that line — it moves the box the line refers to.
+     Every sole now sits on the content box's floor, which is one 7.9px inset
+     off every tile's floor, and the tiles are all the same size, so the eight
+     soles are still on one level. Take `center bottom` away and they float to
+     eight different heights inside eight identical squares, which is the same
+     complaint with a box drawn round it.
+
+     Also worth knowing here: the template resets
+     `img:not([draggable]) { height: auto }` at the same specificity this rule
+     has, so the 34 only holds because tweaks.css is loaded last. That is the
+     bug the drawer's own tile hit and needed a stronger selector for; this one
+     is measured after every change rather than assumed. */
   .vp-shop-cat img {
-    width: 26px;
-    height: 26px;
+    box-sizing: border-box;
+    width: 34px;
+    height: 34px;
+    padding: 7.9px;
+    border-radius: 10.9px;
+    background: rgba(192, 151, 47, 0.07);
     object-fit: contain;
     object-position: center bottom;
   }
 
+  /* The section being looked at, on the tile as well as in the label.
+
+     The drawer lights its own tile the same way under the finger
+     (`rgba(192, 151, 47, 0.14)`), and now that every icon carries a square the
+     label's colour is doing the work alone against eight identical marks. Same
+     tint, for the same reason, at the state this row actually has. */
   .vp-shop-cat.is-on {
     color: #A47F25;
   }
 
+  .vp-shop-cat.is-on img {
+    background: rgba(192, 151, 47, 0.14);
+  }
+
+  /* The name comes off the screen but stays in the page.
+
+     «بدونه نوشته زیرشون» is about what is drawn, and `display: none` would go
+     further than that: the mark is an `<img>` with `alt=""` and `aria-hidden`,
+     because it is decoration beside a word — so hiding the word outright leaves
+     eight links to eight sections of the shop with no accessible name at all,
+     announced as nothing but "link". Clipped to a pixel, the name is still what
+     a screen reader reads and what a browser's find-in-page matches, and the
+     row draws as eight icons.
+
+     The three lines that used to be here — nowrap, hidden, ellipsis — were the
+     truncation this row needed while the name was under the tile, and there is
+     nothing left to truncate. What the ellipsis was hiding is the reason this
+     round exists. */
   .vp-shop-cat span {
-    white-space: nowrap;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    border: 0;
     overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 100%;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
 
   /* The heading and the old search box are the desktop's. */
@@ -13703,19 +13993,211 @@ ul.vp-how-list.is-ticked li:before {
     display: none;
   }
 
-  /* Over the page rather than pushing it down — the grid should not jump when
-     the rail opens. It spans the bar, which is both wider than the 320 it used
-     to ask for and incapable of running off either side. */
+  /* A popup, like the two beside it — «دکمه فیلتر وقتی زده میشه باید به شکل
+     پاپاپ باز بشه».
+
+     It was a panel hanging off the bar: absolute, spanning the row, dropped 8px
+     under it. The brand and the price open as an island over a blurred page,
+     and this is the third of the same three controls, so it opens that way too.
+
+     **Every number here is `.vp-sheet`'s, not a second set that looks like
+     it** — the 12px inset, the centring by `inset-block: 0` with auto margins,
+     the `-7vh` lift off dead centre («اگه ۲۰ درصد بره بالاتر دیگه معرکست»), the
+     22px corner and the shadow. Read the note over `.vp-sheet` for why each of
+     them is what it is; if any of them moves, it moves here as well or the
+     three sheets stop agreeing. It is written out rather than shared through a
+     class because `.vp-shop-filter-panel` is also the hook the whole block
+     below scopes its contents to, and giving this element two names for one
+     job is what makes a stylesheet hard to read later.
+
+     The scrim comes from the markup, and it is the same `.vp-sheet-scrim` the
+     others use, so the blur and the tap-to-close come free.
+
+     `max-height` and the scroll matter more here than in the other two: this
+     panel holds every facet at once — sections, brands, sizes, colours and the
+     price — so it is the one that will outgrow a short screen first. */
   .vp-shop-filter-panel {
-    position: absolute;
-    z-index: 30;
-    inset-inline: 0;
-    inset-block-start: calc(100% + 8px);
-    max-height: 70vh;
+    position: fixed;
+    z-index: 91;
+    inset-inline: 12px;
+    inset-block: 0;
+    margin-block: auto;
+    transform: translateY(-7vh);
+    height: fit-content;
+    max-height: calc(100vh - 24px);
     overflow-y: auto;
-    border-radius: 18px;
+    padding: 16px;
+    border-radius: 22px;
     background: #FFFFFF;
-    box-shadow: 0 18px 40px -18px rgba(16, 17, 17, 0.4);
+    box-shadow: 0 26px 60px -24px rgba(16, 17, 17, 0.55);
+  }
+
+  /* ---- and what is inside it, in the sheets' language ---------------------
+
+     «در صفحه فیلتر دیزاین خیلی خط خطی و غیره حرفه ای ... و با زبان طراحی اون
+     پاپاپ هامون یکی نیستن».
+
+     What was in here was the desktop's rail dropped into a phone panel: a
+     column of radio buttons with a hairline under every heading, which is a
+     form and not a sheet. The two brand and price sheets beside it are chips
+     in a wrapped row with a title above them and one gold button at the foot,
+     and this is now that.
+
+     **All of it is CSS.** The markup is `shop/filters.blade.php`, which the
+     desktop sidebar renders as well — every rule below is scoped to
+     `.vp-shop-filter-panel`, so the rail on the desktop is untouched. Nothing
+     here changes what the form submits. */
+  /* Inside the sheet the rail is a plain container, not a panel.
+
+     `.vp-shop-rail` draws itself a ground, a 1px ring and a 28px corner,
+     because on the desktop it is a card sitting on the listing's white page.
+     Dropped into an island it is a panel inside a panel — and measured, it is
+     worse than it sounds: the ring lands at 28..362 and the island's content
+     box is 28..362, so every heading and every chip sits *on* the line. The
+     first render of this read as text clipped at the edge, which is what a
+     hairline touching type looks like.
+
+     So the ground, the ring and the corner come off, and the 20px padding with
+     them: the island already pads itself by 16, and two paddings would set the
+     rail's contents 36 in while the head above stayed at 16, with the title and
+     the first heading out of line down the same edge.
+
+     This is the note over `.vp-shop-top` again in another place — a tinted box
+     inside a white box reads as a mistake. Scoped to the panel, so the
+     desktop's sidebar keeps its card. */
+  .vp-shop-filter-panel > .vp-shop-rail {
+    padding: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+  }
+
+  /* No rules anywhere in it — «دیزاین خیلی خط خطی». The rail draws a hairline
+     above every group and a gold thread out of the side of every heading; in a
+     column of headings on a phone that is six lines of furniture around four
+     rows of chips. The sheets have neither: a title, its chips, and air. */
+  .vp-shop-filter-panel .vp-filter + .vp-filter,
+  .vp-shop-filter-panel .vp-filter + .vp-filter-actions {
+    margin-top: 22px;
+    padding-top: 0;
+    box-shadow: none;
+  }
+
+  .vp-shop-filter-panel .vp-filter-title::after {
+    display: none;
+  }
+
+  /* The sheets' own title: no rule under it, and the same 14 they use. */
+  .vp-shop-filter-panel .vp-filter-title {
+    margin: 0 0 10px;
+    font-size: 14px;
+  }
+
+  /* A wrapped row of chips rather than a column of radios. The list keeps its
+     <li>s — they are the markup the desktop needs — and they simply stop being
+     rows. */
+  .vp-shop-filter-panel .vp-filter-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .vp-shop-filter-panel .vp-filter-list li + li {
+    margin-top: 0;
+  }
+
+  .vp-shop-filter-panel .vp-filter-list label,
+  .vp-shop-filter-panel .vp-filter-sizes .vp-size {
+    display: inline-flex;
+    align-items: center;
+    height: 34px;
+    padding-inline: 14px;
+    border: 1px solid #101111;
+    border-radius: 17px;
+    background: none;
+    color: #101111;
+    font-size: 12px;
+    font-weight: 700;
+    gap: 0;
+  }
+
+  .vp-shop-filter-panel .vp-filter-list label:has(:checked),
+  .vp-shop-filter-panel .vp-filter-sizes .vp-size:has(:checked) {
+    border-color: transparent;
+    background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+    color: #FFFFFF;
+  }
+
+  /* The radio itself goes; the chip is the control, the way it is in the
+     sheets and on the product page's sizes. */
+  .vp-shop-filter-panel .vp-filter-list input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* The size chips are already labels over a hidden input on the desktop, so
+     only their inner box has to stop drawing its own square. */
+  .vp-shop-filter-panel .vp-filter-sizes .vp-size span {
+    display: inline;
+    min-width: 0;
+    width: auto;
+    height: auto;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    color: inherit;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  /* The price pair, the price sheet's: two boxes on one line, ltr so «از» is
+     the left one. */
+  .vp-shop-filter-panel .vp-filter-price {
+    direction: ltr;
+    gap: 10px;
+  }
+
+  .vp-shop-filter-panel .vp-filter-price span {
+    display: none;
+  }
+
+  .vp-shop-filter-panel .vp-filter-price input {
+    height: 44px;
+    border-radius: 13.25px;
+    font-size: 13px;
+    text-align: center;
+  }
+
+  /* One gold button at the foot, and the clear as the quiet thing beside it —
+     the sheets' «اعمال فیلتر», at the sheets' size. */
+  .vp-shop-filter-panel .vp-filter-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-block-start: 20px;
+  }
+
+  .vp-shop-filter-panel .vp-filter-apply {
+    flex: 1;
+    height: 44px;
+    border: 0;
+    border-radius: 13.25px;
+    background: linear-gradient(96deg, #C0972F 0%, #E3B54A 100%);
+    font-family: 'Vazirmatn', var(--body-font);
+    font-weight: 700;
+    font-size: 14px;
+    color: #FFFFFF;
+  }
+
+  .vp-shop-filter-panel .vp-filter-clear {
+    flex: none;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: rgba(16, 17, 17, 0.55);
+    text-decoration: none;
   }
 }
 

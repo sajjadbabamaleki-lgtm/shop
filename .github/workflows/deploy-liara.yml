@@ -22,6 +22,21 @@ on:
       # before it was added here, which is exactly the silent failure the note
       # above describes. It comes off the list when the branch is merged.
       - claude/shoe-store-ui-review-kgk2m9
+      # The shop's search box height, its category tiles, and the brand chips
+      # crossing the rule as they are tapped. Same reason as the line above:
+      # without it this branch's pushes run the tests and deploy nothing, and
+      # «بیلد تغییراتو بفرست» would be answered by a build the client cannot see.
+      - claude/shop-search-filter-height-qb1nxx
+      #
+      # ⚠️ **Every branch on this list deploys its own tree to the same Liara
+      # app, so two live branches overwrite each other.** «چرا موارد برمیگرده
+      # به نسخه قبل؟» — that. This branch and the one above it were both being
+      # worked on at once; whichever pushed last was the whole site, and the
+      # other one's work vanished from it without either branch losing a
+      # commit. The two are merged now, so this tree carries both. Before
+      # adding a fourth name here, make sure it is not a *parallel* line of
+      # work: the deploy has no merge step, and this file is the only place
+      # that fact is written down.
   pull_request:
   workflow_dispatch:
 
