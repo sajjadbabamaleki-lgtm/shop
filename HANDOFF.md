@@ -61,9 +61,9 @@ Three things fall out of the wiring that are worth knowing:
 - **«فقط ۱ عدد باقی مانده» is a count.** It follows `sellable_stock`, and a
   product whose stock reaches zero leaves the sale rather than being offered.
 - **What is invented did not go into the catalogue.** The brand strip's
-  counts, its mosaic photographs, and the pairing that puts a shoe's price
-  under a category's photograph are all in `config/storefront.php` under
-  `placeholders`. Seeding an invented number into the tables would make it
+  counts, which four brands it features, and the pairing that puts a shoe's
+  price under a category's photograph are all
+  in `config/storefront.php` under `placeholders`. Seeding an invented number into the tables would make it
   indistinguishable from a counted one, which is the whole thing that block
   exists to prevent.
 
@@ -157,7 +157,7 @@ photographs are ours rather than the template's.
 | best sellers | «پرفروش‌ترین‌ها» | 6 of 6 ours | ours |
 | offer banner | «SPECIAL OFFER» / «BLACK FRIDAY» | 0 of 1 | **template** |
 | daily deal — was today's deals | «قبل از تمام شدن بخرش!» | 1 of 1 ours | ours |
-| brand strip | «برندهای موجود» | our layout, placeholder content | see below |
+| brand strip | «برندهای موجود» | our layout, real content bar the counts | see below |
 | footer | «Menu» | 0 of 5 | **template** |
 
 So two blocks are still wholly the template's: **the offer banner and the
@@ -165,22 +165,75 @@ footer.** The banner reads BLACK FRIDAY / SPECIAL OFFER over ADIDAS SHOES on a
 stock photograph; the footer carries «Menu», the column headings and an address
 in Germany for a furniture company.
 
-**The brand strip is ours in shape and borrowed in content.** The template's
-carousel is gone, replaced by four tiles on one white card — a photo mosaic
-per tile with a glass plate floating in the middle carrying the brand's mark,
-its name and a stock count. The layout is settled and measured. Three things
-in it are stand-ins, each chosen by the client rather than waited for, and all
-three live in one array (`BRANDS`) at the top of the brand block in
-`theme/make-rtl-page.js`:
+**The brand strip is ours in shape, and its content is real now bar one
+thing.** The template's carousel is gone, replaced by four tiles on one white
+card — a photo mosaic per tile with a glass plate floating in the middle
+carrying the brand's mark, its name and a stock count. The layout is settled
+and measured. Of the three things that used to be stand-ins here, two are
+finished: the client sent a set of three photographs per brand and a logo for
+every mark. **Only the counts are still invented**, and they are the one part
+nobody can supply — they are a number the catalogue would have to hold. All of
+it lives in one array (`BRANDS`) at the top of the brand block in
+`theme/make-rtl-page.js`, mirrored by `placeholders.brand_strip` on the
+Laravel side:
 
-- **the marks** — `brand_5_2.png` is genuinely the Nike swoosh and sits where
-  it belongs; the other three are the template's own abstract marks. The slot
-  is a fixed 30×30 box rather than sized off the artwork, so a real logo drops
-  in without touching the CSS.
-- **the photographs** — the eight category tiles from the top of the page. We
-  hold one product photograph per brand and this shape wants three, so twelve
-  slots against eight images means four repeat. No two tiles open on the same
-  lead image.
+- **the marks** — **all four are real now**, and no abstract stand-in is left
+  on this block. `brand_5_2.png` is the template's own genuine Nike swoosh;
+  the other three go through `theme/make-brand-marks.js`, which puts each in
+  the page's ink on transparency — the plate is white glass, so a white or
+  unpainted mark on it is an empty slot — whatever state it arrived in. Three
+  states, one per mark, and the script names them: Jordan's PNG already
+  carried its own alpha, New Balance's was black on opaque white, and On's had
+  no file at all and had to be found and cut out of the poster it was sent
+  inside. Everything is trimmed to its own content at the end, or the margin a
+  file happened to arrive with would shrink the mark inside the slot by a
+  different amount for each. The slot is a fixed 36×36 box rather than sized off the
+  artwork, so a real logo drops in without touching the CSS — **and that only
+  became true when On arrived.** `.vp-brand-logo` alone loses on specificity
+  to the template's `img:not([draggable]) { height: auto }`, which is (0,1,1)
+  against a lone class's (0,1,0), so every mark was being sized by its own file
+  the whole time. It never showed because every mark until On's was wider than
+  it was tall. On's is 51×104 and drew 73px tall, across the plate and over the
+  name. The rule is `.vp-brand-plate .vp-brand-logo` now. Same trap as the
+  phone drawer's tile; the note on `.vp-shop-cat img` names it too.
+- **the photographs** — **all four tiles carry the brand's own now, and this
+  part is finished.** The client supplied a set of three per brand («این ۳
+  تصویر در ۳ کادر اول که نایک هستش بیاد») and named which one leads: the shoe
+  on its own, «اون کفش تکی که پشتش نوشته نایک برای تصویر بزرگس». Every set
+  therefore reads the same way down the tile — **shoe, kit, athlete** — so a
+  set sent tomorrow needs no decision made about it. Sources live in
+  `theme/brand-src`, `node theme/make-brand-photos.js` builds them into
+  `assets/img/brand/vikyplus-*.webp`, and each path is named twice: in
+  `BRANDS` for the static page and in `placeholders.brand_strip` for Laravel.
+  `HomePageTest` asserts every brand carrying `photos` names all three *and
+  that the files are in `public/`* — the build and the asset sync are two steps
+  outside the application, and a src that points at nothing looks perfectly
+  correct in the markup.
+
+  **The fourth tile is On, not گلدن گوس.** The client's fourth set was On's, and
+  «کادر چهارم آن رانینگ بشه». That is a change of which brand the strip
+  *features* and nothing else: `placeholders.brand_strip` is the `whereIn` the
+  query runs, so removing گلدن گوس from it takes it off this block while
+  leaving it an active brand with its shoe, its product page, its place in the
+  best-sellers filter and its hero slide. On was already in the catalogue —
+  it sells the daily deal — so nothing was invented to make this work. **Its
+  name on the tile reads «اون»**, which is the spelling the catalogue already
+  uses in «کتونی اون کلادتیلت» on the same page; if the client wants «آن
+  رانینگ» that is the `name` in `CatalogueSeeder::BRANDS` and a re-seed.
+
+  The size is computed, not typed: each file is scaled to the smallest size
+  that still *covers* its cell, which is the same arithmetic `object-fit`
+  does, against the cell as measured at 1920 and doubled for a 2x screen —
+  520×680 for the lead, 384×336 for a small one. That matters because the
+  cells are two shapes and the sources are too: a square shot in the tall lead
+  cell is bound by its height, a 4:5 poster in the same cell by its width, and
+  one typed width would be wrong for one of them. The row is fluid and keeps
+  growing past 1920, so this is a stated ceiling rather than a guarantee.
+
+  **Three tiles now show photographs carrying the brand's real mark**, which
+  makes the template's abstract stand-in on the plate beside them a good deal
+  more visible than it used to be. That is the next thing to fix on this
+  block, and it is a logo file each, nothing more.
 - **the counts** — invented. There is no inventory behind this page; the
   Laravel app has the tables, the static page has no data. They are shaped
   like real numbers and are not real numbers.

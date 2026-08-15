@@ -4857,11 +4857,12 @@ ul.vp-how-list.is-ticked li:before {
 
    Checked at 1440, 1200 and 992; the plate stays centred and inside the tile
    at all three. */
-/* 40, up from 28 — «۴ تا گوشه بیرونی». These four are the only corners in the
-   tile: the mosaic's internal joins stay square, and the tile's own overflow
-   clip is what rounds the photographs where they meet these. 40 sits under
-   the white card's 50 so the tile still reads as something held by the card
-   rather than as another card. */
+/* 36 — «کرو ۴ گوشه هم ۱۰ درصد کمتر بشه», ten per cent off the 40 this had
+   settled at (which was itself up from 28, «۴ تا گوشه بیرونی»). These four are
+   the only corners in the tile: the mosaic's internal joins stay square, and
+   the tile's own overflow clip is what rounds the photographs where they meet
+   these. It still sits well under the white card's 50, so the tile goes on
+   reading as something held by the card rather than as another card. */
 .vp-brand {
   /* The mosaic's proportions, hoisted here because two rules need them: the
      grid that draws the columns, and the plate, which is positioned on the
@@ -4869,11 +4870,11 @@ ul.vp-how-list.is-ticked li:before {
      both follow. */
   --mosaic-lead: 1.35;
   --mosaic-small: 1;
-  --mosaic-gap: 6px;
+  --mosaic-gap: 3px;
   position: relative;
   display: block;
   aspect-ratio: 4 / 3;
-  border-radius: 40px;
+  border-radius: 36px;
   overflow: hidden;
   text-decoration: none;
   box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.06);
@@ -4892,9 +4893,12 @@ ul.vp-how-list.is-ticked li:before {
    narrow column is column 1 (the right in RTL) and the lead is put explicitly
    in column 2.
 
-   The gap is 6, doubled from the 3 this started at at the client's request,
-   and it is the card's own white showing through rather than a drawn line, so
-   it stays a gap at any size. */
+   The gap is 3 — «اون فاصله وسطشون ۵۰ درصد کمتر بشه», half the 6 it had been
+   since it was doubled from 3, so it is back where it started. It is the
+   card's own white showing through rather than a drawn line, so it stays a
+   gap at any size. Halving it also moves the plate, which sits on the seam
+   and is written in terms of this variable rather than in pixels; that is the
+   whole reason it is written that way. */
 .vp-brand-mosaic {
   position: absolute;
   inset: 0;
@@ -4994,8 +4998,25 @@ ul.vp-how-list.is-ticked li:before {
 
 /* Held to a box rather than sized by the file: the marks in here are the
    template's placeholders and the real ones will not share their proportions,
-   so the slot has to be the constant, not the artwork. */
-.vp-brand-logo {
+   so the slot has to be the constant, not the artwork.
+
+   **Two classes, and that is the whole point of the selector.** Written as
+   `.vp-brand-logo` this rule said 36x36 and did not get it: the template
+   resets `img:not([draggable]) { height: auto }`, and `:not()` takes its
+   argument's specificity, so that selector is (0,1,1) against a lone class's
+   (0,1,0) and wins outright — loading tweaks.css last does not save a rule
+   that loses on specificity. Every mark here was being sized by its own
+   artwork the entire time, and it never showed because every mark until now
+   was wider than it is tall: at `width: 36` a wide file lands *under* 36 tall
+   and looks exactly as if the box were holding it.
+
+   On's mark is the first tall one — 51x104 — and at `height: auto` it drew
+   73px tall, twice its slot, straight across the plate and over the name. The
+   same trap, in the same file, that the phone drawer's tile hit; see the note
+   on `.vp-shop-cat img`. Measured after: all four marks 36x36, and the plate's
+   own height is unchanged because the two text lines were always the taller
+   half of that row. */
+.vp-brand-plate .vp-brand-logo {
   flex: 0 0 auto;
   width: 36px;
   height: 36px;

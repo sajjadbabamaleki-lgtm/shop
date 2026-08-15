@@ -510,23 +510,71 @@ return [
         /*
          | The brand strip.
          |
-         | Each tile carries three photographs and a count. Neither is real:
-         | we hold one product photograph per brand and the tile wants three,
-         | so the client asked for the eight category tiles from the top of the
-         | page to stand in — twelve slots against eight photographs, arranged
-         | so no two tiles open on the same lead image. The counts are invented
-         | outright; nothing in the catalogue adds up to them, and seeding
-         | inventory until it did would be inventing stock, not counting it.
+         | Each tile carries three photographs and a count, and a tile says
+         | where its photographs come from in one of two ways.
+         |
+         | `photos` is the brand's own, as files: three asset paths, the first
+         | of them the lead. All four tiles have them now — the client supplied
+         | a set per brand and named the arrangement, «این ۳ تصویر در ۳ کادر
+         | اول که نایک هستش بیاد» with the shoe on its own for the large cell —
+         | so every set reads the same way down the tile: shoe, kit, athlete.
+         | theme/make-brand-photos.js is what prepares them.
+         |
+         | `mosaic` is the stand-in, and nothing uses it any more: category
+         | slugs, whose photographs are the eight tiles from the top of the
+         | page. That was the client's own call («از عکس های اون قسمت هشتایی
+         | بالای وبسایت استفاده کن») from when we held one product photograph
+         | per brand and each tile wanted three. It is kept because it is what
+         | a fifth tile would fall back on, and because dropping it would mean
+         | a brand with no set drawing nothing at all.
+         |
+         | The counts are invented outright, for every tile: nothing in the
+         | catalogue adds up to them, and seeding inventory until it did would
+         | be inventing stock rather than counting it.
+         |
+         | **This list also decides which four brands the strip shows** — it is
+         | the `whereIn` the query runs. گلدن گوس came out of it when the
+         | client's fourth set turned out to be On's, «کادر چهارم آن رانینگ
+         | بشه»; it is still an active brand with a shoe, a page and a place in
+         | the best-sellers filter, it is simply not one of the four featured.
          |
          | Keyed by brand slug. A brand with no entry here shows its own three
          | photographs and its real count, which is what should happen as each
          | brand's assets arrive.
          */
         'brand_strip' => [
-            'nike' => ['mosaic' => ['sneaker', 'sport-set', 'sandal'], 'stock' => 42],
-            'jordan' => ['mosaic' => ['boot', 'college', 'accessory'], 'stock' => 28],
-            'new-balance' => ['mosaic' => ['college', 'bag-set', 'sneaker'], 'stock' => 35],
-            'golden-goose' => ['mosaic' => ['majlesi', 'accessory', 'sport-set'], 'stock' => 19],
+            'nike' => [
+                'photos' => [
+                    'assets/img/brand/vikyplus-nike-vomero.webp',
+                    'assets/img/brand/vikyplus-nike-kit.webp',
+                    'assets/img/brand/vikyplus-nike-athlete.webp',
+                ],
+                'stock' => 42,
+            ],
+            'jordan' => [
+                'photos' => [
+                    'assets/img/brand/vikyplus-jordan-one.webp',
+                    'assets/img/brand/vikyplus-jordan-kit.webp',
+                    'assets/img/brand/vikyplus-jordan-athlete.webp',
+                ],
+                'stock' => 28,
+            ],
+            'new-balance' => [
+                'photos' => [
+                    'assets/img/brand/vikyplus-nb-530.webp',
+                    'assets/img/brand/vikyplus-nb-kit.webp',
+                    'assets/img/brand/vikyplus-nb-athlete.webp',
+                ],
+                'stock' => 35,
+            ],
+            'on' => [
+                'photos' => [
+                    'assets/img/brand/vikyplus-on-running.webp',
+                    'assets/img/brand/vikyplus-on-kit.webp',
+                    'assets/img/brand/vikyplus-on-athlete.webp',
+                ],
+                'stock' => 19,
+            ],
         ],
 
         /*

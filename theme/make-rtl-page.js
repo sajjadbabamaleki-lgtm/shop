@@ -1604,26 +1604,78 @@ html = html.replace('</body>', HOW_HTML + '</body>');
 // substitutions rather than wait for the real assets, so the layout can be
 // settled now and the content dropped in later.
 const BRANDS = [
-  // The mosaic photographs are the eight category tiles from the top of the
-  // page — the client's own call («از عکس های اون قسمت هشتایی بالای وبسایت
-  // استفاده کن») when it turned out we hold one product photograph per brand
-  // and this shape wants three. Twelve slots against eight photographs means
-  // four repeat; what does not repeat is the lead photograph of each tile, so
-  // no two tiles open on the same image.
+  // **Every tile carries the brand's own photographs now** — supplied by the
+  // client, three per brand, for this arrangement: «این ۳ تصویر در ۳ کادر اول
+  // که نایک هستش بیاد». Nike came first and set the order for the rest,
+  // because the client named which of the three leads: the shoe on its own,
+  // «اون کفش تکی که پشتش نوشته نایک برای تصویر بزرگس». So every set reads the
+  // same way down the tile — the shoe alone in the large cell, then the kit,
+  // then the athlete — and a set sent tomorrow needs no decision made about it.
   //
-  // The logos are the template's own. brand_5_2 is genuinely the Nike swoosh
-  // and is used where it belongs; the other three are the template's abstract
-  // marks from one family, standing in until real ones arrive. Swap the file
-  // and nothing else has to change.
+  // They are prepared by theme/make-brand-photos.js, which resizes and does
+  // not crop; the cell's `object-fit: cover` does the framing, as it does for
+  // every other photograph on this page. Nothing here borrows the category
+  // photographs any more — that stand-in, and the client's own call behind it
+  // («از عکس های اون قسمت هشتایی بالای وبسایت استفاده کن»), is finished with.
+  //
+  // **The fourth tile is On rather than گلدن گوس**, at the client's
+  // instruction, because the fourth set they sent is On's. That is a change of
+  // which brand the strip *features*, not of the catalogue: On already sells
+  // the daily deal and گلدن گوس still sells its shoe, still appears in the
+  // best-sellers filter and still has its own page. The strip's four are
+  // whichever four `placeholders.brand_strip` names.
+  //
+  // **The marks are all real now**, and none of the template's abstract
+  // stand-ins is left on this block. brand_5_2 came with the template and is
+  // genuinely the swoosh; the other three go through
+  // theme/make-brand-marks.js, which puts every one of them in the page's ink
+  // on transparency whatever state it arrived in — Jordan's already cut out,
+  // New Balance's black on white, On's still inside the poster it was sent
+  // with. The stock counts on the plates are the only invented thing left
+  // here.
   //
   // The counts are invented. There is no inventory behind this page — the
   // Laravel app has the tables, this static page has no data — so they are
   // shaped like real numbers and are not real numbers.
-  { name: 'نایک',       logo: 'brand_5_2.png', stock: '۴۲', lead: 'sneaker', a: 'sport-set', b: 'sandal' },
-  { name: 'جردن',       logo: 'brand_1_6.svg', stock: '۲۸', lead: 'boot',    a: 'college',   b: 'accessory' },
-  { name: 'نیوبالانس',  logo: 'brand_1_5.svg', stock: '۳۵', lead: 'college', a: 'bag-set',   b: 'sneaker' },
-  { name: 'گلدن گوس',   logo: 'brand_1_3.svg', stock: '۱۹', lead: 'majlesi', a: 'accessory', b: 'sport-set' },
+  {
+    name: 'نایک', logo: 'brand_5_2.png', stock: '۴۲',
+    photos: [
+      'assets/img/brand/vikyplus-nike-vomero.webp',
+      'assets/img/brand/vikyplus-nike-kit.webp',
+      'assets/img/brand/vikyplus-nike-athlete.webp',
+    ],
+  },
+  {
+    name: 'جردن', logo: 'vikyplus-jordan.png', stock: '۲۸',
+    photos: [
+      'assets/img/brand/vikyplus-jordan-one.webp',
+      'assets/img/brand/vikyplus-jordan-kit.webp',
+      'assets/img/brand/vikyplus-jordan-athlete.webp',
+    ],
+  },
+  {
+    name: 'نیوبالانس', logo: 'vikyplus-nb.png', stock: '۳۵',
+    photos: [
+      'assets/img/brand/vikyplus-nb-530.webp',
+      'assets/img/brand/vikyplus-nb-kit.webp',
+      'assets/img/brand/vikyplus-nb-athlete.webp',
+    ],
+  },
+  {
+    name: 'اون', logo: 'vikyplus-on.png', stock: '۱۹',
+    photos: [
+      'assets/img/brand/vikyplus-on-running.webp',
+      'assets/img/brand/vikyplus-on-kit.webp',
+      'assets/img/brand/vikyplus-on-athlete.webp',
+    ],
+  },
 ];
+
+// A tile's three photographs, whether they are the brand's own or the category
+// tiles standing in for them. The first is the lead; the two after it are the
+// stacked pair, in order.
+const brandPhotos = b =>
+  b.photos ?? [b.lead, b.a, b.b].map(slug => `assets/img/category/${slug}.jpg`);
 
 const BRANDS_HTML =
   '    <section class="vp-brands-section space">\n' +
@@ -1639,9 +1691,10 @@ const BRANDS_HTML =
     // what it holds in text, so the photographs carry nothing a reader would
     // otherwise lose and are hidden rather than given invented alt copy.
     '                    <span class="vp-brand-mosaic" aria-hidden="true">\n' +
-    `                        <span class="vp-brand-cell is-lead"><img src="assets/img/category/${b.lead}.jpg" alt="" loading="lazy"></span>\n` +
-    `                        <span class="vp-brand-cell"><img src="assets/img/category/${b.a}.jpg" alt="" loading="lazy"></span>\n` +
-    `                        <span class="vp-brand-cell"><img src="assets/img/category/${b.b}.jpg" alt="" loading="lazy"></span>\n` +
+    brandPhotos(b).map((photo, i) =>
+      `                        <span class="vp-brand-cell${i === 0 ? ' is-lead' : ''}">` +
+      `<img src="${photo}" alt="" loading="lazy"></span>\n`
+    ).join('') +
     '                    </span>\n' +
     '                    <span class="vp-brand-plate">\n' +
     `                        <img class="vp-brand-logo" src="assets/img/brand/${b.logo}" alt="" loading="lazy">\n` +

@@ -2,10 +2,14 @@
     «برندهای موجود» — four brands, each a photo mosaic with a glass plate
     floating in it.
 
-    The name and the mark are the brand's own. The three photographs and the
-    count are not: we hold one product photograph per brand and the tile wants
-    three, so the category tiles from the top of the page stand in, and the
-    counts are invented outright. Both come out of
+    The name and the mark are the brand's own, and so are the photographs of
+    the three tiles the client has supplied a set for — Nike, Jordan and New
+    Balance, each reading shoe, kit, athlete down the tile. The fourth still
+    borrows the category photographs from the top of the page, because we hold
+    one product photograph for that brand and a tile wants three. No count is
+    real; they are invented outright.
+
+    Photographs and counts alike come out of
     config('storefront.placeholders.brand_strip') rather than out of the
     catalogue, so an invented number never sits in the tables looking like a
     counted one.

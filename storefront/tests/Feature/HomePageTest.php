@@ -280,6 +280,47 @@ class HomePageTest extends TestCase
     }
 
     /**
+     * The brands that carry their own photographs carry them, and the files
+     * are actually there.
+     *
+     * Two ways this can break silently, so both are checked. A tile can go
+     * back to borrowing the category photographs — that is what all four did
+     * until the client's sets arrived, and the fallback is still there for the
+     * one still waiting, so losing a `photos` key renders a perfectly ordinary
+     * tile with the wrong pictures in it. And the files can simply not be in
+     * public/, because they are built by theme/make-brand-photos.js and
+     * carried over by theme/sync-storefront-assets.js — two steps outside this
+     * application, either of which can be forgotten. A missing image is
+     * invisible to an assertion on the markup: the src is right there in the
+     * HTML either way.
+     */
+    public function test_the_brands_with_their_own_photographs_show_them(): void
+    {
+        $strip = config('storefront.placeholders.brand_strip');
+        $own = array_filter(array_map(fn ($tile) => $tile['photos'] ?? null, $strip));
+
+        $this->assertNotEmpty($own, 'at least one brand is meant to carry its own photographs');
+
+        $page = $this->get('/');
+
+        foreach ($own as $slug => $photos) {
+            $this->assertCount(3, $photos, "{$slug} wants exactly three photographs");
+
+            foreach ($photos as $photo) {
+                $page->assertSee($photo, false);
+                $this->assertFileExists(public_path($photo));
+            }
+
+            // The lead is the large cell, and which photograph leads was the
+            // client's own instruction: «اون کفش تکی که پشتش نوشته نایک برای
+            // تصویر بزرگس», which every set since has followed. The order in
+            // config is the order in the markup, so the first entry has to be
+            // the one the `is-lead` cell carries.
+            $page->assertSee('class="vp-brand-cell is-lead"><img src="'.asset($photos[0]).'"', false);
+        }
+    }
+
+    /**
      * A product that sells out drops off the page rather than being offered.
      */
     public function test_a_sold_out_product_leaves_the_sale(): void

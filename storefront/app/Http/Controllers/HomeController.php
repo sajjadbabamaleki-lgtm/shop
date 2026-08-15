@@ -205,10 +205,12 @@ class HomeController extends Controller
     /**
      * The strip's four tiles.
      *
-     * The name and the mark are the brand's own. The three photographs and the
-     * count are not — see `placeholders.brand_strip`. A brand with no entry
-     * there falls back to what the catalogue can actually answer, which is
-     * what should happen as each brand's real assets arrive.
+     * The name, the mark and — where they exist — the photographs are the
+     * brand's own. The count never is, and neither are the photographs of a
+     * brand whose three have not arrived yet; see `placeholders.brand_strip`,
+     * which is where both substitutions are written down. A brand with no
+     * entry there falls back to what the catalogue can actually answer, which
+     * is what should happen as each brand's real assets arrive.
      *
      * @param  Collection<string, Category>  $categories
      * @return list<array{brand: Brand, mosaic: list<string>, stock: int}>
@@ -228,8 +230,13 @@ class HomeController extends Controller
         foreach ($brands as $brand) {
             $stand_in = $placeholders[$brand->slug] ?? null;
 
-            $mosaic = collect($stand_in['mosaic'] ?? [])
-                ->map(fn (string $slug) => $categories->get($slug)?->image_path)
+            // The brand's own three if it has them; otherwise the category
+            // photographs standing in, by slug. A slug that names no category
+            // drops out rather than rendering a broken image — the tile is
+            // decoration, and two photographs are better than a torn one.
+            $mosaic = collect($stand_in['photos'] ?? [])
+                ->whenEmpty(fn () => collect($stand_in['mosaic'] ?? [])
+                    ->map(fn (string $slug) => $categories->get($slug)?->image_path))
                 ->filter()
                 ->values()
                 ->all();
