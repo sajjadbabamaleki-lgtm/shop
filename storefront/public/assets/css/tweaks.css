@@ -10234,6 +10234,21 @@ ul.vp-how-list.is-ticked li:before {
      screen offers 300, so a stated 64 overflowed its column and the rings
      overlapped by 2.4 with the outer two hanging past the page's 10. Fluid to
      the column with 64 as the ceiling: 53.6 at 320, 64 from 375 up. */
+  /* Instagram's ring, colour for colour — «خط دور استوری دقیقا هم رنگ خط دور
+     استوری اینستاگرام بشه دقیقا همون رنگ همون گردینت».
+
+     This is their gradient as published rather than five colours picked to look
+     like it: yellow at the bottom-left, through orange and red to magenta, and
+     into blue at the top-right. The `circle at 30% 107%` origin is what puts
+     the yellow off the bottom-left corner instead of inside the ring, which is
+     the thing that makes a copy of this look wrong when it is done as a plain
+     45° linear.
+
+     **It is the one place on this site that is not the shop's gold**, and that
+     is the instruction rather than an oversight: a story ring is a borrowed
+     convention, and the client asked for the convention exactly. The gold
+     stays on everything else, including the tiles under the search line, so
+     nothing else needs to be read against this. */
   .vp-story-ring {
     display: block;
     flex: none;
@@ -10242,9 +10257,24 @@ ul.vp-how-list.is-ticked li:before {
     aspect-ratio: 1 / 1;
     padding: 2.5px;
     border-radius: 50%;
-    background: linear-gradient(160deg, #C0972F 0%, #E3B54A 100%);
+    background: radial-gradient(circle at 30% 107%,
+      #FDF497 0%,
+      #FDF497 5%,
+      #FD5949 45%,
+      #D6249F 60%,
+      #285AEB 90%);
   }
 
+  /* **The ground is not decoration: without it the ring shows through the
+     shoe.** These were category photographs — opaque JPEGs — and they are
+     product shots now, which are cut-outs on transparency. An `<img>` with no
+     background of its own lets whatever is behind it come through the cut-out,
+     and what is behind it here is the gradient above, so every circle drew a
+     shoe standing in a pink and orange sky. It only became visible when the
+     ring stopped being a flat gold.
+
+     `#F5F5F5` is the tiles' own ground and the story island's, so a shoe sits
+     on the same grey wherever this site shows one on a panel. */
   .vp-story-ring img {
     display: block;
     width: 100%;
@@ -10252,6 +10282,7 @@ ul.vp-how-list.is-ticked li:before {
     box-sizing: border-box;
     border: 2px solid #FFFFFF;
     border-radius: 50%;
+    background: #F5F5F5;
     object-fit: cover;
   }
 
@@ -10311,9 +10342,17 @@ ul.vp-how-list.is-ticked li:before {
    shape on a screen of any proportion rather than becoming the screen's own
    shape at 90%.
 
-   Measured at 390×844: an Instagram story is 390 × 693 there, and this is
-   351 × 624 — 90.0% of each side. At 412×915 it is 370.8 × 659.2 against
-   412 × 732.4, the same 90%.
+   **Then ten percent off the height, and the height alone** — «باید ارتفاع
+   استوری ده درصد کمتر بشه». The width is untouched: the previous round set both
+   sides against Instagram's and only the height was asked to come down, so the
+   box is no longer 9:16. It is 9:14.4, written `1 / 1.6` because that is the
+   number this is — the height is 1.6 widths where a story's is 1.777.
+
+   Measured at 390×844: the width is still 351, which is 90% of Instagram's 390
+   there, and the height is 561.6 against the 624 it was — 90.0% of it. The
+   width formula still reserves room for a 9:16 box in 90vh, which is more
+   height than this now needs; that is deliberate slack rather than an oversight,
+   and it is what keeps the island clear of the screen's ends on a short phone.
 
    It was a square card 366 wide, which is what the picture is; it is a story
    frame now and the picture sits inside it. */
@@ -10323,7 +10362,7 @@ ul.vp-how-list.is-ticked li:before {
   inset: 0;
   margin: auto;
   width: min(90vw, 90vh * 9 / 16);
-  aspect-ratio: 9 / 16;
+  aspect-ratio: 1 / 1.6;
   display: flex;
   flex-direction: column;
   overflow: hidden;
