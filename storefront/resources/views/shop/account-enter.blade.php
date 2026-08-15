@@ -17,7 +17,7 @@
 
     What it is now, all of it out of the shop's own kit:
 
-    - the mark in its gold tile, the way the drawer and the footer carry it,
+    - the mark at the top, bare, the way the header and the footer carry it,
       so the page opens on the shop rather than on a heading;
     - one line of type instead of a title and a subtitle under it;
     - a segmented control that reads as a control — the unchosen half on the
@@ -29,6 +29,13 @@
     - an eye on the password, which every phone keyboard expects in 2026 and
       which is the difference between typing a password on a phone once and
       typing it three times.
+
+    **The register form asks for no minimum password length**, at the client's
+    word. `AccountController::register` carries the reasoning; the short of it
+    is that this account holds an address and an order history rather than a
+    payment method, and a shopper turned back at the form over a rule they did
+    not expect mostly does not come back. The staff and vendor form next door
+    keeps its eight.
 
     The eye is the only thing here that needs a script, and it is an
     enhancement: with JavaScript off the field stays a password field and the
@@ -108,7 +115,7 @@
 
                     <div class="vp-inp">
                         <i class="fa-solid fa-lock" aria-hidden="true"></i>
-                        <input id="up-pass" name="password" type="password" required minlength="8" autocomplete="new-password" placeholder="رمز — دست‌کم ۸ نویسه">
+                        <input id="up-pass" name="password" type="password" required autocomplete="new-password" placeholder="رمز">
                         <label class="visually-hidden" for="up-pass">رمز</label>
                         <button type="button" class="vp-inp-eye" data-vp-eye="up-pass" aria-label="نمایش رمز">
                             <i class="fa-solid fa-eye" aria-hidden="true"></i>
@@ -117,7 +124,7 @@
 
                     <div class="vp-inp">
                         <i class="fa-solid fa-lock" aria-hidden="true"></i>
-                        <input id="up-pass2" name="password_confirmation" type="password" required minlength="8" autocomplete="new-password" placeholder="تکرار رمز">
+                        <input id="up-pass2" name="password_confirmation" type="password" required autocomplete="new-password" placeholder="تکرار رمز">
                         <label class="visually-hidden" for="up-pass2">تکرار رمز</label>
                     </div>
 

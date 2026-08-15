@@ -92,7 +92,26 @@ class AccountController extends Controller
         $input = $request->validate([
             'name' => ['required', 'string', 'max:80'],
             'phone' => ['required', 'string', 'max:20'],
-            'password' => ['required', 'string', 'min:8', 'max:200', 'confirmed'],
+            /*
+             * No minimum length, at the client's word: «رمز در اینجا کاربر
+             * هرچه زد اوکییه، مهم نیست حتما ۸ نویسه باشه». A shopper who is
+             * turned back at the register form over a rule they did not expect
+             * mostly does not come back, and this shop's account holds an
+             * address and an order history rather than a payment method.
+             *
+             * Still `required` — an account with no password at all is one
+             * anybody with the phone number signs into — and still `confirmed`,
+             * because a typo in a password nobody can read back is the one
+             * mistake the form can catch for them. `max:200` stays for the
+             * hasher's sake, not the shopper's.
+             *
+             * This is a decision, not an oversight. If it is ever revisited,
+             * the honest fix is a strength hint beside the field rather than a
+             * refusal — and the staff form next door (`VendorApplication`)
+             * keeps its `min:8`, because that account can price and settle
+             * money.
+             */
+            'password' => ['required', 'string', 'max:200', 'confirmed'],
             'order_number' => ['nullable', 'string', 'max:24'],
         ], [], [
             'name' => 'نام',

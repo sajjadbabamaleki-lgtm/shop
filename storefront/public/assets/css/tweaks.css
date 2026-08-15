@@ -8104,10 +8104,13 @@ ul.vp-how-list.is-ticked li:before {
    the receipt that stands in for an SMS code — see AccountController — so it
    is set apart from the fields above it rather than reading as one more thing
    to fill in. */
+/* Superseded — the block at the foot of this file sets what this is now, and
+   the rule it drew across the form went with the card's frame. Kept as the
+   place the decision was first made, with nothing left in it to apply. */
 .vp-signin-claim {
-  margin-top: 6px;
-  padding-top: 14px;
-  border-top: 1px solid rgba(16, 17, 17, 0.08);
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
 }
 
 .vp-signin-claim small {
@@ -16172,19 +16175,23 @@ html {
 /* The receipt field is not a fifth thing to fill in — it is the one asked for
    only when the phone turns out to have bought here before, so it keeps the
    rule above it and its sentence underneath. */
+/* The receipt is asked for only when the phone turns out to have bought here
+   before, so it is set apart from the four fields above it — but not with a
+   rule across the form. The line went with the card's: on a page with no frame
+   on it a hairline is the only drawn edge on the screen, which makes it the
+   loudest thing there rather than a quiet division. Space says the same and
+   draws nothing. */
 .vp-signin-claim {
-  margin-top: 2px;
-  padding-top: 12px;
-  border-top: 1px solid rgba(16, 17, 17, 0.08);
+  margin-top: 10px;
 }
 
 .vp-signin-claim small {
   display: block;
-  margin-top: 6px;
-  padding-inline: 4px;
+  margin-top: 8px;
+  padding-inline: 6px;
   font-size: 11.5px;
-  line-height: 1.75;
-  color: #6E7070;
+  line-height: 1.85;
+  color: #8A8C8C;
 }
 
 @media (max-width: 575px) {
@@ -16194,5 +16201,37 @@ html {
 
   .vp-enter-title {
     font-size: 17px;
+  }
+}
+
+/* «اون قاب مزخرفی که این قسمت روشه از ۲ طرف چسبیده و دورشم یه خط مزخرف
+   کشیدی» — the pane comes off «ورود / ثبت‌نام» on a phone.
+
+   The page is white and the card was white, so the only thing telling them
+   apart was a 1.5px ring and a shadow under it. On a screen this narrow that
+   ring is not a card, it is a line down each edge with the form pressed
+   against it — «لبه پنهان» arrived at from the other side: there the card
+   dissolved into the page and the answer was to draw the edge; here there is
+   nothing for a card to *be* and the answer is not to draw one.
+
+   The product page went the same way and for the same words — «اون کادرهای
+   گوهو برداااار من بهت نمونه دادم» — so this is the precedent rather than a
+   new idea: below 992 that page draws no panel either.
+
+   The desktop keeps its pane. There the card is a narrow column on a wide
+   white page and the pane is what holds it; nothing about that reads as a
+   line down the side of the screen.
+
+   The 10 the client asked for was the gap between a card and the screen. With
+   no card there is no gap to set — it becomes the form's own side padding,
+   and 20 is what keeps the fields off the edge without the page looking
+   pressed. */
+@media (max-width: 575px) {
+  .vp-shop-panel.vp-enter-card {
+    margin-inline: 0;
+    padding: 18px 20px 16px;
+    background: none;
+    border-radius: 0;
+    box-shadow: none;
   }
 }
