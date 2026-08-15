@@ -1625,13 +1625,14 @@ const BRANDS = [
   // best-sellers filter and still has its own page. The strip's four are
   // whichever four `placeholders.brand_strip` names.
   //
-  // The logos are still mostly the template's own. brand_5_2 is genuinely the
-  // Nike swoosh, and On's is genuinely On's — lifted off the poster the client
-  // sent by theme/make-brand-marks.js, because that tile shows the real mark
-  // three times over and an abstract shape beside it would read as a mistake.
-  // Jordan's and New Balance's are the template's marks still, and now that
-  // their photographs carry the real ones, the substitution is a good deal
-  // more visible than it used to be. Swap the file and nothing else changes.
+  // **The marks are all real now**, and none of the template's abstract
+  // stand-ins is left on this block. brand_5_2 came with the template and is
+  // genuinely the swoosh; the other three go through
+  // theme/make-brand-marks.js, which puts every one of them in the page's ink
+  // on transparency whatever state it arrived in — Jordan's already cut out,
+  // New Balance's black on white, On's still inside the poster it was sent
+  // with. The stock counts on the plates are the only invented thing left
+  // here.
   //
   // The counts are invented. There is no inventory behind this page — the
   // Laravel app has the tables, this static page has no data — so they are
@@ -1645,7 +1646,7 @@ const BRANDS = [
     ],
   },
   {
-    name: 'جردن', logo: 'brand_1_6.svg', stock: '۲۸',
+    name: 'جردن', logo: 'vikyplus-jordan.png', stock: '۲۸',
     photos: [
       'assets/img/brand/vikyplus-jordan-one.webp',
       'assets/img/brand/vikyplus-jordan-kit.webp',
@@ -1653,7 +1654,7 @@ const BRANDS = [
     ],
   },
   {
-    name: 'نیوبالانس', logo: 'brand_1_5.svg', stock: '۳۵',
+    name: 'نیوبالانس', logo: 'vikyplus-nb.png', stock: '۳۵',
     photos: [
       'assets/img/brand/vikyplus-nb-530.webp',
       'assets/img/brand/vikyplus-nb-kit.webp',

@@ -67,17 +67,21 @@ class CatalogueSeeder extends Seeder
      * instruction, and it keeps its shoe, its page and its place in the
      * best-sellers filter regardless.
      *
-     * Two of the marks are real: Nike's swoosh, and On's, which
-     * theme/make-brand-marks.js lifts off the poster the client supplied for
-     * that tile. Jordan's, New Balance's and گلدن گوس's are the template's own
-     * abstract marks standing in until real ones arrive, which is why they are
-     * `brand_1_*` files from one family. On had no mark at all until now, and
-     * a null here draws a broken image on the plate rather than nothing.
+     * Four of the five marks are real. Nike's swoosh came with the template;
+     * Jordan's, New Balance's and On's go through theme/make-brand-marks.js,
+     * which puts each in the page's ink on transparency whatever state it
+     * arrived in — the client sent the first two as logo files and On's had to
+     * come out of the poster it was sent inside. گلدن گوس's is still the
+     * template's own abstract mark, which is why it is a `brand_1_*` file, and
+     * it is not on the strip to be seen anyway.
+     *
+     * A null here draws a broken image on the plate rather than nothing, which
+     * is what On did until it was given one.
      */
     private const BRANDS = [
         ['nike', 'نایک', 'Nike', 'assets/img/brand/brand_5_2.png'],
-        ['jordan', 'جردن', 'Jordan', 'assets/img/brand/brand_1_6.svg'],
-        ['new-balance', 'نیوبالانس', 'New Balance', 'assets/img/brand/brand_1_5.svg'],
+        ['jordan', 'جردن', 'Jordan', 'assets/img/brand/vikyplus-jordan.png'],
+        ['new-balance', 'نیوبالانس', 'New Balance', 'assets/img/brand/vikyplus-nb.png'],
         ['golden-goose', 'گلدن گوس', 'Golden Goose', 'assets/img/brand/brand_1_3.svg'],
         ['on', 'اون', 'On', 'assets/img/brand/vikyplus-on.png'],
     ];

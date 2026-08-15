@@ -157,7 +157,7 @@ photographs are ours rather than the template's.
 | best sellers | «پرفروش‌ترین‌ها» | 6 of 6 ours | ours |
 | offer banner | «SPECIAL OFFER» / «BLACK FRIDAY» | 0 of 1 | **template** |
 | daily deal — was today's deals | «قبل از تمام شدن بخرش!» | 1 of 1 ours | ours |
-| brand strip | «برندهای موجود» | our layout, placeholder content | see below |
+| brand strip | «برندهای موجود» | our layout, real content bar the counts | see below |
 | footer | «Menu» | 0 of 5 | **template** |
 
 So two blocks are still wholly the template's: **the offer banner and the
@@ -165,20 +165,29 @@ footer.** The banner reads BLACK FRIDAY / SPECIAL OFFER over ADIDAS SHOES on a
 stock photograph; the footer carries «Menu», the column headings and an address
 in Germany for a furniture company.
 
-**The brand strip is ours in shape and borrowed in content.** The template's
-carousel is gone, replaced by four tiles on one white card — a photo mosaic
-per tile with a glass plate floating in the middle carrying the brand's mark,
-its name and a stock count. The layout is settled and measured. Three things
-in it are stand-ins, each chosen by the client rather than waited for, and all
-three live in one array (`BRANDS`) at the top of the brand block in
-`theme/make-rtl-page.js`:
+**The brand strip is ours in shape, and its content is real now bar one
+thing.** The template's carousel is gone, replaced by four tiles on one white
+card — a photo mosaic per tile with a glass plate floating in the middle
+carrying the brand's mark, its name and a stock count. The layout is settled
+and measured. Of the three things that used to be stand-ins here, two are
+finished: the client sent a set of three photographs per brand and a logo for
+every mark. **Only the counts are still invented**, and they are the one part
+nobody can supply — they are a number the catalogue would have to hold. All of
+it lives in one array (`BRANDS`) at the top of the brand block in
+`theme/make-rtl-page.js`, mirrored by `placeholders.brand_strip` on the
+Laravel side:
 
-- **the marks** — `brand_5_2.png` is genuinely the Nike swoosh, and On's is
-  genuinely On's: `theme/make-brand-marks.js` lifts it off the poster the
-  client supplied for that tile, cuts it out on a luminance ramp and paints it
-  in the page's ink, because the plate is white glass and a white mark on it
-  is an empty slot. Jordan's and New Balance's are still the template's own
-  abstract marks. The slot is a fixed 36×36 box rather than sized off the
+- **the marks** — **all four are real now**, and no abstract stand-in is left
+  on this block. `brand_5_2.png` is the template's own genuine Nike swoosh;
+  the other three go through `theme/make-brand-marks.js`, which puts each in
+  the page's ink on transparency — the plate is white glass, so a white or
+  unpainted mark on it is an empty slot — whatever state it arrived in. Three
+  states, one per mark, and the script names them: Jordan's PNG already
+  carried its own alpha, New Balance's was black on opaque white, and On's had
+  no file at all and had to be found and cut out of the poster it was sent
+  inside. Everything is trimmed to its own content at the end, or the margin a
+  file happened to arrive with would shrink the mark inside the slot by a
+  different amount for each. The slot is a fixed 36×36 box rather than sized off the
   artwork, so a real logo drops in without touching the CSS — **and that only
   became true when On arrived.** `.vp-brand-logo` alone loses on specificity
   to the template's `img:not([draggable]) { height: auto }`, which is (0,1,1)
