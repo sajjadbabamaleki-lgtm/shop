@@ -22,7 +22,7 @@ const SITE = path.join(ROOT, 'download-version');
 // document and the fixed id cannot collide.
 const GRADIENT_ID = 'vp-gold';
 const DEF = `<defs><linearGradient id="${GRADIENT_ID}" x1="0" y1="0" x2="0" y2="1">` +
-  `<stop offset="0" stop-color="#7D6324"/><stop offset="1" stop-color="#CE9E29"/>` +
+  `<stop offset="0" stop-color="#93791F"/><stop offset="1" stop-color="#E3B825"/>` +
   `</linearGradient></defs>`;
 
 const REDS = /#(?:FF0004|E42E3B|FD8900)/gi;

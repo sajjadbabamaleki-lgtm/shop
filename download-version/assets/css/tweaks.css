@@ -33,56 +33,88 @@
 /* --------------------------------------------------------------------------
    Accent colour: red -> gold.
 
-   Sampled from the bars of the brand's own tiered-sale chart, in sRGB after
-   the screenshot's Display-P3 profile is converted. The bars are not a flat
-   colour — they run a vertical metallic gradient, dark at the top and light
-   at the foot. Over the 112k pixels in that hue range:
+   The gold began sampled from the bars of the brand's own tiered-sale chart,
+   in sRGB after the screenshot's Display-P3 profile is converted. The bars are
+   not a flat colour — they run a vertical metallic gradient, dark at the top
+   and light at the foot. Over the 112k pixels in that hue range:
 
      dark end   (p25) .... #8F7022
      midpoint   (p50) .... #A47F25   <- the single most common value
      light end  (p90) .... #CA9A24
 
-   All three sit on the same hue (42-44°), so the three jobs below are the one
+   All three sat on the same hue (42-44°), so the three jobs below are the one
    gold at three points along its own gradient, not three colours.
 
-   Measured against white:
+   That is where it began. On 2026-08-16 the client sent a photograph of a
+   yellow card and asked for the gold to be walked to it — «گلدا بشن این گلد
+   ببینم چطو میشه» — first on the phone only, and then, having seen it,
+   everywhere. The card read #EFC94F. Against the lit end of the ramp above,
+   #E3B54A, that is H +3.8°, S +10.1pp, L +3.3pp, and every value below is the
+   old one carried through that same shift. So it is still one gold at points
+   along one gradient; the gradient moved.
 
-     ink #101111 on #A47F25 ....... 5.08:1   passes AA
-     #A47F25 as text on white ..... 3.72:1   passes AA Large only
-     #8F7022 as text on white ..... 4.66:1   passes AA
-     #CA9A24 on the footer's ink .. 7.35:1   passes AA
+   Fills took the shift whole. Text did not, because the saturation alone costs
+   contrast — #8F7022 carried straight through comes out 3.40:1 on white, under
+   AA, from 4.66:1. So the six text golds took the new hue and saturation and
+   then had their lightness solved to hold their original relative luminance.
+   Every ratio this file had measured therefore survived the change:
 
-   So: the midpoint is the fill everywhere, the light end drives gradients and
-   text on dark grounds, and text on light grounds takes the dark end. The
-   template could use its red for both jobs — 205 declarations as a fill and
-   197 selectors as text — because red cleared 4.00:1 either way.
+     ink #101111 on #A08119 ....... 5.09:1   passes AA        (was 5.08 on #A47F25)
+     #A08119 as text on white ..... 3.72:1   passes AA Large  (was 3.72 on #A47F25)
+     #8B7217 as text on white ..... 4.65:1   passes AA        (was 4.66 on #8F7022)
+     #6B550E as text on white ..... 7.17:1   passes AA        (was 7.14 on #6E5416)
+     #C49D16 on the footer's ink .. 7.37:1   passes AA        (was 7.35 on #CA9A24)
+     #7A641A as text on white ..... 5.73:1   passes AA        (was 5.70 on #7D6324)
+     #BB9920 as text on white ..... 2.73:1   decorative only  (was 2.72 on #C0972F)
+
+   Nothing moved by more than 0.03. So: the midpoint is the fill everywhere,
+   the light end drives gradients and text on dark grounds, and text on light
+   grounds takes the dark end. The template could use its red for both jobs —
+   205 declarations as a fill and 197 selectors as text — because red cleared
+   4.00:1 either way.
    -------------------------------------------------------------------------- */
 
 /* The gold, named. Every gold in this file used to be one of ten hex literals
-   spread over 128 declarations; they are these ten custom properties now and
-   nothing else. The values below are exactly what those literals were, so
-   this indirection changes no pixel — it exists so the ramp can be re-pointed
-   in one place, which is what the phone block further down does.
+   spread over 128 declarations; they are these thirteen custom properties now
+   and nothing else, which is what let the whole ramp be re-pointed above in
+   one place instead of edited 128 times.
 
    Which name a literal took depends on the job it was doing, because the two
    jobs have different tolerances: a fill can move in lightness freely, text
-   cannot without dragging its contrast ratio with it. So #C0972F as a fill
-   and #C0972F as text are two names, and likewise #7D6324 and #CA9A24. */
+   cannot without dragging its contrast ratio with it. So the old #C0972F as a
+   fill and as text are two names, and likewise #7D6324 and #CA9A24 — and that
+   split is exactly what the shift above needed. The comment beside each name
+   is the value it held before, so a rule that reads oddly can still be traced
+   to the template's own.
+
+   That "before" column is also how to read the rest of this file. The comments
+   below were written while the gold was the sampled one and still quote it —
+   «#C0972F to #E3B54A», «the top stop is #7D6324», and so on. They are the
+   record of how a decision was reached and are left as they were written; the
+   table above is what those names paint today. HANDOFF.md carries the same
+   mapping. Any comment quoting a hex is history unless it quotes one of the
+   thirteen below.
+
+   The three SVG generators carry the same ramp inside the files they write —
+   `recolor-svg.js` (the trust badges), `make-category-icons.js` and
+   `make-rtl-page.js` (the two inline bursts). CSS cannot reach inside an
+   `<img>`, so if these values ever move again, those three move with them and
+   get re-run. */
 
 :root {
-  --vp-gold-fill: #C0972F;        /* the fill, 42 declarations                */
-  --vp-gold-fill-ink: #C0972F;    /* same value as text, 5 declarations       */
-  --vp-gold-lit: #E3B54A;         /* the lit end of every gradient            */
-  --vp-gold: #A47F25;             /* the sampled midpoint, and --theme-color  */
-  --vp-gold-ink: #8F7022;         /* text on white, 4.66:1                    */
-  --vp-gold-ink-deep: #6E5416;    /* text on white, darkest, 7.14:1           */
-  --vp-gold-ink-lit: #CA9A24;     /* text on the footer's ink, 7.35:1         */
-  --vp-gold-ramp-lit: #CA9A24;    /* same value as --gr-color2's light stop   */
-  --vp-gold-ramp-top: #7D6324;    /* the button ramp, dark stop               */
-  --vp-gold-ramp-ink: #7D6324;    /* same value as text, 5.70:1               */
-  --vp-gold-ramp-foot: #CE9E29;   /* the button ramp, light stop              */
-  --vp-gold-step: #C29A31;        /* the stepped sale's second podium         */
-  --vp-gold-step-deep: #8C6E1F;   /* its foot                                 */
+  --vp-gold-fill: #DAB226;        /* the fill, 42 declarations   was #C0972F  */
+  --vp-gold-fill-ink: #BB9920;    /* the same, as text            was #C0972F */
+  --vp-gold-lit: #EFC94F;         /* the lit end of every gradient  #E3B54A   */
+  --vp-gold: #A08119;             /* the midpoint, and --theme-color  #A47F25 */
+  --vp-gold-ink: #8B7217;         /* text on white, 4.65:1        was #8F7022 */
+  --vp-gold-ink-deep: #6B550E;    /* text on white, 7.17:1        was #6E5416 */
+  --vp-gold-ink-lit: #C49D16;     /* text on the footer's ink     was #CA9A24 */
+  --vp-gold-ramp-lit: #E5B71A;    /* --gr-color2's light stop     was #CA9A24 */
+  --vp-gold-ramp-top: #93791F;    /* the button ramp, dark stop   was #7D6324 */
+  --vp-gold-ramp-ink: #7A641A;    /* the same, as text            was #7D6324 */
+  --vp-gold-ramp-foot: #E3B825;   /* the button ramp, light stop  was #CE9E29 */
+  --vp-gold-step: #D9B42B;        /* the stepped sale's 2nd podium  #C29A31   */
+  --vp-gold-step-deep: #A38619;   /* its foot                     was #8C6E1F */
 }
 
 :root,
@@ -93,87 +125,16 @@
 }
 
 /* The inline bursts carry their gradient as `stop-color` attributes, which are
-   presentation attributes and so lose to any rule at all — this is how the two
-   SVGs in the markup follow the ramp instead of being frozen at the values
-   `make-rtl-page.js` wrote into them. Same values, so still no pixel moves. */
+   presentation attributes and so lose to any rule at all. `make-rtl-page.js`
+   writes the same two values into the markup, so this changes nothing today —
+   it is here so that the next time the ramp moves, the bursts move with the
+   stylesheet even before the page is regenerated. The gold in the *other*
+   SVGs, the ones loaded through `<img>`, has no such reprieve: nothing in CSS
+   reaches inside one, and only re-running their generator moves them. */
 .vp-burst linearGradient stop:first-child,
 .vp-deal-burst linearGradient stop:first-child { stop-color: var(--vp-gold-fill); }
 .vp-burst linearGradient stop:last-child,
 .vp-deal-burst linearGradient stop:last-child { stop-color: var(--vp-gold-lit); }
-
-/* --------------------------------------------------------------------------
-   ON THE PHONE ONLY: the brighter gold, for the client to look at.
-
-   Asked for from a screenshot of a yellow card — «گلدا بشن این گلد ببینم چطو
-   میشه» — and scoped to <=767px so the desktop keeps the shipped gold while
-   the two are being compared. This block is the whole of the change: delete
-   it and the page is back where it was.
-
-   The screenshot's gold read #EFC94F. Against the lit end of our own ramp,
-   #E3B54A, that is H +3.8°, S +10.1pp, L +3.3pp — so the gold is not replaced
-   by a flat colour, it is the same ramp walked to the new hue. Every fill
-   takes the shift whole.
-
-   Text does not, because the saturation alone costs contrast: #8F7022 carried
-   straight through comes out 3.40:1 on white, under AA, from 4.66:1. So the
-   six text golds take the new hue and saturation and then have their
-   lightness solved to hold their original relative luminance. Measured after,
-   against the numbers at the top of this file:
-
-     #A47F25 -> #A08119   on white 3.72 -> 3.72   ink on it 5.08 -> 5.09
-     #8F7022 -> #8B7217   on white 4.66 -> 4.65   ink on it 4.06 -> 4.07
-     #6E5416 -> #6B550E   on white 7.14 -> 7.17   ink on it 2.65 -> 2.64
-     #CA9A24 -> #C49D16   on white 2.57 -> 2.57   ink on it 7.35 -> 7.37
-     #7D6324 -> #7A641A   on white 5.70 -> 5.73   ink on it 3.32 -> 3.30
-     #C0972F -> #BB9920   on white 2.72 -> 2.73   ink on it 6.94 -> 6.93
-
-   Nothing moves by more than 0.03, so no measurement in this file is invalid
-   on the phone. `--theme-color` is one of the six: it is the template's own
-   accent variable and still feeds text this file's generated selector lists
-   did not catch, so it is held rather than lifted. Every gold the eye actually
-   reads as gold on this page — the buy button, the bursts, the stepped sale,
-   the marks — is a fill, and those move.
-
-   The gold baked into the flat SVGs is a second problem, because CSS does not
-   get inside an `<img>`. Five of them are on this page — the trust row's
-   badges — and they carry the button ramp, the pair that moves most, so
-   leaving them would have put the old gold next to the new one on the same
-   card and made the test unreadable. Each has a `-goldtest` sibling, the same
-   file with the two `stop-color`s walked to the values below, and the rule at
-   the foot of this block swaps them with `content: url()`, which is the one
-   thing that changes what an `<img>` shows without touching the markup. They
-   were made with a two-term sed off the `-gold` files and go when this block
-   goes; `theme/recolor-svg.js` is what would make them properly if this gold
-   is the one that ships.
-
-   The category icons also carry gold, #A47F25, but that is one of the six held
-   values — #A47F25 to #A08119 is under two levels per channel — so they are
-   left alone rather than given a sibling nobody could tell apart.
-   -------------------------------------------------------------------------- */
-
-@media (max-width: 767px) {
-  :root {
-    --vp-gold-fill: #DAB226;
-    --vp-gold-fill-ink: #BB9920;
-    --vp-gold-lit: #EFC94F;
-    --vp-gold: #A08119;
-    --vp-gold-ink: #8B7217;
-    --vp-gold-ink-deep: #6B550E;
-    --vp-gold-ink-lit: #C49D16;
-    --vp-gold-ramp-lit: #E5B71A;
-    --vp-gold-ramp-top: #93791F;
-    --vp-gold-ramp-ink: #7A641A;
-    --vp-gold-ramp-foot: #E3B825;
-    --vp-gold-step: #D9B42B;
-    --vp-gold-step-deep: #A38619;
-  }
-
-  img[src$="check2-gold.svg"] { content: url("../img/icon/check2-goldtest.svg"); }
-  img[src$="feature_card_1-gold.svg"] { content: url("../img/icon/feature_card_1-goldtest.svg"); }
-  img[src$="feature_card_2-gold.svg"] { content: url("../img/icon/feature_card_2-goldtest.svg"); }
-  img[src$="feature_card_4-gold.svg"] { content: url("../img/icon/feature_card_4-goldtest.svg"); }
-  img[src$="secure-gold.svg"] { content: url("../img/icon/secure-goldtest.svg"); }
-}
 
 /* Text that took its colour from the accent. The selector list is generated
    from the template's own stylesheet, so nothing is missed. */

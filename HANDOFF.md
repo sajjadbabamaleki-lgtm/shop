@@ -12,6 +12,63 @@ carries the codenames for problems that have already cost a day. This file says
 what is finished, what is not, and what the finished part is not allowed to
 lose.
 
+## The gold moved, on 2026-08-16
+
+The gold was sampled off the brand's own sale chart and stayed there for the
+whole build. The client then sent a photograph of a yellow card and asked for
+it — «گلدا بشن این گلد ببینم چطو میشه» — first on the phone to look at, then
+everywhere. **The gold below is the gold now. Anything in this file or in
+`tweaks.css` quoting the left-hand column is describing how a decision was
+reached, not what the page currently paints.**
+
+| was | is | job |
+| --- | --- | --- |
+| `#C0972F` | `#DAB226` | the fill, 42 declarations |
+| `#C0972F` | `#BB9920` | the same value where it was text |
+| `#E3B54A` | `#EFC94F` | the lit end of every gradient — this is the card's own colour |
+| `#A47F25` | `#A08119` | the sampled midpoint, and `--theme-color` |
+| `#8F7022` | `#8B7217` | text on white |
+| `#6E5416` | `#6B550E` | text on white, darkest |
+| `#CA9A24` | `#C49D16` | text on the footer's ink |
+| `#CA9A24` | `#E5B71A` | `--gr-color2`, the gradient partner |
+| `#7D6324` | `#93791F` | the button and icon ramp, dark stop |
+| `#7D6324` | `#7A641A` | the same value where it was text |
+| `#CE9E29` | `#E3B825` | the button and icon ramp, light stop |
+| `#C29A31` | `#D9B42B` | the stepped sale's second podium |
+| `#8C6E1F` | `#A38619` | its foot |
+
+**The numbers the change was not allowed to lose, and did not.** The card read
+`#EFC94F`; against `#E3B54A` that is H +3.8°, S +10.1pp, L +3.3pp, and fills
+took it whole. Text did not, because the saturation alone costs contrast —
+`#8F7022` carried straight through lands at 3.40:1 on white, under AA, from
+4.66:1. So the six text golds took the hue and saturation and then had their
+lightness solved to hold their original relative luminance. Every ratio this
+repo had measured survived, none moving by more than 0.03:
+
+| | on white | ink on it |
+| --- | --- | --- |
+| `#A08119` (was `#A47F25`) | 3.72 → 3.72 | 5.08 → 5.09 |
+| `#8B7217` (was `#8F7022`) | 4.66 → 4.65 | 4.06 → 4.07 |
+| `#6B550E` (was `#6E5416`) | 7.14 → 7.17 | 2.65 → 2.64 |
+| `#C49D16` (was `#CA9A24`) | 2.57 → 2.57 | 7.35 → 7.37 |
+| `#7A641A` (was `#7D6324`) | 5.70 → 5.73 | 3.32 → 3.30 |
+| `#BB9920` (was `#C0972F`) | 2.72 → 2.73 | 6.94 → 6.93 |
+
+**Where the gold lives now.** `tweaks.css` holds it in thirteen custom
+properties in one `:root` block near the top — it used to be ten hex literals
+across 128 declarations, which is why it had never moved before. Four places
+carry it outside that block, all of them because CSS cannot reach inside an
+`<img>`, and **all four must be re-run together if it ever moves again**:
+
+    node theme/recolor-svg.js           # the trust badges and the lockups
+    node theme/make-category-icons.js   # the eight category marks
+    node theme/make-rtl-page.js         # the two inline burst gradients
+    node theme/sync-storefront-assets.js
+
+The two inline bursts are also pinned from the stylesheet — `stop-color` is a
+presentation attribute and loses to any rule — so those follow the variables
+even before the page is regenerated. The baked SVGs have no such reprieve.
+
 ## What is being built, and what this HTML is
 
 **The deliverable is the Laravel app in `storefront/`.** It is Laravel 13 on
@@ -100,7 +157,7 @@ looks fine:
 | card → category row | 36 |
 | category tiles | 157.5 each, 48 between them |
 | glass | `rgba(16,17,17,0.034)`, blur 10 — composites to 247 on white |
-| gold | `#C0972F → #E3B54A` on the button, the search disc and the burst |
+| gold | `#DAB226 → #EFC94F` on the button, the search disc and the burst |
 
 **Four rows of that table no longer describe the page, and were already wrong
 before the port.** Measured at 1440 on the preview page and on the Laravel
@@ -1053,7 +1110,7 @@ added a sixth so the grid comes out even — three rows of two, no odd card.
   flames and some user silhouettes — the template's set is line art, and it has
   no filled box or bag at all. FontAwesome 6 is already shipped and the phone
   drawer's marks already come out of it, so `fa-solid fa-boxes-stacked` is the
-  sixth. It matches because it is painted with the same `#7D6324 → #CE9E29`
+  sixth. It matches because it is painted with the same `#93791F → #E3B825`
   ramp the SVGs carry, clipped to the glyph, at the same 32px the five files are
   capped to.
 
@@ -1267,9 +1324,9 @@ Three more, from the same pass:
 - **The basket and the menu are squares the size of the mark.** They were 48 to
   the mark's 42, and the menu was a *circle* — three controls in one band at two
   sizes and two shapes. The radius follows the tile's own ratio, 10 of 42.
-- **The menu button's gold is the page's gold.** It carried `#7D6324 → #CE9E29`,
-  the ramp sampled off the template's chart, which this repo keeps for SVG icons
-  and nowhere else. Beside the basket it read dark olive — the same fault
+- **The menu button's gold is the page's gold.** It carried the icon ramp
+  (`#7D6324 → #CE9E29` then, `#93791F → #E3B825` since the gold moved), which
+  this repo keeps for SVG icons and nowhere else. Beside the basket it read dark olive — the same fault
   «خرید با قیمت فعلی» had, for the same reason.
 - **The drawer's search has no submit button.** Enter searches, and a phone's own
   keyboard puts a search key where return would be. The gold block in the field
@@ -2252,7 +2309,7 @@ block happens to be exactly this shop's catalogue: `high-heeled-shoe`,
 **The client chose Fluent Emoji High Contrast** — Microsoft's monochrome cut of
 Fluent Emoji, MIT, so it takes the page's gold and needs no attribution line in
 the footer. `theme/make-category-icons.js` writes the eight, recoloured to
-`#A47F25`, under the filenames that were already in `config/storefront.php` and
+`#A08119`, under the filenames that were already in `config/storefront.php` and
 `theme/make-rtl-page.js` — so swapping the artwork touched no markup and no
 config. Re-run it after changing the map, then `sync-storefront-assets.js`.
 

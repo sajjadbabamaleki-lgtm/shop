@@ -48,7 +48,7 @@ const OUT = path.join(ROOT, 'download-version/assets/img/icon');
 
 /** The page's gold on a white ground. Baked in, because these are <img> and an
  *  <img> does not inherit `currentColor` from the page around it. */
-const GOLD = '#A47F25';
+const GOLD = '#A08119';
 
 /**
  * Where artwork comes from, and the notice that has to ship with it.
