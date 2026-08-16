@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Branch;
 use App\Models\BranchInventory;
+use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
 use App\Support\Tenancy\TenantContext;
@@ -317,6 +318,38 @@ class HomePageTest extends TestCase
             // config is the order in the markup, so the first entry has to be
             // the one the `is-lead` cell carries.
             $page->assertSee('class="vp-brand-cell is-lead"><img src="'.asset($photos[0]).'"', false);
+        }
+    }
+
+    /**
+     * Every tile's mark is a file that is actually there.
+     *
+     * This is the exact shape of a bug that reached the live site. On's
+     * `logo_path` was null, the plate renders `asset($brand->logo_path)`, and
+     * `asset(null)` resolves to the site root — so the plate drew a
+     * broken-image box, and nothing anywhere went red. A null and a path to a
+     * file nobody built look identical in the markup and identical in every
+     * assertion that only reads the HTML.
+     *
+     * The mark is also the one part of a tile that lives in the *database*
+     * rather than in config, which is why it could be right in the seeder and
+     * still wrong in production for a week: `catalogue:seed` only seeds an
+     * empty catalogue. Correcting one takes a migration. This test is what
+     * says the seeder and the files agree in the first place.
+     */
+    public function test_every_brand_on_the_strip_has_a_mark_that_exists(): void
+    {
+        $slugs = array_keys(config('storefront.placeholders.brand_strip'));
+
+        $brands = Brand::whereIn('slug', $slugs)->get();
+        $this->assertCount(count($slugs), $brands, 'the strip names a brand the catalogue does not have');
+
+        foreach ($brands as $brand) {
+            $this->assertNotNull(
+                $brand->logo_path,
+                "{$brand->slug} has no mark, and a plate with no mark draws a broken image"
+            );
+            $this->assertFileExists(public_path($brand->logo_path), "{$brand->slug}'s mark is not in public/");
         }
     }
 

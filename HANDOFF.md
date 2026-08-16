@@ -178,7 +178,15 @@ it lives in one array (`BRANDS`) at the top of the brand block in
 Laravel side:
 
 - **the marks** — **all four are real now**, and no abstract stand-in is left
-  on this block. `brand_5_2.png` is the template's own genuine Nike swoosh;
+  on this block. **A mark is the one part of a tile that lives in the
+  database**, and that cost a round: the seeder was updated, the run went
+  green, and the live site went on showing the template's marks with a broken
+  image where On's should be, because a deploy migrates and does not re-seed
+  (CLAUDE.md's deploy block spells this out). Correcting one is a migration —
+  `2026_08_16_070000_put_the_real_marks_on_the_brands.php` is the one that did
+  it. `HomePageTest` now asserts every brand on the strip has a `logo_path`
+  *and that the file is in `public/`*, because a null and a path to a file
+  nobody built read identically in the markup. `brand_5_2.png` is the template's own genuine Nike swoosh;
   the other three go through `theme/make-brand-marks.js`, which puts each in
   the page's ink on transparency — the plate is white glass, so a white or
   unpainted mark on it is an empty slot — whatever state it arrived in. Three

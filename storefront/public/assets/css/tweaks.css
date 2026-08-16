@@ -3335,9 +3335,14 @@ option:hover {
   padding: 28px;
   border-radius: 50px;
   background: #FFFFFF;
+  /* The same ring `.vp-brands-panel` carries, and it is there that the whole
+     reasoning for it is written down. These two are one card twice and are
+     stacked in view of each other, so an edge given to one has to be given to
+     the other. */
   box-shadow:
     inset 0 0 0 1.5px rgba(16, 17, 17, 0.12),
-    0 18px 32px -22px rgba(16, 17, 17, 0.18);
+    0 0 2px rgba(16, 17, 17, 0.1),
+    0 0 8px -2px rgba(16, 17, 17, 0.14);
 }
 
 /* ---------------------------------------------------------------------------
@@ -4801,9 +4806,38 @@ ul.vp-how-list.is-ticked li:before {
   padding: 28px;
   border-radius: 50px;
   background: #FFFFFF;
+  /* A soft ring the whole way round — «یه سایه نرم دورتا دور مث سایه مربع های
+     هدر بهش بده که حریمش مشخصتر بشه». The two outer values are the header
+     buttons' own (`.icon-btn`), copied rather than re-invented, because the
+     client named them as the reference.
+
+     What they replace was `0 18px 32px -22px`: 18px of downward offset, which
+     puts the entire shadow under the foot and leaves the top and both sides
+     with nothing but the hairline. On a white page that is why the card read
+     as having no edge along three of its four sides.
+
+     **Zero offset is the point, and it is also what keeps this clear of
+     «لبه پنهان».** That failure was an offset drop shadow whose long soft
+     climb dissolved a card's foot into the page, and the fix there was to
+     stop drawing a foot with a shadow at all. This draws no foot: it is a
+     symmetric halo of 8px reach, the same on all four sides, so there is no
+     gradient running away from any one edge for the eye to lose. The inset
+     hairline still states the boundary; this only gives it some ground.
+
+     Measured across the left edge at 1440, reading outward-to-inward:
+     255 (page) · 254 253 252 250 247 239 · 226 (hairline) · 241 · 255 (card).
+     Six pixels of ring, then a 13-level step onto the hairline. Compare the
+     foot before this change, which was 255 all the way in to the hairline on
+     three sides out of four.
+
+     **`.vp-best-panel` carries the identical block** — the two are "one card
+     twice", as the note on its margin says, and they are stacked in view of
+     each other. Change one edge and you have to change the other or the page
+     shows the same white card with two different edges. */
   box-shadow:
     inset 0 0 0 1.5px rgba(16, 17, 17, 0.12),
-    0 18px 32px -22px rgba(16, 17, 17, 0.18);
+    0 0 2px rgba(16, 17, 17, 0.1),
+    0 0 8px -2px rgba(16, 17, 17, 0.14);
 }
 
 /* Title at the reading start, the way out opposite it — .vp-best-head's own
@@ -5016,10 +5050,16 @@ ul.vp-how-list.is-ticked li:before {
    on `.vp-shop-cat img`. Measured after: all four marks 36x36, and the plate's
    own height is unchanged because the two text lines were always the taller
    half of that row. */
+/* 32.4 — «فضایی که لوگو ها اشغال میکنن میتونه ۱۰ درصدش ... به اون متن اختصاص
+   پیدا کنه», ten per cent off the 36 the slot had settled at. The plate is
+   sized by its contents rather than to a width, so the 3.6px the mark gives up
+   is 3.6px the name can use before it has to start clipping — the name is
+   `nowrap` with an ellipsis and is the only thing in here that can run out of
+   room. */
 .vp-brand-plate .vp-brand-logo {
   flex: 0 0 auto;
-  width: 36px;
-  height: 36px;
+  width: 32.4px;
+  height: 32.4px;
   object-fit: contain;
 }
 

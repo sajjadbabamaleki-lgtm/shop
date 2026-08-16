@@ -93,6 +93,20 @@ the client saw an old page and had no way to tell why. So, plainly:
   still argued on it and three scripts in `theme/` read from it. Publishing it
   is not shipping the shop, and a change that only reaches Netlify has not
   reached the client's site.
+- **A deploy runs migrations. It does not re-seed.** `liara_pre_start.sh` runs
+  `php artisan migrate --force` every time, but `php artisan catalogue:seed`
+  seeds **only when the catalogue is empty** — deliberately, so a redeploy
+  never puts a seeded price back over an edited one. Production has not been
+  empty for weeks. So **editing `CatalogueSeeder` changes nothing on the live
+  site**: it describes a fresh install, and production is not one. Anything
+  seeded that later has to move — a brand's mark, a name, a slug — moves in a
+  **migration**, or it ships green and changes nothing. This is silent in both
+  directions: the tests pass (they migrate *and* seed a fresh database, so they
+  see the new value) and the site keeps the old one. It has already cost a
+  round: three brand marks were corrected in the seeder, the run went green,
+  and the client photographed a live tile still wearing the template's mark
+  with a broken image next to it. See
+  `2026_08_16_070000_put_the_real_marks_on_the_brands.php`.
 
 ## Where things are
 
