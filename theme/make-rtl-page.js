@@ -1944,6 +1944,14 @@ html = html.replace('</body>',
   // move: it sits one screen down, and the reveal is `opacity: 0` until then.
   // So on a phone they are simply there, and the observer never touches them.
   //
+  // The six trust badges under them are out for the same reason, one round
+  // later: «در حالت فعلی وقتی وارد وبسایت میشیم اون ۶ آیتم پایین ۸ آیتم باید
+  // اسکرول کنیم تا پدیدار بشه ولی باید از اول باشه». On a 390×844 screen the
+  // first two of the six land at y=634 and the other four at 760 and 885 — one
+  // and two rows past the fold — so the visitor who opens the shop sees two
+  // badges and two card-shaped holes, and only scrolling fills them. The row
+  // is six of the shop's own promises; it is not an entrance.
+  //
   // Read once, before the loop, because it decides two things — whether the
   // tiles are in `items` at all, and whether the closing-on-the-middle
   // movement below is set up. A resize past 992 does not re-run this, which is
@@ -1951,7 +1959,8 @@ html = html.replace('</body>',
   // desktop still gets the entrance it was drawn with.
   '            var phone = window.matchMedia("(max-width: 991.98px)").matches;\n' +
   '            items = Array.prototype.filter.call(items, function (el) {\n' +
-  '                return !(phone && el.classList.contains("vp-category"));\n' +
+  '                if (!phone) return true;\n' +
+  '                return !(el.classList.contains("vp-category") || el.closest(".vp-trust-row"));\n' +
   '            });\n' +
   '            if (!items.length) return;\n' +
   '            items.forEach(function (el) {\n' +

@@ -2699,3 +2699,59 @@ does not mean it is gone. Removing it is not a tidy-up but a rebuild of the
 page's CSS from nothing, and it should be decided as one, not slipped into a
 round. Anything appended below the signature in `tweaks.css` is a rule the gate
 cannot vouch for — put it above.
+
+## Six corrections to the phone, and nothing to the desktop
+
+The list came as one message about the home page on a phone, and the first
+reading took one of its items to be a page-wide number. The correction was
+immediate — «من در مورد نسخه موبایل دستور دادم فقط» — so every rule in this
+round is inside `@media (max-width: 991.98px)` and the one script change is
+behind the same `phone` test that the category strip already used. Two of the
+six describe things the desktop also has (the stock rail, the heart) and the
+desktop keeps its own numbers for both.
+
+- **«گوشه اون ۸ آیتم زیر هیرو باید ۵ درصد کروتر بشه»** — the tiles turn at 18px
+  below 992, so **18.9**.
+- **«گوشه کارت بزرگی که برندا روشن باید ۵ درصد کروتر بشه»** — 32.4 → **34.02**.
+  Worth knowing: 32.4 is the hero card's own corner, and the daily deal and the
+  brand panel were put on it deliberately in one commit so the phone would turn
+  at one radius. This takes the brand card 1.62px off that agreement because it
+  was named by itself. The other two are unchanged.
+- **«اون قسمت بالایی همین کارت که عنوان روشه ۳ پیکسل بهش اضافه بشه»** — the head
+  strip carrying «برندهای موجود» goes 28 → **31px**, the 3 above the title. Its
+  margin-bottom is untouched, so nothing inside the card moves relative to
+  anything else; the panel grows by 3.
+- **«سایه پایین اون کارت پیشنهاد امروز که کفش روشه باید پاک بشه»** — the drop
+  shadow goes, the 1px inset hairline stays. Measured down a one-pixel column
+  through the card's foot at 390, three pixels of card first, then the pane:
+  `255 255 · 243 · 225 226 226 227 228 229 230 231 232 233` before,
+  `255 255 · 243 · 247 …` after. The pane is 247; the shadow was a 225 smudge
+  climbing ten levels across ten pixels. The card's own edge — 255 → 243 → 247
+  — is identical either way, which is what keeps this clear of «لبه پنهان».
+- **«اون رنج خطی که بالای تایمر همین کارته باید ۳۰ درصد پر بشه»** — 8% → **30%**
+  on the phone. Both numbers are drawn, not read: the 8 was chosen so the bar
+  would not contradict the «فقط ۱ عدد باقی مانده» above it, and the desktop
+  keeps it.
+- **«اون دوتا بنر وسط سایت هم باید گوشه هاشون کرو بشه و از بغل بیاد تو»** — the
+  two `.cta-area4` bands were the only things on the phone still running edge to
+  edge with square corners. **10px in on each side** (the gutter the trust row
+  and the brand panel already use) and **32.4** of corner.
+- **«در حالت فعلی ... اون ۶ آیتم پایین ۸ آیتم باید اسکرول کنیم تا پدیدار بشه ولی
+  باید از اول باشه»** — the six trust badges leave the scroll reveal on phones,
+  the way the eight tiles did a round earlier and by the same line of code. At
+  390×844 two of them landed at y=634 and the other four at 760 and 885, so
+  opening the shop showed two badges and four holes.
+- **«آیکون قلب فیوریت هم خیلی پررنگه»** — `.vp-best-fav` is phone-only already.
+  Its glyph goes from `#101111` to 0.45 of the same ink: measured on the darkest
+  pixel, **16 → 147** on the disc's white.
+
+320 tests, Pint clean, parity identical at 992/1200/1440/1920, no sideways
+scroll at 390/768/1200/1920.
+
+**Noticed while measuring, not touched:** the two banners' artwork is
+`assets/img/normal/cta_11_1.png` and `cta_11_2.png`, and both are flat grey
+placeholders with their own pixel dimensions printed across them — «1189 × 600»
+and «707 × 600». They ship, so that is what the live page shows behind those
+two headings. Nobody has asked about them and there is no photograph to put
+there yet, but the round that gives those bands their corners is the round to
+say it out loud.

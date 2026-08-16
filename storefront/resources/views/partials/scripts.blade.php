@@ -34,7 +34,8 @@
             if (!items.length || !("IntersectionObserver" in window)) return;
             var phone = window.matchMedia("(max-width: 991.98px)").matches;
             items = Array.prototype.filter.call(items, function (el) {
-                return !(phone && el.classList.contains("vp-category"));
+                if (!phone) return true;
+                return !(el.classList.contains("vp-category") || el.closest(".vp-trust-row"));
             });
             if (!items.length) return;
             items.forEach(function (el) {

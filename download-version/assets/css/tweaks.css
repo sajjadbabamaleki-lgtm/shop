@@ -17194,6 +17194,131 @@ html {
   }
 }
 
+
+/* --------------------------------------------------------------------------
+   A phone round: six corrections, none of which may reach the desktop.
+
+   «من در مورد نسخه موبایل دستور دادم فقط» — said after the first reading of
+   the list took one of them to be a page-wide number. So every rule below is
+   inside `@media (max-width: 991.98px)`, including the two that describe
+   things the desktop also has (the stock rail and the heart). The desktop
+   stays pixel-identical, which is this page's standing rule and what
+   `check-parity.js` measures at 992 and above.
+   -------------------------------------------------------------------------- */
+
+/* The eight tiles, a twentieth rounder.
+
+   «گوشه اون ۸ آیتم زیر هیرو باید ۵ درصد کروتر بشه» — below 992 they turn at
+   18px (the block that lifts the eight-across caps), so 18.9. */
+@media (max-width: 991.98px) {
+  .vp-category {
+    border-radius: 18.9px;
+  }
+}
+
+/* The brand card, the same twentieth. «گوشه کارت بزرگی که برندا روشن باید ۵
+   درصد کروتر بشه» — 32.4 → 34.02.
+
+   That 32.4 is the hero card's own corner, and three of the page's panes were
+   put on it deliberately, in one commit, so the phone would turn at one
+   radius — «کرو کارت پیشنهاد امروز و برندهای موجود باید هم اندازه هیرو بشه».
+   This takes the brand card 1.62px off that agreement, because it is the card
+   the client named. The hero and the daily deal stay at 32.4. If the panes
+   ever have to read as one set again, this is the first rule to revisit. */
+@media (max-width: 991.98px) {
+  .vp-brands-panel {
+    border-radius: 34.02px;
+  }
+}
+
+/* Three pixels into the brand card's head.
+
+   «اون قسمت بالایی همین کارت که عنوان روشه باش ۳ پیکسل بهش اضافه بشه» — the
+   strip carrying «برندهای موجود» with «مشاهده همه برندها» beside it. It is
+   28px tall on a phone, sitting on the panel's own 10px of padding. The 3 goes
+   above the title, so the strip becomes 31 and the title moves down by 3; the
+   head's margin-bottom is untouched, so the brand rows below do not move
+   relative to it — the whole panel simply grows by 3. */
+@media (max-width: 991.98px) {
+  .vp-brands-head {
+    padding-block-start: 3px;
+  }
+}
+
+/* The shadow under the shoe card, off.
+
+   «سایه پایین اون کارت پیشنهاد امروز که کفش روشه باید پاک بشه». What goes is
+   the drop shadow only — `0 24px 48px -28px rgba(16,17,17,0.22)`, which with
+   its 24px of offset is entirely below the card. The 1px inset hairline stays,
+   and has to: «لبه پنهان» is the whole reason a pane on this page states its
+   boundary with ink instead of with a shadow, and a card left with neither
+   dissolves into the page — which is the complaint that codename exists for.
+
+   Measured at 390 down a one-pixel column through the card's foot, three
+   pixels of card first, then the daily deal's pane below it:
+     before  255 255 · 243 (hairline) · 225 226 226 227 228 229 230 231 232 233
+     after   255 255 · 243 (hairline) · 247 247 247 247 247 247 247 247 247 247
+   The pane is 247. The shadow was landing on it as a 225 smudge climbing ten
+   levels over ten pixels — the thing being pointed at — and the card's own
+   edge is the 255 → 243 → 247 step, which is untouched either way. */
+@media (max-width: 991.98px) {
+  .vp-daily-deal-card {
+    box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.05);
+  }
+}
+
+/* The stock rail, at 30%.
+
+   «اون رنج خطی که بالای تایمر همین کارته باید ۳۰ درصد پر بشه». It was 8%,
+   picked so the bar would not contradict the «فقط ۱ عدد باقی مانده» printed
+   directly above it — see the note on `.vp-daily-deal-bar-fill`. Neither
+   number is read from the catalogue; both are drawn. Asked for as a number and
+   given as one, on the phone only, so the desktop keeps the 8% that argument
+   settled. */
+@media (max-width: 991.98px) {
+  .vp-daily-deal-bar-fill {
+    width: 30%;
+  }
+}
+
+/* The two banners come in off the page's edges.
+
+   «اون دوتا بنر وسط سایت هم باید گوشه هاشون کرو بشه و از بغل بیاد تو» — they
+   were the only two bands on the phone still running edge to edge with square
+   corners, between five panes that do neither. 10px in on each side, which is
+   the gutter `.vp-trust-row-wrap` and `.vp-brands-panel` already sit at below
+   992, and 32.4 of corner, the hero's own — the radius the client asked the
+   rest of the phone's panes onto.
+
+   The photograph is a background on the section itself, so the corner clips it
+   with no overflow rule needed; `.mega-hover` carries `overflow: hidden` for
+   its own sheen in any case. */
+@media (max-width: 991.98px) {
+  .cta-area4 {
+    margin-inline: 10px;
+    border-radius: 32.4px;
+  }
+}
+
+/* The favourite heart, lighter.
+
+   «آیکون قلب فیوریت هم خیلی پررنگه» — it was `#101111`, the page's
+   full-strength title ink, at 16px inside a 39.9px white disc on every card in
+   the best sellers. Full ink is what a price or a product name is set in, so
+   the heart was reading as loud as the card's own words while being the one
+   thing on the card nobody has asked for yet.
+
+   0.45 of the same ink. Measured on the glyph's darkest pixel at 390, on the
+   disc: 16 before, 147 after — a mark that is plainly there, and plainly
+   quieter than the name beside it. The disc, the size and the position are
+   untouched: the
+   complaint was the weight of the glyph, not the button. */
+@media (max-width: 991.98px) {
+  .vp-best-fav {
+    color: rgba(16, 17, 17, 0.45);
+  }
+}
+
 /* --------------------------------------------------------------------------
    The last rule in the last stylesheet — the shop's signature on the design.
 
