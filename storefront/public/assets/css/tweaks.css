@@ -11847,8 +11847,10 @@ button.vp-cart-keep {
    afterward — the tile alone, the sheet and the card stay at the numbers
    asked for first.
 
-   Three flat opacities. Scoped to `.sidemenu-cart` so none of it reaches the
-   basket page, which keeps its own card (tinted, on a phone) and its own
+   Two opacities and one flat colour standing in for a third — see the note
+   on `.vp-cart-shot` below for why. Scoped to `.sidemenu-cart` so none of it
+   reaches the basket page, which keeps its own card (tinted, on a phone) and
+   its own
    photo tile (opaque) — neither was asked about. */
 /* The sheet needs the blur the other two whites do not: it sits over the
    live page, dimmed by the template's own 0.75 scrim underneath, and at 90%
@@ -11870,14 +11872,19 @@ button.vp-cart-keep {
   background: #FFFFFF;
 }
 
-/* The photo tile's own ring, restored regardless of width: the basket page
-   drops it on a phone because that card sits on a grey tint already (see
-   `.vp-cart-shot` under the basket-page block), but this card is a full
-   100% white now, and a 92%-white tile on it needs the edge back or it is
-   «لبه پنهان» again, one card down. */
+/* Flat #EBEBEB, not a translucent white — the tile sits directly on
+   `.vp-cart-line`, which this same block just made a full opaque #FFFFFF, so
+   an *alpha* 92% white here composites straight back to 255 255 255 with
+   nothing left to tell it apart: white-on-white is invisible regardless of
+   which number the transparency carries. 92% has to be a colour, not a
+   window, to read at all — 0.92 × 255 rounds to 235, flat.
+
+   No ring: «خط دورشو بردار». The colour step against the white card is the
+   edge now — 235 against 255 is a plain visible line on its own — so a
+   drawn ring on top of it was a second line where the tile only needed one. */
 .sidemenu-cart .vp-cart-shot {
-  background: rgba(255, 255, 255, 0.92);
-  box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.1);
+  background: #EBEBEB;
+  box-shadow: none;
 }
 
 /* --------------------------------------------------------------------------
