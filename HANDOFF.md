@@ -37,6 +37,18 @@ reached, not what the page currently paints.**
 | `#C29A31` | `#D9B42B` | the stepped sale's second podium |
 | `#8C6E1F` | `#A38619` | its foot |
 
+**One exception, asked for the same day: the discount star.** «ستاره تخفیف
+بشه گلد قبلی» — so `.vp-burst` (the hero's) and `.vp-deal-burst` (the sale
+cards' and the best sellers') keep `#C0972F → #E3B54A`, and they are the only
+gold on the page still on the sampled ramp. They are held in
+`--vp-gold-burst-top` and `--vp-gold-burst-foot` rather than written inline,
+so that moving the ramp again turns them up as a question instead of sweeping
+them along. Both stars, not one: they are the same mark at two sizes, and this
+file already records a round where they were told apart by accident.
+`make-rtl-page.js` writes those two values into the markup and the stylesheet
+pins the same two onto the `stop-color` attributes, so neither half can drift
+without the other noticing.
+
 **The numbers the change was not allowed to lose, and did not.** The card read
 `#EFC94F`; against `#E3B54A` that is H +3.8°, S +10.1pp, L +3.3pp, and fills
 took it whole. Text did not, because the saturation alone costs contrast —
@@ -62,7 +74,7 @@ carry it outside that block, all of them because CSS cannot reach inside an
 
     node theme/recolor-svg.js           # the trust badges and the lockups
     node theme/make-category-icons.js   # the eight category marks
-    node theme/make-rtl-page.js         # the two inline burst gradients
+    node theme/make-rtl-page.js         # the star — on the OLD gold, see above
     node theme/sync-storefront-assets.js
 
 The two inline bursts are also pinned from the stylesheet — `stop-color` is a

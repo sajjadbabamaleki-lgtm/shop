@@ -915,7 +915,7 @@ const BURST_STUDS = Array.from({ length: BURST_LOBES }, (_, i) => {
 const dealBurst = (cut, i) =>
   `<svg class="vp-deal-burst" viewBox="0 0 150 150" aria-hidden="true">` +
   `<defs><linearGradient id="vp-deal-burst-gold-${i}" x1="0" y1="0" x2="0" y2="1">` +
-  '<stop offset="0%" stop-color="#DAB226"></stop><stop offset="100%" stop-color="#EFC94F"></stop>' +
+  '<stop offset="0%" stop-color="#C0972F"></stop><stop offset="100%" stop-color="#E3B54A"></stop>' +
   '</linearGradient></defs>' +
   '<g class="vp-burst-star">' +
   `<path fill="url(#vp-deal-burst-gold-${i})" d="${BURST_PATH}"></path>` +
@@ -1388,7 +1388,7 @@ html = html.replace(
 const RING =
   '<svg class="vp-burst" viewBox="0 0 150 150" aria-hidden="true">' +
   '<defs><linearGradient id="vp-burst-gold" x1="0" y1="0" x2="0" y2="1">' +
-  '<stop offset="0%" stop-color="#DAB226"></stop><stop offset="100%" stop-color="#EFC94F"></stop>' +
+  '<stop offset="0%" stop-color="#C0972F"></stop><stop offset="100%" stop-color="#E3B54A"></stop>' +
   '</linearGradient></defs>' +
   // The shape and its studs turn together, so the studs stay in the notches.
   '<g class="vp-burst-star">' +
