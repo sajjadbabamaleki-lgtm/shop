@@ -25,13 +25,7 @@
 
             <h1 class="vp-shop-title">سوالات متداول</h1>
 
-            <p class="vp-doc-lead">
-                اگر جواب سؤالتان این‌جا نبود، با
-                <a href="{{ config('storefront.contact.phone_href') }}">{{ config('storefront.contact.phone') }}</a>
-                تماس بگیرید یا در
-                <a href="{{ config('storefront.contact.whatsapp_href') }}" target="_blank" rel="noopener">واتساپ</a>
-                بپرسید.
-            </p>
+            @include('partials.faq-lead')
 
             <div class="vp-faq">
                 @include('partials.faq-items', ['openFirst' => true])

@@ -16213,11 +16213,18 @@ button.vp-cart-keep {
 
 /* The chevron sits at the *left* of the row on an RTL page, which is where
    the eye ends the line. It turns rather than being swapped for a minus, so
-   the open and closed states are one mark and not two. */
+   the open and closed states are one mark and not two.
+
+   `inset-inline-end`, not start: on an RTL page inline-start is the **right**,
+   which is where the question begins, so the mark was drawn on top of the
+   first letter of all eight — «فلشا رفتن تو متنا», with a photograph of the
+   band showing a chevron through «هزینه». The 34px of padding this rule has
+   always been paired with is on the left, physically, and was standing empty.
+   The page and the home band both had it, because both draw this rule. */
 .vp-faq summary::after {
   content: '';
   position: absolute;
-  inset-inline-start: 6px;
+  inset-inline-end: 6px;
   inset-block-start: 22px;
   width: 8px;
   height: 8px;
@@ -17348,17 +17355,12 @@ html {
     padding-bottom: 60px;
   }
 
-  .vp-home-faq-head {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 14px;
-  }
-
-  /* `.vp-brands-title` at the size the phone gives its band headings. */
+  /* `.vp-brands-title` at the size the phone gives its band headings. The
+     link out beside it is gone — «کلمه همه سوالات باید برداشته بشه» — and with
+     it the flex row it needed; the band answers the questions here, so a way
+     to the page that answers them again was one line too many. */
   .vp-home-faq-title {
-    margin: 0;
+    margin: 0 0 8px;
     font-family: 'Cairo', var(--title-font);
     font-weight: 700;
     font-size: 20px;
@@ -17366,13 +17368,21 @@ html {
     color: #101111;
   }
 
-  .vp-home-faq-all {
-    flex: none;
-    font-family: 'Vazirmatn', var(--body-font);
-    font-weight: 600;
-    font-size: 13px;
+  /* «اون متن هم باید با شماره تماس و لینک واتسپ بیاد زیر عنوان» — the same
+     line `/faq` opens with, and the same include, so the telephone number is
+     not written down in two places. It is set quieter than the page's copy of
+     it, because here it sits under a band heading rather than a page title. */
+  .vp-home-faq .vp-faq-lead {
+    margin: 0 0 14px;
+    font-size: 13.5px;
+    line-height: 2;
+    color: rgba(16, 17, 17, 0.62);
+  }
+
+  .vp-home-faq .vp-faq-lead a {
     color: #A47F25;
-    text-decoration: none;
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
 
   .vp-faq-boxes {
@@ -17401,7 +17411,7 @@ html {
   }
 
   .vp-faq-boxes summary::after {
-    inset-inline-start: 2px;
+    inset-inline-end: 2px;
     inset-block-start: 18px;
   }
 
@@ -17424,6 +17434,12 @@ html {
     color: #6E5416;
   }
 
+  /* The script sets a height on this while the drawer moves and takes it off
+     again at the end, so nothing here fixes one. */
+  .vp-faq-boxes .vp-faq-a {
+    overflow: hidden;
+  }
+
   .vp-faq-boxes details p {
     margin: 0 0 13px;
     font-size: 13.5px;
@@ -17431,33 +17447,14 @@ html {
     color: rgba(16, 17, 17, 0.72);
   }
 
-  /* Sliding rather than snapping — «به شکل کشویی باز بشه».
+  /* The drawer's animation is `home/faq.blade.php`'s script, not this file.
 
-     `<details>` has no animation of its own: the browser shows or hides the
-     content and that is the end of it. `::details-content` with
-     `interpolate-size` is what animates the height without a line of script,
-     and both are asked for together before any of it is written, because a
-     browser that took `block-size: 0` and could not animate back off it would
-     have a box that never opens — an accordion that is worse than a snap. On
-     anything older the eight boxes open instantly, which is what they do
-     today. */
-  @supports (interpolate-size: allow-keywords) and (selector(::details-content)) {
-    .vp-home-faq {
-      interpolate-size: allow-keywords;
-    }
-
-    .vp-faq-boxes details::details-content {
-      block-size: 0;
-      overflow: hidden;
-      transition:
-        block-size 0.26s ease,
-        content-visibility 0.26s allow-discrete;
-    }
-
-    .vp-faq-boxes details[open]::details-content {
-      block-size: auto;
-    }
-  }
+     It was `::details-content` with `interpolate-size`, which animates a
+     `<details>` with no script at all — and which the phone this was reported
+     from does not have: «کشو باید با یه انیمیشن نرم بازو بسته بشه», sent after
+     seeing the band open with a snap. Safari has had the pair only since 18.4.
+     What the stylesheet still owns is the box; the height belongs to whatever
+     can measure it. */
 }
 
 /* --------------------------------------------------------------------------
