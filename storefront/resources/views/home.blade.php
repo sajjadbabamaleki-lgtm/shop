@@ -17,4 +17,5 @@
     @include('home.offer-banner')
     @include('home.daily-deal')
     @include('home.brands')
+    @include('home.faq')
 @endsection

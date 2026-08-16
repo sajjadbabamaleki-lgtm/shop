@@ -17319,6 +17319,147 @@ html {
   }
 }
 
+
+/* --------------------------------------------------------------------------
+   The questions at the foot of the shop, as boxes that slide open.
+
+   «بنظرم قسمت انتهای سایت هم بزارش این سوالات متداولو خود سوالاتو البته به این
+   شکل باشن که تو یه حالت باکس ۲ طرف گرد باشن که روشون زده میشه باکسه به شکل
+   کشویی باز بشه».
+
+   The eight are the same include `/faq` renders, so the shop cannot answer one
+   question two ways. What differs is the dress: on the page they are rows
+   divided by hairlines, and here each one is a white box with a 18px corner,
+   which is the tile's own radius on a phone.
+
+   Phone only, like the story strip — the desktop is not given a band it was
+   never designed with, and stays pixel-identical. The band is written to work
+   at any width; only the media query holds it back.
+   -------------------------------------------------------------------------- */
+.vp-home-faq {
+  display: none;
+}
+
+@media (max-width: 991.98px) {
+  .vp-home-faq {
+    display: block;
+    /* The brands panel's own bottom gap on a phone, so the page ends on the
+       rhythm it has kept the whole way down. */
+    padding-bottom: 60px;
+  }
+
+  .vp-home-faq-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  /* `.vp-brands-title` at the size the phone gives its band headings. */
+  .vp-home-faq-title {
+    margin: 0;
+    font-family: 'Cairo', var(--title-font);
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 1.4;
+    color: #101111;
+  }
+
+  .vp-home-faq-all {
+    flex: none;
+    font-family: 'Vazirmatn', var(--body-font);
+    font-weight: 600;
+    font-size: 13px;
+    color: #A47F25;
+    text-decoration: none;
+  }
+
+  .vp-faq-boxes {
+    display: grid;
+    gap: 8px;
+  }
+
+  /* The box. The hairline divider the page's own list draws between rows is
+     off — a box that ends in a line has two edges — and the ring is the one
+     the drawer's links wear, so the two read as the same material. */
+  .vp-faq-boxes details {
+    padding: 0 14px;
+    border-radius: 18px;
+    background: #FFFFFF;
+    box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.09);
+  }
+
+  .vp-faq-boxes details:last-child {
+    box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.09);
+  }
+
+  .vp-faq-boxes summary {
+    padding: 13px 0 13px 28px;
+    font-size: 14.5px;
+    line-height: 1.7;
+  }
+
+  .vp-faq-boxes summary::after {
+    inset-inline-start: 2px;
+    inset-block-start: 18px;
+  }
+
+  .vp-faq-boxes details[open] summary::after {
+    inset-block-start: 21px;
+  }
+
+  /* The open box's question goes gold, and the closed ones stay ink.
+
+     `.vp-faq summary:hover` is what used to colour it, which on a phone is the
+     wrong trigger: a finger leaves :hover behind on whatever it last touched,
+     so a question the visitor closed again stayed gold and one they opened with
+     the keyboard did not. The mark now follows the state it is describing. */
+  .vp-faq-boxes summary:hover {
+    color: #101111;
+  }
+
+  .vp-faq-boxes details[open] summary,
+  .vp-faq-boxes details[open] summary:hover {
+    color: #6E5416;
+  }
+
+  .vp-faq-boxes details p {
+    margin: 0 0 13px;
+    font-size: 13.5px;
+    line-height: 2;
+    color: rgba(16, 17, 17, 0.72);
+  }
+
+  /* Sliding rather than snapping — «به شکل کشویی باز بشه».
+
+     `<details>` has no animation of its own: the browser shows or hides the
+     content and that is the end of it. `::details-content` with
+     `interpolate-size` is what animates the height without a line of script,
+     and both are asked for together before any of it is written, because a
+     browser that took `block-size: 0` and could not animate back off it would
+     have a box that never opens — an accordion that is worse than a snap. On
+     anything older the eight boxes open instantly, which is what they do
+     today. */
+  @supports (interpolate-size: allow-keywords) and (selector(::details-content)) {
+    .vp-home-faq {
+      interpolate-size: allow-keywords;
+    }
+
+    .vp-faq-boxes details::details-content {
+      block-size: 0;
+      overflow: hidden;
+      transition:
+        block-size 0.26s ease,
+        content-visibility 0.26s allow-discrete;
+    }
+
+    .vp-faq-boxes details[open]::details-content {
+      block-size: auto;
+    }
+  }
+}
+
 /* --------------------------------------------------------------------------
    The last rule in the last stylesheet — the shop's signature on the design.
 

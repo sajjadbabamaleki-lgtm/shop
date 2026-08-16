@@ -167,4 +167,36 @@ class ContentPagesTest extends TestCase
             $this->assertContains($path, Branch::RESERVED_SLUGS, "«{$path}» is a page and must be a reserved slug.");
         }
     }
+
+    /**
+     * The home page's band and «سوالات متداول» ask the same eight questions.
+     *
+     * They are one include — `partials/faq-items` — and this is what says so
+     * out loud. Two copies of eight answers is one copy that goes stale, and
+     * the way it would go stale is silent: somebody corrects the delivery
+     * charge on the page nobody reads instead of the band at the foot of the
+     * home page, and the shop then answers the same question two ways.
+     *
+     * The band is phone-only in CSS, which is a `display: none` and not an
+     * absence — the markup is in the response at every width, which is what
+     * lets this be a request test rather than a browser one.
+     */
+    public function test_the_home_page_asks_the_same_questions_as_the_faq(): void
+    {
+        $home = $this->get('/')->assertOk()->getContent();
+        $faq = $this->get('/faq')->assertOk()->getContent();
+
+        preg_match_all('~<summary>(.*?)</summary>~su', $faq, $found);
+        $questions = array_map('trim', $found[1]);
+
+        $this->assertCount(8, $questions, 'The FAQ page no longer asks eight questions.');
+
+        foreach ($questions as $question) {
+            $this->assertStringContainsString($question, $home, implode("\n", [
+                "The home page's band does not ask «{$question}».",
+                'Both render partials/faq-items — if one of them has grown its own',
+                'copy of the questions, put it back on the include.',
+            ]));
+        }
+    }
 }
