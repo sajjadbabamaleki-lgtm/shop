@@ -17548,6 +17548,204 @@ html {
 }
 
 /* --------------------------------------------------------------------------
+   The best sellers, as a white card resting on a gold one.
+
+   «یعنی محصول تو یه کارت مربعی سفید بیاد رو یه حالت گلد قرار بگیره که بتونیم
+   تو قسمت پایینش اطلاعاتی مث اسم کفش قیمتش و موارد دیگرو بزنیم», with a
+   photograph of the arrangement: a gold rounded rectangle, a white rounded
+   square inset on three sides of it and floating clear of the fourth, and the
+   gold left showing along the foot carrying the words.
+
+   So the card is two objects, not one. The tile that was the whole card
+   becomes the white square, and `.vp-best` — which until now was a bare flex
+   column holding a tile and a strip — becomes the gold it sits on. Nothing in
+   the markup moved: the generator and the Blade write the same six elements
+   they wrote this morning, and this block is the entire change. That is worth
+   the constraint it cost, because the two copies of this page cannot come
+   apart over a rule that exists in only one of them.
+
+   --------------------------------------------------------------------------
+   The gold is the page's gold, in the page's own direction.
+
+   `--vp-gold-fill → --vp-gold-lit`, top to foot, which is the ramp the buy
+   button and the search disc already paint. The reference card looks darker
+   along its foot and this one runs the other way, which is deliberate: that
+   band in the photograph is a shadow under the white card rather than the
+   card's own colour, and the shadow is not wanted here (see `.vp-best-shot`).
+   Running the ramp upside down to imitate it would have put a second reading
+   of the same metal on a page whose whole gold argument is that there is only
+   one.
+
+   The star keeps the older gold it was given this afternoon and is unaffected
+   — it is `stop-color` on an inline `<svg>`, nothing here reaches it — but note
+   that it only shows below 992, so on the desktop this card has no gold on it
+   but its own.
+
+   --------------------------------------------------------------------------
+   The frame is 8, the radii are 30 and 22.
+
+   8 is the smallest frame that still reads as a frame at the narrowest this
+   card is ever drawn — 2-up at 390, where a card is 165.5 wide. Below that the
+   gold along the sides starts reading as a ring on a white card rather than as
+   a card underneath it.
+
+   The radii are concentric rather than equal: an inner corner inside an outer
+   one has to be the outer minus the gap between them, or the two curves run at
+   different distances apart around the turn and the frame looks pinched at the
+   corners and slack down the sides. 30 − 8 = 22.
+
+   --------------------------------------------------------------------------
+   Ink on the gold, and the numbers for it.
+
+   Measured, both stops of the ramp, against the two inks the strip already
+   uses:
+
+     #101111 on #EFC94F ... 11.83:1     the name and the price
+     #101111 on #DAB226 .... 9.35:1
+     62% ink on #EFC94F .... 4.98:1     «تومان», the quiet half of the price
+     62% ink on #DAB226 .... 3.94:1
+
+   The words sit on the foot of the ramp, which is the lighter end, so the
+   figures that apply are 11.83 and 4.98 — both AA, the second one at the size
+   it is set. The glass the strip used to be drawn on is gone rather than
+   recoloured: a 3.4% ink tint over gold is not glass, it is dirty gold, and
+   the words no longer need a plate to sit on now that they have the card's own
+   colour behind them.
+
+   The browse circle goes white for the same reason: it is the one control on
+   the gold, and white ties it to the card above it instead of introducing a
+   third material.
+
+   --------------------------------------------------------------------------
+   Below 992, this replaces «دقیقا همون کارت حراج پله برای پر فروش ترینها».
+
+   That instruction put the price on a white pill *inside* the tile, hid the
+   browse circle and hid the swatches, so that the phone's best-seller card and
+   its stepped-sale card were the same object. The card asked for now has its
+   words outside the tile by definition — that is what the gold foot is for —
+   so the pill comes out onto the gold at every width and the two bands stop
+   being the same card on the phone. The heart, the star and the hidden browse
+   circle are left exactly as they were: none of them was part of what was
+   asked, and all three are already decided.
+
+   The photograph's box goes back to the desktop's centred inset at both
+   widths. The phone's box was `calc(80.85% - 72.996px)` tall — the 72.996 is
+   the height of the pill that used to sit inside the tile plus its margins, and
+   with the pill gone it is subtracting the height of something that is no
+   longer there.
+   -------------------------------------------------------------------------- */
+
+.vp-best {
+  position: relative;
+  gap: 0;
+  padding: 8px 8px 0;
+  border-radius: 30px;
+  background-image: linear-gradient(to bottom, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
+}
+
+/* The white square, with nothing under it.
+
+   It carried a ring, which had to go: on gold that was a grey line drawn
+   between two colours that already state their own boundary. It was then given
+   a short drop shadow, on the reading that the darker band along the foot of
+   the reference photograph was one — «قسمت پایین کارت سفید نمیخواد سایه داشته
+   باشه», so that goes too.
+
+   It can, and this is the one place on the page where it can. «لبه پنهان» is
+   the reason nothing white on this page is allowed to sit on the page without
+   stating its own foot: white on white composites to four values within a few
+   levels of each other and the card dissolves. That failure needs a ground the
+   card's own colour can be mistaken for. Here the ground is #EFC94F and the
+   card is #FFFFFF — 1.60:1 apart, a step no edge treatment could add to — so
+   the boundary is the two colours and it needs no help. The hover keeps its
+   4px lift; a lift is a movement and does not need a shadow to be read. */
+.vp-best-shot {
+  aspect-ratio: 1;
+  border-radius: 22px;
+  background: #FFFFFF;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  box-shadow: none;
+}
+
+.vp-best:hover .vp-best-shot {
+  transform: translateY(-4px);
+  box-shadow: none;
+}
+
+/* Centred and fitted, at both widths — see the note above on the 72.996. */
+.vp-best-shot img {
+  inset: 14%;
+  width: 72%;
+  height: 72%;
+  object-fit: contain;
+}
+
+/* `display: contents` below 992 took this element out of the layout so the
+   pill could be placed against the tile. It is a box again. */
+.vp-best-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 10px 13px;
+}
+
+.vp-best-label {
+  position: static;
+  flex: 1;
+  min-width: 0;
+  height: auto;
+  padding: 0 4px;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+
+.vp-best-lines {
+  position: static;
+}
+
+.vp-best-name,
+.vp-best-cta strong {
+  color: #101111;
+}
+
+.vp-best-cta strong span {
+  color: rgba(16, 17, 17, 0.62);
+}
+
+.vp-best-browse {
+  width: 40px;
+  height: 40px;
+  background: #FFFFFF;
+  box-shadow: none;
+  color: #101111;
+  font-size: 15px;
+}
+
+.vp-best-browse:hover {
+  box-shadow: none;
+}
+
+/* The heart has no frame. «خب قاب قلبو حذف کن».
+
+   It had a white square, from «یه مربع اندازه ی سبد خرید تو هدر بیاد» — and
+   that square read as a square only because the tile under it was the glass
+   tint. On the white tile it disappears, so a hairline was added here to draw
+   it back. That was not asked for and it is deleted rather than adjusted: the
+   heart is a glyph on the card now, and the square is gone because the thing
+   that made it visible is gone.
+
+   `background: none` as well as the ring, so it is actually absent rather than
+   white-on-white and waiting to reappear the next time the tile changes
+   colour. The size, the position and the glyph's 45% ink are the numbers the
+   earlier rounds settled and are untouched. */
+.vp-best-fav {
+  background: none;
+  box-shadow: none;
+}
+
+/* --------------------------------------------------------------------------
    The last rule in the last stylesheet — the shop's signature on the design.
 
    The page is the ThemeForest template's stylesheet with this file on top of
