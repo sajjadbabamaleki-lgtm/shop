@@ -1636,6 +1636,24 @@ option:hover {
      The other 18 of the 36 is on .hero-style6's padding, which is what sets
      the height below 1700. */
   margin-block: -18px;
+  /* «عکس محصول داخل هیرو هم بدونه کم شدن ارتفاع هیرو ۱۰ درصد کوچیکتر بشه» —
+     a tenth off the shoe, and the card the same height it was.
+
+     A transform, not a smaller `width`, and the two are not interchangeable
+     here. Width resizes the box, the box is what the card is levelled to from
+     about 1700 up and what the stacked phone layout is levelled to at every
+     width, so 10% off the width takes the card down with it — 27px on the
+     phone, measured. A transform paints smaller inside a box that does not
+     move, which is the whole of what was asked.
+
+     It is written once, here, with the slide-specific offsets moved onto
+     `--vp-hero-shot-shift`. They used to be `transform` declarations of their
+     own further down — 20px for every slide below 992 and 50px for the
+     goldengoose shot — and a transform declaration replaces a transform
+     declaration rather than adding to it, so writing the scale three times
+     would work until the fourth slide wanted an offset and silently dropped
+     it. The variable is the fix rather than a comment warning about it. */
+  transform: translateY(var(--vp-hero-shot-shift, 0px)) scale(0.9);
 }
 
 /* The swiper held room below the slides for the card's shadow to fall in,
@@ -8805,7 +8823,11 @@ button.vp-cart-keep {
     width: 299px;
     height: auto;
     margin-inline: auto;
-    transform: translateY(20px);
+    /* The 20 is now a variable the base rule's own transform reads, not a
+       transform of its own — see the note beside that rule. It still buys
+       exactly what it bought before, and it no longer overwrites the shoe's
+       scale on the way. */
+    --vp-hero-shot-shift: 20px;
   }
 }
 
@@ -16663,15 +16685,21 @@ button.vp-cart-keep {
    by these filenames — so the page has been identifying its slides this way
    since the tinting was built.
 
-   `transform`, not a margin, and that is the phone block's own reasoning
+   A shift rather than a margin, and that is the phone block's own reasoning
    quoted: the column is only as tall as what it holds, so a margin would push
    the card 30px taller on every third slide.
+
+   It sets `--vp-hero-shot-shift` rather than writing a `transform`, because
+   the base rule's transform now also carries the shoe's scale and a second
+   `transform` here would replace it rather than add to it — the shoe would
+   come back to full size on this slide only, which is exactly the kind of
+   thing nobody notices until the client photographs it.
 
    The wrapper's entrance animation is untouched: `data-ani` is on `.hero-img`,
    this is on the `img` inside it, so nothing overwrites anything. */
 @media (max-width: 991.98px) {
   .heroSlide6 .hero-img > img[src*="goldengoose"] {
-    transform: translateY(50px);
+    --vp-hero-shot-shift: 50px;
   }
 }
 
@@ -17545,255 +17573,6 @@ html {
      seeing the band open with a snap. Safari has had the pair only since 18.4.
      What the stylesheet still owns is the box; the height belongs to whatever
      can measure it. */
-}
-
-/* --------------------------------------------------------------------------
-   The best sellers, as a white card resting on a gold one.
-
-   «یعنی محصول تو یه کارت مربعی سفید بیاد رو یه حالت گلد قرار بگیره که بتونیم
-   تو قسمت پایینش اطلاعاتی مث اسم کفش قیمتش و موارد دیگرو بزنیم», with a
-   photograph of the arrangement: a gold rounded rectangle, a white rounded
-   square inset on three sides of it and floating clear of the fourth, and the
-   gold left showing along the foot carrying the words.
-
-   So the card is two objects, not one. The tile that was the whole card
-   becomes the white square, and `.vp-best` — which until now was a bare flex
-   column holding a tile and a strip — becomes the gold it sits on. Nothing in
-   the markup moved: the generator and the Blade write the same six elements
-   they wrote this morning, and this block is the entire change. That is worth
-   the constraint it cost, because the two copies of this page cannot come
-   apart over a rule that exists in only one of them.
-
-   --------------------------------------------------------------------------
-   The gold is the page's gold, in the page's own direction.
-
-   `--vp-gold-fill → --vp-gold-lit`, top to foot, which is the ramp the buy
-   button and the search disc already paint. The reference card looks darker
-   along its foot and this one runs the other way, which is deliberate: that
-   band in the photograph is a shadow under the white card rather than the
-   card's own colour, and the shadow is not wanted here (see `.vp-best-shot`).
-   Running the ramp upside down to imitate it would have put a second reading
-   of the same metal on a page whose whole gold argument is that there is only
-   one.
-
-   The star keeps the older gold it was given this afternoon and is unaffected
-   — it is `stop-color` on an inline `<svg>`, nothing here reaches it — but note
-   that it only shows below 992, so on the desktop this card has no gold on it
-   but its own.
-
-   --------------------------------------------------------------------------
-   The frame is 8, the radii are 30 and 22.
-
-   8 is the smallest frame that still reads as a frame at the narrowest this
-   card is ever drawn — 2-up at 390, where a card is 165.5 wide. Below that the
-   gold along the sides starts reading as a ring on a white card rather than as
-   a card underneath it.
-
-   The radii are concentric rather than equal: an inner corner inside an outer
-   one has to be the outer minus the gap between them, or the two curves run at
-   different distances apart around the turn and the frame looks pinched at the
-   corners and slack down the sides. 30 − 8 = 22.
-
-   --------------------------------------------------------------------------
-   Ink on the gold, and the numbers for it.
-
-   Measured, both stops of the ramp, against the two inks the strip already
-   uses:
-
-     #101111 on #EFC94F ... 11.83:1     the name and the price
-     #101111 on #DAB226 .... 9.35:1
-     62% ink on #EFC94F .... 4.98:1     «تومان», the quiet half of the price
-     62% ink on #DAB226 .... 3.94:1
-
-   The words sit on the foot of the ramp, which is the lighter end, so the
-   figures that apply are 11.83 and 4.98 — both AA, the second one at the size
-   it is set. The glass the strip used to be drawn on is gone rather than
-   recoloured: a 3.4% ink tint over gold is not glass, it is dirty gold, and
-   the words no longer need a plate to sit on now that they have the card's own
-   colour behind them.
-
-   The browse circle goes white for the same reason: it is the one control on
-   the gold, and white ties it to the card above it instead of introducing a
-   third material.
-
-   --------------------------------------------------------------------------
-   Below 992, this replaces «دقیقا همون کارت حراج پله برای پر فروش ترینها».
-
-   That instruction put the price on a white pill *inside* the tile, hid the
-   browse circle and hid the swatches, so that the phone's best-seller card and
-   its stepped-sale card were the same object. The card asked for now has its
-   words outside the tile by definition — that is what the gold foot is for —
-   so the pill comes out onto the gold at every width and the two bands stop
-   being the same card on the phone. The heart, the star and the hidden browse
-   circle are left exactly as they were: none of them was part of what was
-   asked, and all three are already decided.
-
-   The photograph's box goes back to the desktop's centred inset at both
-   widths. The phone's box was `calc(80.85% - 72.996px)` tall — the 72.996 is
-   the height of the pill that used to sit inside the tile plus its margins, and
-   with the pill gone it is subtracting the height of something that is no
-   longer there.
-   -------------------------------------------------------------------------- */
-
-.vp-best {
-  position: relative;
-  gap: 0;
-  padding: 8px 8px 0;
-  border-radius: 30px;
-  background-image: linear-gradient(to bottom, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
-}
-
-/* The white square, with nothing under it.
-
-   It carried a ring, which had to go: on gold that was a grey line drawn
-   between two colours that already state their own boundary. It was then given
-   a short drop shadow, on the reading that the darker band along the foot of
-   the reference photograph was one — «قسمت پایین کارت سفید نمیخواد سایه داشته
-   باشه», so that goes too.
-
-   It can, and this is the one place on the page where it can. «لبه پنهان» is
-   the reason nothing white on this page is allowed to sit on the page without
-   stating its own foot: white on white composites to four values within a few
-   levels of each other and the card dissolves. That failure needs a ground the
-   card's own colour can be mistaken for. Here the ground is #EFC94F and the
-   card is #FFFFFF — 1.60:1 apart, a step no edge treatment could add to — so
-   the boundary is the two colours and it needs no help. The hover keeps its
-   4px lift; a lift is a movement and does not need a shadow to be read. */
-.vp-best-shot {
-  aspect-ratio: 1;
-  border-radius: 22px;
-  background: #FFFFFF;
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
-  box-shadow: none;
-}
-
-.vp-best:hover .vp-best-shot {
-  transform: translateY(-4px);
-  box-shadow: none;
-}
-
-/* Centred and fitted, at both widths — see the note above on the 72.996. */
-.vp-best-shot img {
-  inset: 14%;
-  width: 72%;
-  height: 72%;
-  object-fit: contain;
-}
-
-/* `display: contents` below 992 took this element out of the layout so the
-   pill could be placed against the tile. It is a box again. */
-.vp-best-info {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 11px 10px 13px;
-}
-
-.vp-best-label {
-  position: static;
-  flex: 1;
-  min-width: 0;
-  height: auto;
-  padding: 0 4px;
-  border-radius: 0;
-  background: none;
-  box-shadow: none;
-}
-
-.vp-best-lines {
-  position: static;
-}
-
-.vp-best-name,
-.vp-best-cta strong {
-  color: #101111;
-}
-
-.vp-best-cta strong span {
-  color: rgba(16, 17, 17, 0.62);
-}
-
-/* The basket, at every width. «خب سبد خریدم بزار جلوش».
-
-   It was `display: none` below 992, from «دقیقا همون کارت حراج پله برای پر
-   فروش ترینها» — the sale card has no basket there, so this one gave up its
-   own to match. That reading is spent: the card is not the sale card any more,
-   and the gold foot was built to hold the things beside the name.
-
-   White, not the glass the strip's controls used to be: 3.4% ink over gold is
-   not glass, it is dirty gold, and white is what ties this one control to the
-   card above it instead of introducing a third material.
-
-   40 at every width, where the desktop's was 52.8. That number was read off
-   `.vp-deal-label` — the height of a glass pill this strip no longer has — so
-   it is sized against something that is gone. Counted over the six cards, with
-   the circle at 52.8 and at 40:
-
-               text column      prices wrapped     names ellipsized
-      390px     83 -> 96          6 -> 0              1 -> 0
-     1200px     67 -> 80          6 -> 6              6 -> 4
-     1280px     81 -> 93          6 -> 2              4 -> 1
-     1440px    107 -> 120         0 -> 0              0 -> 0
-
-   390 is the width the request came from and 52.8 breaks it outright: every
-   one of the six drops «تومان» onto a second line. */
-.vp-best-browse {
-  display: flex;
-  width: 40px;
-  height: 40px;
-  background: #FFFFFF;
-  box-shadow: none;
-  color: #101111;
-  font-size: 15px;
-}
-
-.vp-best-browse:hover {
-  box-shadow: none;
-}
-
-/* The strip's own side padding, in the band where six cards to a row is the
-   most this page asks of it. `.vp-best-label` already carries a rule at this
-   exact boundary and for this exact reason — 16 to 12 below 1365 — so this is
-   that decision applied to the element that holds the padding now, not a
-   second boundary invented beside it. Floored at 992 because the phone is
-   2-up and has width to spare.
-
-   The 8px it gives back is the difference between a tidy row and a ragged one.
-   Counted over the six, pad 10 against pad 6:
-
-     1240px   col 87 -> 95    wrapped 6 -> 0    heights 254 -> 230
-     1280px   col 93 -> 101   wrapped 2 -> 0    heights 236/260 -> 236
-     1320px   col 100 -> 108  wrapped 0 -> 0    ellipsized 1 -> 0
-
-   1280 is the one that matters most: two of the six wrapped, and a wrapped
-   price makes that card's gold foot taller than its neighbours', so the row
-   came out at two different heights. At 6 they are all 236.
-
-   It does not rescue 1200. Six cards leave the words 88px there and the price
-   still wraps — that band wrapped before this card was drawn and the fix for
-   it is fewer than six cards to the row, which is a layout decision rather
-   than a padding one. All six wrap together, so the row is at least even. */
-@media (min-width: 992px) and (max-width: 1365px) {
-  .vp-best-info { padding-inline: 6px; }
-}
-
-/* The heart has no frame. «خب قاب قلبو حذف کن».
-
-   It had a white square, from «یه مربع اندازه ی سبد خرید تو هدر بیاد» — and
-   that square read as a square only because the tile under it was the glass
-   tint. On the white tile it disappears, so a hairline was added here to draw
-   it back. That was not asked for and it is deleted rather than adjusted: the
-   heart is a glyph on the card now, and the square is gone because the thing
-   that made it visible is gone.
-
-   `background: none` as well as the ring, so it is actually absent rather than
-   white-on-white and waiting to reappear the next time the tile changes
-   colour. The size, the position and the glyph's 45% ink are the numbers the
-   earlier rounds settled and are untouched. */
-.vp-best-fav {
-  background: none;
-  box-shadow: none;
 }
 
 /* --------------------------------------------------------------------------
