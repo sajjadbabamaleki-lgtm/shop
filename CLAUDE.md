@@ -362,3 +362,62 @@ and 1200 breakpoints of the hero's `data-slider-options`, the track back to the
 page's width with `width: 85%` and `margin-inline: auto` above 992, and
 `initialSlide: 1` so the deck still opens on the slide carrying the real
 product photograph. Confirm it against the page before writing any of it.
+
+## «قالب قبلی» — the template comes back
+
+**Symptom, in the client's words:** «چرا الان دوباره وقتی سایت داشت آپدیت میشد
+برای چند لحظه اینارو نمایش داد؟؟؟؟!!!!» — two photographs of a phone taken
+during a deploy, showing this shop's own photographs and Persian laid out as
+somebody else's template: a mint-green hero, red headings and buttons, the
+header's logo and icons in a bare column, the five story rings printed as five
+loose «٪۳۰»s.
+
+Read literally, it is the previous session's promise broken — every trace of
+the Erna template removed, and here it is again. It is not that. Nothing in the
+markup went back.
+
+**What it is.** The page is the template's stylesheet with `tweaks.css` on top
+of it, and they are two files. `style.rtl.css` styles this page *completely* on
+its own — that is what a ThemeForest template is — and `tweaks.css` is the
+644KB that turns it into this shop. Lose the second one and the browser does
+not stop: it paints the first. The mint is the template's own
+`#D3FBD9` on `.heroSlide6 .swiper-slide:nth-child(3)`.
+
+**Why a deploy is when it happens.** Liara replaces the container, and for the
+seconds either side of the swap a request can be answered by nothing. The
+returning visitor's other six stylesheets come off their own disk and cannot
+fail. `tweaks.css` is fingerprinted with the md5 of its contents, so a deploy
+that touched it changed its URL: the one file the whole appearance lives in is
+also the one file guaranteed to need the network, at the one moment the network
+is not there. Nothing goes red — the run is green, the HTML is right, and the
+failure is entirely in which of eight requests got dropped.
+
+**The fix — the design signs itself, and nothing paints unsigned.**
+
+- `tweaks.css` ends with `:root { --vp-design: ok }`. It cannot be read unless
+  the whole file arrived.
+- The head, after the last `<link>`, asks the computed style for it. A script
+  there runs only once every stylesheet above it has finished — loaded or
+  failed — and before `<body>` is parsed, so the answer is decisive and nothing
+  has been painted yet. Missing: hide the document, reload once 1.2s later
+  (the window is seconds wide, so the reload usually lands on a served file),
+  and if it is missing again say «سایت در حال به‌روزرسانی است» on a plain white
+  panel that needs no stylesheet to draw.
+
+Measured with the stylesheet aborted in Chromium: dead — hidden, one reload,
+then the notice; dropped once then served — the correct page, no notice;
+served — visible, one load, nothing added. `check-parity.js` still prints zero,
+because a page whose CSS arrives opens the gate and never touches the document.
+
+**Do not** append rules below the signature in `tweaks.css`, and do not move
+the gate above the `<link>`s — either one leaves it vouching for a file it has
+not read to the end. `DesignGateTest` holds both, plus the gate's presence in
+all three shells, because every other check we have renders a page whose CSS
+was served and so can never see this.
+
+**The deeper thing this does not fix:** the template's stylesheet is still the
+foundation of the page, 648KB of it, and removing it is not a tidy-up — the
+markup's `th-*`, the grid, the swiper skins and the icons are all its. The gate
+means it can no longer be *seen*. If the client asks again for every trace to
+be gone, that is the conversation: the base layer stays, and what it costs to
+change that is a rebuild of the page's CSS from nothing.

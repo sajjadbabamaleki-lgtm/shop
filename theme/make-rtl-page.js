@@ -184,9 +184,94 @@ layers.push('assets/css/rtl-fixes.css');
 // Requested deviations from the template, loaded last.
 layers.push('assets/css/tweaks.css');
 
+// --- the design gate -------------------------------------------------------
+//
+// What this stops: the template painting on its own.
+//
+// This page is the ThemeForest stylesheet with tweaks.css on top of it, and
+// the two are separate files. Drop the second one and the first still styles
+// the page completely — the mint hero (#D3FBD9), the red buttons, the template
+// layout — with this shop's own photographs and Persian in it. It does not
+// read as a page that failed to load. It reads as the old template coming
+// back, which is exactly how the client read it, twice, on two photographs of
+// their phone taken during a deploy: «چرا الان دوباره وقتی سایت داشت آپدیت
+// میشد برای چند لحظه اینارو نمایش داد؟».
+//
+// Why a deploy is when it happens: Liara replaces the container, and for the
+// seconds either side of the swap a request can be answered by nothing at all.
+// A returning visitor's other six stylesheets come from their own disk cache
+// and cannot fail; tweaks.css is fingerprinted with the md5 of its contents,
+// so a deploy that touched it has changed its URL and it is the one file that
+// *must* come over the network. The single most likely file to be dropped is
+// the single file the shop's appearance lives in. A browser that loses a
+// stylesheet does not stop — it paints what it has.
+//
+// So the paint is gated on the design being complete. tweaks.css ends with
+// `--vp-design: ok`; this script sits after every <link> in the head, which
+// means the browser has already finished with all of them — loaded or failed —
+// before it runs, and it runs before <body> is parsed, so nothing has been
+// painted yet. If the property is not there:
+//
+//   first time   hide the document and reload once, 1.2s later. The window is
+//                seconds wide, so the reload usually lands on a served file
+//                and the visitor sees a slow page rather than a wrong one.
+//   second time  keep it hidden and say so, in Persian, on a plain white
+//                panel that needs no stylesheet to draw. A visitor who is told
+//                the site is updating has been told the truth; a visitor shown
+//                the template has been told the work was lost.
+//
+// It costs nothing when the file arrives: one computed-style read, and the
+// gate returns before it touches the document. check-parity.js still prints
+// zero — both pages run this and both open it.
+const DESIGN_GATE = [
+  '',
+  '',
+  '    <!-- The design gate: no template paints without tweaks.css. See its last',
+  '         rule, theme/make-rtl-page.js, and «قالب قبلی» in CLAUDE.md. -->',
+  '    <script>',
+  '        (function () {',
+  '            var root = document.documentElement;',
+  '',
+  '            // A browser with no custom properties would fail this for ever,',
+  '            // and it has bigger problems with this page than the gate.',
+  "            if (!window.getComputedStyle || !window.CSS || !CSS.supports || !CSS.supports('--vp-design', 'ok')) return;",
+  '',
+  '            var key = "vp-design-retry";',
+  '            var mark = function (v) { try { v === null ? sessionStorage.removeItem(key) : sessionStorage.setItem(key, v); } catch (e) {} };',
+  '            var marked = function () { try { return sessionStorage.getItem(key) === "1"; } catch (e) { return false; } };',
+  '',
+  "            if (getComputedStyle(root).getPropertyValue('--vp-design').trim() === 'ok') { mark(null); return; }",
+  '',
+  '            // Nothing is painted yet. Keep it that way.',
+  "            root.style.visibility = 'hidden';",
+  '',
+  '            if (!marked()) {',
+  '                mark("1");',
+  '                setTimeout(function () { location.reload(); }, 1200);',
+  '                return;',
+  '            }',
+  '',
+  '            mark(null);',
+  '',
+  "            document.addEventListener('DOMContentLoaded', function () {",
+  "                var note = document.createElement('div');",
+  '                note.dir = "rtl";',
+  "                note.setAttribute('style', 'visibility:visible;position:fixed;inset:0;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;background:#fff;color:#101111;font:400 16px/1.9 Tahoma,Arial,sans-serif;text-align:center');",
+  '                note.innerHTML =',
+  '                    \'<strong style="font-size:22px;letter-spacing:.2px">ویکی پلاس</strong>\'',
+  '                    + \'<span>سایت در حال به‌روزرسانی است.</span>\'',
+  '                    + \'<span style="font-size:14px;color:#6b6b6b">چند لحظه دیگر دوباره تلاش کنید.</span>\'',
+  '                    + \'<button type="button" style="margin-top:6px;padding:10px 26px;border:0;border-radius:999px;background:#101111;color:#fff;font:inherit;cursor:pointer">تلاش دوباره</button>\';',
+  "                note.querySelector('button').addEventListener('click', function () { location.reload(); });",
+  '                document.body.appendChild(note);',
+  '            });',
+  '        })();',
+  '    </script>',
+].join('\n');
+
 html = html.replace(
   /(<link[^>]+href="assets\/css\/style\.rtl\.css"[^>]*>)/i,
-  '$1' + layers.map((h) => `\n    <link rel="stylesheet" href="${h}">`).join('')
+  '$1' + layers.map((h) => `\n    <link rel="stylesheet" href="${h}">`).join('') + DESIGN_GATE
 );
 
 // Icons carry the template's red inside the file, out of reach of the accent

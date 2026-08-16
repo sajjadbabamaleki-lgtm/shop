@@ -2630,3 +2630,72 @@ wide as it was, since the word inside is most of its width. Measured at 390,
 and the filter panel is 507 → 486 tall in an 844 screen. `.vp-sheet-picked`'s
 `min-height` followed, or the empty space above the rule would have been the
 one thing that grew.
+
+## The template stops being able to paint
+
+**«قبلا یکبار بهت گفته بودم هر اثری از قالب قبلی تو این کد لعنتی هستو بکلی پاک
+کن ... پس چرا الان دوباره وقتی سایت داشت آپدیت میشد برای چند لحظه اینارو نمایش
+داد؟؟؟؟!!!!»** — two photographs of a phone taken during a deploy: this shop's
+photographs and Persian, laid out as the template. A mint hero, red headings
+and buttons, the logo and the four header icons stacked in a bare column, and
+the five story rings printed as five loose «٪۳۰»s.
+
+**Nothing had gone back.** The markup is the shop's; the *paint* was the
+template's. The page is `style.rtl.css` with `tweaks.css` on top, and the first
+of those styles this page completely on its own — it is a ThemeForest template,
+that is what it is for. `tweaks.css` is the 644KB that turns it into this shop.
+When the second file does not arrive the browser does not stop; it paints the
+first. Reproduced in Chromium by aborting the one request: the header goes to
+its bare column with the title in the template's red, the hero loses its card
+and goes full-bleed, and the hero's own pastel — `#D3FBD9` on
+`.heroSlide6 .swiper-slide:nth-child(3)`, the mint in the photograph — comes
+back. The client's two frames are that state, at two moments.
+
+**Why during a deploy, and only then.** Liara replaces the container; either
+side of the swap a request can be answered by nothing at all. The returning
+visitor's other six stylesheets are cached and answered off their own disk, so
+they cannot fail. `tweaks.css` is fingerprinted with the md5 of its contents —
+which is right, and is why an edited stylesheet reaches anybody at all — so a
+deploy that touched it has changed its URL and made it the one file that *must*
+cross the network. The single file the shop's whole appearance lives in is the
+single file exposed to the one minute it is not there. Nothing anywhere goes
+red: the run is green, the HTML is correct, and the failure is which of eight
+requests got dropped.
+
+**The design signs itself, and nothing paints unsigned.** `tweaks.css` now ends
+with `:root { --vp-design: ok }` — a declaration that cannot be read unless the
+whole file arrived. The head, immediately after the last `<link>`, asks the
+computed style for it. That position is the whole trick: a script in the head
+runs only after every stylesheet above it has finished, loaded or failed, and
+before `<body>` is parsed — so its answer is final and nothing has been painted
+when it gets it. Missing:
+
+- **first time** — hide the document, reload once 1.2s later. The window is
+  seconds wide, so the reload lands on a served file and the visitor gets a
+  page that was slow instead of a page that was wrong.
+- **second time** — stay hidden and say «سایت در حال به‌روزرسانی است» with a
+  «تلاش دوباره» button, on a plain white panel drawn from inline styles so it
+  needs none of the stylesheets it is reporting on.
+
+Measured at 390 with the request intercepted: **dead** — `visibility: hidden`
+at first paint, `--vp-design` empty, two loads, then the notice; **dropped once
+then served** — the correct page, no notice, nothing left behind; **served** —
+visible, one load, no overlay, and the gate returns before it touches the
+document. Parity is unaffected for the same reason: `check-parity.js` serves
+the CSS, so the gate opens on both pages.
+
+**`DesignGateTest` is what watches it**, because nothing else can. Every check
+we have — parity, overflow, the suite — renders a page whose stylesheet
+arrived, and so none of them can see a rule that only matters when it does not.
+It holds the gate's presence in all three shells (storefront, panel, error),
+the gate sitting *after* the `<link>` rather than before it, the signature
+being the **last** declaration in the shipped stylesheet and in the preview's
+copy, and the preview carrying the same gate as the Blade.
+
+**What this does not do.** The template's stylesheet is still the foundation of
+the page — 648KB, and the markup's `th-*` classes, the grid, the swiper skins
+and the icon set are all its. The gate means it can no longer be *seen*; it
+does not mean it is gone. Removing it is not a tidy-up but a rebuild of the
+page's CSS from nothing, and it should be decided as one, not slipped into a
+round. Anything appended below the signature in `tweaks.css` is a rule the gate
+cannot vouch for — put it above.

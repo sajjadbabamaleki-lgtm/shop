@@ -56,6 +56,48 @@
     <link rel="stylesheet" href="assets/css/rtl-fixes.css">
     <link rel="stylesheet" href="assets/css/tweaks.css">
 
+    <!-- The design gate: no template paints without tweaks.css. See its last
+         rule, theme/make-rtl-page.js, and «قالب قبلی» in CLAUDE.md. -->
+    <script>
+        (function () {
+            var root = document.documentElement;
+
+            // A browser with no custom properties would fail this for ever,
+            // and it has bigger problems with this page than the gate.
+            if (!window.getComputedStyle || !window.CSS || !CSS.supports || !CSS.supports('--vp-design', 'ok')) return;
+
+            var key = "vp-design-retry";
+            var mark = function (v) { try { v === null ? sessionStorage.removeItem(key) : sessionStorage.setItem(key, v); } catch (e) {} };
+            var marked = function () { try { return sessionStorage.getItem(key) === "1"; } catch (e) { return false; } };
+
+            if (getComputedStyle(root).getPropertyValue('--vp-design').trim() === 'ok') { mark(null); return; }
+
+            // Nothing is painted yet. Keep it that way.
+            root.style.visibility = 'hidden';
+
+            if (!marked()) {
+                mark("1");
+                setTimeout(function () { location.reload(); }, 1200);
+                return;
+            }
+
+            mark(null);
+
+            document.addEventListener('DOMContentLoaded', function () {
+                var note = document.createElement('div');
+                note.dir = "rtl";
+                note.setAttribute('style', 'visibility:visible;position:fixed;inset:0;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;background:#fff;color:#101111;font:400 16px/1.9 Tahoma,Arial,sans-serif;text-align:center');
+                note.innerHTML =
+                    '<strong style="font-size:22px;letter-spacing:.2px">ویکی پلاس</strong>'
+                    + '<span>سایت در حال به‌روزرسانی است.</span>'
+                    + '<span style="font-size:14px;color:#6b6b6b">چند لحظه دیگر دوباره تلاش کنید.</span>'
+                    + '<button type="button" style="margin-top:6px;padding:10px 26px;border:0;border-radius:999px;background:#101111;color:#fff;font:inherit;cursor:pointer">تلاش دوباره</button>';
+                note.querySelector('button').addEventListener('click', function () { location.reload(); });
+                document.body.appendChild(note);
+            });
+        })();
+    </script>
+
 </head>
 
 <body class="shoe-shop">

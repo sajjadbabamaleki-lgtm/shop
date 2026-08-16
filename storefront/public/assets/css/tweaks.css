@@ -17193,3 +17193,35 @@ html {
     display: none;
   }
 }
+
+/* --------------------------------------------------------------------------
+   The last rule in the last stylesheet — the shop's signature on the design.
+
+   The page is the ThemeForest template's stylesheet with this file on top of
+   it, and that arrangement has one failure the client has now photographed
+   twice: when this file does not arrive, everything above it still does, and
+   what paints is the template — its pastel hero (#D3FBD9 is the mint green in
+   the photograph), its red buttons and headings, its layout. Not a broken
+   page. Somebody else's finished one, wearing this shop's photographs.
+
+   «چرا الان دوباره وقتی سایت داشت آپدیت میشد برای چند لحظه اینارو نمایش داد؟»
+   — during a deploy, because that is when the container is replaced and a
+   request for a file can be dropped mid-flight. The rest of the stylesheets
+   are cached by the returning visitor and answered from disk; this one is
+   fingerprinted (`?v=<md5>`), so a deploy that changes it guarantees exactly
+   one uncached, over-the-network request — for the only file the shop's whole
+   appearance is in.
+
+   So the design says so, in the one place that cannot be reached unless the
+   whole file was read: its last declaration. The gate in the head asks the
+   computed style for this property before the body is parsed, and if it is not
+   here it does not let the template paint. See the head of
+   theme/make-rtl-page.js's design gate, and «قالب قبلی» in CLAUDE.md.
+
+   Nothing may be appended below this. A rule added after it still works, but
+   it would be a rule that arrives after the signature — i.e. one the gate
+   cannot vouch for.
+   -------------------------------------------------------------------------- */
+:root {
+  --vp-design: ok;
+}
