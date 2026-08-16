@@ -168,15 +168,17 @@ class StoriesTest extends TestCase
     }
 
     /**
-     * The photograph is what the story opens with, and it rides on the link.
+     * A story opens on its poster where it has one, and on its own circle
+     * picture where it does not.
      *
-     * The circle shows it too now — «بعد یه عکس ظاهر بشه» — but the two are
-     * separate carriers: the circle's is an `<img>` and the viewer's is
-     * `data-vp-story-src`. **They have to be the same file.** Two sources for
-     * one picture is two things to drift, and the drift would be a circle
-     * showing one shoe and opening onto another.
+     * This used to assert the two were always the same file, which was the
+     * right rule until «این عکس هم باید بیاد زمانی که میزنیم استوری باز میشه»
+     * made them deliberately different: the circle is a thumbnail, the island
+     * is a poster. **The rule that is left is the one that still matters** —
+     * every circle opens onto something, and a story without artwork falls back
+     * rather than opening onto an empty island.
      */
-    public function test_the_circle_and_the_viewer_show_the_same_photograph(): void
+    public function test_a_story_opens_on_its_poster_and_falls_back_to_its_own_picture(): void
     {
         $page = $this->get('/products')->assertOk()->getContent();
 
@@ -185,15 +187,45 @@ class StoriesTest extends TestCase
 
         $this->assertNotEmpty($onTheLink[1], 'the strip should render its circles');
 
-        foreach ($onTheLink[1] as $src) {
-            $this->assertNotSame('', $src, 'a story with no picture opens onto an empty island');
-        }
+        $posters = config('storefront.stories.posters', []);
 
-        $this->assertSame(
-            $onTheLink[1],
-            $inTheCircle[1],
-            'the circle and the story it opens are showing different photographs',
-        );
+        foreach ($onTheLink[1] as $i => $src) {
+            $this->assertNotSame('', $src, 'a story with no picture opens onto an empty island');
+
+            $path = ltrim(parse_url($src, PHP_URL_PATH), '/');
+
+            if ($posters[$i] ?? null) {
+                $this->assertSame($posters[$i], $path, 'a story is not opening on the poster it was given');
+
+                continue;
+            }
+
+            // No poster: the island shows what the circle shows, which is what
+            // every story did before posters existed.
+            $this->assertSame(
+                ltrim(parse_url($inTheCircle[1][$i], PHP_URL_PATH), '/'),
+                $path,
+                'a story with no poster is opening on something other than its own picture',
+            );
+        }
+    }
+
+    /**
+     * Every poster that is listed is a file that shipped.
+     *
+     * Same reasoning as the photographs: the island is a `hidden` overlay, so
+     * no visual check can see it and a path with nothing behind it opens a
+     * blank story in silence.
+     */
+    public function test_every_poster_that_is_listed_exists(): void
+    {
+        $posters = array_filter(config('storefront.stories.posters', []));
+
+        $this->assertNotEmpty($posters, 'no story has a poster, so this test is watching nothing');
+
+        foreach ($posters as $path) {
+            $this->assertFileExists(public_path($path), 'a story poster is listed in config and is not in public/');
+        }
     }
 
     /**

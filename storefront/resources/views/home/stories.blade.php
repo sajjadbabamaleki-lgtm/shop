@@ -77,20 +77,27 @@
     `config('storefront.stories.photos')` and painted in that order. Asked
     whether to bind each to the product it depicts, they chose «هر پنج را روی
     استوری‌ها بگذار», so the link under a circle still goes wherever the composer
-    pointed it and **two of the five circles show a shoe they do not sell you**:
-    the Nike image is a Vomero on a V2K Run's circle, and the last is a New
-    Balance on a Golden Goose's. Written in the config too, because it will
+    pointed it and **four of the five circles show a shoe they do not sell
+    you** — the order was set by where the colours wanted to sit on the screen,
+    not by what is underneath them. Written in the config too, because it will
     otherwise be read as a bug by whoever finds it next.
 
-    `$picture` is one variable on purpose. The circle's `<img>` and the link's
-    `data-vp-story-src` both take it, so the thumbnail and the story it opens
-    cannot come apart — `StoriesTest` asserts the two are equal, and that is the
-    assertion that would catch a second source being introduced here.
+    ---------------------------------------------------------------------------
+    **The circle is a thumbnail; the island is a poster.** «این عکس هم باید بیاد
+    زمانی که میزنیم استوری باز میشه» — so `stories.posters` carries what a story
+    opens on, by the same index, and `data-vp-story-src` takes that where it is
+    set. A thumbnail has to read at 55px with no words on it and a poster is
+    read at arm's length, so they stopped being the same picture here.
+
+    Only one poster exists so far. Everywhere else `$opens` falls back to
+    `$picture` and the story behaves exactly as it did before posters were a
+    thing — a missing poster is never an empty island.
 --}}
 @php
     $ladder = config('storefront.ladder');
     $cut = $ladder['steps'][$ladder['live'] - 1]['cut'] ?? null;
     $storyPhotos = config('storefront.stories.photos', []);
+    $storyPosters = config('storefront.stories.posters', []);
 @endphp
 <section class="vp-stories" aria-label="استوری‌ها">
         <div class="vp-stories-row">
@@ -101,10 +108,16 @@
                 // The campaign photograph if there is one at this position, and
                 // the shoe's own otherwise — so an emptied or shortened list
                 // degrades to what the strip showed before, never to a blank
-                // circle. One `$picture` from here on: the circle and the
-                // viewer must not be able to disagree about what a story shows.
+                // circle.
                 $own = $story->primaryMedia();
                 $picture = $storyPhotos[$loop->index] ?? ($own ? $own->path : null);
+
+                // What the island opens on. A poster where there is one, and
+                // the circle's own picture where there is not — so a story with
+                // no artwork yet behaves exactly as it did before posters
+                // existed rather than opening onto nothing.
+                $poster = $storyPosters[$loop->index] ?? null;
+                $opens = $poster ?: $picture;
             @endphp
             {{-- No caption under the circle. The name becomes the link's
                  accessible name rather than being dropped — a link whose whole
@@ -113,7 +126,7 @@
                  holds its place now. --}}
             <a class="vp-story" href="{{ storefront_route('product', $story) }}" aria-label="{{ $story->title }}"
                data-vp-story
-               data-vp-story-src="{{ $picture ? asset($picture) : '' }}"
+               data-vp-story-src="{{ $opens ? asset($opens) : '' }}"
                data-vp-story-name="{{ $story->title }}"
                data-vp-story-product="{{ $story->id }}"
                data-vp-story-variant="{{ $addable?->id }}">
