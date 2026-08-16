@@ -17862,6 +17862,36 @@ html {
     background-repeat: no-repeat;
   }
 
+  /* The hairlines round the white cards go. «خطهای دور کارتهای سفیدو پاک کن».
+
+     Every one of them was drawn for «لبه پنهان» — a white card on a white page
+     composites to four values within a few levels of each other and dissolves
+     into it, so this file's rule has been that a white object states its own
+     edge all the way round. The fade above ends that condition on the phone:
+     the ground is 240 now and these cards are 255, a 15-level step in one
+     pixel, and the two colours say where one stops and the other starts
+     better than a 5%-ink line can. The line was standing in for a contrast
+     that now exists, and left there it reads as a drawn border.
+
+     Named one at a time rather than swept with a wildcard, because the ones
+     left out are left out on purpose:
+
+       .vp-category and .vp-brand sit on photographs, not on the ground, and
+       their rings separate the tile from its own picture;
+       .vp-brand-plate's ring is the white lit hairline of the glass recipe
+       over a photograph, which is a highlight and not an edge;
+       the hero pane and the header island keep everything they have — their
+       foot is the ink line «لبه پنهان» ends with, and it is not a ring.
+
+     Above 992 nothing here applies and nothing changes: the ground is still
+     #FFFFFF up there, so every one of these lines is still the only thing
+     holding its card's edge. */
+  .vp-deal-shot,
+  .vp-daily-deal-card,
+  .vp-ladder-notes > span {
+    box-shadow: none;
+  }
+
   /* Three class levels, and the selector is the shape it is for two reasons.
 
      The template owns this element as `.footer-layout6 .th-screen` (two
