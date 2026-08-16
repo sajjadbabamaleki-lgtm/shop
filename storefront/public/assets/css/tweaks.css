@@ -17714,7 +17714,32 @@ html {
   color: rgba(16, 17, 17, 0.62);
 }
 
+/* The basket, at every width. «خب سبد خریدم بزار جلوش».
+
+   It was `display: none` below 992, from «دقیقا همون کارت حراج پله برای پر
+   فروش ترینها» — the sale card has no basket there, so this one gave up its
+   own to match. That reading is spent: the card is not the sale card any more,
+   and the gold foot was built to hold the things beside the name.
+
+   White, not the glass the strip's controls used to be: 3.4% ink over gold is
+   not glass, it is dirty gold, and white is what ties this one control to the
+   card above it instead of introducing a third material.
+
+   40 at every width, where the desktop's was 52.8. That number was read off
+   `.vp-deal-label` — the height of a glass pill this strip no longer has — so
+   it is sized against something that is gone. Counted over the six cards, with
+   the circle at 52.8 and at 40:
+
+               text column      prices wrapped     names ellipsized
+      390px     83 -> 96          6 -> 0              1 -> 0
+     1200px     67 -> 80          6 -> 6              6 -> 4
+     1280px     81 -> 93          6 -> 2              4 -> 1
+     1440px    107 -> 120         0 -> 0              0 -> 0
+
+   390 is the width the request came from and 52.8 breaks it outright: every
+   one of the six drops «تومان» onto a second line. */
 .vp-best-browse {
+  display: flex;
   width: 40px;
   height: 40px;
   background: #FFFFFF;
@@ -17725,6 +17750,32 @@ html {
 
 .vp-best-browse:hover {
   box-shadow: none;
+}
+
+/* The strip's own side padding, in the band where six cards to a row is the
+   most this page asks of it. `.vp-best-label` already carries a rule at this
+   exact boundary and for this exact reason — 16 to 12 below 1365 — so this is
+   that decision applied to the element that holds the padding now, not a
+   second boundary invented beside it. Floored at 992 because the phone is
+   2-up and has width to spare.
+
+   The 8px it gives back is the difference between a tidy row and a ragged one.
+   Counted over the six, pad 10 against pad 6:
+
+     1240px   col 87 -> 95    wrapped 6 -> 0    heights 254 -> 230
+     1280px   col 93 -> 101   wrapped 2 -> 0    heights 236/260 -> 236
+     1320px   col 100 -> 108  wrapped 0 -> 0    ellipsized 1 -> 0
+
+   1280 is the one that matters most: two of the six wrapped, and a wrapped
+   price makes that card's gold foot taller than its neighbours', so the row
+   came out at two different heights. At 6 they are all 236.
+
+   It does not rescue 1200. Six cards leave the words 88px there and the price
+   still wraps — that band wrapped before this card was drawn and the fix for
+   it is fewer than six cards to the row, which is a layout decision rather
+   than a padding one. All six wrap together, so the row is at least even. */
+@media (min-width: 992px) and (max-width: 1365px) {
+  .vp-best-info { padding-inline: 6px; }
 }
 
 /* The heart has no frame. «خب قاب قلبو حذف کن».
