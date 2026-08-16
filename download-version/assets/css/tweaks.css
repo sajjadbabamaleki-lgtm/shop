@@ -17702,6 +17702,68 @@ html {
 }
 
 /* --------------------------------------------------------------------------
+   The best sellers' card is the stepped sale's card, to the digit.
+
+   «کارتو سفید کن», then «دقیقا از کارت حراج پله ای استفاده کن». Rather than
+   answer the second by eye, both cards were rendered at 390 and read off the
+   page property by property. Nearly everything already agreed — the card and
+   the tile are both 180x198, the radius is 22.4 on each, the aspect is 10/11,
+   neither carries a shadow any more, the pill is 168x48 at 6 and 6 with a
+   19.1862 radius and 16 of padding on both, and the name is 12px at 808.5 and
+   the price 13.5px at 800 in ink on both. Three things differed, and they are
+   the whole of this block.
+
+   **The tile's colour.** It was the glass tint below 992 and `#FFFFFF` above,
+   while the sale card's is white at every width. So the phone catches up with
+   its own desktop and with the card it is being matched to, in one value.
+
+   **The pill's colour**, the other way round. The sale card's plate is the
+   glass tint on a white tile; this one had been given white on white, which
+   is not a plate at all — the words were sitting on the card with nothing
+   under them. The tint is quoted from `.vp-deal-label`, not chosen.
+
+   **Where the shoe sits.** The sale card puts its box 23% down the tile; this
+   one had `calc(8% + 40px)`, from «۴۰ پیکسل بیاد پایینتر» in the round that
+   put a heart and a star on the tile. Matched to 23%, which on a 198-tall
+   tile is 45.5 from the top — the heart's square ends at 48, and `contain`
+   letterboxes the shoe below that, so nothing collides.
+
+   The height is quoted from the rendered page rather than from the first rule
+   that looked right, and that distinction cost a measurement: `.vp-deal-shot
+   img` is given `calc(77% - 69.52px)` below 992 and then `calc(80.85% -
+   72.996px)` nine hundred lines further down, and the second one wins. Copying
+   the first drew the shoe 83px tall against the sale card's 87 — four pixels,
+   on the one property this block exists to make identical.
+
+   **The heart stays, and it is the one thing here the sale card has not got.**
+   This file already records what «دقیقا مث X» costs when X lacks a thing —
+   assuming cost a round and asking cost a round, and the note there says to
+   show it and ask in the same message. So: it is still on the tile, still
+   frameless, and if it should go with the rest of the difference that is one
+   rule.
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 991.98px) {
+  .vp-best-shot {
+    background: #FFFFFF;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    box-shadow: none;
+  }
+
+  .vp-best-label {
+    background: rgba(16, 17, 17, 0.035);
+  }
+
+  .vp-best-shot img {
+    inset-block-start: 23%;
+    inset-inline: 14.72%;
+    width: 70.56%;
+    height: calc(80.85% - 72.996px);
+  }
+}
+
+/* --------------------------------------------------------------------------
    The last rule in the last stylesheet — the shop's signature on the design.
 
    The page is the ThemeForest template's stylesheet with this file on top of
