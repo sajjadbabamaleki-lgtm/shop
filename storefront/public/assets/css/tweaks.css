@@ -10475,7 +10475,18 @@ button.vp-cart-keep {
 
      `#F5F5F5` is the tiles' own ground and the story island's, so a shoe sits
      on the same grey wherever this site shows one on a panel. */
-  .vp-story-ring img {
+  /* **`>`, and it is load-bearing.** This is the fallback circle — no live
+     sale, so the ring holds the shoe directly — and it draws its own border and
+     ground because there is no disc under it to do that.
+
+     Left as a descendant selector it also caught `.vp-story-shot` inside the
+     disc, at one class and one type against that rule's one class, so it won
+     on specificity and quietly handed the campaign photograph a second white
+     border inside the disc's own and an `object-fit` it had not asked for.
+     Measured, not noticed: `objectFit` read `cover` where the rule twenty lines
+     down says `contain`. It is the collision `CLAUDE.md` warns about, found the
+     way it says to find it. */
+  .vp-story-ring > img {
     display: block;
     width: 100%;
     height: 100%;
@@ -10531,16 +10542,69 @@ button.vp-cart-keep {
      ground, the white border and the round live on `.vp-story-disc` and the
      glyphs live on `.vp-story-cut` inside it, each with one transform of its
      own. */
+  /* **A grid of one cell, and both faces sit in it.** The mark and the
+     photograph take turns, and they have to occupy the same 55px without
+     either one moving when the other arrives — so they are stacked in a single
+     `grid-area`, and the whole swap is opacity. Absolute positioning would do
+     it too and would take the disc's height with it; a one-cell grid keeps the
+     circle sized by its own content the way it always was. */
   .vp-story-disc {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: grid;
     width: 100%;
     height: 100%;
     box-sizing: border-box;
     border: 2px solid #FFFFFF;
     border-radius: 50%;
     background: #F5F5F5;
+    overflow: hidden;
+  }
+
+  .vp-story-disc > * {
+    grid-area: 1 / 1;
+    align-self: center;
+    justify-self: center;
+  }
+
+  /* **`cover` here, and `contain` in the island, and both are right.**
+
+     The island shows a shoe on transparency, where the #F5F5F5 behind it is
+     ground rather than letterboxing, and cropping a product shot would take a
+     heel off. These five are full-bleed campaign pictures — a lit shoe on its
+     own dark set, with a numeral behind it — so there is no subject to clip at
+     the edges and a band of grey down each side of a dark picture inside a
+     coloured ring is the only thing that would read as a mistake.
+
+     Two of the five are not square (0.800 and 0.937), so this is not academic:
+     measured at 4×, `contain` puts 5.5px of ground down each flank of the Nike
+     picture at the widest row of a 55px circle. With `cover` the waist row runs
+     picture to picture, edge to edge.
+
+     No border and no ground of its own — the disc above carries both, and the
+     rule that used to give this one a second white ring is scoped off it now.
+
+     («resize only, no crop» is about how the file is prepared, and it was: all
+     five went through `fit: inside` at 900 and were not cut. How a prepared
+     photograph is fitted to a round 55px hole is a different question.)
+
+     **`aspect-ratio: 1`, not `height: 100%`, and that is not a preference.**
+     The ring takes its height from an `aspect-ratio` rather than a stated
+     value, so a percentage height inside it has no definite containing block
+     to resolve against and falls back to `auto` — measured, `height: 100%` on
+     this picture computed to `68.75px`, which is 55 divided by the Nike
+     picture's own 0.8 ratio. The element was then a tall rectangle behind a
+     round hole and the disc's `overflow` was doing the cropping that
+     `object-fit` is here to do. A ratio of its own needs nothing resolved: 55
+     wide, 55 tall, cropped by `cover` on purpose.
+
+     `stretch` against the `center` the disc gives its children — the mark stays
+     centred in the cell, the picture fills it. */
+  .vp-story-photo {
+    align-self: stretch;
+    justify-self: stretch;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    border-radius: 50%;
   }
 
   .vp-story-cut {
@@ -10602,8 +10666,34 @@ button.vp-cart-keep {
     animation: vp-story-disc-turn 6s linear infinite;
   }
 
+  /* --- and then the photograph -------------------------------------------
+
+     «اول به اندازه یه رفت و برگشت ۳۰ درصدو داشته باشیم بعد یه عکس ظاهر بشه»,
+     «حداقل ۸ ثانیه». Three of the eleven seconds are the mark taking one
+     breath; the other eight are the shoe.
+
+     **The breath is written inside the cycle rather than beside it, and that
+     is the whole trick.** Left on its own 3s clock against an 11s cycle the two
+     would only agree on the first lap — 3 does not divide 11 — and from the
+     second onward «٪۳۰» would fade in halfway through a breath, then a
+     different fraction of one, then another. It was caught by sampling the
+     picker rather than by watching it. So one 11s keyframe set does the
+     excursion in its first 27.273% and holds the mark at 0.86 for the rest,
+     where it is invisible anyway.
+
+     27.273% is 3s of 11, 30.455% is 3.35s — the 0.35 the two faces cross over
+     in, long enough not to blink and short enough not to read as a dissolve.
+     96.818% is 10.65s, where the mark fades back up for the seam so the loop
+     does not snap. Change the 8 and every one of those numbers moves; they are
+     `3 / 11`, `3.35 / 11` and `10.65 / 11` rather than taste. */
   .vp-story-cut {
-    animation: vp-story-cut-breathe 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    animation:
+      vp-story-cut-breathe 11s cubic-bezier(0.4, 0, 0.2, 1) infinite,
+      vp-story-cut-show 11s linear infinite;
+  }
+
+  .vp-story-photo {
+    animation: vp-story-photo-show 11s linear infinite;
   }
 
 }
@@ -10642,13 +10732,57 @@ button.vp-cart-keep {
    fill their corners. It does not touch. It is also the number to look at first
    if 1.3 is ever raised again — the crown at the narrow width runs out before
    anything else does. */
+/* **Near, then far, then near** — «باید از نزدیک بره دور دوباره نزدیک بشه بعد
+   تصاویر بیاد». It ran the other way round first, small to large to small, and
+   the note back was that the mark arrives from a distance and leaves the same
+   way. Now it opens at its largest, withdraws, and comes back to full size to
+   hand over — so the photograph is taken from a mark that is right at the front
+   rather than from one already halfway gone.
+
+   1.3 is also where it rests for the eight seconds it is invisible, and where
+   it fades back in at the seam. Nothing about the amplitude moved; only which
+   end of it the cycle starts and finishes on. */
 @keyframes vp-story-cut-breathe {
-  0%, 100% {
+  0% {
+    transform: scale(1.3);
+  }
+
+  13.636% {
     transform: scale(0.86);
   }
 
-  50% {
+  27.273%, 100% {
     transform: scale(1.3);
+  }
+}
+
+/* The two faces, one window each. The mark opens the cycle and comes back for
+   the last 0.35s so the seam is a fade rather than a cut. */
+@keyframes vp-story-cut-show {
+  0%, 27.273% {
+    opacity: 1;
+  }
+
+  30.455%, 96.818% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes vp-story-photo-show {
+  0%, 27.273% {
+    opacity: 0;
+  }
+
+  30.455%, 96.818% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
   }
 }
 
@@ -10694,8 +10828,27 @@ button.vp-cart-keep {
 @media (prefers-reduced-motion: reduce) {
   .vp-story-ring.is-cut,
   .vp-story-disc,
-  .vp-story-cut {
+  .vp-story-cut,
+  .vp-story-photo {
     animation: none;
+  }
+
+  /* **Stopping four animations is not enough here — it would show both faces
+     at once.** The mark and the photograph share one grid cell and are told
+     apart by opacity alone, so with the animations off they both sit at 1 and
+     «٪۳۰» prints over a shoe. A stopped animation should show its first frame,
+     and the first frame of this cycle is the mark; the photograph goes out of
+     the layout rather than to `opacity: 0`, which is the free half of the
+     decision — `display: none` on a `loading="lazy"` image is never fetched, so
+     a visitor who asked for less motion does not pay for five photographs they
+     were never going to be shown. The shoe is still one tap away in the
+     viewer, which is where the story opens. */
+  .vp-story-cut {
+    opacity: 1;
+  }
+
+  .vp-story-photo {
+    display: none;
   }
 }
 
@@ -10757,21 +10910,66 @@ button.vp-cart-keep {
    and it is what keeps the island clear of the screen's ends on a short phone.
 
    It was a square card 366 wide, which is what the picture is; it is a story
-   frame now and the picture sits inside it. */
+   frame now and the picture sits inside it.
+
+   **No white frame, and nothing in the island is in flow any more** — «بنظرم
+   استوری قاب سفید نداشته باشه تصویر کامل پر کنه اون استپر شمارنده هم میاد رو
+   عکس», «اون دوتا دکمه پایین هم میاد رو عکس». The picture is the island: it is
+   absolute at `inset: 0` and everything else — the stepper, the close, the two
+   buttons — is laid over it. The 10 of padding and the white ground are gone
+   with the flex column that used to stack them.
+
+   The ground is ink rather than white because it is only ever seen for the
+   frame before a picture paints, and a white flash inside a dark overlay is
+   the one thing a story frame should not do. */
 .vp-story-island {
   position: fixed;
   z-index: 101;
   inset: 0;
   margin: auto;
-  width: min(90vw, 90vh * 9 / 16);
-  aspect-ratio: 1 / 1.6;
-  display: flex;
-  flex-direction: column;
+  /* **Stated, not derived, and the picture is why.** This was `aspect-ratio:
+     1 / 1.6`, which Chromium treats as an indefinite height — so the picture's
+     own `height: 100%` fell back to intrinsic sizing and came out 546.5 in a
+     561.6 frame, 15 short of the bottom. Measured, not noticed. The same width
+     expression times 1.6 is the same box to the pixel (351 × 561.6 at 390×844)
+     and it resolves. */
+  --island-w: min(90vw, 90vh * 9 / 16);
+  width: var(--island-w);
+  height: calc(var(--island-w) * 1.6);
   overflow: hidden;
-  padding: 10px;
   border-radius: 22px;
-  background: #FFFFFF;
+  background: #101111;
   box-shadow: 0 26px 60px -24px rgba(16, 17, 17, 0.55);
+}
+
+/* **The two scrims are what make the overlay legible on a photograph nobody
+   has seen yet.** The stepper is a white hairline and the wishlist button is a
+   light pill; over a pale poster both disappear, and the artwork is the
+   client's to change at any time. So the top and bottom of the picture are
+   darkened just enough to guarantee the controls a ground, and the middle —
+   where the shoe and the wording are — is untouched.
+
+   `pointer-events: none`, or the bottom one would swallow the taps meant for
+   the two buttons underneath it. The top one would eat the close button and
+   the tap that turns the story on. */
+.vp-story-island::before,
+.vp-story-island::after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  inset-inline: 0;
+  height: 88px;
+  pointer-events: none;
+}
+
+.vp-story-island::before {
+  inset-block-start: 0;
+  background: linear-gradient(180deg, rgba(16, 17, 17, 0.45), rgba(16, 17, 17, 0));
+}
+
+.vp-story-island::after {
+  inset-block-end: 0;
+  background: linear-gradient(0deg, rgba(16, 17, 17, 0.55), rgba(16, 17, 17, 0));
 }
 
 /* One bar per story, above the picture — the row is what says how many there
@@ -10789,17 +10987,23 @@ button.vp-cart-keep {
    than on the fill: it puts bar one at the left *and* makes each `i` grow from
    its own left edge, because a block's width grows from the inline start. */
 .vp-story-bars {
+  position: absolute;
+  z-index: 2;
+  inset-block-start: 10px;
+  inset-inline: 10px;
   direction: ltr;
   display: flex;
   gap: 4px;
-  margin-block-end: 8px;
 }
 
+/* The empty track was 14% ink, which was a grey hairline on a white frame and
+   is nothing at all on a photograph. White at a third, over the top scrim, so
+   an unrun bar is visible whatever the picture behind it turns out to be. */
 .vp-story-bar {
   flex: 1 1 0;
   height: 2.5px;
   border-radius: 2px;
-  background: rgba(16, 17, 17, 0.14);
+  background: rgba(255, 255, 255, 0.34);
   overflow: hidden;
 }
 
@@ -10842,11 +11046,14 @@ button.vp-cart-keep {
   }
 }
 
+/* Above the top scrim, not under it — `z-index: 1` was enough when the scrim
+   did not exist. It clears the stepper too: the bars sit at 10 and are 2.5
+   tall, so 24 puts this below them rather than across them. */
 .vp-story-x {
   position: absolute;
-  z-index: 1;
-  inset-block-start: 20px;
-  inset-inline-end: 20px;
+  z-index: 3;
+  inset-block-start: 24px;
+  inset-inline-end: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -10861,27 +11068,46 @@ button.vp-cart-keep {
   cursor: pointer;
 }
 
-/* The picture takes whatever the frame has left after the bars and the buttons,
-   and is shown whole inside it.
+/* **The picture is the island** — «تصویر کامل پر کنه». `inset: 0` and `cover`,
+   so it fills the frame corner to corner with no letterbox and no rounded
+   inset of its own; the island's own `overflow: hidden` and 22px round are what
+   shape it.
 
-   `contain` and not `cover`: the photographs are square and the frame is 9:16,
-   so covering would cut a third of the height off every one of them — and this
-   repo's rule for these files is resize only, no crop, which is why the
-   category tiles are `contain` too. The ground behind is the tiles' own #F5F5F5
-   rather than white, so the letterboxing reads as the frame's material instead
-   of as the picture failing to arrive.
+   `cover` crops, and how much depends entirely on what is in `stories.posters`.
+   The frame is 1/1.6 — 0.625. A poster drawn for it barely loses anything: the
+   Nowruz one is 1000×1557, which is 0.642, so about 2.6% comes off the width
+   and the wording sits nowhere near it. **A square picture loses a third of its
+   width**, and four of the five stories still fall back to their square circle
+   photograph because no poster has been drawn for them yet. That is the cost of
+   full bleed on artwork that was not made for this shape, and the fix is a
+   poster per story rather than a different `object-fit`.
 
-   `min-height: 0` is load-bearing on a flex child: without it the picture's own
-   height wins over `flex: 1` and the buttons under it are pushed out of the
-   island, which `overflow: hidden` then silently clips. */
+   No `flex` and no `min-height` any more: nothing in this island is in flow, so
+   there is no sibling left for the picture to push out of it. */
+/* **The island's own expression, and a `min-height` that is not decoration.**
+
+   `--island-w` is a custom property on the island and custom properties
+   inherit, so the picture states its size the way the frame states it and
+   there is no percentage to resolve. Change the 1.6 in one place, both follow.
+
+   The floor under it is the declaration that actually works. With `height`
+   alone — as `100%`, as this calc, as `block-size`, every spelling tried — the
+   used height came out **546.5 in a 561.6 frame**, which is 351 over the
+   picture's own 0.642 ratio rather than the frame's height. The template's
+   base `img` rule sets `max-width: 100%`, and a replaced element whose width is
+   clamped has its height re-derived from its intrinsic ratio; a floor survives
+   that where a stated height does not. Every one of those spellings measured
+   561.6 when set inline after load and 546.5 from the stylesheet, which is what
+   pinned it on sizing rather than on the cascade. */
 .vp-story-shot {
+  position: absolute;
+  inset: 0;
   display: block;
-  flex: 1 1 auto;
-  min-height: 0;
-  width: 100%;
-  border-radius: 14px;
-  object-fit: contain;
-  background: #F5F5F5;
+  width: var(--island-w);
+  height: calc(var(--island-w) * 1.6);
+  min-height: calc(var(--island-w) * 1.6);
+  object-fit: cover;
+  background: #101111;
 }
 
 /* What the story is, and the two things you can do about it.
@@ -10889,21 +11115,21 @@ button.vp-cart-keep {
    `flex: none` so the caption keeps its height and the picture above gives up
    the rest — the other way round, a long product name would push the buttons
    out of the island and `overflow: hidden` would swallow them silently. */
-/* The foot of the island: the two buttons, and nothing else. `flex: none` so
-   it keeps its height and the picture above gives up the rest.
+/* The foot of the island: the two buttons, over the picture — «اون دوتا دکمه
+   پایین هم میاد رو عکس».
 
-   **The 10 is the island's own padding, and that is the whole point of it** —
-   «فضای خالی بالا و پایین دکمه ها یکی باشه». The space under the buttons is
-   not set anywhere: it is the island's bottom padding, 10. So the space above
-   them has to be the same 10, and it is one declaration rather than two,
-   because the row below used to add a margin of its own on top of this — the
-   two came to 16 above against 10 below, which is the gap this fixes. Anything
-   added to this foot later takes its spacing from here, not from a second
-   margin. */
+   10 from the bottom edge and 10 from each side, which is the same 10 the
+   stepper takes from the top. «فضای خالی بالا و پایین دکمه ها یکی باشه» was
+   about the buttons' own breathing room when they sat in a white foot; with the
+   foot gone the pair that has to match is this inset and the stepper's, and one
+   number does both. */
 .vp-story-cap {
-  flex: none;
+  position: absolute;
+  z-index: 2;
+  inset-block-end: 10px;
+  inset-inline: 10px;
   margin: 0;
-  padding-block-start: 10px;
+  padding: 0;
 }
 
 /* «دکمه ها باید کنار هم باشن جلوی یکیش قلب باشه یکیش سبد خرید» — one row, a
@@ -10978,10 +11204,16 @@ button.vp-cart-keep {
    neither number. A ring painted inside the box has no layout at all, so both
    buttons are the same box and the line is in the same place it was. Same
    device, and the same reason, as `.vp-shop-rail`'s. */
+/* **It needs a ground now.** `background: none` was right against a white foot
+   and is illegible over a photograph — dark text and a 35% dark ring on
+   whatever the artwork happens to put behind it. White, so the pair reads as a
+   solid gold primary beside a solid light secondary, which is the same
+   relationship they had before the frame went away. The ring stays: it is what
+   keeps this button the same box as the gold one, for the reason above. */
 .vp-story-fav {
   border: 0;
-  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.35);
-  background: none;
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.16);
+  background: #FFFFFF;
   color: #101111;
 }
 

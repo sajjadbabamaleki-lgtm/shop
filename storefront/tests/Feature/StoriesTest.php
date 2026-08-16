@@ -168,30 +168,93 @@ class StoriesTest extends TestCase
     }
 
     /**
-     * Only the thumbnail changed. The photograph is what the story still opens
-     * with, and it rides on the link, so taking the shoe off the circle must
-     * not have taken it out of the viewer.
+     * A story opens on its poster where it has one, and on its own circle
+     * picture where it does not.
+     *
+     * This used to assert the two were always the same file, which was the
+     * right rule until «این عکس هم باید بیاد زمانی که میزنیم استوری باز میشه»
+     * made them deliberately different: the circle is a thumbnail, the island
+     * is a poster. **The rule that is left is the one that still matters** —
+     * every circle opens onto something, and a story without artwork falls back
+     * rather than opening onto an empty island.
      */
-    public function test_the_shoe_is_still_what_the_story_opens(): void
+    public function test_a_story_opens_on_its_poster_and_falls_back_to_its_own_picture(): void
     {
         $page = $this->get('/products')->assertOk()->getContent();
 
-        preg_match_all('/data-vp-story-src="([^"]*)"/', $page, $found);
+        preg_match_all('/data-vp-story-src="([^"]*)"/', $page, $onTheLink);
+        preg_match_all('/<img class="vp-story-photo" src="([^"]*)"/', $page, $inTheCircle);
 
-        $this->assertNotEmpty($found[1], 'the strip should render its circles');
+        $this->assertNotEmpty($onTheLink[1], 'the strip should render its circles');
 
-        foreach ($found[1] as $src) {
+        $posters = config('storefront.stories.posters', []);
+
+        foreach ($onTheLink[1] as $i => $src) {
             $this->assertNotSame('', $src, 'a story with no picture opens onto an empty island');
+
+            $path = ltrim(parse_url($src, PHP_URL_PATH), '/');
+
+            if ($posters[$i] ?? null) {
+                $this->assertSame($posters[$i], $path, 'a story is not opening on the poster it was given');
+
+                continue;
+            }
+
+            // No poster: the island shows what the circle shows, which is what
+            // every story did before posters existed.
+            $this->assertSame(
+                ltrim(parse_url($inTheCircle[1][$i], PHP_URL_PATH), '/'),
+                $path,
+                'a story with no poster is opening on something other than its own picture',
+            );
+        }
+    }
+
+    /**
+     * Every poster that is listed is a file that shipped.
+     *
+     * Same reasoning as the photographs: the island is a `hidden` overlay, so
+     * no visual check can see it and a path with nothing behind it opens a
+     * blank story in silence.
+     */
+    public function test_every_poster_that_is_listed_exists(): void
+    {
+        $posters = array_filter(config('storefront.stories.posters', []));
+
+        $this->assertNotEmpty($posters, 'no story has a poster, so this test is watching nothing');
+
+        foreach ($posters as $path) {
+            $this->assertFileExists(public_path($path), 'a story poster is listed in config and is not in public/');
+        }
+    }
+
+    /**
+     * The strip paints the campaign photographs, in the order they are listed,
+     * and every one of them is a file that exists.
+     *
+     * A path in config that no file answers renders a broken circle and nothing
+     * anywhere goes red — the strip has no pixel baseline, `check-parity.js`
+     * cannot see it and `check-overflow.js` cannot either. This is the only
+     * thing that would notice a photograph that did not ship.
+     */
+    public function test_the_strip_paints_the_campaign_photographs(): void
+    {
+        $photos = config('storefront.stories.photos');
+
+        $this->assertNotEmpty($photos, 'the campaign list is empty, so the strip has quietly gone back to product photographs');
+
+        foreach ($photos as $path) {
+            $this->assertFileExists(public_path($path), 'a story photograph is listed in config and is not in public/');
         }
 
-        // And the ring itself no longer loads one: five photographs fetched to
-        // be covered by three glyphs is five requests a phone does not make.
-        // Matched rather than compared, because what sits between the ring and
-        // its content is whatever whitespace Blade leaves behind a directive.
+        $page = $this->get('/products')->assertOk()->getContent();
+
+        preg_match_all('/<img class="vp-story-photo" src="([^"]*)"/', $page, $painted);
+
         $this->assertSame(
-            0,
-            preg_match('/<span class="vp-story-ring">\s*<img/', $page),
-            'the circle is still loading the photograph it no longer shows',
+            array_slice($photos, 0, count($painted[1])),
+            array_map(fn ($src) => ltrim(parse_url($src, PHP_URL_PATH), '/'), $painted[1]),
+            'the circles are not painting the campaign photographs in the order they are listed',
         );
     }
 
@@ -212,9 +275,20 @@ class StoriesTest extends TestCase
         $this->assertNotEmpty($rings, 'the strip should render its circles');
 
         foreach ($rings as $ring) {
-            if (str_contains($ring[1], 'is-cut')) {
-                $this->assertStringContainsString('vp-story-disc', $ring[2], 'a ring that turns has nothing holding its number upright');
-                $this->assertStringNotContainsString('<img', $ring[2], 'a turning ring is carrying a photograph, which nothing counter-turns');
+            if (! str_contains($ring[1], 'is-cut')) {
+                continue;
+            }
+
+            $this->assertStringContainsString('vp-story-disc', $ring[2], 'a ring that turns has nothing holding its number upright');
+
+            // The photograph is allowed in a turning ring now, but only inside
+            // the disc — that is the element the counter-turn lives on. Hung
+            // straight off the ring it would revolve once every six seconds.
+            $disc = strpos($ring[2], 'vp-story-disc');
+            $img = strpos($ring[2], '<img');
+
+            if ($img !== false) {
+                $this->assertGreaterThan($disc, $img, 'a photograph is outside the disc, so nothing counter-turns it');
             }
         }
     }
@@ -233,7 +307,10 @@ class StoriesTest extends TestCase
         // happens to sit last in a 16,000-line file. Written loosely enough to
         // survive reformatting and tightly enough to name the right block.
         $found = preg_match(
-            '/@media \(prefers-reduced-motion: reduce\)\s*\{[^{]*\.vp-story-cut\s*\{[^}]*animation:\s*none/',
+            // `.vp-story-cut` may sit anywhere in the guard's selector list, so
+            // the mark's own name is the anchor and whatever follows it up to
+            // the brace is somebody else's selector, not a reason to miss.
+            '/@media \(prefers-reduced-motion: reduce\)\s*\{[^{]*\.vp-story-cut[^{]*\{[^}]*animation:\s*none/',
             $css,
             $m,
             PREG_OFFSET_CAPTURE,
@@ -243,7 +320,7 @@ class StoriesTest extends TestCase
 
         $guard = $m[0][1];
 
-        foreach (['.vp-story-ring.is-cut', '.vp-story-disc', '.vp-story-cut'] as $selector) {
+        foreach (['.vp-story-ring.is-cut', '.vp-story-disc', '.vp-story-cut', '.vp-story-photo'] as $selector) {
             // Every rule that *starts* one of the three animations, not every
             // rule that mentions the selector — the font-size at the 375.98
             // breakpoint is not what the guard has to outrank.

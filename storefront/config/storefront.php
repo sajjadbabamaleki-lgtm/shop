@@ -283,6 +283,95 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | The story strip's own photographs
+    |--------------------------------------------------------------------------
+    |
+    | «عکسای استوری ها اینا باشن» — five images the client supplied for the
+    | circles above the listing's search line, and they are campaign art rather
+    | than catalogue art.
+    |
+    | **This deliberately decouples the story's picture from the product's.**
+    | Asked how to bind them, the client chose «هر پنج را روی استوری‌ها بگذار»
+    | over binding each to the shoe it depicts, so the strip paints these five
+    | in this order and the link under each circle still goes to whatever the
+    | composer picked.
+    |
+    | **Four of the five circles now show a shoe they do not sell you.** Only
+    | the New Balance 530 still sits on its own product. That is not drift: the
+    | order below was set by where the colours wanted to be on the screen, and
+    | the decoupling was chosen knowingly before it was. It is written here
+    | because a circle whose picture and basket disagree is exactly the kind of
+    | thing the next person will read as a bug and quietly "fix".
+    |
+    | The composer picks the five *latest purchasable* products, so which shoe
+    | sits under which picture also moves whenever the catalogue grows. If the
+    | pairing ever has to mean something, that is the thing to change first —
+    | pin the stories to named products rather than re-ordering this list.
+    |
+    | Positional, so it is one line to re-order and one line to correct. A story
+    | past the end of this list falls back to its product's own photograph, and
+    | so does every story if this is emptied — nothing here can leave a circle
+    | with no picture at all.
+    |
+    */
+
+    'stories' => [
+        /*
+         | **This list reads right to left, because the strip does.** The page
+         | is RTL, so the first entry is the circle nearest the right edge and
+         | the last is the one nearest the left. Written the other way round it
+         | would look correct in the file and come out mirrored on the phone.
+         |
+         | The order is the client's, given by where things sit on the screen:
+         | «عکس سرمه ای که الان اوله بره آخر سمت راست و عکس آخر بیاد جای صورتی و
+         | صورتی بیاد از چپ اول». Left to right on a phone that is now pink,
+         | red, blue, teal, navy.
+         */
+        'photos' => [
+            'assets/img/story/story-nb530-bag.webp',
+            'assets/img/story/story-vomero.webp',
+            'assets/img/story/story-nb530.webp',
+            'assets/img/story/story-jordan-bag.webp',
+            'assets/img/story/story-cloudtilt.webp',
+        ],
+
+        /*
+         | What the story shows once it is open — «این عکس هم باید بیاد زمانی که
+         | میزنیم استوری باز میشه».
+         |
+         | The circle is a thumbnail and the island is a poster, and they are
+         | not the same picture any more. A thumbnail has to read at 55px with
+         | no words on it; a poster is read at arm's length and can carry the
+         | campaign, which is what «تخفیف نوروزی ویکی پلاس ۳۰٪» is doing on the
+         | one below.
+         |
+         | **Same index as `photos` above, so it reads right to left too.**
+         | `null` means the story opens on its own circle picture, which is what
+         | it did before any of these existed — so a missing poster is a story
+         | that still works rather than an empty island.
+         |
+         | Only the fifth is set. It is the On Cloudtilt one, paired with the
+         | Cloudtilt circle it sits under. The other four are waiting on
+         | artwork; drop a path in and it appears, no code changes.
+         |
+         | Nothing here is a price or a claim the application can check. The ۳۰
+         | printed on that poster is a picture of a number, not
+         | `config('storefront.ladder')` — if the sale steps to ۴۵ this file
+         | will go on saying ۳۰ until somebody replaces the artwork. That is the
+         | cost of putting a rate inside an image and it is worth knowing before
+         | the ladder moves.
+         */
+        'posters' => [
+            null,
+            null,
+            null,
+            null,
+            'assets/img/story/poster-cloudtilt-nowruz.webp',
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | The mark beside a category in the phone drawer
     |--------------------------------------------------------------------------
     |
