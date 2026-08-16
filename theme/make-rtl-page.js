@@ -554,9 +554,22 @@ const QUICK_LINKS = [
   ['fa-arrow-trend-up', 'پرفروش‌ترین‌ها', ''],
 ];
 
+// The last two are the help pages, put here because the shop had built them
+// and then hidden them: «یه چنین چیزی قبلا با عنوان سوالات متداول ساخته شده ولی
+// هیچ جا نمیبینمش». They were reachable — `/faq` and `/size-guide` are in the
+// footer, and on a phone the footer's own copy of them sits at y≈6830 on a
+// 6975px page. A page you can only reach by scrolling the whole shop is a page
+// nobody reaches, and the menu is where a phone visitor looks for help.
+//
+// Four entries make the 1fr 1fr grid two even rows. The body they sit in is
+// `overflow-y: auto` already, so the extra 48px scrolls on a 375×667 screen
+// rather than pushing the sign-in button off it; at 390×844 the drawer is
+// 695 of 824 and nothing scrolls at all. Both measured.
 const DRAWER_LINKS = [
   ['fa-truck-fast', 'پیگیری سفارش', 'order-tracking.html'],
   ['fa-store', 'فروشنده شوید', 'vendor-register.html'],
+  ['fa-circle-question', 'سوالات متداول', 'faq.html'],
+  ['fa-ruler', 'راهنمای سایز', 'size-guide.html'],
 ];
 
 const DRAWER =

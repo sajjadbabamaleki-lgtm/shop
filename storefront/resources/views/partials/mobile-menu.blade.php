@@ -84,6 +84,24 @@
                                 <span>فروشنده شوید</span>
                             </a>
                         </li>
+                        {{-- The help pages, which the shop had built and then hidden:
+                             «یه چنین چیزی قبلا با عنوان سوالات متداول ساخته شده ولی هیچ
+                             جا نمیبینمش». Both are in the footer too, but on a phone that
+                             copy sits at y≈6830 of a 6975px page. Kept in step with
+                             theme/make-rtl-page.js's DRAWER_LINKS by hand, the way the
+                             rest of this file is. --}}
+                        <li>
+                            <a href="{{ page_url('faq.html') }}">
+                                <i class="fa-solid fa-circle-question" aria-hidden="true"></i>
+                                <span>سوالات متداول</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ page_url('size-guide.html') }}">
+                                <i class="fa-solid fa-ruler" aria-hidden="true"></i>
+                                <span>راهنمای سایز</span>
+                            </a>
+                        </li>
                     </ul>
                 </div>
                 {{-- «ورود / ثبت‌نام» while nobody is signed in, and the account
