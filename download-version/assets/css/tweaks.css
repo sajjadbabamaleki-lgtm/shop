@@ -17512,6 +17512,57 @@ html {
   }
 }
 
+/* The two banners' photographs, always `cover`.
+   «اینام بزار تو بنرای سایت» put a portrait collage (1189x1585, 900x1200)
+   behind each one — the template's own two photographs were landscape,
+   cropped exactly to this section's box, which is what let the template set
+   `background-size: 100% 100%` above 1399px in the first place: a stretch
+   reads as a fit when the picture already carries the box's own proportions.
+   A portrait one does not, and 100% 100% squashes it noticeably at every
+   desktop width. `cover` is what the template already falls back to below
+   1399px and again below 767 for the same photographs, so this is one rule
+   for both banners at every width instead of a third exception in between. */
+.cta-area4 {
+  background-size: cover;
+  background-position: center;
+}
+
+/* The two banners' own height, now that neither has content to set it.
+
+   Both used to stand on their padding — `.cta-area4` at 150+150, `.style2`
+   at 60+360 — which is padding tuned to hold a title-and-button stack of a
+   particular height, not a banner's own proportions. Stripping that stack
+   (see the two banners' markup, and the note in offer-banner.blade.php) left
+   the padding behind with nothing to hold, and the two padding totals were
+   never equal (300 against 420) because the two stacks were never the same
+   height either. The row is `display: flex` (Bootstrap's own `.row`), so it
+   stretched the *columns* to match regardless — the shorter banner's own box
+   stayed 300, and the extra 120px of its column read as a blank white band
+   under the photograph. `height` set explicitly, the same figure on both
+   selectors so the pair reads as one strip, fixes what the padding no longer
+   does; `padding` on both is zeroed so it cannot fight the height again if a
+   future pass restores a shorter stack.
+
+   Two figures, not one: `col-xxl-8`/`col-xxl-4` only take effect at the
+   xxl breakpoint (1400px in this Bootstrap build) — below it both columns
+   run the container's full width, one above the other, and a box tuned for
+   sitting beside a narrower or wider sibling reads wrong stacked at 100%.
+   420px is the pair's own former height, side by side; below 1400 the boxes
+   are full-bleed and considerably wider than that per column, so 320 keeps
+   the crop from reading as a thin letterbox strip across a portrait photo. */
+.cta-area4,
+.cta-area4.style2 {
+  height: 320px;
+  padding: 0;
+}
+
+@media (min-width: 1400px) {
+  .cta-area4,
+  .cta-area4.style2 {
+    height: 420px;
+  }
+}
+
 /* The favourite heart, lighter.
 
    «آیکون قلب فیوریت هم خیلی پررنگه» — it was `#101111`, the page's

@@ -2410,30 +2410,36 @@ html = html.replace(
   ''
 );
 
-// --- the offer banners, in the shop's own words -------------------------------
+// --- the offer banners, now the shop's own coming-soon collages -------------
 //
-// Still «BLACK / FRIDAY / SPECIAL OFFER» and «Adidas Shoes — The Summer Sale
-// Up to 50% Off», in English, on the home page of a Persian shop that sells
-// neither Adidas nor a Black Friday. The last of the template's copy anybody
-// could read.
+// Used to carry «BLACK / FRIDAY / SPECIAL OFFER» and «Adidas Shoes — The
+// Summer Sale Up to 50% Off» translated into the shop's own stepped-sale
+// copy. «اینام بزار تو بنرای سایت» replaced the photographs themselves with
+// two collages the client sent, each already carrying its own «COMING SOON»
+// mark baked into the picture — so the template's title, sub-title and «Shop
+// Now» button come off rather than sit on top of a second, conflicting
+// message. «متن و دکمه پاک بشه، فقط خود عکس» in those words. The `.discount`
+// shape on the first banner goes with it — a Black Friday «%» badge has
+// nothing to do with a coming-soon collage.
 //
-// What replaces it is the shop's own sale, which is the one promotion this
-// site actually runs — the stepped sale the board further up the page
-// explains. No number in it: the live step is `config('storefront.ladder')`
-// and moves, and a banner with a percentage baked into the markup goes stale
-// the week it moves without anybody noticing.
+// `cta_11_1.png`/`cta_11_2.png` were the template's own placeholders, small
+// and flat enough to compress to a few KB; real photography does not, so the
+// replacements are `.jpg` (mozjpeg, resized to the width the banner actually
+// draws at) rather than a giant PNG re-using the old name.
 html = html.replace(
-  /<span class="box-title">BLACK<\/span>\s*<h4 class="box-title style1">FRIDAY<\/h4>\s*<h3 class="sec-title style1">SPECIAL OFFER<\/h3>/,
-  '<span class="box-title">فروش ویژه</span>\n' +
-  '                                <h4 class="box-title style1">حراج پله‌ای</h4>\n' +
-  '                                <h3 class="sec-title style1">هر هفته یک پله ارزان‌تر</h3>'
+  /<div class="cta-area4 mega-hover" data-bg-src="assets\/img\/normal\/cta_11_1\.png">[\s\S]*?discount2\.png"[^>]*>\s*<\/div>\s*<\/div>/,
+  '<div class="cta-area4 mega-hover" data-bg-src="assets/img/normal/cta_11_1.jpg" role="img" aria-label="به‌زودی">\n' +
+  '                    </div>'
 );
 
+// Matched on «خرید کنید», not «Shop Now»: DICT (line ~1443) runs long before
+// this and has already turned every «Shop Now» on the page into it, this
+// button included — the hero's own buy button hit the same thing, see the
+// note below on why that one is matched by its wrapper rather than its label.
 html = html.replace(
-  /<span class="sub-title2">Adidas Shoes<\/span>\s*<h3 class="sec-title style1">The Summer Sale Up\s*to <span class="text-theme">50%<\/span>Off<\/h3>/,
-  '<span class="sub-title2">کیف و کفش زنانه</span>\n' +
-  '                                <h3 class="sec-title style1">تازه‌های این هفته را\n' +
-  '                                    <span class="text-theme">ببینید</span></h3>'
+  /<div class="cta-area4 style2 mega-hover" data-bg-src="assets\/img\/normal\/cta_11_2\.png">[\s\S]*?line-btn th-icon">خرید کنید<\/a>\s*<\/div>\s*<\/div>/,
+  '<div class="cta-area4 style2 mega-hover" data-bg-src="assets/img/normal/cta_11_2.jpg" role="img" aria-label="به‌زودی">\n' +
+  '                    </div>'
 );
 
 // --- the footer, in Persian -------------------------------------------------
