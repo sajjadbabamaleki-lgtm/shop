@@ -3614,13 +3614,17 @@ option:hover {
    and is the pane this one is meant to read alongside. The white card's own
    40 is a separate number and stays: that one is the shoe's clearance from
    the card edge, asked for in those words. */
+/* «کارت پیشنهاد امروز باید سفید بشه» — the pane was the page's own ink tint;
+   now it is plain white, and the inner card below trades places with it (see
+   `.vp-daily-deal-card`). The ring stays: a white pane on the page's own
+   white ground still needs the edge it was already drawing for itself. */
 .vp-daily-deal {
   display: flex;
   align-items: center;
   gap: 40px;
   padding: 28px;
   border-radius: 40px;
-  background: rgba(16, 17, 17, 0.034);
+  background: #FFFFFF;
   box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.1);
 }
 
@@ -3691,6 +3695,10 @@ option:hover {
 /* Padding 24 to 40 — client's own "40px from the card's edge" for the
    photo, which the card's uniform padding already gives every edge
    without a one-off margin just for the shot. */
+/* «اون کارت سفید داخلیش شیشه‌ای بشه» — glass now, the page's own recipe
+   (0.034, the same value the outer pane just gave up — see `.vp-daily-deal`
+   above). The ring and the drop shadow stay: a tinted card needs its edge
+   even more than a solid one did, now that the pane behind it is white too. */
 .vp-daily-deal-card {
   flex: 0 1 775px;
   display: flex;
@@ -3698,7 +3706,7 @@ option:hover {
   gap: 24px;
   padding: 40px;
   border-radius: 32px;
-  background: #FFFFFF;
+  background: rgba(16, 17, 17, 0.034);
   box-shadow:
     inset 0 0 0 1px rgba(16, 17, 17, 0.05),
     0 24px 48px -28px rgba(16, 17, 17, 0.22);
@@ -3760,12 +3768,16 @@ option:hover {
   margin-block-end: 6px;
 }
 
+/* White, not the page's ink tint — «نوار» is one of the items the client
+   asked to follow the card onto white. The ring gives the track its own edge
+   now that it sits on the glass card rather than on plain white. */
 .vp-daily-deal-bar {
   display: block;
   width: 100%;
   height: 8px;
   border-radius: 4px;
-  background: rgba(16, 17, 17, 0.07);
+  background: #FFFFFF;
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.05);
   overflow: hidden;
 }
 
@@ -3801,6 +3813,9 @@ option:hover {
 /* Square and smaller, client's own words — fixed 52 rather than flex:1's
    94x65, which stretched to fill the row instead of sizing to its own
    content. */
+/* White, not the page's ink tint — «تایمر» follows the bar and the card onto
+   white. The ring is the same edge the bar just took, so the two chips read
+   as one pairing rather than two different treatments beside each other. */
 .vp-daily-deal-timer li {
   flex: 0 0 58px;
   width: 58px;
@@ -3811,7 +3826,8 @@ option:hover {
   justify-content: center;
   padding: 0;
   border-radius: 12px;
-  background: rgba(16, 17, 17, 0.045);
+  background: #FFFFFF;
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.05);
   text-align: center;
 }
 
@@ -10062,6 +10078,25 @@ button.vp-cart-keep {
   }
 }
 
+/* The daily deal's pane, ringed again on a phone.
+
+   The block above dropped this pane's ring alongside the brand panel's
+   because both were a tint back then — a tint already ends itself against
+   the page, a ring on top of one reads as a second line. `.vp-daily-deal`
+   is plain white now (see the rule far above the media queries), so the
+   phone is back to the same «لبه پنهان» this ring existed to prevent in the
+   first place, and at the top of this section the page behind it is still
+   inside the white run of `body.shoe-shop`'s own gradient — there is no
+   colour step to lean on the way the brand panel gets one from its shadow.
+   After: `@media (max-width: 991.98px) { .vp-daily-deal, .vp-brands-panel
+   { box-shadow: none; } }`, so it has to win by coming later, not by
+   outranking it on specificity. */
+@media (max-width: 991.98px) {
+  .vp-daily-deal {
+    box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.1);
+  }
+}
+
 /* Half the air between the struck price and the live one.
 
    «در قسمت حراج فاصله بین قیمت خط خورده و قیمت اصلی نصف بشه» — the two are the
@@ -11798,6 +11833,51 @@ button.vp-cart-keep {
 .vp-mini-out:hover {
   color: #FFFFFF;
   filter: brightness(1.04);
+}
+
+/* --------------------------------------------------------------------------
+   The popup basket's own three whites, kept apart.
+
+   «سبد خریدی که از هدر بصورت پاپاپ باز میشه هم باید بکش سفید ۹۰ درصد بشه کارت
+   روش سفید ۱۰۰ درصد و بکگراند محصول سفید ۹۰ درصد» — the sheet behind
+   everything at 90%, the product's line-card at a full 100% so it reads as
+   the thing sitting on the sheet rather than the sheet itself, and the photo
+   tile so it does not compete with the card under it. «اون مربع کوچیکی
+   محصول توش قرار میگیره باید سفید ۹۲ درصد باشه» moved that last one to 92%
+   afterward — the tile alone, the sheet and the card stay at the numbers
+   asked for first.
+
+   Three flat opacities. Scoped to `.sidemenu-cart` so none of it reaches the
+   basket page, which keeps its own card (tinted, on a phone) and its own
+   photo tile (opaque) — neither was asked about. */
+/* The sheet needs the blur the other two whites do not: it sits over the
+   live page, dimmed by the template's own 0.75 scrim underneath, and at 90%
+   opaque that remaining 10% was enough to carry the page's own type and
+   product photograph through, legibly — «قالب قبلی»'s own lesson, that a
+   thin remainder of what is behind a translucent surface is still there and
+   is still read. `.vp-cart-line` and `.vp-cart-shot` don't need it: nothing
+   behind either of them is worth reading in the first place. 30px and the
+   1.5 saturation lift are not a new number — `.th-header .sticky-wrapper.sticky
+   .menu-area` settled them already, for the same reason: strong enough that
+   nothing passing under a translucent bar stays legible. */
+.sidemenu-cart .sidemenu-content {
+  background: rgba(255, 255, 255, 0.9);
+  -webkit-backdrop-filter: blur(30px) saturate(1.5);
+  backdrop-filter: blur(30px) saturate(1.5);
+}
+
+.sidemenu-cart .vp-cart-line {
+  background: #FFFFFF;
+}
+
+/* The photo tile's own ring, restored regardless of width: the basket page
+   drops it on a phone because that card sits on a grey tint already (see
+   `.vp-cart-shot` under the basket-page block), but this card is a full
+   100% white now, and a 92%-white tile on it needs the edge back or it is
+   «لبه پنهان» again, one card down. */
+.sidemenu-cart .vp-cart-shot {
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.1);
 }
 
 /* --------------------------------------------------------------------------
