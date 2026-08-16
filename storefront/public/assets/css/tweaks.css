@@ -17797,6 +17797,102 @@ html {
 }
 
 /* --------------------------------------------------------------------------
+   The phone's ground fades off white, and the footer becomes a card on it.
+
+   «آیا از نظر فنی شدنی هست که بکگراند اصلی سایت در نسخه موبایل از این محدوده
+   ای که خط کشیدم کم کم شروع به تغییر رنگ کنه بشه سفید ۹۰ درصد؟ تا پایین
+   سایت؟», with a photograph of the page and a red rectangle drawn on the
+   stepped sale's band, and then, having seen it: «تو حریم همون مستطیل قرمز که
+   کشیدم به ۹۰ درصد برسه ولی با حالت فید ... اگه مستطیل قرمزی که من کشیدم کمه
+   اندازه ۲ تا مستطیل قرمز ولی به ۹۰ نرسه خیلی تیره میشه ۹۴ خوبه».
+
+   Two things had to be established before any of it could be written down.
+
+   **The ground is pure white today, not the grey it looks.** `body.shoe-shop`
+   is `#FFFFFF` for all 7082px of this page; the grey the eye reads is the
+   panels' own 3.4% ink tint compositing to 247 on it. So "become 94% white" is
+   the ground getting *darker* than it is, from 255 to 240 — the opposite of
+   what the word suggests, and worth stating because the next person to read
+   this rule will assume the page started grey.
+
+   **Where the rectangle is, in pixels.** Measured at 390 against the elements
+   inside it — the ladder's own head at 1061, «مشاهده همه محصولات موجود در
+   حراج» at 1391, and its notes ending at 1548, with «پله بعدی» just below and
+   deliberately outside. So the rectangle is 1061 to about 1560, and its height
+   is 499. Two of them is 998, which is the length asked for, so the fade runs
+   1060 -> 2060 and holds 240 from there to the foot of the page.
+
+   Holding is the half that makes it read as asked. The first pass ran the ramp
+   the whole height of the page and reached 240 only at the footer; measured,
+   that is about one level per 200px, so no screenful of the page ever showed a
+   difference and the client asked, reasonably, whether it was 94% at all.
+   Finishing inside two rectangles means the whole lower page *is* the value,
+   rather than approaching it.
+
+   Measured down the page's own gutter afterwards, at 390:
+
+     y1060 ... 255      y2060 ... 240
+     y1400 ... 250      y3000 ... 240
+     y1700 ... 245      y6400 ... 240
+
+   **The footer is a white card now, not the floor.** At 245 it was very
+   slightly lighter than the ground the fade leaves around it, which inverted
+   the one relationship the page had down there — the footer had read as the
+   thing everything else rests on, and it started reading as a panel lit from
+   in front. «فوتر میتونه سفید از ۴ طرف کرو باشه» settles it in the other
+   direction: it stops pretending to be the floor and becomes the last of the
+   page's white cards, which is what `.vp-brands-panel` directly above it
+   already is. Its numbers are quoted rather than chosen — 10 off each side and
+   34.02 of radius, read off that panel — so if that one moves this moves with
+   it.
+
+   The copyright bar below it keeps its full-bleed width and its own colour.
+   It is the baseboard, not part of the card, and nothing about it was asked.
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 991.98px) {
+  body.shoe-shop {
+    background-image: linear-gradient(
+      to bottom,
+      #FFFFFF 0,
+      #FFFFFF 1060px,
+      #F0F0F0 2060px,
+      #F0F0F0 100%
+    );
+    background-repeat: no-repeat;
+  }
+
+  /* Three class levels, and the selector is the shape it is for two reasons.
+
+     The template owns this element as `.footer-layout6 .th-screen` (two
+     levels: width 1620, `margin: auto`, radius 30, its own background) and
+     `.footer-layout6 .th-screen.th-visible` (three: radius 0, width 100%). A
+     rule written `.footer-area` is one level and loses to both however far
+     down this file it sits — which is how the first attempt at this rendered
+     a footer that had not moved at all, the ground fading around a bar that
+     stayed exactly where it was.
+
+     `.th-visible` is deliberately *not* in the selector even though matching
+     it would be the easy way to win. That class is added by the template's own
+     script when the footer comes into view, so a rule that names it styles one
+     of two states: on a short page — `/cart` is 1068px — the class is not
+     there yet and the footer would be the template's 30px-radius full-width
+     screen until it is, then change under the visitor. Three levels ties with
+     the template's three, and this file loads last, so the tie is won here for
+     both states at once.
+
+     `width: auto` is not decoration either. The 100% comes from that
+     `.th-visible` rule, and 100% plus a 10px margin each side is 20px wider
+     than the page — which `check-overflow.js` fails on, and should. */
+  .footer-layout6 .footer-area.th-screen {
+    width: auto;
+    margin-inline: 10px;
+    border-radius: 34.02px;
+    background-color: #FFFFFF;
+  }
+}
+
+/* --------------------------------------------------------------------------
    The last rule in the last stylesheet — the shop's signature on the design.
 
    The page is the ThemeForest template's stylesheet with this file on top of
