@@ -56,17 +56,16 @@
 
                 <div class="vp-pdp-gallery">
                     <div class="vp-pdp-shot">
-                        {{-- The reference's watermark: the brand's name, very
-                             faint, behind the shoe. `brands.name_latin` is a
-                             real column with a real value in it — this is the
-                             one part of that screen's furniture the catalogue
-                             can already fill. Before the <img>, so the
-                             photograph paints over it without either needing a
-                             z-index. --}}
-                        @if ($product->brand?->name_latin)
-                            <span class="vp-pdp-mark" aria-hidden="true">{{ $product->brand->name_latin }}</span>
-                        @endif
-
+                        {{-- The brand's name used to sit behind the shoe here,
+                             very faint, the way the reference screen has it.
+                             «اون نوشته پشت کفش که نوشته گلدن گوس باید پاک بشه
+                             بکگراند محصول و محیط باید سفید صددرصد باشه» — it is
+                             gone, and with it the only thing on this half of
+                             the screen that was not white. Every photograph in
+                             the catalogue is a cut-out on transparency, so what
+                             is left behind the shoe is the page itself, 255 at
+                             every pixel. `brands.name_latin` is still a real
+                             column and nothing else reads it. --}}
                         @if ($product->primaryMedia())
                             <img src="{{ asset($product->primaryMedia()->path) }}" alt="{{ $product->title }}">
                         @endif

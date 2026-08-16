@@ -5769,17 +5769,19 @@ ul.vp-how-list.is-ticked li:before {
 /* Everything the phone's «Details» screen adds, off by default and turned on in
    its own block far below.
 
-   All of it is in the markup at every width — the watermark belongs inside the
-   shot, the strip is a second copy of the thumbnails the phone's order needs,
-   and the rating, the stand-in description and the sizes this shoe has not got
-   are all printed by the same Blade the desktop renders. «ما الان فقط داریم
-   موبایل کار میکنیم»: the desktop has to say no to each of them here rather
-   than rely on never having said yes.
+   All of it is in the markup at every width — the strip is a second copy of the
+   thumbnails the phone's order needs, and the rating, the stand-in description
+   and the sizes this shoe has not got are all printed by the same Blade the
+   desktop renders. «ما الان فقط داریم موبایل کار میکنیم»: the desktop has to
+   say no to each of them here rather than rely on never having said yes.
+
+   The brand's watermark used to head this list. It is off the markup now, so
+   there is nothing here to say no to — see the block far below where the phone
+   used to turn it on.
 
    Measured, not assumed: with this list in place the product page, the listing
    and a category page render 0 differing subpixels at 1200, 1440 and 1920
    against the tree before any of this. */
-.vp-pdp-mark,
 .vp-pdp-rate,
 .vp-pdp-close,
 .vp-pdp-colors,
@@ -9893,8 +9895,58 @@ button.vp-cart-keep {
     box-shadow: none;
   }
 
+  /* The shadow round the whole card, not only under its foot.
+
+     «اون سایه ای هم که پایین کارت برندها هست باید به همون مقدار ۲ طرف کارت هم
+     باشه و بالا با شدت یکم کمتر» — and, in the same message, «فاصله پایین
+     آخرین عکسا و آیتم باید با بغلا یکسان و هم اندازه باشه». **Those are one
+     fault, not two.** The card's padding is already 10 on all four sides and
+     measures it — panel 10..380 against a row at 20..370 at 390, and the same
+     10 under the last tile at 375, 390 and 430 alike. What was not equal was
+     the ink: `0 18px 32px -22px` is 18px of downward offset against 22 of
+     negative spread, so the whole shadow fell under the foot and the sides and
+     the top had none of it. The foot therefore read as 10px of white and then
+     a further 12 of grey climbing back to the page, and the sides as 10px of
+     white and nothing — which is the bottom gap looking bigger than the sides
+     while measuring the same as them.
+
+     Measured across the card's edges at 390, outward from the edge, before:
+
+       top    255 255 255 255 255 255 255 255 255 255
+       foot   249 248 247 246 245 244 243 242 241 240
+       sides  254 255 255 254 254 254 253 253 253 252
+
+     and after:
+
+       top    254 254 254 253 252 251 250 248 247 245
+       foot   253 253 252 251 249 248 246 244 242 240
+       left   254 253 253 252 251 249 248 246 244 242
+       right  254 254 253 252 251 250 248 247 245 243
+
+     **The foot is where it was — 240 at the edge, to the level.** That is what
+     the 1px of offset is for: the client asked for the sides to match what the
+     foot already does, not for a new shadow, so the foot's own number is the
+     one held fixed and everything else is fitted to it. The sides come to 242
+     and 243, within three levels of it, and the top to 245 — «یکم کمتر», five
+     levels lighter than the foot and two or three lighter than the sides.
+
+     They cannot be made exactly equal, and it is worth saying why: a shadow
+     with a downward offset puts the sides at the average of the top and the
+     foot, so «sides equal to the foot» and «top lighter than the foot» pull
+     against each other. 1px is where the top is a readable step lighter and
+     the sides are still within a level or two of the foot. 2px was tried and
+     costs two levels at the foot — 238 rather than 240 — which is the one
+     number this change is meant not to move.
+
+     The reach is a shade under 10px, which is what the room allows: the card
+     sits 10 from each side of the screen, so a wider halo would be walking off
+     the edge of the page rather than onto it.
+
+     This is a phone rule and stays one. The desktop card's shadow is the
+     symmetric 8px halo the «سایه نرم دورتا دور» round settled and nothing here
+     has been said against it. */
   .vp-brands-panel {
-    box-shadow: 0 18px 32px -22px rgba(16, 17, 17, 0.18);
+    box-shadow: 0 1px 14px -2px rgba(16, 17, 17, 0.15);
   }
 }
 
@@ -12358,44 +12410,63 @@ button.vp-cart-keep {
     margin-inline: auto;
   }
 
-  /* The brand behind the shoe. Big, faint and inert — `aria-hidden`, so it is
-     furniture rather than a second heading for a screen reader to read out
-     before the name. Centred on the tile rather than on its text box, which is
-     why it is a positioned box the full width of the shot with the line
-     centred inside it.
+  /* The brand's name used to be set across this tile, very faint, behind the
+     shoe — `.vp-pdp-mark`, sized off the viewport and clipped by an
+     `overflow: hidden` on the tile so that «Golden Goose» at twelve characters
+     could not widen the page the way `check-overflow.js` fails on.
 
-     **14% down, not the middle.** Measured off the render at 390 — the shoe's
-     own ink, row by row, across the 362 tile: nothing above y=200, 153..160 at
-     205, 125..167 at 220, 51..170 at 250, and past 280 it is most of the
-     width. A word set across the middle would have its whole left half behind
-     the shoe and read as the fragment that is left. At 14% it crosses the
-     collar only, which is what the reference's own watermark does.
+     Both are gone. «اون نوشته پشت کفش که نوشته گلدن گوس باید پاک بشه بکگراند
+     محصول و محیط باید سفید صددرصد باشه» — the element is off the Blade, so the
+     rule that drew it and the clip that contained it have nothing left to do.
 
-     **Sized off the viewport, and clipped.** `Golden Goose` is twelve
-     characters where `Jordan` is six, so a size that suits one runs past the
-     tile on the other — and this box is `nowrap` and absolutely positioned, so
-     running past the tile means running past the page, which
-     `check-overflow.js` fails on. The clamp keeps it 44–88, and the tile is
-     `overflow: hidden` underneath so the longest name is trimmed at the edges
-     rather than widening anything. */
-  .vp-pdp-shot {
-    overflow: hidden;
-  }
+     What that leaves is the plain white the second half of the instruction
+     asks for, and it is white by construction rather than by a fill: the tile
+     states no background, every photograph in the catalogue is a cut-out on
+     transparency, and the page under both is #FFFFFF. Sampled at 390 after —
+     255 at every pixel of the tile the shoe does not cover, and 255 for the
+     length of the band between the shoe and the dots.
 
-  .vp-pdp-mark {
-    display: block;
-    position: absolute;
-    inset-inline: 0;
-    inset-block-start: 14%;
-    font-family: 'Cairo', var(--title-font);
-    font-weight: 700;
-    font-size: clamp(44px, 14vw, 88px);
-    line-height: 1;
-    letter-spacing: 0.02em;
-    text-align: center;
-    white-space: nowrap;
-    color: rgba(16, 17, 17, 0.055);
-    pointer-events: none;
+     Taking the clip off also makes the drop below safe at any amount: with
+     `overflow: hidden` a photograph pushed down loses whatever crosses the
+     tile's foot, and it is the transparent letterbox that goes first, so the
+     failure would be silent until a taller shoe hit it. */
+
+  /* The shoe, dropped a tenth of the tile.
+
+     «عکس محصول تو جزئیات آگهی تو نیمه بالایی قابش قرار گرفته خیلی تخمیه باید
+     تا جایی که خط کشیدم بیاد پایین» — with a line drawn under the shoe, well
+     below where it was sitting.
+
+     **The photograph was already centred; the frame is what is off.** Every
+     shot in the catalogue is 1400×990 with its ink centred in the canvas — the
+     goose has 224 rows clear above and 221 below — and `contain` centres the
+     canvas in the tile, so the shoe came out with the air split evenly. What
+     the client is reading as «the upper half» is that even split against a
+     tile whose foot is the last thing above the dots: 66 of nothing under the
+     shoe, and then 27 more to the dots, so the bottom third of this screen was
+     empty and the shoe rode high in it.
+
+     **A tenth of the tile's height, which is a measurement and not a taste.**
+     Two numbers meet at it. At 430 — the width the client's screenshot is —
+     the line they drew reads 233.7 from the top of the page, and this puts the
+     goose's foot at 231.3. And a tenth is also exactly the smallest slack any
+     photograph in the catalogue has under its ink:
+
+       jordan      ink 46..943 of 990   slack under it   9.9% of the tile
+       new balance    127..863               17.1%
+       cloudtilt      157..832               19.8%
+       v2k            180..809               21.9%
+       golden goose   224..768               25.5%
+
+     so at 10% the tallest photograph's foot lands on the tile's own foot and
+     every other one lands above it. Anything more and Jordan starts pushing
+     its sole past the frame.
+
+     A percentage rather than a pixel count because the tile is 80% of the
+     line: the drop follows the width the way everything else in this block
+     does, and holds at 320 as it does at 991. */
+  .vp-pdp-shot img {
+    transform: translateY(10%);
   }
 
   /* ---- The card ----------------------------------------------------------
@@ -17020,4 +17091,105 @@ html {
 
 .vp-enter-change:hover {
   color: var(--title-color);
+}
+
+/* --------------------------------------------------------------------------
+   The three «خرید کنید» buttons, at the hero button's numbers.
+
+   «اون دکمه های خرید کنید شکل و اندازه و نوشتشون باید مث اون دکمه تو هدر بشن
+   فلش هم حذف بشه» — the buttons that say «خرید کنید» take the shape, the size
+   and the lettering of the button at the top of the page, and the arrow comes
+   off.
+
+   There are three of them, and until now no two agreed with each other or with
+   the fourth button they were being measured against. Rendered at 390:
+
+     hero          .th-btn        خرید محصول   120.05 x 40.78   14.4/800   r 11.2
+     offer banner  .th-btn        خرید کنید    157.61 x 51.00   18/500     r 48
+     offer banner  .line-btn      خرید کنید    102.05 x 25.00   16/600     no ground
+     daily deal    .vp-daily-deal-cta          149.20 x 58.00   17/700     r 48
+
+   The hero's is the one that has been worked: it is the template's button with
+   every measure multiplied by 0.8 — 18 → 14.4 type, 16.5/24 → 13.2/19.2
+   padding, 14 → 11.2 corner, 8 → 6.4 gap — and its arrow already comes off
+   below 992. The other three are still the template's pill, at three sizes.
+   The client is reading the difference from the top of the page down.
+
+   **The numbers are the hero's and are not re-derived here.** They are stated
+   at `.heroSlide6 .hero-inner .th-btn`, in two places — the weight and the
+   family up with the hero's type, the rest with the 0.8 block — and if either
+   moves, this moves with it. Same arrangement as `.vp-best-label` reading
+   `.vp-deal-label`, and it drifted once there because the pair was not written
+   down, so it is written down here.
+
+   **Phone only.** «ما داریم در مورد نسخه گوشی حرف میزنیم چرااااا میری سراغ
+   دستاپ؟» — the screenshots this came with are a phone's, so the desktop keeps
+   its pills. That also matches the arrow, which the hero drops below 992 and
+   keeps above it.
+
+   **The label is white, and that is the one part worth arguing with.** It is
+   white because the hero's is white and «مث اون دکمه» is the instruction; but
+   this file's own note at the top of the gold section measured the pairing and
+   chose ink everywhere else it fills this ramp, and the numbers are why —
+   white reads 2.72:1 on the ramp's dark stop and 1.91:1 on its light one,
+   against ink's 6.99:1 and 9.95:1. 4.5:1 is what text of this size is asked
+   for. `.vp-daily-deal-cta` in particular carried a comment saying so. Noting
+   rather than arguing, the way the menu bars' white was noted: it is one
+   property to put back if the client would rather these read as the page's
+   other filled buttons do.
+   -------------------------------------------------------------------------- */
+@media (max-width: 991.98px) {
+  .cta-area4 .th-btn,
+  .cta-area4 .line-btn,
+  .vp-daily-deal-section .vp-daily-deal-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6.4px;
+    padding: 13.2px 19.2px;
+    border-radius: 11.2px;
+    background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+    font-family: 'Cairo', var(--body-font);
+    font-weight: 800;
+    font-size: 14.4px;
+    line-height: 1;
+    color: #FFFFFF;
+    text-decoration: none;
+  }
+
+  .cta-area4 .th-btn:hover,
+  .cta-area4 .line-btn:hover,
+  .vp-daily-deal-section .vp-daily-deal-cta:hover {
+    color: #FFFFFF;
+  }
+
+  /* The arrows. Three of them and no two are the same object, which is why
+     this takes three rules rather than one:
+
+       .th-btn.th-icon::after   the template's arrow-right.svg mask
+       .line-btn::after         the same mask at 32x10, which is the long rule
+                                the second banner card reads as an underline
+       .vp-daily-deal-cta i     a FontAwesome element in the markup
+
+     **All three go here rather than two here and one in the Blade.** Taking
+     the daily deal's `<i>` out of `home/daily-deal.blade.php` was the first
+     attempt and it is wrong: that markup has no width in it, so the element
+     would have gone at every width and the desktop would have lost an arrow
+     nobody asked about. «ما داریم در مورد نسخه گوشی حرف میزنیم» — the
+     instruction is a phone's, so the switch has to be one too.
+
+     `content: none` on the two pseudo-elements, `display: none` on the one
+     real element, and neither leaves a gap behind it: a gap is drawn between
+     two flex items, so a button with one visible child draws none. That is
+     the same reasoning the hero's own arrow rule sets out. `.line-btn`'s hover
+     widens its arrow from 32 to 45; with no arrow there is nothing to widen,
+     so that rule is left where it is rather than unpicked. */
+  .cta-area4 .th-btn.th-icon::after,
+  .cta-area4 .line-btn::after {
+    content: none;
+  }
+
+  .vp-daily-deal-section .vp-daily-deal-cta i {
+    display: none;
+  }
 }

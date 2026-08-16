@@ -141,6 +141,94 @@ is the card's box vertically and the page's horizontally, so `top: 0` is the
 card's top edge, `bottom: 0` its foot and `left: 50%` its centre line. Nothing
 about them has to be re-measured when the header or the card changes height.
 
+## Four off one message: the watermark, the shoe, the buttons, the brand card
+
+All four are phone-only, all four were measured, and the desktop was read
+rather than assumed afterwards — the product page renders 0 differing pixels at
+1200, 1440 and 1920, and the home page differs on no row that two renders of
+the *same* tree do not also differ on. (That noise is the known one: it starts
+at the `.vp-deal` cards and their `.vp-enter` reveal, which is the signature the
+parity note at the end of this file describes.)
+
+**The brand's name behind the shoe is gone, and the tile is white by
+construction.** «اون نوشته پشت کفش که نوشته گلدن گوس باید پاک بشه بکگراند محصول
+و محیط باید سفید صددرصد باشه». `.vp-pdp-mark` is off the Blade, so its rule and
+the `overflow: hidden` that clipped it both went with it. Nothing was painted
+white to achieve the second half: the tile states no background, every
+photograph in the catalogue is a cut-out on transparency, and the page under
+both is #FFFFFF — sampled after at 255 across the band the word used to cross
+and across the gap under the shoe. `brands.name_latin` is still a real column
+and nothing reads it now.
+
+**The shoe drops a tenth of its tile**, «باید تا جایی که خط کشیدم بیاد پایین».
+The photograph was never off-centre — all five shots are 1400×990 with their ink
+centred, and `contain` centres the canvas — so what was wrong was an even split
+in a tile whose foot is the last thing above the dots. A tenth is where two
+numbers meet: at 430 it puts the goose's foot at 231.0 against the 233.7 the
+client's line reads, and it is also the smallest slack any photograph in the
+catalogue has under its ink (Jordan, 9.9%), so at 10% the tallest shot lands on
+the tile's foot and every other one above it. Clearance at 320/360/375/390/430/575
+is 28.6/33.1/35.0/36.1/40.0/54.5 — 15.3–15.6% of the tile at every width, which
+is the percentage doing its job.
+
+**The three «خرید کنید» buttons are the hero button's now.** «شکل و اندازه و
+نوشتشون باید مث اون دکمه تو هدر بشن فلش هم حذف بشه». They were three shapes and
+none of them agreed with the button at the top of the page:
+
+| | was | now |
+|---|---|---|
+| hero `.th-btn` | 120.05 × 40.78, 14.4/800, r 11.2 | untouched — it is the reference |
+| offer banner `.th-btn` | 157.61 × 51, 18/500, r 48 | 98.72 × 40.78, 14.4/800, r 11.2 |
+| offer banner `.line-btn` | 102.05 × 25, 16/600, no ground | the same |
+| daily deal `.vp-daily-deal-cta` | 149.20 × 58, 17/700, r 48 | the same |
+
+**Those numbers are the hero's and are not restated as its own decision.** They
+live at `.heroSlide6 .hero-inner .th-btn`, in two blocks — the weight and the
+family with the hero's type, the 0.8 measures with the rest — and if either
+moves these move with it. The pair is written down because the last time two
+blocks held each other up without being named, the best seller's strip and the
+sale's drifted 5.28 apart and the client had to ask twice.
+
+**The label is white because the hero's is, and that is the one part worth
+arguing with.** This file measured the ramp and chose ink everywhere else it is
+filled: white is 2.72:1 on the ramp's dark stop and 1.91:1 on its light one,
+against ink's 6.99:1 and 9.95:1, and 4.5:1 is what text this size is asked for.
+«مث اون دکمه» is the instruction and the hero has carried white through several
+rounds without a word against it, so it is matched and noted rather than argued
+— one property to put back.
+
+The arrows come off in the stylesheet, all three, and **that is deliberate**:
+the daily deal's is an `<i>` in the markup and taking it out of the Blade was
+the first attempt, which would have removed it at every width. A phone request
+is not licence to touch the desktop, so it is `display: none` below 992 beside
+the two `content: none`s, and the desktop keeps all three.
+
+**The brand card's shadow goes round all four sides.** «اون سایه ای هم که پایین
+کارت برندها هست باید به همون مقدار ۲ طرف کارت هم باشه و بالا با شدت یکم کمتر»,
+and in the same message «فاصله پایین آخرین عکسا و آیتم باید با بغلا یکسان و هم
+اندازه باشه». **Those are one fault.** The padding is already 10 on all four
+sides and measures 10 at 320 through 575; what was not equal was the ink.
+`0 18px 32px -22px` is 18 of offset against 22 of negative spread, so the whole
+shadow fell under the foot — the foot read as 10px of white and then 12 more of
+grey, the sides as 10px of white and nothing. `0 1px 14px -2px rgba(16,17,17,0.15)`
+instead, measured outward from each edge at 390:
+
+```
+top    254 254 254 253 252 251 250 248 247 245
+foot   253 253 252 251 249 248 246 244 242 240
+left   254 253 253 252 251 249 248 246 244 242
+right  254 254 253 252 251 250 248 247 245 243
+```
+
+**The foot is exactly where it was** — 240 at the edge, to the level — which is
+the point: the client asked for the sides to match what the foot already does.
+The sides land within two or three of it and the top five lighter. They cannot
+be made exactly equal, because a downward offset puts the sides at the average
+of the top and the foot, so «sides like the foot» and «top lighter» pull against
+each other; 1px is where both are satisfied and 2px costs the foot two levels.
+The reach is a shade under 10px, which is all the room there is — the card sits
+10 from each edge of the screen.
+
 ## Not finished
 
 This table used to say everything below the category row was the template's.

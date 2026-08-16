@@ -1235,6 +1235,8 @@ const DAILY_DEAL =
   // at every desktop width, so without the <br> it would never stack.
   '                    <h2 class="vp-daily-deal-title">قبل از<br>تمام شدن بخرش!</h2>\n' +
   '                    <p class="vp-daily-deal-sub">عجله کن؛ موجودی محدوده.</p>\n' +
+  // The arrow stays here and is switched off below 992 in tweaks.css —
+  // «فلش هم حذف بشه» is a phone instruction and the desktop keeps its arrow.
   '                    <a href="shop-details.html" class="vp-daily-deal-cta">خرید کنید' +
   '<i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>\n' +
   '                </div>\n' +

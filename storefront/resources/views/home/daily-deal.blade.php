@@ -20,6 +20,12 @@
                     <span class="vp-daily-deal-badge">پیشنهاد امروز</span>
                     <h2 class="vp-daily-deal-title">قبل از<br>تمام شدن بخرش!</h2>
                     <p class="vp-daily-deal-sub">عجله کن؛ موجودی محدوده.</p>
+                    {{-- The arrow stays in the markup and is switched off below
+                         992 in tweaks.css, beside the offer banner's two.
+                         «فلش هم حذف بشه» came with a phone's screenshots, and a
+                         phone request is not licence to touch the desktop —
+                         taking the element out here would have removed it at
+                         every width. --}}
                     <a href="{{ storefront_route('product', $dailyDeal['product']) }}" class="vp-daily-deal-cta">خرید کنید<i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
                 </div>
                 <div class="vp-daily-deal-card">
