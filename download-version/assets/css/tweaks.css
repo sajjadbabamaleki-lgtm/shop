@@ -58,11 +58,121 @@
    197 selectors as text — because red cleared 4.00:1 either way.
    -------------------------------------------------------------------------- */
 
+/* The gold, named. Every gold in this file used to be one of ten hex literals
+   spread over 128 declarations; they are these ten custom properties now and
+   nothing else. The values below are exactly what those literals were, so
+   this indirection changes no pixel — it exists so the ramp can be re-pointed
+   in one place, which is what the phone block further down does.
+
+   Which name a literal took depends on the job it was doing, because the two
+   jobs have different tolerances: a fill can move in lightness freely, text
+   cannot without dragging its contrast ratio with it. So #C0972F as a fill
+   and #C0972F as text are two names, and likewise #7D6324 and #CA9A24. */
+
+:root {
+  --vp-gold-fill: #C0972F;        /* the fill, 42 declarations                */
+  --vp-gold-fill-ink: #C0972F;    /* same value as text, 5 declarations       */
+  --vp-gold-lit: #E3B54A;         /* the lit end of every gradient            */
+  --vp-gold: #A47F25;             /* the sampled midpoint, and --theme-color  */
+  --vp-gold-ink: #8F7022;         /* text on white, 4.66:1                    */
+  --vp-gold-ink-deep: #6E5416;    /* text on white, darkest, 7.14:1           */
+  --vp-gold-ink-lit: #CA9A24;     /* text on the footer's ink, 7.35:1         */
+  --vp-gold-ramp-lit: #CA9A24;    /* same value as --gr-color2's light stop   */
+  --vp-gold-ramp-top: #7D6324;    /* the button ramp, dark stop               */
+  --vp-gold-ramp-ink: #7D6324;    /* same value as text, 5.70:1               */
+  --vp-gold-ramp-foot: #CE9E29;   /* the button ramp, light stop              */
+  --vp-gold-step: #C29A31;        /* the stepped sale's second podium         */
+  --vp-gold-step-deep: #8C6E1F;   /* its foot                                 */
+}
+
 :root,
 .shoe-shop, .fashion-shop, .electronics-shop, .grocery-shop,
 .coffee-shop, .furniture-shop, .home-electrician {
-  --theme-color: #A47F25;
-  --gr-color2: #CA9A24;
+  --theme-color: var(--vp-gold);
+  --gr-color2: var(--vp-gold-ramp-lit);
+}
+
+/* The inline bursts carry their gradient as `stop-color` attributes, which are
+   presentation attributes and so lose to any rule at all — this is how the two
+   SVGs in the markup follow the ramp instead of being frozen at the values
+   `make-rtl-page.js` wrote into them. Same values, so still no pixel moves. */
+.vp-burst linearGradient stop:first-child,
+.vp-deal-burst linearGradient stop:first-child { stop-color: var(--vp-gold-fill); }
+.vp-burst linearGradient stop:last-child,
+.vp-deal-burst linearGradient stop:last-child { stop-color: var(--vp-gold-lit); }
+
+/* --------------------------------------------------------------------------
+   ON THE PHONE ONLY: the brighter gold, for the client to look at.
+
+   Asked for from a screenshot of a yellow card — «گلدا بشن این گلد ببینم چطو
+   میشه» — and scoped to <=767px so the desktop keeps the shipped gold while
+   the two are being compared. This block is the whole of the change: delete
+   it and the page is back where it was.
+
+   The screenshot's gold read #EFC94F. Against the lit end of our own ramp,
+   #E3B54A, that is H +3.8°, S +10.1pp, L +3.3pp — so the gold is not replaced
+   by a flat colour, it is the same ramp walked to the new hue. Every fill
+   takes the shift whole.
+
+   Text does not, because the saturation alone costs contrast: #8F7022 carried
+   straight through comes out 3.40:1 on white, under AA, from 4.66:1. So the
+   six text golds take the new hue and saturation and then have their
+   lightness solved to hold their original relative luminance. Measured after,
+   against the numbers at the top of this file:
+
+     #A47F25 -> #A08119   on white 3.72 -> 3.72   ink on it 5.08 -> 5.09
+     #8F7022 -> #8B7217   on white 4.66 -> 4.65   ink on it 4.06 -> 4.07
+     #6E5416 -> #6B550E   on white 7.14 -> 7.17   ink on it 2.65 -> 2.64
+     #CA9A24 -> #C49D16   on white 2.57 -> 2.57   ink on it 7.35 -> 7.37
+     #7D6324 -> #7A641A   on white 5.70 -> 5.73   ink on it 3.32 -> 3.30
+     #C0972F -> #BB9920   on white 2.72 -> 2.73   ink on it 6.94 -> 6.93
+
+   Nothing moves by more than 0.03, so no measurement in this file is invalid
+   on the phone. `--theme-color` is one of the six: it is the template's own
+   accent variable and still feeds text this file's generated selector lists
+   did not catch, so it is held rather than lifted. Every gold the eye actually
+   reads as gold on this page — the buy button, the bursts, the stepped sale,
+   the marks — is a fill, and those move.
+
+   The gold baked into the flat SVGs is a second problem, because CSS does not
+   get inside an `<img>`. Five of them are on this page — the trust row's
+   badges — and they carry the button ramp, the pair that moves most, so
+   leaving them would have put the old gold next to the new one on the same
+   card and made the test unreadable. Each has a `-goldtest` sibling, the same
+   file with the two `stop-color`s walked to the values below, and the rule at
+   the foot of this block swaps them with `content: url()`, which is the one
+   thing that changes what an `<img>` shows without touching the markup. They
+   were made with a two-term sed off the `-gold` files and go when this block
+   goes; `theme/recolor-svg.js` is what would make them properly if this gold
+   is the one that ships.
+
+   The category icons also carry gold, #A47F25, but that is one of the six held
+   values — #A47F25 to #A08119 is under two levels per channel — so they are
+   left alone rather than given a sibling nobody could tell apart.
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 767px) {
+  :root {
+    --vp-gold-fill: #DAB226;
+    --vp-gold-fill-ink: #BB9920;
+    --vp-gold-lit: #EFC94F;
+    --vp-gold: #A08119;
+    --vp-gold-ink: #8B7217;
+    --vp-gold-ink-deep: #6B550E;
+    --vp-gold-ink-lit: #C49D16;
+    --vp-gold-ramp-lit: #E5B71A;
+    --vp-gold-ramp-top: #93791F;
+    --vp-gold-ramp-ink: #7A641A;
+    --vp-gold-ramp-foot: #E3B825;
+    --vp-gold-step: #D9B42B;
+    --vp-gold-step-deep: #A38619;
+  }
+
+  img[src$="check2-gold.svg"] { content: url("../img/icon/check2-goldtest.svg"); }
+  img[src$="feature_card_1-gold.svg"] { content: url("../img/icon/feature_card_1-goldtest.svg"); }
+  img[src$="feature_card_2-gold.svg"] { content: url("../img/icon/feature_card_2-goldtest.svg"); }
+  img[src$="feature_card_4-gold.svg"] { content: url("../img/icon/feature_card_4-goldtest.svg"); }
+  img[src$="secure-gold.svg"] { content: url("../img/icon/secure-goldtest.svg"); }
 }
 
 /* Text that took its colour from the accent. The selector list is generated
@@ -264,7 +374,7 @@ blockquote.style-left-icon:before,
 input[type="checkbox"].style2:checked ~ label:before,
 table.variations label a:hover,
 ul.wp-block-latest-posts a:hover {
-  color: #8F7022;
+  color: var(--vp-gold-ink);
 }
 
 /* On dark grounds the direction reverses: the gradient's light end is the
@@ -273,7 +383,7 @@ ul.wp-block-latest-posts a:hover {
 .footer-wrapper .footer-links a:hover,
 .header-top a:hover,
 .th-header .header-top a:hover {
-  color: #CA9A24;
+  color: var(--vp-gold-ink-lit);
 }
 
 /* The template put white type on the accent, which the red carried at 4.00:1
@@ -525,7 +635,7 @@ option:hover {
    but it stands for a product colour and should carry a real one once the
    catalogue is real. */
 .product-grid.style14 .beige-color span {
-  background-color: #A47F25;
+  background-color: var(--vp-gold);
 }
 
 /* --------------------------------------------------------------------------
@@ -784,7 +894,7 @@ nav.woocommerce-MyAccount-navigation li.is-active a,
 option:checked,
 option:focus,
 option:hover {
-  background-image: linear-gradient(180deg, #7D6324 0%, #CE9E29 100%);
+  background-image: linear-gradient(180deg, var(--vp-gold-ramp-top) 0%, var(--vp-gold-ramp-foot) 100%);
 }
 
 /* The button's arrow is a mask painted with --white-color, so it stayed white
@@ -826,7 +936,7 @@ option:hover {
    ink at button size.
    -------------------------------------------------------------------------- */
 .th-btn {
-  background-image: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+  background-image: linear-gradient(180deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
 }
 
 /* --------------------------------------------------------------------------
@@ -1940,7 +2050,7 @@ option:hover {
    through to the sampled ramp instead of the one measured for a white ground.
    Two golds on one page is a mistake whichever of them is right. */
 .th-header .th-menu-toggle.d-block {
-  background-image: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+  background-image: linear-gradient(180deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   background-color: transparent;
   border: 0;
   /* White, as asked. Noted rather than argued: this file measured white on
@@ -2156,8 +2266,8 @@ option:hover {
 .vp-trust-row .box-icon .vp-trust-glyph {
   font-size: 32px;
   line-height: 64px;
-  color: #7D6324;
-  background-image: linear-gradient(180deg, #7D6324 0%, #CE9E29 100%);
+  color: var(--vp-gold-ramp-ink);
+  background-image: linear-gradient(180deg, var(--vp-gold-ramp-top) 0%, var(--vp-gold-ramp-foot) 100%);
 }
 
 @supports ((-webkit-background-clip: text) or (background-clip: text)) {
@@ -2547,7 +2657,7 @@ option:hover {
      If these ever read faint in daylight, that number is why and ink is the
      fix. */
   color: #FFFFFF;
-  background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+  background: linear-gradient(180deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   box-shadow: none;
 }
 
@@ -2593,7 +2703,7 @@ option:hover {
   /* «اون لودینگی که میچرخه هم سفید بشه» — the ring is drawn in currentColor,
      so this one property carries it. Same contrast note as the digits above. */
   color: #FFFFFF;
-  background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+  background: linear-gradient(180deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   box-shadow: none;
   /* «اندازه مربع لودینگ ارتفاعش از کارت هفته دوم که کنارشه بیشتره... باید اندازه
      اون مربعی باشه که کنار هفته اول تیک خورده».
@@ -2666,7 +2776,7 @@ option:hover {
 }
 
 .vp-track-leg.is-filled {
-  background: linear-gradient(90deg, #C0972F 0%, #E3B54A 100%);
+  background: linear-gradient(90deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
 }
 
 /* --- the two notes, and the way out beside them --------------------------- */
@@ -2981,7 +3091,7 @@ option:hover {
   padding: 0;
   border: 0;
   border-radius: 50%;
-  background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+  background: linear-gradient(180deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   /* White and solid (fa-solid, not the fa-light this started as) — the
      client asked for the icon filled and white, not the ink this took from
      the burst and the ladder's live step. */
@@ -3435,7 +3545,7 @@ option:hover {
    white's 2.46:1, documented at the top of this file). */
 .vp-best-filter.active,
 .vp-best-filter:hover {
-  background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+  background: linear-gradient(180deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   color: #101111;
 }
 
@@ -3447,7 +3557,7 @@ option:hover {
   font-size: 12px;
   font-weight: 700;
   line-height: 1.6;
-  color: #8F7022;
+  color: var(--vp-gold-ink);
   white-space: nowrap;
   text-decoration: none;
 }
@@ -3535,7 +3645,7 @@ option:hover {
   letter-spacing: 0.02em;
   /* Text on a light ground takes the accent ramp's dark end — same pairing
      as .vp-best-all and the header search icon, not a fresh value. */
-  color: #8F7022;
+  color: var(--vp-gold-ink);
 }
 
 .vp-daily-deal-title {
@@ -3560,7 +3670,7 @@ option:hover {
   gap: 10px;
   padding: 16px 30px;
   border-radius: 48px;
-  background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+  background: linear-gradient(180deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   font-family: 'Vazirmatn', var(--body-font);
   font-weight: 700;
   font-size: 17px;
@@ -3669,7 +3779,7 @@ option:hover {
   height: 100%;
   width: 8%;
   border-radius: 4px;
-  background: linear-gradient(90deg, #C0972F 0%, #E3B54A 100%);
+  background: linear-gradient(90deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
 }
 
 /* Overrides the template's own .timer-counter: a divided strip of plain
@@ -4095,7 +4205,7 @@ option:hover {
     0 0 2px rgba(16, 17, 17, 0.10),
     0 0 8px -2px rgba(16, 17, 17, 0.14);
   border: 0;
-  color: #C0972F;
+  color: var(--vp-gold-fill-ink);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -4106,7 +4216,7 @@ option:hover {
 .th-header .header-button .icon-btn.vp-search-btn .vp-search-icon {
   font-size: 20px;
   line-height: 1;
-  color: #C0972F;
+  color: var(--vp-gold-fill-ink);
 }
 
 /* The account, the same white square as the basket beside it — one control
@@ -4129,7 +4239,7 @@ option:hover {
 }
 
 .th-header .header-button .icon-btn.sideMenuToggler .badge {
-  background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+  background: linear-gradient(180deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   color: #101111;
 }
 
@@ -4530,16 +4640,16 @@ option:hover {
    mark rather than a sentence, closer to the icon case this file's own
    contrast table already carries an exception for than to a button label. */
 .vp-how-step.is-lit .vp-how-off {
-  background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+  background: linear-gradient(180deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   color: #FFFFFF;
 }
 
 .vp-how-step.is-lit .vp-how-podium {
-  background: linear-gradient(180deg, #C0972F 0%, #A07C22 100%);
+  background: linear-gradient(180deg, var(--vp-gold-fill) 0%, #A07C22 100%);
 }
 
 .vp-how-step.is-lit .vp-how-podium:before {
-  background: linear-gradient(180deg, #E3B54A 0%, #C0972F 100%);
+  background: linear-gradient(180deg, var(--vp-gold-lit) 0%, var(--vp-gold-fill) 100%);
 }
 
 /* A step that already had its turn: the ground fades back to the default
@@ -4547,7 +4657,7 @@ option:hover {
    — text on light grounds takes the dark end of this file's own accent
    ramp (4.66:1 on white, AA), not a fresh colour. */
 .vp-how-step.is-done .vp-how-off {
-  color: #8F7022;
+  color: var(--vp-gold-ink);
 }
 
 /* --- the conditions, one strip ------------------------------------------- */
@@ -4695,9 +4805,9 @@ ul.vp-how-list.is-ticked li:before {
     animation: none !important;
   }
 
-  .vp-how-step:nth-child(2) .vp-how-off { background: #C29A31; color: var(--title-color); }
-  .vp-how-step:nth-child(2) .vp-how-podium { background: linear-gradient(180deg, #C29A31 0%, #8C6E1F 100%); }
-  .vp-how-step:nth-child(2) .vp-how-podium:before { background: linear-gradient(180deg, #E3B54A 0%, #C29A31 100%); }
+  .vp-how-step:nth-child(2) .vp-how-off { background: var(--vp-gold-step); color: var(--title-color); }
+  .vp-how-step:nth-child(2) .vp-how-podium { background: linear-gradient(180deg, var(--vp-gold-step) 0%, var(--vp-gold-step-deep) 100%); }
+  .vp-how-step:nth-child(2) .vp-how-podium:before { background: linear-gradient(180deg, var(--vp-gold-lit) 0%, var(--vp-gold-step) 100%); }
 }
 
 /* --- narrower ------------------------------------------------------------ */
@@ -4864,7 +4974,7 @@ ul.vp-how-list.is-ticked li:before {
   font-family: 'Vazirmatn', var(--body-font);
   font-weight: 600;
   font-size: 13.5px;
-  color: #A47F25;
+  color: var(--vp-gold);
   text-decoration: none;
 }
 
@@ -6316,7 +6426,7 @@ button.vp-cart-keep {
 
 .vp-note.is-good {
   background: rgba(164, 127, 37, 0.12);
-  color: #6E5416;
+  color: var(--vp-gold-ink-deep);
 }
 
 .vp-note.is-bad {
@@ -7736,7 +7846,7 @@ button.vp-cart-keep {
      on white — the colour does the sorting, and the eye finds the sections
      without anything being made bold or boxed. Ours had the gold in the icon
      tiles instead, where it tinted eight squares and organised nothing. */
-  color: #A47F25;
+  color: var(--vp-gold);
 }
 
 .vp-drawer-heading {
@@ -7760,14 +7870,14 @@ button.vp-cart-keep {
   font-family: 'Vazirmatn', var(--body-font);
   font-weight: 600;
   font-size: 11px;
-  color: #8F7022;
+  color: var(--vp-gold-ink);
   text-decoration: none;
   transition: background-color 0.2s ease;
 }
 
 .vp-drawer-all:hover {
   background: rgba(192, 151, 47, 0.18);
-  color: #7D6324;
+  color: var(--vp-gold-ramp-ink);
 }
 
 /* --- the three shortcuts ------------------------------------------------- */
@@ -7816,7 +7926,7 @@ button.vp-cart-keep {
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+  background: linear-gradient(180deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   color: #101111;
   font-size: 12px;
 }
@@ -7826,7 +7936,7 @@ button.vp-cart-keep {
 .vp-quick:not(.is-lit) .vp-quick-mark {
   background: #FFFFFF;
   box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.10);
-  color: #A47F25;
+  color: var(--vp-gold);
 }
 
 .vp-quick-name {
@@ -8016,7 +8126,7 @@ button.vp-cart-keep {
 
 .vp-drawer-links a i {
   flex: none;
-  color: #A47F25;
+  color: var(--vp-gold);
   font-size: 12px;
 }
 
@@ -8043,7 +8153,7 @@ button.vp-cart-keep {
   gap: 9px;
   height: 44px;
   border-radius: 13px;
-  background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+  background: linear-gradient(180deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   font-family: 'Cairo', var(--title-font);
   font-weight: 700;
   font-size: 13.5px;
@@ -8158,7 +8268,7 @@ button.vp-cart-keep {
    as the running step of the stepped sale and the drawer's lit shortcut. */
 #vp-signin-login:checked ~ .vp-signin-tabs label[for="vp-signin-login"],
 #vp-signin-register:checked ~ .vp-signin-tabs label[for="vp-signin-register"] {
-  background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+  background: linear-gradient(180deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   /* «اون ورود و ثبت نام نوشتشون باید سفید باشه رو گلد نه مشکی». It took ink
      because the stepped sale's lit step and the drawer's lit shortcut do, and
      those are the two this borrowed from — but neither of them is a control
@@ -8207,7 +8317,7 @@ button.vp-cart-keep {
 }
 
 .vp-signin-alt a {
-  color: #A47F25;
+  color: var(--vp-gold);
   font-weight: 600;
 }
 
@@ -8329,7 +8439,7 @@ button.vp-cart-keep {
   background: rgba(192, 151, 47, 0.12);
   font-size: 12px;
   font-weight: 600;
-  color: #8F7022;
+  color: var(--vp-gold-ink);
 }
 
 .vp-account-shop {
@@ -9570,18 +9680,18 @@ button.vp-cart-keep {
     flex: 1;
     height: 1px;
     max-width: 84px;
-    background: linear-gradient(90deg, rgba(192, 151, 47, 0), #C0972F);
+    background: linear-gradient(90deg, rgba(192, 151, 47, 0), var(--vp-gold-fill));
   }
 
   .vp-foot-m-rule:last-child {
-    background: linear-gradient(90deg, #C0972F, rgba(192, 151, 47, 0));
+    background: linear-gradient(90deg, var(--vp-gold-fill), rgba(192, 151, 47, 0));
   }
 
   .vp-foot-m-name {
     font-family: 'Cairo', var(--title-font);
     font-weight: 800;
     font-size: 22px;
-    color: #A47F25;
+    color: var(--vp-gold);
   }
 
   .vp-foot-m-strap {
@@ -9608,7 +9718,7 @@ button.vp-cart-keep {
   .vp-foot-m-line i {
     flex: none;
     font-size: 15px;
-    color: #C0972F;
+    color: var(--vp-gold-fill-ink);
   }
 
   .vp-foot-m-line a {
@@ -9691,7 +9801,7 @@ button.vp-cart-keep {
     font-family: 'Cairo', var(--title-font);
     font-weight: 800;
     font-size: 13px;
-    color: #A47F25;
+    color: var(--vp-gold);
     white-space: nowrap;
   }
 
@@ -9699,7 +9809,7 @@ button.vp-cart-keep {
      lockup's are — the same device at the size the column allows. */
   .vp-foot-m-col-title .vp-foot-m-rule {
     max-width: 16px;
-    background: #C0972F;
+    background: var(--vp-gold-fill);
   }
 
   .vp-foot-m-col ul {
@@ -9719,7 +9829,7 @@ button.vp-cart-keep {
   }
 
   .vp-foot-m-col a:hover {
-    color: #A47F25;
+    color: var(--vp-gold);
   }
 }
 
@@ -10664,7 +10774,7 @@ button.vp-cart-keep {
     align-items: center;
     justify-content: center;
     direction: ltr;
-    color: #A47F25;
+    color: var(--vp-gold);
     font-size: 18px;
     font-weight: 800;
     line-height: 1;
@@ -11064,7 +11174,7 @@ button.vp-cart-keep {
   width: 0;
   height: 100%;
   border-radius: 2px;
-  background: linear-gradient(90deg, #C0972F 0%, #E3B54A 100%);
+  background: linear-gradient(90deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
 }
 
 /* The one already seen stays full; the one running fills over its 15 seconds.
@@ -11231,7 +11341,7 @@ button.vp-cart-keep {
 /* The basket is the sheets' gold, because it is the same "do the thing"
    button as «اعمال فیلتر» and the product page's own. */
 .vp-story-buy {
-  background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+  background: linear-gradient(180deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   background-origin: border-box;
   color: #FFFFFF;
 }
@@ -11631,7 +11741,7 @@ button.vp-cart-keep {
 }
 
 .vp-mini-pay {
-  background: linear-gradient(96deg, #C0972F 0%, #E3B54A 100%);
+  background: linear-gradient(96deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   color: #FFFFFF;
 }
 
@@ -11675,7 +11785,7 @@ button.vp-cart-keep {
   align-items: center;
   padding: 10px 18px;
   border-radius: 14px;
-  background: linear-gradient(96deg, #C0972F 0%, #E3B54A 100%);
+  background: linear-gradient(96deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   font-family: 'Vazirmatn', var(--body-font);
   font-weight: 700;
   font-size: 13px;
@@ -11747,7 +11857,7 @@ button.vp-cart-keep {
 }
 
 .vp-cart-more {
-  background: linear-gradient(96deg, #C0972F 0%, #E3B54A 100%);
+  background: linear-gradient(96deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   color: #FFFFFF;
 }
 
@@ -12039,7 +12149,7 @@ button.vp-cart-keep {
 }
 
 .vp-pick-size input:checked + span {
-  background: linear-gradient(96deg, #C0972F 0%, #E3B54A 100%);
+  background: linear-gradient(96deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   color: #FFFFFF;
 }
 
@@ -12084,7 +12194,7 @@ button.vp-cart-keep {
   height: 52px;
   border: 0;
   border-radius: 18px;
-  background: linear-gradient(96deg, #C0972F 0%, #E3B54A 100%);
+  background: linear-gradient(96deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   font-family: 'Vazirmatn', var(--body-font);
   font-weight: 700;
   font-size: 15px;
@@ -12706,7 +12816,7 @@ button.vp-cart-keep {
 
   .vp-pdp-rate i {
     font-size: 12px;
-    color: #C0972F;
+    color: var(--vp-gold-fill-ink);
   }
 
   /* The sale line under the name, where the brand was — «زیر اسم به جای اون
@@ -13105,7 +13215,7 @@ button.vp-cart-keep {
   .vp-pdp-dot.is-on {
     width: 7px;
     border-radius: 50%;
-    background: #C0972F;
+    background: var(--vp-gold-fill);
   }
 
   /* ---- The bar at the foot -----------------------------------------------
@@ -13156,7 +13266,7 @@ button.vp-cart-keep {
     flex: 1;
     height: 48px;
     border-radius: 14.46px;
-    background: linear-gradient(96deg, #C0972F 0%, #E3B54A 100%);
+    background: linear-gradient(96deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
     box-shadow: none;
     color: #FFFFFF;
     font-size: 14px;
@@ -14123,7 +14233,7 @@ button.vp-cart-keep {
 .th-header .th-menu-toggle.d-block {
   background-image: none;
   background-color: #FFFFFF;
-  color: #C0972F;
+  color: var(--vp-gold-fill-ink);
 }
 
 /* The hero's star was turned white here for one round — «ستاره تخفیف تو هیرو
@@ -14412,7 +14522,7 @@ button.vp-cart-keep {
     box-shadow:
       0 0 2px rgba(16, 17, 17, 0.1),
       0 0 8px -2px rgba(16, 17, 17, 0.14);
-    color: #A47F25;
+    color: var(--vp-gold);
     font-size: 13px;
     font-weight: 700;
     cursor: pointer;
@@ -14503,7 +14613,7 @@ button.vp-cart-keep {
      the on state exactly the size of the off state's 1px ring. */
   .vp-shop-tab.is-on {
     border-color: transparent;
-    background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+    background: linear-gradient(180deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
     background-origin: border-box;
     color: #FFFFFF;
   }
@@ -14634,7 +14744,7 @@ button.vp-cart-keep {
      label's colour is doing the work alone against eight identical marks. Same
      tint, for the same reason, at the state this row actually has. */
   .vp-shop-cat.is-on {
-    color: #A47F25;
+    color: var(--vp-gold);
   }
 
   .vp-shop-cat.is-on img {
@@ -14808,7 +14918,7 @@ button.vp-cart-keep {
   padding: 1px 6px;
   border-radius: 5px;
   background: rgba(192, 151, 47, 0.14);
-  color: #A47F25;
+  color: var(--vp-gold);
   font-size: 10px;
   font-weight: 700;
 }
@@ -14892,7 +15002,7 @@ button.vp-cart-keep {
      the same ramp is 3.0:1, which is under AA for text this size — said once,
      here, because the ask is explicit and the client has now seen both. */
   .vp-card-new {
-    background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+    background: linear-gradient(180deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
     color: #FFFFFF;
   }
 }
@@ -15071,7 +15181,7 @@ button.vp-cart-keep {
   .vp-shop-filter-panel .vp-filter-list label:has(:checked),
   .vp-shop-filter-panel .vp-filter-sizes .vp-size:has(:checked) {
     border-color: transparent;
-    background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+    background: linear-gradient(180deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
     color: #FFFFFF;
   }
 
@@ -15132,7 +15242,7 @@ button.vp-cart-keep {
     height: 44px;
     border: 0;
     border-radius: 13.25px;
-    background: linear-gradient(96deg, #C0972F 0%, #E3B54A 100%);
+    background: linear-gradient(96deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
     font-family: 'Vazirmatn', var(--body-font);
     font-weight: 700;
     font-size: 14px;
@@ -15258,7 +15368,7 @@ button.vp-cart-keep {
   padding: 1px 6px;
   border-radius: 5px;
   background: rgba(192, 151, 47, 0.14);
-  color: #A47F25;
+  color: var(--vp-gold);
   font-size: 10px;
   font-weight: 700;
 }
@@ -15326,7 +15436,7 @@ button.vp-cart-keep {
 
   .vp-shop-drop a.is-on {
     background: rgba(192, 151, 47, 0.12);
-    color: #A47F25;
+    color: var(--vp-gold);
   }
 }
 
@@ -15392,7 +15502,7 @@ button.vp-cart-keep {
   .vp-price-sorts a.is-on,
   .vp-price-sorts label:has(:checked) {
     background: rgba(192, 151, 47, 0.14);
-    color: #A47F25;
+    color: var(--vp-gold);
   }
 
   /* The radio itself is not drawn; the label is the control. */
@@ -15514,7 +15624,7 @@ button.vp-cart-keep {
        renders, and the input handler moves it as the thumb moves, so the two
        agree without the server and the browser each guessing. */
     background: linear-gradient(to right,
-      #C0972F 0 var(--vp-fill, 100%),
+      var(--vp-gold-fill) 0 var(--vp-fill, 100%),
       #FFFFFF var(--vp-fill, 100%) 100%);
   }
 
@@ -15527,7 +15637,7 @@ button.vp-cart-keep {
        renders, and the input handler moves it as the thumb moves, so the two
        agree without the server and the browser each guessing. */
     background: linear-gradient(to right,
-      #C0972F 0 var(--vp-fill, 100%),
+      var(--vp-gold-fill) 0 var(--vp-fill, 100%),
       #FFFFFF var(--vp-fill, 100%) 100%);
   }
 
@@ -15539,7 +15649,7 @@ button.vp-cart-keep {
     margin-block-start: -7px;
     border: 0;
     border-radius: 50%;
-    background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+    background: linear-gradient(180deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
     box-shadow: 0 2px 6px -2px rgba(16, 17, 17, 0.45);
   }
 
@@ -15548,7 +15658,7 @@ button.vp-cart-keep {
     height: 20px;
     border: 0;
     border-radius: 50%;
-    background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+    background: linear-gradient(180deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   }
 
   /* The price sheet's foot is `.vp-sheet-actions` — the brand sheet's own
@@ -15787,7 +15897,7 @@ button.vp-cart-keep {
   .vp-chip.is-on,
   .vp-chip:has(:checked) {
     border-color: transparent;
-    background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+    background: linear-gradient(180deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
     background-origin: border-box;
     color: #FFFFFF;
   }
@@ -15847,7 +15957,7 @@ button.vp-cart-keep {
 
   .vp-sheet-apply {
     border: 0;
-    background: linear-gradient(96deg, #C0972F 0%, #E3B54A 100%);
+    background: linear-gradient(96deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
     color: #FFFFFF;
   }
 
@@ -16089,7 +16199,7 @@ button.vp-cart-keep {
 }
 
 .vp-doc a:not(.vp-doc-link):not(.vp-logo) {
-  color: #6E5416;
+  color: var(--vp-gold-ink-deep);
   text-decoration: underline;
   text-underline-offset: 4px;
   text-decoration-thickness: 1px;
@@ -16137,7 +16247,7 @@ button.vp-cart-keep {
 
 .vp-doc-note {
   background: rgba(164, 127, 37, 0.1);
-  color: #6E5416;
+  color: var(--vp-gold-ink-deep);
 }
 
 /* --- the size chart ------------------------------------------------------- */
@@ -16240,7 +16350,7 @@ button.vp-cart-keep {
 }
 
 .vp-faq summary:hover {
-  color: #6E5416;
+  color: var(--vp-gold-ink-deep);
 }
 
 .vp-faq details p {
@@ -16277,7 +16387,7 @@ button.vp-cart-keep {
   height: 42px;
   border-radius: 14px;
   background: rgba(164, 127, 37, 0.12);
-  color: #6E5416;
+  color: var(--vp-gold-ink-deep);
   font-size: 16px;
 }
 
@@ -16338,7 +16448,7 @@ button.vp-cart-keep {
   height: 44px;
   padding-inline: 22px;
   border-radius: 999px;
-  background: linear-gradient(90deg, #C0972F 0%, #E3B54A 100%);
+  background: linear-gradient(90deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   color: #FFFFFF;
   font-size: 15px;
 }
@@ -16441,7 +16551,7 @@ button.vp-cart-keep {
 .vp-error-say a {
   direction: ltr;
   unicode-bidi: isolate;
-  color: #6E5416;
+  color: var(--vp-gold-ink-deep);
   text-decoration: underline;
   text-underline-offset: 4px;
 }
@@ -16464,7 +16574,7 @@ button.vp-cart-keep {
 }
 
 .vp-error-help a {
-  color: #6E5416;
+  color: var(--vp-gold-ink-deep);
   text-decoration: underline;
   text-underline-offset: 4px;
 }
@@ -16671,7 +16781,7 @@ html {
 .vp-admin-remember input[type='checkbox']:checked {
   background:
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.2 8.4l3 3 6.6-6.6' fill='none' stroke='%23FFFFFF' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 14px 14px no-repeat,
-    linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+    linear-gradient(180deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   box-shadow: inset 0 0 0 1.5px rgba(164, 127, 37, 0.55);
 }
 
@@ -16932,7 +17042,7 @@ html {
   height: 48px;
   border: 0;
   border-radius: 999px;
-  background: linear-gradient(90deg, #C0972F 0%, #E3B54A 100%);
+  background: linear-gradient(90deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   color: #FFFFFF;
   font-family: 'Cairo', var(--title-font);
   font-weight: 700;
@@ -17080,7 +17190,7 @@ html {
 }
 
 .vp-enter-resend {
-  color: #6E5416;
+  color: var(--vp-gold-ink-deep);
   font-weight: 600;
 }
 
@@ -17155,7 +17265,7 @@ html {
     gap: 6.4px;
     padding: 13.2px 19.2px;
     border-radius: 11.2px;
-    background: linear-gradient(180deg, #C0972F 0%, #E3B54A 100%);
+    background: linear-gradient(180deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
     font-family: 'Cairo', var(--body-font);
     font-weight: 800;
     font-size: 14.4px;
@@ -17380,7 +17490,7 @@ html {
   }
 
   .vp-home-faq .vp-faq-lead a {
-    color: #A47F25;
+    color: var(--vp-gold);
     text-decoration: underline;
     text-underline-offset: 3px;
   }
@@ -17431,7 +17541,7 @@ html {
 
   .vp-faq-boxes details[open] summary,
   .vp-faq-boxes details[open] summary:hover {
-    color: #6E5416;
+    color: var(--vp-gold-ink-deep);
   }
 
   /* The script sets a height on this while the drawer moves and takes it off
