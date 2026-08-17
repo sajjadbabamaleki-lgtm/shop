@@ -111,29 +111,40 @@
                                     <div class="vp-cart-last">
                                         <span class="vp-cart-spec">رنگ: {{ $variant->display_color }}</span>
 
-                                        {{-- A stepper, not a number box and an update button.
-                                             Two one-button forms posting the quantity either
-                                             side of the current one: no script, and nothing to
-                                             press afterwards to make it count. Minus stops at 1
-                                             — taking the last one out is the bin at the corner
-                                             of the card, which says what it does. Plus stops at
-                                             what the branch has on the shelf. --}}
-                                        <div class="vp-cart-qty">
-                                            <form method="post" action="{{ storefront_route('cart.update') }}">
-                                                @csrf
-                                                <input type="hidden" name="variant" value="{{ $variant->id }}">
-                                                <input type="hidden" name="vendor" value="{{ $line['item']->vendor_id }}">
-                                                <input type="hidden" name="quantity" value="{{ $line['quantity'] - 1 }}">
-                                                <button type="submit" class="vp-cart-less" aria-label="یکی کمتر" @disabled($line['quantity'] <= 1)>&minus;</button>
-                                            </form>
-                                            <span class="vp-cart-count" aria-label="تعداد">{{ fa_number($line['quantity']) }}</span>
-                                            <form method="post" action="{{ storefront_route('cart.update') }}">
-                                                @csrf
-                                                <input type="hidden" name="variant" value="{{ $variant->id }}">
-                                                <input type="hidden" name="vendor" value="{{ $line['item']->vendor_id }}">
-                                                <input type="hidden" name="quantity" value="{{ $line['quantity'] + 1 }}">
-                                                <button type="submit" class="vp-cart-more" aria-label="یکی بیشتر" @disabled($line['quantity'] >= $line['available'])>+</button>
-                                            </form>
+                                        <div class="vp-cart-tools">
+                                            {{-- A stepper, not a number box and an update button.
+                                                 Two one-button forms posting the quantity either
+                                                 side of the current one: no script, and nothing to
+                                                 press afterwards to make it count. Minus stops at 1
+                                                 — taking the last one out is the bin at the corner
+                                                 of the card, which says what it does. Plus stops at
+                                                 what the branch has on the shelf. --}}
+                                            <div class="vp-cart-qty">
+                                                <form method="post" action="{{ storefront_route('cart.update') }}">
+                                                    @csrf
+                                                    <input type="hidden" name="variant" value="{{ $variant->id }}">
+                                                    <input type="hidden" name="vendor" value="{{ $line['item']->vendor_id }}">
+                                                    <input type="hidden" name="quantity" value="{{ $line['quantity'] - 1 }}">
+                                                    <button type="submit" class="vp-cart-less" aria-label="یکی کمتر" @disabled($line['quantity'] <= 1)>&minus;</button>
+                                                </form>
+                                                <span class="vp-cart-count" aria-label="تعداد">{{ fa_number($line['quantity']) }}</span>
+                                                <form method="post" action="{{ storefront_route('cart.update') }}">
+                                                    @csrf
+                                                    <input type="hidden" name="variant" value="{{ $variant->id }}">
+                                                    <input type="hidden" name="vendor" value="{{ $line['item']->vendor_id }}">
+                                                    <input type="hidden" name="quantity" value="{{ $line['quantity'] + 1 }}">
+                                                    <button type="submit" class="vp-cart-more" aria-label="یکی بیشتر" @disabled($line['quantity'] >= $line['available'])>+</button>
+                                                </form>
+                                            </div>
+
+                                            {{-- «کنارش با فاصله یه آیکون مقایسه بیاد» — past the
+                                                 stepper, at the card's own far edge, level with
+                                                 the bin above it. The exact mark the client sent
+                                                 (assets/img/icon/vp-compare.png), not a font-icon
+                                                 guess at it. The same honesty `.vp-best-fav`'s own
+                                                 heart states: there is no compare feature behind
+                                                 it yet, no page it goes to and nothing it stores. --}}
+                                            <button type="button" class="vp-cart-compare" aria-label="مقایسه {{ $variant->product?->title }}"><img src="{{ asset('assets/img/icon/vp-compare.png') }}" alt="" aria-hidden="true"></button>
                                         </div>
                                     </div>
 

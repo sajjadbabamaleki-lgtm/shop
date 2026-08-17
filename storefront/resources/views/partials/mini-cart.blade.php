@@ -67,29 +67,40 @@
                             <div class="vp-cart-last">
                                 <span class="vp-cart-spec">رنگ: {{ $variant->display_color }}</span>
 
-                                {{-- The same stepper as the page's card. Both of its
-                                     forms post to `cart.update`, which returns to the
-                                     page they were pressed on — see CartController;
-                                     before that it always landed on the basket page,
-                                     which from inside a drawer means being thrown off
-                                     whatever you were reading to change a quantity by
-                                     one. --}}
-                                <div class="vp-cart-qty">
-                                    <form method="post" action="{{ storefront_route('cart.update') }}">
-                                        @csrf
-                                        <input type="hidden" name="variant" value="{{ $variant->id }}">
-                                        <input type="hidden" name="vendor" value="{{ $line['item']->vendor_id }}">
-                                        <input type="hidden" name="quantity" value="{{ $line['quantity'] - 1 }}">
-                                        <button type="submit" class="vp-cart-less" aria-label="یکی کمتر" @disabled($line['quantity'] <= 1)>&minus;</button>
-                                    </form>
-                                    <span class="vp-cart-count" aria-label="تعداد">{{ fa_number($line['quantity']) }}</span>
-                                    <form method="post" action="{{ storefront_route('cart.update') }}">
-                                        @csrf
-                                        <input type="hidden" name="variant" value="{{ $variant->id }}">
-                                        <input type="hidden" name="vendor" value="{{ $line['item']->vendor_id }}">
-                                        <input type="hidden" name="quantity" value="{{ $line['quantity'] + 1 }}">
-                                        <button type="submit" class="vp-cart-more" aria-label="یکی بیشتر" @disabled($line['quantity'] >= $line['available'])>+</button>
-                                    </form>
+                                <div class="vp-cart-tools">
+                                    {{-- The same stepper as the page's card. Both of its
+                                         forms post to `cart.update`, which returns to the
+                                         page they were pressed on — see CartController;
+                                         before that it always landed on the basket page,
+                                         which from inside a drawer means being thrown off
+                                         whatever you were reading to change a quantity by
+                                         one. --}}
+                                    <div class="vp-cart-qty">
+                                        <form method="post" action="{{ storefront_route('cart.update') }}">
+                                            @csrf
+                                            <input type="hidden" name="variant" value="{{ $variant->id }}">
+                                            <input type="hidden" name="vendor" value="{{ $line['item']->vendor_id }}">
+                                            <input type="hidden" name="quantity" value="{{ $line['quantity'] - 1 }}">
+                                            <button type="submit" class="vp-cart-less" aria-label="یکی کمتر" @disabled($line['quantity'] <= 1)>&minus;</button>
+                                        </form>
+                                        <span class="vp-cart-count" aria-label="تعداد">{{ fa_number($line['quantity']) }}</span>
+                                        <form method="post" action="{{ storefront_route('cart.update') }}">
+                                            @csrf
+                                            <input type="hidden" name="variant" value="{{ $variant->id }}">
+                                            <input type="hidden" name="vendor" value="{{ $line['item']->vendor_id }}">
+                                            <input type="hidden" name="quantity" value="{{ $line['quantity'] + 1 }}">
+                                            <button type="submit" class="vp-cart-more" aria-label="یکی بیشتر" @disabled($line['quantity'] >= $line['available'])>+</button>
+                                        </form>
+                                    </div>
+
+                                    {{-- «کنارش با فاصله یه آیکون مقایسه بیاد» — past the stepper,
+                                         at the card's own far edge, level with the bin above it.
+                                         The exact mark the client sent (assets/img/icon/vp-compare.png),
+                                         not a font-icon guess at it — see theme/make-*.js for how it
+                                         was cut from the reference. The same honesty `.vp-best-fav`'s
+                                         own heart states: there is no compare feature behind it yet,
+                                         no page it goes to and nothing it stores. --}}
+                                    <button type="button" class="vp-cart-compare" aria-label="مقایسه {{ $variant->product?->title }}"><img src="{{ asset('assets/img/icon/vp-compare.png') }}" alt="" aria-hidden="true"></button>
                                 </div>
                             </div>
 
