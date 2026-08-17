@@ -179,13 +179,13 @@
                         $payable = $cart->subtotal() - $discount['amount'] + $shipping;
                     @endphp
 
+                    {{-- «از ردیف های پایین هزینه ارسال حذف بشه» — the row is gone; the
+                         charge is not. `$payable` below still adds `$shipping` in,
+                         so «مبلغ قابل پرداخت» and the checkout's own total agree —
+                         only the line naming it here is what came off. --}}
                     <aside class="vp-cart-sum is-island">
                         <div class="vp-cart-row"><span>جمع کالاها</span><span>{{ toman($cart->subtotal()) }} تومان</span></div>
                         <div class="vp-cart-row"><span>تخفیف</span><span>{{ toman($discount['amount']) }} تومان</span></div>
-                        <div class="vp-cart-row">
-                            <span>هزینه ارسال</span>
-                            <span>{{ $shipping === 0 ? 'رایگان' : toman($shipping) . ' تومان' }}</span>
-                        </div>
 
                         <div class="vp-cart-row is-total">
                             <span>مبلغ قابل پرداخت</span>

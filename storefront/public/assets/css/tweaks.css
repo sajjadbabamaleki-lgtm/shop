@@ -6357,16 +6357,27 @@ button.vp-cart-keep {
   font-size: 16px;
 }
 
+/* «دکمه ادامه هم نباید اون رنگی باشه باید همرنگ باقی دکمه های سایت باشه» —
+   it inherits `.vp-filter-apply`'s `background: var(--theme-color)`, which is
+   `var(--vp-gold)`, the flat midpoint tone the gradient is drawn from rather
+   than the gradient itself (see the three `--vp-gold-*` declarations near the
+   top of this file) — every buy button on the shop (`.vp-pick-go`,
+   `.vp-cart-more`, `.vp-mini-out`) is the gradient, and the flat midpoint
+   alone reads visibly duller, olive rather than gold. Overridden here rather
+   than on `.vp-filter-apply` itself, which the filter rail's own «اعمال
+   فیلتر» button still uses and was not asked about. */
 .vp-cart-go {
   display: grid;
   place-items: center;
   width: 100%;
   margin-top: 16px;
+  background: linear-gradient(96deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   color: #FFFFFF;
 }
 
 .vp-cart-go:hover {
   color: #FFFFFF;
+  filter: brightness(1.04);
 }
 
 /* --- the checkout form ---------------------------------------------------- */
@@ -11897,9 +11908,18 @@ button.vp-cart-keep {
    quantity you have to confirm is a quantity people forget to confirm.
 
    Two one-button forms posting the quantity either side of the current one, so
-   it works with no script at all. The plus is the accent and the minus is
-   quiet: the reference draws it that way and it is also true — one of them is
-   the shop's interest and the other is the customer's. */
+   it works with no script at all.
+
+   «شکل اون انتخاب تعداد شبیه همتاش در جزئیات کفش بشه در ابعاد کوچیک‌تر» — the
+   product page's own stepper, `.vp-qty` (mobile-only, further up this file):
+   a grey trough holding two matching white squares, both lit the same way,
+   with the count on the trough between them. This one used to be a bare
+   grey minus and a gold plus with no trough under either — the accent
+   distinction `.vp-qty` never had. Same recipe, smaller: `.vp-qty` is 48
+   overall / 40 square / 4 padding; this is 34 / 28 / 3, roughly three
+   quarters, which is what the corner radii below are — 34 × 0.30119 and
+   28 × 0.30119, the same ratio `.vp-qty`'s own comment derives its two
+   corners from. */
 .vp-cart-qty {
   display: flex;
   align-items: center;
@@ -11908,6 +11928,10 @@ button.vp-cart-keep {
      one. The count keeps its own `min-width`, so the stepper's overall width
      does not move as the number goes from one digit to two. */
   gap: 4px;
+  height: 34px;
+  padding: 3px;
+  border-radius: 10.24px;
+  background: rgba(16, 17, 17, 0.05);
   /* «منفی بره چپ مثبت بیاد راست». The page is rtl, so the source order — minus,
      count, plus — lays out right to left and puts the minus on the right. One
      `direction` on this box turns just this control round without moving
@@ -11921,46 +11945,31 @@ button.vp-cart-keep {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
+  width: 28px;
+  height: 28px;
   padding: 0;
   border: 0;
-  border-radius: 11px;
-  /* «خود مثبت و منفی تو مربعو بزرگ کن» — the mark, not the square. 21 was a
-     glyph rattling around inside a 40 box; 28 fills it the way the reference's
-     does. `line-height: 1` and the flex centring keep it on the middle of the
-     square as it grows. */
-  font-size: 28px;
+  border-radius: 8.43px;
+  background: #FFFFFF;
+  box-shadow:
+    0 0 2px rgba(16, 17, 17, 0.10),
+    0 0 8px -2px rgba(16, 17, 17, 0.14);
+  color: #101111;
+  font-size: 20px;
   line-height: 1;
   cursor: pointer;
   transition: background-color 0.2s ease, opacity 0.2s ease;
 }
 
-.vp-cart-less {
-  background: rgba(16, 17, 17, 0.05);
-  color: #101111;
-}
-
-.vp-cart-less:hover:not(:disabled) {
-  background: rgba(16, 17, 17, 0.09);
-}
-
-.vp-cart-more {
-  background: linear-gradient(96deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
-  color: #FFFFFF;
-}
-
+.vp-cart-less:hover:not(:disabled),
 .vp-cart-more:hover:not(:disabled) {
-  filter: brightness(1.04);
+  background: rgba(16, 17, 17, 0.06);
 }
 
 /* A step that cannot be taken says so rather than doing nothing when pressed —
-   minus at one, plus at whatever the branch has on the shelf.
-
-   Flat and grey rather than the live control at low opacity: a gold plus at
-   35% is a pale gold disc with a white glyph on it, and the glyph disappears
-   before the disc does. Disabled has to stay readable to say which control it
-   is. */
+   minus at one, plus at whatever the branch has on the shelf. Flat and grey
+   rather than the raised white square at low opacity, so a disabled control
+   reads as pressed-in rather than as the same button slightly faded. */
 .vp-cart-less:disabled,
 .vp-cart-more:disabled {
   background: rgba(16, 17, 17, 0.05);
@@ -11972,11 +11981,11 @@ button.vp-cart-keep {
 .vp-cart-count {
   /* Wide enough that two digits do not move the `+`, and no wider: at 360 the
      price and the stepper share a row with one pixel to spare, and 24 here
-     spent four of them. Two Persian digits at 16px measure 18. */
-  min-width: 20px;
+     spent four of them. Two Persian digits at 15px measure 17. */
+  min-width: 18px;
   font-family: 'Vazirmatn', var(--body-font);
   font-weight: 700;
-  font-size: 16px;
+  font-size: 15px;
   font-feature-settings: 'tnum' 1;
   text-align: center;
 }
@@ -16189,26 +16198,24 @@ button.vp-cart-keep {
     padding-block-start: 0;
   }
 
+  /* Smaller still on a phone — trough and squares both, same ratio as the
+     base rule (34/28/3 → 30/24/3), which is why the two radii below are not
+     the base rule's: 30 × 0.30119 and 24 × 0.30119. Both buttons already
+     match at the base rule now (see the note there), so nothing here needs
+     to say so a second time. */
   .vp-cart-line .vp-cart-qty {
-    gap: 6px;
+    gap: 3px;
+    height: 30px;
+    padding: 3px;
+    border-radius: 9.04px;
   }
 
   .vp-cart-line .vp-cart-less,
   .vp-cart-line .vp-cart-more {
     width: 24px;
     height: 24px;
-    border-radius: 50%;
+    border-radius: 7.23px;
     font-size: 17px;
-  }
-
-  /* Both quiet, as the reference draws them. */
-  .vp-cart-line .vp-cart-more {
-    background: rgba(16, 17, 17, 0.05);
-    color: #101111;
-  }
-
-  .vp-cart-line .vp-cart-more:hover:not(:disabled) {
-    background: rgba(16, 17, 17, 0.09);
   }
 
   .vp-cart-count {
@@ -17522,6 +17529,14 @@ html {
    desktop width. `cover` is what the template already falls back to below
    1399px and again below 767 for the same photographs, so this is one rule
    for both banners at every width instead of a third exception in between. */
+/* «فعلا هم از موبایل هم از دسکتاپ بنرهارو هاید کن قابل مشاهده نباشن» — off at
+   every width, «فعلا» (for now): the two rules below this one are left alone
+   rather than removed, so undoing this is one line, not redoing the crop,
+   the height fix and the aspect-ratio fix all over again. */
+.cta-area4 {
+  display: none;
+}
+
 .cta-area4 {
   background-size: cover;
   background-position: center;

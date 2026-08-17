@@ -181,16 +181,18 @@ class CheckoutTest extends TestCase
     }
 
     /**
-     * The basket quotes the delivery fee the order then charges.
+     * The basket's total already carries the delivery fee the order then charges.
      *
-     * «دقیقا این ui بساز» put «هزینه ارسال» on the basket's summary, so the fee
-     * is now printed twice on the way to an order — once as a quote and once as
-     * a charge. The rule lives in Shipping precisely so those cannot be two
-     * rules; this is the test that says so, and it would have failed while the
-     * basket worked the fee out from the discounted total and PlaceOrder worked
-     * it out from the subtotal.
+     * «دقیقا این ui بساز» once put «هزینه ارسال» on the basket's summary as its
+     * own row, so the fee was printed twice on the way to an order — once as a
+     * quote and once as a charge. «از ردیف های پایین هزینه ارسال حذف بشه» took
+     * the row off; the figure itself did not move, it is still folded into
+     * «مبلغ قابل پرداخت» and the button's own total, which is what this test
+     * checks now instead of the row. The rule still lives in Shipping alone,
+     * so the quote and the charge still cannot become two rules that disagree
+     * — this is the test that says so either way.
      */
-    public function test_the_basket_quotes_the_delivery_fee_the_order_charges(): void
+    public function test_the_basket_total_already_carries_the_delivery_fee_the_order_charges(): void
     {
         $variant = $this->variant('nike-v2k-run');
 
@@ -199,8 +201,7 @@ class CheckoutTest extends TestCase
         $quoted = Shipping::on($variant->offer->price);
 
         $this->get('/cart')->assertOk()
-            ->assertSee('هزینه ارسال', false)
-            ->assertSee($quoted === 0 ? 'رایگان' : toman($quoted), false);
+            ->assertSee('ادامه ('.toman($variant->offer->price + $quoted).' تومان)', false);
 
         $this->post('/checkout', $this->contact());
 
@@ -208,14 +209,15 @@ class CheckoutTest extends TestCase
     }
 
     /**
-     * The four rows the client asked for, and the total being their sum.
+     * The three rows the summary keeps, and the total being their sum.
      *
-     * The summary was «تعداد» and «جمع کل» before this; the reference the client
-     * sent has goods, discount, delivery and a payable total under a rule, and
-     * the button carries the figure. Worth pinning, because the last shape of
-     * this block was asked for by name too and a later round replaced it.
+     * The summary was «تعداد» and «جمع کل» before this, then goods, discount,
+     * delivery and a payable total under a rule — four rows, the shape the
+     * client's reference drew. «از ردیف های پایین هزینه ارسال حذف بشه» took the
+     * delivery row back off; goods, discount and the payable total (delivery
+     * folded in) are what is pinned now.
      */
-    public function test_the_basket_summary_shows_the_reference_four_rows(): void
+    public function test_the_basket_summary_shows_the_three_kept_rows(): void
     {
         $variant = $this->variant('nike-v2k-run');
 
@@ -225,11 +227,11 @@ class CheckoutTest extends TestCase
         $payable = $price + Shipping::on($price);
 
         $this->get('/cart')->assertOk()
+            ->assertDontSee('هزینه ارسال', false)
             ->assertSee('جمع کالاها', false)
             ->assertSee('تخفیف', false)
-            ->assertSee('هزینه ارسال', false)
             ->assertSee('مبلغ قابل پرداخت', false)
-            // The figure rides inside the button, as it does in the reference.
+            // The figure rides inside the button, as it did in the reference.
             ->assertSee('ادامه ('.toman($payable).' تومان)', false);
     }
 
