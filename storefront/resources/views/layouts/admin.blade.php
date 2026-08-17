@@ -115,6 +115,73 @@
 
 @include('partials.scripts')
 
+{{--
+    Two small things the panel needs on a phone, and nothing on a desktop.
+
+    **The cells get their column's heading.** Below 992 tweaks.css turns every
+    row into a card, and a card of bare values — «۳۷», «۴۰», «۲» — says
+    nothing without them. Doing it here rather than writing `data-label` into
+    seventeen tables by hand means the next table somebody adds is covered
+    without them having to know: the label comes from the table's own
+    `<thead>`, so it cannot drift out of step with the column it names either.
+
+    It is deliberately not a fallback the page depends on. Without this script
+    no table carries `data-vp-stack`, the stacking rules match nothing, and the
+    panel scrolls its tables sideways exactly as it did before — the old
+    behaviour, not a broken screen.
+
+    **The strip scrolls to where you are.** The links are one scrolling line on
+    a phone and «تنظیمات» is the fourteenth of them, so the screen you are on
+    can start off past the edge. `inline: 'center'` rather than `'nearest'`
+    because a link flush against the edge reads as the end of the strip.
+--}}
+<script>
+    (function () {
+        document.querySelectorAll('.vp-admin-table').forEach(function (table) {
+            var headings = [].map.call(
+                table.querySelectorAll('thead th'),
+                function (th) { return th.textContent.trim(); }
+            );
+
+            if (!headings.length) return;
+
+            [].forEach.call(table.querySelectorAll('tbody tr'), function (row) {
+                var column = 0;
+
+                // `row.cells`, not `row.children`. Several of these rows wrap
+                // their controls in a <form>, and a <form> is not allowed as a
+                // child of <tr> — the parser leaves it, and its hidden inputs,
+                // sitting among the cells as siblings. Walking `children`
+                // counted those three as columns and every label after them
+                // came out shifted: «شمارش», «حد هشدار» and «توضیح» arrived
+                // blank on the inventory screen. `cells` is the row's actual
+                // cells and nothing else.
+                [].forEach.call(row.cells, function (cell) {
+                    var span = cell.colSpan || 1;
+
+                    // A cell across the whole table is an empty state, not a
+                    // value under a heading.
+                    if (span > 1) {
+                        cell.setAttribute('data-vp-full', '');
+                    } else if (headings[column] !== undefined) {
+                        cell.setAttribute('data-label', headings[column]);
+                    }
+
+                    column += span;
+                });
+            });
+
+            table.setAttribute('data-vp-stack', '');
+        });
+
+        var here = document.querySelector('.vp-admin-nav a.is-on');
+
+        if (here && here.scrollIntoView) {
+            here.scrollIntoView({ block: 'nearest', inline: 'center' });
+        }
+    }());
+</script>
+
 </body>
 
 </html>

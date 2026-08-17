@@ -6817,9 +6817,27 @@ button.vp-cart-keep {
   color: var(--title-color);
 }
 
+/* The panel's gold is the shop's gold — «باید از دکمه های گلد هوم برداری رنگو».
+
+   It was not. Every gold in this panel was `var(--theme-color)`, which resolves
+   to `--vp-gold` (#A08119), the *midpoint* of the ramp and the value this file
+   already warns about twice: `.vp-best-filter.active` carries the note that
+   using `--theme-color` for a gold surface «was the exact mistake already made
+   once on this page (the header cart icon, before it got fixed) and was not
+   supposed to happen a second time». The panel was the third time.
+
+   Measured side by side: a gold button on the front page paints
+   `linear-gradient(#DAB226 → #EFC94F)`; «ثبت» in the panel painted a flat
+   rgb(160,129,25). Two different golds on one product.
+
+   So the surfaces take the front page's own ramp, and the text takes
+   `--vp-gold-ink`, which is the gold this file keeps for type on white
+   (4.65:1). The label on the ramp goes to ink rather than white for the reason
+   written at `.vp-best-filter.active`: ink on this ramp measures 6.94:1–9.88:1
+   and white measures 2.46:1, which is not a contrast at all. */
 .vp-admin-mark span {
   font-size: 12px;
-  color: var(--theme-color);
+  color: var(--vp-gold-ink);
 }
 
 .vp-admin-nav {
@@ -6844,8 +6862,8 @@ button.vp-cart-keep {
 /* The current screen, marked by fill rather than by an underline: an
    underline under Persian type sits on the descenders. */
 .vp-admin-nav a.is-on {
-  background: var(--theme-color);
-  color: #FFFFFF;
+  background: linear-gradient(180deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
+  color: #101111;
 }
 
 .vp-admin-who {
@@ -6889,10 +6907,30 @@ button.vp-cart-keep {
   padding-block: 28px 80px;
 }
 
+/* The panel is a surface, not a pane — «قاب های تو هم تو هم … اصلا مورد پسندم
+   نیست».
+
+   `.vp-shop-panel` is the storefront's material: 50px of radius, a 1.5px inset
+   ring and a drop shadow, quoted from `.vp-best-panel` so the shop reads as one
+   sheet of glass. The panel borrowed it and cut the radius to 28, and that is
+   the frame the client is looking at. Put a card inside it and there are two;
+   before the rule below there were four, because the template also draws a
+   border on `table` and on every `td`.
+
+   The specification is explicit about which way this goes: «Prefer borders and
+   surface hierarchy over large shadows», «Avoid excessively rounded admin UI»
+   with LG at 16px, «Avoid unnecessary decorative UI in the admin product», and
+   «Do not copy the customer storefront UI». So: a 16px radius, a 1px border in
+   the specification's own #E7E7E7, and no shadow at all. Depth comes from the
+   surface being white on the #F7F8FA behind it.
+
+   Scoped to `.vp-admin-main` on purpose — `.vp-shop-panel` is the shop's class
+   too, and the shop's panes are not being changed here. */
 .vp-admin-main .vp-shop-panel {
   margin-inline: 0;
-  padding: 22px;
-  border-radius: 28px;
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: inset 0 0 0 1px #E7E7E7;
 }
 
 .vp-admin-main .vp-shop-panel + .vp-shop-panel {
@@ -6996,7 +7034,7 @@ button.vp-cart-keep {
 }
 
 .vp-admin-table a {
-  color: var(--theme-color);
+  color: var(--vp-gold-ink);
 }
 
 .vp-admin-num,
@@ -7034,13 +7072,13 @@ button.vp-cart-keep {
   padding-inline: 14px;
   border: 0;
   border-radius: 999px;
-  background: var(--theme-color);
-  color: #FFFFFF;
+  background: linear-gradient(180deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
+  color: #101111;
   font-size: 13px;
 }
 
 .vp-admin-save:hover {
-  background: var(--gr-color2);
+  background: var(--vp-gold-lit);
 }
 
 .vp-admin-tabs {
@@ -7061,8 +7099,8 @@ button.vp-cart-keep {
 }
 
 .vp-admin-tabs a.is-on {
-  background: var(--theme-color);
-  color: #FFFFFF;
+  background: linear-gradient(180deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
+  color: #101111;
 }
 
 .vp-admin-moves {
@@ -7077,13 +7115,13 @@ button.vp-cart-keep {
   height: 40px;
   border: 0;
   border-radius: 999px;
-  background: var(--theme-color);
-  color: #FFFFFF;
+  background: linear-gradient(180deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
+  color: #101111;
   font-size: 14px;
 }
 
 .vp-admin-move:hover {
-  background: var(--gr-color2);
+  background: var(--vp-gold-lit);
 }
 
 .vp-admin-move.is-off {
@@ -7094,6 +7132,226 @@ button.vp-cart-keep {
 
 .vp-admin-move.is-off:hover {
   background: rgba(179, 38, 30, 0.06);
+}
+
+/* --- the panel on a phone -------------------------------------------------- */
+/* «پنل ادمین حتما باید کاملا ریسپانسیو موبایل باشه».
+
+   Measured before, at 390: the header was **364px tall** — 43% of an 844px
+   screen gone before any content, because fourteen navigation links, the mark,
+   the branch name and «خروج» were one `flex-wrap: wrap` row and wrapped into a
+   ragged block with items landing wherever the previous line ran out. And the
+   tables did not fit: inventory wants 925px at its narrowest and the panel had
+   322, so nine columns became three with the six that carry the numbers — and
+   the box you type a new count into — off-screen behind a sideways scroll with
+   nothing on screen saying so.
+
+   Neither showed up in `check-overflow.js`, and that is worth knowing: the
+   panel is `overflow-x: auto`, so the table scrolls *inside* it and the page
+   itself never scrolls sideways. The check was right; it measures the page.
+
+   Two changes, both below 992 — the breakpoint the rest of this file uses.
+
+   **The bar becomes two rows.** The mark and «خروج» keep the first; the links
+   drop to a second as a single-line strip that scrolls, which is what
+   `.vp-shop-tabs` already does on the shop side for the same reason. No
+   drawer, no toggle, no hidden state — the phone drawer on the shop is
+   invisible to every check we have and that is a lesson, not a pattern to
+   copy. The strip bleeds to the bar's edges so a link cut in half is the hint
+   that it scrolls.
+
+   **The tables become cards**, one per row, each cell labelled with its own
+   column heading. There is a comment above `.is-wide` saying wide tables stay
+   tables because `display: block` loses table layout and leaves half the panel
+   empty — that is true of a half-measure, where the cells are still trying to
+   be a row. Here the row *is* the card and the cell is a flex line with its
+   label opposite its value, so there is no table layout left to lose. Above
+   992 nothing changes and the note still holds.
+
+   The labels are written onto the cells by the script in layouts/admin.blade
+   from the table's own `<thead>`, so this works for all seventeen tables in
+   the panel and for the next one somebody adds without them knowing about
+   this block. If that script does not run, the tables stay tables and the
+   panel scrolls exactly as it does today — the old behaviour is the fallback,
+   not a broken page. */
+@media (max-width: 991.98px) {
+  .vp-admin-bar-in {
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 10px 12px;
+  }
+
+  /* The mark takes the first row's slack so «خروج» sits against the far edge. */
+  .vp-admin-mark {
+    flex: 1 1 auto;
+  }
+
+  .vp-admin-who {
+    flex: 0 0 auto;
+  }
+
+  .vp-admin-nav {
+    order: 3;
+    flex: 1 0 100%;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    /* `auto` was pushing the bar's third item away on one line; on two lines
+       there is nothing to push. */
+    margin-inline: -12px;
+    padding-inline: 12px;
+  }
+
+  .vp-admin-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .vp-admin-nav a {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+
+  /* The panel no longer has a table to scroll, and leaving it `auto` would
+     keep a scrollbar's worth of gutter under every card. */
+  .vp-admin-main .vp-shop-panel {
+    overflow-x: visible;
+  }
+
+  /* One frame, not two. A panel whose whole content is a list of cards has
+     nothing left to enclose — the cards are the enclosure — so it gives up its
+     own border and padding and lets them have the width. A panel that holds
+     anything else (a form, the figures on the dashboard) keeps its surface;
+     `:has()` is what tells them apart, and where it is not supported the panel
+     simply keeps its frame, which is the old look rather than a broken one. */
+  .vp-admin-main .vp-shop-panel:has(> .vp-admin-table[data-vp-stack]) {
+    padding: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+  }
+
+  /* The heading above the table belongs to the panel, and the panel's padding
+     was what held it off the edge. */
+  .vp-admin-main .vp-shop-panel:has(.vp-admin-table[data-vp-stack]) > .vp-admin-title,
+  .vp-admin-main .vp-shop-panel:has(.vp-admin-table[data-vp-stack]) > form {
+    padding-inline: 4px;
+  }
+
+  .vp-admin-table[data-vp-stack],
+  .vp-admin-table[data-vp-stack] tbody {
+    display: block;
+  }
+
+  /* The template's own stylesheet puts `border: 1px solid #E1E4E5` on `table`
+     and on `td`. Collapsed into a grid that is the ruling this table is drawn
+     with, and invisible as anything else — until the boxes stop being a grid,
+     and then it is a rectangle around the whole table and another around every
+     single cell, three rings deep inside the panel. Measured: table at x=34,
+     row at 35, cell at 49, each with its own line. */
+  .vp-admin-table[data-vp-stack],
+  .vp-admin-table[data-vp-stack] tbody,
+  .vp-admin-table[data-vp-stack] tbody tr,
+  .vp-admin-table[data-vp-stack] td {
+    border: 0;
+  }
+
+  /* The headings are on the cells now. */
+  .vp-admin-table[data-vp-stack] thead {
+    display: none;
+  }
+
+  .vp-admin-table[data-vp-stack] tbody tr {
+    display: block;
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: #FFFFFF;
+    box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.1);
+  }
+
+  .vp-admin-table[data-vp-stack] tbody tr + tr {
+    margin-top: 10px;
+  }
+
+  /* Hover was a row-scanning affordance. There are no rows to scan and no
+     pointer to hover with. */
+  .vp-admin-table[data-vp-stack] tbody tr:hover td {
+    background: none;
+  }
+
+  .vp-admin-table[data-vp-stack] td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 6px 0;
+    box-shadow: none;
+    /* `.is-wide` sets nowrap so the columns keep their shape while scrolling.
+       A card has the width to wrap, and a product name that cannot is a card
+       that overflows. */
+    white-space: normal;
+  }
+
+  /* The ruling the grid used to give, kept between the lines of one card. */
+  .vp-admin-table[data-vp-stack] td + td {
+    box-shadow: inset 0 1px 0 rgba(16, 17, 17, 0.06);
+  }
+
+  .vp-admin-table[data-vp-stack] td::before {
+    content: attr(data-label);
+    flex: 0 0 auto;
+    font-size: 12px;
+    font-weight: 700;
+    color: rgba(16, 17, 17, 0.55);
+  }
+
+  /* A column whose heading is blank — the actions column — would otherwise
+     draw an empty label and take the gap with it. */
+  .vp-admin-table[data-vp-stack] td[data-label='']::before {
+    content: none;
+  }
+
+  /* A cell spanning the table is an empty state («هنوز سفارشی ثبت نشده»), not
+     a value with a heading. The script marks it and it stays a plain block. */
+  .vp-admin-table[data-vp-stack] td[data-vp-full] {
+    display: block;
+    text-align: center;
+  }
+
+  .vp-admin-table[data-vp-stack] td[data-vp-full]::before {
+    content: none;
+  }
+
+  /* Controls inside a card get the room the label leaves rather than the
+     width the column gave them. */
+  .vp-admin-table[data-vp-stack] td .vp-admin-num,
+  .vp-admin-table[data-vp-stack] td .vp-admin-text,
+  .vp-admin-table[data-vp-stack] td select {
+    max-width: 60%;
+  }
+}
+
+/* The laptop's 33 pixels.
+
+   «هم ریسپانسیو موبایل هم دستاپ نیازه», and this is the desktop half of it.
+   Between 992 and 1200 the container holds the panel at one width, so the
+   inventory table — the widest in the panel, nine columns — wants 33px more
+   than it has and the panel scrolls by exactly that at 992, 1024 and 1100
+   alike. Above 1200 the container grows and it fits; below 992 the rows are
+   cards and there is no table to scroll.
+
+   Nine columns have eighteen inside edges, so taking 3px off each side of a
+   cell buys 54 — more than the 33 needed, and it only has to hold until the
+   container's next step. Measured across /inventory, /pricing, /vendors and
+   /discounts at 992, 1024, 1100 and 1200: no panel scrolls at any of them.
+
+   This is the only table that needs it, but the rule is written against the
+   type rather than that one screen: a tenth column added to any of them would
+   otherwise put the scroll back with nothing to say why. */
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  .vp-admin-table th,
+  .vp-admin-table td {
+    padding-inline: 5px;
+  }
 }
 
 /* --- signing in ----------------------------------------------------------- */
