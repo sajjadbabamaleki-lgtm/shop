@@ -7986,7 +7986,6 @@ button.vp-cart-keep {
   gap: 10px;
   flex: none;
   padding: 14px 16px;
-  box-shadow: inset 0 -1px 0 rgba(16, 17, 17, 0.06);
 }
 
 /* The header band's lockup, smaller. 52px is arithmetic on the header band's
@@ -8384,10 +8383,14 @@ button.vp-cart-keep {
    no customer accounts — an order is found by its number — so a login button
    would be the one control in here that goes nowhere. It swaps back the day
    accounts exist. */
+/* «اون دوتا خطی که زیر قسمت بالا و بالای دکمه ثبت نام هست حذف بشه» — this
+   band and `.vp-drawer-head` each carried a 1px inset hairline facing the
+   body, and they are gone from both. They cost no height (an inset shadow
+   does not lay out), so nothing below moves; what they were doing was
+   dividing a white panel into three white panels. */
 .vp-drawer-foot {
   flex: none;
   padding: 12px 16px 16px;
-  box-shadow: inset 0 1px 0 rgba(16, 17, 17, 0.06);
 }
 
 .vp-drawer-cta {
@@ -8450,9 +8453,21 @@ button.vp-cart-keep {
      — so the head measures 62 either way. Verified at 393×700, 375×667 and
      430×720: head 62, and the gap above the basket stays 11. */
   .vp-drawer-body { padding: 11px 14px; }
-  .vp-quick { padding: 8px 3px 7px; }
+  /* «اون ۳ تا مستطیل بالا هم ۱۰ درصد از ارتفاعشون کم بشه» — 65.25 to 58.73.
+     The chip has no height of its own: it is padding + the 26px mark + this
+     gap + one line of name (17.25). The name's line is type and the mark was
+     sized in this same block, so the tenth comes out of the two numbers that
+     are only air — 8/7 of padding and 7 of gap become 5.5/5 and 5, which is
+     15.5 where 15.475 is exactly a tenth off. Measured after: 58.75. */
+  .vp-quick { padding: 5.5px 3px 5px; gap: 5px; }
   .vp-quick-mark { width: 26px; height: 26px; font-size: 11px; }
-  .vp-drawer-cats { gap: 1px; margin-top: 6px; }
+  /* «فاصله بین آیکونا هم ۵ درصد کم بشه» — icon to icon is 10 on a short
+     screen: this 1 of gap, plus the 9 the row has over the 25px icon inside
+     it (4 of `a` padding either side, less half a pixel each way of rounding).
+     A twentieth of 10 is 0.5, and it comes off the gap rather than the row,
+     so the rows keep their tap target and only the air between them closes.
+     Measured after: 9.5, on all seven gaps. */
+  .vp-drawer-cats { gap: 0.5px; margin-top: 6px; }
   /* Down a step in size only. The weight is the look and it holds at any
      size, so nothing here goes back to semibold. */
   .vp-drawer-cats a { padding: 4px 9px; font-size: 13.5px; }
@@ -8461,6 +8476,49 @@ button.vp-cart-keep {
   .vp-drawer-links a { padding: 7px 9px; }
   .vp-drawer-foot { padding: 10px 14px 13px; }
   .vp-drawer-cta { height: 42px; }
+}
+
+/* Shorter screens still.
+   «اینجا نباید اسکرولی باشه» — with a photograph of the drawer scrolling, the
+   two help chips cut in half by the basket button.
+
+   The block above is measured against a 667 viewport and holds there: at 390
+   wide it fits every height down to 652. Safari's own chrome is what takes a
+   phone below that — the client's screenshot measures the drawer at ~615, so
+   ~635 of viewport, where the body ran 17px past its box.
+
+   The three things asked for in the same message — a tenth off the chips, a
+   twentieth off the gap between the icons, and the two hairlines out — come to
+   10 of that 17, and the hairlines contribute none of it (an inset shadow does
+   not lay out). This block is the rest, plus margin enough not to be back here
+   at the next phone, and **every pixel of it is air**. No row loses height, no
+   type loses a step, and the categories keep the tap target the block above
+   sized for them; what closes is the head's and the foot's own padding, the
+   body's inset, and the space above the heading, the list and the two help
+   chips.
+
+   Gated on a height the drawer already fails at, so a phone that fits today is
+   not tightened for a phone that does not.
+
+   Measured, at 390 wide, where the body stops overflowing:
+
+     before this message   662
+     the three asked for   652
+     this block            622
+
+   **622 is close to the floor, and the floor is the content.** What is left
+   below it is eight category rows at 34, the heading, the three chips and the
+   four help chips — none of it air. A phone that gives the page less than ~620
+   cannot be answered by spacing at all: it needs a row's height, a type step,
+   or one of the blocks gone, and each of those is a decision rather than a
+   measurement. Do not go looking for another 20px in here. */
+@media (max-height: 660px) {
+  .vp-drawer-head { padding: 8px 14px; }
+  .vp-drawer-body { padding: 7px 14px; }
+  .vp-drawer-heading { margin-top: 8px; }
+  .vp-drawer-cats { margin-top: 4px; }
+  .vp-drawer-links { margin-top: 6px; gap: 6px; }
+  .vp-drawer-foot { padding: 8px 14px 11px; }
 }
 
 /* --------------------------------------------------------------------------
