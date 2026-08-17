@@ -25,11 +25,13 @@ frontmatter calls itself. See its entry below.
 | Emil Kowalski | 10 | [emilkowalski/skills](https://github.com/emilkowalski/skills) | `78761e1` (2026-08-10) | see repo |
 | `hyperframes-*` | 9 of 20 | [heygen-com/hyperframes](https://github.com/heygen-com/hyperframes) v0.7.109 | `fecaf72` (2026-08-15) | Apache 2.0 |
 | `design-taste-frontend` | 1 of 13 | [leonxlnx/taste-skill](https://github.com/leonxlnx/taste-skill) | `e988add` (2026-07-23) | MIT |
+| `iconify` | 1 | written here — see below | — | — |
 
-Each was copied byte-for-byte out of the upstream repository's own skills
-directory — `.claude/skills/` for impeccable, `skills/` for the other three. No
-file was edited. To update a family, re-clone upstream and copy the folders over
-again, then re-read the two cautions at the bottom of this file.
+Each of the five families was copied byte-for-byte out of the upstream
+repository's own skills directory — `.claude/skills/` for impeccable, `skills/`
+for the other three. No file was edited. To update a family, re-clone upstream
+and copy the folders over again, then re-read the two cautions at the bottom of
+this file. `iconify` is the one exception and has no upstream.
 
 ### impeccable
 
@@ -150,6 +152,37 @@ The ones most likely to be wanted here later are `redesign-existing-projects`
 (audit an existing UI before changing it) and `high-end-visual-design` (the
 calm, expensive end of the same idea). Copy the folder out of upstream and
 **rename it to its `name:` field**, as above.
+
+### iconify — written here, because the ones that exist cannot work here
+
+Added 2026-08-17, asked for as <https://iconify.design> — «این اسکیلو نصب کن».
+
+Iconify publishes no skill. What exists is a handful of wrappers around
+`api.iconify.design` — `better-icons` (which does ship a `SKILL.md`),
+`pickapicon`, `iconify-mcp-server` — and **this container's egress proxy answers
+403 to that host**, and to `iconify.design` itself. Installing one was tried
+first and measured: `npx better-icons search arrow` → `Error: Forbidden`. A
+skill whose every command fails is not an install.
+
+So the folder holds a `SKILL.md` and one script, `iconify.js`, that reads icon
+sets off disk instead. The sets come from npm — `@iconify-json/<prefix>`, plus
+`@iconify/collections` for the index of all 236 — and npm is in the proxy's
+`noProxy` list, so it is the one pipe that is open. This is the same route
+`theme/make-category-icons.js` has always used; the script is that trick with a
+front door on it, plus a numbered contact sheet, because every icon in this
+repository was chosen by the client off a numbered sheet.
+
+**It writes nothing outside its own folder.** Downloads go to
+`.claude/skills/iconify/node_modules`, and the `package.json` npm needs is
+generated on first run; both are in the folder's `.gitignore`, so the two files
+committed here are all there is. Nothing in `theme/` or `storefront/` was
+touched to install this. It borrows `theme/node_modules/sharp` for the sheet
+when `theme`'s dependencies happen to be installed, and downloads its own copy
+when they are not.
+
+If the network policy ever opens up, `better-icons` becomes a real option and
+this can be reconsidered — but the offline route stays the better one for CI,
+which cannot reach that host either.
 
 ## Two cautions for this repository
 
