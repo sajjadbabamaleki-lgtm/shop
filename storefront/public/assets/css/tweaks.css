@@ -3623,7 +3623,14 @@ option:hover {
   align-items: center;
   gap: 40px;
   padding: 28px;
-  border-radius: 40px;
+  /* «این گوشه ها ... فیت هم نیستن ... بیرونیه باید کمی بیشتر کرو بشه» — a
+     frame's corner is concentric with the card inside it only when it is the
+     inner corner plus the gap between them. `.vp-daily-deal-card` turns at 32
+     and stands 28 off this edge, so this is 60. At 40 the outer curve was
+     tighter than the inner one it wraps: the gap held 28 down the straight and
+     closed to about 20 through the turn, which is the two corners "not
+     fitting". */
+  border-radius: 60px;
   background: #FFFFFF;
   box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.1);
 }
@@ -4928,7 +4935,19 @@ ul.vp-how-list.is-ticked li:before {
      the same number as .vp-best-panel's, as that comment requires. */
   margin-top: 150px;
   padding: 28px;
-  border-radius: 50px;
+  /* Concentric with the brand tiles: they turn at 36 and stand 28 off this
+     edge, so 36 + 28. Same complaint and same arithmetic as `.vp-daily-deal`,
+     where it is written out in full.
+
+     **This is the one number `.vp-best-panel` no longer shares.** That pane is
+     this one twice over — same margins, same ring, and it carried this same 50
+     — but nothing rounded sits in its corner (its head strip and its product
+     row both turn at 0), so it has no inner corner to be concentric with and
+     the fit this fixes is not a fault it has. The two panes are stacked in
+     view of each other and now differ by 14 here. If that reads wrong, the
+     choice is between the two panes matching and this one fitting its tiles;
+     it cannot be both at this padding. */
+  border-radius: 64px;
   background: #FFFFFF;
   /* A soft ring the whole way round — «یه سایه نرم دورتا دور مث سایه مربع های
      هدر بهش بده که حریمش مشخصتر بشه». The two outer values are the header
@@ -5219,7 +5238,8 @@ ul.vp-how-list.is-ticked li:before {
    less, so nothing inside it has to change. */
 @media (max-width: 1199px) {
   .vp-brands-row { grid-template-columns: repeat(2, 1fr); }
-  .vp-brands-panel { border-radius: 40px; padding: 22px; }
+  /* 36 of tile plus this rule's own 22 of padding. */
+  .vp-brands-panel { border-radius: 58px; padding: 22px; }
 }
 
 @media (max-width: 575px) {
@@ -10204,16 +10224,26 @@ button.vp-cart-keep {
   }
 }
 
-/* The daily deal's pane and the brand panel, at the hero's corner.
+/* The daily deal's pane, concentric with the card it holds.
 
-   «کرو کارت پیشنهاد امروز و برندهای موجود باید هم اندازه هیرو بشه» — the hero
-   card is 32.4 on a phone, so these are, from 40 and 32. Three of the page's
-   four big panes now turn at one radius; the fourth is the stepped sale's head
-   at 24, which nothing has asked about. */
+   «این گوشه ها هم تو پیشنهاد امروز و هم تو برندها فیت هم نیستن فک کنم بیرونیه
+   باید کمی بیشتر کرو بشه تا فیت بشن» — 32 of card plus the 10 of padding this
+   pane spends on a phone, so 42.
+
+   **This is where «کرو کارت پیشنهاد امروز و برندهای موجود باید هم اندازه هیرو
+   بشه» ends.** That message put both panes on the hero card's own 32.4, and
+   this rule is what did it. They are no longer one value and neither is the
+   hero's: they wrap different corners (32 here, 36 in the brand panel) at
+   different distances, so no single radius is concentric in both. The client
+   asked for the fit and named the outer corner as the one to move. The hero
+   card keeps 32.4 — nothing is nested inside it, so it has nothing to fit.
+
+   If the panes ever have to read as one set again, that is a choice between
+   matching each other and fitting their own contents, and at these paddings it
+   cannot be had both ways. */
 @media (max-width: 991.98px) {
-  .vp-daily-deal,
-  .vp-brands-panel {
-    border-radius: 32.4px;
+  .vp-daily-deal {
+    border-radius: 42px;
   }
 }
 
@@ -17733,18 +17763,22 @@ html {
   }
 }
 
-/* The brand card, the same twentieth. «گوشه کارت بزرگی که برندا روشن باید ۵
-   درصد کروتر بشه» — 32.4 → 34.02.
+/* The brand panel, concentric with the tiles it holds.
 
-   That 32.4 is the hero card's own corner, and three of the page's panes were
-   put on it deliberately, in one commit, so the phone would turn at one
-   radius — «کرو کارت پیشنهاد امروز و برندهای موجود باید هم اندازه هیرو بشه».
-   This takes the brand card 1.62px off that agreement, because it is the card
-   the client named. The hero and the daily deal stay at 32.4. If the panes
-   ever have to read as one set again, this is the first rule to revisit. */
+   «این گوشه ها ... فیت هم نیستن» — 36 of tile plus the 10 of padding this pane
+   spends on a phone, so 46.
+
+   This rule used to carry 34.02: «گوشه کارت بزرگی که برندا روشن باید ۵ درصد
+   کروتر بشه», a twentieth on top of the 32.4 the pane shared with the hero and
+   the daily deal. Both of those numbers are gone, for the reason set out at
+   `.vp-daily-deal`'s phone rule — the panes were being sized against each
+   other and are sized against their contents now. 46 is a good deal more curve
+   than that 5% asked for, so if the panel reads as too round on its own this
+   is the number to argue about; it is, though, the one that makes the frame
+   and the tile turn together. */
 @media (max-width: 991.98px) {
   .vp-brands-panel {
-    border-radius: 34.02px;
+    border-radius: 46px;
   }
 }
 
