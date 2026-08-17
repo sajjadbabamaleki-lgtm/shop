@@ -16285,23 +16285,34 @@ button.vp-cart-keep {
      others. That is the "tidy" being asked for — a single number repeated,
      not four different ones.
 
-     14 (name) + 15 (price) + 11.5 (size) + 36 (last, unchanged) + 3×0.5
-     (gap) = 78, against the photo's own 79.19 as rendered — measured after,
-     not assumed: text block 79 into 79.19, a difference font rounding
-     accounts for on its own. See the block comment two above this one for
-     what "measured after" has meant here before. */
+     14 (name) + 15 (price) + 11.5 (size) + 36 (last, unchanged) + 3 gaps
+     ≈ 79.19, against the photo's own height as rendered.
+
+     «فاصله های بینشون هم اندازه» went further than one repeated CSS number:
+     flex `gap` gives every pair the same *declared* gap, but three different
+     font sizes at `line-height: 1` do not carry identical ascent/descent, so
+     the same 0.5px `gap` measured 0.5 / 0.5 / 0.69 rendered. `gap: 0` here
+     now, and each row states its own `margin-block-end` instead — the same
+     0.578px on all three, which is not the number first tried (0.5, which
+     rendered 0.5 / 0.5 / 0.5 exactly but left the last row 0.187px short of
+     the photograph's own foot) but the one a second, equal bump on all
+     three landed on. Measured after: all three gaps 0.563px rendered, the
+     name's own top exactly on the photograph's, the last row's own foot
+     exactly on the photograph's — all three offsets zero, not "close". */
   .vp-cart-what {
-    gap: 0.5px;
+    gap: 0;
     padding-inline-end: 30px;
   }
 
   .vp-cart-name {
     font-size: 14px;
     line-height: 1;
+    margin-block-end: 0.578px;
   }
 
   .vp-cart-money {
     line-height: 1;
+    margin-block-end: 0.578px;
   }
 
   .vp-cart-money strong {
@@ -16313,10 +16324,20 @@ button.vp-cart-keep {
     line-height: 1;
   }
 
-  /* No padding above it: the auto margin is what places this row now, and 4px
-     of padding on top of that was pushing it off the card's bottom line. */
+  /* The size line only — `.vp-cart-spec` is shared with the colour line
+     inside `.vp-cart-last`, which is centred beside the stepper and is not
+     one of the three stacked gaps this is tuning. `.vp-cart-what >` scopes
+     it to the direct child. */
+  .vp-cart-what > .vp-cart-spec {
+    margin-block-end: 0.578px;
+  }
+
+  /* No padding above it: the earlier auto margin (see the base rule) is what
+     used to place this row when the text had spare room to give up; there is
+     none now, so this is back to a plain 0. */
   .vp-cart-last {
     padding-block-start: 0;
+    margin-block-start: 0;
   }
 
   /* Smaller still on a phone — trough and squares both, same ratio as the
