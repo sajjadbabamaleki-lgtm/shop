@@ -5,10 +5,12 @@ namespace Tests\Feature;
 use App\Models\Branch;
 use App\Models\Role;
 use App\Models\User;
+use App\Support\Admin\Navigation;
 use Database\Seeders\BranchSeeder;
 use Database\Seeders\CatalogueSeeder;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Route;
 use Tests\TestCase;
 
 /**
@@ -62,7 +64,7 @@ class AdminResponsiveTest extends TestCase
             $this->actingAs($user, 'web')->get($url)
                 ->assertOk()
                 ->assertSee('data-vp-stack', false)
-                ->assertSee('row.cells', false);
+                ->assertSee('forEach.call(row.cells', false);
         }
     }
 
@@ -120,21 +122,122 @@ class AdminResponsiveTest extends TestCase
     }
 
     /**
-     * The stacking rules are written against this shell: a bar that wraps, and
-     * a nav that becomes the second row. If the shell's class names move, the
-     * CSS matches nothing and the panel silently goes back to a 364px-tall
-     * header on a phone.
+     * The shell's own parts. The stylesheet is written against these names, so
+     * if one moves the rules match nothing and the panel silently loses its
+     * navigation — the failure a screenshot would show and no assertion did,
+     * before this.
      */
-    public function test_the_shell_still_has_the_parts_the_phone_rules_are_written_against(): void
+    public function test_the_shell_has_the_parts_its_stylesheet_is_written_against(): void
     {
         $user = $this->admin();
 
         $this->actingAs($user, 'web')->get('/admin')
             ->assertOk()
-            ->assertSee('vp-admin-bar-in', false)
-            ->assertSee('vp-admin-nav', false)
-            ->assertSee('vp-admin-who', false)
-            ->assertSee('vp-admin-table', false);
+            ->assertSee('vp-adm-side', false)
+            ->assertSee('vp-adm-top', false)
+            ->assertSee('vp-adm-page', false)
+            ->assertSee('vp-adm-bottom', false)
+            ->assertSee('vp-adm-sheet', false);
+    }
+
+    /**
+     * The shell loads its own stylesheet, fingerprinted.
+     *
+     * The panel's whole appearance is in that one file now, which makes it the
+     * one file a stale cache must not serve — the same reason tweaks.css is
+     * fingerprinted, and the same failure «قالب قبلی» records when the file
+     * carrying the design is the file that does not arrive.
+     */
+    public function test_the_panel_loads_its_own_fingerprinted_stylesheet(): void
+    {
+        $user = $this->admin();
+
+        $page = $this->actingAs($user, 'web')->get('/admin')->assertOk()->getContent();
+
+        $this->assertMatchesRegularExpression('~assets/css/admin\.css\?v=[0-9a-f]{8}~', $page);
+    }
+
+    /**
+     * §19's bottom bar, and the centre action between the second and third.
+     */
+    public function test_the_phone_gets_a_bottom_bar_with_the_specifications_own_items(): void
+    {
+        $user = $this->admin();
+
+        $page = $this->actingAs($user, 'web')->get('/admin')->assertOk()->getContent();
+
+        foreach (['خانه', 'سفارش‌ها', 'محصولات', 'بیشتر'] as $label) {
+            $this->assertStringContainsString($label, $page);
+        }
+
+        $this->assertStringContainsString('vp-adm-add', $page);
+    }
+
+    /**
+     * **The three navigations are one list.** The sidebar, the bottom bar and
+     * the «بیشتر» sheet all read `Navigation`, so a screen cannot be reachable
+     * from a desktop and missing from a phone — which is exactly what three
+     * copies of the same permission checks in one Blade file would have
+     * produced, and what nothing would have failed on.
+     */
+    public function test_the_sidebar_and_the_sheet_offer_the_same_screens(): void
+    {
+        $user = $this->admin();
+
+        $nav = new Navigation;
+        $flat = $nav->flatFor($user, Branch::central());
+
+        $this->assertNotEmpty($flat);
+
+        $page = $this->actingAs($user, 'web')->get('/admin')->assertOk()->getContent();
+
+        foreach ($flat as $item) {
+            // Once in the sidebar and once in the sheet.
+            $this->assertGreaterThanOrEqual(
+                2,
+                substr_count($page, 'href="'.route($item['route']).'"'),
+                "«{$item['label']}» is not in both the sidebar and the sheet."
+            );
+        }
+    }
+
+    /**
+     * **A destination is offered only if it exists.** The specification's
+     * information architecture lists Customers, Marketing, Finance, Content and
+     * Support sections; none of those screens have been built, so none of them
+     * are in the navigation. This repository has already shipped a footer where
+     * 21 of 47 links resolved to «#» — `ContentPagesTest` exists because of it,
+     * and this is the same guard for the panel.
+     */
+    public function test_the_navigation_offers_no_screen_that_does_not_exist(): void
+    {
+        $user = $this->admin();
+
+        $nav = new Navigation;
+
+        foreach ($nav->flatFor($user, Branch::central()) as $item) {
+            $this->assertTrue(
+                Route::has($item['route']),
+                "The navigation offers «{$item['label']}», whose route does not exist."
+            );
+        }
+    }
+
+    /**
+     * A marketplace screen has no branch, and the shell has to hold that: the
+     * branch-scoped entries drop out rather than throwing on a null branch.
+     */
+    public function test_the_navigation_survives_a_screen_with_no_branch(): void
+    {
+        $user = $this->admin();
+
+        $nav = new Navigation;
+        $items = $nav->flatFor($user, null);
+
+        foreach ($items as $item) {
+            $this->assertNotSame('admin.inventory', $item['route']);
+            $this->assertNotSame('admin.settings', $item['route']);
+        }
     }
 
     /**

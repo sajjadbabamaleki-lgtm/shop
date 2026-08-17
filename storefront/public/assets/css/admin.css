@@ -1,0 +1,560 @@
+/* ==========================================================================
+   VIKYPLUS — the admin shell.
+
+   This file exists because the specification opens with «The admin experience
+   must be designed independently from the customer storefront» and closes with
+   «Do not copy the customer storefront UI». The panel had been wearing the
+   shop's own materials, at an earlier client's request, and the frames that
+   came with them are what got this rewritten: «اون دیزاین خط خطی تو هم تو هم با
+   قاب های تو هم تو هم که داری میزنی رو مخ منه».
+
+   **It is loaded only by `layouts/admin.blade.php`.** It is not synced from
+   `download-version/` and has no counterpart there — the panel has no static
+   preview, `check-parity.js` never renders it, and the shop pays nothing to
+   download it. That separation is the point: this is where the admin's design
+   system lives, and the shop's is somewhere else.
+
+   `tweaks.css` is still loaded above it and still styles the panel's *screens*
+   — its tables, its buttons, its cards. Only the shell is here. Moving the
+   rest is the next piece of work and is not pretended to be done.
+
+   Everything below is the specification's own tokens, except the gold. The
+   specification suggests #C99A23 and says «Suggested starting tokens, to be
+   adjusted to final brand assets»; the client's instruction is more specific
+   and wins — «باید از دکمه های گلد هوم برداری رنگو» — so the gold here is the
+   ramp the front page's buttons already paint, read from tweaks.css's own
+   variables rather than copied as numbers.
+   ========================================================================== */
+
+.vp-adm {
+  /* --- foundations, §22 ------------------------------------------------- */
+  --adm-bg: #F7F8FA;
+  --adm-surface: #FFFFFF;
+  --adm-ink: #171717;
+  --adm-ink-2: #737373;
+  --adm-line: #E7E7E7;
+
+  /* The shop's button gold, not a second sample of it. */
+  --adm-gold-fill: var(--vp-gold-fill, #DAB226);
+  --adm-gold-lit: var(--vp-gold-lit, #EFC94F);
+  --adm-gold-ink: var(--vp-gold-ink, #8B7217);
+  --adm-gold-wash: #FBF7EA;
+
+  /* Semantic, §22: «Never use gold as the color for every state.» */
+  --adm-good: #1B7F4B;
+  --adm-warn: #A85B00;
+  --adm-bad: #B3261E;
+  --adm-info: #1D5FAD;
+
+  /* Radius, §22: «Avoid excessively rounded admin UI.» */
+  --adm-r-sm: 8px;
+  --adm-r-md: 12px;
+  --adm-r-lg: 16px;
+
+  --adm-sidebar: 248px;
+  --adm-sidebar-tight: 72px;
+  --adm-topbar: 60px;
+  --adm-bottom: 64px;
+
+  min-height: 100vh;
+  background: var(--adm-bg);
+  color: var(--adm-ink);
+  font-family: 'Vazirmatn', var(--body-font, sans-serif);
+  font-size: 14px;
+  line-height: 22px;
+}
+
+/* Operational figures line up in a column when the digits are all one width.
+   §22: «Use tabular/consistent numerals where appropriate for operational
+   data.» */
+.vp-adm table,
+.vp-adm .vp-adm-figure,
+.vp-adm input[type='number'] {
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- the frame ------------------------------------------------------------
+   Sidebar down the start edge, topbar across the rest, workspace under it.
+   The sidebar is `position: fixed` so a long table scrolls under a navigation
+   that stays put; the workspace is inset by its width rather than sitting in a
+   flex row, which keeps the two independent — a sidebar that collapses must
+   not relayout the table beside it, only move its own edge. */
+.vp-adm-shell {
+  min-height: 100vh;
+}
+
+.vp-adm-side {
+  position: fixed;
+  inset-block: 0;
+  inset-inline-start: 0;
+  z-index: 40;
+  width: var(--adm-sidebar);
+  display: flex;
+  flex-direction: column;
+  background: var(--adm-surface);
+  border-inline-end: 1px solid var(--adm-line);
+  transition: width 0.18s ease;
+}
+
+.vp-adm-mark {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: var(--adm-topbar);
+  padding-inline: 16px;
+  border-bottom: 1px solid var(--adm-line);
+  text-decoration: none;
+  color: inherit;
+  flex: 0 0 auto;
+}
+
+.vp-adm-mark img {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--adm-r-sm);
+  flex: 0 0 auto;
+}
+
+.vp-adm-mark b {
+  font-size: 16px;
+  line-height: 24px;
+  white-space: nowrap;
+}
+
+.vp-adm-nav {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 12px 10px 16px;
+}
+
+.vp-adm-group {
+  margin-top: 14px;
+  padding-inline: 10px;
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 700;
+  color: var(--adm-ink-2);
+}
+
+.vp-adm-group:first-child {
+  margin-top: 0;
+}
+
+.vp-adm-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 40px;
+  margin-top: 2px;
+  padding: 8px 10px;
+  border-radius: var(--adm-r-sm);
+  color: var(--adm-ink);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.vp-adm-link:hover {
+  background: #F2F3F5;
+  color: var(--adm-ink);
+}
+
+/* The screen you are on. A tinted plate and a gold rule at the start edge —
+   §25 asks that state never rest on colour alone, and the rule is the shape
+   that says it as well as the fill does. */
+.vp-adm-link.is-on {
+  position: relative;
+  background: var(--adm-gold-wash);
+  color: var(--adm-gold-ink);
+  font-weight: 700;
+}
+
+.vp-adm-link.is-on::before {
+  content: '';
+  position: absolute;
+  inset-block: 8px;
+  inset-inline-start: 0;
+  width: 3px;
+  border-radius: 999px;
+  background: var(--adm-gold-fill);
+}
+
+.vp-adm-link svg {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+}
+
+.vp-adm-side-foot {
+  flex: 0 0 auto;
+  padding: 10px;
+  border-top: 1px solid var(--adm-line);
+}
+
+/* --- collapsed ------------------------------------------------------------
+   §17: «Collapsed: approximately 72px.» The labels go, the icons stay on the
+   centre line, and the group headings go with the labels — a heading with no
+   items under it that can be read is noise. */
+.vp-adm[data-side='tight'] .vp-adm-side {
+  width: var(--adm-sidebar-tight);
+}
+
+.vp-adm[data-side='tight'] .vp-adm-link span,
+.vp-adm[data-side='tight'] .vp-adm-mark b,
+.vp-adm[data-side='tight'] .vp-adm-group {
+  display: none;
+}
+
+.vp-adm[data-side='tight'] .vp-adm-link,
+.vp-adm[data-side='tight'] .vp-adm-mark {
+  justify-content: center;
+  padding-inline: 0;
+}
+
+.vp-adm[data-side='tight'] .vp-adm-work {
+  padding-inline-start: var(--adm-sidebar-tight);
+}
+
+/* --- topbar and workspace -------------------------------------------------- */
+.vp-adm-work {
+  padding-inline-start: var(--adm-sidebar);
+  transition: padding 0.18s ease;
+}
+
+.vp-adm-top {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: var(--adm-topbar);
+  padding-inline: 20px;
+  background: var(--adm-surface);
+  border-bottom: 1px solid var(--adm-line);
+}
+
+.vp-adm-top-title {
+  margin: 0;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 700;
+}
+
+.vp-adm-spacer {
+  margin-inline-start: auto;
+}
+
+/* A control that is only an icon needs a name for anyone not looking at it,
+   and 40px of something to press. §27 puts the practical floor near 44; this
+   is 40 with the row's own padding around it. */
+.vp-adm-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid var(--adm-line);
+  border-radius: var(--adm-r-sm);
+  background: var(--adm-surface);
+  color: var(--adm-ink);
+  cursor: pointer;
+}
+
+.vp-adm-icon-btn:hover {
+  background: #F2F3F5;
+}
+
+.vp-adm-icon-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.vp-adm-who {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.vp-adm-branch,
+.vp-adm-who select {
+  height: 36px;
+  max-width: 190px;
+  padding-inline: 10px;
+  border: 1px solid var(--adm-line);
+  border-radius: var(--adm-r-sm);
+  background: var(--adm-surface);
+  color: var(--adm-ink);
+  font: inherit;
+}
+
+.vp-adm-branch {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 700;
+}
+
+/* Signing out is not a primary action and does not look like one. §35: «Keep
+   destructive actions visually separate from primary actions.» */
+.vp-adm-out {
+  height: 36px;
+  padding-inline: 12px;
+  border: 1px solid var(--adm-line);
+  border-radius: var(--adm-r-sm);
+  background: var(--adm-surface);
+  color: var(--adm-ink-2);
+  font: inherit;
+  cursor: pointer;
+}
+
+.vp-adm-out:hover {
+  border-color: rgba(179, 38, 30, 0.4);
+  background: rgba(179, 38, 30, 0.06);
+  color: var(--adm-bad);
+}
+
+/* §17: 32px page padding, content capped where a line of a table stops being
+   readable rather than at the window's edge. */
+.vp-adm-page {
+  max-width: 1600px;
+  margin-inline: auto;
+  padding: 24px 32px 64px;
+}
+
+/* --- notes ----------------------------------------------------------------- */
+.vp-adm-note {
+  margin: 0 0 16px;
+  padding: 10px 14px;
+  border: 1px solid var(--adm-line);
+  border-inline-start-width: 3px;
+  border-radius: var(--adm-r-sm);
+  background: var(--adm-surface);
+}
+
+.vp-adm-note.is-good {
+  border-inline-start-color: var(--adm-good);
+}
+
+.vp-adm-note.is-bad {
+  border-inline-start-color: var(--adm-bad);
+  color: var(--adm-bad);
+}
+
+/* --- the phone ------------------------------------------------------------
+   §19: «No permanent desktop sidebar.» The sidebar becomes a sheet that slides
+   in from the reading edge, and the bottom bar is what is on screen.
+   ========================================================================== */
+.vp-adm-scrim,
+.vp-adm-bottom,
+.vp-adm-sheet {
+  display: none;
+}
+
+@media (max-width: 991.98px) {
+  .vp-adm-side {
+    inset-inline-start: 0;
+    transform: translateX(100%);
+    transition: transform 0.2s ease;
+    box-shadow: -18px 0 40px -30px rgba(16, 17, 17, 0.5);
+  }
+
+  /* RTL: the drawer comes from the right, so it leaves to the right. §26 asks
+     for the correct drawer direction, and `translateX(100%)` in a `dir="rtl"`
+     box already moves toward the start edge. */
+  .vp-adm[data-drawer='open'] .vp-adm-side {
+    transform: none;
+  }
+
+  .vp-adm-work,
+  .vp-adm[data-side='tight'] .vp-adm-work {
+    padding-inline-start: 0;
+  }
+
+  .vp-adm-page {
+    padding: 16px 16px calc(var(--adm-bottom) + 24px);
+  }
+
+  .vp-adm-scrim {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 35;
+    background: rgba(16, 17, 17, 0.4);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+
+  .vp-adm[data-drawer='open'] .vp-adm-scrim,
+  .vp-adm[data-sheet='open'] .vp-adm-scrim {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* --- bottom navigation, §19 ------------------------------------------- */
+  .vp-adm-bottom {
+    display: flex;
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 38;
+    height: var(--adm-bottom);
+    padding-bottom: env(safe-area-inset-bottom);
+    background: var(--adm-surface);
+    border-top: 1px solid var(--adm-line);
+  }
+
+  .vp-adm-tab {
+    flex: 1 1 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    min-width: 0;
+    border: 0;
+    background: none;
+    color: var(--adm-ink-2);
+    font: inherit;
+    font-size: 11px;
+    line-height: 16px;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .vp-adm-tab svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .vp-adm-tab.is-on {
+    color: var(--adm-gold-ink);
+    font-weight: 700;
+  }
+
+  /* The centre action, §19. Raised out of the bar so it reads as the one thing
+     in the row that makes something rather than going somewhere. */
+  .vp-adm-add {
+    flex: 0 0 auto;
+    align-self: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    margin-inline: 4px;
+    border: 0;
+    border-radius: var(--adm-r-md);
+    background: linear-gradient(180deg, var(--adm-gold-fill) 0%, var(--adm-gold-lit) 100%);
+    color: #101111;
+    cursor: pointer;
+  }
+
+  .vp-adm-add svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  /* --- the sheet behind «بیشتر» and «افزودن», §19 ------------------------ */
+  .vp-adm-sheet {
+    display: block;
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 39;
+    max-height: 76vh;
+    overflow-y: auto;
+    padding: 8px 12px calc(16px + env(safe-area-inset-bottom));
+    background: var(--adm-surface);
+    border-top-left-radius: var(--adm-r-lg);
+    border-top-right-radius: var(--adm-r-lg);
+    transform: translateY(100%);
+    transition: transform 0.22s ease;
+  }
+
+  .vp-adm[data-sheet='open'] .vp-adm-sheet {
+    transform: none;
+  }
+
+  /* The grip. It is the affordance that says this can be pushed back down. */
+  .vp-adm-sheet::before {
+    content: '';
+    display: block;
+    width: 36px;
+    height: 4px;
+    margin: 6px auto 10px;
+    border-radius: 999px;
+    background: var(--adm-line);
+  }
+
+  .vp-adm-sheet-title {
+    margin: 0 0 4px;
+    padding-inline: 6px;
+    font-size: 12px;
+    line-height: 18px;
+    font-weight: 700;
+    color: var(--adm-ink-2);
+  }
+
+  .vp-adm-sheet-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+    margin: 0 0 10px;
+    padding: 0;
+    list-style: none;
+  }
+
+  .vp-adm-sheet-list a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 48px;
+    padding: 10px 12px;
+    border: 1px solid var(--adm-line);
+    border-radius: var(--adm-r-sm);
+    color: var(--adm-ink);
+    text-decoration: none;
+  }
+
+  .vp-adm-sheet-list a.is-on {
+    border-color: var(--adm-gold-fill);
+    background: var(--adm-gold-wash);
+    color: var(--adm-gold-ink);
+    font-weight: 700;
+  }
+
+  .vp-adm-sheet-list svg {
+    width: 18px;
+    height: 18px;
+    flex: 0 0 auto;
+  }
+}
+
+/* The drawer's own toggle is meaningless on a desktop, where the sidebar is
+   always there; the collapse toggle is meaningless on a phone, where it is a
+   drawer. Each is hidden where it has nothing to do rather than left to look
+   like a control that does not work. */
+.vp-adm-drawer-btn {
+  display: none;
+}
+
+@media (max-width: 991.98px) {
+  .vp-adm-drawer-btn {
+    display: inline-flex;
+  }
+
+  .vp-adm-tight-btn {
+    display: none;
+  }
+}
+
+/* Somebody who has turned motion down gets the same shell without it. */
+@media (prefers-reduced-motion: reduce) {
+  .vp-adm-side,
+  .vp-adm-work,
+  .vp-adm-scrim,
+  .vp-adm-sheet {
+    transition: none;
+  }
+}
