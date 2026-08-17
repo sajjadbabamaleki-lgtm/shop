@@ -6243,14 +6243,23 @@ button.vp-cart-keep {
 
 /* The card's last row: the colour on the reading edge, the stepper on the far
    one. `margin-block-start: auto` pins it to the foot of the stack so cards of
-   different heights still line their steppers up with each other. */
+   different heights still line their steppers up with each other.
+
+   `align-items: flex-start`, not `center` — the stepper is taller than one
+   line of type, and centring the colour text against it floated the text
+   down into the middle of the stepper's own height, which is a visible gap
+   under «سایز: ۳۷» nothing else on the card has. Every other row's gap is
+   the space between two lines of type; this one was the space between a
+   line of type and the *middle* of a button. Top-aligning puts the colour
+   text right after the same gap as the rows above it and lets the stepper
+   hang below its own text, which is where a taller control belongs beside a
+   shorter line rather than astride it. */
 .vp-cart-last {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
   margin-block-start: auto;
-  padding-block-start: 4px;
 }
 
 /* «چرا این شمارندرو اونقد میبری راست ... این فضای خالی» — `padding-inline-end`
@@ -16296,9 +16305,26 @@ button.vp-cart-keep {
      0.578px on all three, which is not the number first tried (0.5, which
      rendered 0.5 / 0.5 / 0.5 exactly but left the last row 0.187px short of
      the photograph's own foot) but the one a second, equal bump on all
-     three landed on. Measured after: all three gaps 0.563px rendered, the
-     name's own top exactly on the photograph's, the last row's own foot
-     exactly on the photograph's — all three offsets zero, not "close". */
+     three landed on.
+
+     What was measured that day was the *box* these three margins sit in —
+     `.vp-cart-what`'s three direct children — and every one of those three
+     gaps really was 0.563px, exactly. What was not measured was the fourth
+     gap the client had also asked to be tidied: between «سایز: ۳۷» and
+     «رنگ: …» inside `.vp-cart-last`, which is a different box (`.vp-cart-last
+     > .vp-cart-spec`, centred against the stepper by `align-items: center`
+     on its parent) and never went through this scan at all. Centring a
+     short line against a tall stepper floats it toward the stepper's
+     middle, not its own top — which rendered as a gap several times the
+     other three, sitting in plain sight under a comment that had just
+     declared "all three offsets zero". «تووث واقعا یه احمق گااااو شدی؟
+     ... چرا اینجوریه پس» is that gap, still there weeks later because
+     nothing had ever actually measured it. Fixed at the base rule now
+     (`.vp-cart-last { align-items: flex-start }`, and its stray
+     `padding-block-start: 4px` removed — flex `gap` already made that
+     space once, the padding made it twice), which this breakpoint inherits
+     unchanged. Measured after, at 390: all four gaps 0.563px, this one
+     included. */
   .vp-cart-what {
     gap: 0;
     padding-inline-end: 30px;
@@ -16325,9 +16351,11 @@ button.vp-cart-keep {
   }
 
   /* The size line only — `.vp-cart-spec` is shared with the colour line
-     inside `.vp-cart-last`, which is centred beside the stepper and is not
-     one of the three stacked gaps this is tuning. `.vp-cart-what >` scopes
-     it to the direct child. */
+     inside `.vp-cart-last`, which is a sibling box tuned separately (see the
+     base rule's `.vp-cart-last`, and the long comment above this block).
+     `.vp-cart-what >` scopes it to the direct child so this margin does not
+     also land on the colour line, which would double up with that box's
+     own alignment. */
   .vp-cart-what > .vp-cart-spec {
     margin-block-end: 0.578px;
   }
