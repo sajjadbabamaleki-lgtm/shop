@@ -1719,6 +1719,23 @@ option:hover {
   font-weight: 700;
 }
 
+/* «اون خط باید حذف بشه» — the dash beside the hero's eyebrow.
+
+   It is the template's `.sub-title:before`: a 50×2px bar in the label's own
+   colour, `position: absolute` and pulled out to the side on a negative
+   margin. It was drawn beside a line that repeated the shoe's name; the label
+   now says why the slide is in the deck, and the client asked for the bar to
+   go with the repeat.
+
+   `content: none` rather than `display: none` — a pseudo-element with no
+   content is never generated, which is the same instruction said once. It is
+   out of flow either way, so nothing moves: measured at 390 and 1200, the
+   label's own box is unchanged to the pixel and the two panes below it keep
+   their positions. */
+.heroSlide6 .hero-inner .sub-title::before {
+  content: none;
+}
+
 /* The button's label a step heavier than the small label above the title. Cairo
    is variable, so 800 is a real weight and not a synthesised one. */
 .heroSlide6 .hero-inner .th-btn {
@@ -3512,14 +3529,42 @@ option:hover {
   color: #101111;
 }
 
+/* «فضای سمت چپ این موارد با بغل فاصله استانداردی نداره باید مث فاصله راستش
+   باشه یا بیضی هارو بکش یا فاصلشون بیشتر بشه» — the pills are stretched, which
+   is the first of the two the client offered.
+
+   On a phone the head has wrapped, so this row is the full width of the panel
+   while the five pills are only as wide as their own words: the row ended
+   flush against the start edge and 29.6px short of the other one at 390, 14.6
+   at 375, 69.6 at 430 — the slack is whatever the panel's width happens to
+   leave, so it is a different number on every handset and never zero.
+
+   `flex: 1 1 auto` hands that slack to the five, in proportion to nothing —
+   each takes an equal share of what is left, so the pills keep the relative
+   widths their words gave them and the row ends where the panel ends. It needs
+   no width to be named and no breakpoint: growth only happens where a line has
+   free space, and on a desktop this row is sized to its own content and sits
+   opposite the title, so there is none and nothing moves. Measured at 540,
+   768, 992 and 1200: identical to the pixel, before and after.
+
+   The gap is 7 rather than 8 for one reason: at 360 the five wanted 340.42 in
+   340 and the last one wrapped to a line of its own. Four pixels back off the
+   four gaps buys the row 360, and 375/390/414/430 keep landing on one line as
+   they already did.
+
+   Measured after, start edge / end edge: 360 0/0, 375 0/0, 390 0/0, 414
+   0/0.02, 430 0/0. Under about 350 the fifth pill still wraps — it does today
+   too — and both lines are at least flush now instead of ragged. Nothing this
+   repo checks goes below 390. */
 .vp-best-filters {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 7px;
 }
 
 .vp-best-filter {
+  flex: 1 1 auto;
   border: 0;
   padding: 6px 14px;
   border-radius: 14px;

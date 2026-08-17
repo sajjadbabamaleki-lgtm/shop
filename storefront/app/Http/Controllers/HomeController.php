@@ -88,19 +88,28 @@ class HomeController extends Controller
      * itself is bound with non-breaking spaces so it stays one line whatever
      * the type size: the break belongs to the name, not to the measure.
      *
+     * The eyebrow above it comes from the config's value, not from the product:
+     * it is why the slide is in the deck, and the heading underneath is already
+     * the name. A slug with no line beside it falls back to the name, which is
+     * what this printed for every slide before.
+     *
      * @param  Collection<string, Product>  $products
-     * @return list<array{product: Product, kind: string, model: string}>
+     * @return list<array{product: Product, eyebrow: string, kind: string, model: string}>
      */
     private function heroSlides(Collection $products): array
     {
         $chosen = collect(config('storefront.hero.products'))
-            ->map(fn (string $slug) => $products->get($slug))
-            ->filter()
-            ->map(function (Product $product) {
-                [$kind, $model] = explode(' ', $product->title, 2);
+            ->mapWithKeys(fn (string $eyebrow, string $slug) => [$slug => [
+                'product' => $products->get($slug),
+                'eyebrow' => $eyebrow,
+            ]])
+            ->filter(fn (array $slide) => $slide['product'] !== null)
+            ->map(function (array $slide) {
+                [$kind, $model] = explode(' ', $slide['product']->title, 2);
 
                 return [
-                    'product' => $product,
+                    'product' => $slide['product'],
+                    'eyebrow' => $slide['eyebrow'],
                     'kind' => $kind,
                     'model' => str_replace(' ', "\u{00A0}", $model),
                 ];

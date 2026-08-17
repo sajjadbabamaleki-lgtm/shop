@@ -27,7 +27,7 @@
                                 <div class="row align-items-center">
                                     <div class="col-lg-6">
                                         <div class="hero-style6">
-                                            <span class="sub-title" data-ani="slideinleft" data-ani-delay="0.2s">{{ $slide['product']->title }}</span>
+                                            <span class="sub-title" data-ani="slideinleft" data-ani-delay="0.2s">{{ $slide['eyebrow'] }}</span>
                                             <h1 class="hero-title" data-ani="slideinleft" data-ani-delay="0.4s">
                                                 {{ $slide['kind'] }}<br>{{ $slide['model'] }} </h1>
                                             <div class="btn-group" data-ani="slideinup" data-ani-delay="0.7s"><a href="{{ page_url('shop.html') }}" class="th-btn th-icon">خرید محصول</a>

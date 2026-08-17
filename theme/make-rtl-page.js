@@ -303,9 +303,25 @@ const HERO_TITLES = {
   hero_6_3: 'کتونی گلدن گوس',
 };
 
+// The label above the heading is the slide's reason for being in the deck, one
+// line per shoe — «بجای اسم تکراری هم این ۳ تا بیاد رو هر کفش یکیش». It was the
+// product's name, printed a second time immediately above the heading that
+// already says it, and the client asked for that repeat to go.
+//
+// These must stay in step with `storefront.hero.products` in the Laravel
+// config, which carries the same three lines against the same three slugs:
+// hero_6_1 is new-balance-530, _2 is jordan-one-air, _3 is golden-goose. The
+// two copies of this page are compared pixel for pixel by check-parity.js, so
+// a line changed on one side and not the other fails there.
+const HERO_EYEBROWS = {
+  hero_6_1: 'پر فروش این هفته',
+  hero_6_2: 'یه پیشنهاد ویژه',
+  hero_6_3: 'موجودی محدود',
+};
+
 // The model is bound with non-breaking spaces so the second line stays one
 // line whatever the type size — the break belongs to the name, not to the
-// measure. The label above the heading keeps the plain name on one line.
+// measure.
 const heroHeading = (name) => {
   const [kind, ...model] = name.split(' ');
   return kind + '<br>' + model.join('\u00A0');
@@ -325,7 +341,7 @@ html = html.replace(
   /(<span class="sub-title"[^>]*>)[^<]*(<\/span>\s*<h1 class="hero-title"[^>]*>)[\s\S]*?(<\/h1>[\s\S]*?<img src=")assets\/img\/hero\/(hero_6_[123])\.png(")/g,
   (_, openLabel, openTitle, betweenTitleAndImg, slot, closeSrc) => {
     const title = HERO_TITLES[slot];
-    return openLabel + title + openTitle + '\n                                                ' +
+    return openLabel + HERO_EYEBROWS[slot] + openTitle + '\n                                                ' +
       heroHeading(title) + ' ' + betweenTitleAndImg + `assets/img/hero/${HERO_PHOTOS[slot]}` + closeSrc;
   }
 );

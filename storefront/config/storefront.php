@@ -239,10 +239,25 @@ return [
     | The hero runs its three twice: six slides over three photographs, so the
     | deck reads as a loop of three rather than six of anything.
     |
+    | The eyebrow above each heading is the slide's reason for being there, one
+    | per shoe — «بجای اسم تکراری هم این ۳ تا بیاد رو هر کفش یکیش». It used to
+    | be the product's own name, printed a second time directly above the
+    | heading that already says it. Which line goes on which shoe is an
+    | editorial choice like the slugs beside them, so it is written here: swap a
+    | string and the deck says something else.
+    |
+    | It is a claim about the shoe, not a fact read off the catalogue — nothing
+    | checks that «موجودی محدود» is true of the stock, and nothing should
+    | without somebody deciding what the threshold is.
+    |
     */
 
     'hero' => [
-        'products' => ['new-balance-530', 'jordan-one-air', 'golden-goose'],
+        'products' => [
+            'new-balance-530' => 'پر فروش این هفته',
+            'jordan-one-air' => 'یه پیشنهاد ویژه',
+            'golden-goose' => 'موجودی محدود',
+        ],
         'repeat' => 2,
     ],
 
