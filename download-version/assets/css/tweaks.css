@@ -18260,6 +18260,23 @@ body.vp-bare .vp-cart-sum {
   background: #FFFFFF;
 }
 
+/* «بک محصول باید همرنگ اونیکی سبد خرید بشه» — the photo tile, the same colour
+   as the one in the drawer that opens from the header. Not a number chosen to
+   look similar: `#EBEBEB` is the value off `.sidemenu-cart .vp-cart-shot`, and
+   the reasoning in that rule's own comment now applies here word for word,
+   because the rule above has just put this tile on a full white card too. An
+   *alpha* 92% white on white composites back to 255 with nothing left to tell
+   it apart; 92% has to be a colour to read at all, and 0.92 × 255 rounds to
+   235 flat.
+
+   Measured after, both surfaces, both breakpoints: 235,235,235 each. The
+   basket page's tile keeps its desktop ring — the drawer's has none, so the
+   two are identical on a phone (where neither is drawn) and differ by that
+   hairline above 992. It was the colour that was asked about. */
+body.vp-bare .vp-cart-shot {
+  background: #EBEBEB;
+}
+
 /* --------------------------------------------------------------------------
    The last rule in the last stylesheet — the shop's signature on the design.
 
