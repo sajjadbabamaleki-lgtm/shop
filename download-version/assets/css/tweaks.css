@@ -11915,11 +11915,13 @@ button.vp-cart-keep {
    a grey trough holding two matching white squares, both lit the same way,
    with the count on the trough between them. This one used to be a bare
    grey minus and a gold plus with no trough under either — the accent
-   distinction `.vp-qty` never had. Same recipe, smaller: `.vp-qty` is 48
-   overall / 40 square / 4 padding; this is 34 / 28 / 3, roughly three
-   quarters, which is what the corner radii below are — 34 × 0.30119 and
-   28 × 0.30119, the same ratio `.vp-qty`'s own comment derives its two
-   corners from. */
+   distinction `.vp-qty` never had.
+
+   «اندازشو ۲۰ درصد بزرگتر کن» took the first pass — 34 / 28 / 3, three
+   quarters of `.vp-qty`'s 48 / 40 / 4 — up a fifth again: 40.8 / 33.6 / 3.6.
+   The corner radii are still the same ratio `.vp-qty`'s own comment derives
+   its two corners from, 0.30119 of each square's own side, so the shape does
+   not change, only the scale. */
 .vp-cart-qty {
   display: flex;
   align-items: center;
@@ -11927,10 +11929,10 @@ button.vp-cart-keep {
      number was reading as three separate controls; 4 makes the three of them
      one. The count keeps its own `min-width`, so the stepper's overall width
      does not move as the number goes from one digit to two. */
-  gap: 4px;
-  height: 34px;
-  padding: 3px;
-  border-radius: 10.24px;
+  gap: 4.8px;
+  height: 40.8px;
+  padding: 3.6px;
+  border-radius: 12.29px;
   background: rgba(16, 17, 17, 0.05);
   /* «منفی بره چپ مثبت بیاد راست». The page is rtl, so the source order — minus,
      count, plus — lays out right to left and puts the minus on the right. One
@@ -11945,17 +11947,17 @@ button.vp-cart-keep {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 33.6px;
+  height: 33.6px;
   padding: 0;
   border: 0;
-  border-radius: 8.43px;
+  border-radius: 10.12px;
   background: #FFFFFF;
   box-shadow:
     0 0 2px rgba(16, 17, 17, 0.10),
     0 0 8px -2px rgba(16, 17, 17, 0.14);
   color: #101111;
-  font-size: 20px;
+  font-size: 24px;
   line-height: 1;
   cursor: pointer;
   transition: background-color 0.2s ease, opacity 0.2s ease;
@@ -11977,13 +11979,12 @@ button.vp-cart-keep {
 }
 
 .vp-cart-count {
-  /* Wide enough that two digits do not move the `+`, and no wider: at 360 the
-     price and the stepper share a row with one pixel to spare, and 24 here
-     spent four of them. Two Persian digits at 15px measure 17. */
-  min-width: 18px;
+  /* Wide enough that two digits do not move the `+`, and no wider. 18 → 21.6
+     with the rest of the stepper's 20% pass; the type grew with it, 15 → 18. */
+  min-width: 21.6px;
   font-family: 'Vazirmatn', var(--body-font);
   font-weight: 700;
-  font-size: 15px;
+  font-size: 18px;
   font-feature-settings: 'tnum' 1;
   text-align: center;
 }
@@ -16197,28 +16198,28 @@ button.vp-cart-keep {
   }
 
   /* Smaller still on a phone — trough and squares both, same ratio as the
-     base rule (34/28/3 → 30/24/3), which is why the two radii below are not
-     the base rule's: 30 × 0.30119 and 24 × 0.30119. Both buttons already
-     match at the base rule now (see the note there), so nothing here needs
-     to say so a second time. */
+     base rule (40.8/33.6/3.6 → 36/28.8/3.6), which is why the two radii
+     below are not the base rule's: 36 × 0.30119 and 28.8 × 0.30119. Both
+     buttons already match at the base rule now (see the note there), so
+     nothing here needs to say so a second time. */
   .vp-cart-line .vp-cart-qty {
-    gap: 3px;
-    height: 30px;
-    padding: 3px;
-    border-radius: 9.04px;
+    gap: 3.6px;
+    height: 36px;
+    padding: 3.6px;
+    border-radius: 10.84px;
   }
 
   .vp-cart-line .vp-cart-less,
   .vp-cart-line .vp-cart-more {
-    width: 24px;
-    height: 24px;
-    border-radius: 7.23px;
-    font-size: 17px;
+    width: 28.8px;
+    height: 28.8px;
+    border-radius: 8.67px;
+    font-size: 20.4px;
   }
 
   .vp-cart-count {
-    min-width: 14px;
-    font-size: 13px;
+    min-width: 16.8px;
+    font-size: 15.6px;
     text-align: center;
   }
 
