@@ -17911,6 +17911,69 @@ html {
   }
 }
 
+/* The favourite heart is Phosphor's, not FontAwesome's.
+
+   Asked for off a sheet of twenty hearts: «از شماره ۲ تو اپ شاپ استفاده کن» —
+   `ph:heart`, Phosphor's regular weight. Which is a set this repository already
+   has: the sneaker on the categories row is `@phosphor-icons/core`'s
+   `sneaker-move-fill`, so the artwork is a dependency that is already here and
+   the MIT notice already ships beside the category icons.
+
+   **Drawn as a mask over the FontAwesome element, not as new markup.** The
+   heart appears in three places — the best sellers' tile, the product card and
+   the story caption's «علاقمندی» — and all three are `<i class="fa-regular
+   fa-heart">` inside a button whose `color` is what tints it: 0.45 ink on the
+   tile, full ink on the card. An `<img>` cannot take `currentColor`, and
+   inline SVG would mean editing a generated page, a generator and three views
+   for a change that is entirely about which shape is painted. A mask keeps the
+   colour inheritance the buttons already have, and keeps the change in the one
+   file that is meant to carry deviations.
+
+   **The size and the position are matched to the glyph it replaces, not to its
+   own box.** Both were measured off the tile at 390, on the ink rather than on
+   the element:
+
+     FontAwesome          ink 16.33 × 14.00, centred in the 39.89 disc
+     Phosphor at 1.28em       18.00 × 15.33, and 0.67 low
+     Phosphor at 1.17em       16.00 × 14.00, centred — this rule
+
+   Two things make the arithmetic non-obvious. Phosphor's heart does not fill
+   its 256 grid the way a glyph fills its em, so a 1em box draws a visibly
+   smaller heart on an unchanged disc; and its ink is not centred in that grid
+   either — it sits 8 units of 256 low, which is the 0.67 above and the reason
+   for the nudge. The aspect ratios happen to agree (1.174 against 1.167), so
+   one scale answers both dimensions.
+
+   The story caption's is the one with words next to it, so the box grows
+   symmetrically outward and the advance stays 1em — the label does not move. */
+.vp-best-fav .fa-heart,
+.vp-card-fav .fa-heart,
+.vp-story-fav .fa-heart {
+  --vp-heart: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256' fill='%23000'%3E%3Cpath d='M178,40c-20.65,0-38.73,8.88-50,23.89C116.73,48.88,98.65,40,78,40a62.07,62.07,0,0,0-62,62c0,70,103.79,126.66,108.21,129a8,8,0,0,0,7.58,0C136.21,228.66,240,172,240,102A62.07,62.07,0,0,0,178,40ZM128,214.8C109.74,204.16,32,155.69,32,102A46.06,46.06,0,0,1,78,56c19.45,0,35.78,10.36,42.6,27a8,8,0,0,0,14.8,0c6.82-16.67,23.15-27,42.6-27a46.06,46.06,0,0,1,46,46C224,155.61,146.24,204.15,128,214.8Z'/%3E%3C/svg%3E");
+
+  width: 1.17em;
+  height: 1.17em;
+  transform: translateY(-0.037em);
+  background: currentColor;
+  -webkit-mask: var(--vp-heart) center / contain no-repeat;
+  mask: var(--vp-heart) center / contain no-repeat;
+}
+
+/* The glyph itself. `content: none` rather than `display: none`, because the
+   pseudo-element is what FontAwesome paints and the element is what carries
+   the mask. */
+.vp-best-fav .fa-heart::before,
+.vp-card-fav .fa-heart::before,
+.vp-story-fav .fa-heart::before {
+  content: none;
+}
+
+/* Half the growth off each side: the box goes 1em → 1.17em, so -0.085em twice
+   gives back exactly the 0.17em it took, and «علاقمندی» starts where it did. */
+.vp-story-fav .fa-heart {
+  margin-inline: -0.085em;
+}
+
 /* --------------------------------------------------------------------------
    The last rule in the last stylesheet — the shop's signature on the design.
 
