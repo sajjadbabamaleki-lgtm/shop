@@ -16130,6 +16130,29 @@ button.vp-cart-keep {
    It has a minimum height so the line does not jump up the sheet when the
    first chip lands in it. */
 @media (max-width: 991.98px) {
+  /* «برند و قیمت باید وسط بیضی باشن» — and they were not, by 2.5px each.
+
+     `.vp-shop-tab` is `display: flex` with `gap: 5px`, and that gap is left
+     over from the carets that used to sit beside these two labels («فلش کنار
+     قیمت و برند باید حذف بشن»). On the four `<a>` chips it separates nothing —
+     one text node, no second item — so removing the carets cost them nothing.
+     These two are `<details>`, and a `<details>` holds its scrim and its sheet
+     as children as well as the summary. Both are `position: fixed`, so they
+     take no width; Chromium still counts the gap against them, and the summary
+     is centred inside a content box that thinks it is 5px shorter than it is.
+     The label lands 2.5px toward the start.
+
+     Measured at 320/360/375/390/414/768/991 on `/search` and `/products`, in
+     the plain, sorted and branded states: 2.5px on every one, 0 on every one
+     after. The 10px the two gaps were holding goes back to the row, which is
+     `flex: 1 0 auto`, so all six pills widen by about 1.7px.
+
+     The gap stays on `.vp-shop-tab` itself — `.vp-shop-tab i` is still styled,
+     so a chip that does carry an icon still wants it. */
+  .vp-shop-sheet {
+    gap: 0;
+  }
+
   .vp-shop-sheet > summary {
     display: inline-flex;
     align-items: center;
