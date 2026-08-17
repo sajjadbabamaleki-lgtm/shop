@@ -48,11 +48,14 @@ class Branch extends Model
     protected $fillable = [
         'slug', 'name', 'type', 'presence', 'province', 'city',
         'address', 'phone', 'email', 'business_hours', 'is_active',
+        // §10's order-processing settings: the preparation SLA, the working
+        // week, the holidays, the cut-off and the delay policy.
+        'fulfilment',
     ];
 
     protected function casts(): array
     {
-        return ['business_hours' => 'array', 'is_active' => 'boolean'];
+        return ['business_hours' => 'array', 'fulfilment' => 'array', 'is_active' => 'boolean'];
     }
 
     /**
@@ -68,6 +71,26 @@ class Branch extends Model
                     "«{$branch->slug}» is a reserved address; a branch with that slug could never be reached."
                 );
             }
+        });
+
+        // A new branch opens with a way to send things — §10's shipping
+        // methods. Here rather than in `BranchOpener`, because that is not the
+        // only way a branch comes into being: `BranchSeeder` makes the central
+        // one with `firstOrNew`, and a console command or an import could make
+        // the next. A branch with no method still works — the promise falls
+        // back to a two-to-four-day window — but it is promising against a
+        // guess, and the shop never sees the setting it was meant to choose.
+        static::created(function (self $branch): void {
+            ShippingMethod::acrossAllBranches()->firstOrCreate(
+                ['branch_id' => $branch->id, 'name' => 'پست پیشتاز'],
+                [
+                    'carrier' => 'شرکت ملی پست',
+                    'transit_min_days' => 2,
+                    'transit_max_days' => 4,
+                    'price' => 0,
+                    'is_active' => true,
+                ],
+            );
         });
     }
 

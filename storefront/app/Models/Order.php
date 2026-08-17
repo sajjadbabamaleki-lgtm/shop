@@ -50,11 +50,26 @@ class Order extends Model
         'payment_method', 'payment_status', 'tracking_number',
         'contact_name', 'contact_phone', 'province', 'city', 'address',
         'postal_code', 'note', 'staff_note', 'placed_at', 'paid_at', 'cancelled_at',
+        // The fulfilment promise — §2 of the order-management addendum. An
+        // estimate and an event are separate columns on purpose: sharing one
+        // makes «when we said it would go» and «when it went» the same number,
+        // and the shop can no longer tell a kept promise from a broken one.
+        'confirmed_at', 'estimated_ship_by', 'actual_shipped_at',
+        'estimated_delivery_from', 'estimated_delivery_to', 'actual_delivered_at',
+        'is_delayed', 'delay_reason', 'carrier', 'shipping_method_id', 'promise_basis',
     ];
 
     protected function casts(): array
     {
         return [
+            'confirmed_at' => 'datetime',
+            'estimated_ship_by' => 'date',
+            'actual_shipped_at' => 'datetime',
+            'estimated_delivery_from' => 'date',
+            'estimated_delivery_to' => 'date',
+            'actual_delivered_at' => 'datetime',
+            'is_delayed' => 'boolean',
+            'promise_basis' => 'array',
             'subtotal' => 'integer',
             'discount_total' => 'integer',
             'shipping_total' => 'integer',
@@ -126,5 +141,10 @@ class Order extends Model
     public function statusLabel(): string
     {
         return self::statusLabels()[$this->status] ?? $this->status;
+    }
+
+    public function shippingMethod(): BelongsTo
+    {
+        return $this->belongsTo(ShippingMethod::class);
     }
 }
