@@ -6225,6 +6225,14 @@ button.vp-cart-keep {
 .vp-cart-line:has(.vp-cart-shot) .vp-cart-what {
   gap: 0;
   justify-content: space-between;
+  /* «از بالا اسم ۲ پیکسل بیاد پایین، از پایین رنگ ۲ پیکسل بره بالا» — the two
+     ends come off the photograph's edges by 2, and that is all this says. The
+     three gaps stay equal without being mentioned: `space-between` divides
+     whatever this box's content height leaves over, so taking 4 off that
+     height takes 4/3 off each gap and keeps them identical to each other. A
+     padding here rather than a margin on the name and the colour, so the two
+     rows in the middle are not being asked to know about it. */
+  padding-block: 2px;
 }
 
 /* `line-height: 1` on all four rows: no leading beyond each glyph's own box,
