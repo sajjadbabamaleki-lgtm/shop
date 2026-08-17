@@ -558,3 +558,291 @@
     transition: none;
   }
 }
+
+/* ==========================================================================
+   The dashboard — §3.
+
+   A modular grid on a desktop, one column on a phone, and the order of the
+   modules in the markup is already «actionable cards before analytics», so
+   nothing is reordered here. A rule that moved a card at one width only would
+   be a second opinion about what matters.
+   ========================================================================== */
+
+/* --- the date control ---------------------------------------------------- */
+.vp-adm-range {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+
+.vp-adm-range-tab {
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  padding-inline: 14px;
+  border: 1px solid var(--adm-line);
+  border-radius: var(--adm-r-sm);
+  background: var(--adm-surface);
+  color: var(--adm-ink);
+  text-decoration: none;
+}
+
+.vp-adm-range-tab:hover {
+  background: #F2F3F5;
+  color: var(--adm-ink);
+}
+
+/* §25: state through more than colour. The chosen window is filled *and* the
+   only one set in bold. */
+.vp-adm-range-tab.is-on {
+  border-color: var(--adm-gold-fill);
+  background: var(--adm-gold-wash);
+  color: var(--adm-gold-ink);
+  font-weight: 700;
+}
+
+.vp-adm-range-custom {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-inline-start: auto;
+}
+
+.vp-adm-range-custom input,
+.vp-adm-range-custom button {
+  height: 36px;
+  padding-inline: 10px;
+  border: 1px solid var(--adm-line);
+  border-radius: var(--adm-r-sm);
+  background: var(--adm-surface);
+  color: var(--adm-ink);
+  font: inherit;
+}
+
+.vp-adm-range-custom button {
+  cursor: pointer;
+  font-weight: 700;
+}
+
+/* --- the six figures ----------------------------------------------------- */
+.vp-adm-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.vp-adm-kpi {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px;
+  border: 1px solid var(--adm-line);
+  border-radius: var(--adm-r-md);
+  background: var(--adm-surface);
+}
+
+.vp-adm-kpi-name {
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--adm-ink-2);
+}
+
+.vp-adm-kpi-num {
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 800;
+}
+
+.vp-adm-kpi-num small {
+  margin-inline-start: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--adm-ink-2);
+}
+
+.vp-adm-kpi-num.is-quiet {
+  color: var(--adm-ink-2);
+}
+
+.vp-adm-kpi-move {
+  display: flex;
+  flex-direction: column;
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 700;
+}
+
+.vp-adm-kpi-move small {
+  font-weight: 500;
+  color: var(--adm-ink-2);
+}
+
+/* A rise in cancellations is not good news, so the colours here say «up» and
+   «down», not «good» and «bad» — the reading is the operator's. */
+.vp-adm-kpi-move.is-up { color: var(--adm-good); }
+.vp-adm-kpi-move.is-down { color: var(--adm-bad); }
+.vp-adm-kpi-move.is-flat,
+.vp-adm-kpi-move.is-none { color: var(--adm-ink-2); font-weight: 500; }
+
+/* --- the modular grid ---------------------------------------------------- */
+.vp-adm-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.vp-adm-card {
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid var(--adm-line);
+  border-radius: var(--adm-r-md);
+  background: var(--adm-surface);
+}
+
+.vp-adm-span-2 { grid-column: span 2; }
+.vp-adm-span-3 { grid-column: 1 / -1; }
+
+.vp-adm-card-head {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.vp-adm-card-title {
+  margin: 0;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 700;
+}
+
+.vp-adm-card-more {
+  margin-inline-start: auto;
+  font-size: 12px;
+  color: var(--adm-gold-ink);
+  text-decoration: none;
+}
+
+.vp-adm-empty {
+  margin: 0;
+  color: var(--adm-ink-2);
+}
+
+.vp-adm-big {
+  margin: 0 0 4px;
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 800;
+}
+
+.vp-adm-big small {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--adm-ink-2);
+}
+
+.vp-adm-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.vp-adm-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 36px;
+  padding-block: 6px;
+}
+
+.vp-adm-list li + li {
+  box-shadow: inset 0 1px 0 var(--adm-line);
+}
+
+/* --- status, §25 ---------------------------------------------------------
+   Text and a treatment, never colour on its own. Each of these reads as its
+   own word first; the tint is the second signal, not the only one. */
+.vp-adm-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding-inline: 8px;
+  border: 1px solid var(--adm-line);
+  border-radius: 999px;
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.vp-adm-badge.is-placed { border-color: rgba(168, 91, 0, 0.35); background: #FFF6EC; color: var(--adm-warn); }
+.vp-adm-badge.is-paid { border-color: rgba(29, 95, 173, 0.3); background: #EEF4FC; color: var(--adm-info); }
+.vp-adm-badge.is-shipped { border-color: rgba(29, 95, 173, 0.3); background: #EEF4FC; color: var(--adm-info); }
+.vp-adm-badge.is-delivered { border-color: rgba(27, 127, 75, 0.3); background: #EDF7F1; color: var(--adm-good); }
+.vp-adm-badge.is-cancelled { border-color: rgba(179, 38, 30, 0.3); background: #FCEEED; color: var(--adm-bad); }
+.vp-adm-badge.is-low { border-color: rgba(179, 38, 30, 0.35); background: #FCEEED; color: var(--adm-bad); }
+
+/* --- the sales bars ------------------------------------------------------ */
+.vp-adm-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 140px;
+  padding-top: 8px;
+}
+
+.vp-adm-bar {
+  flex: 1 1 0;
+  min-width: 2px;
+  height: var(--h, 2%);
+  border-radius: 3px 3px 0 0;
+  background: linear-gradient(180deg, var(--adm-gold-lit) 0%, var(--adm-gold-fill) 100%);
+}
+
+/* --- the phone ------------------------------------------------------------
+   §19: one column, and the cards in the order they are written — which is
+   already actionable first. */
+@media (max-width: 991.98px) {
+  .vp-adm-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .vp-adm-span-2,
+  .vp-adm-span-3 {
+    grid-column: auto;
+  }
+
+  .vp-adm-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .vp-adm-kpi {
+    padding: 12px;
+  }
+
+  .vp-adm-kpi-num {
+    font-size: 20px;
+    line-height: 28px;
+  }
+
+  /* The custom range is two date fields and a button; on one line under 400px
+     they are 90px each and unusable. It takes the row after the presets. */
+  .vp-adm-range-custom {
+    flex: 1 0 100%;
+    margin-inline-start: 0;
+  }
+
+  .vp-adm-range-custom input {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .vp-adm-bars {
+    height: 110px;
+  }
+}
