@@ -760,26 +760,62 @@ The reply to «send me a code» is the same whether or not the number is known
 here. Saying «this number is not registered» would turn the form into a way of
 asking the shop which of its customers a number belongs to.
 
-### The SMS goes nowhere yet — and it says so
+### The SMS has a provider now — and it is still switched off by default
 
-`config('services.sms.driver')` is `log`, so a code lands in
-`storage/logs/laravel.log` and on no telephone. **`SmsServiceProvider` throws at
-boot if that is still true in production**, so the shop cannot go live quietly
-swallowing its own sign-in codes — the failure is at the first request, not at
-the first customer.
+The client bought a registered service on **ملی پیامک**, so Melipayamak is
+implemented and the code is written. What is left is settings, and they are the
+client's to fill in.
 
-Going live needs four things from the client and one small class:
+`config('services.sms.driver')` is still `log` by default, so a code lands in
+`storage/logs/laravel.log` and on no telephone. **`SmsServiceProvider` refuses
+to build a sender at all if that is still true in production**, so the shop
+cannot go live quietly swallowing its own sign-in codes — which also means that
+until the settings below are on the Liara app, **the shopper sign-in 500s on the
+live site**, deliberately and loudly. Nothing else does: the refusal is inside
+the singleton's factory, so the catalogue, the basket and the checkout are
+untouched.
 
-1. an account with an Iranian SMS provider — Kavenegar, SMS.ir, Ghasedak, any of
-   them; they all do the same thing,
-2. `SMS_KEY`, the API key,
-3. `SMS_LINE`, the service line number the message is sent from,
-4. `SMS_PATTERN`, the approved pattern («کد ورود شما به ویکی پلاس: %code%») —
-   Iranian providers will not send an unapproved transactional template,
+Melipayamak is **two drivers**, because the provider has two doors and an
+account has whichever it was sold:
 
-then a `Sender` beside `LogSender` and one line in `SmsServiceProvider::DRIVERS`.
-The interface is a single method, `send(string $phone, string $message)`, on
-purpose: swapping providers later is that class and nothing else.
+| `SMS_DRIVER` | host | signs with | needs |
+|---|---|---|---|
+| `melipayamak` | console.melipayamak.com | an API key | `SMS_KEY`, `SMS_PATTERN` |
+| `melipayamak.panel` | rest.payamak-panel.com | the panel's username and password | `SMS_USER`, `SMS_KEY`, `SMS_PATTERN` |
+
+Prefer the first: the key is revocable from the panel on its own, so the server
+and the owner do not share a credential. They are two names rather than one
+class reading whichever credentials happen to be filled in, because "whichever
+is set" is a runtime value and this application has been bitten by one of those
+before.
+
+`SMS_PATTERN` is the **id** of the approved pattern — «کد متن» in the panel,
+`bodyId` in the documentation — not its text. The text lives with Melipayamak,
+because an Iranian provider will not carry an unapproved transactional message,
+and it has to be a *service* pattern rather than an advertising one: an
+advertising line does not reach anybody who has opted out of advertising, which
+for a sign-in code means those customers simply cannot get in.
+
+None of these belong in the repository. The deploy ships no `.env`, so they are
+environment variables on the Liara app.
+
+**The interface carries the message twice**, and this is the part worth reading
+before changing anything: `send(string $phone, string $message, array $args)`.
+`$message` is the whole sentence, for a driver that sends text; `$args` is the
+same information as data, in the order the pattern expects. Both are passed so
+that no pattern driver has to dig a six-digit code back out of a Persian
+sentence with a regular expression — that would work until somebody reworded
+the sentence, and then it would put a blank code on a real telephone with
+nothing anywhere going red.
+
+`SMS_LINE` is unused today. Both Melipayamak drivers send a pattern on a shared
+line, which is what an account gets without renting a number; the setting stays
+for the day the shop rents one.
+
+**`SmsSenderTest` fakes the HTTP layer, so a green run means the shop asked
+correctly — not that a telephone rang.** Whether Melipayamak accepts the
+account, the pattern and the line can only be checked on the live site, and this
+container cannot reach the provider to check it early.
 
 Two smaller things fell out of it:
 

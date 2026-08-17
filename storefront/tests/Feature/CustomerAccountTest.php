@@ -80,18 +80,19 @@ class CustomerAccountTest extends TestCase
      * code the way a phone would. The real one is chosen by SmsServiceProvider;
      * this replaces it in the container for the length of a test.
      *
-     * @return object{messages: array<int, array{phone: string, message: string}>}
+     * @return object{messages: array<int, array{phone: string, message: string, args: list<string>}>}
      */
     private function catchSms(): object
     {
         $box = new class implements Sender
         {
-            /** @var array<int, array{phone: string, message: string}> */
+            /** @var array<int, array{phone: string, message: string, args: list<string>}> */
             public array $messages = [];
 
-            public function send(string $phone, string $message): void
+            /** @param list<string> $args */
+            public function send(string $phone, string $message, array $args = []): void
             {
-                $this->messages[] = ['phone' => $phone, 'message' => $message];
+                $this->messages[] = ['phone' => $phone, 'message' => $message, 'args' => $args];
             }
         };
 

@@ -390,7 +390,9 @@ class AccountController extends Controller
             ]);
         });
 
-        $sms->send($phone, "کد ورود شما به ویکی پلاس: {$code}");
+        // Twice: the sentence for a sender that posts text, the code on its own
+        // for one that names an approved pattern and fills it. See Sender.
+        $sms->send($phone, "کد ورود شما به ویکی پلاس: {$code}", [$code]);
 
         $customer = Customer::where('phone', $phone)->first();
 
