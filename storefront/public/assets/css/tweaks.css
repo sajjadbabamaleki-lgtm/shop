@@ -3623,7 +3623,14 @@ option:hover {
   align-items: center;
   gap: 40px;
   padding: 28px;
-  border-radius: 40px;
+  /* «این گوشه ها ... فیت هم نیستن ... بیرونیه باید کمی بیشتر کرو بشه» — a
+     frame's corner is concentric with the card inside it only when it is the
+     inner corner plus the gap between them. `.vp-daily-deal-card` turns at 32
+     and stands 28 off this edge, so this is 60. At 40 the outer curve was
+     tighter than the inner one it wraps: the gap held 28 down the straight and
+     closed to about 20 through the turn, which is the two corners "not
+     fitting". */
+  border-radius: 60px;
   background: #FFFFFF;
   box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.1);
 }
@@ -4928,7 +4935,19 @@ ul.vp-how-list.is-ticked li:before {
      the same number as .vp-best-panel's, as that comment requires. */
   margin-top: 150px;
   padding: 28px;
-  border-radius: 50px;
+  /* Concentric with the brand tiles: they turn at 36 and stand 28 off this
+     edge, so 36 + 28. Same complaint and same arithmetic as `.vp-daily-deal`,
+     where it is written out in full.
+
+     **This is the one number `.vp-best-panel` no longer shares.** That pane is
+     this one twice over — same margins, same ring, and it carried this same 50
+     — but nothing rounded sits in its corner (its head strip and its product
+     row both turn at 0), so it has no inner corner to be concentric with and
+     the fit this fixes is not a fault it has. The two panes are stacked in
+     view of each other and now differ by 14 here. If that reads wrong, the
+     choice is between the two panes matching and this one fitting its tiles;
+     it cannot be both at this padding. */
+  border-radius: 64px;
   background: #FFFFFF;
   /* A soft ring the whole way round — «یه سایه نرم دورتا دور مث سایه مربع های
      هدر بهش بده که حریمش مشخصتر بشه». The two outer values are the header
@@ -5219,7 +5238,8 @@ ul.vp-how-list.is-ticked li:before {
    less, so nothing inside it has to change. */
 @media (max-width: 1199px) {
   .vp-brands-row { grid-template-columns: repeat(2, 1fr); }
-  .vp-brands-panel { border-radius: 40px; padding: 22px; }
+  /* 36 of tile plus this rule's own 22 of padding. */
+  .vp-brands-panel { border-radius: 58px; padding: 22px; }
 }
 
 @media (max-width: 575px) {
@@ -6167,13 +6187,89 @@ button.vp-cart-keep {
    575 — as a column it cost 32 plus a gap on a row that no longer has spare
    width to give it. */
 .vp-cart-line {
+  /* The card's own block padding, its stepper's height and its compare
+     mark's, as three names rather than three numbers repeated across the
+     breakpoints. The stepper and the mark are placed against the card
+     absolutely (see their rules), so their insets are arithmetic on these —
+     and arithmetic on a number written twice is a number that drifts. It
+     already had: `padding-block` is overridden to 18 further down this file
+     for the desktop card, and a stepper hard-coded to the 16 declared here
+     hung 2px below the photograph it is supposed to be level with. Anything
+     that changes one of these three now moves everything that depends on it. */
+  --vp-cart-pad: 16px;
+  --vp-cart-step-h: 40.8px;
+  --vp-cart-mark: 32px;
+  /* «آیکون مقایسه باید از لبه‌ی چپ کارت همون فاصله‌ای رو داشته باشه که آیکون
+     سطل آشغال داره» — the bin's inline inset and the compare mark's, as one
+     name. They were the same number written in two places, which is a match
+     that holds only until somebody edits one of them; this is a match that
+     cannot come apart. The stepper clears the mark by reading it too. */
+  --vp-cart-edge: 0px;
+
   position: relative;
   display: grid;
   grid-template-columns: 84px minmax(0, 1fr);
   align-items: start;
   gap: 16px;
-  padding-block: 16px;
+  padding-block: var(--vp-cart-pad);
   box-shadow: inset 0 -1px 0 rgba(16, 17, 17, 0.08);
+}
+
+/* --- the basket card's own arrangement ------------------------------------
+   «اسم کفش از بالا هم باید با بالای عکس و رنگ کفش از پایین هم باید با پایین
+   عکس و فاصله های بینشون هم اندازه» — the name's top on the photograph's top,
+   the colour's bottom on the photograph's bottom, and the three gaps between
+   the four lines all one size.
+
+   `stretch` gives the text column the photograph's exact height, and
+   `space-between` then puts the first row's top edge and the last row's
+   bottom edge on that box's two edges and divides everything left over into
+   equal parts. Three requirements, one arrangement, and the browser doing the
+   division on every render off the metrics as actually rendered — which is
+   the part two rounds of hand-tuned `margin-block-end` could never keep up
+   with.
+
+   **Scoped to a card that has a photograph**, because that is the thing being
+   aligned to, and because `.vp-cart-line` is not only this card: the order
+   pages (`shop/order.blade.php`, `admin/order.blade.php`) reuse it with no
+   photograph and a different set of rows. Applied to those, `space-between`
+   took the base rule's `gap` away from two lines that had nothing to spread
+   across and closed them up to 0 — measured, on `/orders/{number}`, which is
+   why this is a scoped rule and not the plain one it started as. Where
+   `:has()` is not understood the card keeps the base rule above, which is the
+   arrangement this replaced: not right, but not broken either. */
+.vp-cart-line:has(.vp-cart-shot) {
+  align-items: stretch;
+}
+
+.vp-cart-line:has(.vp-cart-shot) .vp-cart-what {
+  gap: 0;
+  justify-content: space-between;
+  /* «از بالا اسم ۲ پیکسل بیاد پایین، از پایین رنگ ۲ پیکسل بره بالا» — the two
+     ends come off the photograph's edges by 2, and that is all this says. The
+     three gaps stay equal without being mentioned: `space-between` divides
+     whatever this box's content height leaves over, so taking 4 off that
+     height takes 4/3 off each gap and keeps them identical to each other. A
+     padding here rather than a margin on the name and the colour, so the two
+     rows in the middle are not being asked to know about it. */
+  padding-block: 2px;
+}
+
+/* `line-height: 1` on all four rows: no leading beyond each glyph's own box,
+   so the space between the lines is `.vp-cart-what`'s to distribute rather
+   than being partly baked into the rows themselves. Four rows each carrying
+   their own invisible half-leading is four different gaps however equal the
+   declared one is — that is the fault this whole arrangement replaces. It is
+   also what makes the sum work at all: at the template's inherited leading
+   the four rows come to more than the photograph's height and there is no
+   slack left to divide.
+
+   Scoped with the rest of it. The order pages' two lines are not being fitted
+   to anything and keep the leading they have always had. */
+.vp-cart-line:has(.vp-cart-shot) .vp-cart-name,
+.vp-cart-line:has(.vp-cart-shot) .vp-cart-money,
+.vp-cart-line:has(.vp-cart-shot) .vp-cart-spec {
+  line-height: 1;
 }
 
 /* The bin, in the corner the reference puts it — which on an rtl page is the
@@ -6181,7 +6277,7 @@ button.vp-cart-keep {
 .vp-cart-line > form:not(.vp-cart-qty) {
   position: absolute;
   inset-block-start: 12px;
-  inset-inline-end: 0;
+  inset-inline-end: var(--vp-cart-edge);
 }
 
 /* A line the shop cannot supply. Marked at its reading edge rather than
@@ -6193,8 +6289,12 @@ button.vp-cart-keep {
     inset 3px 0 0 var(--theme-color);
 }
 
+/* `align-self: start` so the row's `stretch` cannot pull the photograph out of
+   square — it is the fixed thing the text is arranged against, not something
+   that follows the text. */
 .vp-cart-shot {
   position: relative;
+  align-self: start;
   width: 84px;
   height: 84px;
   border-radius: 20px;
@@ -6210,6 +6310,9 @@ button.vp-cart-keep {
   object-fit: contain;
 }
 
+/* The plain stack, which is what the order pages get. The basket card's own
+   arrangement is the scoped rule above `.vp-cart-shot`; this `gap` is the
+   fallback it overrides, and the spacing those pages have always had. */
 .vp-cart-what {
   display: flex;
   flex-direction: column;
@@ -6227,16 +6330,130 @@ button.vp-cart-keep {
   color: rgba(16, 17, 17, 0.55);
 }
 
-/* The card's last row: the colour on the reading edge, the stepper on the far
-   one. `margin-block-start: auto` pins it to the foot of the stack so cards of
-   different heights still line their steppers up with each other. */
+/* The colour line truncates rather than wraps. It shares the card's bottom
+   row with the stepper, and the popup's own card is narrower than the basket
+   page's — a long colour name there was wrapping to two lines and reading as
+   a taller, mismatched row next to «سایز: ۳۷» above it, which never wraps.
+   Wrapping is also what would break the arrangement above it now: five rows
+   of type in a box measured for four takes the slack `space-between` divides
+   and turns four equal gaps into four smaller ones.
+
+   `display: block` because it is a `span` — a bare inline box ignores
+   `overflow` and `text-overflow` and would run under the stepper rather than
+   ending in an ellipsis before it. */
+.vp-cart-last > .vp-cart-spec {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* The card's last row — the colour, and only the colour.
+
+   The stepper used to be in this box, and that is what «چرا اینجوریه پس» was
+   looking at. A 36px-tall control beside an 11.5px line of type makes the box
+   36px tall, and a box four times its own text's height cannot be arranged:
+   `center` floated the colour into the stepper's middle, which read as one
+   huge gap under «سایز» (12.8px against its neighbours' 0.563px), and
+   `flex-start` closed that gap but left the text 24.5px above the
+   photograph's foot instead. Both were measured; both were wrong, because the
+   box itself was the fault, not its alignment. The stepper is placed against
+   the card now (see `.vp-cart-qty` below), so this box is one line of type
+   again and `.vp-cart-what` can put its foot exactly on the photograph's.
+
+   Still a box of its own rather than a bare `.vp-cart-spec` in the stack: it
+   is the row that has to keep clear of the stepper, and the reservation
+   below is what does that.
+
+   `padding-inline-end` is the stepper's own width plus the compare mark's
+   plus the space between them — the stepper is out of flow and cannot push
+   this text, so the room it needs is reserved here or the two overlap. The
+   colour truncates into whatever is left (see the rule below), which is why
+   over-reserving is safe and under-reserving is not. 124 leaves about 12
+   clear of the stepper's own far edge at this breakpoint. */
 .vp-cart-last {
+  padding-inline-end: 124px;
+}
+
+/* The stepper, placed against the card rather than against the colour text.
+
+   It is the same three things it was — trough, two squares, count — and it
+   still reads as sharing the card's bottom row with the colour. What changed
+   is that it is no longer *in* that row's box: `.vp-cart-last` above says why,
+   and the short version is that a 36px control in a box of 11.5px type is
+   what stopped the four lines being arrangeable at all.
+
+   `inset-block-end` is `.vp-cart-line`'s own bottom padding, so the stepper's
+   foot lands on the photograph's foot — the two heaviest things on the card
+   sit on one line, which is the arrangement the reference has. It is measured
+   from the card because that is the thing it should be level with; measured
+   from the text it followed the text's leading around.
+
+   `inset-inline-end` clears the compare mark, which is at 0 (see below), by
+   its own width plus 8. The `.vp-cart-tools` wrapper both of these used to
+   share is gone: a positioned wrapper would have become the containing block
+   for the compare mark inside it, and the whole point of that mark's rule is
+   that it measures from `.vp-cart-line` exactly as the bin does. Two
+   siblings, one anchor, no wrapper to get between them. */
+.vp-cart-line > .vp-cart-qty {
+  position: absolute;
+  inset-block-end: var(--vp-cart-pad);
+  inset-inline-end: calc(var(--vp-cart-edge) + var(--vp-cart-mark) + 8px);
+}
+
+/* «آیکون مقایسه باید از لبه‌ی چپ کارت همون فاصله‌ای رو داشته باشه که آیکون
+   سطل آشغال داره» — not visually close, the same value: `inset-inline-end`
+   copied from `.vp-cart-line > form:not(.vp-cart-qty)` (the bin) exactly,
+   at both breakpoints below. `position: absolute` is what makes that
+   guarantee hold regardless of what else is on this row — a flex gap is a
+   distance from its *neighbour*, and the bin has no neighbour to be a gap
+   from, so a gap-based match could only ever be approximate.
+
+   The two of them have to share the same positioned ancestor for "the same
+   `inset-inline-end`" to mean "the same distance" — an absolute box measures
+   from whichever ancestor is `position: relative`, and that is `.vp-cart-line`
+   itself for the bin, and this is a direct child of it — the wrapper the two
+   controls used to share is gone precisely so nothing can sit between them
+   and that anchor. Anchored to the card's own
+   foot rather than the bin's `inset-block-start`, since it sits at the
+   stepper's level, not the bin's — the `calc` puts its centre exactly on the
+   stepper's centre (the card's padding, plus half the stepper's height, less
+   half its own), so the two controls read as one row at any breakpoint and
+   at whatever either is next resized to. */
+.vp-cart-compare {
+  position: absolute;
+  inset-inline-end: var(--vp-cart-edge);
+  inset-block-end: calc(var(--vp-cart-pad) + (var(--vp-cart-step-h) - var(--vp-cart-mark)) / 2);
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-block-start: auto;
-  padding-block-start: 4px;
+  justify-content: center;
+  width: var(--vp-cart-mark);
+  height: var(--vp-cart-mark);
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+}
+
+/* A fixed black mark, not a font glyph — `currentColor` has nothing to hold
+   onto here, so the "quiet ink, darker on hover" the rest of this row's icons
+   get by changing `color` is done in opacity instead: 0.55 at rest is the
+   same fraction the other icons' ink carries, 1 on hover is the same "reads
+   as pressed" the trash can's colour swap gives. */
+.vp-cart-compare img {
+  width: 15px;
+  height: 15px;
+  opacity: 0.55;
+  transition: opacity 0.2s ease;
+}
+
+.vp-cart-compare:hover {
+  background: rgba(16, 17, 17, 0.06);
+}
+
+.vp-cart-compare:hover img {
+  opacity: 1;
 }
 
 .vp-cart-name {
@@ -6357,16 +6574,27 @@ button.vp-cart-keep {
   font-size: 16px;
 }
 
+/* «دکمه ادامه هم نباید اون رنگی باشه باید همرنگ باقی دکمه های سایت باشه» —
+   it inherits `.vp-filter-apply`'s `background: var(--theme-color)`, which is
+   `var(--vp-gold)`, the flat midpoint tone the gradient is drawn from rather
+   than the gradient itself (see the three `--vp-gold-*` declarations near the
+   top of this file) — every buy button on the shop (`.vp-pick-go`,
+   `.vp-cart-more`, `.vp-mini-out`) is the gradient, and the flat midpoint
+   alone reads visibly duller, olive rather than gold. Overridden here rather
+   than on `.vp-filter-apply` itself, which the filter rail's own «اعمال
+   فیلتر» button still uses and was not asked about. */
 .vp-cart-go {
   display: grid;
   place-items: center;
   width: 100%;
   margin-top: 16px;
+  background: linear-gradient(96deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   color: #FFFFFF;
 }
 
 .vp-cart-go:hover {
   color: #FFFFFF;
+  filter: brightness(1.04);
 }
 
 /* --- the checkout form ---------------------------------------------------- */
@@ -7325,7 +7553,9 @@ button.vp-cart-keep {
 .vp-cart-line {
   grid-template-columns: 96px minmax(0, 560px);
   justify-content: start;
-  padding-block: 18px;
+  /* Through the variable, not past it — the stepper and the compare mark are
+     placed off this value and must move with it. See the base rule. */
+  --vp-cart-pad: 18px;
 }
 
 /* On a phone the line has to be told where its five parts go, not just how
@@ -7756,7 +7986,6 @@ button.vp-cart-keep {
   gap: 10px;
   flex: none;
   padding: 14px 16px;
-  box-shadow: inset 0 -1px 0 rgba(16, 17, 17, 0.06);
 }
 
 /* The header band's lockup, smaller. 52px is arithmetic on the header band's
@@ -8154,10 +8383,14 @@ button.vp-cart-keep {
    no customer accounts — an order is found by its number — so a login button
    would be the one control in here that goes nowhere. It swaps back the day
    accounts exist. */
+/* «اون دوتا خطی که زیر قسمت بالا و بالای دکمه ثبت نام هست حذف بشه» — this
+   band and `.vp-drawer-head` each carried a 1px inset hairline facing the
+   body, and they are gone from both. They cost no height (an inset shadow
+   does not lay out), so nothing below moves; what they were doing was
+   dividing a white panel into three white panels. */
 .vp-drawer-foot {
   flex: none;
   padding: 12px 16px 16px;
-  box-shadow: inset 0 1px 0 rgba(16, 17, 17, 0.06);
 }
 
 .vp-drawer-cta {
@@ -8220,9 +8453,21 @@ button.vp-cart-keep {
      — so the head measures 62 either way. Verified at 393×700, 375×667 and
      430×720: head 62, and the gap above the basket stays 11. */
   .vp-drawer-body { padding: 11px 14px; }
-  .vp-quick { padding: 8px 3px 7px; }
+  /* «اون ۳ تا مستطیل بالا هم ۱۰ درصد از ارتفاعشون کم بشه» — 65.25 to 58.73.
+     The chip has no height of its own: it is padding + the 26px mark + this
+     gap + one line of name (17.25). The name's line is type and the mark was
+     sized in this same block, so the tenth comes out of the two numbers that
+     are only air — 8/7 of padding and 7 of gap become 5.5/5 and 5, which is
+     15.5 where 15.475 is exactly a tenth off. Measured after: 58.75. */
+  .vp-quick { padding: 5.5px 3px 5px; gap: 5px; }
   .vp-quick-mark { width: 26px; height: 26px; font-size: 11px; }
-  .vp-drawer-cats { gap: 1px; margin-top: 6px; }
+  /* «فاصله بین آیکونا هم ۵ درصد کم بشه» — icon to icon is 10 on a short
+     screen: this 1 of gap, plus the 9 the row has over the 25px icon inside
+     it (4 of `a` padding either side, less half a pixel each way of rounding).
+     A twentieth of 10 is 0.5, and it comes off the gap rather than the row,
+     so the rows keep their tap target and only the air between them closes.
+     Measured after: 9.5, on all seven gaps. */
+  .vp-drawer-cats { gap: 0.5px; margin-top: 6px; }
   /* Down a step in size only. The weight is the look and it holds at any
      size, so nothing here goes back to semibold. */
   .vp-drawer-cats a { padding: 4px 9px; font-size: 13.5px; }
@@ -8231,6 +8476,49 @@ button.vp-cart-keep {
   .vp-drawer-links a { padding: 7px 9px; }
   .vp-drawer-foot { padding: 10px 14px 13px; }
   .vp-drawer-cta { height: 42px; }
+}
+
+/* Shorter screens still.
+   «اینجا نباید اسکرولی باشه» — with a photograph of the drawer scrolling, the
+   two help chips cut in half by the basket button.
+
+   The block above is measured against a 667 viewport and holds there: at 390
+   wide it fits every height down to 652. Safari's own chrome is what takes a
+   phone below that — the client's screenshot measures the drawer at ~615, so
+   ~635 of viewport, where the body ran 17px past its box.
+
+   The three things asked for in the same message — a tenth off the chips, a
+   twentieth off the gap between the icons, and the two hairlines out — come to
+   10 of that 17, and the hairlines contribute none of it (an inset shadow does
+   not lay out). This block is the rest, plus margin enough not to be back here
+   at the next phone, and **every pixel of it is air**. No row loses height, no
+   type loses a step, and the categories keep the tap target the block above
+   sized for them; what closes is the head's and the foot's own padding, the
+   body's inset, and the space above the heading, the list and the two help
+   chips.
+
+   Gated on a height the drawer already fails at, so a phone that fits today is
+   not tightened for a phone that does not.
+
+   Measured, at 390 wide, where the body stops overflowing:
+
+     before this message   662
+     the three asked for   652
+     this block            622
+
+   **622 is close to the floor, and the floor is the content.** What is left
+   below it is eight category rows at 34, the heading, the three chips and the
+   four help chips — none of it air. A phone that gives the page less than ~620
+   cannot be answered by spacing at all: it needs a row's height, a type step,
+   or one of the blocks gone, and each of those is a decision rather than a
+   measurement. Do not go looking for another 20px in here. */
+@media (max-height: 660px) {
+  .vp-drawer-head { padding: 8px 14px; }
+  .vp-drawer-body { padding: 7px 14px; }
+  .vp-drawer-heading { margin-top: 8px; }
+  .vp-drawer-cats { margin-top: 4px; }
+  .vp-drawer-links { margin-top: 6px; gap: 6px; }
+  .vp-drawer-foot { padding: 8px 14px 11px; }
 }
 
 /* --------------------------------------------------------------------------
@@ -9994,16 +10282,26 @@ button.vp-cart-keep {
   }
 }
 
-/* The daily deal's pane and the brand panel, at the hero's corner.
+/* The daily deal's pane, concentric with the card it holds.
 
-   «کرو کارت پیشنهاد امروز و برندهای موجود باید هم اندازه هیرو بشه» — the hero
-   card is 32.4 on a phone, so these are, from 40 and 32. Three of the page's
-   four big panes now turn at one radius; the fourth is the stepped sale's head
-   at 24, which nothing has asked about. */
+   «این گوشه ها هم تو پیشنهاد امروز و هم تو برندها فیت هم نیستن فک کنم بیرونیه
+   باید کمی بیشتر کرو بشه تا فیت بشن» — 32 of card plus the 10 of padding this
+   pane spends on a phone, so 42.
+
+   **This is where «کرو کارت پیشنهاد امروز و برندهای موجود باید هم اندازه هیرو
+   بشه» ends.** That message put both panes on the hero card's own 32.4, and
+   this rule is what did it. They are no longer one value and neither is the
+   hero's: they wrap different corners (32 here, 36 in the brand panel) at
+   different distances, so no single radius is concentric in both. The client
+   asked for the fit and named the outer corner as the one to move. The hero
+   card keeps 32.4 — nothing is nested inside it, so it has nothing to fit.
+
+   If the panes ever have to read as one set again, that is a choice between
+   matching each other and fitting their own contents, and at these paddings it
+   cannot be had both ways. */
 @media (max-width: 991.98px) {
-  .vp-daily-deal,
-  .vp-brands-panel {
-    border-radius: 32.4px;
+  .vp-daily-deal {
+    border-radius: 42px;
   }
 }
 
@@ -11729,10 +12027,28 @@ button.vp-cart-keep {
 
 /* --- the foot ------------------------------------------------------------ */
 
+/* «اون قسمت پایین مشاهده سبدو اینه پایینش باید مث پایین چیزی باشه که الان تو
+   سبد داریم و جزیره‌ایه» — the basket page's own bottom summary's shape:
+   margin off the panel round it rather than a hairline flush to the edge,
+   its own rounded card. This panel already pins its foot by being the last
+   flex child of a column that fills the drawer's height — `.vp-cart-sum.is-
+   island`'s own `position: fixed` is what a scrolling *page* needs to keep
+   its summary in view and is not needed a second time here.
+
+   «پایین اون سبد خرید جزیره‌ای ... باید این باشه ولی به رنگ سفید» — the
+   material corrected afterward, against a screenshot of `.vp-cart-sum`
+   itself (the basket page's card, not the island variant): plain white, the
+   way that card is, not the page's glass tint this carried for one round.
+   The ring is `.vp-cart-sum`'s own hairline — a solid white card needs one
+   on the popup's own near-white sheet (`.sidemenu-cart .sidemenu-content`,
+   90% white) or it is «لبه پنهان» again, one panel down. */
 .vp-mini-foot {
   flex: none;
-  padding-block-start: 14px;
-  box-shadow: inset 0 1px 0 rgba(16, 17, 17, 0.06);
+  margin-block-start: 14px;
+  padding: 16px;
+  border-radius: 24px;
+  background: #FFFFFF;
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.06);
 }
 
 .vp-mini-sum {
@@ -11897,23 +12213,50 @@ button.vp-cart-keep {
    quantity you have to confirm is a quantity people forget to confirm.
 
    Two one-button forms posting the quantity either side of the current one, so
-   it works with no script at all. The plus is the accent and the minus is
-   quiet: the reference draws it that way and it is also true — one of them is
-   the shop's interest and the other is the customer's. */
+   it works with no script at all.
+
+   «شکل اون انتخاب تعداد شبیه همتاش در جزئیات کفش بشه در ابعاد کوچیک‌تر» — the
+   product page's own stepper, `.vp-qty` (mobile-only, further up this file):
+   a grey trough holding two matching white squares, both lit the same way,
+   with the count on the trough between them. This one used to be a bare
+   grey minus and a gold plus with no trough under either — the accent
+   distinction `.vp-qty` never had.
+
+   «اندازشو ۲۰ درصد بزرگتر کن» took the first pass — 34 / 28 / 3, three
+   quarters of `.vp-qty`'s 48 / 40 / 4 — up a fifth again: 40.8 / 33.6 / 3.6.
+   The corner radii are still the same ratio `.vp-qty`'s own comment derives
+   its two corners from, 0.30119 of each square's own side, so the shape does
+   not change, only the scale. */
 .vp-cart-qty {
   display: flex;
   align-items: center;
+  /* «منفی بره چپ مثبت بیاد راست». The page is rtl, so the source order —
+     minus, count, plus — lays out right to left and puts the minus on the
+     right. `row-reverse` runs this one box's main axis the other way, which
+     puts the minus back on the left with the buttons still in the order they
+     read in the markup.
+
+     This was `direction: ltr`, which produces the same three boxes in the
+     same three places and one invisible difference: `direction` also flips
+     what the *logical* properties on this element mean. The basket card
+     places this stepper absolutely against the card, by `inset-inline-end`,
+     the same property and the same value that put the bin and the compare
+     mark on the card's near edge — and an absolutely positioned box resolves
+     its own insets in its own direction, so the one element declaring itself
+     ltr took `inset-inline-end` to mean the opposite edge from every
+     neighbour it was supposed to line up with, and the stepper sat across
+     the card from where the rule plainly said. `flex-direction` reverses the
+     boxes without touching the axis the insets are measured on. */
+  flex-direction: row-reverse;
   /* «فاصله بین تعداد کالا و مثبت منفی باید نصف بشه» — 8 either side of the
      number was reading as three separate controls; 4 makes the three of them
      one. The count keeps its own `min-width`, so the stepper's overall width
      does not move as the number goes from one digit to two. */
-  gap: 4px;
-  /* «منفی بره چپ مثبت بیاد راست». The page is rtl, so the source order — minus,
-     count, plus — lays out right to left and puts the minus on the right. One
-     `direction` on this box turns just this control round without moving
-     anything else on the line, and the buttons stay in the order they read in
-     the markup. */
-  direction: ltr;
+  gap: 4.8px;
+  height: 40.8px;
+  padding: 3.6px;
+  border-radius: 12.29px;
+  background: rgba(16, 17, 17, 0.05);
 }
 
 .vp-cart-less,
@@ -11921,62 +12264,44 @@ button.vp-cart-keep {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
+  width: 33.6px;
+  height: 33.6px;
   padding: 0;
   border: 0;
-  border-radius: 11px;
-  /* «خود مثبت و منفی تو مربعو بزرگ کن» — the mark, not the square. 21 was a
-     glyph rattling around inside a 40 box; 28 fills it the way the reference's
-     does. `line-height: 1` and the flex centring keep it on the middle of the
-     square as it grows. */
-  font-size: 28px;
+  border-radius: 10.12px;
+  background: #FFFFFF;
+  box-shadow:
+    0 0 2px rgba(16, 17, 17, 0.10),
+    0 0 8px -2px rgba(16, 17, 17, 0.14);
+  color: #101111;
+  font-size: 24px;
   line-height: 1;
   cursor: pointer;
   transition: background-color 0.2s ease, opacity 0.2s ease;
 }
 
-.vp-cart-less {
-  background: rgba(16, 17, 17, 0.05);
-  color: #101111;
-}
-
-.vp-cart-less:hover:not(:disabled) {
-  background: rgba(16, 17, 17, 0.09);
-}
-
-.vp-cart-more {
-  background: linear-gradient(96deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
-  color: #FFFFFF;
-}
-
+.vp-cart-less:hover:not(:disabled),
 .vp-cart-more:hover:not(:disabled) {
-  filter: brightness(1.04);
+  background: rgba(16, 17, 17, 0.06);
 }
 
-/* A step that cannot be taken says so rather than doing nothing when pressed —
-   minus at one, plus at whatever the branch has on the shelf.
-
-   Flat and grey rather than the live control at low opacity: a gold plus at
-   35% is a pale gold disc with a white glyph on it, and the glyph disappears
-   before the disc does. Disabled has to stay readable to say which control it
-   is. */
+/* «در هر صورت باید سفید باشن مثبت و منفی» — in every case, not most of them:
+   disabled is still the base rule's white square and full-ink glyph, nothing
+   about how it looks changes. `cursor: default` is the only thing this rule
+   still says, because it costs nothing to state and a disabled control
+   should not offer the pointer cursor of one that responds to a click. */
 .vp-cart-less:disabled,
 .vp-cart-more:disabled {
-  background: rgba(16, 17, 17, 0.05);
-  box-shadow: none;
-  color: rgba(16, 17, 17, 0.3);
   cursor: default;
 }
 
 .vp-cart-count {
-  /* Wide enough that two digits do not move the `+`, and no wider: at 360 the
-     price and the stepper share a row with one pixel to spare, and 24 here
-     spent four of them. Two Persian digits at 16px measure 18. */
-  min-width: 20px;
+  /* Wide enough that two digits do not move the `+`, and no wider. 18 → 21.6
+     with the rest of the stepper's 20% pass; the type grew with it, 15 → 18. */
+  min-width: 21.6px;
   font-family: 'Vazirmatn', var(--body-font);
   font-weight: 700;
-  font-size: 16px;
+  font-size: 18px;
   font-feature-settings: 'tnum' 1;
   text-align: center;
 }
@@ -16130,18 +16455,30 @@ button.vp-cart-keep {
    with the photograph's foot. -------------------------------------------- */
 @media (max-width: 991.98px) {
   .vp-cart-line {
+    /* The three names the base rule declares, at this breakpoint's sizes.
+       Everything placed against the card — the stepper's foot, the compare
+       mark's centre — follows from these and needs no rule of its own here. */
+    --vp-cart-pad: 12px;
+    --vp-cart-step-h: 36px;
+    --vp-cart-mark: 26px;
+    --vp-cart-edge: 2px;
+
     align-items: stretch;
-    grid-template-columns: 88px minmax(0, 1fr);
+    grid-template-columns: 79.2px minmax(0, 1fr);
     column-gap: 12px;
-    padding: 12px;
+    padding: var(--vp-cart-pad);
   }
 
-  /* Square, and it stays square however tall the card gets. */
+  /* Square, and it stays square however tall the card gets.
+     «مربعی که عکس محصول توشه ۱۰ درصد کوچیکتر بشه که ارتفاع کارت اصلی
+     کوتاهتر بشه» — 88 × 0.9. The radius scales with it, at the same ratio
+     (18/88), so the corner does not read as a different shape at a smaller
+     size. */
   .vp-cart-shot {
     align-self: start;
-    width: 88px;
-    height: 88px;
-    border-radius: 18px;
+    width: 79.2px;
+    height: 79.2px;
+    border-radius: 16.2px;
   }
 
   /* «باید فاصله بین ردیفارو کم میکردی که رنگ هم تو همون ابعاد ارتفاع جا میشد
@@ -16160,18 +16497,59 @@ button.vp-cart-keep {
      figure, where the name sat in 21 and the size in 17.25. Measured after:
      text block 86.75 into the photograph's 88, so the photograph is what sets
      the card's height again and the card is back to 112. */
+  /* «چرا به اندازه ارتفاع کارت دست زدی؟؟؟» — the stepper's own 20% pass (see
+     `.vp-cart-qty` far above) added 12 to the last row (24 → 36), which the
+     text block had no budget for: the same shortfall this comment already
+     solved once, paid the same way — leading and the gap, not the card.
+
+     «فاصله بین ۴ خط نوشته هم مرتب بشه» then the photo's own 10% — the ad-hoc
+     values that first closed the gap (1.05, 1.15, gap 0) are gone. One flat
+     rule now: every line above the last row sits at `line-height: 1`, no
+     leading beyond the glyph's own box, and the three gaps between all four
+     rows are one equal value rather than zero on some and a fraction on
+     others. That is the "tidy" being asked for — a single number repeated,
+     not four different ones.
+
+     14 (name) + 15 (price) + 11.5 (size) + 36 (last, unchanged) + 3 gaps
+     ≈ 79.19, against the photo's own height as rendered.
+
+     «فاصله های بینشون هم اندازه» went further than one repeated CSS number:
+     flex `gap` gives every pair the same *declared* gap, but three different
+     font sizes at `line-height: 1` do not carry identical ascent/descent, so
+     the same 0.5px `gap` measured 0.5 / 0.5 / 0.69 rendered. Each row was
+     given its own `margin-block-end` instead — 0.578px on all three, arrived
+     at over two rounds of re-measuring.
+
+     **All of that arithmetic is gone, and so is the class of fault it kept
+     producing.** What it was computing is (photograph − the four rows) / 3,
+     which `justify-content: space-between` on `.vp-cart-what` computes
+     itself, on every render, from the metrics as actually rendered. The base
+     rule carries it; this block sets type sizes and nothing about spacing.
+
+     It is worth being exact about why the hand-tuned version kept passing its
+     own check and failing the client's. What was measured was `.vp-cart-what`'s
+     three direct children, and those three gaps really were 0.563px, exactly.
+     The fourth gap — «سایز: ۳۷» to «رنگ: …» — was not in that box at all: the
+     colour lived inside `.vp-cart-last` beside the stepper, and a 36px control
+     next to 11.5px of type makes a 36px box whose alignment, whichever way it
+     was set, put the colour either 12.8px below its neighbours (`center`) or
+     24.5px above the photograph's foot (`flex-start`). Both were measured and
+     reported as fixed. Neither was what «رنگ کفش از پایین هم باید با پایین
+     عکس» asks for, and no amount of re-tuning that box could have been: it
+     was the wrong box. The stepper is out of the text flow now, so the fourth
+     row is one line of type like the other three and `space-between` reaches
+     the photograph's foot with it.
+
+     Measured after, at 390: name's top on the photograph's top, the colour's
+     bottom on the photograph's bottom, and all three gaps between the four
+     rows equal — every one of the four things asked for, in one arrangement
+     rather than four numbers. */
   .vp-cart-what {
-    gap: 1px;
     padding-inline-end: 30px;
   }
 
   .vp-cart-name {
     font-size: 14px;
-    line-height: 1.5;
-  }
-
-  .vp-cart-money {
-    line-height: 1.3;
   }
 
   .vp-cart-money strong {
@@ -16180,53 +16558,68 @@ button.vp-cart-keep {
 
   .vp-cart-spec {
     font-size: 11.5px;
-    line-height: 1.5;
   }
 
-  /* No padding above it: the auto margin is what places this row now, and 4px
-     of padding on top of that was pushing it off the card's bottom line. */
+  /* The room reserved for the stepper, at this breakpoint's own sizes: the
+     stepper is 88.8 wide here (3.6 padding either side, two 28.8 squares,
+     two 3.6 gaps, a 16.8 count) and the compare mark 26, plus 8 between them
+     and 2 of card edge. 95 leaves the same ~12 clear of the stepper that the
+     base rule's 124 does. See the base rule for why this exists at all. */
   .vp-cart-last {
-    padding-block-start: 0;
+    padding-inline-end: 95px;
   }
 
-  .vp-cart-line .vp-cart-qty {
-    gap: 6px;
+  /* Smaller still on a phone — trough and squares both, same ratio as the
+     base rule (40.8/33.6/3.6 → 36/28.8/3.6), which is why the two radii
+     below are not the base rule's: 36 × 0.30119 and 28.8 × 0.30119. Both
+     buttons already match at the base rule now (see the note there), so
+     nothing here needs to say so a second time.
+
+     Only the trough's own shape is here — both insets come off the variables
+     on `.vp-cart-line` above, which this breakpoint has already restated. */
+  .vp-cart-line > .vp-cart-qty {
+    gap: 3.6px;
+    height: var(--vp-cart-step-h);
+    padding: 3.6px;
+    border-radius: 10.84px;
   }
 
   .vp-cart-line .vp-cart-less,
   .vp-cart-line .vp-cart-more {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    font-size: 17px;
-  }
-
-  /* Both quiet, as the reference draws them. */
-  .vp-cart-line .vp-cart-more {
-    background: rgba(16, 17, 17, 0.05);
-    color: #101111;
-  }
-
-  .vp-cart-line .vp-cart-more:hover:not(:disabled) {
-    background: rgba(16, 17, 17, 0.09);
+    width: 28.8px;
+    height: 28.8px;
+    border-radius: 8.67px;
+    font-size: 20.4px;
   }
 
   .vp-cart-count {
-    min-width: 14px;
-    font-size: 13px;
+    min-width: 16.8px;
+    font-size: 15.6px;
     text-align: center;
   }
 
-  /* The bin, level with the name rather than floating above it. */
+  /* The bin, level with the name rather than floating above it. Its inline
+     inset is `--vp-cart-edge` from the rule above, shared with the compare
+     mark — only its distance from the top is its own. */
   .vp-cart-line > form:not(.vp-cart-qty) {
     inset-block-start: 8px;
-    inset-inline-end: 2px;
   }
 
   .vp-cart-drop {
     width: 26px;
     height: 26px;
     font-size: 13px;
+  }
+
+  /* Nothing here: its edge, its size and its foot all come off the variables
+     `.vp-cart-line` restates at this breakpoint, and its edge is the bin's by
+     construction rather than by a number typed twice. Left as a note because
+     an empty space where a rule used to be is where the next copied number
+     goes. */
+
+  .vp-cart-compare img {
+    width: 13px;
+    height: 13px;
   }
 }
 
@@ -17428,18 +17821,22 @@ html {
   }
 }
 
-/* The brand card, the same twentieth. «گوشه کارت بزرگی که برندا روشن باید ۵
-   درصد کروتر بشه» — 32.4 → 34.02.
+/* The brand panel, concentric with the tiles it holds.
 
-   That 32.4 is the hero card's own corner, and three of the page's panes were
-   put on it deliberately, in one commit, so the phone would turn at one
-   radius — «کرو کارت پیشنهاد امروز و برندهای موجود باید هم اندازه هیرو بشه».
-   This takes the brand card 1.62px off that agreement, because it is the card
-   the client named. The hero and the daily deal stay at 32.4. If the panes
-   ever have to read as one set again, this is the first rule to revisit. */
+   «این گوشه ها ... فیت هم نیستن» — 36 of tile plus the 10 of padding this pane
+   spends on a phone, so 46.
+
+   This rule used to carry 34.02: «گوشه کارت بزرگی که برندا روشن باید ۵ درصد
+   کروتر بشه», a twentieth on top of the 32.4 the pane shared with the hero and
+   the daily deal. Both of those numbers are gone, for the reason set out at
+   `.vp-daily-deal`'s phone rule — the panes were being sized against each
+   other and are sized against their contents now. 46 is a good deal more curve
+   than that 5% asked for, so if the panel reads as too round on its own this
+   is the number to argue about; it is, though, the one that makes the frame
+   and the tile turn together. */
 @media (max-width: 991.98px) {
   .vp-brands-panel {
-    border-radius: 34.02px;
+    border-radius: 46px;
   }
 }
 
@@ -17522,6 +17919,14 @@ html {
    desktop width. `cover` is what the template already falls back to below
    1399px and again below 767 for the same photographs, so this is one rule
    for both banners at every width instead of a third exception in between. */
+/* «فعلا هم از موبایل هم از دسکتاپ بنرهارو هاید کن قابل مشاهده نباشن» — off at
+   every width, «فعلا» (for now): the two rules below this one are left alone
+   rather than removed, so undoing this is one line, not redoing the crop,
+   the height fix and the aspect-ratio fix all over again. */
+.cta-area4 {
+  display: none;
+}
+
 .cta-area4 {
   background-size: cover;
   background-position: center;
@@ -17972,6 +18377,59 @@ html {
    gives back exactly the 0.17em it took, and «علاقمندی» starts where it did. */
 .vp-story-fav .fa-heart {
   margin-inline: -0.085em;
+}
+
+/* --------------------------------------------------------------------------
+   `.vp-bare` — a page with no header, and its grounds the other way round
+   --------------------------------------------------------------------------
+   «این صفحه نباید هدر داشته باشه و بکگراند هم بشه سفید ۹۴ درصد آیتم های روش هم
+   سفید بشن» — the basket, on the phone the client photographed it on.
+
+   The header comes off in the shell rather than here
+   (`@sectionMissing('no-header')` in layouts/storefront.blade.php): a header
+   hidden in CSS still costs its own height and its sticky script still runs.
+
+   The two colours are a swap, not a tint laid on top. The page was white with
+   its cards at `rgba(16,17,17,0.035)` — 247 on white — so the cards were the
+   darker things on a lighter ground. Now the page is 94% white and the cards
+   are white: 240 behind, 255 in front. That is the relationship the mini
+   basket already draws («بکش سفید ۹۰ درصد بشه کارت روش سفید ۱۰۰ درصد»),
+   and a wider separation than the 8 levels the two had between them before.
+
+   94% is a flat #F0F0F0 rather than `rgba(255,255,255,0.94)`. This is the
+   bottom of the page and there is nothing behind it for an alpha to let
+   through — 94% white over the browser's own white composites back to 255,
+   which is no change at all. The drawer's 90% is an alpha because it really
+   does sit over the live page; this does not.
+
+   Scoped to `body.vp-bare`, so only the page that asked for it is turned
+   round. `.vp-cart-sum` is named alongside `.vp-cart-line` because the summary
+   is one of the «آیتم های روش» too — it carried the same tint.
+   -------------------------------------------------------------------------- */
+body.vp-bare {
+  background: #F0F0F0;
+}
+
+body.vp-bare .vp-cart-line,
+body.vp-bare .vp-cart-sum {
+  background: #FFFFFF;
+}
+
+/* «بک محصول باید همرنگ اونیکی سبد خرید بشه» — the photo tile, the same colour
+   as the one in the drawer that opens from the header. Not a number chosen to
+   look similar: `#EBEBEB` is the value off `.sidemenu-cart .vp-cart-shot`, and
+   the reasoning in that rule's own comment now applies here word for word,
+   because the rule above has just put this tile on a full white card too. An
+   *alpha* 92% white on white composites back to 255 with nothing left to tell
+   it apart; 92% has to be a colour to read at all, and 0.92 × 255 rounds to
+   235 flat.
+
+   Measured after, both surfaces, both breakpoints: 235,235,235 each. The
+   basket page's tile keeps its desktop ring — the drawer's has none, so the
+   two are identical on a phone (where neither is drawn) and differ by that
+   hairline above 992. It was the colour that was asked about. */
+body.vp-bare .vp-cart-shot {
+  background: #EBEBEB;
 }
 
 /* --------------------------------------------------------------------------
