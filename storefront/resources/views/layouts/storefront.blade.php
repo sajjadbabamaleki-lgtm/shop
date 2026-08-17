@@ -17,12 +17,20 @@
 @include('partials.head')
 </head>
 
-<body class="shoe-shop">
+<body class="shoe-shop @yield('body-class')">
 
 @include('partials.chrome')
 @include('partials.mini-cart')
 @include('partials.mobile-menu')
+
+{{-- «این صفحه نباید هدر داشته باشه» — a page can leave the header out by
+     defining `no-header`. The drawer and the mini basket above are still
+     included: they are parked off-screen and cost nothing, and leaving them
+     out would break the scripts that expect to find them. A page that does
+     this has to carry its own way back — the basket's is «ادامه خرید». --}}
+@sectionMissing('no-header')
 @include('partials.header')
+@endif
 
 @yield('content')
 

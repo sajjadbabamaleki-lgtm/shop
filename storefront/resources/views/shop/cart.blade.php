@@ -1,5 +1,12 @@
 @extends('layouts.storefront')
 
+{{-- «این صفحه نباید هدر داشته باشه و بکگراند هم بشه سفید ۹۴ درصد آیتم های روش
+     هم سفید بشن» — no header, and the page and its cards swap grounds: the
+     page becomes the tinted one and the cards on it go white. `vp-bare` is
+     what the CSS hangs both of those on; see `.vp-bare` in tweaks.css. --}}
+@section('no-header', '1')
+@section('body-class', 'vp-bare')
+
 {{--
     The basket.
 

@@ -18225,6 +18225,42 @@ html {
 }
 
 /* --------------------------------------------------------------------------
+   `.vp-bare` — a page with no header, and its grounds the other way round
+   --------------------------------------------------------------------------
+   «این صفحه نباید هدر داشته باشه و بکگراند هم بشه سفید ۹۴ درصد آیتم های روش هم
+   سفید بشن» — the basket, on the phone the client photographed it on.
+
+   The header comes off in the shell rather than here
+   (`@sectionMissing('no-header')` in layouts/storefront.blade.php): a header
+   hidden in CSS still costs its own height and its sticky script still runs.
+
+   The two colours are a swap, not a tint laid on top. The page was white with
+   its cards at `rgba(16,17,17,0.035)` — 247 on white — so the cards were the
+   darker things on a lighter ground. Now the page is 94% white and the cards
+   are white: 240 behind, 255 in front. That is the relationship the mini
+   basket already draws («بکش سفید ۹۰ درصد بشه کارت روش سفید ۱۰۰ درصد»),
+   and a wider separation than the 8 levels the two had between them before.
+
+   94% is a flat #F0F0F0 rather than `rgba(255,255,255,0.94)`. This is the
+   bottom of the page and there is nothing behind it for an alpha to let
+   through — 94% white over the browser's own white composites back to 255,
+   which is no change at all. The drawer's 90% is an alpha because it really
+   does sit over the live page; this does not.
+
+   Scoped to `body.vp-bare`, so only the page that asked for it is turned
+   round. `.vp-cart-sum` is named alongside `.vp-cart-line` because the summary
+   is one of the «آیتم های روش» too — it carried the same tint.
+   -------------------------------------------------------------------------- */
+body.vp-bare {
+  background: #F0F0F0;
+}
+
+body.vp-bare .vp-cart-line,
+body.vp-bare .vp-cart-sum {
+  background: #FFFFFF;
+}
+
+/* --------------------------------------------------------------------------
    The last rule in the last stylesheet — the shop's signature on the design.
 
    The page is the ThemeForest template's stylesheet with this file on top of
