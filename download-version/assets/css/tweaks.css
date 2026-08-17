@@ -17543,22 +17543,32 @@ html {
    does; `padding` on both is zeroed so it cannot fight the height again if a
    future pass restores a shorter stack.
 
-   Two figures, not one: `col-xxl-8`/`col-xxl-4` only take effect at the
-   xxl breakpoint (1400px in this Bootstrap build) — below it both columns
-   run the container's full width, one above the other, and a box tuned for
+   Two rules, not one: `col-xxl-8`/`col-xxl-4` only take effect at the xxl
+   breakpoint (1400px in this Bootstrap build) — below it both columns run
+   the container's full width, one above the other, and a box tuned for
    sitting beside a narrower or wider sibling reads wrong stacked at 100%.
-   420px is the pair's own former height, side by side; below 1400 the boxes
-   are full-bleed and considerably wider than that per column, so 320 keeps
-   the crop from reading as a thin letterbox strip across a portrait photo. */
+   420px is the pair's own former height, side by side, where both columns
+   share one fixed figure regardless of their own width.
+
+   Below 1400 a fixed height cannot be the right answer at every width in
+   that range — «چرا ابعاد اون دوتا بنر رو مربع کردی تو نسخه موبایل؟» is
+   exactly this: 320 fixed made a ~370px-wide phone banner ~370x320, which is
+   a square, not a banner. `aspect-ratio: 2/1` instead, so the box scales with
+   whatever width it is actually given at each width in the stacked range —
+   at 370 that is 370x185, and at 1380 (just under the xxl cutoff) 1380x690,
+   both a landscape strip rather than one fixed number stretched or squashed
+   across a five-hundred-pixel range of widths. */
 .cta-area4,
 .cta-area4.style2 {
-  height: 320px;
+  aspect-ratio: 2 / 1;
+  height: auto;
   padding: 0;
 }
 
 @media (min-width: 1400px) {
   .cta-area4,
   .cta-area4.style2 {
+    aspect-ratio: auto;
     height: 420px;
   }
 }
