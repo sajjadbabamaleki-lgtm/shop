@@ -47,9 +47,9 @@ class Order extends Model
     protected $fillable = [
         'branch_id', 'customer_id', 'number', 'status',
         'subtotal', 'discount_total', 'shipping_total', 'grand_total',
-        'payment_method', 'payment_status',
+        'payment_method', 'payment_status', 'tracking_number',
         'contact_name', 'contact_phone', 'province', 'city', 'address',
-        'postal_code', 'note', 'placed_at', 'paid_at', 'cancelled_at',
+        'postal_code', 'note', 'staff_note', 'placed_at', 'paid_at', 'cancelled_at',
     ];
 
     protected function casts(): array

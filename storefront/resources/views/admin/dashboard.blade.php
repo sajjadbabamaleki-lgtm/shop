@@ -35,13 +35,11 @@
         return ['delta' => $delta, 'way' => $delta > 0 ? 'up' : ($delta < 0 ? 'down' : 'flat')];
     };
 
-    $statusNames = [
-        'placed' => 'در انتظار',
-        'paid' => 'پرداخت‌شده',
-        'shipped' => 'ارسال‌شده',
-        'delivered' => 'تحویل‌شده',
-        'cancelled' => 'لغوشده',
-    ];
+    // The model already names these. A second map here would be a second
+    // source of truth for the same five words, and the two would drift the
+    // first time somebody reworded one of them — which is exactly what had
+    // happened: this file said «در انتظار» where the order page said «ثبت شد».
+    $statusNames = \App\Models\Order::statusLabels();
 
     $peak = collect($chart)->max('total') ?: 1;
 @endphp

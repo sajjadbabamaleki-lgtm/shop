@@ -386,7 +386,7 @@
   }
 
   .vp-adm[data-drawer='open'] .vp-adm-scrim,
-  .vp-adm[data-sheet='open'] .vp-adm-scrim {
+  .vp-adm[data-sheet] .vp-adm-scrim {
     opacity: 1;
     pointer-events: auto;
   }
@@ -472,7 +472,7 @@
     transition: transform 0.22s ease;
   }
 
-  .vp-adm[data-sheet='open'] .vp-adm-sheet {
+  .vp-adm[data-sheet] .vp-adm-sheet {
     transform: none;
   }
 
@@ -844,5 +844,257 @@
 
   .vp-adm-bars {
     height: 110px;
+  }
+}
+
+/* ==========================================================================
+   Orders — the data grid (§24) and the order page (§21).
+   ========================================================================== */
+
+.vp-adm-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+/* `width: auto` is doing real work here. The template's stylesheet carries a
+   bare `select { display: block; width: 100% }`, so without this every control
+   in the filter row takes a line of its own — measured at 1128px each on a
+   1440 screen, five stacked rows where one was meant. The same reset is why
+   `display` is stated too. */
+.vp-adm-filters input,
+.vp-adm-filters select,
+.vp-adm-bulk select {
+  display: inline-flex;
+  width: auto;
+  flex: 0 1 auto;
+  height: 38px;
+  padding-inline: 10px;
+  border: 1px solid var(--adm-line);
+  border-radius: var(--adm-r-sm);
+  background: var(--adm-surface);
+  color: var(--adm-ink);
+  font: inherit;
+}
+
+/* The search box is the one control somebody reaches for first, so it takes
+   the row's slack rather than sitting at a width chosen for a placeholder. */
+.vp-adm-search {
+  flex: 1 1 260px;
+  min-width: 0;
+}
+
+.vp-adm-apply {
+  min-height: 38px;
+  padding-inline: 16px;
+  border: 0;
+  border-radius: var(--adm-r-sm);
+  background: linear-gradient(180deg, var(--adm-gold-fill) 0%, var(--adm-gold-lit) 100%);
+  color: #101111;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* §35: «Keep destructive actions visually separate from primary actions.» An
+   outline in the error colour, never the gold plate a confirm button wears. */
+.vp-adm-danger {
+  min-height: 38px;
+  padding-inline: 16px;
+  border: 1px solid rgba(179, 38, 30, 0.45);
+  border-radius: var(--adm-r-sm);
+  background: var(--adm-surface);
+  color: var(--adm-bad);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.vp-adm-danger:hover {
+  background: rgba(179, 38, 30, 0.07);
+}
+
+.vp-adm-clear {
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  padding-inline: 12px;
+  border: 1px solid var(--adm-line);
+  border-radius: var(--adm-r-sm);
+  color: var(--adm-ink-2);
+  text-decoration: none;
+}
+
+.vp-adm-clear:hover {
+  background: #F2F3F5;
+  color: var(--adm-ink);
+}
+
+/* --- the bulk bar --------------------------------------------------------- */
+.vp-adm-bulk {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--adm-line);
+  border-radius: var(--adm-r-sm);
+  background: #FAFAFB;
+}
+
+.vp-adm-bulk-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  cursor: pointer;
+}
+
+/* A tick box is the smallest thing on this screen and the one most often
+   missed on a phone. §27's floor is about 44px; this gives it 20 of its own
+   inside a cell that is taller than that. */
+.vp-adm-bulk input[type='checkbox'],
+.vp-admin-table input[type='checkbox'] {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--adm-gold-fill);
+}
+
+.vp-adm-pager {
+  margin-top: 14px;
+}
+
+.vp-adm-pager .pagination {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* --- the order page ------------------------------------------------------- */
+.vp-adm-totals li b {
+  font-variant-numeric: tabular-nums;
+}
+
+.vp-adm-totals li:last-child {
+  font-size: 16px;
+}
+
+.vp-adm-address {
+  margin: 12px 0 0;
+  color: var(--adm-ink-2);
+  line-height: 22px;
+}
+
+.vp-adm-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.vp-adm-form label {
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--adm-ink-2);
+}
+
+.vp-adm-form input,
+.vp-adm-form textarea {
+  padding: 8px 10px;
+  border: 1px solid var(--adm-line);
+  border-radius: var(--adm-r-sm);
+  background: var(--adm-surface);
+  color: var(--adm-ink);
+  font: inherit;
+}
+
+.vp-adm-form button {
+  align-self: flex-start;
+  margin-top: 4px;
+}
+
+/* --- the timeline --------------------------------------------------------- */
+.vp-adm-trail {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.vp-adm-trail li {
+  display: flex;
+  gap: 14px;
+  padding-block: 8px;
+}
+
+.vp-adm-trail li + li {
+  box-shadow: inset 0 1px 0 var(--adm-line);
+}
+
+.vp-adm-trail-when {
+  flex: 0 0 auto;
+  min-width: 150px;
+  color: var(--adm-ink-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.vp-adm-trail-what small {
+  color: var(--adm-ink-2);
+}
+
+/* --- the actions, §21 -----------------------------------------------------
+   On a desktop this is a row under the page. On a phone it sticks to the foot
+   of the screen, above the bottom navigation, because «Persistent primary
+   actions should remain reachable near the bottom» — the top of a long order
+   is the hardest place to reach on a telephone held in one hand. */
+.vp-adm-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+  padding: 14px 16px;
+  border: 1px solid var(--adm-line);
+  border-radius: var(--adm-r-md);
+  background: var(--adm-surface);
+}
+
+.vp-adm-actions form {
+  margin: 0;
+}
+
+.vp-adm-actions-say {
+  color: var(--adm-ink-2);
+}
+
+@media (max-width: 991.98px) {
+  .vp-adm-filters input,
+  .vp-adm-filters select {
+    flex: 1 1 140px;
+    min-width: 0;
+  }
+
+  .vp-adm-search {
+    flex: 1 0 100%;
+  }
+
+  .vp-adm-trail li {
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .vp-adm-trail-when {
+    min-width: 0;
+    font-size: 12px;
+  }
+
+  .vp-adm-actions {
+    position: sticky;
+    bottom: calc(var(--adm-bottom) + 8px);
+    z-index: 20;
+    box-shadow: 0 -8px 24px -18px rgba(16, 17, 17, 0.6);
   }
 }

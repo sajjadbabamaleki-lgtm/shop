@@ -254,6 +254,31 @@ class AdminResponsiveTest extends TestCase
         $this->assertStringContainsString('data-vp-full', $css);
     }
 
+    /**
+     * **The stylesheet and the script have to agree about the sheet.**
+     *
+     * They did not, and nothing could see it: the script writes which half is
+     * showing — `data-sheet="add"` or `"more"` — while the stylesheet matched
+     * `[data-sheet='open']`. Every test passed, the markup was right, and the
+     * bottom sheet simply never moved when you pressed «بیشتر». It took
+     * measuring the panel's position in a real browser to find.
+     *
+     * So the contract is asserted from both ends: the rules must match on the
+     * attribute rather than on a value, and the script must be the thing that
+     * sets it.
+     */
+    public function test_the_sheets_stylesheet_matches_the_value_the_script_writes(): void
+    {
+        $css = file_get_contents(public_path('assets/css/admin.css'));
+
+        $this->assertStringContainsString('[data-sheet] .vp-adm-sheet', $css);
+        $this->assertStringNotContainsString("data-sheet='open'", $css);
+
+        $page = $this->actingAs($this->admin(), 'web')->get('/admin')->assertOk()->getContent();
+
+        $this->assertStringContainsString("setAttribute('data-sheet', part)", $page);
+    }
+
     /** The branch is still named in the bar — on a phone as much as anywhere. */
     public function test_the_branch_is_still_named_on_a_phone_sized_shell(): void
     {

@@ -104,6 +104,32 @@
             if (e.key === 'Escape') shut();
         });
 
+        // --- select all, §24 ----------------------------------------------
+        //
+        // The only part of the grid that needs a script. Without it the bulk
+        // bar still works — the row boxes are ordinary checkboxes in an
+        // ordinary form — you simply tick them one at a time. So the box is
+        // hidden until this runs rather than sitting there looking broken.
+        var all = document.querySelector('[data-adm-all]');
+
+        if (all) {
+            var rows = [].slice.call(document.querySelectorAll('[data-adm-row]'));
+
+            all.closest('label').hidden = false;
+
+            all.addEventListener('change', function () {
+                rows.forEach(function (row) { row.checked = all.checked; });
+            });
+
+            // Ticking every row by hand should tick the header box too, or the
+            // two disagree about a state they are both showing.
+            rows.forEach(function (row) {
+                row.addEventListener('change', function () {
+                    all.checked = rows.every(function (r) { return r.checked; });
+                });
+            });
+        }
+
         // --- the tables' cell labels --------------------------------------
         //
         // Below 992 every row becomes a card, and a card of bare values —

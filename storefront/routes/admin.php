@@ -60,10 +60,25 @@ Route::middleware(['auth:web', ResolveAdminTenant::class])->group(function (): v
     Route::post('/branch', [SettingsController::class, 'switchBranch'])->name('branch.switch');
 
     Route::get('/orders', [OrderController::class, 'index'])->name('orders');
+
+    // Both of these are declared **before** `/orders/{order}`, or the bare
+    // segment swallows them: «export» and «bulk» are perfectly good order keys
+    // as far as a route parameter is concerned, and the model binding would
+    // 404 on them with nothing to say why. Laravel matches in registration
+    // order, so the specific ones come first — the same reason `/admin` itself
+    // is registered before the storefront's `{branch}` group.
+    Route::get('/orders/export', [OrderController::class, 'export'])->name('orders.export');
+    Route::post('/orders/bulk', [OrderController::class, 'bulk'])
+        ->middleware(RequirePermission::class.':branch.orders.manage')
+        ->name('orders.bulk');
+
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('order');
     Route::post('/orders/{order}', [OrderController::class, 'update'])
         ->middleware(RequirePermission::class.':branch.orders.manage')
         ->name('order.update');
+    Route::post('/orders/{order}/note', [OrderController::class, 'annotate'])
+        ->middleware(RequirePermission::class.':branch.orders.manage')
+        ->name('order.annotate');
 
     Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory');
     Route::post('/inventory', [InventoryController::class, 'update'])
