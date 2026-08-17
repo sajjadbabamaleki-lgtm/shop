@@ -6253,24 +6253,21 @@ button.vp-cart-keep {
   padding-block-start: 4px;
 }
 
-/* «کنارش با فاصله یه آیکون مقایسه بیاد» — a wrapper rather than a third child
-   of `.vp-cart-last` directly, so `justify-content: space-between` still sees
-   exactly two things (the colour, and this) and keeps pushing them to the
-   row's two ends the way it always has; the stepper is the "this". The
-   compare button is a child of it in the markup (for reading order — it
-   comes right after the stepper) but not in the layout: it is `position:
-   absolute` (see `.vp-cart-compare` below) precisely so it does not have to
-   negotiate a flex gap with anything, which is what put it 40px off the
-   card's edge instead of level with the bin. `padding-inline-end: 40px`
-   reserves the room it and the bin both float over, on this row only — the
-   stepper still runs to the card's own edge everywhere else. Deliberately
-   **not** `position: relative` — see the note on `.vp-cart-compare` for why
-   it has to keep out of the way and let `.vp-cart-line` stay the one
-   positioned ancestor both it and the bin share. */
+/* «چرا این شمارندرو اونقد میبری راست ... این فضای خالی» — `padding-inline-end`
+   was here once, to reserve the room the compare button floats over. That
+   room was never actually needed: the button is `position: absolute` (see
+   `.vp-cart-compare` below), so it does not sit in this box's flow at all —
+   it floats over `.vp-cart-what`'s own `padding-inline-end: 30px`, the same
+   margin the bin already reserves for itself above it. A second reservation
+   here on top of that one pushed the stepper 34–40px further than it needed
+   to go, which is the dead gap between it and the colour text that was
+   pointed at. A wrapper rather than a third child of `.vp-cart-last`
+   directly is still the reason this exists at all — so `justify-content:
+   space-between` keeps seeing exactly two things (the colour, and this) —
+   but it has nothing left to reserve, only to lay out. */
 .vp-cart-tools {
   display: flex;
   align-items: center;
-  padding-inline-end: 40px;
 }
 
 /* «آیکون مقایسه باید از لبه‌ی چپ کارت همون فاصله‌ای رو داشته باشه که آیکون
@@ -11825,10 +11822,28 @@ button.vp-cart-keep {
 
 /* --- the foot ------------------------------------------------------------ */
 
+/* «اون قسمت پایین مشاهده سبدو اینه پایینش باید مث پایین چیزی باشه که الان تو
+   سبد داریم و جزیره‌ایه» — the basket page's own bottom summary's shape:
+   margin off the panel round it rather than a hairline flush to the edge,
+   its own rounded card. This panel already pins its foot by being the last
+   flex child of a column that fills the drawer's height — `.vp-cart-sum.is-
+   island`'s own `position: fixed` is what a scrolling *page* needs to keep
+   its summary in view and is not needed a second time here.
+
+   «پایین اون سبد خرید جزیره‌ای ... باید این باشه ولی به رنگ سفید» — the
+   material corrected afterward, against a screenshot of `.vp-cart-sum`
+   itself (the basket page's card, not the island variant): plain white, the
+   way that card is, not the page's glass tint this carried for one round.
+   The ring is `.vp-cart-sum`'s own hairline — a solid white card needs one
+   on the popup's own near-white sheet (`.sidemenu-cart .sidemenu-content`,
+   90% white) or it is «لبه پنهان» again, one panel down. */
 .vp-mini-foot {
   flex: none;
-  padding-block-start: 14px;
-  box-shadow: inset 0 1px 0 rgba(16, 17, 17, 0.06);
+  margin-block-start: 14px;
+  padding: 16px;
+  border-radius: 24px;
+  background: #FFFFFF;
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.06);
 }
 
 .vp-mini-sum {
@@ -16224,17 +16239,21 @@ button.vp-cart-keep {
 @media (max-width: 991.98px) {
   .vp-cart-line {
     align-items: stretch;
-    grid-template-columns: 88px minmax(0, 1fr);
+    grid-template-columns: 79.2px minmax(0, 1fr);
     column-gap: 12px;
     padding: 12px;
   }
 
-  /* Square, and it stays square however tall the card gets. */
+  /* Square, and it stays square however tall the card gets.
+     «مربعی که عکس محصول توشه ۱۰ درصد کوچیکتر بشه که ارتفاع کارت اصلی
+     کوتاهتر بشه» — 88 × 0.9. The radius scales with it, at the same ratio
+     (18/88), so the corner does not read as a different shape at a smaller
+     size. */
   .vp-cart-shot {
     align-self: start;
-    width: 88px;
-    height: 88px;
-    border-radius: 18px;
+    width: 79.2px;
+    height: 79.2px;
+    border-radius: 16.2px;
   }
 
   /* «باید فاصله بین ردیفارو کم میکردی که رنگ هم تو همون ابعاد ارتفاع جا میشد
@@ -16258,22 +16277,31 @@ button.vp-cart-keep {
      text block had no budget for: the same shortfall this comment already
      solved once, paid the same way — leading and the gap, not the card.
 
-     Row gap 1 → 0 (-3 over three gaps), price leading 1.3 → 1.05 (-3.75),
-     size leading 1.5 → 1.15 (-4.03) — 10.78 off a 10.05 shortfall, and it
-     landed exactly: text block 88.00 into the photograph's 88, the last row
-     flush with the photograph's own foot, and the card back to 112. */
+     «فاصله بین ۴ خط نوشته هم مرتب بشه» then the photo's own 10% — the ad-hoc
+     values that first closed the gap (1.05, 1.15, gap 0) are gone. One flat
+     rule now: every line above the last row sits at `line-height: 1`, no
+     leading beyond the glyph's own box, and the three gaps between all four
+     rows are one equal value rather than zero on some and a fraction on
+     others. That is the "tidy" being asked for — a single number repeated,
+     not four different ones.
+
+     14 (name) + 15 (price) + 11.5 (size) + 36 (last, unchanged) + 3×0.5
+     (gap) = 78, against the photo's own 79.19 as rendered — measured after,
+     not assumed: text block 79 into 79.19, a difference font rounding
+     accounts for on its own. See the block comment two above this one for
+     what "measured after" has meant here before. */
   .vp-cart-what {
-    gap: 0;
+    gap: 0.5px;
     padding-inline-end: 30px;
   }
 
   .vp-cart-name {
     font-size: 14px;
-    line-height: 1.5;
+    line-height: 1;
   }
 
   .vp-cart-money {
-    line-height: 1.05;
+    line-height: 1;
   }
 
   .vp-cart-money strong {
@@ -16282,7 +16310,7 @@ button.vp-cart-keep {
 
   .vp-cart-spec {
     font-size: 11.5px;
-    line-height: 1.15;
+    line-height: 1;
   }
 
   /* No padding above it: the auto margin is what places this row now, and 4px
@@ -16327,10 +16355,6 @@ button.vp-cart-keep {
     width: 26px;
     height: 26px;
     font-size: 13px;
-  }
-
-  .vp-cart-tools {
-    padding-inline-end: 34px;
   }
 
   /* Same value as the bin's own mobile `inset-inline-end` two rules above —
