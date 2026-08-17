@@ -11966,15 +11966,13 @@ button.vp-cart-keep {
   background: rgba(16, 17, 17, 0.06);
 }
 
-/* A step that cannot be taken says so rather than doing nothing when pressed —
-   minus at one, plus at whatever the branch has on the shelf. Flat and grey
-   rather than the raised white square at low opacity, so a disabled control
-   reads as pressed-in rather than as the same button slightly faded. */
+/* «در هر صورت باید سفید باشن مثبت و منفی» — in every case, not most of them:
+   disabled is still the base rule's white square and full-ink glyph, nothing
+   about how it looks changes. `cursor: default` is the only thing this rule
+   still says, because it costs nothing to state and a disabled control
+   should not offer the pointer cursor of one that responds to a click. */
 .vp-cart-less:disabled,
 .vp-cart-more:disabled {
-  background: rgba(16, 17, 17, 0.05);
-  box-shadow: none;
-  color: rgba(16, 17, 17, 0.3);
   cursor: default;
 }
 
