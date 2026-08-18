@@ -109,7 +109,15 @@ class DashboardController extends Controller
         return [
             'sales' => $sales,
             'orders' => $orders,
-            'aov' => $orders > 0 ? intdiv($sales, $orders) : 0,
+            // Rounded to a whole Toman, and that is not a cosmetic choice.
+            // `toman()` refuses a figure that is not a multiple of ten Rial,
+            // deliberately: a stored *price* that is not a whole Toman is a
+            // seeding mistake worth shouting about. An **average** is not a
+            // stored price — dividing two whole-Toman sums gives a remainder
+            // roughly nine times in ten — so it is rounded here rather than
+            // thrown at the view. Found by real orders: the seeded amounts in
+            // the tests all divided evenly and never hit it.
+            'aov' => $orders > 0 ? (int) (round($sales / $orders / 10) * 10) : 0,
             'customers' => Customer::whereBetween('created_at', [$from, $to])->count(),
             'cancelled' => Order::where('status', Order::CANCELLED)
                 ->whereBetween('placed_at', [$from, $to])

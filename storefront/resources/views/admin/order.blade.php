@@ -122,6 +122,121 @@
         </form>
     </section>
 
+    {{-- --- the promise, §2 and §6 -------------------------------------- --}}
+    <section class="vp-adm-card">
+        <div class="vp-adm-card-head">
+            <h2 class="vp-adm-card-title">زمان‌بندی</h2>
+            @if ($overdue)
+                <span class="vp-adm-badge is-cancelled">از مهلت گذشته</span>
+            @elseif ($order->is_delayed)
+                <span class="vp-adm-badge is-placed">تأخیر ثبت شده</span>
+            @endif
+        </div>
+
+        @if (! $order->confirmed_at)
+            {{-- §19: «No shipping/deadline date is hardcoded in UI.» There is
+                 no date here to print because none has been calculated — the
+                 clock starts at confirmation, and saying so is better than
+                 showing a guess. --}}
+            <p class="vp-adm-empty">این سفارش هنوز تأیید نشده، پس مهلتی برایش حساب نشده.</p>
+
+            <form method="post" action="{{ route('admin.order.confirm', $order) }}">
+                @csrf
+                <button type="submit" class="vp-adm-apply">تأیید سفارش و حساب کردن تاریخ‌ها</button>
+            </form>
+        @else
+            <ul class="vp-adm-list">
+                <li><span>تأیید</span><b>{{ fa_date($order->confirmed_at) }}</b></li>
+                <li>
+                    <span>مهلت ارسال</span>
+                    <b>{{ $order->estimated_ship_by ? fa_date($order->estimated_ship_by) : '—' }}</b>
+                </li>
+                @if ($order->actual_shipped_at)
+                    <li><span>ارسال واقعی</span><b>{{ fa_date($order->actual_shipped_at, true) }}</b></li>
+                @endif
+                <li>
+                    <span>تحویل تخمینی</span>
+                    <b>
+                        @if ($order->estimated_delivery_from && $order->estimated_delivery_to)
+                            {{ fa_date($order->estimated_delivery_from) }} تا {{ fa_date($order->estimated_delivery_to) }}
+                        @else
+                            —
+                        @endif
+                    </b>
+                </li>
+                @if ($order->carrier)
+                    <li><span>حمل با</span><b>{{ $order->carrier }}</b></li>
+                @endif
+                @if ($order->is_delayed && $order->delay_reason)
+                    <li><span>علت تأخیر</span><b>{{ $order->delay_reason }}</b></li>
+                @endif
+            </ul>
+        @endif
+    </section>
+
+    {{-- --- §7's Action A: the parcel has actually gone ------------------- --}}
+    @if ($order->confirmed_at && ! $order->actual_shipped_at && in_array($order->status, [\App\Models\Order::PAID, \App\Models\Order::PLACED], true))
+        <section class="vp-adm-card">
+            <div class="vp-adm-card-head">
+                <h2 class="vp-adm-card-title">ارسال کردم</h2>
+            </div>
+
+            <p class="vp-adm-empty">فقط بعد از اینکه بسته واقعاً تحویل پست شد.</p>
+
+            <form class="vp-adm-form" method="post" action="{{ route('admin.order.ship', $order) }}">
+                @csrf
+
+                @if ($methods->isNotEmpty())
+                    <label for="sh-method">روش ارسال</label>
+                    <select id="sh-method" name="shipping_method_id">
+                        @foreach ($methods as $method)
+                            <option value="{{ $method->id }}" @selected($order->shipping_method_id === $method->id)>
+                                {{ $method->name }}{{ $method->carrier ? ' — '.$method->carrier : '' }}
+                            </option>
+                        @endforeach
+                    </select>
+                @endif
+
+                <label for="sh-carrier">شرکت حمل</label>
+                <input id="sh-carrier" type="text" name="carrier" maxlength="80" value="{{ old('carrier', $order->carrier) }}">
+
+                <label for="sh-track">کد رهگیری</label>
+                <input id="sh-track" type="text" name="tracking_number" dir="ltr" maxlength="60"
+                       value="{{ old('tracking_number', $order->tracking_number) }}">
+
+                <label for="sh-when">زمان تحویل به پست</label>
+                <input id="sh-when" type="datetime-local" name="shipped_at"
+                       value="{{ old('shipped_at', now()->format('Y-m-d\TH:i')) }}"
+                       max="{{ now()->format('Y-m-d\TH:i') }}">
+
+                <button type="submit" class="vp-adm-apply">ثبت ارسال</button>
+            </form>
+        </section>
+    @endif
+
+    {{-- --- §7's Action B: the deadline moves, the lifecycle does not ----- --}}
+    @if ($order->confirmed_at && ! $order->actual_shipped_at && $delaysEnabled)
+        <section class="vp-adm-card">
+            <div class="vp-adm-card-head">
+                <h2 class="vp-adm-card-title">ثبت تأخیر</h2>
+            </div>
+
+            <p class="vp-adm-empty">مهلت ارسال و بازه تحویل جابه‌جا می‌شوند؛ وضعیت سفارش عوض نمی‌شود.</p>
+
+            <form class="vp-adm-form" method="post" action="{{ route('admin.order.delay', $order) }}">
+                @csrf
+
+                <label for="dl-days">چند روز کاری (حداکثر {{ fa_number($maxDelay) }})</label>
+                <input id="dl-days" type="number" name="days" min="1" max="{{ $maxDelay }}" value="1" required>
+
+                <label for="dl-reason">علت</label>
+                <input id="dl-reason" type="text" name="reason" maxlength="200" placeholder="مثلاً کالا از انبار نرسید">
+
+                <button type="submit" class="vp-adm-apply">ثبت تأخیر</button>
+            </form>
+        </section>
+    @endif
+
     {{-- --- the timeline, §4 -------------------------------------------- --}}
     <section class="vp-adm-card vp-adm-span-3">
         <div class="vp-adm-card-head">

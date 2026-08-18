@@ -86,6 +86,7 @@ class Navigation
         [
             'group' => 'تنظیمات',
             'items' => [
+                ['route' => 'admin.fulfilment', 'label' => 'پردازش و ارسال', 'icon' => 'stack', 'match' => 'admin.fulfilment*', 'branch' => true, 'branchPermission' => 'branch.settings.manage'],
                 ['route' => 'admin.staff', 'label' => 'کارکنان', 'icon' => 'users', 'match' => 'admin.staff*', 'branch' => true, 'branchPermission' => 'branch.staff.manage'],
                 ['route' => 'admin.settings', 'label' => 'تنظیمات', 'icon' => 'gear', 'match' => 'admin.settings*', 'branch' => true, 'branchPermission' => 'branch.settings.manage'],
             ],

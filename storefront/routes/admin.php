@@ -4,6 +4,8 @@ use App\Http\Controllers\Admin\CatalogueController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DiscountController;
 use App\Http\Controllers\Admin\EnquiryController;
+use App\Http\Controllers\Admin\FulfilmentController;
+use App\Http\Controllers\Admin\FulfilmentSettingsController;
 use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Admin\MarketplaceController;
 use App\Http\Controllers\Admin\OrderController;
@@ -79,6 +81,21 @@ Route::middleware(['auth:web', ResolveAdminTenant::class])->group(function (): v
     Route::post('/orders/{order}/note', [OrderController::class, 'annotate'])
         ->middleware(RequirePermission::class.':branch.orders.manage')
         ->name('order.annotate');
+
+    // §7's primary actions. Separate routes rather than one «update» with a
+    // mode, because each writes different things and each has its own rules:
+    // confirming starts the clock, shipping records an event, delaying moves a
+    // promise. One endpoint switching on a hidden field is how a delay ends up
+    // able to mark something delivered.
+    Route::post('/orders/{order}/confirm', [FulfilmentController::class, 'confirm'])
+        ->middleware(RequirePermission::class.':branch.orders.manage')
+        ->name('order.confirm');
+    Route::post('/orders/{order}/ship', [FulfilmentController::class, 'ship'])
+        ->middleware(RequirePermission::class.':branch.orders.manage')
+        ->name('order.ship');
+    Route::post('/orders/{order}/delay', [FulfilmentController::class, 'delay'])
+        ->middleware(RequirePermission::class.':branch.orders.manage')
+        ->name('order.delay');
 
     Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory');
     Route::post('/inventory', [InventoryController::class, 'update'])
@@ -161,6 +178,21 @@ Route::middleware(['auth:web', ResolveAdminTenant::class])->group(function (): v
     Route::get('/reports', [ReportController::class, 'branch'])
         ->middleware(RequirePermission::class.':report.view')
         ->name('reports');
+
+    // §10's «Order Processing & Shipping Settings» — its own screen, because
+    // the working calendar is not a branch's address.
+    Route::get('/fulfilment', [FulfilmentSettingsController::class, 'edit'])
+        ->middleware(RequirePermission::class.':branch.settings.manage')
+        ->name('fulfilment');
+    Route::post('/fulfilment', [FulfilmentSettingsController::class, 'update'])
+        ->middleware(RequirePermission::class.':branch.settings.manage')
+        ->name('fulfilment.update');
+    Route::post('/fulfilment/methods', [FulfilmentSettingsController::class, 'storeMethod'])
+        ->middleware(RequirePermission::class.':branch.settings.manage')
+        ->name('fulfilment.methods.store');
+    Route::post('/fulfilment/methods/{method}/toggle', [FulfilmentSettingsController::class, 'toggleMethod'])
+        ->middleware(RequirePermission::class.':branch.settings.manage')
+        ->name('fulfilment.methods.toggle');
 
     Route::get('/settings', [SettingsController::class, 'edit'])
         ->middleware(RequirePermission::class.':branch.settings.manage')

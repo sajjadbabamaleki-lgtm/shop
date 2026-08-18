@@ -151,6 +151,26 @@ class AdminDashboardTest extends TestCase
         $this->assertSame(2_000_000, $figures['aov']);
     }
 
+    /**
+     * An average is a derived figure, not a stored price.
+     *
+     * `toman()` throws on anything that is not a whole number of Toman —
+     * rightly, for a price. But three orders rarely divide evenly, and the
+     * dashboard threw a 500 on real data while every seeded test passed
+     * because its amounts happened to divide. The amounts here deliberately
+     * do not.
+     */
+    public function test_the_average_basket_survives_amounts_that_do_not_divide_evenly(): void
+    {
+        $this->paidOrder(1_000_000, now()->toDateTimeString());
+        $this->paidOrder(1_000_000, now()->toDateTimeString());
+        $this->paidOrder(1_000_010, now()->toDateTimeString());
+
+        $page = $this->actingAs($this->admin(), 'web')->get('/admin?range=today')->assertOk();
+
+        $this->assertSame(0, $page->viewData('figures')['aov'] % 10);
+    }
+
     /** The comparison reads the window before, not the whole of history. */
     public function test_the_comparison_reads_only_the_window_before(): void
     {

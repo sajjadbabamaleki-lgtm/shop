@@ -279,6 +279,36 @@ class AdminResponsiveTest extends TestCase
         $this->assertStringContainsString("setAttribute('data-sheet', part)", $page);
     }
 
+    /**
+     * **The tick boxes have to be visible.**
+     *
+     * The template's stylesheet hides every checkbox with three properties at
+     * once — `display: none`, `opacity: 0` and `visibility: hidden` — because
+     * its own forms replace them with styled pseudo-elements. The panel needs
+     * the real control: a working-day picker and the orders grid's selection
+     * column are both checkboxes.
+     *
+     * It shipped invisible once. The five correct weekdays were ticked and
+     * none of them could be seen, and the grid's whole selection column was
+     * blank while the boxes underneath worked perfectly — nothing failed,
+     * because the state was right and only the pixels were missing. All three
+     * properties have to be undone, so all three are asserted.
+     */
+    public function test_the_stylesheet_undoes_all_three_ways_the_template_hides_a_checkbox(): void
+    {
+        $css = file_get_contents(public_path('assets/css/admin.css'));
+
+        $rule = strstr($css, ".vp-adm input[type='checkbox']");
+
+        $this->assertNotFalse($rule, 'nothing in admin.css re-shows a checkbox');
+
+        $block = substr($rule, 0, (int) strpos($rule, '}'));
+
+        foreach (['display: inline-block', 'opacity: 1', 'visibility: visible'] as $needed) {
+            $this->assertStringContainsString($needed, $block);
+        }
+    }
+
     /** The branch is still named in the bar — on a phone as much as anywhere. */
     public function test_the_branch_is_still_named_on_a_phone_sized_shell(): void
     {

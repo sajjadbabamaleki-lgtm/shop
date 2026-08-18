@@ -1098,3 +1098,99 @@
     box-shadow: 0 -8px 24px -18px rgba(16, 17, 17, 0.6);
   }
 }
+
+/* --- the fulfilment settings screen — §10 --------------------------------- */
+.vp-adm-form-label {
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--adm-ink-2);
+}
+
+.vp-adm-weekdays {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.vp-adm-weekdays label,
+.vp-adm-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding-inline: 12px;
+  border: 1px solid var(--adm-line);
+  border-radius: var(--adm-r-sm);
+  background: var(--adm-surface);
+  cursor: pointer;
+}
+
+/* The template's stylesheet puts `width: 100%` on inputs, which would make
+   every tick box in this row a line of its own — the same reset that turned
+   the orders filter into five stacked rows. */
+.vp-adm-weekdays input[type='checkbox'],
+.vp-adm-check input[type='checkbox'] {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  accent-color: var(--adm-gold-fill);
+}
+
+.vp-adm-check {
+  align-self: flex-start;
+  margin-top: 4px;
+}
+
+.vp-adm-form select {
+  width: auto;
+  display: inline-flex;
+  height: 38px;
+  padding-inline: 10px;
+  border: 1px solid var(--adm-line);
+  border-radius: var(--adm-r-sm);
+  background: var(--adm-surface);
+  color: var(--adm-ink);
+  font: inherit;
+}
+
+/* --- tick boxes, made visible again ---------------------------------------
+   The template's stylesheet hides every checkbox — `display: none`, `opacity:
+   0` and `visibility: hidden` together — because its own forms replace them
+   with styled pseudo-elements. The panel does not: a working-day picker and a
+   row-selection column need the real control.
+
+   Measured before this rule: the five correct weekdays were ticked and none of
+   them could be seen, and the orders grid's whole selection column was blank
+   while the boxes underneath worked. All three properties have to be undone;
+   overriding one leaves the box hidden by the other two. */
+.vp-adm input[type='checkbox'],
+.vp-adm input[type='radio'] {
+  display: inline-block;
+  opacity: 1;
+  visibility: visible;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  flex: 0 0 auto;
+  accent-color: var(--adm-gold-fill);
+  cursor: pointer;
+}
+
+.vp-adm .vp-admin-table input[type='checkbox'] {
+  width: 20px;
+  height: 20px;
+}
+
+/* A card holding a table scrolls its own table.
+   Measured: the shipping-methods table wants 300px and the card it sits in is
+   a third of a 1200px workspace, so the page overflowed by 4px — the shape
+   `check-overflow.js` exists to catch. Scoped with `:has()` so only the cards
+   that actually hold a table get a scroll container; a card of prose does not
+   need one, and an unnecessary `overflow` would clip the sticky action bar on
+   a phone. Below 992 the rows are cards and there is nothing left to scroll. */
+@media (min-width: 992px) {
+  .vp-adm-card:has(> .vp-admin-table),
+  .vp-adm-card:has(> form > .vp-admin-table) {
+    overflow-x: auto;
+  }
+}

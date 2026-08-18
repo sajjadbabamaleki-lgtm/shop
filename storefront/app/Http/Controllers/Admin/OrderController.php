@@ -5,8 +5,11 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Audit;
 use App\Models\Order;
+use App\Models\ShippingMethod;
 use App\Support\Admin\DateRange;
 use App\Support\Checkout\SettleOrder;
+use App\Support\Fulfilment\FulfilmentSettings;
+use App\Support\Fulfilment\Promise;
 use App\Support\Search;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
@@ -124,10 +127,26 @@ class OrderController extends Controller
         return in_array($per, self::PAGE_SIZES, true) ? $per : 20;
     }
 
-    public function show(Order $order): View
+    public function show(Order $order, Promise $promise): View
     {
+        $settings = FulfilmentSettings::for($order->branch);
+
         return view('admin.order', [
             'order' => $order->load('items', 'customer'),
+
+            // §5's «Overdue» is derived, never stored: a stored flag needs
+            // something to set it, and that something will not have run on the
+            // morning somebody opens this screen.
+            'overdue' => $promise->isOverdue($order),
+
+            // §7's Mark-as-Shipped offers the branch's own methods.
+            'methods' => ShippingMethod::where('branch_id', $order->branch_id)
+                ->where('is_active', true)
+                ->orderBy('id')
+                ->get(),
+
+            'delaysEnabled' => (bool) ($settings['delays_enabled'] ?? true),
+            'maxDelay' => (int) ($settings['max_delay_days'] ?? 7),
             // §4's «complete timeline/history». The trail is append-only and
             // already written by the model on every change, so this is a read
             // rather than a second record that could disagree with the first.
