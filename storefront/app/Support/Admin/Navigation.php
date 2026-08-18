@@ -51,6 +51,7 @@ class Navigation
             'group' => 'فروش',
             'items' => [
                 ['route' => 'admin.orders', 'label' => 'سفارش‌ها', 'icon' => 'receipt', 'match' => 'admin.order*', 'branch' => true],
+                ['route' => 'admin.inbox', 'label' => 'پیام‌ها', 'icon' => 'chat', 'match' => 'admin.inbox|admin.conversation*', 'branch' => true, 'branchPermission' => 'branch.orders.manage'],
                 ['route' => 'admin.discounts', 'label' => 'تخفیف‌ها', 'icon' => 'tag', 'match' => 'admin.discounts*', 'branch' => true, 'branchPermission' => 'branch.pricing.manage'],
             ],
         ],

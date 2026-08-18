@@ -5,6 +5,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\EnquiryController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\ProductController;
@@ -170,6 +171,27 @@ $storefront = function (): void {
         Route::get('/account/wishlist', [WishlistController::class, 'index'])->name('account.wishlist');
         Route::post('/account/wishlist', [WishlistController::class, 'store'])->name('account.wishlist.add');
         Route::post('/account/wishlist/remove', [WishlistController::class, 'destroy'])->name('account.wishlist.remove');
+    });
+
+    /*
+     * §11's messages, the customer's side.
+     *
+     * Behind `auth:customer` and named `account.*` — both deliberate. The
+     * guard, because a thread is a history with photographs in it and the
+     * order page's «number plus telephone» is not a standard to open that at;
+     * the name, because `redirectGuestsTo` picks between the two sign-ins by
+     * matching `*account*`, so a shopper who taps «پیام‌های من» lands on the
+     * shopper's form and not the staff one.
+     */
+    Route::middleware('auth:customer')->group(function (): void {
+        Route::get('/account/messages', [MessageController::class, 'index'])->name('account.messages');
+        Route::post('/account/messages', [MessageController::class, 'store'])
+            ->middleware('throttle:20,60')->name('account.messages.store');
+        Route::get('/account/messages/{conversation}', [MessageController::class, 'show'])->name('account.message');
+        Route::post('/account/messages/{conversation}', [MessageController::class, 'reply'])
+            ->middleware('throttle:40,60')->name('account.message.reply');
+        Route::get('/account/messages/{conversation}/files/{attachment}', [MessageController::class, 'file'])
+            ->name('account.message.file');
     });
 
     Route::get('/orders', [OrderController::class, 'track'])->name('orders.track');

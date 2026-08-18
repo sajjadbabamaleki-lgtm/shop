@@ -95,6 +95,7 @@
         'panel' => '<rect x="3" y="4" width="14" height="12" rx="2"/><path d="M12.5 4v12"/>',
         'search' => '<circle cx="9" cy="9" r="5.2"/><path d="M12.9 12.9 17 17"/>',
         'bell' => '<path d="M6 8.5a4 4 0 0 1 8 0c0 3.2 1.2 4.4 1.2 4.4H4.8S6 11.7 6 8.5Z"/><path d="M8.4 15.4a1.8 1.8 0 0 0 3.2 0"/>',
+        'chat' => '<path d="M3.5 6a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H8l-4 3v-3a.5.5 0 0 1-.5-.5V6Z"/>',
     ];
     $icon = fn (string $name) => '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'.($icons[$name] ?? $icons['box']).'</svg>';
 @endphp

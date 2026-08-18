@@ -27,6 +27,17 @@
                     <p class="vp-shop-count">{{ $customer->phone }}</p>
                 </div>
                 <div class="vp-account-acts">
+                    {{-- The unread count is on the link rather than only inside:
+                         a reply the shop sent is a thing worth noticing from the
+                         page somebody lands on, not one to find by opening. --}}
+                    @php
+                        $unreadThreads = \App\Models\Conversation::where('customer_id', $customer->id)
+                            ->get()
+                            ->sum(fn ($c) => $c->unreadFor(\App\Models\Conversation::CUSTOMER, $customer->id));
+                    @endphp
+                    <a class="vp-cart-keep" href="{{ storefront_route('account.messages') }}">
+                        پیام‌های من@if ($unreadThreads > 0) ({{ fa_number($unreadThreads) }})@endif
+                    </a>
                     <a class="vp-cart-keep" href="{{ storefront_route('account.wishlist') }}">لیست علاقمندی</a>
                     <form method="post" action="{{ storefront_route('account.logout') }}">
                         @csrf

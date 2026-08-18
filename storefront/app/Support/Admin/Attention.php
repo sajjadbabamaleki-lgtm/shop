@@ -4,6 +4,7 @@ namespace App\Support\Admin;
 
 use App\Models\Branch;
 use App\Models\BranchInventory;
+use App\Models\Conversation;
 use App\Models\Enquiry;
 use App\Models\Order;
 use App\Models\User;
@@ -60,7 +61,7 @@ class Attention
             // page that would have found nothing in production.
             $items = array_merge($items, $this->tenant->forBranch(
                 $branch,
-                fn (): array => $this->branchItems()
+                fn (): array => $this->branchItems($user->id)
             ));
         }
 
@@ -103,7 +104,7 @@ class Attention
      *
      * @return list<array{key: string, label: string, count: int, url: string, tone: string}>
      */
-    private function branchItems(): array
+    private function branchItems(int $userId): array
     {
         // Overdue is derived, never stored — a stored flag needs something to
         // set it and that something will not have run this morning. Counted in
@@ -116,6 +117,17 @@ class Attention
             ->count();
 
         return [
+            [
+                // The one item here that genuinely remembers, because a read
+                // cursor is a stored fact rather than a state: this is «what
+                // you have not read», not «what is outstanding». Everything
+                // else in this list is the live shape of the shop.
+                'key' => 'messages',
+                'label' => 'پیام خوانده‌نشده',
+                'count' => Conversation::unreadByStaff($userId)->count(),
+                'url' => route('admin.inbox', ['unread' => 1]),
+                'tone' => 'bad',
+            ],
             [
                 'key' => 'overdue',
                 'label' => 'سفارش از مهلت گذشته',

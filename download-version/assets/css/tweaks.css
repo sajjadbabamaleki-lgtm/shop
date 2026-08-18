@@ -18766,6 +18766,149 @@ body.vp-bare .vp-cart-shot {
 }
 
 /* --------------------------------------------------------------------------
+   The customer's messages — «پیام‌های من».
+
+   The shop's own materials, not the panel's: a shopper is on this page, and it
+   sits beside the basket and the order page. `.vp-shop-panel` is the pane;
+   these are only the parts that pane does not already have.
+
+   Checked against this file before naming: none of `vp-thread*` or `vp-said*`
+   existed. That check is not a formality — `.vp-page` is one link in the
+   paginator and a panel that borrowed the name came out 64px tall with its
+   content under the footer, which nothing failed on.
+   -------------------------------------------------------------------------- */
+
+.vp-threads {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.vp-thread {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 2px;
+}
+
+.vp-thread + .vp-thread {
+  box-shadow: inset 0 1px 0 rgba(16, 17, 17, 0.08);
+}
+
+.vp-thread-what {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+.vp-thread-title {
+  display: block;
+  font-weight: 700;
+}
+
+.vp-thread-meta {
+  display: block;
+  margin-top: 2px;
+  font-size: 13px;
+  color: rgba(16, 17, 17, 0.55);
+}
+
+/* «۲ پاسخ تازه». The gold reads as the shop's own voice, which is what an
+   unanswered reply is. */
+.vp-thread-new {
+  flex: 0 0 auto;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
+  color: #101111;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* --- one thread ----------------------------------------------------------- */
+
+.vp-said-list {
+  margin: 18px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.vp-said {
+  padding: 12px 14px;
+  border-inline-start: 3px solid rgba(16, 17, 17, 0.1);
+}
+
+.vp-said + .vp-said {
+  margin-top: 10px;
+}
+
+/* The customer's own lines carry the shop's gold on the reading edge, so
+   «which of these did I write» is answerable without reading a word. */
+.vp-said.is-me {
+  border-inline-start-color: var(--vp-gold-fill);
+  background: rgba(218, 178, 38, 0.06);
+}
+
+/* A line nobody said — the application, about an order. */
+.vp-said.is-note {
+  color: rgba(16, 17, 17, 0.55);
+  font-size: 13px;
+}
+
+.vp-said-who {
+  margin: 0 0 4px;
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(16, 17, 17, 0.55);
+}
+
+.vp-said-when {
+  margin-inline-start: 8px;
+  font-weight: 400;
+}
+
+/* `pre-wrap` so the paragraphs somebody typed survive being read back. */
+.vp-said-body {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.vp-said-files {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.vp-said-files li {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 10px;
+  background: rgba(16, 17, 17, 0.04);
+  font-size: 13px;
+}
+
+.vp-said-size {
+  color: rgba(16, 17, 17, 0.5);
+  font-size: 12px;
+}
+
+.vp-said-form {
+  margin-top: 20px;
+}
+
+.vp-said-form textarea {
+  resize: vertical;
+}
+
+/* --------------------------------------------------------------------------
    The last rule in the last stylesheet — the shop's signature on the design.
 
    The page is the ThemeForest template's stylesheet with this file on top of

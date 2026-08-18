@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\DiscountController;
 use App\Http\Controllers\Admin\EnquiryController;
 use App\Http\Controllers\Admin\FulfilmentController;
 use App\Http\Controllers\Admin\FulfilmentSettingsController;
+use App\Http\Controllers\Admin\InboxController;
 use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Admin\MarketplaceController;
 use App\Http\Controllers\Admin\OrderController;
@@ -106,6 +107,34 @@ Route::middleware(['auth:web', ResolveAdminTenant::class])->group(function (): v
     Route::post('/orders/{order}/delay', [FulfilmentController::class, 'delay'])
         ->middleware(RequirePermission::class.':branch.orders.manage')
         ->name('order.delay');
+
+    /*
+     * §11's inbox, the shop's side.
+     *
+     * `branch.orders.manage`, reused rather than invented. A new permission
+     * would be a row in `RolesAndPermissionsSeeder`, and the seeder only runs
+     * on an empty catalogue — production has not been empty for weeks, so the
+     * permission would not exist there and this screen would be unreachable on
+     * the live site while passing every test. See CLAUDE.md on seeders.
+     *
+     * The audience is right anyway: whoever answers about an order is whoever
+     * handles orders.
+     */
+    Route::get('/inbox', [InboxController::class, 'index'])
+        ->middleware(RequirePermission::class.':branch.orders.manage')
+        ->name('inbox');
+    Route::get('/inbox/{conversation}', [InboxController::class, 'show'])
+        ->middleware(RequirePermission::class.':branch.orders.manage')
+        ->name('conversation');
+    Route::post('/inbox/{conversation}', [InboxController::class, 'reply'])
+        ->middleware(RequirePermission::class.':branch.orders.manage')
+        ->name('conversation.reply');
+    Route::post('/inbox/{conversation}/status', [InboxController::class, 'status'])
+        ->middleware(RequirePermission::class.':branch.orders.manage')
+        ->name('conversation.status');
+    Route::get('/inbox/{conversation}/files/{attachment}', [InboxController::class, 'file'])
+        ->middleware(RequirePermission::class.':branch.orders.manage')
+        ->name('conversation.file');
 
     Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory');
     Route::post('/inventory', [InventoryController::class, 'update'])

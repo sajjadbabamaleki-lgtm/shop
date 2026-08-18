@@ -1666,3 +1666,91 @@ a.vp-adm-mini {
 .vp-adm .vp-admin-table a {
   color: var(--adm-gold-ink);
 }
+
+/* --- a thread, §11 --------------------------------------------------------
+   Not a chat bubble in a coloured balloon: this is a work screen and the
+   thing being read is text. What separates one line from the next is the
+   author's name, a rule, and — for the shop's own lines — a tinted edge on the
+   reading side, so «who said this» is answerable at a glance without colour
+   being the only thing that says it. */
+.vp-adm-thread {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.vp-adm-said {
+  padding: 12px 14px;
+  border-inline-start: 3px solid transparent;
+}
+
+.vp-adm-said + .vp-adm-said {
+  box-shadow: inset 0 1px 0 var(--adm-line);
+}
+
+/* Ours. The gold is the shop's, at a weight that marks an edge rather than
+   filling a balloon — §22: «Never use gold as the color for every state.» */
+.vp-adm-said.is-us {
+  border-inline-start-color: var(--adm-gold-fill);
+  background: var(--adm-gold-wash);
+}
+
+/* A line the application wrote — «سفارش ارسال شد». Quieter than either
+   person's, because nobody said it. */
+.vp-adm-said.is-note {
+  border-inline-start-color: var(--adm-line);
+  color: var(--adm-ink-2);
+  font-size: 13px;
+}
+
+.vp-adm-said-who {
+  margin: 0 0 4px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--adm-ink-2);
+}
+
+.vp-adm-said-when {
+  margin-inline-start: 8px;
+  font-weight: 500;
+}
+
+/* `pre-wrap`, so the paragraphs somebody typed survive. A message run together
+   into one block is a message that has to be read twice. */
+.vp-adm-said-body {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.vp-adm-files {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.vp-adm-files li {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 4px 10px;
+  border: 1px solid var(--adm-line);
+  border-radius: var(--adm-r-sm);
+  background: var(--adm-surface);
+}
+
+.vp-adm-files .vp-adm-sub {
+  display: inline;
+}
+
+.vp-adm-answer {
+  margin-top: 16px;
+}
+
+.vp-adm-answer textarea {
+  min-height: 96px;
+  resize: vertical;
+}
