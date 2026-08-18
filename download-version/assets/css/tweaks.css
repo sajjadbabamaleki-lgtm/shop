@@ -18854,17 +18854,17 @@ body.vp-bare .vp-cart-shot {
    see «لبه پنهان» in CLAUDE.md for why the bottom edge is drawn as ink rather
    than left to a shadow.
 
-   The corner is 50, the ladder panel's own. It went 26 → 31.2 on «گوشه هاش
-   ۲۰ درصد کروتر بشن» and then straight to 50 on «بشه ۵۰ بجای ۳۱» — which is
-   the better answer anyway, and the reasoning that argued against it («50
-   takes a bite out of a shape with nothing near its edges») was about the
-   ink version of this card. On the glass it is the ladder's material at the
-   ladder's radius, which is one fewer number on the page rather than one
-   more. */
+   The corner is 40, settled by eye over four passes: 26 (the ink version's),
+   31.2 on «گوشه هاش ۲۰ درصد کروتر بشن», 50 on «بشه ۵۰ بجای ۳۱», and 40 on
+   «گوشه کارت شیشه ای باید ۴۰ باشه». Worth recording that it is *not* the
+   ladder panel's 50 even though the two share a material: this card is 443
+   tall against the ladder's 567 and holds four centred things in a lot of
+   air, so the same radius reads rounder here than it does there. The number
+   the client stopped at is the one to keep. */
 .vp-dice-card {
   position: relative;
   padding: 44px 20px 36px;
-  border-radius: 50px;
+  border-radius: 40px;
   overflow: hidden;
   text-align: center;
   background: rgba(16, 17, 17, 0.084);
