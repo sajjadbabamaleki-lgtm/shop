@@ -18766,6 +18766,30 @@ body.vp-bare .vp-cart-shot {
 }
 
 /* --------------------------------------------------------------------------
+   The pay button on an unpaid order.
+
+   It is the page's one action, so it sits apart from the notice above it and
+   spans the panel on a phone rather than being a chip somebody has to aim at.
+   The button itself is the shop's own `.vp-filter-apply .vp-cart-go` — the
+   same gold as «ثبت سفارش», because it is the same commitment one step later.
+   -------------------------------------------------------------------------- */
+
+.vp-order-pay {
+  margin: 14px 0 4px;
+}
+
+.vp-order-pay button {
+  width: 100%;
+}
+
+@media (min-width: 576px) {
+  .vp-order-pay button {
+    width: auto;
+    min-width: 260px;
+  }
+}
+
+/* --------------------------------------------------------------------------
    The customer's messages — «پیام‌های من».
 
    The shop's own materials, not the panel's: a shopper is on this page, and it

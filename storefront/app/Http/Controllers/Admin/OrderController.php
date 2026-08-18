@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Audit;
 use App\Models\Order;
+use App\Models\Payment;
 use App\Models\ShippingMethod;
 use App\Support\Admin\DateRange;
 use App\Support\Checkout\SettleOrder;
@@ -144,6 +145,12 @@ class OrderController extends Controller
                 ->where('is_active', true)
                 ->orderBy('id')
                 ->get(),
+
+            // §6's money, from the payments table rather than from the
+            // order's own `payment_status`: that column says whether it is
+            // paid, and this says by what and with which reference.
+            'receipt' => $order->payments()->where('status', Payment::PAID)->latest('id')->first(),
+            'attempts' => $order->payments()->latest('id')->get(),
 
             'delaysEnabled' => (bool) ($settings['delays_enabled'] ?? true),
             'maxDelay' => (int) ($settings['max_delay_days'] ?? 7),

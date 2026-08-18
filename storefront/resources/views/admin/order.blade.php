@@ -87,7 +87,36 @@
             @if ($order->payment_method)
                 <li><span>روش پرداخت</span><b>{{ $order->payment_method }}</b></li>
             @endif
+
+            {{-- The gateway's own reference, which is what a customer quotes
+                 on the telephone and the only thing that ties this order to a
+                 line on the shop's ZarinPal statement. --}}
+            @if ($receipt)
+                <li><span>شماره پیگیری</span><b><bdi dir="ltr">{{ $receipt->ref_id }}</bdi></b></li>
+                @if ($receipt->card_pan)
+                    <li><span>کارت</span><b><bdi dir="ltr">{{ $receipt->card_pan }}</bdi></b></li>
+                @endif
+            @endif
         </ul>
+
+        {{-- Failed and abandoned attempts, listed rather than hidden. «چرا این
+             سفارش دو بار پرداخت شد» has an answer only if the ones that did not
+             work are on the record too. --}}
+        @if ($attempts->isNotEmpty())
+            <p class="vp-adm-form-label">تلاش‌های پرداخت</p>
+            <ul class="vp-adm-list">
+                @foreach ($attempts as $attempt)
+                    <li>
+                        <span>{{ fa_date($attempt->created_at, true) }}</span>
+                        <b>
+                            <span class="vp-adm-badge is-{{ $attempt->isPaid() ? 'delivered' : ($attempt->status === \App\Models\Payment::FAILED ? 'cancelled' : 'placed') }}">
+                                {{ $attempt->statusLabel() }}
+                            </span>
+                        </b>
+                    </li>
+                @endforeach
+            </ul>
+        @endif
 
         <p class="vp-adm-address">
             {{ collect([$order->province, $order->city, $order->address])->filter()->implode('، ') }}

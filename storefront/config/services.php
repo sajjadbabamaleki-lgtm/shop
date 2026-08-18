@@ -96,6 +96,51 @@ return [
         'pattern' => env('SMS_PATTERN'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | The payment gateway
+    |--------------------------------------------------------------------------
+    |
+    | **`at-the-door` is the default and it is a real arrangement**, not a
+    | placeholder: the courier takes the money, which is how this shop has sold
+    | since it opened. `PaymentServiceProvider` therefore does *not* refuse to
+    | boot on it the way the SMS provider refuses to boot on `log` — that
+    | driver delivers nothing and is always wrong; this one delivers shoes.
+    |
+    | **`zarinpal`** is the card gateway, on ZarinPal's v4 REST API:
+    |
+    |   PAYMENT_DRIVER=zarinpal
+    |   ZARINPAL_MERCHANT_ID   the 36-character id from the ZarinPal panel.
+    |                          Without it the provider refuses, loudly: a
+    |                          checkout offering a card payment it cannot take
+    |                          is worse than one that does not offer it.
+    |   ZARINPAL_SANDBOX=true  sends everything to sandbox.zarinpal.com, where
+    |                          payments are pretend. **Never true in
+    |                          production** — the shop would confirm orders
+    |                          nobody paid for.
+    |
+    | The merchant id is not a secret in the way an API key is — it identifies
+    | the shop rather than authenticating it — but it does not belong in the
+    | repository either: the deploy ships no .env, so it is set as an
+    | environment variable on the Liara app.
+    |
+    | **Amounts go to ZarinPal in Rial, with `currency: IRR` named on every
+    | call.** ZarinPal accepts both Rial and Toman and decides by that field.
+    | Leaving it out means trusting whatever the account happens to be set to,
+    | and being wrong is a charge ten times too big or too small that looks
+    | entirely normal in every log on both sides. See App\Support\Payments\ZarinPal.
+    |
+    */
+
+    'payment' => [
+        'driver' => env('PAYMENT_DRIVER', 'at-the-door'),
+
+        'zarinpal' => [
+            'merchant_id' => env('ZARINPAL_MERCHANT_ID'),
+            'sandbox' => env('ZARINPAL_SANDBOX', false),
+        ],
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),

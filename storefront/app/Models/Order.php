@@ -85,6 +85,18 @@ class Order extends Model
         return $this->hasMany(OrderItem::class);
     }
 
+    /**
+     * Every attempt to pay for it — successful or not.
+     *
+     * A customer who abandons the gateway and comes back leaves two rows, and
+     * both are kept: «چرا این سفارش دو بار پرداخت شد» has an answer only if
+     * the failures are on the record too.
+     */
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
+    }
+
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);

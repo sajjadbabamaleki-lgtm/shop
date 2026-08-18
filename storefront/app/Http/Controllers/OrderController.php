@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Customer;
 use App\Models\Order;
+use App\Models\Payment;
 use App\Support\Checkout\SettleOrder;
+use App\Support\Payments\AtTheDoor;
+use App\Support\Payments\Gateway;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -25,11 +28,24 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
  */
 class OrderController extends Controller
 {
-    public function show(Request $request, Order $order): View
+    public function show(Request $request, Order $order, Gateway $gateway): View
     {
         $this->mustBeTheirs($request, $order);
 
-        return view('shop.order', ['order' => $order->load('items')]);
+        return view('shop.order', [
+            'order' => $order->load('items'),
+
+            // Whether this shop can take a card at all. Asked of the gateway
+            // that is configured rather than of a setting read in the view, so
+            // a shop with no gateway shows «پرداخت هنگام تحویل» and one with a
+            // gateway shows a button — and neither has to be kept in step by
+            // hand.
+            'canPayOnline' => ! $gateway instanceof AtTheDoor,
+
+            // The receipt, if the money arrived. Read here so the page does
+            // not have to know that a payment is a row.
+            'receipt' => $order->payments()->where('status', Payment::PAID)->latest('id')->first(),
+        ]);
     }
 
     /**

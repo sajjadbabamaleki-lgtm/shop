@@ -8,6 +8,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\VendorApplicationController;
@@ -193,6 +194,24 @@ $storefront = function (): void {
         Route::get('/account/messages/{conversation}/files/{attachment}', [MessageController::class, 'file'])
             ->name('account.message.file');
     });
+
+    /*
+     * §6's card payment.
+     *
+     * `/checkout/callback` carries no authentication and that is deliberate:
+     * the customer coming back from ZarinPal may have lost their session on
+     * the way — a gateway can return in a new tab, and a phone can drop a
+     * cookie — and refusing them there would mean money taken with the order
+     * left unpaid. What stands in its place is the authority, which ZarinPal
+     * chose and nobody can guess, and the server-to-server verify behind it.
+     *
+     * Declared inside the storefront group so the callback URL carries the
+     * branch prefix: a franchise's customer must come back to the franchise's
+     * own address, or the order page they land on is the wrong shop's.
+     */
+    Route::post('/orders/{order}/pay', [PaymentController::class, 'pay'])
+        ->middleware('throttle:20,10')->name('order.pay');
+    Route::get('/checkout/callback', [PaymentController::class, 'callback'])->name('payment.callback');
 
     Route::get('/orders', [OrderController::class, 'track'])->name('orders.track');
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('order');
