@@ -27,13 +27,23 @@ use Tests\TestCase;
  * making the one file the shop's entire appearance lives in the one file that
  * must come over the network at exactly the wrong moment.
  *
- * Two pieces answer it, and each is invisible without the other:
+ * Three pieces answer it, and each is invisible without the others:
  *
  *   - `tweaks.css` ends with `--vp-design: ok`, a property that cannot be read
  *     unless the whole file arrived;
- *   - the head's gate reads it before <body> is parsed and, if it is missing,
- *     hides the document, reloads once, and then says the site is updating
+ *   - an inline style **above the first <link>** hides the document before any
+ *     stylesheet has even been requested;
+ *   - the head's gate reads the property before <body> is parsed and either
+ *     reveals the page, or reloads once, and then says the site is updating
  *     rather than letting the template through.
+ *
+ * The hold is the third round's doing. The gate alone answers a stylesheet
+ * that **fails**; it says nothing about one that is merely **slow**, and it
+ * relied on the browser blocking on a pending <link> — which Chromium does and
+ * Safari need not. The client saw the template a third time on an iPhone,
+ * half an hour after a deploy, with the site barely answering:
+ * «چرا باز دوباره اثرات قالب قبلیو دیدم چند لحظه؟؟؟». Hidden is the default
+ * now and visible is earned, so no browser's rendering choice can lose it.
  *
  * Nothing else can see either of them. `check-parity.js` renders a page where
  * the CSS is served, so the gate opens and it measures zero; `check-overflow.js`
@@ -134,6 +144,65 @@ class DesignGateTest extends TestCase
             'answers for a stylesheet that is still on its way and hides a page',
             'that was going to be fine. It belongs after the last <link>.',
         ]));
+    }
+
+    /**
+     * The hold: nothing paints before the design has signed itself.
+     *
+     * Measured in Chromium with `tweaks.css` held back four seconds — without
+     * this, `html` is `visible` and the template's own peach hero
+     * (rgb(255,226,181), the exact colour off the client's screenshot) is on
+     * the screen; with it, `html` is `hidden` and the body is not even parsed.
+     */
+    public function test_nothing_paints_before_the_design_has_signed_itself(): void
+    {
+        foreach (['/', '/admin/login'] as $path) {
+            $html = $this->get($path)->getContent();
+
+            $hold = strpos($html, '<style>html{visibility:hidden}</style>');
+            $noscript = strpos($html, '<noscript><style>html{visibility:visible}</style></noscript>');
+
+            $found = preg_match('~<link[^>]+rel="stylesheet"~i', $html, $m, PREG_OFFSET_CAPTURE);
+            $firstSheet = $found ? $m[0][1] : false;
+
+            $this->assertNotFalse($hold, implode("\n", [
+                "{$path} does not hide itself before its stylesheets load, so a",
+                'browser that paints while tweaks.css is still coming shows the',
+                'template. The head is generated — fix theme/make-rtl-page.js.',
+            ]));
+
+            $this->assertNotFalse($noscript, "{$path} would stay hidden for ever without JavaScript.");
+            $this->assertNotFalse($firstSheet, "{$path} loads no stylesheets at all.");
+
+            $this->assertLessThan($firstSheet, $hold, implode("\n", [
+                "{$path} hides itself after it has already asked for a stylesheet.",
+                'The hold has to be above every <link> — below one, there is a',
+                'window where the template can paint.',
+            ]));
+        }
+    }
+
+    /**
+     * And every way out of the gate has to end with the page on the screen.
+     * A document left hidden is worse than one showing the wrong thing.
+     */
+    public function test_every_path_out_of_the_gate_reveals_the_page(): void
+    {
+        $html = $this->get('/')->assertOk()->getContent();
+
+        $gate = substr($html, (int) strpos($html, '--vp-design'));
+        $gate = substr($gate, 0, (int) strpos($gate, '</script>'));
+
+        $this->assertSame(
+            2,
+            substr_count($gate, 'show()'),
+            implode("\n", [
+                'The gate has a path that neither reveals the page nor replaces it',
+                'with the notice: both bail-outs — the browser too old to have',
+                'custom properties, and the design arriving intact — must call',
+                'show(), or that visitor is left looking at a hidden document.',
+            ])
+        );
     }
 
     private function assertSignedLast(string $file): void

@@ -223,6 +223,53 @@ layers.push('assets/css/tweaks.css');
 // It costs nothing when the file arrives: one computed-style read, and the
 // gate returns before it touches the document. check-parity.js still prints
 // zero — both pages run this and both open it.
+//
+// ── the hole this left, found the hard way ────────────────────────────────
+//
+// All of the above is written for a stylesheet that **fails**. It says nothing
+// about one that is merely **slow**, and the client saw the template a third
+// time — not during a deploy, half an hour after one, on an iPhone, with the
+// site barely answering at all: «چرا باز دوباره اثرات قالب قبلیو دیدم چند
+// لحظه؟؟؟».
+//
+// There is a load-bearing assumption above: "this script sits after every
+// <link> in the head, which means the browser has already finished with all of
+// them — loaded or failed — before it runs." That is true of a stylesheet that
+// has resolved. One still in flight has not finished, and what a browser does
+// while it waits is its own business. Chromium blocks: measured here with
+// tweaks.css held back three seconds, the body is not parsed at 2.5s and
+// nothing paints. **Safari does not have to**, and the client is on an iPhone.
+// A 644KB stylesheet on a container that is struggling is exactly the case
+// that takes long enough to find out.
+//
+// So the gate no longer relies on the browser's choice. The document is hidden
+// by an inline style **above the first <link>** — before any stylesheet has
+// been asked for, let alone painted — and only the gate reveals it, on the one
+// condition that the design signed itself. Hidden is the default and visible
+// is earned, which is the way round that cannot be lost by a browser deciding
+// to paint early.
+//
+// What it costs: on a slow connection the visitor waits on white rather than
+// watching the template assemble itself. That is the trade, and being shown
+// somebody else's design has now cost this project three rounds. `<noscript>`
+// reveals the page where there is no JavaScript, and both bail-outs in the
+// gate reveal it too, so nothing can leave a page hidden for ever.
+//
+// The real cure is still the one in CLAUDE.md: the template's stylesheet is
+// 648KB of foundation under this page, and while it is there it can always be
+// what paints. The gate stops it being *seen*. Nothing else does.
+// Hidden until the design says otherwise. This goes above the first <link> on
+// purpose: at that point the browser has not requested a single stylesheet, so
+// there is no state in which the template can paint first.
+const DESIGN_HOLD = [
+  '    <!-- Hidden until the design signs itself; the gate below reveals it.',
+  '         See «قالب قبلی» in CLAUDE.md before touching either half. -->',
+  '    <style>html{visibility:hidden}</style>',
+  '    <noscript><style>html{visibility:visible}</style></noscript>',
+  '',
+  '',
+].join('\n');
+
 const DESIGN_GATE = [
   '',
   '',
@@ -232,18 +279,23 @@ const DESIGN_GATE = [
   '        (function () {',
   '            var root = document.documentElement;',
   '',
+  '            // Whatever happens below, a document left hidden is worse than',
+  '            // one showing the wrong thing, so every path out of here either',
+  '            // reveals the page or replaces it with the notice.',
+  "            var show = function () { root.style.visibility = 'visible'; };",
+  '',
   '            // A browser with no custom properties would fail this for ever,',
   '            // and it has bigger problems with this page than the gate.',
-  "            if (!window.getComputedStyle || !window.CSS || !CSS.supports || !CSS.supports('--vp-design', 'ok')) return;",
+  "            if (!window.getComputedStyle || !window.CSS || !CSS.supports || !CSS.supports('--vp-design', 'ok')) { show(); return; }",
   '',
   '            var key = "vp-design-retry";',
   '            var mark = function (v) { try { v === null ? sessionStorage.removeItem(key) : sessionStorage.setItem(key, v); } catch (e) {} };',
   '            var marked = function () { try { return sessionStorage.getItem(key) === "1"; } catch (e) { return false; } };',
   '',
-  "            if (getComputedStyle(root).getPropertyValue('--vp-design').trim() === 'ok') { mark(null); return; }",
+  "            if (getComputedStyle(root).getPropertyValue('--vp-design').trim() === 'ok') { show(); mark(null); return; }",
   '',
-  '            // Nothing is painted yet. Keep it that way.',
-  "            root.style.visibility = 'hidden';",
+  '            // Nothing is painted yet — the hold above saw to that — and it',
+  '            // stays that way until there is something true to show.',
   '',
   '            if (!marked()) {',
   '                mark("1");',
@@ -268,6 +320,14 @@ const DESIGN_GATE = [
   '        })();',
   '    </script>',
 ].join('\n');
+
+// The hold goes above the first stylesheet the head asks for; the gate goes
+// below the last one. Between them, nothing paints unsigned.
+const FIRST_SHEET = /([ \t]*<link[^>]+href="assets\/css\/bootstrap\.rtl\.min\.css"[^>]*>)/i;
+if (!FIRST_SHEET.test(html)) {
+  throw new Error('the head has no bootstrap stylesheet to put the design hold above');
+}
+html = html.replace(FIRST_SHEET, DESIGN_HOLD + '$1');
 
 html = html.replace(
   /(<link[^>]+href="assets\/css\/style\.rtl\.css"[^>]*>)/i,
