@@ -18854,16 +18854,17 @@ body.vp-bare .vp-cart-shot {
    see «لبه پنهان» in CLAUDE.md for why the bottom edge is drawn as ink rather
    than left to a shadow.
 
-   The corner is 31.2 — 26 plus the client's 20%, «گوشه هاش ۲۰ درصد کروتر
-   بشن». It started at 26 rather than the ladder's 50 because this card is 443
-   tall and mostly air, and 50 took a bite out of a shape with nothing near its
-   edges to justify it; 31.2 is still well short of that. Kept as the decimal
-   rather than rounded to 31, because 20% of 26 is what was asked for and a
-   fraction of a pixel costs nothing. */
+   The corner is 50, the ladder panel's own. It went 26 → 31.2 on «گوشه هاش
+   ۲۰ درصد کروتر بشن» and then straight to 50 on «بشه ۵۰ بجای ۳۱» — which is
+   the better answer anyway, and the reasoning that argued against it («50
+   takes a bite out of a shape with nothing near its edges») was about the
+   ink version of this card. On the glass it is the ladder's material at the
+   ladder's radius, which is one fewer number on the page rather than one
+   more. */
 .vp-dice-card {
   position: relative;
   padding: 44px 20px 36px;
-  border-radius: 31.2px;
+  border-radius: 50px;
   overflow: hidden;
   text-align: center;
   background: rgba(16, 17, 17, 0.084);
@@ -18912,7 +18913,10 @@ body.vp-bare .vp-cart-shot {
   width: 104px;
   height: 104px;
   padding: 14px;
-  border-radius: 22px;
+  /* «تاس هارم گرد کن» — 22 → 32, which is 31% of the die's own width where it
+     was 21%. Kept as a fraction of the size rather than a flat number so the
+     phone's smaller die below takes the same shape, not a squarer one. */
+  border-radius: 32px;
   background: linear-gradient(160deg, #FFFFFF 0%, #F4F5F6 100%);
   /* On ink a shadow was optional; on 235 glass it is the only thing telling a
      white die from the panel behind it. Two of them: a tight one that draws
@@ -19286,7 +19290,8 @@ body.vp-bare .vp-cart-shot {
     width: 88px;
     height: 88px;
     padding: 12px;
-    border-radius: 18px;
+    /* 27/88 is the same 31% the desktop die carries. */
+    border-radius: 27px;
   }
 
   .vp-dice-go {
