@@ -12,6 +12,7 @@
     @include('home.stories')
     @include('home.hero')
     @include('home.categories')
+    @include('home.dice')
     @include('home.ladder')
     @include('home.best-sellers')
     @include('home.offer-banner')

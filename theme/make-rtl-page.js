@@ -813,6 +813,42 @@ const TRUST_ROW =
   ).join('') +
   '\n            </div>';
 
+// --------------------------------------------------------------------------
+// «تاس شانس» — the game band, under the trust row.
+//
+// Two dice at rest, a button, and a line saying one throw per person. What is
+// here is the **opening state and nothing else**: the result card is built by
+// the script when the server answers, so this markup is the same for every
+// visitor — which is what lets check-parity.js compare the static preview
+// against the Laravel page at all. A band whose HTML depended on who was
+// looking could not be checked that way.
+//
+// The dice faces are drawn, not pictures: seven pip positions per die, shown
+// and hidden by a class. That is one element per pip and no request, against
+// six images per die that would each have to load before the first throw
+// could be shown.
+// --------------------------------------------------------------------------
+const DIE_FACE = (n) =>
+  '\n                        <span class="vp-die" data-face="' + n + '" aria-hidden="true">' +
+  [1, 2, 3, 4, 5, 6, 7].map(() => '<i></i>').join('') +
+  '</span>';
+
+const DICE_BAND =
+  '\n    <section class="vp-dice-area" id="vp-dice">' +
+  '\n        <div class="container th-container">' +
+  '\n            <div class="vp-dice-card">' +
+  '\n                <h2 class="vp-dice-title">تاس شانس — بنداز و ببر!</h2>' +
+  '\n                <p class="vp-dice-say">روی دکمه شروع بزن تا تاس‌ها بچرخن؛<br>جفت شیش بیاد، جایزه‌ات فعال می‌شه</p>' +
+  '\n                <div class="vp-dice-pair" data-dice-pair>' +
+  DIE_FACE(3) +
+  DIE_FACE(5) +
+  '\n                </div>' +
+  '\n                <button type="button" class="vp-dice-go" data-dice-go>شروع بازی</button>' +
+  '\n                <p class="vp-dice-foot">هر کاربر یک بار شانس داره</p>' +
+  '\n            </div>' +
+  '\n        </div>' +
+  '\n    </section>';
+
 // The trust row sits outside .th-container, in its own full-bleed wrapper —
 // the client wants it run out to the same 18px-from-the-edge margin as the
 // header island (.th-header .menu-area), not held to the container's width
@@ -826,7 +862,8 @@ html = html.replace(
   '        <div class="vp-trust-row-wrap">\n' +
   '            ' + TRUST_ROW + '\n' +
   '        </div>\n' +
-  '    </section>'
+  '    </section>\n' +
+  DICE_BAND
 );
 
 // Best sellers: six cards in a fixed row rather than the template's
@@ -2214,6 +2251,294 @@ html = html.replace('</body>',
 // The one thing this adds rather than preserves is the reserve: the height the
 // island gives up when it leaves the flow, measured and handed to tweaks.css,
 // which is what stops the page stepping at the threshold. See «پریدگی» there.
+// «تاس شانس» — the throw, from the page's side.
+//
+// Plain DOM, no jQuery: the band is one button and it should not wait on a
+// library that the rest of this page happens to carry. It reads two addresses
+// off the section (`data-dice-url`, `data-shop-url`) so the same markup works
+// in the Laravel app and in this static preview, where there is no server and
+// the throw simply says so.
+//
+// **Nothing here decides anything.** The faces, the win and the code all come
+// back from the server; this only shows them. A visitor who edits this script
+// changes what their own screen says and nothing else — which is the whole
+// reason the roll is not done in the browser.
+const DICE_SCRIPT =
+`    <script>
+        (function () {
+            var band = document.getElementById('vp-dice');
+            if (!band) { return; }
+
+            var pair = band.querySelector('[data-dice-pair]');
+            var go = band.querySelector('[data-dice-go]');
+            if (!pair || !go) { return; }
+
+            var dice = pair.querySelectorAll('.vp-die');
+            var url = band.getAttribute('data-dice-url') || '/game/dice';
+            var shop = band.getAttribute('data-shop-url') || '/products';
+            var busy = false;
+
+            // The dice tumble for this long whatever the network does. An
+            // answer that arrives in 40ms and stops them dead is not a throw;
+            // a slow one keeps them going until it lands.
+            var TUMBLE = 1100;
+
+            function fa(text) {
+                return String(text).replace(/[0-9]/g, function (d) {
+                    return String.fromCharCode(1776 + Number(d));
+                });
+            }
+
+            function csrf() {
+                var meta = document.querySelector('meta[name="csrf-token"]');
+                return band.getAttribute('data-dice-token') || (meta ? meta.getAttribute('content') : '');
+            }
+
+            // The button is spent after one throw, so it is replaced by the
+            // sentence rather than left sitting there disabled.
+            function spend(text) {
+                var line = document.createElement('p');
+                line.className = 'vp-dice-done';
+                line.textContent = text;
+                if (go.parentNode) { go.parentNode.replaceChild(line, go); }
+            }
+
+            // A throw that never reached the server is not a throw. The button
+            // comes back and the reason goes under it — spending it here would
+            // charge somebody their one go for a dropped packet.
+            function excuse(text) {
+                var line = band.querySelector('.vp-dice-done');
+
+                if (!line) {
+                    line = document.createElement('p');
+                    line.className = 'vp-dice-done';
+                    go.parentNode.insertBefore(line, go.nextSibling);
+                }
+
+                line.textContent = text;
+                go.disabled = false;
+                busy = false;
+            }
+
+            function copy(text, button) {
+                function done() {
+                    button.textContent = 'کپی شد';
+                    setTimeout(function () { button.textContent = 'کپی'; }, 1600);
+                }
+
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(text).then(done, function () {});
+                    return;
+                }
+
+                // http, or an older browser. execCommand is deprecated and is
+                // the only thing that works there.
+                var box = document.createElement('textarea');
+                box.value = text;
+                box.setAttribute('readonly', 'readonly');
+                box.style.position = 'fixed';
+                box.style.insetBlockStart = '-1000px';
+                document.body.appendChild(box);
+                box.select();
+                try { document.execCommand('copy'); done(); } catch (e) {}
+                document.body.removeChild(box);
+            }
+
+            function confetti(card) {
+                // The page's gold, its ink and its grey. Confetti in colours
+                // the site does not otherwise own is how the band ended up
+                // looking like somebody else's site the first time.
+                var colours = ['#DAB226', '#EFC94F', '#A08119', '#101111', '#E7E9EC'];
+                var field = document.createElement('div');
+                field.className = 'vp-confetti';
+
+                for (var i = 0; i < 24; i++) {
+                    var piece = document.createElement('i');
+                    piece.style.insetInlineStart = (Math.random() * 100) + '%';
+                    piece.style.background = colours[i % colours.length];
+                    piece.style.animationDelay = (Math.random() * 0.8) + 's';
+                    piece.style.animationDuration = (2.2 + Math.random() * 1.2) + 's';
+                    field.appendChild(piece);
+                }
+
+                card.appendChild(field);
+            }
+
+            function prize(answer) {
+                var scrim = document.createElement('div');
+                scrim.className = 'vp-prize-scrim';
+                scrim.setAttribute('role', 'dialog');
+                scrim.setAttribute('aria-modal', 'true');
+                scrim.setAttribute('aria-label', 'جایزه تاس شانس');
+
+                var card = document.createElement('div');
+                card.className = 'vp-prize';
+                scrim.appendChild(card);
+
+                var shut = document.createElement('button');
+                shut.type = 'button';
+                shut.className = 'vp-prize-shut';
+                shut.setAttribute('aria-label', 'بستن');
+                shut.textContent = '×';
+                card.appendChild(shut);
+
+                // The shop's own star, not a disc — the hero's mark and the
+                // sale cards' mark are this same shape, and the path and the
+                // studs are interpolated from the very constants that draw
+                // them, so the three can never drift apart. The figure is
+                // Latin on purpose, the way the hero's «25% OFF» is.
+                var badge = document.createElement('div');
+                badge.className = 'vp-prize-badge';
+                badge.innerHTML = '<svg class="vp-prize-burst" viewBox="0 0 150 150" aria-hidden="true">'
+                    + '<defs><linearGradient id="vp-prize-burst-gold" x1="0" y1="0" x2="0" y2="1">'
+                    + '<stop offset="0%" stop-color="#C0972F"></stop><stop offset="100%" stop-color="#E3B54A"></stop>'
+                    + '</linearGradient></defs>'
+                    + '<g class="vp-burst-star">'
+                    + '<path fill="url(#vp-prize-burst-gold)" d="${BURST_PATH}"></path>'
+                    + '${BURST_STUDS}'
+                    + '</g>'
+                    + '<text class="vp-burst-num" x="75" y="72"></text>'
+                    + '<text class="vp-burst-off" x="75" y="98">OFF</text>'
+                    + '</svg>';
+                badge.querySelector('.vp-burst-num').textContent = answer.percent + '%';
+                card.appendChild(badge);
+
+                var what = document.createElement('p');
+                what.className = 'vp-prize-what';
+                what.textContent = 'جفت شیش آوردی 🎲';
+                card.appendChild(what);
+
+                var title = document.createElement('h3');
+                title.className = 'vp-prize-title';
+                title.textContent = answer.fresh ? 'تبریک! 🎉' : 'جایزه‌ات همین‌جاست';
+                card.appendChild(title);
+
+                var say = document.createElement('p');
+                say.className = 'vp-prize-say';
+                say.textContent = fa(answer.percent) + '٪ تخفیف روی سفارشت، برای شما فعال شد.';
+                card.appendChild(say);
+
+                var box = document.createElement('div');
+                box.className = 'vp-prize-code';
+                var label = document.createElement('span');
+                label.textContent = 'کد تخفیف';
+                var value = document.createElement('b');
+                value.textContent = answer.code;
+                var take = document.createElement('button');
+                take.type = 'button';
+                take.className = 'vp-prize-copy';
+                take.textContent = 'کپی';
+                take.addEventListener('click', function () { copy(answer.code, take); });
+                box.appendChild(label);
+                box.appendChild(value);
+                box.appendChild(take);
+                card.appendChild(box);
+
+                var use = document.createElement('a');
+                use.className = 'vp-prize-go';
+                use.href = shop;
+                use.textContent = 'استفاده از تخفیف';
+                card.appendChild(use);
+
+                var when = document.createElement('p');
+                when.className = 'vp-prize-when';
+                when.textContent = '⏱ اعتبار کد: ' + fa(answer.hours) + ' ساعت';
+                card.appendChild(when);
+
+                confetti(card);
+
+                function shutIt() {
+                    if (scrim.parentNode) { scrim.parentNode.removeChild(scrim); }
+                    document.removeEventListener('keydown', onKey);
+                    go.focus && go.focus();
+                }
+
+                function onKey(event) {
+                    if (event.key === 'Escape') { shutIt(); }
+                }
+
+                shut.addEventListener('click', shutIt);
+                scrim.addEventListener('click', function (event) {
+                    if (event.target === scrim) { shutIt(); }
+                });
+                document.addEventListener('keydown', onKey);
+
+                document.body.appendChild(scrim);
+                shut.focus();
+            }
+
+            function land(answer) {
+                pair.classList.remove('is-rolling');
+
+                if (answer.dice && answer.dice.length === 2) {
+                    for (var i = 0; i < dice.length && i < 2; i++) {
+                        dice[i].setAttribute('data-face', String(answer.dice[i]));
+                    }
+                }
+
+                if (answer.won && answer.code) {
+                    // The code goes on the band as well as in the card, so
+                    // closing the card does not take it away.
+                    spend('جفت شیش! کد تخفیفت: ' + answer.code);
+                    prize(answer);
+                    return;
+                }
+
+                if (answer.won) {
+                    // Won, but the code has been spent or has expired.
+                    spend('قبلاً بازی کردی و برده بودی؛ کد تخفیفت دیگر معتبر نیست.');
+                    return;
+                }
+
+                spend(answer.fresh
+                    ? 'این بار جفت شیش نیامد. هر کاربر یک بار شانس دارد.'
+                    : 'قبلاً بازی کردی — این بار جفت شیش نیامده بود.');
+            }
+
+            go.addEventListener('click', function () {
+                if (busy) { return; }
+                busy = true;
+
+                go.disabled = true;
+                pair.classList.add('is-rolling');
+
+                var thrown = Date.now();
+                var landed = function (answer) {
+                    var left = Math.max(0, TUMBLE - (Date.now() - thrown));
+                    setTimeout(function () { land(answer); }, left);
+                };
+
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrf(),
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    },
+                    credentials: 'same-origin'
+                }).then(function (response) {
+                    return response.json().catch(function () { return {}; }).then(function (body) {
+                        if (!response.ok) {
+                            throw new Error(body.error || (response.status === 429
+                                ? 'کمی صبر کن و دوباره بزن.'
+                                : 'الان نشد؛ کمی بعد دوباره امتحان کن.'));
+                        }
+                        return body;
+                    });
+                }).then(landed, function (error) {
+                    var left = Math.max(0, TUMBLE - (Date.now() - thrown));
+                    setTimeout(function () {
+                        pair.classList.remove('is-rolling');
+                        excuse(error && error.message ? error.message : 'الان نشد؛ کمی بعد دوباره امتحان کن.');
+                    }, left);
+                });
+            });
+        })();
+    </script>
+</body>`;
+
+html = html.replace('</body>', DICE_SCRIPT);
+
 html = html.replace('</body>',
   '    <script>\n' +
   '        (function () {\n' +

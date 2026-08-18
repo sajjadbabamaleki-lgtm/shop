@@ -197,17 +197,18 @@ ladder.text += '\n' + modal + '\n';
 
 // --- the inline scripts ------------------------------------------------------
 //
-// Five of them run after main.js. Three are page-wide and stay with the script
+// Six of them run after main.js. Four are page-wide and stay with the script
 // tags; two drive one section each and move to that section's partial, pushed
 // onto a stack the layout empties in the same place the tags used to sit. All
-// five are independent IIFEs, so their order relative to each other does not
+// six are independent IIFEs, so their order relative to each other does not
 // matter — only that they still run after main.js, which the stack preserves.
 //
-// The fifth is the category strip's auto-scroll. It stays page-wide rather
-// than moving to the categories partial, and not by preference: that partial
-// is one of the six hand-owned ones this script deliberately does not write,
-// so there is nowhere for it to be pushed to. It finds its strip by selector,
-// which the hand-written Blade renders under the same class.
+// Two of the page-wide four belong to a section and stay here anyway: the
+// category strip's auto-scroll and the dice game's throw. Not by preference —
+// `partials/categories` and `home/dice` are two of the hand-owned Blades this
+// script deliberately does not write, so there is nowhere to push them to.
+// Both find their section by selector, which the hand-written Blade renders
+// under the same class and id.
 const SECTION_SCRIPTS = [
   { owns: '.vp-hero-marks', region: 'hero' },
   { owns: 'vp-ladder-how', region: 'ladder' },
@@ -215,8 +216,8 @@ const SECTION_SCRIPTS = [
 
 const INLINE = /[ \t]*<script>\n[\s\S]*?<\/script>\n?/g;
 const inlineScripts = pageEnd.text.match(INLINE) || [];
-if (inlineScripts.length !== 5) {
-  throw new Error(`expected 5 inline scripts after main.js, found ${inlineScripts.length}`);
+if (inlineScripts.length !== 6) {
+  throw new Error(`expected 6 inline scripts after main.js, found ${inlineScripts.length}`);
 }
 
 for (const { owns, region } of SECTION_SCRIPTS) {

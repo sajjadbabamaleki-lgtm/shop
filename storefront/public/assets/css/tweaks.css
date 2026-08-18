@@ -1043,12 +1043,15 @@ option:hover {
   .heroSlide6 .discount-tag .vp-burst .vp-burst-star,
   .heroSlide6 .discount-tag .vp-burst .vp-burst-stud,
   .vp-deal-burst .vp-burst-star,
-  .vp-deal-burst .vp-burst-stud {
+  .vp-deal-burst .vp-burst-stud,
+  .vp-prize-burst .vp-burst-star,
+  .vp-prize-burst .vp-burst-stud {
     animation: none;
   }
 
   .heroSlide6 .discount-tag .vp-burst .vp-burst-stud,
-  .vp-deal-burst .vp-burst-stud {
+  .vp-deal-burst .vp-burst-stud,
+  .vp-prize-burst .vp-burst-stud {
     opacity: 1;
   }
 }
@@ -18786,6 +18789,445 @@ body.vp-bare .vp-cart-shot {
   .vp-order-pay button {
     width: auto;
     min-width: 260px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   «تاس شانس» — the game band.
+
+   A tall panel in ink and gold, under the trust row. It is the one band on
+   this page that is not the template's — nothing here is `th-*` — so it is
+   written from nothing rather than adapted, and it keeps to the page's own
+   measures: the container's width, the trust row's corner radius, the gold of
+   the buttons.
+
+   **It was purple for one round and that was wrong.** The purple came off the
+   screenshots the request arrived with — a stock design, not this shop — and
+   the client's answer to seeing it on the page was «سایت ما بنفشه؟؟؟». It is
+   worth writing down why it looked so wrong rather than merely noting that it
+   did: the whole of this page carries exactly two dark surfaces, and until
+   this band arrived there was **one** — `#101111`, the copyright bar. Every
+   other ground is white or the page's soft grey, and every accent on all of
+   them is the gold in `:root`. A 1116x443 slab of #2A0C3E was not a strong
+   colour choice, it was the only colour on the page that belonged to no other
+   element. So the ground here is that same ink and the accent is that same
+   gold, and the band reads as this site being emphatic rather than as another
+   site pasted into it.
+
+   Checked against this file before naming: none of `vp-dice*`, `vp-die*`,
+   `vp-prize*` or `vp-confetti*` existed.
+   -------------------------------------------------------------------------- */
+
+.vp-dice-area {
+  padding: 40px 0 10px;
+}
+
+/* The ink, twice: a gold-warmed rise behind the dice over the flat ground, so
+   the card has a light source. The dice sit in the lit middle and read as
+   objects on a surface rather than shapes on a colour. The rise is the gold at
+   a tenth — any more and the ink turns brown. */
+.vp-dice-card {
+  position: relative;
+  padding: 44px 20px 36px;
+  border-radius: 26px;
+  overflow: hidden;
+  text-align: center;
+  background:
+    radial-gradient(120% 80% at 50% 34%, rgba(218, 178, 38, 0.13) 0%, rgba(218, 178, 38, 0.04) 45%, rgba(218, 178, 38, 0) 100%),
+    #101111;
+  color: #FFFFFF;
+}
+
+/* A warm rise at the foot — the panel is not flat ink all the way down. Same
+   gold, weaker, so the bottom edge does not go dead. */
+.vp-dice-card::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: 0;
+  height: 42%;
+  background: radial-gradient(90% 100% at 50% 130%, rgba(218, 178, 38, 0.28) 0%, rgba(218, 178, 38, 0) 70%);
+  pointer-events: none;
+}
+
+.vp-dice-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.vp-dice-title {
+  margin: 0 0 10px;
+  font-size: 26px;
+  line-height: 38px;
+  font-weight: 800;
+  color: var(--vp-gold-lit);
+}
+
+.vp-dice-say {
+  margin: 0 auto 30px;
+  max-width: 30ch;
+  font-size: 15px;
+  line-height: 28px;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+/* --- the dice ------------------------------------------------------------
+   Drawn, not photographed: seven pip positions in a 3x3 grid, and a face shows
+   the ones it needs. Six images per die would be six requests that all have to
+   arrive before the first throw can be shown. */
+
+.vp-dice-pair {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  margin-bottom: 34px;
+  perspective: 600px;
+}
+
+.vp-die {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 6px;
+  width: 104px;
+  height: 104px;
+  padding: 14px;
+  border-radius: 22px;
+  background: linear-gradient(160deg, #FFFFFF 0%, #F0F1F2 100%);
+  box-shadow:
+    0 10px 26px rgba(0, 0, 0, 0.42),
+    inset 0 -3px 0 rgba(16, 17, 17, 0.1);
+}
+
+.vp-die i {
+  border-radius: 50%;
+  /* Ink, the way a real die is. The gold is the title and the button; pips in
+     it as well would leave the card with no dark note at all against the ink
+     ground, and the dice would stop reading as dice. */
+  background: radial-gradient(circle at 32% 30%, #3A3B3B 0%, #1C1D1D 55%, #101111 100%);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.22);
+  opacity: 0;
+}
+
+/* The seven positions, in document order:
+   1 top-start, 2 top-end, 3 middle-start, 4 centre, 5 middle-end,
+   6 bottom-start, 7 bottom-end. A face lights the ones it uses, so the pips
+   never move — only their opacity changes, which is what keeps a roll from
+   reflowing anything. */
+.vp-die i:nth-child(1) { grid-area: 1 / 1; }
+.vp-die i:nth-child(2) { grid-area: 1 / 3; }
+.vp-die i:nth-child(3) { grid-area: 2 / 1; }
+.vp-die i:nth-child(4) { grid-area: 2 / 2; }
+.vp-die i:nth-child(5) { grid-area: 2 / 3; }
+.vp-die i:nth-child(6) { grid-area: 3 / 1; }
+.vp-die i:nth-child(7) { grid-area: 3 / 3; }
+
+.vp-die[data-face='1'] i:nth-child(4),
+.vp-die[data-face='2'] i:nth-child(1),
+.vp-die[data-face='2'] i:nth-child(7),
+.vp-die[data-face='3'] i:nth-child(1),
+.vp-die[data-face='3'] i:nth-child(4),
+.vp-die[data-face='3'] i:nth-child(7),
+.vp-die[data-face='4'] i:nth-child(1),
+.vp-die[data-face='4'] i:nth-child(2),
+.vp-die[data-face='4'] i:nth-child(6),
+.vp-die[data-face='4'] i:nth-child(7),
+.vp-die[data-face='5'] i:nth-child(1),
+.vp-die[data-face='5'] i:nth-child(2),
+.vp-die[data-face='5'] i:nth-child(4),
+.vp-die[data-face='5'] i:nth-child(6),
+.vp-die[data-face='5'] i:nth-child(7),
+.vp-die[data-face='6'] i:nth-child(1),
+.vp-die[data-face='6'] i:nth-child(2),
+.vp-die[data-face='6'] i:nth-child(3),
+.vp-die[data-face='6'] i:nth-child(5),
+.vp-die[data-face='6'] i:nth-child(6),
+.vp-die[data-face='6'] i:nth-child(7) { opacity: 1; }
+
+/* The throw. The dice tumble while the server is being asked, and stop on
+   whatever it says — the animation is a picture of a result that has already
+   happened, never the thing that decides it. */
+@keyframes vp-die-roll {
+  0%   { transform: rotate(0deg)    scale(1);    }
+  25%  { transform: rotate(-18deg)  scale(1.08); }
+  50%  { transform: rotate(14deg)   scale(0.96); }
+  75%  { transform: rotate(-9deg)   scale(1.05); }
+  100% { transform: rotate(0deg)    scale(1);    }
+}
+
+.vp-dice-pair.is-rolling .vp-die {
+  animation: vp-die-roll 0.5s ease-in-out infinite;
+}
+
+.vp-dice-pair.is-rolling .vp-die:last-child {
+  animation-delay: 0.12s;
+}
+
+/* --- the button ---------------------------------------------------------- */
+
+.vp-dice-go {
+  min-width: 260px;
+  min-height: 52px;
+  padding-inline: 32px;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(180deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
+  color: #3A2708;
+  font: inherit;
+  font-size: 17px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 10px 30px rgba(233, 187, 74, 0.28);
+}
+
+.vp-dice-go:disabled {
+  cursor: default;
+  filter: grayscale(0.35);
+  opacity: 0.75;
+  box-shadow: none;
+}
+
+.vp-dice-foot {
+  margin: 18px 0 0;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* What a losing throw, or a second visit, says instead of the button. */
+.vp-dice-done {
+  margin: 6px 0 0;
+  font-size: 15px;
+  line-height: 26px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* --- the prize card ------------------------------------------------------
+   Over the page, not inside the band: it is the answer to the whole band and
+   it should not be read past. Built by the script, so nothing of it is in the
+   markup a visitor gets before they play. */
+
+.vp-prize-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(16, 17, 17, 0.72);
+}
+
+.vp-prize {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  padding: 34px 24px 26px;
+  border-radius: 22px;
+  background: #FFFFFF;
+  text-align: center;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.42);
+}
+
+/* The prize is the shop's own star, not a disc.
+   «بجای دایره اون تخفیف تو ستاره های خودمون نوشته بشه با همون حالت چرخشی و
+   نوشته انگلیسی» — so this is the hero's mark exactly: the same eleven-lobed
+   path, the same eleven studs, the same twelve-second turn and the same
+   one-and-a-fifth-second blink, carrying `30%` / `OFF` in Latin the way the
+   hero's carries `25%` / `OFF`. The shape is built by the script from the same
+   two constants `make-rtl-page.js` draws the other two stars with, so all
+   three move together the next time any of them is edited. */
+.vp-prize-badge {
+  width: 138px;
+  height: 138px;
+  margin: 6px auto 18px;
+}
+
+.vp-prize-burst {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* The star turns; the offer stays upright and still. Same reasoning, same
+   numbers and the same `view-box` origin as the hero's — see the mark on the
+   hero shot above, which is where all of this is explained. */
+.vp-prize-burst .vp-burst-star {
+  transform-box: view-box;
+  transform-origin: 50% 50%;
+  animation: vp-burst-turn 12s linear infinite;
+}
+
+.vp-prize-burst .vp-burst-stud {
+  fill: #FFFFFF;
+  animation: vp-burst-twinkle 1.2s ease-in-out infinite;
+}
+
+.vp-prize-burst text {
+  fill: #FFFFFF;
+  text-anchor: middle;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 900;
+  font-size: 28.7px;
+  /* Latin, and this element is inside an RTL document — without it the `%`
+     goes to the wrong side of the digits. */
+  direction: ltr;
+}
+
+.vp-prize-what {
+  margin: 0 0 4px;
+  font-size: 14px;
+  color: rgba(16, 17, 17, 0.6);
+}
+
+.vp-prize-title {
+  margin: 0 0 10px;
+  font-size: 26px;
+  font-weight: 800;
+}
+
+.vp-prize-say {
+  margin: 0 0 20px;
+  line-height: 28px;
+  color: rgba(16, 17, 17, 0.75);
+}
+
+/* The code, in a box that says «this is the thing to keep». Dashed, because a
+   solid frame here reads as a button and it is not one — the button is below. */
+.vp-prize-code {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 18px;
+  padding: 12px 14px;
+  border: 1px dashed rgba(160, 129, 25, 0.45);
+  border-radius: 14px;
+  background: rgba(218, 178, 38, 0.07);
+}
+
+.vp-prize-code b {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 17px;
+  letter-spacing: 0.06em;
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+.vp-prize-copy {
+  min-height: 32px;
+  padding-inline: 14px;
+  border: 0;
+  border-radius: 999px;
+  background: #101111;
+  color: #FFFFFF;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.vp-prize-go {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 54px;
+  border-radius: 14px;
+  /* The page's own button ramp, and its ink type with it — see the badge. */
+  background: linear-gradient(90deg, var(--vp-gold-ramp-top) 0%, var(--vp-gold-ramp-foot) 100%);
+  color: #101111;
+  font-size: 17px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.vp-prize-when {
+  margin: 14px 0 0;
+  font-size: 13px;
+  color: rgba(16, 17, 17, 0.55);
+}
+
+.vp-prize-shut {
+  position: absolute;
+  inset-block-start: 10px;
+  inset-inline-start: 10px;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(16, 17, 17, 0.06);
+  color: rgba(16, 17, 17, 0.6);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+/* --- the confetti --------------------------------------------------------
+   Twenty-four pieces, placed and coloured by the script so they are not
+   twenty-four rules here. They fall once and are removed with the card. */
+
+.vp-confetti {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.vp-confetti i {
+  position: absolute;
+  inset-block-start: -12px;
+  width: 9px;
+  height: 14px;
+  border-radius: 2px;
+  animation: vp-confetti-fall 2.6s linear forwards;
+}
+
+@keyframes vp-confetti-fall {
+  0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(105vh) rotate(720deg); opacity: 0.9; }
+}
+
+/* Somebody who has asked their machine not to animate things gets the result
+   without the tumble and without the falling paper. The card still appears and
+   still carries the code — the information is never the thing that is dropped. */
+@media (prefers-reduced-motion: reduce) {
+  .vp-dice-pair.is-rolling .vp-die,
+  .vp-confetti i {
+    animation: none;
+  }
+
+  .vp-confetti {
+    display: none;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .vp-dice-area {
+    padding-top: 28px;
+  }
+
+  .vp-dice-card {
+    padding: 34px 16px 28px;
+    border-radius: 20px;
+  }
+
+  .vp-dice-title {
+    font-size: 22px;
+    line-height: 34px;
+  }
+
+  .vp-die {
+    width: 88px;
+    height: 88px;
+    padding: 12px;
+    border-radius: 18px;
+  }
+
+  .vp-dice-go {
+    min-width: 0;
+    width: 100%;
   }
 }
 

@@ -14,6 +14,39 @@ return [
     |
     */
 
+    /*
+    |--------------------------------------------------------------------------
+    | «تاس شانس» — the dice game
+    |--------------------------------------------------------------------------
+    |
+    | A band on the front page: one throw of two dice per visitor, and a double
+    | six wins a discount code.
+    |
+    | **The odds are the dice's own: 1 in 36, about 3 people in 100.** That is
+    | what «جفت شیش» means and it is not adjustable here on purpose — a game
+    | with a hidden thumb on the scale is a different product, and if the shop
+    | wants most people to win, the honest version of that is easier odds
+    | printed on the card («هر جفتی برنده است»), not dice that lie.
+    |
+    | Every number below is the shop's to set. `percent` is whole percent.
+    | `hours` is how long a winner's code lives — the card says it, so the two
+    | come from the same place. The two amounts are in **Rial**, like every
+    | other amount in this application; `max_discount_rial` of 0 means no
+    | ceiling.
+    |
+    | `enabled` switches the whole band off, markup included. A game nobody is
+    | running should not be a button that does nothing.
+    |
+    */
+
+    'game' => [
+        'enabled' => env('GAME_DICE', true),
+        'percent' => 30,
+        'hours' => 24,
+        'min_subtotal_rial' => 0,
+        'max_discount_rial' => 0,
+    ],
+
     'pages' => [
         // The template's own home link, the demo page this storefront was cut
         // from, and the file the static preview is actually served as. All

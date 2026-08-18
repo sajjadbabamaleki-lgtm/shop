@@ -3,6 +3,7 @@
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\DiceGameController;
 use App\Http\Controllers\EnquiryController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MessageController;
@@ -212,6 +213,18 @@ $storefront = function (): void {
     Route::post('/orders/{order}/pay', [PaymentController::class, 'pay'])
         ->middleware('throttle:20,10')->name('order.pay');
     Route::get('/checkout/callback', [PaymentController::class, 'callback'])->name('payment.callback');
+
+    /*
+     * «تاس شانس». One throw per visitor, decided on this side — see
+     * App\Support\Game\DiceGame for why the browser is told the result
+     * rather than asked for it.
+     *
+     * Throttled because it writes a row and can mint a discount code; the
+     * unique index is what actually stops a second throw, and this stops
+     * somebody hammering it from making the database work for nothing.
+     */
+    Route::post('/game/dice', [DiceGameController::class, 'roll'])
+        ->middleware('throttle:20,1')->name('game.dice');
 
     Route::get('/orders', [OrderController::class, 'track'])->name('orders.track');
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('order');
