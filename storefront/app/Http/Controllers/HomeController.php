@@ -63,6 +63,33 @@ class HomeController extends Controller
      */
     private function saleProducts(): Collection
     {
+        /*
+         | **Nothing on this page is cached, and that is what the measurements
+         | decided.**
+         |
+         | Caching it was written twice and taken out twice. The first attempt
+         | held these rows, which carry `variants.stock`; the daily-deal band
+         | prints what is left of a shoe, and two tests that sell the last pair
+         | and then ask the page about it went red at once. A price a minute
+         | old is harmless — nothing is ever charged from this page, the
+         | checkout computes every total on the server — but a count of what is
+         | left that is a minute old is a wrong number printed in large type.
+         |
+         | The second attempt held only the categories, which have no stock in
+         | them. That passed every test and **broke the running site**: the
+         | cache store is the database, so it serialises, and the collection
+         | came back as `__PHP_Incomplete_Class`. The tests could not see it
+         | because their cache store is `array`, which hands the same object
+         | straight back and never serialises anything. Caching Eloquent models
+         | is a green suite and a 500.
+         |
+         | Where the cost actually was, when the queries were counted rather
+         | than guessed at: six of the front page's nineteen were the basket,
+         | asked four separate times over by three view composers. That is
+         | fixed in CartManager, is not a cache, costs nothing in freshness,
+         | and took more off every page in the shop than either of these would
+         | have taken off this one.
+         */
         return Product::query()
             ->purchasable()
             ->with([

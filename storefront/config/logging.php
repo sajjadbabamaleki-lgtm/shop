@@ -5,6 +5,17 @@ use Monolog\Handler\StreamHandler;
 use Monolog\Handler\SyslogUdpHandler;
 use Monolog\Processor\PsrLogMessageProcessor;
 
+/*
+ | How much to write, decided once.
+ |
+ | `debug` is a development setting. In production it is noise — every query,
+ | every notice — and noise is exactly where a real error goes unnoticed; it
+ | also writes into a log things that were never meant to be read back, which
+ | on a shop means customers' details. `warning` and above is what somebody
+ | would actually act on. LOG_LEVEL still overrides it either way.
+ */
+$level = env('LOG_LEVEL', env('APP_ENV') === 'production' ? 'warning' : 'debug');
+
 return [
 
     /*
@@ -18,7 +29,27 @@ return [
     |
     */
 
-    'default' => env('LOG_CHANNEL', 'stack'),
+    /*
+     | **In production the default is `liara`, not `stack`.**
+     |
+     | The shipped `stack` writes one file inside the container, and Liara
+     | replaces the container on every deploy — so the log of the afternoon
+     | something went wrong is gone by the evening's deploy, which is the one
+     | time anybody would go looking for it. Worse, nothing anywhere says so:
+     | the logging «works», and the evidence simply is not there later.
+     |
+     | `liara` is a daily file *and* stderr. Liara collects a container's
+     | stderr into its own log viewer, which outlives the container, so an
+     | error survives the next deploy; the daily file is still there for
+     | somebody who opens the app's console, and rotates rather than growing
+     | without limit.
+     |
+     | Defaulted here rather than left to an environment variable on purpose:
+     | a setting that only becomes right when somebody remembers to set it is
+     | a setting that is wrong on the day it matters. LOG_CHANNEL still
+     | overrides this for anybody who wants something else.
+     */
+    'default' => env('LOG_CHANNEL', env('APP_ENV') === 'production' ? 'liara' : 'stack'),
 
     /*
     |--------------------------------------------------------------------------
@@ -58,17 +89,28 @@ return [
             'ignore_exceptions' => false,
         ],
 
+        /*
+         | What production writes to: a rotating file and the container's
+         | stderr, together. See the note on `default` above for why one file
+         | in a container is not a log.
+         */
+        'liara' => [
+            'driver' => 'stack',
+            'channels' => ['daily', 'stderr'],
+            'ignore_exceptions' => false,
+        ],
+
         'single' => [
             'driver' => 'single',
             'path' => storage_path('logs/laravel.log'),
-            'level' => env('LOG_LEVEL', 'debug'),
+            'level' => $level,
             'replace_placeholders' => true,
         ],
 
         'daily' => [
             'driver' => 'daily',
             'path' => storage_path('logs/laravel.log'),
-            'level' => env('LOG_LEVEL', 'debug'),
+            'level' => $level,
             'days' => env('LOG_DAILY_DAYS', 14),
             'replace_placeholders' => true,
         ],
@@ -84,7 +126,7 @@ return [
 
         'papertrail' => [
             'driver' => 'monolog',
-            'level' => env('LOG_LEVEL', 'debug'),
+            'level' => $level,
             'handler' => env('LOG_PAPERTRAIL_HANDLER', SyslogUdpHandler::class),
             'handler_with' => [
                 'host' => env('PAPERTRAIL_URL'),
@@ -96,7 +138,7 @@ return [
 
         'stderr' => [
             'driver' => 'monolog',
-            'level' => env('LOG_LEVEL', 'debug'),
+            'level' => $level,
             'handler' => StreamHandler::class,
             'handler_with' => [
                 'stream' => 'php://stderr',
@@ -107,14 +149,14 @@ return [
 
         'syslog' => [
             'driver' => 'syslog',
-            'level' => env('LOG_LEVEL', 'debug'),
+            'level' => $level,
             'facility' => env('LOG_SYSLOG_FACILITY', LOG_USER),
             'replace_placeholders' => true,
         ],
 
         'errorlog' => [
             'driver' => 'errorlog',
-            'level' => env('LOG_LEVEL', 'debug'),
+            'level' => $level,
             'replace_placeholders' => true,
         ],
 
