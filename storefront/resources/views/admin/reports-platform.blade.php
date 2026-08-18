@@ -1,57 +1,63 @@
 @extends('layouts.admin')
 
+@section('title', 'گزارش پلتفرم')
+
 {{--
     The one report allowed to look across every branch, which is why it needs
     platform authority to reach: comparing shops is exactly what one shop must
     not be able to do.
 --}}
 
-@section('content')
-<h1 class="vp-shop-title vp-admin-title">گزارش پلتفرم</h1>
+@php
+    $best_day = (int) $daily->max('revenue');
+    // The divisor, not the figure: a day with nothing sold would otherwise
+    // divide by zero, and 1 Rial is not a number to print at anybody.
+    $peak = max(1, $best_day);
+@endphp
 
-<div class="vp-admin-figures">
-    <div class="vp-admin-figure"><span class="vp-admin-figure-num">{{ fa_number($headline['orders']) }}</span><span class="vp-admin-figure-name">سفارش پرداخت‌شده</span></div>
-    <div class="vp-admin-figure"><span class="vp-admin-figure-num">{{ toman($headline['revenue']) }}</span><span class="vp-admin-figure-name">فروش کل (تومان)</span></div>
-    <div class="vp-admin-figure"><span class="vp-admin-figure-num">{{ fa_number($headline['branches']) }}</span><span class="vp-admin-figure-name">شعبه</span></div>
-    <div class="vp-admin-figure"><span class="vp-admin-figure-num">{{ fa_number($headline['vendors']) }}</span><span class="vp-admin-figure-name">فروشنده تأییدشده</span></div>
+@section('content')
+
+<div class="vp-adm-kpis">
+    <div class="vp-adm-kpi">
+        <span class="vp-adm-kpi-name">سفارش پرداخت‌شده</span>
+        <span class="vp-adm-kpi-num">{{ fa_number($headline['orders']) }}</span>
+    </div>
+    <div class="vp-adm-kpi">
+        <span class="vp-adm-kpi-name">فروش کل</span>
+        <span class="vp-adm-kpi-num">{{ toman($headline['revenue']) }}<small>تومان</small></span>
+    </div>
+    <div class="vp-adm-kpi">
+        <span class="vp-adm-kpi-name">شعبه</span>
+        <span class="vp-adm-kpi-num">{{ fa_number($headline['branches']) }}</span>
+    </div>
+    <div class="vp-adm-kpi">
+        <span class="vp-adm-kpi-name">فروشنده تأییدشده</span>
+        <span class="vp-adm-kpi-num">{{ fa_number($headline['vendors']) }}</span>
+    </div>
 </div>
 
-<section class="vp-shop-panel">
-    <h2 class="vp-shop-title">۳۰ روز گذشته</h2>
+<div class="vp-adm-grid">
 
-    @php
-        $best_day = (int) $daily->max('revenue');
-        // The divisor, not the figure: a day with nothing sold would otherwise
-        // divide by zero, and 1 Rial is not a number to print at anybody.
-        $peak = max(1, $best_day);
-    @endphp
-
-    <div class="vp-chart">
-        {{-- The ceiling, drawn once. Thirty bars with no line above them are
-             thirty heights nobody can put a number to. --}}
-        <span class="vp-chart-top">{{ toman($best_day) }}</span>
-
-        <div class="vp-bars">
-            @foreach ($daily as $day)
-                <div class="vp-bar" title="{{ fa_date($day['date']) }} — {{ toman($day['revenue']) }} تومان، {{ fa_number($day['orders']) }} سفارش">
-                    <span class="vp-bar-fill" style="height: {{ max(2, (int) round($day['revenue'] / $peak * 100)) }}%"></span>
-                </div>
-            @endforeach
+    <section class="vp-adm-card vp-adm-span-3">
+        <div class="vp-adm-card-head">
+            <h2 class="vp-adm-card-title">۳۰ روز گذشته</h2>
+            <span class="vp-adm-card-more">بیشترین روز: {{ toman($best_day) }} تومان</span>
         </div>
 
-        {{-- A date under every fifth bar. Thirty labels would be unreadable and
-             none at all makes the row a shape rather than a month. --}}
-        <div class="vp-chart-days">
+        <div class="vp-adm-bars" role="img"
+             aria-label="فروش روزانه پلتفرم در ۳۰ روز گذشته، بیشترین {{ toman($best_day) }} تومان">
             @foreach ($daily as $day)
-                <span class="vp-chart-day">{{ $loop->index % 5 === 0 ? fa_date($day['date']) : '' }}</span>
+                <span class="vp-adm-bar" style="--h: {{ max(2, (int) round($day['revenue'] / $peak * 100)) }}%"
+                      title="{{ fa_date($day['date']) }} — {{ toman($day['revenue']) }} تومان، {{ fa_number($day['orders']) }} سفارش"></span>
             @endforeach
         </div>
-    </div>
-</section>
+    </section>
 
-<div class="vp-admin-cols">
-    <section class="vp-shop-panel">
-        <h2 class="vp-shop-title">به تفکیک شعبه</h2>
+    <section class="vp-adm-card vp-adm-span-2">
+        <div class="vp-adm-card-head">
+            <h2 class="vp-adm-card-title">به تفکیک شعبه</h2>
+        </div>
+
         <table class="vp-admin-table">
             <thead><tr><th>شعبه</th><th>سفارش</th><th>فروش (تومان)</th></tr></thead>
             <tbody>
@@ -66,11 +72,24 @@
         </table>
     </section>
 
-    <section class="vp-shop-panel">
-        <h2 class="vp-shop-title">به تفکیک فروشنده</h2>
+    <section class="vp-adm-card">
+        <div class="vp-adm-card-head">
+            <h2 class="vp-adm-card-title">بدهی به فروشندگان</h2>
+        </div>
+
+        <ul class="vp-adm-list">
+            <li><span>بدهی کل</span><b>{{ toman($owed) }} تومان</b></li>
+            <li><span>در صف تسویه</span><b>{{ toman($awaiting) }} تومان</b></li>
+        </ul>
+    </section>
+
+    <section class="vp-adm-card vp-adm-span-3">
+        <div class="vp-adm-card-head">
+            <h2 class="vp-adm-card-title">به تفکیک فروشنده</h2>
+        </div>
 
         @if ($byVendor->isEmpty())
-            <p class="vp-shop-empty">فروشنده‌ای ثبت نشده.</p>
+            <p class="vp-adm-empty">فروشنده‌ای ثبت نشده.</p>
         @else
             <table class="vp-admin-table">
                 <thead><tr><th>فروشنده</th><th>فروش</th><th>کارمزد ما</th><th>مانده</th></tr></thead>
@@ -86,9 +105,6 @@
                 </tbody>
             </table>
         @endif
-
-        <div class="vp-cart-row is-total"><span>بدهی کل به فروشندگان</span><span>{{ toman($owed) }} تومان</span></div>
-        <div class="vp-cart-row"><span>در صف تسویه</span><span>{{ toman($awaiting) }} تومان</span></div>
     </section>
 </div>
 @endsection

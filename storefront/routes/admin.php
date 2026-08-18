@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\MarketplaceController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\PricingController;
 use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\SearchController;
 use App\Http\Controllers\Admin\SessionController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\StaffController;
@@ -60,6 +61,15 @@ Route::middleware(['auth:web', ResolveAdminTenant::class])->group(function (): v
     Route::get('/', DashboardController::class)->name('dashboard');
 
     Route::post('/branch', [SettingsController::class, 'switchBranch'])->name('branch.switch');
+
+    /*
+     * §14's global search. Inside the branch group because most of what it
+     * finds is a branch's — an order, a customer, a code — and the tenant has
+     * to be resolved before any of those can be read. No permission of its
+     * own: it searches only what the person could already open, and the
+     * controller drops each group they may not.
+     */
+    Route::get('/search', SearchController::class)->name('search');
 
     Route::get('/orders', [OrderController::class, 'index'])->name('orders');
 

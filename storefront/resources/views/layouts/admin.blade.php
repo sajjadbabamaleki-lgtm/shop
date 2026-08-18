@@ -19,12 +19,11 @@
     sidebar, the bottom bar and the sheet cannot disagree about what exists or
     about who may see it.
 
-    **What the specification asks for here and is not here**: the global search
-    field and Ctrl+K (§14), and notifications (§17). Both are listed in the
-    topbar's design and neither has anything behind it yet — a search box that
-    searches nothing is worse than an empty slot, and this repository has a test
-    (`ContentPagesTest`) that exists because 21 footer links once went nowhere.
-    The topbar's spacer is where they go.
+    The topbar carries §14's search and §17's notifications, both of which now
+    have something behind them: the box posts to `/admin/search`, which really
+    searches orders, products, customers and codes, and the bell counts live
+    state rather than a notifications table this application does not have —
+    see `App\Support\Admin\Attention` for what that costs and what it buys.
 
     `partials.head` is still included: it carries the fonts, the design gate and
     the meta the panel needs. tweaks.css comes with it and still styles the
@@ -64,6 +63,12 @@
     // called — taking it from there means the sidebar and the heading cannot
     // say two different things, and no screen had to be edited to get one.
     $here = collect($flat)->first(fn (array $item): bool => $nav->isOn($item['match']));
+
+    // §17. Computed here rather than in every controller, because the bell is
+    // part of the shell and a screen that forgot to provide it would simply
+    // show nothing — the silent failure this panel keeps being bitten by.
+    $waiting = app(\App\Support\Admin\Attention::class)->for(auth()->user(), $branch);
+    $waitingCount = array_sum(array_column($waiting, 'count'));
 @endphp
 
 @php
@@ -88,6 +93,8 @@
         'plus' => '<path d="M10 4.5v11M4.5 10h11"/>',
         'menu' => '<path d="M3.5 5.5h13M3.5 10h13M3.5 14.5h13"/>',
         'panel' => '<rect x="3" y="4" width="14" height="12" rx="2"/><path d="M12.5 4v12"/>',
+        'search' => '<circle cx="9" cy="9" r="5.2"/><path d="M12.9 12.9 17 17"/>',
+        'bell' => '<path d="M6 8.5a4 4 0 0 1 8 0c0 3.2 1.2 4.4 1.2 4.4H4.8S6 11.7 6 8.5Z"/><path d="M8.4 15.4a1.8 1.8 0 0 0 3.2 0"/>',
     ];
     $icon = fn (string $name) => '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'.($icons[$name] ?? $icons['box']).'</svg>';
 @endphp
@@ -142,6 +149,59 @@
             <h1 class="vp-adm-top-title">@yield('title', $here['label'] ?? 'پنل مدیریت')</h1>
 
             <div class="vp-adm-spacer"></div>
+
+            {{-- §14. A form, so it works with JavaScript off; the script only
+                 adds Ctrl+K to it. On a phone the field itself is hidden by the
+                 stylesheet and the icon becomes a link to the same screen —
+                 there is no room for a search box beside a branch name at
+                 390px, and a field squeezed to 80px is not a search box.
+
+                 Only where a branch is bound. `/admin/search` sits inside the
+                 branch group, so on a marketplace screen — where there is no
+                 branch, deliberately — it would be a box in the chrome leading
+                 to a 403. Offering a destination that exists but is closed is
+                 the same failure as offering one that does not exist. --}}
+            @if ($branch)
+                <form class="vp-adm-find" method="get" action="{{ route('admin.search') }}" role="search">
+                    <label class="visually-hidden" for="vp-adm-find">جست‌وجو در پنل</label>
+                    {!! $icon('search') !!}
+                    <input id="vp-adm-find" type="search" name="q" value="{{ request()->routeIs('admin.search') ? request()->query('q') : '' }}"
+                           placeholder="جست‌وجو…  Ctrl+K" data-adm-find>
+                </form>
+
+                <a class="vp-adm-icon-btn vp-adm-find-small" href="{{ route('admin.search') }}" aria-label="جست‌وجو">
+                    {!! $icon('search') !!}
+                </a>
+            @endif
+
+            {{-- §17. `<details>` rather than a script: the panel is one page
+                 load per action anyway, and a menu that needs JavaScript to
+                 open is a menu that is sometimes not there. --}}
+            <details class="vp-adm-bell">
+                <summary class="vp-adm-icon-btn" aria-label="کارهای در انتظار ({{ fa_number($waitingCount) }})">
+                    {!! $icon('bell') !!}
+                    @if ($waitingCount > 0)
+                        <span class="vp-adm-bell-count">{{ fa_number($waitingCount) }}</span>
+                    @endif
+                </summary>
+
+                <div class="vp-adm-bell-panel">
+                    @if ($waiting === [])
+                        <p class="vp-adm-empty">چیزی در انتظار نیست.</p>
+                    @else
+                        <ul class="vp-adm-list">
+                            @foreach ($waiting as $item)
+                                <li>
+                                    <a href="{{ $item['url'] }}">{{ $item['label'] }}</a>
+                                    <span class="vp-adm-badge is-{{ $item['tone'] === 'bad' ? 'cancelled' : ($item['tone'] === 'warn' ? 'placed' : 'paid') }}">
+                                        {{ fa_number($item['count']) }}
+                                    </span>
+                                </li>
+                            @endforeach
+                        </ul>
+                    @endif
+                </div>
+            </details>
 
             <div class="vp-adm-who">
                 @if ($branch && $branches->count() > 1)

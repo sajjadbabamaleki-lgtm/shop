@@ -1194,3 +1194,475 @@
     overflow-x: auto;
   }
 }
+
+/* ==========================================================================
+   The rest of the panel.
+
+   Fourteen screens were still wearing the shop's chrome — `.vp-shop-panel`,
+   `.vp-checkout`, `.vp-field`, `.vp-filter-apply` — while four had been
+   rebuilt. That is precisely what §1 forbids («The admin experience must be
+   designed independently from the customer storefront… Do not copy the
+   customer storefront UI») and precisely what the client objected to. These
+   are the few pieces those screens needed that the first four did not.
+   ========================================================================== */
+
+/* Stacked cards. Several screens are a list and then a form to add to it, and
+   two bare sections with no gap read as one long frame. */
+.vp-adm-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* A screen's own heading row, for the screens that have something to put
+   beside the title — a search box, a «new» button. The screen's *name* is not
+   here: the topbar already prints it, and printing it twice is how a panel
+   ends up with a heading arguing with its own navigation. */
+.vp-adm-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.vp-adm-head .vp-adm-sub {
+  margin: 0;
+  color: var(--adm-ink-2);
+}
+
+.vp-adm-head-side {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-inline-start: auto;
+}
+
+/* A select in a form column is styled like the inputs beside it. It was left
+   out of the rule above and inherited the template's bare `select`, which is
+   `display: block; width: 100%` and 40px taller than everything around it. */
+.vp-adm-form select {
+  padding: 8px 10px;
+  border: 1px solid var(--adm-line);
+  border-radius: var(--adm-r-sm);
+  background: var(--adm-surface);
+  color: var(--adm-ink);
+  font: inherit;
+}
+
+/* Two fields on a line — a from/to date, a province and a city. One column
+   under 640, where two of anything with a label is 130px each. */
+.vp-adm-form-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px 12px;
+}
+
+@media (max-width: 639.98px) {
+  .vp-adm-form-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* The controls that live inside a table row — a count to correct, a price to
+   type, a status to pick. Sized to the row rather than to a form: 34px, so a
+   row of them is the same height as a row of text.
+
+   `width` is set explicitly on each because the template's bare `input` and
+   `select` are both `width: 100%`, which in a table cell means "as wide as the
+   column", and the column is as wide as its widest cell — the two chase each
+   other and the table ends up 2000px across. */
+.vp-adm-cell {
+  height: 34px;
+  padding-inline: 8px;
+  border: 1px solid var(--adm-line);
+  border-radius: var(--adm-r-sm);
+  background: var(--adm-surface);
+  color: var(--adm-ink);
+  font: inherit;
+}
+
+input.vp-adm-cell {
+  width: 90px;
+}
+
+input.vp-adm-cell.is-wide {
+  width: 130px;
+}
+
+input.vp-adm-cell.is-text {
+  width: 160px;
+}
+
+select.vp-adm-cell {
+  width: auto;
+  min-width: 96px;
+}
+
+/* The button that belongs to one row, rather than to the screen. Same gold as
+   the primary action and two sizes down, because a table of twenty of them at
+   38px is a wall of gold. */
+.vp-adm-mini {
+  height: 34px;
+  padding-inline: 12px;
+  border: 0;
+  border-radius: var(--adm-r-sm);
+  background: linear-gradient(180deg, var(--adm-gold-fill) 0%, var(--adm-gold-lit) 100%);
+  color: #101111;
+  font: inherit;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.vp-adm-mini.is-quiet {
+  border: 1px solid var(--adm-line);
+  background: var(--adm-surface);
+  color: var(--adm-ink-2);
+  font-weight: 500;
+}
+
+.vp-adm-mini.is-bad {
+  border: 1px solid rgba(179, 38, 30, 0.45);
+  background: var(--adm-surface);
+  color: var(--adm-bad);
+  font-weight: 500;
+}
+
+/* Both of the buttons above are sometimes an `<a>` — «محصول تازه» goes to a
+   page rather than posting — and an anchor is neither a flex box nor
+   undecorated by default, so it needs saying rather than being written into a
+   style attribute on the one view that does it. */
+a.vp-adm-apply,
+a.vp-adm-mini {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+/* A filter row that has been placed inside a heading has already had its
+   spacing set by the row it is in. */
+.vp-adm-head .vp-adm-filters {
+  margin: 0;
+}
+
+/* A row's second line — a slug under a title, a telephone under a name. */
+.vp-adm-sub {
+  display: block;
+  color: var(--adm-ink-2);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+/* Several rows carry a small form; without this they inherit the shop's
+   `form { margin-bottom: 1rem }` and every row grows by 16px. */
+.vp-adm-card form {
+  margin: 0;
+}
+
+/* An inline pair — a select and the button that submits it. */
+.vp-adm-inline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+/* The one-time password. Shown once, never stored in a readable form, so it
+   is set apart rather than being a sentence somebody skims past. */
+.vp-adm-pw {
+  display: inline-block;
+  padding: 2px 8px;
+  border: 1px solid var(--adm-line);
+  border-radius: var(--adm-r-sm);
+  background: #F2F3F5;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+/* A filter that is a link rather than a submit — the enquiry kinds, and any
+   row of «all / this / that» after them. `.vp-adm-clear` is the resting look;
+   this is the one that is currently showing. */
+.vp-adm-clear.is-on {
+  border-color: var(--adm-gold-fill);
+  background: var(--adm-gold-wash);
+  color: var(--adm-gold-ink);
+  font-weight: 700;
+}
+
+/* --- the staff door -------------------------------------------------------
+   The sign-in has no shell: there is nowhere to navigate to until somebody is
+   signed in, so it is a card in the middle of the page and nothing else. It
+   still wears the panel's materials rather than the shop's, because it is the
+   panel's front door and the two are meant to be different rooms. */
+.vp-adm-door {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+}
+
+.vp-adm-gate {
+  width: 100%;
+  max-width: 380px;
+  padding: 24px;
+  border: 1px solid var(--adm-line);
+  border-radius: var(--adm-r-lg);
+  background: var(--adm-surface);
+}
+
+.vp-adm-gate-mark {
+  display: block;
+  width: 44px;
+  height: 44px;
+  margin-bottom: 12px;
+  object-fit: contain;
+}
+
+.vp-adm-gate-title {
+  margin: 0 0 4px;
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 800;
+}
+
+/* The form takes the gap the paragraph above it does not. */
+.vp-adm-gate .vp-adm-form {
+  margin-top: 16px;
+}
+
+.vp-adm-gate .vp-adm-apply {
+  align-self: stretch;
+}
+
+/* --- a product's photographs ----------------------------------------------
+   A fixed-width track rather than a column count: the card is a third of the
+   workspace on a desktop and the whole of it on a phone, and `auto-fill` at
+   120px gives the right number of shots in both without a breakpoint. */
+.vp-adm-shots {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.vp-adm-shot {
+  margin: 0;
+  border: 1px solid var(--adm-line);
+  border-radius: var(--adm-r-sm);
+  overflow: hidden;
+  background: var(--adm-surface);
+}
+
+/* The primary shot is the one the shop prints on the card, so it is marked on
+   the frame as well as in words — a caption that says «اصلی» is easy to miss
+   in a grid of eight. */
+.vp-adm-shot.is-primary {
+  border-color: var(--adm-gold-fill);
+  box-shadow: inset 0 0 0 1px var(--adm-gold-fill);
+}
+
+.vp-adm-shot img {
+  display: block;
+  width: 100%;
+  height: 110px;
+  object-fit: cover;
+  background: #F2F3F5;
+}
+
+.vp-adm-shot figcaption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 6px;
+}
+
+/* The row that adds a size. Six fields and a button; on a desktop they sit
+   across the card, on a phone they stack. `auto-fit` rather than a fixed six,
+   because the same row is used inside a full-width card and inside a third of
+   one. */
+.vp-adm-add-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  align-items: end;
+  gap: 10px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--adm-line);
+}
+
+.vp-adm-add-row .vp-adm-apply {
+  align-self: end;
+  margin-top: 0;
+}
+
+/* A file input is the template's `display: block; width: 100%` otherwise, and
+   in a narrow card that is a control wider than its own card. */
+.vp-adm-form input[type='file'] {
+  max-width: 100%;
+  padding: 7px 10px;
+}
+
+/* --- the topbar's search, §14 ---------------------------------------------
+   A field with the mark inside it rather than a button beside it: the button
+   would be a second thing to aim at for something Enter already does. */
+.vp-adm-find {
+  position: relative;
+  flex: 0 1 320px;
+  margin: 0;
+}
+
+.vp-adm-find svg {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-start: 10px;
+  width: 16px;
+  height: 16px;
+  margin-top: -8px;
+  color: var(--adm-ink-2);
+  pointer-events: none;
+}
+
+.vp-adm-find input {
+  width: 100%;
+  height: 36px;
+  padding-inline: 32px 10px;
+  border: 1px solid var(--adm-line);
+  border-radius: var(--adm-r-sm);
+  background: var(--adm-bg);
+  color: var(--adm-ink);
+  font: inherit;
+}
+
+.vp-adm-find input:focus {
+  background: var(--adm-surface);
+  outline: 2px solid var(--adm-gold-fill);
+  outline-offset: -1px;
+}
+
+/* The phone gets the mark alone, linking to the same screen. */
+.vp-adm-find-small {
+  display: none;
+}
+
+/* --- the topbar's bell, §17 -----------------------------------------------
+   `<details>`, so it opens with no JavaScript. The marker has to be removed in
+   two ways because two engines disagree about which one they honour. */
+.vp-adm-bell {
+  position: relative;
+}
+
+.vp-adm-bell > summary {
+  position: relative;
+  list-style: none;
+}
+
+.vp-adm-bell > summary::-webkit-details-marker {
+  display: none;
+}
+
+.vp-adm-bell-count {
+  position: absolute;
+  inset-block-start: -5px;
+  inset-inline-end: -5px;
+  min-width: 18px;
+  height: 18px;
+  padding-inline: 4px;
+  border-radius: 999px;
+  background: var(--adm-bad);
+  color: #fff;
+  font-size: 11px;
+  line-height: 18px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.vp-adm-bell-panel {
+  position: absolute;
+  inset-block-start: calc(100% + 8px);
+  inset-inline-end: 0;
+  z-index: 50;
+  width: 280px;
+  max-width: calc(100vw - 24px);
+  padding: 12px 14px;
+  border: 1px solid var(--adm-line);
+  border-radius: var(--adm-r-md);
+  background: var(--adm-surface);
+  box-shadow: 0 12px 32px rgba(16, 17, 17, 0.14);
+}
+
+.vp-adm-bell-panel .vp-adm-list a {
+  color: var(--adm-ink);
+  text-decoration: none;
+}
+
+.vp-adm-bell-panel .vp-adm-list a:hover {
+  color: var(--adm-gold-ink);
+}
+
+/* Below 992 the topbar is a hamburger, a title, a search mark, a bell and the
+   branch — the field itself does not fit and becomes the mark. Measured at
+   390px: with the field in, the branch name was pushed out of the bar. */
+@media (max-width: 991.98px) {
+  .vp-adm-find {
+    display: none;
+  }
+
+  .vp-adm-find-small {
+    display: inline-flex;
+  }
+
+  .vp-adm-bell-panel {
+    width: 260px;
+  }
+}
+
+/* --- the table's own frame ------------------------------------------------
+   The template's stylesheet puts `border: 1px solid #E1E4E5` on `table`, `th`
+   and `td`. tweaks.css draws the panel's rules as inset shadows instead but
+   never turned the borders off, so every cell kept a box — a card, holding a
+   boxed table, of boxed cells. That is «قاب های تو هم تو هم» exactly, and it
+   was still on every screen of the panel that shows a table.
+
+   Below 992 the rows become cards and tweaks.css already undoes it there,
+   which is why the phone looked right and the desktop did not. This is the
+   same undoing, without the width condition. */
+.vp-adm table,
+.vp-adm .vp-admin-table th,
+.vp-adm .vp-admin-table td {
+  border: 0;
+}
+
+/* And with the boxes gone the rules have to carry the whole structure, so the
+   heading's is ink and the rows' is a hairline — the same pair the shop's own
+   panels use, at the panel's own line colour. */
+.vp-adm .vp-admin-table th {
+  padding: 10px 12px;
+  box-shadow: inset 0 -1px 0 var(--adm-ink-2);
+  color: var(--adm-ink-2);
+  font-size: 12px;
+}
+
+.vp-adm .vp-admin-table td {
+  padding: 12px;
+  box-shadow: inset 0 -1px 0 var(--adm-line);
+}
+
+/* The last row's rule is the card's own edge repeated 12px above it. */
+.vp-adm .vp-admin-table tbody tr:last-child td {
+  box-shadow: none;
+}
+
+.vp-adm .vp-admin-table tbody tr:hover td {
+  background: #FAFAFB;
+}
+
+.vp-adm .vp-admin-table a {
+  color: var(--adm-gold-ink);
+}

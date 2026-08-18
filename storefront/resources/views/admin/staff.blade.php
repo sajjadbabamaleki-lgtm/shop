@@ -1,5 +1,7 @@
 @extends('layouts.admin')
 
+@section('title', 'کارکنان')
+
 {{--
     Who works here. Three rules the screen enforces and StaffController
     explains: only branch roles can be granted, nobody edits their own row, and
@@ -9,82 +11,96 @@
 
 @section('content')
 @if (session('password'))
-    <div class="vp-note is-good">
+    <p class="vp-adm-note is-good">
         رمز این حساب فقط همین یک بار نشان داده می‌شود:
-        <code class="vp-password">{{ session('password') }}</code>
-    </div>
+        <span class="vp-adm-pw">{{ session('password') }}</span>
+    </p>
 @endif
 
-<section class="vp-shop-panel">
-    <h1 class="vp-shop-title">کارکنان {{ $branch->name }}</h1>
+<div class="vp-adm-stack">
 
-    @if ($staff->isEmpty())
-        <p class="vp-shop-empty">هنوز کسی به این شعبه وصل نیست.</p>
-    @else
-        <table class="vp-admin-table is-wide">
-            <thead><tr><th>نام</th><th>ایمیل</th><th>نقش</th><th></th></tr></thead>
-            <tbody>
-            @foreach ($staff as $membership)
-                @php $isMe = $membership->user_id === auth()->id(); @endphp
-                <tr>
-                    <td>
-                        {{ $membership->user?->name }}
-                        @if ($isMe)<span class="vp-cart-meta">(خودت)</span>@endif
-                    </td>
-                    <td>{{ $membership->user?->email }}</td>
-                    <td>
-                        @if ($isMe)
-                            {{ $membership->role?->name }}
-                        @else
-                            <form class="vp-admin-inline" method="post" action="{{ route('admin.staff.update', $membership) }}">
-                                @csrf
-                                <select name="role" class="vp-admin-pick">
-                                    @foreach ($roles as $role)
-                                        <option value="{{ $role->slug }}" @selected($membership->role_id === $role->id)>{{ $role->name }}</option>
-                                    @endforeach
-                                </select>
-                                <button type="submit" class="vp-admin-save">ثبت</button>
-                            </form>
-                        @endif
-                    </td>
-                    <td>
-                        @unless ($isMe)
-                            <form method="post" action="{{ route('admin.staff.remove', $membership) }}">
-                                @csrf
-                                <button type="submit" class="vp-admin-drop">حذف از شعبه</button>
-                            </form>
-                        @endunless
-                    </td>
-                </tr>
-            @endforeach
-            </tbody>
-        </table>
-    @endif
-</section>
-
-<section class="vp-shop-panel vp-track">
-    <h2 class="vp-shop-title">افزودن کارمند</h2>
-    <p class="vp-shop-count">اگر این ایمیل قبلاً حساب داشته باشد، همان حساب به این شعبه وصل می‌شود.</p>
-
-    <form class="vp-checkout" method="post" action="{{ route('admin.staff.store') }}">
-        @csrf
-        <div class="vp-field">
-            <label for="st-name">نام</label>
-            <input id="st-name" name="name" value="{{ old('name') }}" required maxlength="120">
+    <section class="vp-adm-card">
+        <div class="vp-adm-card-head">
+            <h2 class="vp-adm-card-title">کارکنان {{ $branch->name }}</h2>
         </div>
-        <div class="vp-field">
-            <label for="st-email">ایمیل</label>
-            <input id="st-email" type="email" name="email" value="{{ old('email') }}" required maxlength="160">
+
+        @if ($staff->isEmpty())
+            <p class="vp-adm-empty">هنوز کسی به این شعبه وصل نیست.</p>
+        @else
+            <table class="vp-admin-table">
+                <thead><tr><th>نام</th><th>ایمیل</th><th>نقش</th><th></th></tr></thead>
+                <tbody>
+                @foreach ($staff as $membership)
+                    @php $isMe = $membership->user_id === auth()->id(); @endphp
+                    <tr>
+                        <td>
+                            {{ $membership->user?->name }}
+                            @if ($isMe)<span class="vp-adm-sub">خودت</span>@endif
+                        </td>
+                        <td><bdi dir="ltr">{{ $membership->user?->email }}</bdi></td>
+                        <td>
+                            @if ($isMe)
+                                {{-- Nobody changes their own role: it is the one edit that
+                                     can lock the last manager out of their own shop. --}}
+                                {{ $membership->role?->name }}
+                            @else
+                                <form class="vp-adm-inline" method="post" action="{{ route('admin.staff.update', $membership) }}">
+                                    @csrf
+                                    <label class="visually-hidden" for="vp-role-{{ $membership->id }}">نقش</label>
+                                    <select id="vp-role-{{ $membership->id }}" name="role" class="vp-adm-cell">
+                                        @foreach ($roles as $role)
+                                            <option value="{{ $role->slug }}" @selected($membership->role_id === $role->id)>{{ $role->name }}</option>
+                                        @endforeach
+                                    </select>
+                                    <button type="submit" class="vp-adm-mini">ثبت</button>
+                                </form>
+                            @endif
+                        </td>
+                        <td>
+                            @unless ($isMe)
+                                <form method="post" action="{{ route('admin.staff.remove', $membership) }}">
+                                    @csrf
+                                    <button type="submit" class="vp-adm-mini is-bad">حذف از شعبه</button>
+                                </form>
+                            @endunless
+                        </td>
+                    </tr>
+                @endforeach
+                </tbody>
+            </table>
+        @endif
+    </section>
+
+    <section class="vp-adm-card">
+        <div class="vp-adm-card-head">
+            <h2 class="vp-adm-card-title">افزودن کارمند</h2>
         </div>
-        <div class="vp-field">
-            <label for="st-role">نقش</label>
-            <select id="st-role" name="role" class="vp-admin-pick">
+
+        <p class="vp-adm-empty">اگر این ایمیل قبلاً حساب داشته باشد، همان حساب به این شعبه وصل می‌شود.</p>
+
+        <form class="vp-adm-form" method="post" action="{{ route('admin.staff.store') }}">
+            @csrf
+
+            <div class="vp-adm-form-row">
+                <div class="vp-adm-form">
+                    <label for="sf-name">نام</label>
+                    <input id="sf-name" name="name" value="{{ old('name') }}" required maxlength="120">
+                </div>
+                <div class="vp-adm-form">
+                    <label for="sf-email">ایمیل</label>
+                    <input id="sf-email" type="email" name="email" value="{{ old('email') }}" required maxlength="160" dir="ltr">
+                </div>
+            </div>
+
+            <label for="sf-role">نقش</label>
+            <select id="sf-role" name="role">
                 @foreach ($roles as $role)
                     <option value="{{ $role->slug }}">{{ $role->name }}</option>
                 @endforeach
             </select>
-        </div>
-        <button type="submit" class="vp-filter-apply vp-cart-go">افزودن</button>
-    </form>
-</section>
+
+            <button type="submit" class="vp-adm-apply">افزودن</button>
+        </form>
+    </section>
+</div>
 @endsection

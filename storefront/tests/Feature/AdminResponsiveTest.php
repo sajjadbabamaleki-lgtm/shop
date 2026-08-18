@@ -309,6 +309,61 @@ class AdminResponsiveTest extends TestCase
         }
     }
 
+    /**
+     * **The panel does not wear the shop's clothes.**
+     *
+     * §1 opens «The admin experience must be designed independently from the
+     * customer storefront» and closes «Do not copy the customer storefront
+     * UI», and the frames that came of borrowing it are what the client
+     * objected to in the first place — «اون دیزاین خط خطی تو هم تو هم با قاب
+     * های تو هم تو هم … رو مخ منه».
+     *
+     * Four screens were rebuilt and fourteen were still using
+     * `.vp-shop-panel`, `.vp-checkout` and `.vp-field` — which looked
+     * deliberate from any one screen and looked like two applications from the
+     * navigation. This names the storefront's own classes and asserts that no
+     * screen of the panel uses them, so the next screen somebody adds cannot
+     * quietly reintroduce the shop's chrome.
+     *
+     * `.vp-admin-table` is not among them: it is the panel's table, and the
+     * phone rules in tweaks.css are written against that name.
+     */
+    public function test_no_panel_screen_borrows_the_storefronts_chrome(): void
+    {
+        $user = $this->admin();
+
+        // The marketplace screens are a different authority — «مدیر بازارگاه»,
+        // not «مدیر» — so reaching all of them at once takes both roles. That
+        // separation is the point of `RequirePlatformPermission` and is
+        // asserted properly in the navigation tests above; here it is only in
+        // the way of looking at every screen's markup.
+        $user->roles()->attach(Role::where('slug', Role::MARKETPLACE_MANAGER)->sole());
+
+        $borrowed = ['vp-shop-panel', 'vp-checkout', 'vp-field', 'vp-filter-apply', 'vp-cart-go', 'vp-shop-pages'];
+
+        $screens = [
+            '/admin', '/admin/orders', '/admin/inventory', '/admin/pricing',
+            '/admin/catalogue', '/admin/discounts', '/admin/staff', '/admin/settings',
+            '/admin/fulfilment', '/admin/reports', '/admin/enquiries', '/admin/vendors',
+            '/admin/commissions', '/admin/settlements', '/admin/reports/platform',
+            '/admin/catalogue/new', '/admin/search',
+        ];
+
+        foreach ($screens as $url) {
+            $response = $this->actingAs($user, 'web')->get($url);
+            $this->assertSame(200, $response->status(), "«{$url}» answered {$response->status()}.");
+            $page = $response->getContent();
+
+            foreach ($borrowed as $class) {
+                $this->assertStringNotContainsString(
+                    '"'.$class,
+                    $page,
+                    "«{$url}» is still wearing the storefront's «{$class}»."
+                );
+            }
+        }
+    }
+
     /** The branch is still named in the bar — on a phone as much as anywhere. */
     public function test_the_branch_is_still_named_on_a_phone_sized_shell(): void
     {

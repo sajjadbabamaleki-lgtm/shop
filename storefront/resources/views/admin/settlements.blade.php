@@ -1,18 +1,18 @@
 @extends('layouts.admin')
 
+@section('title', 'تسویه‌ها')
+
 {{--
     Requested, approved, paid. Three steps because the person who approves a
     payment and the person who makes it are not always the same.
 --}}
 
 @section('content')
-<section class="vp-shop-panel">
-    <h1 class="vp-shop-title">تسویه‌ها</h1>
-
+<section class="vp-adm-card">
     @if ($settlements->isEmpty())
-        <p class="vp-shop-empty">درخواستی ثبت نشده.</p>
+        <p class="vp-adm-empty">درخواست تسویه‌ای ثبت نشده.</p>
     @else
-        <table class="vp-admin-table is-wide">
+        <table class="vp-admin-table">
             <thead><tr><th>فروشنده</th><th>تاریخ</th><th>مبلغ</th><th>وضعیت</th><th>شبا</th><th></th></tr></thead>
             <tbody>
             @foreach ($settlements as $settlement)
@@ -20,29 +20,34 @@
                     <td>{{ $settlement->vendor?->name }}</td>
                     <td>{{ fa_date($settlement->requested_at) }}</td>
                     <td>{{ toman($settlement->amount) }}</td>
-                    <td>{{ $settlement->statusLabel() }}</td>
-                    <td>{{ $settlement->vendor?->iban ?: '—' }}</td>
+                    <td>
+                        <span class="vp-adm-badge is-{{ $settlement->status === \App\Models\Settlement::REQUESTED ? 'placed' : ($settlement->status === \App\Models\Settlement::APPROVED ? 'paid' : 'delivered') }}">
+                            {{ $settlement->statusLabel() }}
+                        </span>
+                    </td>
+                    <td><bdi dir="ltr">{{ $settlement->vendor?->iban ?: '—' }}</bdi></td>
                     <td>
                         @if ($settlement->status === \App\Models\Settlement::REQUESTED)
-                            <div class="vp-admin-inline">
+                            <div class="vp-adm-inline">
                                 <form method="post" action="{{ route('admin.settlement.action', $settlement) }}">
                                     @csrf<input type="hidden" name="action" value="approve">
-                                    <button type="submit" class="vp-admin-save">تأیید</button>
+                                    <button type="submit" class="vp-adm-mini">تأیید</button>
                                 </form>
                                 <form method="post" action="{{ route('admin.settlement.action', $settlement) }}">
                                     @csrf<input type="hidden" name="action" value="reject">
-                                    <button type="submit" class="vp-admin-save">رد</button>
+                                    <button type="submit" class="vp-adm-mini is-bad">رد</button>
                                 </form>
                             </div>
                         @elseif ($settlement->status === \App\Models\Settlement::APPROVED)
-                            <form class="vp-admin-inline" method="post" action="{{ route('admin.settlement.action', $settlement) }}">
+                            <form class="vp-adm-inline" method="post" action="{{ route('admin.settlement.action', $settlement) }}">
                                 @csrf
                                 <input type="hidden" name="action" value="pay">
-                                <input class="vp-admin-text" name="reference" placeholder="شماره پیگیری" required>
-                                <button type="submit" class="vp-admin-save">ثبت پرداخت</button>
+                                <label class="visually-hidden" for="vp-ref-{{ $settlement->id }}">شماره پیگیری</label>
+                                <input id="vp-ref-{{ $settlement->id }}" class="vp-adm-cell is-text" name="reference" placeholder="شماره پیگیری" required>
+                                <button type="submit" class="vp-adm-mini">ثبت پرداخت</button>
                             </form>
                         @else
-                            {{ $settlement->payment_reference ?? '—' }}
+                            <bdi dir="ltr">{{ $settlement->payment_reference ?? '—' }}</bdi>
                         @endif
                     </td>
                 </tr>
@@ -50,7 +55,7 @@
             </tbody>
         </table>
 
-        <div class="vp-shop-pages">{{ $settlements->links('pagination.vikyplus') }}</div>
+        <div class="vp-adm-pager">{{ $settlements->links('pagination.vikyplus') }}</div>
     @endif
 </section>
 @endsection

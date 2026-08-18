@@ -169,5 +169,52 @@
 
             table.setAttribute('data-vp-stack', '');
         });
+
+        // --- §14's Ctrl+K -------------------------------------------------
+        //
+        // The field works without this: it is a form in the topbar and Enter
+        // submits it. All the shortcut does is put the cursor in it, which is
+        // why nothing here is conditional on the key working.
+        //
+        // `metaKey` as well as `ctrlKey`, because on a Mac the same shortcut
+        // is Cmd+K and a panel that only answered to one of them would be
+        // broken for whoever is on the other. The Escape gives the page back:
+        // a shortcut that traps the cursor in a box is worse than none.
+        var find = document.querySelector('[data-adm-find]');
+
+        if (find) {
+            document.addEventListener('keydown', function (e) {
+                if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')) {
+                    e.preventDefault();
+                    find.focus();
+                    find.select();
+                } else if (e.key === 'Escape' && document.activeElement === find) {
+                    find.blur();
+                }
+            });
+        }
+
+        // --- the bell closes when you look elsewhere ------------------------
+        //
+        // A <details> stays open until its own summary is pressed again, which
+        // for a menu in the chrome means it follows you to the next thing you
+        // click. Closing it on any press outside is what every other menu on
+        // this page does; without JavaScript it simply stays open, which is
+        // untidy rather than broken.
+        var bell = document.querySelector('.vp-adm-bell');
+
+        if (bell) {
+            document.addEventListener('click', function (e) {
+                if (bell.open && !bell.contains(e.target)) {
+                    bell.open = false;
+                }
+            });
+
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && bell.open) {
+                    bell.open = false;
+                }
+            });
+        }
     }());
 </script>
