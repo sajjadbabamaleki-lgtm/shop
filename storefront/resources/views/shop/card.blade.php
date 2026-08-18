@@ -27,7 +27,7 @@
 @php
     $offer = $product->offerHere();
     $cut = $offer?->discountPercent();
-    $shot = $product->primaryMedia();
+    $shot = $product->imagePath();
     $sold = (int) ($product->units_sold ?? 0);
 @endphp
 <article class="vp-card">
@@ -39,7 +39,7 @@
          below the name and the price. --}}
     <div class="vp-card-top">
         <a class="vp-card-shot" href="{{ storefront_route('product', $product) }}">
-            @if ($shot)<img src="{{ asset($shot->path) }}" alt="{{ $product->title }}" loading="lazy">@endif
+            <img src="{{ asset($shot) }}" alt="{{ $product->title }}" loading="lazy">
             @if ($product->isNew())<span class="vp-card-new">جدید</span>@endif
         </a>
         <button type="button" class="vp-card-fav" aria-label="افزودن {{ $product->title }} به علاقه‌مندی‌ها">

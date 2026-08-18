@@ -67,7 +67,7 @@
                              every pixel. `brands.name_latin` is still a real
                              column and nothing else reads it. --}}
                         @if ($product->primaryMedia())
-                            <img src="{{ asset($product->primaryMedia()->path) }}" alt="{{ $product->title }}">
+                            <img src="{{ asset($product->imagePath()) }}" alt="{{ $product->title }}">
                         @endif
 
                     </div>

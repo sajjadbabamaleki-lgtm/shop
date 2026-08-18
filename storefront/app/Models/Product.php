@@ -224,6 +224,31 @@ class Product extends Model
     }
 
     /**
+     * A path there is always an image at.
+     *
+     * `primaryMedia()` returns null for a product whose photographs have not
+     * been uploaded yet — an ordinary state, because the panel creates the
+     * product first and the pictures after — and three views on the **home
+     * page** read `->path` off it without checking. The hero, the stepped sale
+     * and the daily deal each take whatever the catalogue gives them, so the
+     * first product added through the panel and not yet photographed takes the
+     * front page down for everybody, with a 500 nobody would connect to
+     * «عکس نذاشتم».
+     *
+     * Found by cloning the catalogue tenfold and re-rendering, not by reading:
+     * with the five seeded products, which all have photographs, it cannot
+     * happen at all.
+     *
+     * So the null stops here rather than at six call sites, three of which
+     * already had their own `@if` and three of which did not. Views ask for a
+     * path and get one.
+     */
+    public function imagePath(): string
+    {
+        return $this->primaryMedia()?->path ?? 'assets/img/product-placeholder.svg';
+    }
+
+    /**
      * What this branch has left to sell, across every colour and size.
      */
     public function sellableStock(): int
