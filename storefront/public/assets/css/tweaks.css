@@ -18825,24 +18825,22 @@ body.vp-bare .vp-cart-shot {
 /* --------------------------------------------------------------------------
    «تاس شانس» — the game band.
 
-   A tall panel in ink and gold, under the trust row. It is the one band on
+   A tall panel of the page's own glass, under the trust row. It is the one band on
    this page that is not the template's — nothing here is `th-*` — so it is
    written from nothing rather than adapted, and it keeps to the page's own
    measures: the container's width, the trust row's corner radius, the gold of
    the buttons.
 
-   **It was purple for one round and that was wrong.** The purple came off the
-   screenshots the request arrived with — a stock design, not this shop — and
-   the client's answer to seeing it on the page was «سایت ما بنفشه؟؟؟». It is
-   worth writing down why it looked so wrong rather than merely noting that it
-   did: the whole of this page carries exactly two dark surfaces, and until
-   this band arrived there was **one** — `#101111`, the copyright bar. Every
-   other ground is white or the page's soft grey, and every accent on all of
-   them is the gold in `:root`. A 1116x443 slab of #2A0C3E was not a strong
-   colour choice, it was the only colour on the page that belonged to no other
-   element. So the ground here is that same ink and the accent is that same
-   gold, and the band reads as this site being emphatic rather than as another
-   site pasted into it.
+   **It took three goes to land on that.** First it was purple, off the stock
+   screenshots the request arrived with — «سایت ما بنفشه؟؟؟». Then it was ink,
+   which at least used a colour the page owns, and that was wrong too:
+   «بکگراندش شیشه ۲۳۵ بشه نه سیاهی که الان هست». Both mistakes are the same
+   mistake. This page has one material — `rgba(16,17,17,0.084)` under a 10px
+   blur, on twenty-one elements — and a band that invents a ground for itself
+   is a band that stops belonging to the page, whatever the ground happens to
+   be. So this panel is the ladder's panel exactly: same tint, same blur, same
+   inked foot. The gold in the title is `--theme-color`, which is what the
+   ladder's own title carries on the same glass.
 
    Checked against this file before naming: none of `vp-dice*`, `vp-die*`,
    `vp-prize*` or `vp-confetti*` existed.
@@ -18852,37 +18850,21 @@ body.vp-bare .vp-cart-shot {
   padding: 40px 0 10px;
 }
 
-/* The ink, twice: a gold-warmed rise behind the dice over the flat ground, so
-   the card has a light source. The dice sit in the lit middle and read as
-   objects on a surface rather than shapes on a colour. The rise is the gold at
-   a tenth — any more and the ink turns brown. */
+/* The page's glass, to the third decimal, with the ladder panel's own foot —
+   see «لبه پنهان» in CLAUDE.md for why the bottom edge is drawn as ink rather
+   than left to a shadow. The corner is 26 rather than the ladder's 50: this
+   card is 443 tall and mostly air, and 50 on it took a bite out of a shape
+   with nothing near its edges to justify it. */
 .vp-dice-card {
   position: relative;
   padding: 44px 20px 36px;
   border-radius: 26px;
   overflow: hidden;
   text-align: center;
-  background:
-    radial-gradient(120% 80% at 50% 34%, rgba(218, 178, 38, 0.13) 0%, rgba(218, 178, 38, 0.04) 45%, rgba(218, 178, 38, 0) 100%),
-    #101111;
-  color: #FFFFFF;
-}
-
-/* A warm rise at the foot — the panel is not flat ink all the way down. Same
-   gold, weaker, so the bottom edge does not go dead. */
-.vp-dice-card::after {
-  content: '';
-  position: absolute;
-  inset-inline: 0;
-  inset-block-end: 0;
-  height: 42%;
-  background: radial-gradient(90% 100% at 50% 130%, rgba(218, 178, 38, 0.28) 0%, rgba(218, 178, 38, 0) 70%);
-  pointer-events: none;
-}
-
-.vp-dice-card > * {
-  position: relative;
-  z-index: 1;
+  background: rgba(16, 17, 17, 0.084);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  box-shadow: inset 0 -1.4px 0 rgba(16, 17, 17, 0.07);
 }
 
 .vp-dice-title {
@@ -18890,7 +18872,9 @@ body.vp-bare .vp-cart-shot {
   font-size: 26px;
   line-height: 38px;
   font-weight: 800;
-  color: var(--vp-gold-lit);
+  /* The ladder's title colour, because the ladder's title sits on this same
+     glass four hundred pixels further down and the two are the same voice. */
+  color: var(--theme-color);
 }
 
 .vp-dice-say {
@@ -18898,7 +18882,7 @@ body.vp-bare .vp-cart-shot {
   max-width: 30ch;
   font-size: 15px;
   line-height: 28px;
-  color: rgba(255, 255, 255, 0.82);
+  color: var(--body-color);
 }
 
 /* --- the dice ------------------------------------------------------------
@@ -18924,10 +18908,14 @@ body.vp-bare .vp-cart-shot {
   height: 104px;
   padding: 14px;
   border-radius: 22px;
-  background: linear-gradient(160deg, #FFFFFF 0%, #F0F1F2 100%);
+  background: linear-gradient(160deg, #FFFFFF 0%, #F4F5F6 100%);
+  /* On ink a shadow was optional; on 235 glass it is the only thing telling a
+     white die from the panel behind it. Two of them: a tight one that draws
+     the edge and a soft one that lifts the die off the glass. */
   box-shadow:
-    0 10px 26px rgba(0, 0, 0, 0.42),
-    inset 0 -3px 0 rgba(16, 17, 17, 0.1);
+    0 1px 2px rgba(16, 17, 17, 0.22),
+    0 12px 24px rgba(16, 17, 17, 0.16),
+    inset 0 -3px 0 rgba(16, 17, 17, 0.07);
 }
 
 .vp-die i {
@@ -18977,21 +18965,53 @@ body.vp-bare .vp-cart-shot {
 
 /* The throw. The dice tumble while the server is being asked, and stop on
    whatever it says — the animation is a picture of a result that has already
-   happened, never the thing that decides it. */
+   happened, never the thing that decides it.
+
+   **It was 1.1 seconds of a die wobbling in place and it read as nothing:**
+   «انیمیشن تاسش هم خیلی بیخودو کوتاهه». Two things were wrong and only one of
+   them was the length. A die that rocks ±18° never leaves the pose it started
+   in, so there was no moment of not-knowing — and the pips never changed, so
+   the thing on screen was not a die being thrown, it was a die being nudged.
+
+   Now: a whole turn plus a bounce, over 0.62s, and the script swaps the face
+   underneath every 90ms so the pips are genuinely churning. The two dice run
+   at different speeds and out of phase, because two identical tumbles read as
+   one object drawn twice. The whole throw lasts 2.4s, which is about as long
+   as a real pair takes to leave a hand, hit the table and settle. */
 @keyframes vp-die-roll {
-  0%   { transform: rotate(0deg)    scale(1);    }
-  25%  { transform: rotate(-18deg)  scale(1.08); }
-  50%  { transform: rotate(14deg)   scale(0.96); }
-  75%  { transform: rotate(-9deg)   scale(1.05); }
-  100% { transform: rotate(0deg)    scale(1);    }
+  0%   { transform: rotate(0deg)    scale(1)    translateY(0);     }
+  20%  { transform: rotate(120deg)  scale(1.1)  translateY(-14px); }
+  40%  { transform: rotate(215deg)  scale(1.06) translateY(-20px); }
+  60%  { transform: rotate(300deg)  scale(0.97) translateY(-6px);  }
+  80%  { transform: rotate(345deg)  scale(1.04) translateY(-11px); }
+  100% { transform: rotate(360deg)  scale(1)    translateY(0);     }
+}
+
+/* The landing: one settle after the tumble stops, so the die arrives rather
+   than simply ceasing to move. This is what the last 260ms of the throw is. */
+@keyframes vp-die-land {
+  0%   { transform: scale(1.12) translateY(-8px); }
+  55%  { transform: scale(0.96) translateY(0);    }
+  100% { transform: scale(1)    translateY(0);    }
 }
 
 .vp-dice-pair.is-rolling .vp-die {
-  animation: vp-die-roll 0.5s ease-in-out infinite;
+  animation: vp-die-roll 0.62s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
 }
 
 .vp-dice-pair.is-rolling .vp-die:last-child {
-  animation-delay: 0.12s;
+  /* Out of phase and a shade slower: two dice thrown from one hand do not
+     agree with each other, and two that do read as one object drawn twice. */
+  animation-duration: 0.74s;
+  animation-delay: -0.21s;
+}
+
+.vp-dice-pair.is-landing .vp-die {
+  animation: vp-die-land 0.26s ease-out both;
+}
+
+.vp-dice-pair.is-landing .vp-die:last-child {
+  animation-delay: 0.09s;
 }
 
 /* --- the button ---------------------------------------------------------- */
@@ -19021,7 +19041,7 @@ body.vp-bare .vp-cart-shot {
 .vp-dice-foot {
   margin: 18px 0 0;
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(16, 17, 17, 0.55);
 }
 
 /* What a losing throw, or a second visit, says instead of the button. */
@@ -19029,7 +19049,15 @@ body.vp-bare .vp-cart-shot {
   margin: 6px 0 0;
   font-size: 15px;
   line-height: 26px;
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(16, 17, 17, 0.82);
+}
+
+/* The line under the button while a throw is still owed — it sits *with* the
+   button rather than replacing it, so it is quieter than the closing one. */
+.vp-dice-go + .vp-dice-done {
+  margin-top: 14px;
+  font-size: 14px;
+  color: rgba(16, 17, 17, 0.62);
 }
 
 /* --- the prize card ------------------------------------------------------
@@ -19224,6 +19252,7 @@ body.vp-bare .vp-cart-shot {
    still carries the code — the information is never the thing that is dropped. */
 @media (prefers-reduced-motion: reduce) {
   .vp-dice-pair.is-rolling .vp-die,
+  .vp-dice-pair.is-landing .vp-die,
   .vp-confetti i {
     animation: none;
   }

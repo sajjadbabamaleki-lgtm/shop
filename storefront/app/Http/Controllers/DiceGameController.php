@@ -30,16 +30,18 @@ class DiceGameController extends Controller
 
         $customer = $request->user('customer');
 
-        $play = $game->play($this->playerKey($request, $customer?->id), $customer?->id);
+        $key = $this->playerKey($request, $customer?->id);
 
-        return response()->json($this->describe($play));
+        $play = $game->play($key, $customer?->id);
+
+        return response()->json($this->describe($play, $game->throwsLeft($key)));
     }
 
     /**
      * Who is throwing.
      *
-     * A signed-in shopper is their customer id, so the same person gets one
-     * throw whatever device they use. Everybody else gets a random token kept
+     * A signed-in shopper is their customer id, so the same person gets their
+     * throws whatever device they use. Everybody else gets a random token kept
      * in the session — which means clearing cookies buys another throw, and
      * that is stated on the band rather than hidden. The prize is capped by
      * the code it issues (one use, one day), which is the limit that holds.
@@ -61,7 +63,7 @@ class DiceGameController extends Controller
     }
 
     /** @return array<string, mixed> */
-    private function describe(DicePlay $play): array
+    private function describe(DicePlay $play, int $left): array
     {
         return [
             'dice' => [$play->first_die, $play->second_die],
@@ -76,6 +78,10 @@ class DiceGameController extends Controller
             // back — the page says «قبلاً بازی کردی» rather than replaying the
             // animation as though it were new.
             'fresh' => $play->wasRecentlyCreated,
+            // Throws still to come. The page keeps the button while this is
+            // above zero and says so, rather than ending the game on a loss
+            // that was only the first of two.
+            'left' => $left,
         ];
     }
 }

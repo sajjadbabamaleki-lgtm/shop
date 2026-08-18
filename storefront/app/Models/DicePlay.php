@@ -17,13 +17,18 @@ class DicePlay extends Model
     use BelongsToBranch;
 
     protected $fillable = [
-        'branch_id', 'customer_id', 'player_key',
+        'branch_id', 'customer_id', 'player_key', 'attempt',
         'first_die', 'second_die', 'won', 'discount_code_id',
     ];
 
     protected function casts(): array
     {
-        return ['won' => 'boolean', 'first_die' => 'integer', 'second_die' => 'integer'];
+        return [
+            'won' => 'boolean',
+            'first_die' => 'integer',
+            'second_die' => 'integer',
+            'attempt' => 'integer',
+        ];
     }
 
     public function code(): BelongsTo

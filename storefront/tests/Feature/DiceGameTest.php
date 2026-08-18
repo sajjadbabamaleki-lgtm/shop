@@ -22,11 +22,16 @@ use Tests\TestCase;
  * the request carries no body, the faces come from `random_int` on this side,
  * and the prize is a real row in `discount_codes` with a real limit on it.
  *
- * The thing most likely to go wrong quietly is the one-throw rule. A visitor
- * who can throw twice can throw a hundred times, and at 1 in 36 that is a
- * certainty rather than a game — so the rule is pinned from three directions
- * here: through the service, through the route, and through the unique index
- * when two throws land together.
+ * The thing most likely to go wrong quietly is the throw limit. A visitor who
+ * can take one throw more than they are owed can take a hundred, and at 1 in
+ * 36 that is a certainty rather than a game — so the rule is pinned from three
+ * directions here: through the service, through the route, and through the
+ * unique index when two throws land together.
+ *
+ * It is two throws now, not one («کاربر هم ۲ شانس داشته باشه نه یک شانس»),
+ * which is why the limit is read from config in these tests rather than
+ * written into them: the number is the shop's to change and the tests follow
+ * it, but going *past* it must fail whatever it is set to.
  */
 class DiceGameTest extends TestCase
 {
@@ -117,50 +122,98 @@ class DiceGameTest extends TestCase
         $this->assertSame([$play->first_die, $play->second_die], $answer['dice']);
     }
 
-    public function test_one_throw_per_visitor(): void
+    public function test_a_visitor_gets_exactly_the_throws_config_promises(): void
     {
-        $first = $this->postJson('/game/dice')->assertOk()->json();
+        $tries = (int) config('storefront.game.tries');
+        $this->assertGreaterThan(1, $tries, 'This test is about the second throw.');
 
-        $this->assertTrue($first['fresh']);
+        $thrown = [];
 
+        for ($i = 1; $i <= $tries; $i++) {
+            $answer = $this->postJson('/game/dice')->assertOk()->json();
+
+            $this->assertTrue($answer['fresh'], "Throw {$i} was not a fresh throw.");
+            $this->assertSame($tries - $i, $answer['left'], "Throw {$i} miscounted what is left.");
+            $thrown[] = $answer['dice'];
+
+            if ($answer['won']) {
+                // Winning ends it, which is its own test below.
+                return;
+            }
+        }
+
+        // Everything after that is a read-back of the last throw, however many
+        // times it is asked for.
         for ($i = 0; $i < 5; $i++) {
             $again = $this->postJson('/game/dice')->assertOk()->json();
 
-            $this->assertSame($first['dice'], $again['dice'], 'A second throw invented new dice.');
+            $this->assertSame(end($thrown), $again['dice'], 'A throw past the limit invented new dice.');
             $this->assertFalse($again['fresh'], 'A read-back was reported as a fresh throw.');
+            $this->assertSame(0, $again['left']);
         }
 
-        $this->assertSame(1, DicePlay::count());
+        $this->assertSame($tries, DicePlay::count());
+        $this->assertSame(range(1, $tries), DicePlay::orderBy('attempt')->pluck('attempt')->all());
     }
 
-    public function test_two_taps_arriving_together_are_still_one_throw(): void
+    public function test_winning_ends_the_game_even_with_a_throw_in_hand(): void
     {
-        // The service is asked twice for the same key with no play in between,
-        // which is what a double tap looks like once both requests are past
-        // the read. The unique index is what settles it.
-        $key = 's:'.str_repeat('a', 32);
+        $play = $this->winFor('s:early');
 
-        $one = $this->game()->play($key);
-        $two = $this->game()->play($key);
+        $this->assertSame(1, $play->attempt, 'This test is about winning on the first throw.');
+        $this->assertSame(0, $this->game()->throwsLeft('s:early'), 'A winner was offered another throw.');
 
-        $this->assertSame($one->id, $two->id);
-        $this->assertSame(1, DicePlay::where('player_key', $key)->count());
+        // And asking again hands back the prize rather than rolling again.
+        $again = $this->game()->play('s:early');
+
+        $this->assertSame($play->id, $again->id);
+        $this->assertSame(1, DicePlay::where('player_key', 's:early')->count());
     }
 
-    public function test_a_signed_in_shopper_gets_one_throw_across_devices(): void
+    public function test_a_double_tap_never_buys_an_extra_throw(): void
+    {
+        $key = 's:'.str_repeat('a', 32);
+        $tries = (int) config('storefront.game.tries');
+
+        // Every throw the visitor is owed, and then several more from a hand
+        // that will not stop tapping. The unique key on
+        // (branch, player, attempt) is what settles it — a count in PHP would
+        // be settled by whichever request read the table first.
+        for ($i = 0; $i < $tries + 6; $i++) {
+            if ($this->game()->play($key)->won) {
+                break;
+            }
+        }
+
+        $this->assertLessThanOrEqual(
+            $tries,
+            DicePlay::where('player_key', $key)->count(),
+            'Tapping the button harder produced more throws than the shop offers.'
+        );
+    }
+
+    public function test_a_signed_in_shopper_carries_their_throws_across_devices(): void
     {
         $customer = Customer::create(['name' => 'مینا', 'phone' => '09120000001']);
+        $tries = (int) config('storefront.game.tries');
+        $last = null;
 
-        $first = $this->actingAs($customer, 'customer')->postJson('/game/dice')->assertOk()->json();
+        // Use them all up on one device.
+        for ($i = 0; $i < $tries; $i++) {
+            $last = $this->actingAs($customer, 'customer')->postJson('/game/dice')->assertOk()->json();
+        }
 
-        // A second visit, in a session that shares nothing with the first.
+        // A second visit, in a session that shares nothing with the first —
+        // a new phone, a cleared browser. Signing in is what carries the
+        // count; a session token could not.
         $this->flushSession();
 
         $again = $this->actingAs($customer, 'customer')->postJson('/game/dice')->assertOk()->json();
 
-        $this->assertSame($first['dice'], $again['dice']);
-        $this->assertFalse($again['fresh']);
-        $this->assertSame(1, DicePlay::count());
+        $this->assertSame($last['dice'], $again['dice']);
+        $this->assertFalse($again['fresh'], 'A new device handed a signed-in shopper another throw.');
+        $this->assertSame(0, $again['left']);
+        $this->assertSame($tries, DicePlay::count());
         $this->assertSame($customer->id, DicePlay::first()->customer_id);
     }
 
@@ -233,6 +286,12 @@ class DiceGameTest extends TestCase
         $this->assertStringContainsString('data-dice-go', $page);
         $this->assertStringContainsString('data-dice-token', $page);
         $this->assertStringContainsString('/game/dice', $page);
+
+        // The band may not promise a number of throws the game does not give.
+        $this->assertStringContainsString(
+            'هر کاربر '.fa_number(config('storefront.game.tries')).' بار شانس داره',
+            $page
+        );
 
         // The result is never in the markup — every visitor is served the same
         // opening state, which is also why the parity check can compare this

@@ -109,7 +109,15 @@
             // The dice tumble for this long whatever the network does. An
             // answer that arrives in 40ms and stops them dead is not a throw;
             // a slow one keeps them going until it lands.
-            var TUMBLE = 1100;
+            //
+            // It was 1100 and «خیلی بیخودو کوتاهه» — so 2400, about as long as
+            // a real pair takes to leave a hand, hit the table and settle. The
+            // face churns underneath every CHURN ms, which is what makes it a
+            // throw rather than a shape wobbling: the pips have to be moving
+            // or the eye reads the die as being pushed, not rolled.
+            var TUMBLE = 2400;
+            var CHURN = 90;
+            var LAND = 260;
 
             function fa(text) {
                 return String(text).replace(/[0-9]/g, function (d) {
@@ -295,7 +303,27 @@
                 shut.focus();
             }
 
+            // While the dice are in the air their faces are meaningless, so
+            // they may as well churn. Nothing here decides anything — the
+            // server has already decided, or is about to — and land() writes
+            // the real faces over whatever this left behind.
+            var churn = null;
+
+            function startChurn() {
+                stopChurn();
+                churn = setInterval(function () {
+                    for (var i = 0; i < dice.length; i++) {
+                        dice[i].setAttribute('data-face', String(1 + Math.floor(Math.random() * 6)));
+                    }
+                }, CHURN);
+            }
+
+            function stopChurn() {
+                if (churn) { clearInterval(churn); churn = null; }
+            }
+
             function land(answer) {
+                stopChurn();
                 pair.classList.remove('is-rolling');
 
                 if (answer.dice && answer.dice.length === 2) {
@@ -303,6 +331,12 @@
                         dice[i].setAttribute('data-face', String(answer.dice[i]));
                     }
                 }
+
+                // The settle. Removed afterwards so the next throw can play it
+                // again — an animation that is already on an element does not
+                // restart when the class is merely still there.
+                pair.classList.add('is-landing');
+                setTimeout(function () { pair.classList.remove('is-landing'); }, LAND + 60);
 
                 if (answer.won && answer.code) {
                     // The code goes on the band as well as in the card, so
@@ -318,9 +352,19 @@
                     return;
                 }
 
+                // A loss with a throw still owed is not the end of the game,
+                // so the button stays and the line goes under it. Ending it
+                // here is what «۲ شانس» would look like as one.
+                if (answer.left > 0) {
+                    excuse(answer.left === 1
+                        ? 'این بار جفت شیش نیامد — یک شانس دیگر داری.'
+                        : 'این بار جفت شیش نیامد — ' + fa(answer.left) + ' شانس دیگر داری.');
+                    return;
+                }
+
                 spend(answer.fresh
-                    ? 'این بار جفت شیش نیامد. هر کاربر یک بار شانس دارد.'
-                    : 'قبلاً بازی کردی — این بار جفت شیش نیامده بود.');
+                    ? 'این بار هم جفت شیش نیامد. شانس‌هایت تمام شد.'
+                    : 'شانس‌هایت تمام شده بود.');
             }
 
             go.addEventListener('click', function () {
@@ -328,7 +372,9 @@
                 busy = true;
 
                 go.disabled = true;
+                pair.classList.remove('is-landing');
                 pair.classList.add('is-rolling');
+                startChurn();
 
                 var thrown = Date.now();
                 var landed = function (answer) {
@@ -356,6 +402,7 @@
                 }).then(landed, function (error) {
                     var left = Math.max(0, TUMBLE - (Date.now() - thrown));
                     setTimeout(function () {
+                        stopChurn();
                         pair.classList.remove('is-rolling');
                         excuse(error && error.message ? error.message : 'الان نشد؛ کمی بعد دوباره امتحان کن.');
                     }, left);

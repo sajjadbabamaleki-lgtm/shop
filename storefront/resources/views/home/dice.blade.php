@@ -31,7 +31,9 @@
                         <span class="vp-die" data-face="5" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
                 </div>
                 <button type="button" class="vp-dice-go" data-dice-go>شروع بازی</button>
-                <p class="vp-dice-foot">هر کاربر یک بار شانس داره</p>
+                {{-- The promise and the rule come from the same place, so the band
+                     cannot advertise a number of throws that config does not give. --}}
+                <p class="vp-dice-foot">هر کاربر {{ fa_number(config('storefront.game.tries')) }} بار شانس داره</p>
             </div>
         </div>
     </section>

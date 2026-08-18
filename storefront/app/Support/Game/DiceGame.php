@@ -5,6 +5,7 @@ namespace App\Support\Game;
 use App\Models\DicePlay;
 use App\Models\DiscountCode;
 use App\Support\Tenancy\TenantContext;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -26,6 +27,11 @@ use Illuminate\Support\Str;
  * The card looks the same either way; only the letters differ. Say so if the
  * client wants the shared one back, because it is their money.
  *
+ * **Two throws, and winning ends it.** «کاربر هم ۲ شانس داشته باشه نه یک
+ * شانس» — so `tries` is 2, and a person who wins on the first does not throw
+ * again: the prize is the prize. Two throws at 1 in 36 apiece is about 5 or 6
+ * winners in a hundred rather than 3.
+ *
  * Every number that decides anything is in `config('storefront.game')` and
  * none of them are in here.
  */
@@ -38,42 +44,80 @@ class DiceGame
         return (bool) config('storefront.game.enabled', false);
     }
 
-    /** What this person has already done, if anything. */
+    /** How many throws one person gets. */
+    public function tries(): int
+    {
+        return max(1, (int) config('storefront.game.tries', 1));
+    }
+
+    /** Everything this person has thrown, oldest first. */
+    public function playsFor(string $playerKey): Collection
+    {
+        return DicePlay::where('player_key', $playerKey)
+            ->with('code')->orderBy('attempt')->get();
+    }
+
+    /** Their last throw, if they have had one. */
     public function playFor(string $playerKey): ?DicePlay
     {
-        return DicePlay::where('player_key', $playerKey)->with('code')->first();
+        return $this->playsFor($playerKey)->last();
+    }
+
+    /**
+     * How many throws this person has left. Winning ends the game — the prize
+     * is the prize, and a second code for the same person is a second code.
+     */
+    public function throwsLeft(string $playerKey): int
+    {
+        $plays = $this->playsFor($playerKey);
+
+        if ($plays->contains(fn (DicePlay $p) => $p->won)) {
+            return 0;
+        }
+
+        return max(0, $this->tries() - $plays->count());
     }
 
     /**
      * Throw two dice and settle up.
      *
-     * Returns the play. A second call for the same person does not throw
-     * again — it returns what they already got, so a refresh or a double tap
-     * shows the same result rather than a new one.
+     * Returns the play. A call with nothing left does not throw again — it
+     * returns what they already got, so a refresh or a double tap shows the
+     * same result rather than a new one.
      */
     public function play(string $playerKey, ?int $customerId = null): DicePlay
     {
-        if ($already = $this->playFor($playerKey)) {
-            return $already;
+        $plays = $this->playsFor($playerKey);
+        $won = $plays->first(fn (DicePlay $p) => $p->won);
+
+        if ($won !== null) {
+            return $won;
         }
+
+        if ($plays->count() >= $this->tries()) {
+            return $plays->last();
+        }
+
+        $attempt = $plays->count() + 1;
 
         // `random_int`, not `rand`: this decides money, and a predictable
         // sequence is a prize somebody can wait for.
         $first = random_int(1, 6);
         $second = random_int(1, 6);
-        $won = $first === 6 && $second === 6;
+        $double = $first === 6 && $second === 6;
 
         try {
-            return DB::transaction(function () use ($playerKey, $customerId, $first, $second, $won): DicePlay {
+            return DB::transaction(function () use ($playerKey, $customerId, $attempt, $first, $second, $double): DicePlay {
                 $play = DicePlay::create([
                     'customer_id' => $customerId,
                     'player_key' => $playerKey,
+                    'attempt' => $attempt,
                     'first_die' => $first,
                     'second_die' => $second,
-                    'won' => $won,
+                    'won' => $double,
                 ]);
 
-                if ($won) {
+                if ($double) {
                     $play->update(['discount_code_id' => $this->awardCode()->id]);
                 }
 
@@ -81,8 +125,10 @@ class DiceGame
             });
         } catch (QueryException $e) {
             // Two taps arriving together: the unique index refused the second,
-            // which is the point of having it. Whichever landed first is the
-            // answer, and this reads it back rather than inventing another.
+            // which is the point of having it. The key carries the attempt
+            // number, so this holds on throw two exactly as it did on throw
+            // one. Whichever landed first is the answer, and this reads it
+            // back rather than inventing another.
             $play = $this->playFor($playerKey);
 
             if ($play === null) {

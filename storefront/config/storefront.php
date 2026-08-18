@@ -34,6 +34,14 @@ return [
     | other amount in this application; `max_discount_rial` of 0 means no
     | ceiling.
     |
+    | `tries` is how many throws one person gets — «کاربر هم ۲ شانس داشته باشه
+    | نه یک شانس». It is enforced by the unique key on
+    | (branch, player, attempt), not by a count in PHP, so two taps arriving
+    | together cannot buy a third. Two throws at 1 in 36 each is about 5 or 6
+    | winners in every hundred players, against 3 for one throw. The band's own
+    | footnote reads this number, so raising it changes what the page promises
+    | in the same breath.
+    |
     | `enabled` switches the whole band off, markup included. A game nobody is
     | running should not be a button that does nothing.
     |
@@ -41,6 +49,7 @@ return [
 
     'game' => [
         'enabled' => env('GAME_DICE', true),
+        'tries' => 2,
         'percent' => 30,
         'hours' => 24,
         'min_subtotal_rial' => 0,
