@@ -18852,13 +18852,18 @@ body.vp-bare .vp-cart-shot {
 
 /* The page's glass, to the third decimal, with the ladder panel's own foot —
    see «لبه پنهان» in CLAUDE.md for why the bottom edge is drawn as ink rather
-   than left to a shadow. The corner is 26 rather than the ladder's 50: this
-   card is 443 tall and mostly air, and 50 on it took a bite out of a shape
-   with nothing near its edges to justify it. */
+   than left to a shadow.
+
+   The corner is 31.2 — 26 plus the client's 20%, «گوشه هاش ۲۰ درصد کروتر
+   بشن». It started at 26 rather than the ladder's 50 because this card is 443
+   tall and mostly air, and 50 took a bite out of a shape with nothing near its
+   edges to justify it; 31.2 is still well short of that. Kept as the decimal
+   rather than rounded to 31, because 20% of 26 is what was asked for and a
+   fraction of a pixel costs nothing. */
 .vp-dice-card {
   position: relative;
   padding: 44px 20px 36px;
-  border-radius: 26px;
+  border-radius: 31.2px;
   overflow: hidden;
   text-align: center;
   background: rgba(16, 17, 17, 0.084);
