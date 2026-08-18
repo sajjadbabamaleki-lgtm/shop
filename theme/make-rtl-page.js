@@ -570,21 +570,30 @@ const QUICK_LINKS = [
   ['fa-arrow-trend-up', 'پرفروش‌ترین‌ها', ''],
 ];
 
-// The last two are the help pages, put here because the shop had built them
-// and then hidden them: «یه چنین چیزی قبلا با عنوان سوالات متداول ساخته شده ولی
-// هیچ جا نمیبینمش». They were reachable — `/faq` and `/size-guide` are in the
-// footer, and on a phone the footer's own copy of them sits at y≈6830 on a
-// 6975px page. A page you can only reach by scrolling the whole shop is a page
-// nobody reaches, and the menu is where a phone visitor looks for help.
+// The four tiles at the foot of the drawer. Their order is the client's, read
+// in RTL: «فروش عمده» first, then «فروشنده شوید», then «پیگیری سفارش», then
+// «راهنمای سایز».
+//
+// «سوالات متداول» came out of here — «از اون ۴ مستطیل پایین منو سوالات متداول
+// باید حذف بشه پیگیری سفارش بره جاش و اولین مورد بشه فروش عمده». The page is
+// not gone: `/faq` is still in the footer, still linked from `/contact` and
+// `/size-guide`, and the home page still carries the band of the same eight
+// questions. What left is its tile, and the slot went to the thing a phone
+// visitor with an order in the post actually opens the menu for.
+//
+// «فروش عمده» is `/wholesale`, which the shop has advertised on the front
+// page's trust row since the template was dressed. Its mark is the same
+// `fa-boxes-stacked` that badge uses, so the two places the shop says «عمده»
+// say it with one glyph.
 //
 // Four entries make the 1fr 1fr grid two even rows. The body they sit in is
 // `overflow-y: auto` already, so the extra 48px scrolls on a 375×667 screen
 // rather than pushing the sign-in button off it; at 390×844 the drawer is
 // 695 of 824 and nothing scrolls at all. Both measured.
 const DRAWER_LINKS = [
-  ['fa-truck-fast', 'پیگیری سفارش', 'order-tracking.html'],
+  ['fa-boxes-stacked', 'فروش عمده', 'wholesale.html'],
   ['fa-store', 'فروشنده شوید', 'vendor-register.html'],
-  ['fa-circle-question', 'سوالات متداول', 'faq.html'],
+  ['fa-truck-fast', 'پیگیری سفارش', 'order-tracking.html'],
   ['fa-ruler', 'راهنمای سایز', 'size-guide.html'],
 ];
 
