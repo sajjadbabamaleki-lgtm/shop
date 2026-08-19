@@ -104,6 +104,16 @@ class DiceGame
         // sequence is a prize somebody can wait for.
         $first = random_int(1, 6);
         $second = random_int(1, 6);
+
+        // …unless this throw is the rigged one. See `rig_attempt` in
+        // config/storefront.php: it is a deliberate, temporary switch that
+        // hands *every* player the prize on a given throw, and the comment
+        // there says what it costs.
+        if ($this->riggedAttempt() === $attempt) {
+            $first = 6;
+            $second = 6;
+        }
+
         $double = $first === 6 && $second === 6;
 
         try {
@@ -137,6 +147,14 @@ class DiceGame
 
             return $play;
         }
+    }
+
+    /** Which throw, if any, is fixed to win. Null when the dice are honest. */
+    public function riggedAttempt(): ?int
+    {
+        $attempt = (int) config('storefront.game.rig_attempt', 0);
+
+        return $attempt > 0 ? $attempt : null;
     }
 
     /**

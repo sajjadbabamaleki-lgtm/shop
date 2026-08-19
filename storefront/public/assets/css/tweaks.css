@@ -131,7 +131,7 @@
   --vp-gold-burst-foot: #E3B54A;  /* the sampled lit end, kept                */
 
 /* --------------------------------------------------------------------------
-   The glass tint: rgba(16,17,17,0.084), which is 235 on white.
+   The glass tint: rgba(16,17,17,0.063), which is 240 on white.
 
    Twenty-one elements carry it and they carry the *same* value on purpose —
    the header island, the hero pane, the trust cards, the ladder panel, the
@@ -139,24 +139,28 @@
    read as one material, and a material is its tint. Changing one of them
    alone is what makes a page look assembled from parts.
 
-   It was 0.034 — 247 on white — for most of this build. «قسمتهای شیشه ای
-   وبسایتو ۵ درصد تیره تر کن»: 247 × 0.95 = 235, and the alpha that lands a
-   pane exactly there over white is 20/239 = 0.0837. Measured after, all five
-   panes sampled read 235 flat, so the material stayed uniform.
+   It was 0.034 — 247 on white — for most of this build, then 0.084 for one
+   round. «قسمتهای شیشه ای وبسایتو ۵ درصد تیره تر کن» took 247 × 0.95 = 235;
+   seen on a phone that was «خیلی تیره», and «۲ درصد روشنتر بشن شیشه ها» takes
+   235 × 1.02 = 239.7, which rounds to 240. The alpha that lands a pane exactly
+   there over white is 15/239 = 0.0628. Measured after, all five panes sampled
+   read 240 flat, so the material stayed uniform.
 
    Two things that were checked rather than assumed:
 
-   - **«لبه پنهان» did not come back.** The foot column went from
-     247 → 234 → 255 to 235 → 219 → 255 — a 16-level step where there was a
-     13-level one, so the bottom edge is more defined, not less.
-   - **Contrast.** Ink (#101111) is 15.87:1 on this ground and the body grey
-     (#4D4D4D) is 7.09:1, both comfortable. `--vp-gold-ink` (#8B7217) is the
+   - **«لبه پنهان» did not come back.** At 235 the foot column read
+     235 → 219 → 255 against the original 247 → 234 → 255; at 240 it is
+     240 → 224 → 255. Every version of this has a bigger step at the foot than
+     the 13 levels the original had, so the bottom edge is more defined than it
+     was, not less.
+   - **Contrast.** Ink (#101111) is 16.24:1 on this ground and the body grey
+     (#4D4D4D) is 7.26:1, both comfortable. `--vp-gold-ink` (#8B7217) is the
      one to watch: it was picked at 4.65:1 on white, reads 4.34 on the old
-     glass and **3.90** on this one, which is under AA for small text. It
+     glass, 3.90 at 235 and **3.99** here — still under AA for small text. It
      lands on glass in «مشاهده همه» and the stepped sale's done-step label.
      Raised with the client and left as it is at their instruction; the fix,
      if it is ever wanted, is `--vp-gold-ink-deep` (#6B550E), which holds
-     6.01:1 here.
+     6.15:1 here.
    -------------------------------------------------------------------------- */
 }
 
@@ -1270,12 +1274,18 @@ option:hover {
    the island the moment the page scrolls. */
 .th-header .menu-area,
 .th-header .sticky-wrapper.sticky .menu-area {
-  /* 18 above and to both sides. Nothing below: the gap down to the hero is
-     the hero's own 36px of padding, and a bottom margin here would stack on
-     top of it and break the equal air above and below the deck. */
-  margin: 18px 18px 0;
+  /* 40 above, 18 to both sides. Nothing below: the gap down to the hero is
+     the hero's own padding, and a bottom margin here would stack on top of it.
+     
+     The top was 18 and matched the sides, which is a sensible rule and the
+     wrong one here — «فاصله بالای هدر اندازه فاصله هدر با هیرو بشه». Measured
+     at 1200: the island sat 18 below the page's top edge and 40 above the hero
+     card, so the island looked pinned to the top of the window rather than
+     floating between two equal gaps. 40 is that measured gap, not a guess; if
+     the hero's padding ever moves, this moves with it. */
+  margin: 40px 18px 0;
   border-radius: 24px;
-  background: rgba(16, 17, 17, 0.084);
+  background: rgba(16, 17, 17, 0.063);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   /* The same foot as the hero card, for the same reason — «لبه پنهان» /
@@ -1327,7 +1337,7 @@ option:hover {
    What that buys is the thing worth having: what passes under the bar is
    still visibly there, as colour and movement, and none of it is legible. */
 .th-header .sticky-wrapper.sticky .menu-area {
-  background: rgba(16, 17, 17, 0.084);
+  background: rgba(16, 17, 17, 0.063);
   -webkit-backdrop-filter: blur(30px) saturate(1.5);
   backdrop-filter: blur(30px) saturate(1.5);
   box-shadow:
@@ -1475,7 +1485,7 @@ option:hover {
      was still heavier than wanted, 3.5% landed on #F7F7F7, 2.3% went to
      #FAFAFA and read as white, 3.2% came back to #F8F8F8, and this is a hair
      under the 3.5. */
-  background: rgba(16, 17, 17, 0.084);
+  background: rgba(16, 17, 17, 0.063);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   /* A hairline at the foot instead of a shadow under it. «لبه پنهان» /
@@ -2053,12 +2063,12 @@ option:hover {
   .th-header .menu-area,
   .th-header .sticky-wrapper.sticky .menu-area {
     margin-inline: 10px;
-    /* And the same above. The desktop's 18 is one number on three sides and the
-       phone's should be too — it was 18 above against 9 either side, which is
-       the thing the island was set up to avoid in the first place. Still
-       nothing below: the gap down to the hero is the hero's own padding, and a
-       margin here would stack on top of it. */
-    margin-top: 10px;
+    /* Above, the same rule the desktop now follows: match the gap down to the
+       hero rather than the gap to the sides. Measured at 390 that gap is 13.5,
+       where this was 10. The sides stay 10 — on a 390px screen 18 a side is
+       nine per cent of the width spent on nothing, twice, which is what this
+       block was written to fix. */
+    margin-top: 13.5px;
     /* Twenty per cent off 24. The corner follows the panel: a smaller inset
        with the same radius reads rounder than it did, because the curve is a
        larger fraction of what is left. */
@@ -2335,7 +2345,7 @@ option:hover {
    the site, which the template reuses on pages this pass never touched. */
 .vp-trust-row .feature-card {
   border: none;
-  background: rgba(16, 17, 17, 0.084);
+  background: rgba(16, 17, 17, 0.063);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   box-shadow: inset 0 -1.4px 0 rgba(16, 17, 17, 0.07);
@@ -2457,7 +2467,7 @@ option:hover {
      larger bite out of a shape that has more going on near its edges. The lit
      hairline inherits it. */
   border-radius: 50px;
-  background: rgba(16, 17, 17, 0.084);
+  background: rgba(16, 17, 17, 0.063);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   box-shadow: inset 0 -1.4px 0 rgba(16, 17, 17, 0.07);
@@ -2610,7 +2620,7 @@ option:hover {
 .vp-step-flag {
   padding: 0 7px;
   border-radius: 8px;
-  background: rgba(16, 17, 17, 0.084);
+  background: rgba(16, 17, 17, 0.063);
   box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.05);
   font-size: 11px;
   /* The line box is the whole height, so the row is exactly --tag-h and the
@@ -2690,7 +2700,7 @@ option:hover {
      ink over the head's white composites to 247 against its 255, the same
      step the panel below has against the page. The ring keeps the corners
      readable at this size. */
-  background: rgba(16, 17, 17, 0.084);
+  background: rgba(16, 17, 17, 0.063);
   box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.06);
 }
 
@@ -3073,7 +3083,7 @@ option:hover {
   height: 52.8px;
   padding-inline: 16px;
   border-radius: 26.4px;
-  background: rgba(16, 17, 17, 0.084);
+  background: rgba(16, 17, 17, 0.063);
   -webkit-backdrop-filter: blur(12px) saturate(1.2);
   backdrop-filter: blur(12px) saturate(1.2);
   box-shadow:
@@ -3333,7 +3343,7 @@ option:hover {
   height: 52.8px;
   padding-inline: 16px;
   border-radius: 26.4px;
-  background: rgba(16, 17, 17, 0.084);
+  background: rgba(16, 17, 17, 0.063);
   box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.05);
 }
 
@@ -3423,7 +3433,7 @@ option:hover {
   padding: 0;
   border: 0;
   border-radius: 50%;
-  background: rgba(16, 17, 17, 0.084);
+  background: rgba(16, 17, 17, 0.063);
   box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.05);
   color: #101111;
   /* 15 scaled by the same 20% the circle took, for the reason the deal
@@ -3791,7 +3801,7 @@ option:hover {
   gap: 24px;
   padding: 40px;
   border-radius: 32px;
-  background: rgba(16, 17, 17, 0.084);
+  background: rgba(16, 17, 17, 0.063);
   box-shadow:
     inset 0 0 0 1px rgba(16, 17, 17, 0.05),
     0 24px 48px -28px rgba(16, 17, 17, 0.22);
@@ -4768,7 +4778,7 @@ option:hover {
   margin: 0 0 26px;
   padding: 16px 12px;
   border-radius: 22px;
-  background: rgba(16, 17, 17, 0.084);
+  background: rgba(16, 17, 17, 0.063);
   list-style: none;
 }
 
@@ -8892,7 +8902,7 @@ button.vp-cart-keep {
   margin: 18px 0 20px;
   padding: 5px;
   border-radius: 16px;
-  background: rgba(16, 17, 17, 0.084);
+  background: rgba(16, 17, 17, 0.063);
   box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.05);
 }
 
@@ -9048,7 +9058,7 @@ button.vp-cart-keep {
   gap: 6px 14px;
   padding: 14px 16px;
   border-radius: 18px;
-  background: rgba(16, 17, 17, 0.084);
+  background: rgba(16, 17, 17, 0.063);
   box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.05);
   font-family: 'Vazirmatn', var(--body-font);
   font-size: 13px;
@@ -12426,7 +12436,7 @@ button.vp-cart-keep {
 
 .vp-mini-go {
   margin-block-end: 8px;
-  background: rgba(16, 17, 17, 0.084);
+  background: rgba(16, 17, 17, 0.063);
   box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.05);
   color: #101111;
 }
@@ -12698,7 +12708,7 @@ button.vp-cart-keep {
        painted panel with a little light behind it rather than glass. The blur
        is deeper than their 10 because what passes under this one is the
        basket's own photographs rather than a white page. */
-    background: rgba(16, 17, 17, 0.084);
+    background: rgba(16, 17, 17, 0.063);
     -webkit-backdrop-filter: blur(22px) saturate(1.15);
     backdrop-filter: blur(22px) saturate(1.15);
     box-shadow: none;
@@ -12792,7 +12802,7 @@ button.vp-cart-keep {
     box-shadow: none;
     padding: 12px;
     border-radius: 20px;
-    background: rgba(16, 17, 17, 0.084);
+    background: rgba(16, 17, 17, 0.063);
   }
 
   /* A line the shop cannot supply keeps its mark — it is the one rule on this
@@ -12895,7 +12905,7 @@ button.vp-cart-keep {
   height: 44px;
   padding-inline: 12px;
   border-radius: 14px;
-  background: rgba(16, 17, 17, 0.084);
+  background: rgba(16, 17, 17, 0.063);
   font-family: 'Vazirmatn', var(--body-font);
   font-weight: 700;
   font-size: 15px;
@@ -13074,7 +13084,7 @@ button.vp-cart-keep {
     aspect-ratio: 1 / 1;
     position: relative;
     border-radius: 16px;
-    background: rgba(16, 17, 17, 0.084);
+    background: rgba(16, 17, 17, 0.063);
   }
 
   .vp-pdp-thumb.is-on {
@@ -13834,7 +13844,7 @@ button.vp-cart-keep {
     height: auto;
     padding-inline: 12px;
     border-radius: 13.85px;
-    background: rgba(16, 17, 17, 0.084);
+    background: rgba(16, 17, 17, 0.063);
     direction: rtl;
     font-size: 12px;
     line-height: 1;
@@ -13918,7 +13928,7 @@ button.vp-cart-keep {
   }
 
   .vp-pick-size.is-off > span {
-    background: rgba(16, 17, 17, 0.084);
+    background: rgba(16, 17, 17, 0.063);
     box-shadow: none;
     color: rgba(16, 17, 17, 0.32);
     cursor: default;
@@ -18867,7 +18877,7 @@ body.vp-bare .vp-cart-shot {
   border-radius: 40px;
   overflow: hidden;
   text-align: center;
-  background: rgba(16, 17, 17, 0.084);
+  background: rgba(16, 17, 17, 0.063);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   box-shadow: inset 0 -1.4px 0 rgba(16, 17, 17, 0.07);

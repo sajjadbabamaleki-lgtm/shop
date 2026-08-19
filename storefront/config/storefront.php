@@ -42,6 +42,19 @@ return [
     | footnote reads this number, so raising it changes what the page promises
     | in the same breath.
     |
+    | **`rig_attempt` makes a throw win on purpose, and it is not a toy.**
+    | Set to a throw number, every player's throw of that number comes up a
+    | double six — so with 2, *everybody* who throws twice wins 30% off. That
+    | is the shop paying 30% on effectively every order somebody bothers to
+    | play for, not the 5 or 6 in a hundred the honest dice cost. It is here
+    | because it was asked for in those words — «فعلا دفعه دوم تستو جفت شیش
+    | بزار برای همه» — and «فعلا» is the important word: it is meant to come
+    | back off.
+    |
+    | It reads `GAME_DICE_RIG` from the environment, so it can be turned off on
+    | the Liara panel without waiting for a deploy: set GAME_DICE_RIG=0 and
+    | restart. Null or 0 means honest dice.
+    |
     | `enabled` switches the whole band off, markup included. A game nobody is
     | running should not be a button that does nothing.
     |
@@ -50,6 +63,7 @@ return [
     'game' => [
         'enabled' => env('GAME_DICE', true),
         'tries' => 2,
+        'rig_attempt' => (int) env('GAME_DICE_RIG', 2) ?: null,
         'percent' => 30,
         'hours' => 24,
         'min_subtotal_rial' => 0,
