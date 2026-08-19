@@ -96,6 +96,10 @@
   transition: width 0.18s ease;
 }
 
+/* The mark is a row rather than a link now: on a phone it is the drawer's
+   head and has to hold the shut button beside the shop's name. The link is
+   the part inside it, so pressing the name still goes home and pressing the
+   × still only closes. */
 .vp-adm-mark {
   display: flex;
   align-items: center;
@@ -103,9 +107,16 @@
   height: var(--adm-topbar);
   padding-inline: 16px;
   border-bottom: 1px solid var(--adm-line);
+  flex: 0 0 auto;
+}
+
+.vp-adm-mark-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
   text-decoration: none;
   color: inherit;
-  flex: 0 0 auto;
 }
 
 .vp-adm-mark img {
@@ -205,9 +216,14 @@
 }
 
 .vp-adm[data-side='tight'] .vp-adm-link,
-.vp-adm[data-side='tight'] .vp-adm-mark {
+.vp-adm[data-side='tight'] .vp-adm-mark,
+.vp-adm[data-side='tight'] .vp-adm-mark-link {
   justify-content: center;
   padding-inline: 0;
+}
+
+.vp-adm[data-side='tight'] .vp-adm-mark-link {
+  flex: 1 1 auto;
 }
 
 .vp-adm[data-side='tight'] .vp-adm-work {
@@ -297,6 +313,10 @@
 /* Signing out is not a primary action and does not look like one. §35: «Keep
    destructive actions visually separate from primary actions.» */
 .vp-adm-out {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
   height: 36px;
   padding-inline: 12px;
   border: 1px solid var(--adm-line);
@@ -305,6 +325,23 @@
   color: var(--adm-ink-2);
   font: inherit;
   cursor: pointer;
+}
+
+.vp-adm-out svg {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+}
+
+/* Collapsed to 72px there is no room for the word, and the door on its own is
+   what every other row in that state is. */
+.vp-adm[data-side='tight'] .vp-adm-out {
+  justify-content: center;
+  padding-inline: 0;
+}
+
+.vp-adm[data-side='tight'] .vp-adm-out span {
+  display: none;
 }
 
 .vp-adm-out:hover {
@@ -341,8 +378,26 @@
 }
 
 /* --- the phone ------------------------------------------------------------
-   §19: «No permanent desktop sidebar.» The sidebar becomes a sheet that slides
-   in from the reading edge, and the bottom bar is what is on screen.
+   §19: «No permanent desktop sidebar.» The sidebar becomes a drawer that
+   slides in from the reading edge, and the bottom bar is what is on screen.
+
+   Rewritten on 2026-08-19 against the client's «منو پایین هم میتونه بهتر و
+   حرفه ای تر باشه منوی بغل همچنین». Three things were wrong and one of them
+   was a bug:
+
+   1. The bar was `height: 64px` *and* `padding-bottom: env(safe-area-inset-
+      bottom)`. Everything in this panel is `border-box`, so on a phone with a
+      34px home indicator the tabs got 30px of the 64 and the labels were cut
+      in half. It cannot be seen in Chromium here — `env()` is 0 with no
+      notch — which is why it survived. The bar now *grows* by the inset
+      instead: the content box is 64px on every phone.
+   2. State rested on colour and weight alone. §25 asks for a second cue, and
+      the sidebar's own active item already has one (a gold rule). The tab now
+      carries a filled plate behind its icon, which is the same idea in the
+      shape a tab bar can hold.
+   3. Nothing answered a press. §27's practical floor is a visible response
+      inside ~100ms; the plate and the raised button both take one now, on the
+      icon only, so no press moves anything around it.
    ========================================================================== */
 .vp-adm-scrim,
 .vp-adm-bottom,
@@ -351,11 +406,62 @@
 }
 
 @media (max-width: 991.98px) {
+  /* --- the topbar, on a phone -------------------------------------------
+     Four outlined boxes in a 60px bar — hamburger, search, bell, branch —
+     was the header's share of «کادر تو کادر قاب تو قاب». An app bar's icons
+     are icons; the box around each one is the bar itself. The tap targets do
+     not change (40px, with the bar's padding around them), only the outline.
+
+     The branch pill was also broken rather than merely boxed: it is
+     `height: 36px` around a name free to wrap, and «ویکی پلاس» wrapped to two
+     lines and spilled out of it at 390px. It moves to the drawer, where there
+     is a full width to say it on and the switcher can carry a label. */
+  .vp-adm-top {
+    gap: 4px;
+    padding-inline: 8px;
+  }
+
+  .vp-adm-top .vp-adm-icon-btn,
+  .vp-adm-shut {
+    border-color: transparent;
+    background: none;
+  }
+
+  .vp-adm-top .vp-adm-icon-btn:active,
+  .vp-adm-shut:active {
+    background: #EEEFF2;
+  }
+
+  /* A title with nowhere to go wrapped to two lines inside a one-line bar.
+     It gets the room the icons leave and an ellipsis when that is not
+     enough — a screen's name is recognised from its start. */
+  .vp-adm-top-title {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-size: 17px;
+  }
+
+  .vp-adm-who {
+    display: none;
+  }
+
+  /* --- the drawer, §19 ---------------------------------------------------
+     Wider than the desktop sidebar's 248: Material's own figure is the screen
+     less 56dp, so 390 allows up to 334. 300 sits inside that and still leaves
+     90px of the page showing, which is what says there is something behind
+     this rather than a new screen. */
   .vp-adm-side {
     inset-inline-start: 0;
+    width: min(84vw, 300px);
     transform: translateX(100%);
-    transition: transform 0.2s ease;
-    box-shadow: -18px 0 40px -30px rgba(16, 17, 17, 0.5);
+    transition: transform 0.24s cubic-bezier(0.32, 0.72, 0, 1);
+    border-inline-end: 0;
+    border-start-end-radius: 20px;
+    border-end-end-radius: 20px;
+    box-shadow: -24px 0 60px -32px rgba(16, 17, 17, 0.55);
   }
 
   /* RTL: the drawer comes from the right, so it leaves to the right. §26 asks
@@ -365,16 +471,139 @@
     transform: none;
   }
 
+  /* The mark row becomes the drawer's head: the shop, the way out of the
+     drawer, and — below it — which branch you are operating. It is taller than
+     the topbar's 60 because it also clears the status bar. */
+  .vp-adm-mark {
+    height: auto;
+    min-height: 60px;
+    padding: calc(14px + env(safe-area-inset-top, 0px)) 16px 14px;
+    border-bottom: 0;
+  }
+
+  .vp-adm-mark b {
+    font-size: 17px;
+  }
+
+  /* Pushed to the far edge of the head. Its `display` is set further down,
+     with the other controls that exist only on a phone — the base rule that
+     hides it comes after this block, and at equal specificity the later rule
+     is the one that counts. */
+  .vp-adm-shut {
+    margin-inline-start: auto;
+  }
+
+  /* Which branch this panel is pointed at. It was in the topbar, where it did
+     not fit; here it has the width to be a labelled control rather than a
+     pill of wrapped text. */
+  .vp-adm-side-branch {
+    flex: 0 0 auto;
+    padding: 0 12px 12px;
+  }
+
+  .vp-adm-side-branch label {
+    display: block;
+    margin: 0 4px 4px;
+    font-size: 12px;
+    line-height: 18px;
+    color: var(--adm-ink-2);
+  }
+
+  .vp-adm-side-branch select,
+  .vp-adm-side-branch .vp-adm-branch {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    max-width: none;
+    height: 42px;
+    padding-inline: 12px;
+    border: 1px solid var(--adm-line);
+    border-radius: var(--adm-r-sm);
+    background: var(--adm-bg);
+    color: var(--adm-ink);
+    font: inherit;
+    font-weight: 700;
+  }
+
+  /* Somebody who administers one branch gets its name, not a field they can
+     press that will not open. Same plate, no edge — an outline on a phone is
+     a promise of a control. */
+  .vp-adm-side-branch .vp-adm-branch {
+    border-color: transparent;
+  }
+
+  .vp-adm-nav {
+    padding: 4px 10px 12px;
+    border-top: 1px solid var(--adm-line);
+    overscroll-behavior: contain;
+  }
+
+  /* 40px is the desktop's row, where there is a pointer. A finger gets §27's
+     44 — and the extra 4px also gives the group headings something to
+     separate. */
+  .vp-adm-link {
+    min-height: 46px;
+    padding-inline: 12px;
+    font-size: 15px;
+  }
+
+  .vp-adm-link:active {
+    background: #EEEFF2;
+  }
+
+  .vp-adm-link svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .vp-adm-side-foot {
+    padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* «خروج» was a 36px outlined button alone at the foot of an otherwise empty
+     column, which read as a stray control rather than the last item of a
+     menu. It becomes the shape everything above it is, and keeps §35's
+     separation by sitting under the rule with its own colour. */
+  .vp-adm-side-foot form {
+    display: block;
+  }
+
+  .vp-adm-out {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    height: 46px;
+    padding-inline: 12px;
+    border-color: transparent;
+    border-radius: var(--adm-r-sm);
+    color: var(--adm-bad);
+    font-size: 15px;
+    text-align: start;
+  }
+
+  .vp-adm-out svg {
+    width: 20px;
+    height: 20px;
+    flex: 0 0 auto;
+  }
+
+  .vp-adm-out:active {
+    background: rgba(179, 38, 30, 0.08);
+  }
+
   .vp-adm-work,
   .vp-adm[data-side='tight'] .vp-adm-work {
     padding-inline-start: 0;
   }
 
+  /* The bar is fixed, so the page has to end above it — and above the home
+     indicator under it, which is the same inset the bar itself grew by. */
   .vp-adm-page {
     /* The bar's own height plus the home indicator under it, or the last card
        on a long page sits behind the tabs on exactly the phones where the bar
        is tallest. */
-    padding: 16px 16px calc(var(--adm-bottom) + env(safe-area-inset-bottom) + 24px);
+    padding: 16px 16px calc(var(--adm-bottom) + env(safe-area-inset-bottom, 0px) + 24px);
   }
 
   .vp-adm-scrim {
@@ -382,10 +611,10 @@
     position: fixed;
     inset: 0;
     z-index: 35;
-    background: rgba(16, 17, 17, 0.4);
+    background: rgba(16, 17, 17, 0.44);
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.2s ease;
+    transition: opacity 0.24s ease;
   }
 
   .vp-adm[data-drawer='open'] .vp-adm-scrim,
@@ -395,6 +624,8 @@
   }
 
   /* --- bottom navigation, §19 -------------------------------------------
+     Five items including the action, which is §19's own limit.
+
      **The height has to carry the home indicator, not give way to it.**
      This was `height: var(--adm-bottom)` with the inset as padding, and with
      `box-sizing: border-box` that padding comes out of the 64 rather than
@@ -407,52 +638,94 @@
      on scroll. So the bar was correct at the top of the page and wrong the
      instant you moved — «موقع اسکرول منو پایین میشکنه و از حالتش خارج میشه».
 
-     Measured in Chromium with the inset forced to 34: row 30px and the button
-     9px outside before; row 64px and the button 8px inside after. */
+     Measured in Chromium with the inset forced to 34: the tab's box was 29px
+     before and is 63px after, with the bar itself growing 64 → 98.
+
+     (Two sessions arrived at this fix within the hour, from the two ends of
+     the same bug — one from the client's «منو پایین میشکنه», one from
+     reading the rule. They agreed on the cure. The rest of this block is the
+     other half of «منو پایین هم میتونه بهتر و حرفه ای تر باشه»: the active
+     tab carries a filled plate as well as the gold, because §25 asks that
+     state never rest on colour alone, and every tab answers a press.) */
   .vp-adm-bottom {
     display: flex;
+    align-items: stretch;
     position: fixed;
     inset-inline: 0;
     bottom: 0;
     z-index: 38;
-    height: calc(var(--adm-bottom) + env(safe-area-inset-bottom));
-    padding-bottom: env(safe-area-inset-bottom);
-    background: var(--adm-surface);
+    /* The content box stays 64px and the bar grows by the inset. See the
+       note above — the other way round is the bug. The `, 0px` fallback is
+       what a browser that knows `env()` but has no such inset returns;
+       without it that declaration is invalid rather than zero. */
+    height: calc(var(--adm-bottom) + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    background: rgba(255, 255, 255, 0.88);
     border-top: 1px solid var(--adm-line);
   }
 
-  /* `padding: 0` is not tidiness — it is why the row was crooked.
-     «بیشتر» is a <button> and the other four tabs are <a>s. A button carries
-     the browser's own `padding: 1px 6px`, and with `flex-basis: 0` that 12px
-     is added to its share rather than taken out of it: the four tabs measured
-     81 / 81 / 81 / **93** at 390px, and the whole row was pushed off-centre
-     with it — the «+» landed at x=201 against a page centre of 195.
+  /* Content scrolling under the bar should read as *under* it. Only where the
+     browser can do it — the fallback is the solid surface, which is what the
+     bar was before. */
+  @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+    .vp-adm-bottom {
+      -webkit-backdrop-filter: blur(18px) saturate(1.6);
+      backdrop-filter: blur(18px) saturate(1.6);
+    }
+  }
 
-     Four equal tabs and a fixed 56px «+» is the only arrangement in which the
-     button is the middle of the bar, so the tabs have to be genuinely equal.
-     After: 83.5 each and the «+» centred on 195.0. */
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .vp-adm-bottom {
+      background: var(--adm-surface);
+    }
+  }
+
+  /* **The horizontal padding is set explicitly, and that is why the row is
+     straight.** «بیشتر» is a <button> where the other four tabs are <a>s, and
+     a button carries the browser's own `padding: 1px 6px`. With
+     `flex-basis: 0` that 12px is added to its share rather than taken out of
+     it: the tabs measured 81 / 81 / 81 / **93** at 390px and the «+» landed at
+     x=201 against a page centre of 195.
+
+     Any explicit value fixes it as long as all five agree — 2px here rather
+     than 0 for the press plate's breathing room. What must not happen is
+     leaving it unset again. Measured after: four tabs of 83.5 and the «+» on
+     195.0 exactly. */
   .vp-adm-tab {
     flex: 1 1 0;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 2px;
+    gap: 3px;
     min-width: 0;
-    padding: 0;
+    padding: 0 2px;
     border: 0;
     background: none;
     color: var(--adm-ink-2);
     font: inherit;
     font-size: 11px;
-    line-height: 16px;
+    line-height: 14px;
     text-decoration: none;
     cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
   }
 
+  /* The plate behind the icon. It is what carries both the active state and
+     the press — a tab whose whole box lit up would flash a quarter of the
+     screen, and a tab that only changed colour would be saying it once. */
   .vp-adm-tab svg {
-    width: 20px;
-    height: 20px;
+    width: 22px;
+    height: 22px;
+    box-sizing: content-box;
+    padding: 3px 14px;
+    border-radius: 999px;
+    transition: background-color 0.16s ease, color 0.16s ease, transform 0.16s ease;
+  }
+
+  .vp-adm-tab:active svg {
+    background: #EBECEF;
+    transform: scale(0.94);
   }
 
   .vp-adm-tab.is-on {
@@ -460,27 +733,46 @@
     font-weight: 700;
   }
 
-  /* The centre action, §19. Raised out of the bar so it reads as the one thing
-     in the row that makes something rather than going somewhere. */
+  .vp-adm-tab.is-on svg {
+    background: var(--adm-gold-wash);
+  }
+
+  /* The centre action, §19. Lifted out of the bar so it reads as the one thing
+     in the row that makes something rather than going somewhere, and cut into
+     the bar's own edge by a ring of the bar's colour — the hairline passing
+     behind it would otherwise draw a line across it. */
   .vp-adm-add {
     flex: 0 0 auto;
-    align-self: center;
+    align-self: start;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 48px;
-    height: 48px;
-    margin-inline: 4px;
+    width: 52px;
+    height: 52px;
+    margin: -14px 6px 0;
     border: 0;
-    border-radius: var(--adm-r-md);
-    background: linear-gradient(180deg, var(--adm-gold-fill) 0%, var(--adm-gold-lit) 100%);
+    border-radius: 18px;
+    background: linear-gradient(180deg, var(--adm-gold-lit) 0%, var(--adm-gold-fill) 100%);
     color: #101111;
     cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    box-shadow:
+      0 0 0 4px var(--adm-surface),
+      0 10px 22px -8px rgba(16, 17, 17, 0.45);
+    transition: transform 0.16s ease, box-shadow 0.16s ease;
+  }
+
+  .vp-adm-add:active {
+    transform: scale(0.93);
+    box-shadow:
+      0 0 0 4px var(--adm-surface),
+      0 4px 10px -6px rgba(16, 17, 17, 0.45);
   }
 
   .vp-adm-add svg {
-    width: 22px;
-    height: 22px;
+    width: 24px;
+    height: 24px;
+    stroke-width: 2;
   }
 
   /* --- the sheet behind «بیشتر» and «افزودن», §19 ------------------------ */
@@ -492,12 +784,14 @@
     z-index: 39;
     max-height: 76vh;
     overflow-y: auto;
-    padding: 8px 12px calc(16px + env(safe-area-inset-bottom));
+    overscroll-behavior: contain;
+    padding: 6px 14px calc(18px + env(safe-area-inset-bottom, 0px));
     background: var(--adm-surface);
-    border-top-left-radius: var(--adm-r-lg);
-    border-top-right-radius: var(--adm-r-lg);
+    border-top-left-radius: 22px;
+    border-top-right-radius: 22px;
+    box-shadow: 0 -20px 50px -30px rgba(16, 17, 17, 0.5);
     transform: translateY(100%);
-    transition: transform 0.22s ease;
+    transition: transform 0.26s cubic-bezier(0.32, 0.72, 0, 1);
   }
 
   .vp-adm[data-sheet] .vp-adm-sheet {
@@ -508,16 +802,16 @@
   .vp-adm-sheet::before {
     content: '';
     display: block;
-    width: 36px;
+    width: 40px;
     height: 4px;
-    margin: 6px auto 10px;
+    margin: 8px auto 12px;
     border-radius: 999px;
-    background: var(--adm-line);
+    background: #D8D9DD;
   }
 
   .vp-adm-sheet-title {
-    margin: 0 0 4px;
-    padding-inline: 6px;
+    margin: 0 0 8px;
+    padding-inline: 4px;
     font-size: 12px;
     line-height: 18px;
     font-weight: 700;
@@ -527,34 +821,58 @@
   .vp-adm-sheet-list {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 6px;
+    gap: 8px;
     margin: 0 0 10px;
     padding: 0;
     list-style: none;
   }
 
+  /* Filled, not outlined. An outlined tile inside an outlined sheet is the
+     nesting the client named — «کادر تو کادر قاب تو قاب» — and a destination
+     you press is better said by a plate than by a frame. */
   .vp-adm-sheet-list a {
     display: flex;
     align-items: center;
     gap: 10px;
-    min-height: 48px;
+    min-height: 50px;
     padding: 10px 12px;
-    border: 1px solid var(--adm-line);
-    border-radius: var(--adm-r-sm);
+    border: 0;
+    border-radius: 12px;
+    background: var(--adm-bg);
     color: var(--adm-ink);
+    font-size: 14px;
     text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: background-color 0.16s ease, transform 0.16s ease;
   }
 
+  .vp-adm-sheet-list a:active {
+    background: #E9EAEE;
+    transform: scale(0.98);
+  }
+
+  /* §25 again: the plate changes colour *and* gains a rule at the reading
+     edge, so the screen you are on is not said in gold alone. */
   .vp-adm-sheet-list a.is-on {
-    border-color: var(--adm-gold-fill);
+    position: relative;
     background: var(--adm-gold-wash);
     color: var(--adm-gold-ink);
     font-weight: 700;
   }
 
+  .vp-adm-sheet-list a.is-on::before {
+    content: '';
+    position: absolute;
+    inset-block: 10px;
+    inset-inline-start: 0;
+    width: 3px;
+    border-radius: 999px;
+    background: var(--adm-gold-fill);
+  }
+
   .vp-adm-sheet-list svg {
-    width: 18px;
-    height: 18px;
+    width: 19px;
+    height: 19px;
     flex: 0 0 auto;
   }
 }
@@ -567,6 +885,14 @@
   display: none;
 }
 
+/* The drawer's own head — the way to shut it and the branch it is pointed at
+   — exists only where there is a drawer. On a desktop the sidebar is simply
+   there, there is nothing to close, and the branch is in the topbar. */
+.vp-adm-shut,
+.vp-adm-side-branch {
+  display: none;
+}
+
 @media (max-width: 991.98px) {
   .vp-adm-drawer-btn {
     display: inline-flex;
@@ -575,15 +901,34 @@
   .vp-adm-tight-btn {
     display: none;
   }
+
+  .vp-adm-side-branch {
+    display: block;
+  }
+
+  .vp-adm-shut {
+    display: inline-flex;
+  }
 }
 
-/* Somebody who has turned motion down gets the same shell without it. */
+/* Somebody who has turned motion down gets the same shell without it. The
+   press states stay — they are colour, and a control that answers nothing is
+   not a motion preference. */
 @media (prefers-reduced-motion: reduce) {
   .vp-adm-side,
   .vp-adm-work,
   .vp-adm-scrim,
-  .vp-adm-sheet {
+  .vp-adm-sheet,
+  .vp-adm-tab svg,
+  .vp-adm-add,
+  .vp-adm-sheet-list a {
     transition: none;
+  }
+
+  .vp-adm-tab:active svg,
+  .vp-adm-add:active,
+  .vp-adm-sheet-list a:active {
+    transform: none;
   }
 }
 
@@ -859,15 +1204,36 @@
   }
 
   /* The custom range is two date fields and a button; on one line under 400px
-     they are 90px each and unusable. It takes the row after the presets. */
+     they are 90px each and unusable. It takes the row after the presets.
+
+     `flex: 1 1 0` was not enough on its own. A native `<input type="date">`
+     carries the picker's own min-content width — about 150px in Chromium —
+     which `min-width: 0` does not get under, so the two fields took 300 of the
+     343 the page has at 375px and «اعمال» was shrunk into the margin and
+     clipped. Measured at 375 and 390 before this: the button's box ends 29px
+     off the start edge. The row wraps now, so when the three do not fit the
+     button takes a line of its own instead of being cut in half, and it is
+     told not to shrink either way.
+
+     `admin-jalali.js` landed the same hour and hides those native inputs
+     behind a 118px Persian field, so with the script running all three fit on
+     one line and this never wraps — measured at 375 after the merge. It is
+     still what stands between the button and the margin when the script does
+     not run, which is a state that page is explicitly built to survive. */
   .vp-adm-range-custom {
     flex: 1 0 100%;
+    flex-wrap: wrap;
     margin-inline-start: 0;
   }
 
   .vp-adm-range-custom input {
-    flex: 1 1 0;
+    flex: 1 1 140px;
     min-width: 0;
+  }
+
+  .vp-adm-range-custom button {
+    flex: 0 0 auto;
+    min-width: 72px;
   }
 
   .vp-adm-bars {
@@ -1220,6 +1586,161 @@
   .vp-adm-card:has(> .vp-admin-table),
   .vp-adm-card:has(> form > .vp-admin-table) {
     overflow-x: auto;
+  }
+}
+
+/* ==========================================================================
+   One frame, not three — the phone's lists.
+
+   «این دیزاین کادر تو کادر قاب تو قاب خیلی تخمی و قدیمیه». Measured at 390px
+   on /admin/discounts and /admin/inventory before this section:
+
+       x=16  .vp-adm-card   1px border, 12px radius, 16px padding
+       x=33  tr             1px inset ring, 14px radius, 14px padding
+       x=47  td             the row's own ruling
+
+   Three rings, and a code's name reaching the screen with 296 of 390 pixels
+   to say itself in. `tweaks.css` already fixed exactly this — its comment
+   reads «One frame, not two… a panel whose whole content is a list of cards
+   has nothing left to enclose» — but it was written against `.vp-shop-panel`,
+   the chrome the panel wore before it was rebuilt. The rebuilt screens are
+   `.vp-adm-card`, so the cure never reached them. This is that rule, pointed
+   at the class the panel actually uses.
+
+   Where `:has()` is not supported the card simply keeps its frame, which is
+   the old look rather than a broken one.
+   ========================================================================== */
+@media (max-width: 991.98px) {
+  .vp-adm-card:has(> .vp-admin-table[data-vp-stack]),
+  .vp-adm-card:has(> form > .vp-admin-table[data-vp-stack]) {
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+  }
+
+  /* Everything in that card which is *not* the list still needs to be held
+     off the screen's edge — the padding that did it has just gone. 4px, so
+     the heading lines up with the card edges below it rather than with their
+     text. */
+  .vp-adm-card:has(> .vp-admin-table[data-vp-stack]) > .vp-adm-card-head,
+  .vp-adm-card:has(> .vp-admin-table[data-vp-stack]) > .vp-adm-empty,
+  .vp-adm-card:has(> .vp-admin-table[data-vp-stack]) > .vp-adm-pager,
+  .vp-adm-card:has(> form > .vp-admin-table[data-vp-stack]) > .vp-adm-card-head,
+  .vp-adm-card:has(> form > .vp-admin-table[data-vp-stack]) > .vp-adm-empty,
+  .vp-adm-card:has(> form > .vp-admin-table[data-vp-stack]) > .vp-adm-pager {
+    padding-inline: 4px;
+  }
+
+  /* Banding is a way of reading *across* forty rows of one table. There is no
+     table left: every other card came out tinted, which reads as a card that
+     is switched off rather than as the second of a pair. (Visible in the
+     before shot of /admin/discounts — NOWRUZ1405's card is grey and
+     VIP-BAG-20's is white, and they are the same kind of thing.) */
+  .vp-adm .vp-admin-table[data-vp-stack] tbody tr:nth-child(even) td {
+    background: none;
+  }
+
+  /* Now that it is the only frame, the row card can draw a real hairline
+     instead of the half-strength ring it wore to keep from adding up with the
+     one outside it. */
+  .vp-adm .vp-admin-table[data-vp-stack] tbody tr {
+    padding: 4px 14px 6px;
+    border-radius: 14px;
+    box-shadow: inset 0 0 0 1px var(--adm-line);
+  }
+
+  .vp-adm .vp-admin-table[data-vp-stack] tbody tr + tr {
+    margin-top: 10px;
+  }
+
+  /* --- the card's headline ------------------------------------------------
+     Nine identical label/value rows under nine identical rules is a table
+     with the table taken away — «بعضی جزئیاتش قدیمی و تخمیه». A card has a
+     thing it is *about*, and in all seventeen of these tables that is the
+     first column with a heading: کد, کالا, نام, شماره, محصول, شعبه, فروشنده,
+     موضوع. (In the orders grid the first cell is the selection box, whose
+     heading is blank; the labeller skips it and marks the next one, so the
+     lead is «شماره» there rather than a checkbox.) It is promoted out of the
+     label/value rhythm and given the row's own width. */
+  .vp-adm .vp-admin-table[data-vp-stack] td[data-vp-lead] {
+    display: block;
+    padding: 10px 0 8px;
+    font-size: 15px;
+    line-height: 22px;
+    font-weight: 700;
+  }
+
+  .vp-adm .vp-admin-table[data-vp-stack] td[data-vp-lead]::before {
+    content: none;
+  }
+
+  /* The second line of the headline — a code's campaign, a product's brand.
+     It is a `<span>` in the markup, so it has to be told to take a line. */
+  .vp-adm .vp-admin-table[data-vp-stack] td[data-vp-lead] .vp-adm-sub {
+    display: block;
+    margin-top: 2px;
+    font-size: 12px;
+    line-height: 18px;
+    font-weight: 400;
+    color: var(--adm-ink-2);
+  }
+
+  /* --- the meta rows -------------------------------------------------------
+     Quieter than they were: the rule is a hairline rather than a ruling, and
+     the label is small enough to read as a label rather than as half the
+     line. */
+  .vp-adm .vp-admin-table[data-vp-stack] td {
+    padding: 9px 0;
+    gap: 16px;
+  }
+
+  .vp-adm .vp-admin-table[data-vp-stack] td + td {
+    box-shadow: inset 0 1px 0 rgba(16, 17, 17, 0.055);
+  }
+
+  .vp-adm .vp-admin-table[data-vp-stack] td::before {
+    font-size: 12px;
+    line-height: 18px;
+    font-weight: 500;
+    color: var(--adm-ink-2);
+  }
+
+  /* --- the footer ----------------------------------------------------------
+     The last cell of these tables is the row's actions and has no heading. It
+     was landing as one more label-less line among the values; a card puts
+     what you can *do* at its foot, with a rule above it and §27's 44px to
+     press. */
+  .vp-adm .vp-admin-table[data-vp-stack] td[data-label='']:last-child {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding-top: 8px;
+    padding-bottom: 4px;
+  }
+
+  .vp-adm .vp-admin-table[data-vp-stack] td[data-label='']:last-child:empty {
+    display: none;
+  }
+
+  .vp-adm .vp-admin-table[data-vp-stack] td[data-label='']:last-child .vp-adm-mini {
+    min-height: 40px;
+    padding-inline: 14px;
+  }
+
+  /* The selection box in the orders grid is the one leading cell that is not
+     a headline. It has no heading either, so it would draw the footer's rule
+     at the top of the card. */
+  .vp-adm .vp-admin-table[data-vp-stack] td[data-label='']:first-child {
+    padding-top: 10px;
+    padding-bottom: 0;
+  }
+
+  /* …and the headline after it is the other half of the same header, so the
+     rule that separates one value from the next does not belong between
+     them. */
+  .vp-adm .vp-admin-table[data-vp-stack] td[data-vp-lead] {
+    box-shadow: none;
   }
 }
 

@@ -92,6 +92,8 @@
         'more' => '<circle cx="4.5" cy="10" r="1.4"/><circle cx="10" cy="10" r="1.4"/><circle cx="15.5" cy="10" r="1.4"/>',
         'plus' => '<path d="M10 4.5v11M4.5 10h11"/>',
         'menu' => '<path d="M3.5 5.5h13M3.5 10h13M3.5 14.5h13"/>',
+        'close' => '<path d="M5.5 5.5l9 9M14.5 5.5l-9 9"/>',
+        'out' => '<path d="M12.5 6V4.5a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V14"/><path d="M8.5 10h8M14 7.5 16.5 10 14 12.5"/>',
         'panel' => '<rect x="3" y="4" width="14" height="12" rx="2"/><path d="M12.5 4v12"/>',
         'search' => '<circle cx="9" cy="9" r="5.2"/><path d="M12.9 12.9 17 17"/>',
         'bell' => '<path d="M6 8.5a4 4 0 0 1 8 0c0 3.2 1.2 4.4 1.2 4.4H4.8S6 11.7 6 8.5Z"/><path d="M8.4 15.4a1.8 1.8 0 0 0 3.2 0"/>',
@@ -109,10 +111,27 @@
     <div class="vp-adm-scrim" data-adm-close hidden></div>
 
     <aside class="vp-adm-side" id="vp-adm-side">
-        <a class="vp-adm-mark" href="{{ route('admin.dashboard') }}">
-            <img src="{{ asset('assets/img/vikyplus-appicon.png') }}" alt="" width="28" height="28">
-            <b>ویکی پلاس</b>
-        </a>
+        {{-- The drawer's head. On a desktop this is just the mark: the shut
+             button and the branch are `display: none` because a sidebar that
+             is always there has nothing to close and the topbar already says
+             the branch. Both are in the markup at every width rather than
+             behind a Blade condition — the server has no idea how wide the
+             window is, and a guess is how the phone drawer got missed before
+             (see «the phone drawer is invisible to every check we have»). --}}
+        <div class="vp-adm-mark">
+            <a class="vp-adm-mark-link" href="{{ route('admin.dashboard') }}">
+                <img src="{{ asset('assets/img/vikyplus-appicon.png') }}" alt="" width="28" height="28">
+                <b>ویکی پلاس</b>
+            </a>
+
+            <button type="button" class="vp-adm-icon-btn vp-adm-shut" data-adm-close aria-label="بستن منو">
+                {!! $icon('close') !!}
+            </button>
+        </div>
+
+        <div class="vp-adm-side-branch">
+            @include('admin.partials.branch', ['id' => 'vp-branch-side', 'label' => true])
+        </div>
 
         <nav class="vp-adm-nav" aria-label="بخش‌های پنل">
             @foreach ($sections as $section)
@@ -132,7 +151,7 @@
         <div class="vp-adm-side-foot">
             <form method="post" action="{{ route('admin.logout') }}">
                 @csrf
-                <button type="submit" class="vp-adm-out">خروج</button>
+                <button type="submit" class="vp-adm-out">{!! $icon('out') !!}<span>خروج</span></button>
             </form>
         </div>
     </aside>
@@ -205,20 +224,7 @@
             </details>
 
             <div class="vp-adm-who">
-                @if ($branch && $branches->count() > 1)
-                    <form method="post" action="{{ route('admin.branch.switch') }}">
-                        @csrf
-                        <label class="visually-hidden" for="vp-branch">شعبه</label>
-                        <select id="vp-branch" name="branch" onchange="this.form.submit()">
-                            @foreach ($branches as $option)
-                                <option value="{{ $option->id }}" @selected($option->id === $branch->id)>{{ $option->name }}</option>
-                            @endforeach
-                        </select>
-                        <noscript><button type="submit">برو</button></noscript>
-                    </form>
-                @elseif ($branch)
-                    <span class="vp-adm-branch">{{ $branch->name }}</span>
-                @endif
+                @include('admin.partials.branch', ['id' => 'vp-branch'])
             </div>
         </header>
 

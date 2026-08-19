@@ -1,7 +1,13 @@
 # ui-ux-pro-max — provenance and how to update
 
 Vendored from https://github.com/nextlevelbuilder/ui-ux-pro-max-skill
-(MIT), version 2.13.0, upstream commit `abb7f2f` (2026-08-06).
+(MIT), upstream commit `8a1a6d8` (2026-08-19). `skill.json` still says version
+2.13.0 — upstream has not bumped it — but the data has moved a good deal since
+`abb7f2f`, which is what was here before: 98 UX guidelines became 119, the
+icons 104 became 105, the GSAP presets 16 became 17, and `scripts/` gained
+`reasoning_contract.py`. Refreshed on 2026-08-19 at the client's request
+(«میخوام این اسکیلو نصب کنی»), before the panel's phone design was worked on
+with it.
 
 Copied from the repo's `.claude/skills/ui-ux-pro-max/`. Two deliberate
 deviations from upstream:
@@ -13,6 +19,10 @@ deviations from upstream:
   the repository root.
 
 Everything else is byte-for-byte upstream. Re-apply both changes if you update.
+
+`scripts/__pycache__/` used to be committed here. It is not upstream, it is
+made by whichever machine last ran the search, and a stale `.pyc` outlived the
+source it was compiled from across this update. It is in `.gitignore` now.
 
 ## Running it
 
