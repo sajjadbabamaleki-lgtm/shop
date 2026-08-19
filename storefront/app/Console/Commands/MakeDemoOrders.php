@@ -3,8 +3,10 @@
 namespace App\Console\Commands;
 
 use App\Models\Branch;
+use App\Models\BranchInventory;
 use App\Models\Cart;
 use App\Models\Customer;
+use App\Models\InventoryMovement;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\Variant;
@@ -55,12 +57,21 @@ class MakeDemoOrders extends Command
     protected $signature = 'demo:orders
         {--branch= : the branch slug to make them at; defaults to the central shop}
         {--floor=1 : units of each size the demo will not touch, so the shop keeps selling}
+        {--lend : put the units the demo needs onto the shelf first, and take them back on --remove}
         {--remove : delete the demo orders instead of making them}';
 
     protected $description = 'Make (or remove) sample orders so the panel can be seen in every state';
 
     /** Stamped on `staff_note`, and the only thing `--remove` trusts. */
     public const NOTE = 'DEMO — سفارش نمونه برای آزمایش پنل';
+
+    /**
+     * The note on a lent unit, and the only thing that says which units to
+     * take back off the shelf again. It lives in `inventory_movements`, which
+     * is already the ledger that explains a branch's stock — so a borrowed
+     * unit is not a secret, it is a line somebody can read.
+     */
+    public const LENT = 'DEMO — موجودی قرضی برای سفارش‌های نمونه';
 
     /**
      * A reserved prefix, so a demo customer can never collide with a real one.
@@ -138,9 +149,42 @@ class MakeDemoOrders extends Command
             $left[$variant->id] = max(0, $variant->sellableStock() - $floor);
         }
 
+        // **`--lend`: the demo brings its own stock.**
+        //
+        // A shop that holds one of each size — which is what a freshly seeded
+        // one holds, and what the live shop turned out to hold — has nothing
+        // above the floor to lend, so the guard above stops. The obvious way
+        // out is `--floor=0`, and it is the wrong one: measured on exactly
+        // that shop, eight demo orders emptied **all eight** sizes and the
+        // home page collapsed from 4834px to 3029px. The panel would fill up
+        // by taking the shop down.
+        //
+        // So the units are put on the shelf first and taken off again by
+        // `--remove`. Sellable stock is unchanged throughout — every borrowed
+        // unit is immediately spoken for by the order that borrowed it — and
+        // each one is a row in `inventory_movements` carrying `self::LENT`,
+        // which is both the audit trail and how `--remove` knows what to
+        // withdraw. Nothing is invented that is not written down.
+        if ($this->option('lend')) {
+            // Two per size covers the plan's worst case — eight orders, one of
+            // which asks for two of a line — with room over, and it is small
+            // enough that the borrowed stock is obviously a loan rather than a
+            // restock.
+            $lent = 0;
+
+            foreach ($variants as $variant) {
+                $this->lend($branch, $variant, 2);
+                $left[$variant->id] += 2;
+                $lent += 2;
+            }
+
+            $this->line(fa_number($lent).' واحد موجودی قرض گرفته شد تا از سهم فروش واقعی برداشته نشود؛ با --remove پس داده می‌شود.');
+        }
+
         if (array_sum($left) < 1) {
             $this->error('موجودی این شعبه فقط به اندازه فروش واقعی است؛ برای ساختن نمونه چیزی نمی‌ماند.');
-            $this->line('یا موجودی را بالا ببرید، یا با --floor=0 اجازه دهید نمونه‌ها از آخرین موجودی هم بردارند.');
+            $this->line('با --lend اجرا کنید: موجودی لازم را خودش قرض می‌گیرد و با --remove پس می‌دهد.');
+            $this->line('(--floor=0 این کار را نکنید — روی مغازه‌ای با یک دانه از هر سایز، سایت را خالی می‌کند.)');
 
             return self::FAILURE;
         }
@@ -404,7 +448,16 @@ class MakeDemoOrders extends Command
         $orders = $this->existing($branch)->get();
 
         if ($orders->isEmpty()) {
+            // Still worth reclaiming: if the orders went some other way, the
+            // lent units would otherwise sit on the shelf for good with only a
+            // ledger line to explain them.
+            $stray = $this->reclaim($branch);
+
             $this->info('سفارش نمونه‌ای برای پاک کردن نبود.');
+
+            if ($stray > 0) {
+                $this->line(fa_number($stray).' واحد موجودی قرضی از قفسه برداشته شد.');
+            }
 
             return self::SUCCESS;
         }
@@ -452,9 +505,108 @@ class MakeDemoOrders extends Command
                 ->delete();
         });
 
+        $reclaimed = $this->reclaim($branch);
+
         $this->info($orders->count().' سفارش نمونه پاک شد و موجودی‌شان برگشت.');
 
+        if ($reclaimed > 0) {
+            $this->line(fa_number($reclaimed).' واحد موجودی قرضی هم از قفسه برداشته شد.');
+        }
+
         return self::SUCCESS;
+    }
+
+    /**
+     * Put `$units` of one size on the shelf, and write down that they are a
+     * loan.
+     *
+     * The movement is what makes this reversible and what makes it honest: the
+     * stock ledger already exists to explain a branch's stock, and a unit that
+     * appeared without a line in it would be exactly the kind of number nobody
+     * can account for later.
+     */
+    private function lend(Branch $branch, Variant $variant, int $units): void
+    {
+        DB::transaction(function () use ($branch, $variant, $units): void {
+            $shelf = BranchInventory::where('branch_id', $branch->id)
+                ->where('variant_id', $variant->id)
+                ->lockForUpdate()
+                ->first();
+
+            if (! $shelf) {
+                return;
+            }
+
+            $shelf->stock_on_hand += $units;
+            $shelf->save();
+
+            InventoryMovement::create([
+                'branch_id' => $branch->id,
+                'variant_id' => $variant->id,
+                'type' => 'adjustment',
+                'quantity' => $units,
+                'note' => self::LENT,
+            ]);
+        });
+    }
+
+    /**
+     * Take the loan back.
+     *
+     * Read off the ledger rather than recomputed, so it withdraws exactly what
+     * it put in however many times the demo was made and cleared. Runs *after*
+     * the orders have released their stock, or it would be trying to withdraw
+     * units the orders are still holding.
+     *
+     * A size that has genuinely sold since is not driven negative — the shelf
+     * gives back what it can and the rest is dropped, because a demo tidying
+     * itself up must never invent a shortage.
+     */
+    private function reclaim(Branch $branch): int
+    {
+        $lent = InventoryMovement::where('branch_id', $branch->id)
+            ->where('note', self::LENT)
+            ->get()
+            ->groupBy('variant_id')
+            ->map(fn ($rows) => (int) $rows->sum('quantity'));
+
+        $taken = 0;
+
+        foreach ($lent as $variantId => $units) {
+            DB::transaction(function () use ($branch, $variantId, $units, &$taken): void {
+                $shelf = BranchInventory::where('branch_id', $branch->id)
+                    ->where('variant_id', $variantId)
+                    ->lockForUpdate()
+                    ->first();
+
+                if (! $shelf) {
+                    return;
+                }
+
+                $back = min($units, max(0, $shelf->sellable_stock));
+
+                if ($back < 1) {
+                    return;
+                }
+
+                $shelf->stock_on_hand -= $back;
+                $shelf->save();
+
+                InventoryMovement::create([
+                    'branch_id' => $branch->id,
+                    'variant_id' => $variantId,
+                    'type' => 'adjustment',
+                    'quantity' => -$back,
+                    'note' => 'DEMO — پس دادن موجودی قرضی',
+                ]);
+
+                $taken += $back;
+            });
+        }
+
+        InventoryMovement::where('branch_id', $branch->id)->where('note', self::LENT)->delete();
+
+        return $taken;
     }
 
     /** The demo orders at this branch, found by the note they carry. */

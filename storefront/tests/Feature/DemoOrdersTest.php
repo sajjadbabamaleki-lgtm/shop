@@ -5,9 +5,11 @@ namespace Tests\Feature;
 use App\Console\Commands\MakeDemoOrders;
 use App\Models\Branch;
 use App\Models\BranchInventory;
+use App\Models\InventoryMovement;
 use App\Models\Order;
 use App\Models\Role;
 use App\Models\User;
+use App\Models\Variant;
 use App\Support\Branches\BranchOpener;
 use App\Support\Tenancy\TenantContext;
 use Database\Seeders\BranchSeeder;
@@ -246,6 +248,63 @@ class DemoOrdersTest extends TestCase
         $this->actingAs($user, 'web')->get('/admin/orders?payment=refunded')
             ->assertOk()
             ->assertSee($refunded->number);
+    }
+
+    /**
+     * **`--lend` — the demo brings its own stock, and gives it back.**
+     *
+     * The live shop turned out to hold one of each size, which is nothing
+     * above the floor, so the demo could not be made at all. The obvious way
+     * out is `--floor=0` and it is the wrong one: measured on exactly that
+     * shop, eight demo orders emptied **all eight** sizes and the home page
+     * collapsed from 4834px to 3029px. Filling the panel would have taken the
+     * shop down.
+     *
+     * So the units are borrowed and returned. What this holds is the promise
+     * that makes it safe: every size is still sellable while the demo is
+     * there, and the shelf ends exactly where it started.
+     */
+    public function test_lend_leaves_the_shop_able_to_sell_and_gives_the_stock_back(): void
+    {
+        // One of each size — the state the live shop was actually in.
+        app(TenantContext::class)->forBranch($this->branch, function () {
+            BranchInventory::query()->update(['stock_on_hand' => 1]);
+        });
+
+        $sellable = fn () => app(TenantContext::class)->forBranch(
+            $this->branch,
+            fn () => Variant::sellable()->count(),
+        );
+
+        $sizes = $sellable();
+        $before = $this->stock();
+
+        $this->assertGreaterThan(0, $sizes);
+
+        // Without it, the guard stops rather than emptying the shop.
+        $this->artisan('demo:orders')->assertFailed();
+
+        $this->artisan('demo:orders --lend')->assertSuccessful();
+
+        $this->assertSame(8, $this->demo()->count());
+
+        // **Nothing went out of stock.** This is the whole point: a customer
+        // looking at the shop sees what they saw before.
+        $this->assertSame($sizes, $sellable(), 'A size sold out, which takes it off the shop front.');
+
+        $this->artisan('demo:orders --remove')->assertSuccessful();
+
+        // The loan came back exactly, and no loan is left outstanding.
+        $this->assertSame($before, $this->stock());
+        $this->assertSame($sizes, $sellable());
+
+        app(TenantContext::class)->forBranch($this->branch, function () {
+            $this->assertSame(
+                0,
+                InventoryMovement::where('note', MakeDemoOrders::LENT)->count(),
+                'A borrowed unit was never taken back off the shelf.',
+            );
+        });
     }
 
     /**

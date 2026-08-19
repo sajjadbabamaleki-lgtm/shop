@@ -236,8 +236,14 @@ the client saw an old page and had no way to tell why. So, plainly:
   delivered one to «paid» first so the sale reverses. Every size keeps
   `--floor` units (1 by default): eight demo orders on a shop holding one of
   each size emptied «پرفروش‌ترین‌ها» and cut the home page by 1800px, which
-  `check-parity.js` caught and `DemoOrdersTest` now holds. Never wire it into a
-  seeder or into `liara_pre_start.sh`.
+  `check-parity.js` caught and `DemoOrdersTest` now holds. **On a shop with
+  nothing above the floor — which is what production holds, one of each size —
+  use `--lend`, never `--floor=0`.** `--lend` puts the units on the shelf
+  first, as `inventory_movements` rows carrying `MakeDemoOrders::LENT`, and
+  `--remove` takes them back off; measured on that shop, every size stays
+  sellable and `check-parity.js` prints zero the whole time. `--floor=0` there
+  empties all eight sizes and collapses the home page. Never wire any of it
+  into a seeder or into `liara_pre_start.sh`.
 - **The panel's dates are Jalali on both sides.** `fa_date()` prints them, and
   `public/assets/js/admin-jalali.js` — loaded from `layouts/admin.blade.php`,
   fingerprinted like admin.css — puts a Persian calendar on the five fields
