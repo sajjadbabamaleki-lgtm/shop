@@ -1284,7 +1284,11 @@ option:hover {
      floating between two equal gaps. 40 is that measured gap, not a guess; if
      the hero's padding ever moves, this moves with it. */
   margin: 40px 18px 0;
-  border-radius: 24px;
+  /* 20 — «جزیره هدر ۲۰/۲۴», read in the order the same message used for the
+     hero: the desktop first. It is the tightest corner on the page now, which
+     suits the shape: the island is 1160 wide and 76 tall, and a radius that
+     works on a 450-tall hero card reads as a lozenge on a bar. */
+  border-radius: 20px;
   background: rgba(16, 17, 17, 0.063);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
@@ -2072,7 +2076,12 @@ option:hover {
     /* Twenty per cent off 24. The corner follows the panel: a smaller inset
        with the same radius reads rounder than it did, because the curve is a
        larger fraction of what is left. */
-    border-radius: 19.2px;
+    /* 24 on the phone, against the desktop's 20 — the one place on this page
+       where the narrow screen is rounder than the wide one. That is what the
+       numbers asked for and it is not unreasonable: at 370 wide and 63 tall
+       this island is nearly a pill already, and 19.2 read as a rectangle with
+       the corners knocked off. */
+    border-radius: 24px;
   }
 }
 
@@ -4394,9 +4403,12 @@ option:hover {
   color: #101111;
 }
 
-/* The hero cards' corners, a little rounder than the template's 60. */
+/* The hero cards' corners. It was the template's 60, then 72 — «a little
+   rounder» — and it is 60 again: «هیرو هم بشه ۶۰ / ۳۰». At 72 it was the
+   roundest thing on the page by twenty-two pixels, against panels that have
+   since settled on 50. */
 .heroSlide6 .hero-inner {
-  border-radius: 72px;
+  border-radius: 60px;
 }
 
 /* --------------------------------------------------------------------------
@@ -10031,7 +10043,11 @@ button.vp-cart-keep {
    moved apart twice now and neither move was a mistake. */
 @media (max-width: 991.98px) {
   .heroSlide6 .hero-inner {
-    border-radius: 32.4px;
+    /* 30 — «۶۰ / ۳۰» — which is also what the three large panels take at this
+       width, so the phone now has one corner for everything below its header.
+       The arithmetic in the note above is the old chain (72 → 43.2 → 32.4) and
+       is left there because it explains where those numbers came from. */
+    border-radius: 30px;
   }
 }
 
