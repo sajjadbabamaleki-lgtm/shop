@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Customer;
 use App\Models\LoginCode;
 use App\Models\Order;
+use App\Support\Auth\Passwords;
 use App\Support\Sms\Sender;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -134,7 +135,8 @@ class AccountController extends Controller
 
         $customer = Customer::where('phone', $phone)->first();
 
-        if ($customer?->password === null || ! Hash::check($input['password'], $customer->password)) {
+        if ($customer?->password === null
+            || ! Passwords::check($input['password'], $customer->password, $customer->phone)) {
             throw ValidationException::withMessages([
                 'password' => 'رمز درست نیست. اگر یادت نیست، با کد یکبار مصرف وارد شو.',
             ]);
@@ -323,7 +325,8 @@ class AccountController extends Controller
             'password.confirmed' => 'دو رمز یکی نیست.',
         ], ['current' => 'رمز فعلی', 'password' => 'رمز تازه']);
 
-        if ($customer->password !== null && ! Hash::check((string) $input['current'], $customer->password)) {
+        if ($customer->password !== null
+            && ! Passwords::check((string) $input['current'], $customer->password, $customer->phone)) {
             throw ValidationException::withMessages(['current' => 'رمز فعلی درست نیست.']);
         }
 
