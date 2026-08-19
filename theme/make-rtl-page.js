@@ -3285,6 +3285,30 @@ html = html.replace(
   '$1<span class="badge">۰</span>'
 );
 
+// --- the shop, installable ---------------------------------------------------
+//
+// Android will not offer «نصب برنامه» unless the site registers a service
+// worker with a fetch handler. Without one — and without the `start_url` and
+// 512px icon the manifest was also missing — Chrome fell back to minting a
+// throwaway APK, which Google Play Protect refused: «This app was built for an
+// older version of Android». The client photographed exactly that.
+//
+// Registered last and only after `load`, so it can never delay the page.
+// `isSecureContext` rather than a check for https: it is true for https *and*
+// for localhost, so the thing that ships is the thing that can be tested —
+// a check for the scheme alone is unverifiable on a development machine,
+// which is how a registration that never worked would have shipped green. `sw.js` itself caches nothing — see the note at the top of it, and
+// «قالب قبلی» in CLAUDE.md for why caching this site's assets is not a small
+// decision.
+html = html.replace('</body>',
+  '    <script>\n' +
+  '        if ("serviceWorker" in navigator && window.isSecureContext) {\n' +
+  '            window.addEventListener("load", function () {\n' +
+  '                navigator.serviceWorker.register("/sw.js").catch(function () {});\n' +
+  '            });\n' +
+  '        }\n' +
+  '    </script>\n</body>');
+
 fs.writeFileSync(out, html);
 console.log(`wrote ${path.relative(ROOT, out)} (theme: ${theme || 'none — template colours'})`);
 

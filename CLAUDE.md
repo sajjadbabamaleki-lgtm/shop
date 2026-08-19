@@ -121,8 +121,24 @@ the client saw an old page and had no way to tell why. So, plainly:
 - `theme/make-category-photos.js` — the category tiles. The photographs go
   in exactly as supplied: resize only, no crop, no cut-out.
 - `theme/make-favicons.js` — the whole icon set, `favicon.ico`, `manifest.json`
-  and `browserconfig.xml`, all from `assets/img/vikyplus-appicon.png`. Same rule
-  as the category photographs: resize only. Re-run it if the mark ever changes.
+  and `browserconfig.xml`, all from **`assets/img/vikyplus-appicon-1024.png`**.
+  Same rule as the category photographs: resize only. Re-run it if the mark ever
+  changes. **Two sources, deliberately:** the 208px `vikyplus-appicon.png` is
+  also the logo in the header, the footer and the phone drawer, so it is left
+  alone — changing it changes the visible site and breaks parity. The 1024 is
+  the same mark at the resolution the client later supplied, framed identically
+  (the gem is 59.62% of the canvas in both), and Android's required 512px icon
+  is resized from it rather than upscaled from 208.
+- **The shop is installable on a telephone, and three separate things make it
+  so**: `start_url` in the manifest, a 512px icon (plus a `maskable` one so the
+  launcher does not draw a white box), and `public/sw.js` registered from the
+  page. Miss any one and Chrome will not offer «نصب برنامه» — it mints a
+  throwaway APK instead, which Google Play Protect blocks with «built for an
+  older version of Android». That is what the client photographed.
+  **`sw.js` caches nothing and must not start**: this site's whole appearance
+  is one stylesheet, and a cache-first worker would make «قالب قبلی» permanent
+  and unfixable by deploying. `InstallableTest` holds all of it, including that
+  the worker stores nothing.
   The shop's mark appears in three places (header, footer, phone drawer) and all
   three are the same lockup — see HANDOFF.md before adjusting any of them.
 - `storefront/resources/views/` — the Laravel app renders the same page, and

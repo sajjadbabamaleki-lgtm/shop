@@ -11,7 +11,17 @@ const fs = require('fs');
 const path = require('path');
 const sharp = require('/home/user/shop/theme/node_modules/sharp');
 
-const SOURCE = 'download-version/assets/img/vikyplus-appicon.png';
+/*
+ * **Two sources, and the difference matters.**
+ *
+ * `vikyplus-appicon.png` is 208px and is also the logo in the header, the
+ * footer and the phone drawer, so it is left exactly as it is — changing it
+ * changes the visible site. `vikyplus-appicon-1024.png` is the same mark at
+ * the resolution the client later supplied, framed identically (the gem is
+ * 59.62% of the canvas either way), and it is what every icon here is resized
+ * from. Android wants a 512, and a 512 upscaled from 208 is a blurred 512.
+ */
+const SOURCE = 'download-version/assets/img/vikyplus-appicon-1024.png';
 const DIR = 'download-version/assets/img/favicons';
 
 (async () => {
@@ -59,24 +69,58 @@ const DIR = 'download-version/assets/img/favicons';
   // phone adding this to a home screen got the shop's name wrong and no icon at
   // all. Paths are relative here, which resolves against the manifest's own URL
   // and therefore stays correct wherever the site is mounted.
-  const androidSizes = [36, 48, 72, 96, 144, 192];
+  const androidSizes = [36, 48, 72, 96, 144, 192, 512];
+
+  // 512 is not decoration: Chrome will not treat a site as installable without
+  // one, and without that it never offers «نصب برنامه» — it offers a bookmark,
+  // or it tries to mint a throwaway APK that Google Play Protect then blocks
+  // with «This app was built for an older version of Android». That is what the
+  // client hit. It is written here rather than left to the loop below because
+  // nothing in `DIR` was named android-icon-512x512.png to begin with.
+  for (const size of [512]) {
+    await sharp(SOURCE).resize(size, size, { fit: 'cover' }).png()
+      .toFile(path.join(DIR, `android-icon-${size}x${size}.png`));
+    written++;
+  }
 
   fs.writeFileSync(path.join(DIR, 'manifest.json'), JSON.stringify({
     name: 'ویکی پلاس',
     short_name: 'ویکی پلاس',
     dir: 'rtl',
     lang: 'fa-IR',
+    // `start_url` was missing altogether, which alone is enough for Chrome to
+    // refuse to install. Root, not the manifest's own folder: the manifest
+    // lives under assets/img/favicons and a relative start_url would open the
+    // shop at its icon directory.
+    start_url: '/',
+    scope: '/',
+    id: '/',
     display: 'standalone',
+    orientation: 'portrait',
     background_color: '#FFFFFF',
     theme_color: '#FFFFFF',
-    icons: androidSizes.map((size) => ({
-      src: `android-icon-${size}x${size}.png`,
-      sizes: `${size}x${size}`,
-      type: 'image/png',
-      // Android's own baseline is mdpi, 48px — the density is the icon
-      // measured against it.
-      density: String(size / 48),
-    })),
+    icons: [
+      ...androidSizes.map((size) => ({
+        src: `android-icon-${size}x${size}.png`,
+        sizes: `${size}x${size}`,
+        type: 'image/png',
+        purpose: 'any',
+        // Android's own baseline is mdpi, 48px — the density is the icon
+        // measured against it.
+        density: String(size / 48),
+      })),
+      // The same file again, declared maskable. Android crops a home-screen
+      // icon to whatever shape the launcher uses and only guarantees the middle
+      // 80%; the mark occupies 59.62% of the canvas and sits inside that, so
+      // the artwork survives the crop and the white ground bleeds to the edge
+      // instead of leaving the mark in a white box on a dark wallpaper.
+      {
+        src: 'android-icon-512x512.png',
+        sizes: '512x512',
+        type: 'image/png',
+        purpose: 'maskable',
+      },
+    ],
   }, null, 2) + '\n');
 
   fs.writeFileSync(path.join(DIR, 'browserconfig.xml'),
