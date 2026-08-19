@@ -517,6 +517,37 @@ return [
     |
     */
 
+    /*
+    |--------------------------------------------------------------------------
+    | The size chart
+    |--------------------------------------------------------------------------
+    |
+    | EU size, the foot length in centimetres it is cut for, and the US and UK
+    | equivalents. **The centimetre figure is the foot, not the shoe** — it is
+    | the number somebody measuring at home has in front of them.
+    |
+    | It lived inside `pages/size-guide.blade.php` until the product page
+    | needed the same table for its EU/US/CM switch. Two copies of a
+    | correspondence table is two answers to «سایز ۴۰ یعنی چند؟», so it moved
+    | here and both views read it.
+    |
+    | It is the ordinary women's correspondence, not measured off our own
+    | lasts — the size-guide page says so in as many words, and that caveat is
+    | the reason this is a published table rather than a claim about a
+    | particular shoe.
+    |
+    */
+
+    'size_chart' => [
+        ['eu' => 35, 'cm' => 22.5, 'us' => 5, 'uk' => 2.5],
+        ['eu' => 36, 'cm' => 23, 'us' => 6, 'uk' => 3.5],
+        ['eu' => 37, 'cm' => 23.5, 'us' => 6.5, 'uk' => 4],
+        ['eu' => 38, 'cm' => 24.5, 'us' => 7.5, 'uk' => 5],
+        ['eu' => 39, 'cm' => 25, 'us' => 8.5, 'uk' => 6],
+        ['eu' => 40, 'cm' => 25.5, 'us' => 9, 'uk' => 6.5],
+        ['eu' => 41, 'cm' => 26.5, 'us' => 10, 'uk' => 7.5],
+    ],
+
     'placeholders' => [
 
         /*

@@ -126,6 +126,20 @@
                          name — the reference's arrangement. The price block moves
                          up here from below on a phone; above 992 it stays where it
                          was, under the title, where there is room for it. --}}
+                    {{-- Desktop only, all three of these: the reference the
+                         client sent for the desktop puts the maker over the
+                         name and the rating under it, and the phone's own
+                         arrangement — settled over a dozen rounds — is not
+                         touched. The stylesheet hides them below 992. --}}
+                    @if ($product->brand)
+                        <a class="vp-pdp-maker" href="{{ storefront_route('shop', ['brand' => $product->brand->slug]) }}">
+                            @if ($product->brand->logo_path)
+                                <img src="{{ asset($product->brand->logo_path) }}" alt="" loading="lazy">
+                            @endif
+                            <span>{{ $product->brand->name }}</span>
+                        </a>
+                    @endif
+
                     <div class="vp-pdp-head">
                         <div class="vp-pdp-naming">
                             <h1 class="vp-pdp-title">{{ $product->title }}</h1>
@@ -153,6 +167,24 @@
                             @endif
                         </div>
                     </div>
+
+                    {{-- The stars, and deliberately no count beside them.
+
+                         The reference reads «25k+ Total Reviews». There is no
+                         review table, so a count would be a fabricated number
+                         wearing the clothes of a counted one — the thing this
+                         repo's config comment on `placeholders.rating` exists
+                         to forbid. The average is the same admitted stand-in
+                         the phone already shows; set that config to null and
+                         this row leaves the page with it. --}}
+                    @if (config('storefront.placeholders.rating'))
+                        <div class="vp-pdp-stars">
+                            <span class="vp-pdp-stars-row" aria-hidden="true">
+                                @for ($i = 0; $i < 5; $i++)<i class="fa-solid fa-star"></i>@endfor
+                            </span>
+                            <span class="vp-pdp-stars-say">امتیاز {{ fa_number(config('storefront.placeholders.rating')) }} از ۵</span>
+                        </div>
+                    @endif
 
                     {{-- The price leads, then what it was, then the cut. On an RTL
                          page the first child is the rightmost, so this is the order
@@ -217,10 +249,25 @@
                     @if ($simple->isNotEmpty())
                         <form class="vp-pick" method="post" action="{{ storefront_route('cart.add') }}">
                             @csrf
+                            {{-- For the heart below, which posts this same form
+                                 to the wishlist. The basket ignores it. --}}
+                            <input type="hidden" name="product" value="{{ $product->id }}">
 
                             <div class="vp-pick-head">
                                 <h2 class="vp-pdp-choice-title">انتخاب سایز</h2>
                                 <span class="vp-pick-note">{{ fa_number($simple->count()) }} سایز موجود</span>
+                            </div>
+
+                            {{-- EU / US / CM, desktop only and script-free: three
+                                 radios, and the chips below render all three units
+                                 with CSS showing whichever is checked. They are
+                                 inside the form because `:has()` needs a common
+                                 ancestor, and they carry no name, so they never
+                                 reach the controller. --}}
+                            <div class="vp-pdp-units" role="group" aria-label="واحد سایز">
+                                <label class="vp-pdp-unit"><input type="radio" name="unit" value="eu" checked><span>EU</span></label>
+                                <label class="vp-pdp-unit"><input type="radio" name="unit" value="us"><span>US</span></label>
+                                <label class="vp-pdp-unit"><input type="radio" name="unit" value="cm"><span>CM</span></label>
                             </div>
 
                             @include('shop.sizes')
@@ -273,8 +320,40 @@
                                 </div>
 
                                 <button type="submit" class="vp-pick-go">افزودن به سبد</button>
+
+                                {{-- Desktop only. «خرید فوری» is the same add —
+                                     same stock check, same reservation — with
+                                     `buy_now` telling the controller to land on
+                                     the checkout instead of the basket, so there
+                                     is no second path that could drift from the
+                                     first. --}}
+                                <button type="submit" name="buy_now" value="1" class="vp-pick-now">خرید فوری</button>
+
+                                {{-- Same form, different destination. A form
+                                     cannot nest inside another, and the heart
+                                     belongs on this row — `formaction` is the
+                                     one thing in HTML that gives a button its
+                                     own target. The wishlist reads `product`
+                                     and ignores the rest. --}}
+                                <button type="submit" class="vp-pdp-like"
+                                        formaction="{{ storefront_route('account.wishlist.add') }}"
+                                        aria-label="افزودن به علاقه‌مندی‌ها">
+                                    <i class="fa-regular fa-heart" aria-hidden="true"></i>
+                                </button>
                             </div>
+
+                            {{-- What the reference puts under the buttons, and the
+                                 number is the checkout's own — the same
+                                 `storefront.checkout` figure the FAQ quotes, so
+                                 the page cannot promise a threshold the basket
+                                 does not honour. --}}
+                            <p class="vp-pdp-ship">
+                                <i class="fa-solid fa-truck-fast" aria-hidden="true"></i>
+                                ارسال رایگان برای خریدهای بالای {{ toman(config('storefront.checkout.free_shipping_above')) }} تومان
+                            </p>
                         </form>
+
+
                     @endif
 
                     {{-- Every size, even when this shop cannot sell one of them
@@ -346,7 +425,14 @@
                     @php $blurb = $product->description ?: config('storefront.placeholders.description'); @endphp
 
                     @if ($blurb)
-                        <div @class(['vp-pdp-desc', 'is-standin' => ! $product->description])><p>{{ $blurb }}</p></div>
+                        <div @class(['vp-pdp-desc', 'is-standin' => ! $product->description])>
+                            {{-- Desktop only: the reference heads this paragraph.
+                                 The phone gets the same words in its own
+                                 `.vp-pdp-about` panel further down the page and
+                                 does not need a second heading. --}}
+                            <h2 class="vp-pdp-desc-title">توضیحات محصول</h2>
+                            <p>{{ $blurb }}</p>
+                        </div>
                     @endif
 
                     {{-- Only when there is a fact to list. An empty <dl> is

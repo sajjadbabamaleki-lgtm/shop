@@ -28,6 +28,28 @@
     $byValue = $sizes->keyBy(fn ($variant) => (int) $variant->size_value);
     $simpleIds = $simple->pluck('id')->all();
     $first = true;
+
+    /*
+     | Each chip carries all three units and the page shows one.
+     |
+     | The desktop reference has an EU/US/CM switch over the size grid. It is
+     | done the way the sizes themselves are — radios and labels, no script —
+     | and the chip renders three spans of which CSS shows one. The numbers are
+     | `config('storefront.size_chart')`, the same table `/size-guide`
+     | publishes; a size we have no row for shows its EU number in every unit
+     | rather than a converted guess.
+     */
+    $chart = collect(config('storefront.size_chart'))->keyBy('eu');
+@endphp
+
+@php
+    $units = function (int $value) use ($chart) {
+        $row = $chart->get($value);
+
+        return '<span class="vp-size-eu">'.fa_number($value).'</span>'
+            .'<span class="vp-size-us">'.($row ? fa_number($row['us']) : fa_number($value)).'</span>'
+            .'<span class="vp-size-cm">'.($row ? fa_number($row['cm']) : fa_number($value)).'</span>';
+    };
 @endphp
 
 <div class="vp-pick-sizes">
@@ -41,16 +63,16 @@
         @if ($sellable)
             <label class="vp-pick-size">
                 <input type="radio" name="variant" value="{{ $variant->id }}" @checked($first)>
-                <span>{{ fa_number($value) }}</span>
+                <span>{!! $units($value) !!}</span>
             </label>
             @php $first = false; @endphp
         @elseif ($variant)
             <a class="vp-pick-size is-elsewhere" href="#size-{{ $variant->id }}">
-                <span>{{ fa_number($value) }}</span>
+                <span>{!! $units($value) !!}</span>
             </a>
         @else
             <span class="vp-pick-size is-off" aria-disabled="true">
-                <span>{{ fa_number($value) }}</span>
+                <span>{!! $units($value) !!}</span>
             </span>
         @endif
     @endforeach

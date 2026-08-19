@@ -19617,6 +19617,383 @@ body.vp-prize-open .vp-whatsapp {
    it would be a rule that arrives after the signature — i.e. one the gate
    cannot vouch for.
    -------------------------------------------------------------------------- */
+/* A size chip carries its EU, US and CM figures and the page shows one of
+   them. EU is what the shoes are marked in, so it is what shows unless the
+   desktop's switch says otherwise — and this rule is deliberately outside that
+   switch's media query: the chips exist on the phone too, where there is no
+   switch, and a chip that printed all three read «۳۶۲۳٫۵» as one number. */
+.vp-pick .vp-size-us,
+.vp-pick .vp-size-cm {
+  display: none;
+}
+
+/* --------------------------------------------------------------------------
+   The product page on a desktop, rebuilt to the reference.
+
+   «صفحه جزئیات محصول در دستاپ دقیق دقیق شبیه این ساخته بشه ولی از راست چین» —
+   a screen with the shoe on one side and, on the other, maker, name, rating,
+   description, price, colour, a size grid with a unit switch, a quantity
+   stepper and three buttons. Mirrored, because this page reads right to left:
+   the photograph is on the right and the column of decisions on the left, and
+   every "left" in that reference is a "right" here.
+
+   **Everything in this block is above 992 and nothing below it moves.** The
+   phone's arrangement of this page was settled over a dozen rounds of the
+   client's own instructions — the header off, the close instead of a heart,
+   the bar at the foot, «بالاش ننویس هیچی» — and none of that is in scope.
+   That is also why the desktop's new pieces are added rather than swapped in:
+   they are hidden below 992 a few rules down.
+
+   The order is done with `order` on a flex column rather than by moving the
+   markup, because the markup's order is the phone's and it is correct there.
+   `.vp-pdp-head` becomes `display: contents` so the name and the price, which
+   share a row on the phone, can be placed independently here — the reference
+   puts four things between them.
+   -------------------------------------------------------------------------- */
+@media (min-width: 992px) {
+  .vp-pdp-info {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+  }
+
+  /* Its two children become items of the column above. */
+  .vp-pdp-head { display: contents; }
+
+  .vp-pdp-info > .vp-pdp-maker  { order: 1; }
+  .vp-pdp-naming                { order: 2; }
+  .vp-pdp-info > .vp-pdp-stars  { order: 3; }
+  .vp-pdp-info > .vp-pdp-desc   { order: 4; }
+  .vp-pdp-price                 { order: 5; }
+  .vp-pdp-info > .vp-pdp-choice { order: 6; }
+  .vp-pdp-info > .vp-pdp-from   { order: 7; }
+  .vp-pdp-info > .vp-pick       { order: 8; }
+  .vp-pdp-info > .vp-pdp-out    { order: 9; }
+  .vp-pdp-info > .vp-pdp-sizes-title { order: 10; }
+  .vp-pdp-info > .vp-sellers    { order: 11; }
+  .vp-pdp-info > .vp-pdp-facts  { order: 12; }
+
+  /* --- the maker ---------------------------------------------------------
+     Mark then name, small, over the title. The mark is the brand's own
+     `logo_path`, the same file the home page's brand tiles carry. */
+  .vp-pdp-maker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    color: rgba(16, 17, 17, 0.7);
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .vp-pdp-maker img {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+  }
+
+  .vp-pdp-maker:hover { color: #101111; }
+
+  .vp-pdp-naming { margin-bottom: 8px; }
+
+  /* The reference's title is the largest thing in the column and the page's
+     own heading scale has nothing that big; 34 is the daily deal's 35.1 rounded
+     down to sit under it rather than compete with it. */
+  .vp-pdp-title {
+    font-size: 34px;
+    line-height: 1.35;
+  }
+
+  /* The brand under the name is the maker row's job now. */
+  .vp-pdp-naming .vp-pdp-brand { display: none; }
+
+  /* --- the rating -------------------------------------------------------- */
+  .vp-pdp-stars {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 18px;
+  }
+
+  .vp-pdp-stars-row {
+    display: inline-flex;
+    gap: 2px;
+    color: var(--vp-gold-fill);
+    font-size: 13px;
+  }
+
+  .vp-pdp-stars-say {
+    color: rgba(16, 17, 17, 0.55);
+    font-size: 12px;
+  }
+
+  /* --- the description ---------------------------------------------------
+     The stand-in paragraph is drawn here, where the base rules hide it. On the
+     phone it is hidden because the same words appear again in the
+     `.vp-pdp-about` panel below the card; the desktop has no such panel, and
+     the reference puts a description in this column. It says the specification
+     has not been recorded yet, which is true and is the honest thing for this
+     space to say until it has. */
+  .vp-pdp-desc,
+  .vp-pdp-desc.is-standin {
+    display: block;
+    margin-bottom: 20px;
+  }
+
+  .vp-pdp-desc-title {
+    margin: 0 0 6px;
+    font-family: 'Cairo', var(--title-font);
+    font-size: 14px;
+    font-weight: 800;
+    color: #101111;
+  }
+
+  .vp-pdp-desc p {
+    margin: 0;
+    max-width: 52ch;
+    font-size: 13px;
+    line-height: 2;
+    color: var(--body-color);
+  }
+
+  /* --- the price --------------------------------------------------------- */
+  .vp-pdp-price {
+    margin-bottom: 20px;
+  }
+
+  .vp-pdp-price strong {
+    font-size: 38px;
+    line-height: 1.2;
+  }
+
+  /* --- the size grid and its unit switch ---------------------------------- */
+  .vp-pdp-units {
+    display: inline-flex;
+    align-self: flex-start;
+    gap: 4px;
+    margin-bottom: 10px;
+    padding: 3px;
+    border-radius: 999px;
+    background: rgba(16, 17, 17, 0.05);
+  }
+
+  .vp-pdp-unit input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .vp-pdp-unit span {
+    display: block;
+    padding: 4px 12px;
+    border-radius: 999px;
+    color: rgba(16, 17, 17, 0.6);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  .vp-pdp-unit input:checked + span {
+    background: #FFFFFF;
+    color: #101111;
+    box-shadow: 0 1px 2px rgba(16, 17, 17, 0.12);
+  }
+
+  .vp-pdp-unit input:focus-visible + span {
+    outline: 2px solid var(--vp-gold-fill);
+    outline-offset: 2px;
+  }
+
+  /* One unit shows at a time. The chip carries all three and the switch above
+     picks; `:has()` is what lets a radio outside the chip decide what is inside
+     it without a line of script.
+
+     **The hiding is not here.** It is a base rule below this block, because a
+     chip carries all three units at every width and only the desktop has a
+     switch — put the `display: none` inside this media query and the phone
+     prints «۳۶۲۳٫۵» inside one chip, which is exactly what it did until this
+     was measured on a 390px screen rather than assumed. */
+  .vp-pick:has(.vp-pdp-unit input[value="us"]:checked) .vp-size-eu,
+  .vp-pick:has(.vp-pdp-unit input[value="cm"]:checked) .vp-size-eu { display: none; }
+
+  .vp-pick:has(.vp-pdp-unit input[value="us"]:checked) .vp-size-us,
+  .vp-pick:has(.vp-pdp-unit input[value="cm"]:checked) .vp-size-cm { display: inline; }
+
+  /* --- the buy row -------------------------------------------------------
+     Three controls on one line, the way the reference has them: the dark one
+     that goes straight to the checkout, the outlined one that adds to the
+     basket, and the heart. The quantity stepper joins them — it was phone-only
+     because the desktop had no room for it in the old single-button row. */
+  /* The stepper on its own line, the three buttons on the next — the
+     reference's arrangement. The break is a zero-height pseudo-element with a
+     full basis, ordered between them: a flex line cannot be broken any other
+     way without a wrapper the phone does not want. */
+  .vp-pick-bar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .vp-pick-bar::after {
+    content: '';
+    order: -1;
+    flex-basis: 100%;
+    height: 0;
+  }
+
+  /* The price is said once, above; a second copy on this row is the reference's
+     phone bar, not its desktop. */
+  .vp-pick-bar .vp-pick-price { display: none; }
+
+  /* The stepper, drawn for this row rather than inherited from the phone's
+     full-width bar. It was inherited at first and the result was a 132px box
+     with the phone's paddings inside it: the digit was pushed out of its own
+     field and the control read as empty. Everything here is stated, so nothing
+     depends on what the phone happens to set. */
+  .vp-pick-bar .vp-qty {
+    display: inline-flex;
+    align-items: center;
+    order: -2;
+    flex: 0 0 auto;
+    width: auto;
+    height: 40px;
+    padding: 3px;
+    border: 0;
+    border-radius: 999px;
+    background: rgba(16, 17, 17, 0.05);
+    overflow: visible;
+  }
+
+  .vp-pick-bar .vp-qty .qty-btn {
+    width: 34px;
+    height: 34px;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: #FFFFFF;
+    color: #101111;
+    font-size: 12px;
+    box-shadow: 0 1px 2px rgba(16, 17, 17, 0.12);
+  }
+
+  .vp-pick-bar .qty-input {
+    width: 44px;
+    height: 34px;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: #101111;
+    font-size: 14px;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  /* Right to left: the way to buy first, then the way to keep shopping, then
+     the heart — the reference's order, mirrored. */
+  .vp-pick-now {
+    order: 1;
+    flex: 1 1 160px;
+    min-height: 52px;
+    padding-inline: 24px;
+    border: 0;
+    border-radius: 14px;
+    background: #101111;
+    color: #FFFFFF;
+    font: inherit;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  .vp-pick-now:hover { background: #2A2C2C; }
+
+  /* The basket button gives up the full width it has on the phone and becomes
+     the outlined half of the pair. */
+  .vp-pick-bar .vp-pick-go {
+    order: 2;
+    flex: 1 1 160px;
+    width: auto;
+    min-height: 52px;
+    border-radius: 14px;
+    background: #FFFFFF;
+    box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.14);
+    color: #101111;
+  }
+
+  .vp-pick-bar .vp-pick-go:hover {
+    background: rgba(16, 17, 17, 0.04);
+  }
+
+  .vp-pdp-like {
+    order: 3;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    border: 0;
+    border-radius: 14px;
+    background: rgba(16, 17, 17, 0.05);
+    color: rgba(16, 17, 17, 0.6);
+    font-size: 16px;
+    cursor: pointer;
+  }
+
+  .vp-pdp-like:hover {
+    background: rgba(16, 17, 17, 0.09);
+    color: #101111;
+  }
+
+  /* --- the delivery line -------------------------------------------------- */
+  .vp-pdp-ship {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 14px 0 0;
+    color: rgba(16, 17, 17, 0.55);
+    font-size: 12px;
+  }
+
+  .vp-pdp-ship i { color: var(--vp-gold-ink); }
+
+  /* The colour row the phone draws inside the form: on the desktop the
+     reference has it above the sizes, so it comes out of the form's flow and
+     takes its place in the column. `display: contents` on the form is not an
+     option — it is a form. Ordering inside it is. */
+  .vp-pick { display: flex; flex-direction: column; }
+  .vp-pick > .vp-pdp-colors { order: -1; }
+  .vp-pick > .vp-pick-head  { order: 0; }
+  .vp-pick > .vp-pdp-units  { order: 1; }
+  .vp-pick > .vp-pick-sizes { order: 2; }
+  .vp-pick > .vp-pick-bar   { order: 3; }
+  .vp-pick > .vp-pdp-ship   { order: 4; }
+
+  .vp-pick > .vp-pdp-colors { margin-bottom: 16px; }
+}
+
+/* And the other side of the same coin: the pieces above belong to the desktop
+   only, so below 992 they are not drawn at all. Listed together rather than
+   each beside its own rule, because "which of these is the phone's" is the
+   question somebody will actually be asking. */
+@media (max-width: 991.98px) {
+  .vp-pdp-maker,
+  .vp-pdp-stars,
+  .vp-pdp-desc-title,
+  .vp-pdp-units,
+  .vp-pick-now,
+  .vp-pdp-like,
+  .vp-pdp-ship {
+    display: none;
+  }
+}
+
 :root {
   --vp-design: ok;
 }
