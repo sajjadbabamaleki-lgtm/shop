@@ -139,13 +139,21 @@ class DiceGameTest extends TestCase
             $answer = $this->postJson('/game/dice')->assertOk()->json();
 
             $this->assertTrue($answer['fresh'], "Throw {$i} was not a fresh throw.");
-            $this->assertSame($tries - $i, $answer['left'], "Throw {$i} miscounted what is left.");
             $thrown[] = $answer['dice'];
 
+            // **The win is checked before the count, and that order matters.**
+            // These are honest dice, so any throw here can come up a double
+            // six — 1 in 36 — and winning ends the game with throws still in
+            // hand. Asserting `left` first made this test fail about once in
+            // every thirty-six runs: it passed locally and reddened CI, which
+            // is the worst way for a flake to introduce itself.
             if ($answer['won']) {
-                // Winning ends it, which is its own test below.
+                $this->assertSame(0, $answer['left'], 'A winner was left with throws in hand.');
+
                 return;
             }
+
+            $this->assertSame($tries - $i, $answer['left'], "Throw {$i} miscounted what is left.");
         }
 
         // Everything after that is a read-back of the last throw, however many
@@ -175,14 +183,22 @@ class DiceGameTest extends TestCase
     {
         config(['storefront.game.rig_attempt' => 2]);
 
-        $first = $this->postJson('/game/dice')->assertOk()->json();
+        // The first throw is written rather than thrown, so this test always
+        // reaches the thing it is about. It used to throw honestly and skip
+        // itself when that came up a double six — 1 in 36 — which is a test
+        // that silently does not run, on a switch that is giving away 30%.
+        $key = 's:'.str_repeat('r', 32);
 
-        // The first throw is untouched — it is the *second* that is fixed.
-        if ($first['won']) {
-            $this->markTestSkipped('The honest first throw happened to be a double six.');
-        }
+        DicePlay::create([
+            'player_key' => $key,
+            'attempt' => 1,
+            'first_die' => 1,
+            'second_die' => 2,
+            'won' => false,
+        ]);
 
-        $second = $this->postJson('/game/dice')->assertOk()->json();
+        $second = $this->withSession(['game.dice.key' => $key])
+            ->postJson('/game/dice')->assertOk()->json();
 
         $this->assertSame([6, 6], $second['dice']);
         $this->assertTrue($second['won']);
