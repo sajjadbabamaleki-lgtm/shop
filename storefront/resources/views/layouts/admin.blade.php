@@ -285,6 +285,17 @@
 
 @include('partials.admin-scripts')
 
+{{-- The five date fields, in this shop's own calendar. Fingerprinted like
+     admin.css above, for the same reason. `defer` is wrong here — the file
+     runs itself off DOMContentLoaded — but `defer` is what keeps it from
+     blocking the parse. See the head of the file for why the real input is
+     hidden rather than replaced. --}}
+@php
+    $jalaliJs = public_path('assets/js/admin-jalali.js');
+    $jalaliJsV = file_exists($jalaliJs) ? '?v='.substr(md5_file($jalaliJs), 0, 8) : '';
+@endphp
+<script defer src="{{ asset('assets/js/admin-jalali.js').$jalaliJsV }}"></script>
+
 </body>
 
 </html>

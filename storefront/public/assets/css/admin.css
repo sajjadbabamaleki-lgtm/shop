@@ -371,7 +371,10 @@
   }
 
   .vp-adm-page {
-    padding: 16px 16px calc(var(--adm-bottom) + 24px);
+    /* The bar's own height plus the home indicator under it, or the last card
+       on a long page sits behind the tabs on exactly the phones where the bar
+       is tallest. */
+    padding: 16px 16px calc(var(--adm-bottom) + env(safe-area-inset-bottom) + 24px);
   }
 
   .vp-adm-scrim {
@@ -391,14 +394,28 @@
     pointer-events: auto;
   }
 
-  /* --- bottom navigation, §19 ------------------------------------------- */
+  /* --- bottom navigation, §19 -------------------------------------------
+     **The height has to carry the home indicator, not give way to it.**
+     This was `height: var(--adm-bottom)` with the inset as padding, and with
+     `box-sizing: border-box` that padding comes out of the 64 rather than
+     being added to it. On an iPhone the inset is about 34, so the row of tabs
+     had 30px to live in and the 48px add button stood 9px proud of the bar.
+
+     And it only happened *after scrolling*, which is what made it look like
+     the menu was breaking: Safari reports the inset as 0 while its own
+     toolbar is expanded and jumps it to ~34 the moment the toolbar collapses
+     on scroll. So the bar was correct at the top of the page and wrong the
+     instant you moved — «موقع اسکرول منو پایین میشکنه و از حالتش خارج میشه».
+
+     Measured in Chromium with the inset forced to 34: row 30px and the button
+     9px outside before; row 64px and the button 8px inside after. */
   .vp-adm-bottom {
     display: flex;
     position: fixed;
     inset-inline: 0;
     bottom: 0;
     z-index: 38;
-    height: var(--adm-bottom);
+    height: calc(var(--adm-bottom) + env(safe-area-inset-bottom));
     padding-bottom: env(safe-area-inset-bottom);
     background: var(--adm-surface);
     border-top: 1px solid var(--adm-line);
@@ -1753,4 +1770,162 @@ a.vp-adm-mini {
 .vp-adm-answer textarea {
   min-height: 96px;
   resize: vertical;
+}
+
+/* --- the date fields, in this shop's own calendar --------------------------
+   «تاریخ ها هم باید ایرانی بشه». Everything the panel *prints* was already
+   Jalali; the five fields you type into were not, because `<input type=date>`
+   hands the calendar to the browser and the browser draws the device's.
+
+   `admin-jalali.js` hides each real input — it keeps its name, its value and
+   its place in the form — and puts a read-only Persian field and a calendar
+   beside it. So this block styles two things that only exist when that script
+   ran: with it off, `.vp-adm-jhidden` is never applied and the ordinary date
+   field is still there, which is what the panel had until today.
+
+   The shown field is deliberately not styled here: it is a plain `input` inside
+   `.vp-adm-form` and `.vp-adm-range-custom`, so it takes those rules and cannot
+   drift from the fields either side of it. Only its width and its cursor are
+   its own. */
+.vp-adm-jwrap {
+  position: relative;
+  min-width: 0;
+}
+
+.vp-adm-jhidden {
+  display: none !important;
+}
+
+.vp-adm-jdate {
+  width: 100%;
+  cursor: pointer;
+}
+
+/* The range form is a flex row, so the wrapper has no width of its own to
+   inherit — a text field there would open at the browser's 20-character
+   default and push the «اعمال» button off the row. 118px holds
+   «۱۴۰۵/۰۵/۲۸» with the padding those inputs carry. */
+.vp-adm-range-custom .vp-adm-jwrap {
+  width: 118px;
+}
+
+.vp-adm-jpop {
+  position: absolute;
+  z-index: 60;
+  inset-inline-start: 0;
+  top: calc(100% + 6px);
+  width: 244px;
+  padding: 10px;
+  border: 1px solid var(--adm-line);
+  border-radius: var(--adm-r-md);
+  background: var(--adm-surface);
+  box-shadow: 0 12px 28px rgba(16, 17, 17, 0.14);
+}
+
+/* Set by the script when the field sits low enough that a calendar opening
+   downwards would open off the screen. */
+.vp-adm-jpop.is-up {
+  top: auto;
+  bottom: calc(100% + 6px);
+}
+
+.vp-adm-jhead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.vp-adm-jhead span {
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.vp-adm-jhead button {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid var(--adm-line);
+  border-radius: var(--adm-r-sm);
+  background: var(--adm-surface);
+  color: var(--adm-ink);
+  cursor: pointer;
+}
+
+.vp-adm-jhead button:hover {
+  background: var(--adm-bg);
+}
+
+.vp-adm-jgrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.vp-adm-jday {
+  display: grid;
+  place-items: center;
+  height: 24px;
+  color: var(--adm-ink-2);
+  font-size: 11px;
+}
+
+.vp-adm-jcell {
+  display: grid;
+  place-items: center;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--adm-r-sm);
+  background: transparent;
+  color: var(--adm-ink);
+  font: inherit;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+
+.vp-adm-jcell:hover {
+  background: var(--adm-bg);
+}
+
+/* Today is marked, not selected — the two are different states and a month
+   with both on screen has to say which is which. */
+.vp-adm-jcell.is-today {
+  box-shadow: inset 0 0 0 1px var(--adm-line);
+}
+
+.vp-adm-jcell.is-on,
+.vp-adm-jcell.is-on:hover {
+  background: var(--adm-gold-fill);
+  color: #FFFFFF;
+  font-weight: 700;
+  box-shadow: none;
+}
+
+.vp-adm-jfoot {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--adm-line);
+}
+
+.vp-adm-jfoot button {
+  flex: 1;
+  height: 30px;
+  border: 1px solid var(--adm-line);
+  border-radius: var(--adm-r-sm);
+  background: var(--adm-surface);
+  color: var(--adm-ink);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.vp-adm-jfoot button:hover {
+  background: var(--adm-bg);
 }
