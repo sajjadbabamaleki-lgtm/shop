@@ -130,4 +130,28 @@ class SmsTestCommandTest extends TestCase
             file_get_contents(base_path('app/Console/Commands/TestSms.php')),
         );
     }
+
+    /**
+     * **The diagnosis prints even when the sender cannot be built.**
+     *
+     * `SmsServiceProvider` throws in production while the driver is still
+     * «log» — correctly, because that is a shop swallowing its own sign-in
+     * codes. But the sender used to be an injected argument, and Laravel
+     * resolves those *before* `handle()` runs, so the throw came first and
+     * every line this command exists to print never appeared. The client ran
+     * it and got a stack trace from the one tool meant to explain the problem.
+     */
+    public function test_it_explains_itself_even_when_the_provider_refuses_to_build(): void
+    {
+        config(['services.sms.driver' => 'log']);
+
+        // Exactly the production condition that throws.
+        $this->app->detectEnvironment(fn () => 'production');
+
+        $this->artisan('sms:test 09121234567')
+            ->expectsOutputToContain('درایور فعال: log')
+            ->expectsOutputToContain('SMS_DRIVER=melipayamak.simple')
+            ->expectsOutputToContain('config:cache')
+            ->assertFailed();
+    }
 }

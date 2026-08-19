@@ -36,7 +36,20 @@ class TestSms extends Command
 
     protected $description = 'Send one test message through the configured SMS provider and report what happened';
 
-    public function handle(Sender $sender): int
+    /**
+     * **The sender is resolved inside, not injected.**
+     *
+     * `SmsServiceProvider` throws when the driver is still «log» in production
+     * — which is right, that is a shop silently swallowing its own sign-in
+     * codes. But an injected argument is resolved *before* `handle()` runs, so
+     * the throw happened first and every line this command exists to print —
+     * which driver answered, which line it would send from, whether the value
+     * came from a cached config — never appeared. The client saw a stack trace
+     * from the very tool that was supposed to explain it.
+     *
+     * Resolved here instead, after the diagnosis is on the screen.
+     */
+    public function handle(): int
     {
         $phone = preg_replace('/\D+/', '', (string) $this->argument('phone'));
 
@@ -64,9 +77,14 @@ class TestSms extends Command
 
         if ($driver === 'log') {
             $this->warn('این درایور هیچ پیامکی نمی‌فرستد — فقط در لاگ می‌نویسد.');
-            $this->line('برای وصل کردن، در پنل لیارا SMS_DRIVER را ست کنید:');
-            $this->line('  melipayamak.simple  اگر خط اختصاصی دارید (SMS_FROM لازم است، پترن نه)');
-            $this->line('  melipayamak         اگر خط اشتراکی ۹۹۹۹ دارید (SMS_PATTERN لازم است)');
+            $this->newLine();
+            $this->line('در پنل لیارا → برنامه → تنظیمات → متغیرهای محیطی این‌ها را بگذارید:');
+            $this->line('  SMS_DRIVER=melipayamak.simple   (خط اختصاصی: متن آزاد، بدون پترن)');
+            $this->line('  SMS_KEY=<کلیدی که در پنل ملی‌پیامک ساخته شده>');
+            $this->line('  SMS_FROM=<شماره خط خودتان>');
+            $this->newLine();
+            $this->line('کلید را در ملی‌پیامک «وارد» نمی‌کنید — از آنجا کپی می‌کنید و اینجا می‌گذارید.');
+            $this->line('بعدش: php artisan config:cache');
         }
 
         // Said out loud, because the two doors fail for opposite reasons and
@@ -81,7 +99,7 @@ class TestSms extends Command
         $stamp = (string) random_int(100000, 999999);
 
         try {
-            $sender->send($phone, "پیام آزمایشی ویکی پلاس: {$stamp}", [$stamp]);
+            app(Sender::class)->send($phone, "پیام آزمایشی ویکی پلاس: {$stamp}", [$stamp]);
         } catch (Throwable $e) {
             // A `Sender` is not supposed to throw for an ordinary refusal, so
             // anything arriving here is configuration: a missing key, a driver
