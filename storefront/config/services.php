@@ -93,6 +93,10 @@ return [
         'user' => env('SMS_USER'),
         'key' => env('SMS_KEY'),
         'line' => env('SMS_LINE'),
+        // The shop's own sender number, for `melipayamak.simple`. A dedicated
+        // line sends the sentence itself and needs no approved pattern; the
+        // shared «۹۹۹۹» lines do, which is what SMS_PATTERN is for.
+        'from' => env('SMS_FROM'),
         'pattern' => env('SMS_PATTERN'),
     ],
 

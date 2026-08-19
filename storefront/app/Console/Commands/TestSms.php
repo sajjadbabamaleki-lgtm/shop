@@ -51,8 +51,16 @@ class TestSms extends Command
         $this->line('درایور فعال: '.$driver);
 
         if ($driver === 'log') {
-            $this->warn('این درایور هیچ پیامکی نمی‌فرستد — فقط در فایل لاگ می‌نویسد.');
-            $this->line('برای وصل کردن، در پنل لیارا SMS_DRIVER را روی melipayamak بگذارید.');
+            $this->warn('این درایور هیچ پیامکی نمی‌فرستد — فقط در لاگ می‌نویسد.');
+            $this->line('برای وصل کردن، در پنل لیارا SMS_DRIVER را ست کنید:');
+            $this->line('  melipayamak.simple  اگر خط اختصاصی دارید (SMS_FROM لازم است، پترن نه)');
+            $this->line('  melipayamak         اگر خط اشتراکی ۹۹۹۹ دارید (SMS_PATTERN لازم است)');
+        }
+
+        // Said out loud, because the two doors fail for opposite reasons and
+        // the message that comes back does not say which door was used.
+        if ($driver === 'melipayamak.simple') {
+            $this->line('خط فرستنده: '.(config('services.sms.from') ?: '— ست نشده، SMS_FROM لازم است'));
         }
 
         // The pattern's own values, in the order it expects them — the same

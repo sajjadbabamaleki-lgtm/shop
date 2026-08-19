@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Support\Sms\LogSender;
 use App\Support\Sms\Melipayamak\ApiKeySender;
 use App\Support\Sms\Melipayamak\PanelSender;
+use App\Support\Sms\Melipayamak\SimpleSender;
 use App\Support\Sms\Sender;
 use Illuminate\Support\ServiceProvider;
 use RuntimeException;
@@ -35,6 +36,7 @@ class SmsServiceProvider extends ServiceProvider
     private const DRIVERS = [
         'log' => LogSender::class,
         'melipayamak' => ApiKeySender::class,
+        'melipayamak.simple' => SimpleSender::class,
         'melipayamak.panel' => PanelSender::class,
     ];
 

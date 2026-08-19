@@ -31,7 +31,7 @@ class PanelSender extends Melipayamak
     /**
      * @param  list<string>  $args
      */
-    protected function dispatch(string $phone, array $args): Response
+    protected function dispatch(string $phone, string $message, array $args): Response
     {
         return $this->request()->asForm()->post(self::ENDPOINT, [
             'username' => $this->required('user'),

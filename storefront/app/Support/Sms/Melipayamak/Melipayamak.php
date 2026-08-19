@@ -49,9 +49,28 @@ abstract class Melipayamak implements Sender
     /**
      * Put the request on the wire and hand back what came off it.
      *
+     * Both the sentence and its values are handed down, because which one a
+     * door wants is the door's business: the two pattern senders post `$args`
+     * and ignore `$message`, and the dedicated-line sender posts `$message` and
+     * ignores `$args`. Reconstructing either from the other is the mistake the
+     * `Sender` interface was written to prevent.
+     *
      * @param  list<string>  $args
      */
-    abstract protected function dispatch(string $phone, array $args): Response;
+    abstract protected function dispatch(string $phone, string $message, array $args): Response;
+
+    /**
+     * Whether this door sends a registered pattern rather than a sentence.
+     *
+     * True for both pattern doors, which is every shared «۹۹۹۹» line: an
+     * Iranian provider will not carry unapproved transactional text on a line
+     * it lends to hundreds of senders. A shop with a line of its own is not in
+     * that position and sends the sentence, so `SimpleSender` says no.
+     */
+    protected function needsValues(): bool
+    {
+        return true;
+    }
 
     /**
      * Whether the provider's reply says it took the message.
@@ -66,17 +85,17 @@ abstract class Melipayamak implements Sender
      */
     public function send(string $phone, string $message, array $args = []): void
     {
-        if ($args === []) {
-            // Nothing this shop sends is free text, so an empty list means the
-            // caller has a sentence and no values — a pattern cannot be filled
-            // from that. Refusing here is louder than posting an empty code.
+        if ($this->needsValues() && $args === []) {
+            // A pattern cannot be filled from a sentence, so a caller with no
+            // values has nothing this door can send. Refusing here is louder
+            // than posting an empty code.
             Log::error("SMS to {$phone} was not sent: a pattern needs its values and none were given.");
 
             return;
         }
 
         try {
-            $response = $this->dispatch($phone, $args);
+            $response = $this->dispatch($phone, $message, $args);
         } catch (ConnectionException $e) {
             // The provider being unreachable is an ordinary bad afternoon, not
             // a bug in the shop. Sign-in is on the other side of this call and

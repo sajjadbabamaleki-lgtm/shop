@@ -199,8 +199,14 @@ the client saw an old page and had no way to tell why. So, plainly:
   codes. Going live is a provider account, `SMS_KEY`, a service line and an
   approved pattern, plus a `Sender` implementation registered in that provider's
   `DRIVERS` map — the interface is one method. **Melipayamak is already written**
-  (`melipayamak` for the API key, `melipayamak.panel` for username/password), so
-  connecting it is four `SMS_*` variables in the Liara panel and no code at all.
+  in three doors, and which one you want depends on the line: `melipayamak.simple`
+  for a line the shop owns (`SMS_FROM`, free text, **no pattern**),
+  `melipayamak` for a shared «۹۹۹۹» line through the console key, and
+  `melipayamak.panel` for the older username/password host. Both shared doors
+  need `SMS_PATTERN` — a provider will not carry unapproved transactional text
+  on a line it lends to hundreds of senders, and getting one approved is the
+  slow half of connecting. **This shop has its own line**, so it needs none.
+  Connecting is `SMS_*` variables in the Liara panel and no code at all.
   **`php artisan sms:test 09xxxxxxxxx` is how anybody finds out whether it
   worked**: `Sender` swallows a provider's refusal on purpose — a 500 in front
   of a shopper is worse than a message that did not arrive — so a wrong key and

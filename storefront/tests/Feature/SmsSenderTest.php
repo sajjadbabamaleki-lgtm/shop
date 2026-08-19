@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Support\Sms\Melipayamak\ApiKeySender;
 use App\Support\Sms\Melipayamak\PanelSender;
+use App\Support\Sms\Melipayamak\SimpleSender;
 use App\Support\Sms\Sender;
 use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Http\Client\ConnectionException;
@@ -197,5 +198,79 @@ class SmsSenderTest extends TestCase
 
         $this->configure('melipayamak.panel');
         $this->assertInstanceOf(PanelSender::class, $this->app->make(Sender::class));
+    }
+
+    /**
+     * **The dedicated line sends the sentence, and needs no pattern.**
+     *
+     * The shop turned out to own a line — `SMS_FROM` — which is why this door
+     * exists: a pattern has to be written, submitted and waited on for
+     * approval, and nothing can be sent meanwhile. A number registered to the
+     * company carries free text, so the sentence goes over the wire as it is.
+     */
+    public function test_the_dedicated_line_sends_the_sentence_itself(): void
+    {
+        config([
+            'services.sms.driver' => 'melipayamak.simple',
+            'services.sms.key' => 'the-key',
+            'services.sms.from' => '50002710061311',
+        ]);
+
+        Http::fake(['console.melipayamak.com/*' => $this->reply(['recId' => 8899, 'status' => 'ارسال موفق'])]);
+
+        app(SimpleSender::class)->send('09121234567', 'کد ورود شما به ویکی پلاس: ۴۸۲۹۱۷', ['۴۸۲۹۱۷']);
+
+        Http::assertSent(function (Request $request) {
+            return str_contains($request->url(), '/api/send/simple/the-key')
+                && $request['from'] === '50002710061311'
+                && $request['to'] === '09121234567'
+                && $request['text'] === 'کد ورود شما به ویکی پلاس: ۴۸۲۹۱۷'
+                // No pattern id: this door has none and must not invent one.
+                && ! isset($request['bodyId']);
+        });
+    }
+
+    /**
+     * And it does not refuse a call that carries no values — that rule belongs
+     * to the pattern doors, where a sentence alone genuinely cannot be sent.
+     */
+    public function test_the_dedicated_line_does_not_need_the_patterns_values(): void
+    {
+        config([
+            'services.sms.driver' => 'melipayamak.simple',
+            'services.sms.key' => 'the-key',
+            'services.sms.from' => '50002710061311',
+        ]);
+
+        Http::fake(['console.melipayamak.com/*' => $this->reply(['recId' => 12, 'status' => 'ارسال موفق'])]);
+
+        app(SimpleSender::class)->send('09121234567', 'یک جمله بدون مقدار', []);
+
+        Http::assertSentCount(1);
+    }
+
+    /** A missing sender number is named, rather than posted as nothing. */
+    public function test_it_says_which_setting_is_missing_when_there_is_no_line(): void
+    {
+        config([
+            'services.sms.driver' => 'melipayamak.simple',
+            'services.sms.key' => 'the-key',
+            'services.sms.from' => null,
+        ]);
+
+        Http::fake();
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessageMatches('/SMS_FROM/');
+
+        app(SimpleSender::class)->send('09121234567', 'هرچه', ['۱']);
+    }
+
+    /** The driver name resolves to it, so the panel's value means what it says. */
+    public function test_the_driver_name_resolves_to_the_dedicated_line_sender(): void
+    {
+        config(['services.sms.driver' => 'melipayamak.simple']);
+
+        $this->assertInstanceOf(SimpleSender::class, app(Sender::class));
     }
 }
