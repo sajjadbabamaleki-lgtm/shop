@@ -92,4 +92,42 @@ class SmsTestCommandTest extends TestCase
             ->doesntExpectOutputToContain('secret-user')
             ->assertSuccessful();
     }
+
+    /**
+     * The second trap, and the one that cost an evening.
+     *
+     * `liara_pre_start.sh` runs `config:cache` on every deploy, baking the
+     * environment into a PHP file. A variable changed in the Liara panel
+     * afterwards is not read at all, and the app keeps reporting the old value
+     * — «SMS_DRIVER is log» reads exactly like «you never set it», so the time
+     * goes into re-typing a variable that was already right.
+     */
+    public function test_it_says_when_the_value_it_read_came_from_a_cached_config(): void
+    {
+        $sender = Mockery::mock(Sender::class);
+        $sender->shouldReceive('send');
+        $this->app->instance(Sender::class, $sender);
+
+        // Laravel decides this by whether the cached file exists, so the
+        // question is asked of the application rather than mocked — and the
+        // suite runs uncached, which is the half that must stay quiet. The
+        // warning's wording is pinned separately below so a reword cannot make
+        // this test vacuous.
+        $this->assertFalse($this->app->configurationIsCached());
+
+        $this->artisan('sms:test 09121234567')
+            ->doesntExpectOutputToContain('کانفیگ کش شده')
+            ->assertSuccessful();
+
+        $this->assertStringContainsString(
+            'کانفیگ کش شده',
+            file_get_contents(base_path('app/Console/Commands/TestSms.php')),
+            'The cached-config warning is gone, so the trap it names is silent again.',
+        );
+
+        $this->assertStringContainsString(
+            'configurationIsCached',
+            file_get_contents(base_path('app/Console/Commands/TestSms.php')),
+        );
+    }
 }

@@ -50,6 +50,18 @@ class TestSms extends Command
 
         $this->line('درایور فعال: '.$driver);
 
+        // **The trap this command exists to catch second.** `liara_pre_start.sh`
+        // runs `config:cache` on every deploy, which bakes the environment into
+        // a PHP file — so a variable changed in the Liara panel afterwards is
+        // simply not read, and the app goes on reporting the old value with
+        // nothing anywhere saying why. It cost an evening once; it is said out
+        // loud now, every run, because the symptom («SMS_DRIVER is log») looks
+        // exactly like «you never set it».
+        if (app()->configurationIsCached()) {
+            $this->warn('کانفیگ کش شده است — مقدار بالا از فایل کش خوانده شده، نه از پنل.');
+            $this->line('اگر تازه متغیری را عوض کرده‌اید، اول این را بزنید: php artisan config:cache');
+        }
+
         if ($driver === 'log') {
             $this->warn('این درایور هیچ پیامکی نمی‌فرستد — فقط در لاگ می‌نویسد.');
             $this->line('برای وصل کردن، در پنل لیارا SMS_DRIVER را ست کنید:');
