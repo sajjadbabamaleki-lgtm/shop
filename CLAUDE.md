@@ -76,12 +76,15 @@ the client saw an old page and had no way to tell why. So, plainly:
   eventually vikyplus.ir. It is driven by
   `.github/workflows/deploy-liara.yml` — tests, then Pint, then
   `liara deploy` — and by nothing else. Nobody runs a deploy by hand.
-- **The only trigger is a push to a branch named in that workflow's `on.push`
-  list.** Right now that is `main` and
-  `claude/wiki-plus-latest-work-enpjl1`. Working on any other branch and
-  pushing deploys *nothing*, silently, and the workflow is where that gets
-  fixed — add the branch to the list. A pull request runs the tests and is
-  explicitly barred from deploying.
+- **The only trigger is a push to `main`.** This bullet used to name a list of
+  deploy branches and it is the list that caused the accident in the block at
+  the top of this file; there is no list any more. `on.push` has no branch
+  filter at all, so **every** branch runs the whole suite — that is the signal
+  a working branch needs — and the deploy job alone is gated, on
+  `github.ref == 'refs/heads/main'`. A pull request is barred from deploying
+  explicitly, and so is the "Run workflow" button pointed at another ref.
+  Pushing a working branch therefore ships *nothing*, on purpose: to ship,
+  bring `main` up and push `main`.
 - **After a push, say what happened.** The client asks «بیلد تغییراتو بفرست»
   after every change and means the Liara deploy specifically. Read the run's
   two jobs (Tests, Deploy to Liara) and report the conclusion of both. Note
@@ -216,7 +219,22 @@ the client saw an old page and had no way to tell why. So, plainly:
 - The panel is at `/admin`, hand-built (no Filament, at the client's request)
   in the storefront's own materials — `resources/views/admin/` and
   `layouts/admin.blade.php`. Its branch comes from the **signed-in user**, not
-  the URL; `php artisan staff:invite` makes an account.
+  the URL; `php artisan staff:invite` makes an account, and
+  `php artisan staff:password <email>` sets one — **not** a query-builder
+  `update(['password' => ...])`, which skips the `hashed` cast and writes the
+  plaintext, after which every sign-in 500s on `Hash::check`. That has
+  happened; `BrokenPasswordTest` and `App\Support\Auth\Passwords` are what
+  came of it.
+- **The panel's dates are Jalali on both sides.** `fa_date()` prints them, and
+  `public/assets/js/admin-jalali.js` — loaded from `layouts/admin.blade.php`,
+  fingerprinted like admin.css — puts a Persian calendar on the five fields
+  you *type* into, which the browser would otherwise draw in the device's own
+  calendar. **It hides the real `<input type="date">`, never replaces it**: the
+  field keeps its name and its `YYYY-MM-DD`, so nothing on the server knows
+  this exists. Add a date field anywhere under `.vp-adm` and it is covered.
+  `PanelDatesTest` holds that promise, because a rewrite that swapped the input
+  for a text field would look identical and would post a Persian date to a
+  parser expecting a Gregorian one.
 - The marketplace is at `/vendor` (a vendor's own panel) and under `/admin`
   for the platform's side. **Nothing in it is branch-scoped** — a vendor sells
   across the platform, so those screens sit outside the branch group and use
