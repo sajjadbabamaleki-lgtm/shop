@@ -198,7 +198,14 @@ the client saw an old page and had no way to tell why. So, plainly:
   production, so the shop cannot go live silently swallowing its own sign-in
   codes. Going live is a provider account, `SMS_KEY`, a service line and an
   approved pattern, plus a `Sender` implementation registered in that provider's
-  `DRIVERS` map — the interface is one method.
+  `DRIVERS` map — the interface is one method. **Melipayamak is already written**
+  (`melipayamak` for the API key, `melipayamak.panel` for username/password), so
+  connecting it is four `SMS_*` variables in the Liara panel and no code at all.
+  **`php artisan sms:test 09xxxxxxxxx` is how anybody finds out whether it
+  worked**: `Sender` swallows a provider's refusal on purpose — a 500 in front
+  of a shopper is worse than a message that did not arrive — so a wrong key and
+  a message still in flight look identical from the outside, and without this
+  command the only test is signing a real customer in and hoping.
 - **The content pages are `/about`, `/contact`, `/size-guide`, `/faq`, `/terms`
   and `/privacy`** — `PageController`, one view each under `resources/views/pages/`,
   copy and no database. They exist because the footer had been linking to them
