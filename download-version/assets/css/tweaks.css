@@ -19424,7 +19424,11 @@ body.vp-prize-open .vp-whatsapp {
 
   .vp-dice-card {
     padding: 34px 16px 28px;
-    border-radius: 20px;
+    /* 40, not the 20 this carried. That 20 was set when the card was ink and
+       the desktop's corner was 26, and none of the five rounds that took the
+       desktop to 50 ever reached down here — so on a phone the band sat
+       between a 42 and a 46 at half their radius. «رو موبایل بشه ۴۰». */
+    border-radius: 40px;
   }
 
   .vp-dice-title {
