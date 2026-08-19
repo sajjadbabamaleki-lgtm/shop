@@ -146,7 +146,6 @@
 
             [].forEach.call(table.querySelectorAll('tbody tr'), function (row) {
                 var column = 0;
-                var lead = false;
 
                 // `row.cells`, not `row.children`. Several of these rows wrap
                 // their controls in a <form>, which is not allowed as a child
@@ -162,21 +161,6 @@
                         cell.setAttribute('data-vp-full', '');
                     } else if (headings[column] !== undefined) {
                         cell.setAttribute('data-label', headings[column]);
-
-                        // Below 992 the row is a card, and a card is about
-                        // something. The first column carrying a heading is
-                        // that something in all seventeen of these tables —
-                        // کد, کالا, نام, شماره, محصول, شعبه, فروشنده, موضوع.
-                        //
-                        // "carrying a heading" rather than "first": the orders
-                        // grid opens with the selection box under a blank
-                        // <th>, and a checkbox is not what that row is about.
-                        // Marking it here rather than with `td:first-child` in
-                        // the stylesheet is what lets the two differ.
-                        if (!lead && headings[column] !== '') {
-                            cell.setAttribute('data-vp-lead', '');
-                            lead = true;
-                        }
                     }
 
                     column += span;
