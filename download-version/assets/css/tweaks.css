@@ -10109,14 +10109,28 @@ button.vp-cart-keep {
 
      Both keep the margins the block above gave them, so the pane's outer edge
      is at 9 and its inner edge at 18. */
+  /* One corner for all three narrow panels.
+  
+     «بنظرم ۳۰ بشه ۴۰ زیاده / گوشه ی کارت پیشنهاد امروز هم ۳۰ بشه / گوشه کارت
+     برندهای موجود هم همینطور». They were 42, 46 and 20 — three numbers set in
+     three separate rounds, none of them looking at the other two, and stacked
+     down one phone screen. Above 992 they already share the ladder panel's 50;
+     below it they share 30.
+
+     The inner cards need no rule: they are
+     `calc(var(--frame-r) - var(--frame-pad))`, so they follow to 20 and stay
+     concentric with their frames. */
   .vp-daily-deal {
     --frame-pad: 10px;
+    --frame-r: 30px;
   }
 
   .vp-brands-panel {
     margin-inline: 10px;
     --frame-pad: 10px;
+    --frame-r: 30px;
   }
+
 }
 
 /* The sale card's name-and-price strip, a tenth shorter.
@@ -10717,11 +10731,8 @@ button.vp-cart-keep {
    If the panes ever have to read as one set again, that is a choice between
    matching each other and fitting their own contents, and at these paddings it
    cannot be had both ways. */
-@media (max-width: 991.98px) {
-  .vp-daily-deal {
-    --frame-r: 42px;
-  }
-}
+/* The 42 that used to be here is gone: all three narrow panels take one
+   corner now, set where they are put back into their frames. */
 
 /* The lines round the daily deal's pane and the brand panel, off.
 
@@ -18275,11 +18286,8 @@ html {
    than that 5% asked for, so if the panel reads as too round on its own this
    is the number to argue about; it is, though, the one that makes the frame
    and the tile turn together. */
-@media (max-width: 991.98px) {
-  .vp-brands-panel {
-    --frame-r: 46px;
-  }
-}
+/* The 46 that used to be here is gone, for the reason written at
+   `.vp-daily-deal`'s: one corner for all three narrow panels. */
 
 /* Three pixels into the brand card's head.
 
@@ -19417,6 +19425,26 @@ body.vp-prize-open .vp-whatsapp {
   }
 }
 
+/* The narrow-screen corner for the game band — 30, the same one the daily
+   deal and the brands panel take below 992.
+
+   «بنظرم ۳۰ بشه ۴۰ زیاده / گوشه ی کارت پیشنهاد امروز هم ۳۰ بشه / گوشه کارت
+   برندهای موجود هم همینطور». The three were 20, 42 and 46, set in three
+   separate rounds without looking at each other and stacked down one phone
+   screen. Above 992 they already share the ladder panel's 50.
+
+   **It is here rather than beside the other two**, which set theirs where the
+   panes go back into their frames. That block is earlier in this file than
+   `.vp-dice-card`'s own `border-radius: 50px`, and a media query does not
+   outrank a later rule of the same specificity — put it there and it loses,
+   silently, which is exactly what it did on the first attempt. Measured at
+   390/575/768/991 before and after. */
+@media (max-width: 991.98px) {
+  .vp-dice-card {
+    border-radius: 30px;
+  }
+}
+
 @media (max-width: 575.98px) {
   .vp-dice-area {
     padding-top: 28px;
@@ -19424,11 +19452,6 @@ body.vp-prize-open .vp-whatsapp {
 
   .vp-dice-card {
     padding: 34px 16px 28px;
-    /* 40, not the 20 this carried. That 20 was set when the card was ink and
-       the desktop's corner was 26, and none of the five rounds that took the
-       desktop to 50 ever reached down here — so on a phone the band sat
-       between a 42 and a 46 at half their radius. «رو موبایل بشه ۴۰». */
-    border-radius: 40px;
   }
 
   .vp-dice-title {
