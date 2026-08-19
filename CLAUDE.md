@@ -199,13 +199,19 @@ the client saw an old page and had no way to tell why. So, plainly:
   codes. Going live is a provider account, `SMS_KEY`, a service line and an
   approved pattern, plus a `Sender` implementation registered in that provider's
   `DRIVERS` map — the interface is one method. **Melipayamak is already written**
-  in three doors, and which one you want depends on the line: `melipayamak.simple`
-  for a line the shop owns (`SMS_FROM`, free text, **no pattern**),
-  `melipayamak` for a shared «۹۹۹۹» line through the console key, and
-  `melipayamak.panel` for the older username/password host. Both shared doors
-  need `SMS_PATTERN` — a provider will not carry unapproved transactional text
-  on a line it lends to hundreds of senders, and getting one approved is the
-  slow half of connecting. **This shop has its own line**, so it needs none.
+  in four doors, and picking the wrong one wastes an evening. Two axes: which
+  host the account's key belongs to, and whether the line is the shop's own.
+  **This shop is `melipayamak.panel.simple`** — the older
+  `rest.payamak-panel.com` host, `SMS_USER` plus the key standing in for the
+  password, its own line in `SMS_FROM`, free text, **no pattern**. The key on
+  the panel's «تنظیمات وبسرویس» page is a *panel* key, which its own help text
+  says outright («به جای رمز عبور در پارامتر Password»); posted to the console
+  host it answers HTTP 400 «کلید کنسول معتبر نیست», a message about a key whose
+  fix is a host. The others: `melipayamak.simple` (console host, own line),
+  `melipayamak` and `melipayamak.panel` (shared «۹۹۹۹» line, and both need
+  `SMS_PATTERN` — a provider will not carry unapproved transactional text on a
+  line it lends to hundreds of senders, and getting one approved is the slow
+  half of connecting).
   Connecting is `SMS_*` variables in the Liara panel and no code at all.
   **`php artisan sms:test 09xxxxxxxxx` is how anybody finds out whether it
   worked**: `Sender` swallows a provider's refusal on purpose — a 500 in front

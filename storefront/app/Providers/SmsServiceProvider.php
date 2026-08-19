@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Support\Sms\LogSender;
 use App\Support\Sms\Melipayamak\ApiKeySender;
 use App\Support\Sms\Melipayamak\PanelSender;
+use App\Support\Sms\Melipayamak\PanelSimpleSender;
 use App\Support\Sms\Melipayamak\SimpleSender;
 use App\Support\Sms\Sender;
 use Illuminate\Support\ServiceProvider;
@@ -38,6 +39,7 @@ class SmsServiceProvider extends ServiceProvider
         'melipayamak' => ApiKeySender::class,
         'melipayamak.simple' => SimpleSender::class,
         'melipayamak.panel' => PanelSender::class,
+        'melipayamak.panel.simple' => PanelSimpleSender::class,
     ];
 
     public function register(): void

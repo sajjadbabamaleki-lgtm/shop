@@ -79,8 +79,9 @@ class TestSms extends Command
             $this->warn('این درایور هیچ پیامکی نمی‌فرستد — فقط در لاگ می‌نویسد.');
             $this->newLine();
             $this->line('در پنل لیارا → برنامه → تنظیمات → متغیرهای محیطی این‌ها را بگذارید:');
-            $this->line('  SMS_DRIVER=melipayamak.simple   (خط اختصاصی: متن آزاد، بدون پترن)');
-            $this->line('  SMS_KEY=<کلیدی که در پنل ملی‌پیامک ساخته شده>');
+            $this->line('  SMS_DRIVER=melipayamak.panel.simple   (خط اختصاصی، متن آزاد، بدون پترن)');
+            $this->line('  SMS_USER=<نام کاربری پنل ملی‌پیامک>');
+            $this->line('  SMS_KEY=<کلید همان صفحهٔ «تنظیمات وبسرویس»>');
             $this->line('  SMS_FROM=<شماره خط خودتان>');
             $this->newLine();
             $this->line('کلید را در ملی‌پیامک «وارد» نمی‌کنید — از آنجا کپی می‌کنید و اینجا می‌گذارید.');
@@ -89,8 +90,18 @@ class TestSms extends Command
 
         // Said out loud, because the two doors fail for opposite reasons and
         // the message that comes back does not say which door was used.
-        if ($driver === 'melipayamak.simple') {
+        if (str_ends_with($driver, 'simple')) {
             $this->line('خط فرستنده: '.(config('services.sms.from') ?: '— ست نشده، SMS_FROM لازم است'));
+        }
+
+        // The one refusal that looks like a broken key and is not. Melipayamak
+        // runs two hosts; the key from «تنظیمات وبسرویس» belongs to the older
+        // one, and posting it to the console answers «کلید کنسول معتبر نیست».
+        // Named here because the message is about a key and the fix is about a
+        // host, which is the wrong place to go looking.
+        if ($driver === 'melipayamak.simple') {
+            $this->line('اگر «کلید کنسول معتبر نیست» گرفتید، کلیدتان مال درِ قدیمی است:');
+            $this->line('  SMS_DRIVER=melipayamak.panel.simple  و SMS_USER را هم بگذارید.');
         }
 
         // The pattern's own values, in the order it expects them — the same

@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Support\Sms\Melipayamak\ApiKeySender;
 use App\Support\Sms\Melipayamak\PanelSender;
+use App\Support\Sms\Melipayamak\PanelSimpleSender;
 use App\Support\Sms\Melipayamak\SimpleSender;
 use App\Support\Sms\Sender;
 use GuzzleHttp\Promise\PromiseInterface;
@@ -272,5 +273,67 @@ class SmsSenderTest extends TestCase
         config(['services.sms.driver' => 'melipayamak.simple']);
 
         $this->assertInstanceOf(SimpleSender::class, app(Sender::class));
+    }
+
+    /**
+     * **The door this shop actually has.**
+     *
+     * The key under «تنظیمات وبسرویس» is the panel key, not a console one —
+     * the help beside it says to send it in place of the password — and posting
+     * it to the console host returned HTTP 400 «کلید کنسول معتبر نیست». This
+     * sends to the older host, from the shop's own line, as free text.
+     */
+    public function test_the_panel_host_sends_the_sentence_from_the_shops_own_line(): void
+    {
+        config([
+            'services.sms.driver' => 'melipayamak.panel.simple',
+            'services.sms.user' => 'vikyplus',
+            'services.sms.key' => 'the-panel-key',
+            'services.sms.from' => '50002710061311',
+        ]);
+
+        Http::fake(['rest.payamak-panel.com/*' => $this->reply(['Value' => '9988776655', 'RetStatus' => 1, 'StrRetStatus' => 'Ok'])]);
+
+        app(PanelSimpleSender::class)->send('09021888209', 'کد ورود شما به ویکی پلاس: ۴۸۲۹۱۷', ['۴۸۲۹۱۷']);
+
+        Http::assertSent(function (Request $request) {
+            return str_contains($request->url(), 'rest.payamak-panel.com/api/SendSMS/SendSMS')
+                && $request['username'] === 'vikyplus'
+                // The key stands in for the password, which is the whole point.
+                && $request['password'] === 'the-panel-key'
+                && $request['from'] === '50002710061311'
+                && $request['to'] === '09021888209'
+                && $request['text'] === 'کد ورود شما به ویکی پلاس: ۴۸۲۹۱۷'
+                // No pattern: a dedicated line needs none, and sending one to
+                // this method would be sending to the wrong method entirely.
+                && ! isset($request['bodyId']);
+        });
+    }
+
+    /** A refusal here arrives inside a 200, so the body has to decide. */
+    public function test_the_panel_host_reads_a_refusal_out_of_a_two_hundred(): void
+    {
+        config([
+            'services.sms.driver' => 'melipayamak.panel.simple',
+            'services.sms.user' => 'vikyplus',
+            'services.sms.key' => 'the-panel-key',
+            'services.sms.from' => '50002710061311',
+        ]);
+
+        Http::fake(['rest.payamak-panel.com/*' => $this->reply(['Value' => '0', 'RetStatus' => 3, 'StrRetStatus' => 'اعتبار کافی نیست'])]);
+
+        Log::spy();
+
+        app(PanelSimpleSender::class)->send('09021888209', 'هرچه', ['۱']);
+
+        Log::shouldHaveReceived('error')->once();
+    }
+
+    /** And the driver name resolves to it. */
+    public function test_the_panel_simple_driver_name_resolves(): void
+    {
+        config(['services.sms.driver' => 'melipayamak.panel.simple']);
+
+        $this->assertInstanceOf(PanelSimpleSender::class, app(Sender::class));
     }
 }

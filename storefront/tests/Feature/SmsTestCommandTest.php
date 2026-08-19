@@ -150,7 +150,7 @@ class SmsTestCommandTest extends TestCase
 
         $this->artisan('sms:test 09121234567')
             ->expectsOutputToContain('درایور فعال: log')
-            ->expectsOutputToContain('SMS_DRIVER=melipayamak.simple')
+            ->expectsOutputToContain('SMS_DRIVER=melipayamak.panel.simple')
             ->expectsOutputToContain('config:cache')
             ->assertFailed();
     }
