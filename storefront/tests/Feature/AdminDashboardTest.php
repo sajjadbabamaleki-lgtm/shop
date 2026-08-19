@@ -244,12 +244,12 @@ class AdminDashboardTest extends TestCase
 
         $this->assertSame(0, $page->viewData('margin')['covered']);
 
-        // The tile says it plainly and the reason is a line under the grid.
-        // It used to be one three-line note inside the tile, which made that
-        // tile — and «لغوشده» beside it — 34px taller than the four above:
-        // «اون دوتا مورد آخر باید ارتفاعشون اندازه بالایی ها باشه».
+        // One short line, and nothing else. It was a three-line note inside
+        // the tile, which made that tile — and «لغوشده» beside it — 34px
+        // taller than the four above; then a sentence under the grid; and
+        // then «این جملرو کلا حذف کن». What is left is the fact.
         $page->assertSee('بهای تمام‌شده ندارد')
-            ->assertSee('محاسبه نمی‌شود');
+            ->assertDontSee('محاسبه نمی‌شود');
     }
 
     /**

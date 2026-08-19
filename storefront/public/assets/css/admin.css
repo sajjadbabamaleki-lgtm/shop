@@ -315,10 +315,14 @@
 
 /* §17: 32px page padding, content capped where a line of a table stops being
    readable rather than at the window's edge. */
+/* The gap under the topbar is half what it was — «فاصله هدر با اون موارد
+   پایینش نصف بشه». It is the shell's own padding, so this is every screen in
+   the panel, not the dashboard alone; they had the same gap and there is no
+   reason for them to disagree now. 24 → 12 here, 16 → 8 on a telephone. */
 .vp-adm-page {
   max-width: 1600px;
   margin-inline: auto;
-  padding: 24px 32px 64px;
+  padding: 12px 32px 64px;
 }
 
 /* --- notes ----------------------------------------------------------------- */
@@ -374,7 +378,7 @@
     /* The bar's own height plus the home indicator under it, or the last card
        on a long page sits behind the tabs on exactly the phones where the bar
        is tallest. */
-    padding: 16px 16px calc(var(--adm-bottom) + env(safe-area-inset-bottom) + 24px);
+    padding: 8px 16px calc(var(--adm-bottom) + env(safe-area-inset-bottom) + 24px);
   }
 
   .vp-adm-scrim {
@@ -597,12 +601,14 @@
    ========================================================================== */
 
 /* --- the date control ---------------------------------------------------- */
+/* And half again between the date control and the figures under it —
+   «فاصله موارد پایین هدر با این ۶ تا هم نصف بشه». 20 → 10. */
 .vp-adm-range {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 6px;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
 .vp-adm-range-tab {
@@ -677,18 +683,6 @@
   margin-bottom: 16px;
 }
 
-/* The caveat that used to be inside a tile. */
-.vp-adm-kpis-note {
-  margin: -8px 0 16px;
-  font-size: 12px;
-  line-height: 18px;
-  color: var(--adm-ink-2);
-}
-
-.vp-adm-kpis-note a {
-  color: var(--adm-gold-ink);
-  font-weight: 700;
-}
 
 .vp-adm-kpi {
   display: flex;
