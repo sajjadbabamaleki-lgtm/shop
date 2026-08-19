@@ -2350,6 +2350,11 @@ const DICE_SCRIPT =
             var TUMBLE = 2400;
             var CHURN = 90;
             var LAND = 260;
+            // A double six is the whole point of the band, so it is allowed to
+            // be looked at. «وقتی جفت شیش میشه باید ۲ ثانیه رو جفت شیش بمونه
+            // بعد این پاپاپ باز بشه» — the card covers the dice, and opening
+            // it the instant they stop means nobody ever sees what they threw.
+            var GLOAT = 2000;
 
             function fa(text) {
                 return String(text).replace(/[0-9]/g, function (d) {
@@ -2412,7 +2417,7 @@ const DICE_SCRIPT =
                 document.body.removeChild(box);
             }
 
-            function confetti(card) {
+            function confetti(into) {
                 // The page's gold, its ink and its grey. Confetti in colours
                 // the site does not otherwise own is how the band ended up
                 // looking like somebody else's site the first time.
@@ -2429,7 +2434,7 @@ const DICE_SCRIPT =
                     field.appendChild(piece);
                 }
 
-                card.appendChild(field);
+                into.appendChild(field);
             }
 
             function prize(answer) {
@@ -2513,10 +2518,14 @@ const DICE_SCRIPT =
                 when.textContent = '⏱ اعتبار کد: ' + fa(answer.hours) + ' ساعت';
                 card.appendChild(when);
 
-                confetti(card);
+                // Around the card, not across it: inside the card itself
+                // these twenty-four opaque flakes landed on the code and
+                // the title.
+                confetti(scrim);
 
                 function shutIt() {
                     if (scrim.parentNode) { scrim.parentNode.removeChild(scrim); }
+                    document.body.classList.remove('vp-prize-open');
                     document.removeEventListener('keydown', onKey);
                     go.focus && go.focus();
                 }
@@ -2531,6 +2540,10 @@ const DICE_SCRIPT =
                 });
                 document.addEventListener('keydown', onKey);
 
+                // The corner's WhatsApp button is fixed and outranks nothing,
+                // so without this it sits on the scrim as a green square over
+                // the celebration. tweaks.css hides it on this class.
+                document.body.classList.add('vp-prize-open');
                 document.body.appendChild(scrim);
                 shut.focus();
             }
@@ -2574,7 +2587,9 @@ const DICE_SCRIPT =
                     // The code goes on the band as well as in the card, so
                     // closing the card does not take it away.
                     spend('جفت شیش! کد تخفیفت: ' + answer.code);
-                    prize(answer);
+                    // Two seconds on the two sixes before the card covers
+                    // them. Winning is the moment; it should be seen.
+                    setTimeout(function () { prize(answer); }, GLOAT);
                     return;
                 }
 

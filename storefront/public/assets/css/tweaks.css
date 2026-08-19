@@ -19079,6 +19079,14 @@ body.vp-bare .vp-cart-shot {
   color: rgba(16, 17, 17, 0.62);
 }
 
+/* The WhatsApp button is fixed to the corner and outranks nothing, so it sat
+   on top of the prize card's scrim — a green square over the celebration.
+   «اون دکمه واتسپ هم نباید وقتی این تبریک باز میشه باشدش». The script puts
+   this class on <body> while the card is open and takes it off again. */
+body.vp-prize-open .vp-whatsapp {
+  display: none;
+}
+
 /* --- the prize card ------------------------------------------------------
    Over the page, not inside the band: it is the answer to the whole band and
    it should not be read past. Built by the script, so nothing of it is in the
@@ -19097,6 +19105,7 @@ body.vp-bare .vp-cart-shot {
 
 .vp-prize {
   position: relative;
+  z-index: 1;
   width: 100%;
   max-width: 420px;
   max-height: calc(100vh - 40px);
@@ -19191,6 +19200,16 @@ body.vp-bare .vp-cart-shot {
   letter-spacing: 0.06em;
   direction: ltr;
   unicode-bidi: isolate;
+  /* A discount code split over two lines is a code somebody mistypes. The
+     monospace fallback differs on every machine — in Safari's Lockdown Mode,
+     which blocks web fonts outright, it came out wide enough to wrap
+     `DICE-KCWWGZ` after the hyphen. This forbids that outright; the label
+     beside it gives up its space instead. */
+  white-space: nowrap;
+}
+
+.vp-prize-code > span {
+  min-width: 0;
 }
 
 .vp-prize-copy {
@@ -19243,11 +19262,19 @@ body.vp-bare .vp-cart-shot {
 
 /* --- the confetti --------------------------------------------------------
    Twenty-four pieces, placed and coloured by the script so they are not
-   twenty-four rules here. They fall once and are removed with the card. */
+   twenty-four rules here. They fall once and are removed with the card.
+
+   **They fall around the card, not across it.** They were inside `.vp-prize`
+   at first, which put twenty-four opaque rectangles on top of the one thing
+   the card exists to deliver: on a 350px screen a gold flake landed across the
+   discount code and another across «تبریک». Moving the field to the scrim and
+   giving the card `z-index: 1` keeps the celebration and takes it off the
+   type. */
 
 .vp-confetti {
   position: absolute;
   inset: 0;
+  z-index: 0;
   overflow: hidden;
   pointer-events: none;
 }
@@ -19278,6 +19305,50 @@ body.vp-bare .vp-cart-shot {
 
   .vp-confetti {
     display: none;
+  }
+}
+
+/* The prize card on a phone.
+   It was only ever looked at on a 1200px screen, and at 390 the same numbers
+   read quite differently: the star took two fifths of the card's width and the
+   whole thing stood 505 tall for four short lines. Everything here is the same
+   card at a size that suits 350px of glass. */
+@media (max-width: 575.98px) {
+  .vp-prize {
+    padding: 26px 18px 20px;
+    border-radius: 20px;
+  }
+
+  .vp-prize-badge {
+    width: 104px;
+    height: 104px;
+    margin-bottom: 14px;
+  }
+
+  .vp-prize-title {
+    font-size: 23px;
+  }
+
+  .vp-prize-say {
+    margin-bottom: 16px;
+    font-size: 14px;
+    line-height: 26px;
+  }
+
+  .vp-prize-code {
+    gap: 8px;
+    margin-bottom: 14px;
+    padding: 10px;
+  }
+
+  .vp-prize-code b {
+    font-size: 15px;
+    letter-spacing: 0.04em;
+  }
+
+  .vp-prize-go {
+    min-height: 48px;
+    font-size: 16px;
   }
 }
 
