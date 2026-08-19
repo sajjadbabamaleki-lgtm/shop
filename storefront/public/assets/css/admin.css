@@ -1202,7 +1202,13 @@
      clipped. Measured at 375 and 390 before this: the button's box ends 29px
      off the start edge. The row wraps now, so when the three do not fit the
      button takes a line of its own instead of being cut in half, and it is
-     told not to shrink either way. */
+     told not to shrink either way.
+
+     `admin-jalali.js` landed the same hour and hides those native inputs
+     behind a 118px Persian field, so with the script running all three fit on
+     one line and this never wraps — measured at 375 after the merge. It is
+     still what stands between the button and the margin when the script does
+     not run, which is a state that page is explicitly built to survive. */
   .vp-adm-range-custom {
     flex: 1 0 100%;
     flex-wrap: wrap;
