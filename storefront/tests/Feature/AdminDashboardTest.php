@@ -243,7 +243,43 @@ class AdminDashboardTest extends TestCase
         $page = $this->actingAs($this->admin(), 'web')->get('/admin?range=today')->assertOk();
 
         $this->assertSame(0, $page->viewData('margin')['covered']);
-        $page->assertSee('بهای تمام‌شده ثبت نشده');
+
+        // The tile says it plainly and the reason is a line under the grid.
+        // It used to be one three-line note inside the tile, which made that
+        // tile — and «لغوشده» beside it — 34px taller than the four above:
+        // «اون دوتا مورد آخر باید ارتفاعشون اندازه بالایی ها باشه».
+        $page->assertSee('بهای تمام‌شده ندارد')
+            ->assertSee('محاسبه نمی‌شود');
+    }
+
+    /**
+     * Every figure tile is the same height as every other, whatever its note
+     * says. A grid row is as tall as its tallest item, so one long sentence in
+     * one tile silently resizes the row it is in — which is exactly what
+     * happened, and what the reserved note height and `grid-auto-rows: 1fr`
+     * are there to stop. The pixels are measured in Chromium and written
+     * beside the rules; what can be held from here is that no tile carries a
+     * note long enough to need more than the space reserved for it.
+     */
+    public function test_no_figure_tile_carries_a_note_longer_than_the_row_reserves(): void
+    {
+        $this->paidOrder(4_000_000, now()->toDateTimeString());
+
+        $page = $this->actingAs($this->admin(), 'web')->get('/admin?range=today')->assertOk()->getContent();
+
+        preg_match_all('~<span class="vp-adm-kpi-move[^"]*">(.*?)</span>\s*(?:</div>|<)~s', $page, $m);
+
+        $this->assertNotEmpty($m[1], 'No figure tiles were found at all, which cannot be right.');
+
+        foreach ($m[1] as $note) {
+            $text = trim(preg_replace('~\s+~u', ' ', strip_tags($note)));
+
+            $this->assertLessThanOrEqual(
+                40,
+                mb_strlen($text),
+                "«{$text}» is long enough to wrap past the two lines the row reserves.",
+            );
+        }
     }
 
     // --- the screen --------------------------------------------------------

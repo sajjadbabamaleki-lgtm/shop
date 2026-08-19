@@ -104,13 +104,27 @@
             </span>
         @else
             <span class="vp-adm-kpi-num is-quiet">—</span>
-            <span class="vp-adm-kpi-move is-none">
-                بهای تمام‌شده ثبت نشده
-                <small>تا وقتی در «قیمت‌ها» وارد نشود، سود قابل محاسبه نیست</small>
-            </span>
+            {{-- One line, like every other card's. The «why» is a sentence
+                 under the grid: it is a caveat about one figure, and a caveat
+                 that makes its own tile taller than the five beside it is
+                 paying for itself with the row's shape. --}}
+            <span class="vp-adm-kpi-move is-none">بهای تمام‌شده ندارد</span>
         @endif
     </div>
 </div>
+
+@if ($margin['covered'] <= 0)
+    {{-- Linked only for somebody who can actually get there: «قیمت‌ها» is
+         behind `branch.pricing.manage`, and a link that 403s is worse than a
+         sentence. --}}
+    @php $canPrice = $branch && auth()->user()->hasPermissionToAt($branch, 'branch.pricing.manage'); @endphp
+
+    <p class="vp-adm-kpis-note">
+        سود ناخالص تا وقتی بهای تمام‌شدهٔ کالاها در
+        @if ($canPrice)<a href="{{ route('admin.pricing') }}">قیمت‌ها</a>@else «قیمت‌ها» @endif
+        وارد نشود محاسبه نمی‌شود.
+    </p>
+@endif
 
 {{-- --- what can be acted on, first (§19) -------------------------------- --}}
 <div class="vp-adm-grid">

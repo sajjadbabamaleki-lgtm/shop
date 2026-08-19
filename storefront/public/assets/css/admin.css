@@ -655,11 +655,39 @@
 }
 
 /* --- the six figures ----------------------------------------------------- */
+/* «اون دوتا مورد آخر باید ارتفاعشون اندازه بالایی ها باشه چرا بزرگترن».
+   They were, and the reason is worth writing down because it will happen
+   again: a grid row is as tall as its tallest item, and «سود ناخالص»'s note
+   ran to three lines where every other card's runs to one or two. That made
+   its whole row 134px against the other rows' 100 at 390px — and dragged
+   «لغوشده» up with it, which is the part that looked broken.
+
+   Two rules, so it cannot come back, and **both keep the tile short** —
+   levelling by growing the other four was the first thing tried and it was
+   wrong. `grid-auto-rows: 1fr` makes every row the same height as its
+   neighbours; the note below is one line, so that shared height is a name, a
+   figure and a single line — 100px at 390, which is what the top row already
+   was. The long explanation moved out to a sentence under the grid, where it
+   costs no height at all and is easier to read. */
 .vp-adm-kpis {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-auto-rows: 1fr;
   gap: 16px;
   margin-bottom: 16px;
+}
+
+/* The caveat that used to be inside a tile. */
+.vp-adm-kpis-note {
+  margin: -8px 0 16px;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--adm-ink-2);
+}
+
+.vp-adm-kpis-note a {
+  color: var(--adm-gold-ink);
+  font-weight: 700;
 }
 
 .vp-adm-kpi {
@@ -695,12 +723,29 @@
   color: var(--adm-ink-2);
 }
 
+/* **One line, and the tile is as short as its shortest sensible content.**
+   This used to stack the figure over its caption — «+۱۲٪» above «نسبت به
+   دوره قبل» — which is two lines, and a first attempt at levelling the row
+   reserved space for both. That made every tile taller, which is the opposite
+   of what was asked for: «من میگم ارتفاع ها کوتاه بشه تو باقیشم بلند
+   میکنی؟». So the two sit on one line instead, and no tile is taller than a
+   name, a figure and a single line of note. */
 .vp-adm-kpi-move {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 4px;
+  min-width: 0;
   font-size: 12px;
   line-height: 18px;
   font-weight: 700;
+}
+
+.vp-adm-kpi-move small {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .vp-adm-kpi-move small {
