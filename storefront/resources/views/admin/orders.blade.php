@@ -60,6 +60,7 @@
         <option value="">پرداخت: همه</option>
         <option value="paid" @selected($filters['payment'] === 'paid')>پرداخت‌شده</option>
         <option value="unpaid" @selected($filters['payment'] === 'unpaid')>پرداخت‌نشده</option>
+        <option value="refunded" @selected($filters['payment'] === 'refunded')>برگشت‌خورده</option>
     </select>
 
     <label class="visually-hidden" for="vp-range">بازه</label>
@@ -151,8 +152,8 @@
                         <td>{{ $order->contact_name }}<br><small><bdi dir="ltr">{{ $order->contact_phone }}</bdi></small></td>
                         <td><span class="vp-adm-badge is-{{ $order->status }}">{{ $order->statusLabel() }}</span></td>
                         <td>
-                            <span class="vp-adm-badge is-{{ $order->payment_status === 'paid' ? 'delivered' : 'placed' }}">
-                                {{ $order->payment_status === 'paid' ? 'پرداخت‌شده' : 'پرداخت‌نشده' }}
+                            <span class="vp-adm-badge is-{{ $order->paymentTone() }}">
+                                {{ $order->paymentLabel() }}
                             </span>
                         </td>
                         <td>{{ toman($order->grand_total) }}</td>

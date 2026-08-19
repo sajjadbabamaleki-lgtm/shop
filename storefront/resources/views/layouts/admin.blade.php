@@ -238,6 +238,17 @@
     {{-- §19's bottom navigation. Rendered always and shown by the stylesheet
          below 992 — a phone-only branch in Blade would mean the markup depends
          on a guess about the window, which the server does not have. --}}
+    {{-- Where the «+» goes.
+         It used to be hard-coded after the second tab, which is the middle
+         only while `Navigation::BOTTOM` resolves to three items and «بیشتر»
+         makes a fourth. A clerk without `catalogue.manage` loses «محصولات»,
+         and the «+» then sat two-thirds along a row it is meant to be the
+         centre of. `$bottom` is what actually gets drawn, plus the one
+         «بیشتر» below it, so the midpoint is read off that. --}}
+    @php
+        $middle = (int) floor((count($bottom) + 1) / 2) - 1;
+    @endphp
+
     <nav class="vp-adm-bottom" aria-label="ناوبری اصلی">
         @foreach ($bottom as $i => $item)
             <a class="vp-adm-tab{{ $nav->isOn($item['match']) ? ' is-on' : '' }}"
@@ -246,7 +257,7 @@
                 {!! $icon($item['icon']) !!}<span>{{ $item['label'] }}</span>
             </a>
 
-            @if ($i === 1 && $quickAdd !== [])
+            @if ($i === $middle && $quickAdd !== [])
                 <button type="button" class="vp-adm-add" data-adm-sheet="add" aria-label="افزودن">
                     {!! $icon('plus') !!}
                 </button>

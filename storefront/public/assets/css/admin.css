@@ -421,6 +421,16 @@
     border-top: 1px solid var(--adm-line);
   }
 
+  /* `padding: 0` is not tidiness — it is why the row was crooked.
+     «بیشتر» is a <button> and the other four tabs are <a>s. A button carries
+     the browser's own `padding: 1px 6px`, and with `flex-basis: 0` that 12px
+     is added to its share rather than taken out of it: the four tabs measured
+     81 / 81 / 81 / **93** at 390px, and the whole row was pushed off-centre
+     with it — the «+» landed at x=201 against a page centre of 195.
+
+     Four equal tabs and a fixed 56px «+» is the only arrangement in which the
+     button is the middle of the bar, so the tabs have to be genuinely equal.
+     After: 83.5 each and the «+» centred on 195.0. */
   .vp-adm-tab {
     flex: 1 1 0;
     display: flex;
@@ -429,6 +439,7 @@
     justify-content: center;
     gap: 2px;
     min-width: 0;
+    padding: 0;
     border: 0;
     background: none;
     color: var(--adm-ink-2);

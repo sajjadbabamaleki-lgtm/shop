@@ -225,6 +225,19 @@ the client saw an old page and had no way to tell why. So, plainly:
   plaintext, after which every sign-in 500s on `Hash::check`. That has
   happened; `BrokenPasswordTest` and `App\Support\Auth\Passwords` are what
   came of it.
+- **`php artisan demo:orders` fills the panel with pretend orders**, one in
+  every state the shop can produce — unconfirmed, confirmed, late, shipped,
+  delivered, cancelled before payment, refunded after it — because against an
+  empty shop every screen in `/admin` reads zero and none of them can be
+  judged. They go through `PlaceOrder` and `SettleOrder`, so the stock they
+  take is really taken and the panel's own counts agree with them; they carry
+  `MakeDemoOrders::NOTE` in `staff_note` and a 0999 telephone, which is all
+  `--remove` trusts. **`--remove` gives the stock back**, walking a shipped or
+  delivered one to «paid» first so the sale reverses. Every size keeps
+  `--floor` units (1 by default): eight demo orders on a shop holding one of
+  each size emptied «پرفروش‌ترین‌ها» and cut the home page by 1800px, which
+  `check-parity.js` caught and `DemoOrdersTest` now holds. Never wire it into a
+  seeder or into `liara_pre_start.sh`.
 - **The panel's dates are Jalali on both sides.** `fa_date()` prints them, and
   `public/assets/js/admin-jalali.js` — loaded from `layouts/admin.blade.php`,
   fingerprinted like admin.css — puts a Persian calendar on the five fields

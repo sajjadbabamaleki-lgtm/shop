@@ -83,9 +83,9 @@
             <li><span>نام</span><b>{{ $order->contact_name }}</b></li>
             <li><span>تلفن</span><b><bdi dir="ltr">{{ $order->contact_phone }}</bdi></b></li>
             <li><span>وضعیت</span><b><span class="vp-adm-badge is-{{ $order->status }}">{{ $order->statusLabel() }}</span></b></li>
-            <li><span>پرداخت</span><b>{{ $order->payment_status === 'paid' ? 'پرداخت‌شده' : 'پرداخت‌نشده' }}</b></li>
+            <li><span>پرداخت</span><b>{{ $order->paymentLabel() }}</b></li>
             @if ($order->payment_method)
-                <li><span>روش پرداخت</span><b>{{ $order->payment_method }}</b></li>
+                <li><span>روش پرداخت</span><b>{{ $order->methodLabel() }}</b></li>
             @endif
 
             {{-- The gateway's own reference, which is what a customer quotes

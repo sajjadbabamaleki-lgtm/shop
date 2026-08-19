@@ -103,7 +103,10 @@ class OrderController extends Controller
                 });
             })
             ->when(array_key_exists($status, Order::statusLabels()), fn (Builder $b) => $b->where('status', $status))
-            ->when(in_array($payment, ['paid', 'unpaid'], true), fn (Builder $b) => $b->where('payment_status', $payment))
+            // Every value this column really holds. `refunded` was missing, so
+            // an order whose money had been given back could not be filtered
+            // for at all — see Order::paymentLabels().
+            ->when(in_array($payment, array_keys(Order::paymentLabels()), true), fn (Builder $b) => $b->where('payment_status', $payment))
             ->when($range !== null, fn (Builder $b) => $b->whereBetween('placed_at', [$range->from, $range->to]))
             ->orderBy($this->sort($request), $this->direction($request));
     }

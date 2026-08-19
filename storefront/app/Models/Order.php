@@ -155,6 +155,68 @@ class Order extends Model
         return self::statusLabels()[$this->status] ?? $this->status;
     }
 
+    /**
+     * What happened to the money.
+     *
+     * A separate question from the status, and one the panel used to answer
+     * with `paid ? … : 'پرداخت‌نشده'`. `SettleOrder::cancelled` writes
+     * **refunded** when it reverses an order that had been paid for, and that
+     * two-way branch called it «پرداخت‌نشده» — money that was taken and given
+     * back, reported as money that never arrived. A shop reconciling a day's
+     * takings cannot tell those apart, and nothing anywhere said which it was.
+     *
+     * Kept beside `statusLabels()` so the next value somebody writes into this
+     * column has one place to be named.
+     *
+     * @return array<string, string>
+     */
+    public static function paymentLabels(): array
+    {
+        return [
+            'unpaid' => 'پرداخت‌نشده',
+            'paid' => 'پرداخت‌شده',
+            'refunded' => 'برگشت‌خورده',
+        ];
+    }
+
+    public function paymentLabel(): string
+    {
+        return self::paymentLabels()[$this->payment_status] ?? (string) $this->payment_status;
+    }
+
+    /**
+     * How it was paid for, in words.
+     *
+     * `payment_method` holds a token — `cash_on_delivery` is the only one this
+     * application writes so far — and the order screen printed it raw, which
+     * put an English snake_case word in the middle of a Persian panel. Falls
+     * back to the token so a method added later is visible rather than blank.
+     *
+     * @return array<string, string>
+     */
+    public static function methodLabels(): array
+    {
+        return [
+            'cash_on_delivery' => 'پرداخت در محل',
+            'online' => 'پرداخت اینترنتی',
+        ];
+    }
+
+    public function methodLabel(): string
+    {
+        return self::methodLabels()[$this->payment_method] ?? (string) $this->payment_method;
+    }
+
+    /** Which badge the payment wears — reversed money reads like a cancellation. */
+    public function paymentTone(): string
+    {
+        return match ($this->payment_status) {
+            'paid' => 'delivered',
+            'refunded' => 'cancelled',
+            default => 'placed',
+        };
+    }
+
     public function shippingMethod(): BelongsTo
     {
         return $this->belongsTo(ShippingMethod::class);
