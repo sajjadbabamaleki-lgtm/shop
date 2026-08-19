@@ -246,6 +246,16 @@ class AdminOrdersGridTest extends TestCase
 
     // --- the order page -----------------------------------------------------
 
+    /**
+     * The page used to end in a row of bare status buttons — «پرداخت شد»,
+     * «لغو شد» — under a sentence describing the state machine. They are cards
+     * now, named for what happened in the shop, because the client read that
+     * row and asked what it was even for: «اینو ببرم تو ترمینال… این یعنی چی».
+     *
+     * So this asserts the actions are *offered*, by the route each posts to,
+     * rather than by a label — a label is what somebody will reword next, and
+     * the promise is that both moves are reachable from the page.
+     */
     public function test_the_order_page_shows_the_trail_and_the_moves_it_can_make(): void
     {
         $order = $this->order(['status' => Order::PLACED]);
@@ -256,10 +266,157 @@ class AdminOrdersGridTest extends TestCase
         // timeline is a read rather than a second record that could disagree.
         $this->assertNotEmpty($page->viewData('trail'));
 
-        // The words are the model's own, not this test's invention.
         $page->assertSee('تاریخچه')
-            ->assertSee(Order::statusLabels()[Order::PAID])
-            ->assertSee(Order::statusLabels()[Order::CANCELLED]);
+            ->assertSee(route('admin.order.pay', $order), false)
+            ->assertSee(route('admin.order.cancel', $order), false);
+
+        // And the state machine is no longer read out to the reader.
+        $page->assertDontSee('می‌توان رفت به');
+    }
+
+    /**
+     * A shipped order is offered delivery and nothing else — no payment card
+     * on an order already paid for, no cancel on a parcel already gone.
+     */
+    public function test_each_status_is_offered_only_the_actions_that_fit_it(): void
+    {
+        $admin = $this->admin();
+        $shipped = $this->order(['status' => Order::SHIPPED]);
+
+        $this->actingAs($admin, 'web')->get('/admin/orders/'.$shipped->number)
+            ->assertOk()
+            ->assertSee(route('admin.order.deliver', $shipped), false)
+            ->assertDontSee(route('admin.order.pay', $shipped), false)
+            ->assertDontSee(route('admin.order.cancel', $shipped), false);
+
+        $done = $this->order(['status' => Order::DELIVERED]);
+
+        $this->actingAs($admin, 'web')->get('/admin/orders/'.$done->number)
+            ->assertOk()
+            ->assertSee('کار دیگری روی آن نمانده')
+            ->assertDontSee(route('admin.order.deliver', $done), false);
+    }
+
+    /**
+     * **Taking payment writes a payment.**
+     *
+     * The old «پرداخت شد» button moved a column and nothing else, so an order
+     * settled by staff had a thinner record than one settled by a customer at
+     * the gateway — no hour, no method, no reference. On a shop whose orders
+     * are mostly paid at the door that is the record that matters.
+     */
+    public function test_taking_payment_records_a_payment_and_sells_the_stock(): void
+    {
+        $order = $this->order(['status' => Order::PLACED]);
+
+        $this->actingAs($this->admin(), 'web')
+            ->post(route('admin.order.pay', $order), ['method' => 'cash_on_delivery', 'reference' => 'REF-9911'])
+            ->assertRedirect(route('admin.order', $order));
+
+        $order->refresh();
+
+        $this->assertSame(Order::PAID, $order->status);
+        $this->assertSame('paid', $order->payment_status);
+        $this->assertSame('cash_on_delivery', $order->payment_method);
+
+        $receipt = $order->payments()->latest('id')->first();
+
+        $this->assertNotNull($receipt, 'Money arrived and nothing wrote it down.');
+        $this->assertSame($order->grand_total, $receipt->amount);
+        $this->assertSame('REF-9911', $receipt->ref_id);
+        $this->assertNotNull($receipt->paid_at);
+
+        // Not a gateway's name: this money did not come through one, and
+        // saying it did would be a lie in the table the shop reconciles.
+        $this->assertSame('panel', $receipt->gateway);
+    }
+
+    /** A second press says what is already true rather than selling twice. */
+    public function test_taking_payment_twice_changes_nothing(): void
+    {
+        $admin = $this->admin();
+        $order = $this->order(['status' => Order::PLACED]);
+
+        // Deliberately without `reference`: a `nullable` rule leaves the key
+        // out of the validated array, and reading it directly 500s. The card
+        // always posts the field, so only a test that omits it finds this.
+        $this->actingAs($admin, 'web')->post(route('admin.order.pay', $order), ['method' => 'cash_on_delivery'])
+            ->assertSessionHasNoErrors();
+
+        $this->assertSame(Order::PAID, $order->fresh()->status);
+        $this->actingAs($admin, 'web')->post(route('admin.order.pay', $order), ['method' => 'cash_on_delivery'])
+            ->assertSessionHasNoErrors();
+
+        $this->assertSame(1, $order->payments()->count());
+    }
+
+    /**
+     * **Cancelling records why.**
+     *
+     * `SettleOrder::cancelled` has always taken a reason and the panel always
+     * threw it away, passing «Cancelled in the panel by …» instead — so «چرا
+     * این لغو شد؟» had no answer a month later. It is the one part of a
+     * cancellation nobody can reconstruct: the stock movement and the hour are
+     * both written down anyway.
+     */
+    public function test_cancelling_requires_a_reason_and_keeps_it(): void
+    {
+        $admin = $this->admin();
+        $order = $this->order(['status' => Order::PLACED]);
+
+        $this->actingAs($admin, 'web')
+            ->post(route('admin.order.cancel', $order), ['reason' => ''])
+            ->assertSessionHasErrors('reason');
+
+        $this->assertSame(Order::PLACED, $order->fresh()->status);
+
+        $this->actingAs($admin, 'web')
+            ->post(route('admin.order.cancel', $order), ['reason' => 'مشتری منصرف شد'])
+            ->assertRedirect(route('admin.order', $order));
+
+        $order->refresh();
+
+        $this->assertSame(Order::CANCELLED, $order->status);
+        $this->assertStringContainsString('مشتری منصرف شد', (string) $order->staff_note);
+    }
+
+    /** Delivery is an hour, and it cannot be one that has not happened yet. */
+    public function test_delivery_records_when_and_refuses_the_future(): void
+    {
+        $admin = $this->admin();
+        $order = $this->order(['status' => Order::SHIPPED]);
+
+        $this->actingAs($admin, 'web')
+            ->post(route('admin.order.deliver', $order), ['delivered_at' => now()->addDay()->format('Y-m-d\TH:i')])
+            ->assertSessionHasErrors('delivered_at');
+
+        $this->assertSame(Order::SHIPPED, $order->fresh()->status);
+
+        $this->actingAs($admin, 'web')
+            ->post(route('admin.order.deliver', $order), ['delivered_at' => now()->subHour()->format('Y-m-d\TH:i')])
+            ->assertRedirect(route('admin.order', $order));
+
+        $order->refresh();
+
+        $this->assertSame(Order::DELIVERED, $order->status);
+        $this->assertNotNull($order->actual_delivered_at);
+    }
+
+    /** The written-out transitions still hold on the new routes. */
+    public function test_the_new_actions_refuse_a_move_that_does_not_fit(): void
+    {
+        $admin = $this->admin();
+        $shipped = $this->order(['status' => Order::SHIPPED]);
+
+        $this->actingAs($admin, 'web')
+            ->post(route('admin.order.pay', $shipped), ['method' => 'cash_on_delivery'])
+            ->assertSessionHasErrors('status');
+
+        $this->actingAs($admin, 'web')
+            ->post(route('admin.order.cancel', $shipped), ['reason' => 'هرچه'])
+            ->assertSessionHasErrors('reason');
+
+        $this->assertSame(Order::SHIPPED, $shipped->fresh()->status);
     }
 
     /** §4's tracking number and internal note, saved without touching status. */

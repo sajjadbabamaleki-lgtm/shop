@@ -12,10 +12,13 @@ use App\Support\Checkout\SettleOrder;
 use App\Support\Fulfilment\FulfilmentSettings;
 use App\Support\Fulfilment\Promise;
 use App\Support\Search;
+use Carbon\CarbonImmutable;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -191,6 +194,131 @@ class OrderController extends Controller
         $this->move($order, $to, $settle, $request->user()->name);
 
         return $back->with('status', 'وضعیت سفارش به‌روز شد.');
+    }
+
+    /**
+     * The money arrived.
+     *
+     * §21's «پرداخت شد» used to be a bare status button: it moved the column
+     * and recorded nothing else. For a shop whose orders are mostly paid at
+     * the door that is the wrong shape — money arriving is an **event**, with
+     * an hour and a method and sometimes a reference somebody will be asked
+     * for later. A real checkout writes a `payments` row; the panel's own
+     * button wrote none, so an order settled by staff had a thinner record
+     * than one settled by a customer.
+     *
+     * `SettleOrder::paid` is still what sells the stock — this only puts the
+     * receipt beside it, in the same transaction, so the two cannot disagree.
+     */
+    public function pay(Request $request, Order $order, SettleOrder $settle): RedirectResponse
+    {
+        $back = redirect()->route('admin.order', $order);
+
+        // §18's duplicate click. Saying what is already true beats an error
+        // and beats selling the same pair twice.
+        if ($order->status === Order::PAID) {
+            return $back->with('status', 'این سفارش از قبل پرداخت‌شده ثبت شده بود؛ چیزی تغییر نکرد.');
+        }
+
+        if (! $this->allowed($order, Order::PAID)) {
+            return $back->withErrors(['status' => "سفارشی که «{$order->statusLabel()}» است را نمی‌شود پرداخت‌شده ثبت کرد."]);
+        }
+
+        $input = $request->validate([
+            'method' => ['required', Rule::in(array_keys(Order::methodLabels()))],
+            'reference' => ['nullable', 'string', 'max:60'],
+        ]);
+
+        // A `nullable` rule does not put the key in the validated array when
+        // the field was not submitted, so reading it directly is a 500 for any
+        // caller that omits it — the card always posts it, which is exactly
+        // why nobody would have found this by clicking. Same remedy as
+        // `FulfilmentController::ship`, which learned it first.
+        $input += ['reference' => null];
+
+        DB::transaction(function () use ($order, $input, $settle): void {
+            $settle->paid($order);
+
+            $order->forceFill(['payment_method' => $input['method']])->save();
+
+            Payment::create([
+                'order_id' => $order->id,
+                // Not a gateway — this money did not come through one, and
+                // saying «zarinpal» here would be a lie in the one table the
+                // shop reconciles against.
+                'gateway' => 'panel',
+                'authority' => 'PANEL-'.Str::upper(Str::random(26)),
+                'amount' => $order->grand_total,
+                'status' => Payment::PAID,
+                'ref_id' => $input['reference'] ?: null,
+                'paid_at' => now(),
+            ]);
+        });
+
+        return $back->with('status', 'پرداخت ثبت شد و موجودی رزروشده فروخته شد.');
+    }
+
+    /**
+     * The order is off, and **why** is part of the record.
+     *
+     * `SettleOrder::cancelled` has always taken a reason and the panel has
+     * always thrown it away, passing «Cancelled in the panel by …» instead —
+     * so «چرا این لغو شد؟» had no answer a month later. The reason is required
+     * here for that one purpose: it is the only part of a cancellation nobody
+     * can reconstruct afterwards.
+     */
+    public function cancel(Request $request, Order $order, SettleOrder $settle): RedirectResponse
+    {
+        $back = redirect()->route('admin.order', $order);
+
+        if ($order->status === Order::CANCELLED) {
+            return $back->with('status', 'این سفارش از قبل لغو شده بود؛ چیزی تغییر نکرد.');
+        }
+
+        if (! $this->allowed($order, Order::CANCELLED)) {
+            return $back->withErrors(['reason' => "سفارشی که «{$order->statusLabel()}» است را از اینجا نمی‌شود لغو کرد."]);
+        }
+
+        $input = $request->validate([
+            'reason' => ['required', 'string', 'max:200'],
+        ]);
+
+        $settle->cancelled($order, $input['reason']);
+
+        $order->forceFill(['staff_note' => trim($order->staff_note."\nعلت لغو: ".$input['reason'])])->save();
+
+        return $back->with('status', 'سفارش لغو شد و موجودی رزروشده برگشت.');
+    }
+
+    /**
+     * It reached the customer.
+     *
+     * The hour is editable and cannot be in the future, exactly as the
+     * handover's is — a delivery that has not happened yet is not a delivery,
+     * and §2's promise is judged against when it actually arrived.
+     */
+    public function deliver(Request $request, Order $order): RedirectResponse
+    {
+        $back = redirect()->route('admin.order', $order);
+
+        if ($order->status === Order::DELIVERED) {
+            return $back->with('status', 'این سفارش از قبل تحویل‌شده ثبت شده بود؛ چیزی تغییر نکرد.');
+        }
+
+        if (! $this->allowed($order, Order::DELIVERED)) {
+            return $back->withErrors(['delivered_at' => "سفارشی که «{$order->statusLabel()}» است را نمی‌شود تحویل‌شده ثبت کرد."]);
+        }
+
+        $input = $request->validate([
+            'delivered_at' => ['nullable', 'date', 'before_or_equal:now'],
+        ]);
+
+        $order->forceFill([
+            'status' => Order::DELIVERED,
+            'actual_delivered_at' => CarbonImmutable::parse($input['delivered_at'] ?? 'now'),
+        ])->save();
+
+        return $back->with('status', 'تحویل ثبت شد.');
     }
 
     /**

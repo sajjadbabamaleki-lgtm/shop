@@ -277,12 +277,20 @@ class DiceGameTest extends TestCase
         // count; a session token could not.
         $this->flushSession();
 
+        // Counted *before* the second visit rather than compared to `$tries`.
+        // A natural double six on the first throw ends the game early and
+        // leaves one row instead of two — a one-in-thirty-six failure that has
+        // nothing to do with what this test is about, and it duly appeared.
+        // What matters is that the second device adds nothing.
+        $used = DicePlay::count();
+
         $again = $this->actingAs($customer, 'customer')->postJson('/game/dice')->assertOk()->json();
 
         $this->assertSame($last['dice'], $again['dice']);
         $this->assertFalse($again['fresh'], 'A new device handed a signed-in shopper another throw.');
         $this->assertSame(0, $again['left']);
-        $this->assertSame($tries, DicePlay::count());
+        $this->assertSame($used, DicePlay::count(), 'The second device created a throw of its own.');
+        $this->assertLessThanOrEqual($tries, $used);
         $this->assertSame($customer->id, DicePlay::first()->customer_id);
     }
 

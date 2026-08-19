@@ -25,12 +25,9 @@
 
     $labels = \App\Models\Order::statusLabels();
 
-    // §32: «Confirmation dialogs should explain the consequence, not merely ask
-    // "Are you sure?"». These two move money and stock.
-    $consequence = [
-        \App\Models\Order::PAID => 'این سفارش پرداخت‌شده ثبت می‌شود و موجودی رزروشده فروخته می‌شود. برگشت‌پذیر نیست.',
-        \App\Models\Order::CANCELLED => 'این سفارش لغو می‌شود و موجودی رزروشده به انبار برمی‌گردد. برگشت‌پذیر نیست.',
-    ];
+    // §32's «explain the consequence, not merely ask "Are you sure?"» now lives
+    // on each card, in the line above its own button, where it is read before
+    // the button is pressed rather than in a dialog after.
 @endphp
 
 @section('content')
@@ -243,6 +240,86 @@
         </section>
     @endif
 
+    {{-- --- the money arrived -------------------------------------------- --}}
+    @if ($order->status === \App\Models\Order::PLACED)
+        <section class="vp-adm-card">
+            <div class="vp-adm-card-head">
+                <h2 class="vp-adm-card-title">پول را گرفتم</h2>
+            </div>
+
+            <p class="vp-adm-empty">موجودی رزروشده فروخته می‌شود. برگشت‌پذیر نیست.</p>
+
+            <form class="vp-adm-form" method="post" action="{{ route('admin.order.pay', $order) }}">
+                @csrf
+
+                <label for="pay-method">چطور پرداخت شد</label>
+                <select id="pay-method" name="method">
+                    @foreach (\App\Models\Order::methodLabels() as $value => $label)
+                        <option value="{{ $value }}" @selected($order->payment_method === $value)>{{ $label }}</option>
+                    @endforeach
+                </select>
+
+                <label for="pay-ref">شماره پیگیری یا مرجع (اختیاری)</label>
+                <input id="pay-ref" type="text" name="reference" dir="ltr" maxlength="60" value="{{ old('reference') }}">
+
+                <button type="submit" class="vp-adm-apply">ثبت پرداخت</button>
+            </form>
+        </section>
+    @endif
+
+    {{-- --- it reached the customer --------------------------------------- --}}
+    @if ($order->status === \App\Models\Order::SHIPPED)
+        <section class="vp-adm-card">
+            <div class="vp-adm-card-head">
+                <h2 class="vp-adm-card-title">به دستش رسید</h2>
+            </div>
+
+            <p class="vp-adm-empty">فقط بعد از اینکه بسته واقعاً به مشتری رسید.</p>
+
+            <form class="vp-adm-form" method="post" action="{{ route('admin.order.deliver', $order) }}">
+                @csrf
+
+                <label for="del-when">زمان تحویل به مشتری</label>
+                <input id="del-when" type="datetime-local" name="delivered_at"
+                       value="{{ old('delivered_at', now()->format('Y-m-d\TH:i')) }}"
+                       max="{{ now()->format('Y-m-d\TH:i') }}">
+
+                <button type="submit" class="vp-adm-apply">ثبت تحویل</button>
+            </form>
+        </section>
+    @endif
+
+    {{-- --- the order is off ----------------------------------------------- --}}
+    @if (in_array($order->status, [\App\Models\Order::PLACED, \App\Models\Order::PAID], true))
+        <section class="vp-adm-card">
+            <div class="vp-adm-card-head">
+                <h2 class="vp-adm-card-title">لغو سفارش</h2>
+            </div>
+
+            <p class="vp-adm-empty">
+                @if ($order->status === \App\Models\Order::PAID)
+                    موجودی برمی‌گردد و پرداخت «برگشت‌خورده» ثبت می‌شود. برگشت‌پذیر نیست.
+                @else
+                    موجودی رزروشده به انبار برمی‌گردد. برگشت‌پذیر نیست.
+                @endif
+            </p>
+
+            <form class="vp-adm-form" method="post" action="{{ route('admin.order.cancel', $order) }}"
+                  onsubmit="return confirm('این سفارش لغو می‌شود و موجودی رزروشده به انبار برمی‌گردد. برگشت‌پذیر نیست.')">
+                @csrf
+
+                {{-- Required, and it is the only part of a cancellation nobody
+                     can reconstruct later: the stock movement and the hour are
+                     both written down, the reason is only in somebody's head. --}}
+                <label for="cancel-why">علت لغو</label>
+                <input id="cancel-why" type="text" name="reason" maxlength="200"
+                       placeholder="مثلاً مشتری منصرف شد" value="{{ old('reason') }}" required>
+
+                <button type="submit" class="vp-adm-danger">لغو سفارش</button>
+            </form>
+        </section>
+    @endif
+
     {{-- --- §7's Action B: the deadline moves, the lifecycle does not ----- --}}
     @if ($order->confirmed_at && ! $order->actual_shipped_at && $delaysEnabled)
         <section class="vp-adm-card">
@@ -300,25 +377,23 @@
     </section>
 </div>
 
-{{-- --- what can be done next, §21 ------------------------------------- --}}
-@if ($moves !== [])
-    <div class="vp-adm-actions">
-        <span class="vp-adm-actions-say">از «{{ $order->statusLabel() }}» می‌توان رفت به:</span>
+{{-- --- where this order has got to, §21 -------------------------------- --}}
+{{--
+    What used to be here was a row of bare status buttons under the sentence
+    «از «ثبت شد» می‌توان رفت به:» — the state machine described to somebody who
+    does not think in state machines. It also sat beside «ارسال کردم», which is
+    written the other way round, as a job the shop does, so one screen spoke two
+    languages about the same order.
 
-        @foreach ($moves as $to)
-            <form method="post" action="{{ route('admin.order.update', $order) }}"
-                  @if (isset($consequence[$to])) onsubmit="return confirm('{{ $consequence[$to] }}')" @endif>
-                @csrf
-                <input type="hidden" name="status" value="{{ $to }}">
-                <button type="submit" class="{{ $to === \App\Models\Order::CANCELLED ? 'vp-adm-danger' : 'vp-adm-apply' }}">
-                    {{ $labels[$to] }}
-                </button>
-            </form>
-        @endforeach
-    </div>
-@else
+    Every move it offered is now a card above, named for what happened in the
+    shop and carrying what that event needs: «پول را گرفتم» writes a payment,
+    «لغو سفارش» writes the reason, «به دستش رسید» records the hour. What is left
+    here is the one thing that row said which nothing else does — that an order
+    has arrived somewhere final and there is nothing more to do to it.
+--}}
+@if ($moves === [])
     <div class="vp-adm-actions">
-        <span class="vp-adm-actions-say">این سفارش در «{{ $order->statusLabel() }}» است و حرکت بعدی ندارد.</span>
+        <span class="vp-adm-actions-say">این سفارش «{{ $order->statusLabel() }}» است و کار دیگری روی آن نمانده.</span>
     </div>
 @endif
 @endsection

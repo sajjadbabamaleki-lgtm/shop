@@ -108,6 +108,28 @@ Route::middleware(['auth:web', ResolveAdminTenant::class])->group(function (): v
         ->middleware(RequirePermission::class.':branch.orders.manage')
         ->name('order.delay');
 
+    // The rest of the lifecycle, in the same shape and for the same reason.
+    //
+    // The order page used to end in a row of bare status buttons under the
+    // sentence «از «ثبت شد» می‌توان رفت به:», which describes the state machine
+    // rather than the shop's work — and «پرداخت شد» flipped a column without
+    // recording when the money came, how, or against what. «لغو شد» threw away
+    // the reason even though `SettleOrder::cancelled` has always taken one.
+    //
+    // So: taking payment writes a payment, cancelling writes a reason, and
+    // delivery records the hour it arrived. `order.update` stays — the bulk bar
+    // moves many orders at once and needs a plain transition — but nothing on
+    // the page posts to it any more.
+    Route::post('/orders/{order}/pay', [OrderController::class, 'pay'])
+        ->middleware(RequirePermission::class.':branch.orders.manage')
+        ->name('order.pay');
+    Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel'])
+        ->middleware(RequirePermission::class.':branch.orders.manage')
+        ->name('order.cancel');
+    Route::post('/orders/{order}/deliver', [OrderController::class, 'deliver'])
+        ->middleware(RequirePermission::class.':branch.orders.manage')
+        ->name('order.deliver');
+
     /*
      * §11's inbox, the shop's side.
      *
