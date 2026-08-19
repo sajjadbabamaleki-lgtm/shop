@@ -8,6 +8,7 @@ use App\Models\BranchInventory;
 use App\Models\Order;
 use App\Models\Role;
 use App\Models\User;
+use App\Support\Branches\BranchOpener;
 use App\Support\Tenancy\TenantContext;
 use Database\Seeders\BranchSeeder;
 use Database\Seeders\CatalogueSeeder;
@@ -245,6 +246,51 @@ class DemoOrdersTest extends TestCase
         $this->actingAs($user, 'web')->get('/admin/orders?payment=refunded')
             ->assertOk()
             ->assertSee($refunded->number);
+    }
+
+    /**
+     * **A franchise's demo is its own.**
+     *
+     * `--remove` deletes orders and puts stock back, so a version of it that
+     * reached across branches would be one shop clearing another shop's rows
+     * — the single worst thing a convenience command could do here, and
+     * invisible until somebody went looking for orders that were gone.
+     *
+     * Also worth holding: the orders are priced at the branch's own offers,
+     * not the central ones, because that is the whole reason a franchise's
+     * panel looks different from head office's.
+     */
+    public function test_a_branchs_demo_belongs_to_that_branch_alone(): void
+    {
+        $shiraz = app(BranchOpener::class)
+            ->open(slug: 'shiraz', name: 'ویکی پلاس شیراز', markupPercent: 5, openingStock: 4);
+
+        $this->artisan('demo:orders')->assertSuccessful();
+        $this->artisan('demo:orders --branch=shiraz')->assertSuccessful();
+
+        $at = fn (Branch $b) => Order::acrossAllBranches()
+            ->where('branch_id', $b->id)
+            ->where('staff_note', MakeDemoOrders::NOTE)
+            ->count();
+
+        $this->assertSame(8, $at($this->branch));
+        $this->assertSame(8, $at($shiraz));
+
+        // Shiraz opened 5 per cent dearer, and its demo is priced there.
+        $central = Order::acrossAllBranches()->where('branch_id', $this->branch->id)->orderBy('id')->first();
+        $branch = Order::acrossAllBranches()->where('branch_id', $shiraz->id)->orderBy('id')->first();
+
+        $this->assertNotSame($central->grand_total, $branch->grand_total);
+
+        $before = $this->stock();
+
+        $this->artisan('demo:orders --remove --branch=shiraz')->assertSuccessful();
+
+        // Shiraz's are gone; the central shop's rows and its shelf are exactly
+        // as they were.
+        $this->assertSame(0, $at($shiraz));
+        $this->assertSame(8, $at($this->branch));
+        $this->assertSame($before, $this->stock());
     }
 
     /**
