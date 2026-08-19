@@ -3550,13 +3550,19 @@ option:hover {
 /* The card's own header: title at its own top-right (reading start in
    RTL), filters and the way out opposite it on the left — wraps to a
    second line rather than overflowing on narrow cards. */
+/* Title at the reading start, the way out opposite it, and the filters on
+   their own line under both — «مشاهده همه محصولات اینجا باید حذف بشه بیاد
+   روبروی عنوان سمت چپ». The link used to be the last item inside the filter
+   row, which put it at the end of a queue of five buttons and, once the row
+   wrapped, on a line of its own below them. `.vp-brands-head` has said in a
+   comment for some time that it copies this arrangement; it now does. */
 .vp-best-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 12px;
-  margin-bottom: 24px;
+  margin-bottom: 14px;
 }
 
 /* Small — client's own word — against the section's usual sec-title, which
@@ -3604,6 +3610,9 @@ option:hover {
   align-items: center;
   flex-wrap: wrap;
   gap: 7px;
+  /* The 24 the head used to carry down to the row of tiles; the head keeps 14
+     of it for the gap up to these, so the pair still spends the same air. */
+  margin-bottom: 24px;
 }
 
 .vp-best-filter {
@@ -3611,7 +3620,16 @@ option:hover {
   border: 0;
   padding: 6px 14px;
   border-radius: 14px;
-  background: rgba(16, 17, 17, 0.04);
+  /* White — «بیضی ها هم سفید بشن». The tint they carried was 0.04 of ink,
+     which is the page's own grey, and on a phone the panel behind them is
+     transparent so they read as grey on grey.
+
+     The hairline is not decoration: above 992 the panel *is* white, and a
+     white pill on it with nothing else would have no edge at all. It is the
+     same 1px inset the daily deal's card carries, at the same alpha, so the
+     page is not gaining an eighth way of drawing an edge. */
+  background: #FFFFFF;
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.08);
   color: rgba(16, 17, 17, 0.62);
   font-family: 'Vazirmatn', var(--body-font);
   font-size: 12px;
@@ -3632,6 +3650,9 @@ option:hover {
 .vp-best-filter.active,
 .vp-best-filter:hover {
   background: linear-gradient(180deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
+  /* The resting pill's hairline goes: the gold states its own edge, and a ring
+     on top of it reads as a border the others do not have. */
+  box-shadow: none;
   color: #101111;
 }
 

@@ -1171,15 +1171,19 @@ const BEST_ROW =
 // already on the site (DEAL_ITEMS below), not invented.
 const BEST_FILTERS = ['همه', 'نایک', 'جردن', 'نیوبالانس', 'گلدن گوس'];
 
+// The way out sits opposite the title, not at the end of the filter row —
+// «مشاهده همه محصولات اینجا باید حذف بشه بیاد روبروی عنوان سمت چپ». That is
+// also what `.vp-brands-head` already does, and its comment says it is
+// copying this band; now the two really do match.
 const BEST_HEAD =
   '<div class="vp-best-head">' +
   '\n                <h2 class="vp-best-title">پرفروش‌ترین‌ها</h2>' +
-  '\n                <div class="vp-best-filters">' +
+  '\n                <a class="vp-best-all" href="shop.html">مشاهده همه محصولات</a>' +
+  '\n            </div>' +
+  '\n            <div class="vp-best-filters">' +
   BEST_FILTERS.map((label, i) =>
-    `\n                    <button type="button" class="vp-best-filter${i === 0 ? ' active' : ''}">${label}</button>`
+    `\n                <button type="button" class="vp-best-filter${i === 0 ? ' active' : ''}">${label}</button>`
   ).join('') +
-  '\n                    <a class="vp-best-all" href="shop.html">مشاهده همه محصولات</a>' +
-  '\n                </div>' +
   '\n            </div>';
 
 // vp-best-section on the <section> itself: the default .space class gives
