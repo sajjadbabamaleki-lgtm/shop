@@ -1,0 +1,4 @@
+# Python bytecode. The vendored skills are plain sources; the .pyc are made
+# on the machine that runs them and were only ever in here by accident.
+__pycache__/
+*.pyc
