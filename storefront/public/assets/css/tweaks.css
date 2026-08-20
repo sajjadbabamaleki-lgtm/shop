@@ -9054,24 +9054,501 @@ button.vp-cart-keep {
 }
 
 /* --------------------------------------------------------------------------
-   The account: a list of what this customer has bought here.
+   The account — «حساب کاربری».
+
+   **What was here was not a screen anybody had designed.** The account grew a
+   wishlist, then messages, then a password, and each one arrived as another
+   word in a row beside the customer's name; the page itself stayed what it had
+   been on the first day, which was the orders list with a heading. The client
+   saw it on a telephone — «این چه حساب کاربری داغونیه برای کاربر زدی خیلی
+   داغونه» — and the photograph is the argument: a name, a number, three gold
+   words at body size, a grey fold, a grey box, a gold button, and 700px of
+   white under it.
+
+   It is three panels now — who you are, the orders, the settings — and every
+   part of it is a material this page already had:
+
+     - the pane is `.vp-shop-panel`, which is `.vp-best-panel`'s,
+     - the figures sit on the glass tint the header island wears,
+     - the doors are the white-with-a-ring box the sign-in's fields are,
+     - the empty state is `.vp-empty`, which the wishlist wrote,
+     - the status chip is **the panel's own** — `is-placed` through
+       `is-cancelled`, the same five tones `.vp-adm-badge` carries in
+       `admin.css`, so one order is one colour to the shopper and to the shop.
+
+   Nothing new is invented. What changed is that the page has a head, a shape
+   and somewhere to go next.
    -------------------------------------------------------------------------- */
 
-/* «تغییر رمز عبور», folded away. A `<details>`, because the page is for the
-   orders and this is housekeeping — but it has to be here, since a shopper
-   sets the password on the screen that verified their number and would
-   otherwise have no way back to it.
+/* --- 1. who you are ------------------------------------------------------- */
+
+.vp-acct-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+/* The first letter of the name, in the shop's gold.
+
+   A mark rather than a photograph: there is nowhere to upload one, and a grey
+   silhouette says less than the letter does. The radius is the header tile's
+   own ratio — 15.18 of 52 — carried to 54, so this square belongs to the same
+   set as the three at the top of every page. */
+.vp-acct-face {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 54px;
+  height: 54px;
+  border-radius: 15.8px;
+  background: linear-gradient(135deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
+  color: #FFFFFF;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 1;
+}
+
+/* `min-width: 0` so a long name wraps inside this column instead of pushing
+   «خروج» off the panel — a flex item's floor is its content otherwise. */
+.vp-acct-who {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.vp-acct-name {
+  margin: 0;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.vp-acct-phone {
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: #6E7070;
+}
+
+/* «خروج». It was a bare gold word between two other gold words; signing out is
+   the one control on this page somebody presses by accident, so it is set
+   apart as a quiet chip and only turns red under the finger.
+
+   Everything the template's form reset gives a `<button>` — a border, a grey
+   fill, 45px of padding — is written over here, the same way `.vp-cart-keep`
+   had to. */
+.vp-acct-out {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  height: 34px;
+  padding-inline: 13px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(16, 17, 17, 0.063);
+  color: #4D4D4D;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.vp-acct-out:hover,
+.vp-acct-out:focus-visible {
+  background: rgba(179, 38, 30, 0.08);
+  color: #B3261E;
+}
+
+.vp-acct-out i {
+  font-size: 12px;
+}
+
+/* The four figures, on the glass. «در جریان» is the one the page never said
+   and the one a shopper opens the account to check.
+
+   `border-inline-start` for the dividers rather than a shadow: the page is RTL
+   and the cell a divider belongs to is the one *after* it in reading order,
+   which is the left in a physical measure and the start in a logical one. */
+.vp-acct-figs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 0 0 16px;
+  padding: 14px 4px;
+  list-style: none;
+  border-radius: 22px;
+  background: rgba(16, 17, 17, 0.063);
+}
+
+.vp-acct-figs li {
+  display: grid;
+  justify-items: center;
+  gap: 3px;
+  padding-inline: 4px;
+  text-align: center;
+}
+
+.vp-acct-figs li + li {
+  border-inline-start: 1px solid rgba(16, 17, 17, 0.09);
+}
+
+.vp-acct-figs b {
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 700;
+  font-size: 19px;
+  line-height: 1.2;
+  color: var(--title-color);
+}
+
+.vp-acct-figs span {
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: #6E7070;
+}
+
+/* Where else the account goes. One column on a telephone, two from 576 and
+   four from 992 — fixed counts rather than `auto-fit`, because there are
+   exactly four of them and a floor that fits three leaves one on a line of its
+   own. */
+.vp-acct-doors {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+}
+
+@media (min-width: 576px) {
+  .vp-acct-doors {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 992px) {
+  .vp-acct-doors {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.vp-acct-door {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 20px;
+  background: #FFFFFF;
+  box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.1);
+  color: var(--title-color);
+  transition: box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.vp-acct-door:hover,
+.vp-acct-door:focus-visible {
+  background: rgba(16, 17, 17, 0.028);
+  box-shadow: inset 0 0 0 1.5px rgba(164, 127, 37, 0.5);
+  color: var(--title-color);
+}
+
+.vp-acct-door-mark {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 38px;
+  height: 38px;
+  border-radius: 13px;
+  background: rgba(164, 127, 37, 0.1);
+  color: var(--vp-gold-ink);
+  font-size: 15px;
+}
+
+.vp-acct-door-what {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+}
+
+.vp-acct-door-what b {
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.vp-acct-door-what small {
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: #6E7070;
+}
+
+/* The unread count, on the door rather than only inside it: a reply the shop
+   sent is worth noticing from the page somebody lands on. `margin-inline-start:
+   auto` puts it at the far end of the row without taking it out of the flow,
+   so it cannot land on top of a title that wrapped. */
+.vp-acct-door-new {
+  margin-inline-start: auto;
+  display: grid;
+  place-items: center;
+  flex: none;
+  min-width: 22px;
+  height: 22px;
+  padding-inline: 7px;
+  border-radius: 999px;
+  background: #B3261E;
+  color: #FFFFFF;
+  font-size: 11.5px;
+  font-weight: 700;
+  font-style: normal;
+  line-height: 1;
+}
+
+/* --- 2. the orders -------------------------------------------------------- */
+
+/* A panel's own head. Not `.vp-shop-head`: that one is shared by the cart, the
+   checkout, an order, the wishlist and the messages, and it is `display: none`
+   on a telephone — see the rule that hides it. A heading that disappears at
+   390 is no use to a page whose whole complaint was about a telephone. */
+.vp-acct-sect {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  margin-bottom: 16px;
+}
+
+.vp-acct-sect-title {
+  margin: 0;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 1.4;
+}
+
+.vp-acct-sect-count {
+  font-size: 12.5px;
+  color: #6E7070;
+}
+
+.vp-acct-orders {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.vp-acct-orders li + li {
+  margin-top: 10px;
+}
+
+/* One order. Two rows on every width — the number and its state above, the
+   date, the count and the money below — because those are two different
+   questions and the old row put all five in one line that broke into five on a
+   phone.
+
+   The chevron has a column of its own rather than sitting inside a cell: it
+   spans both rows, which is what makes the card read as one thing to press. */
+.vp-acct-order {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto 16px;
+  grid-template-areas:
+    'no   state go'
+    'meta sum   go';
+  align-items: center;
+  gap: 4px 12px;
+  padding: 14px 16px;
+  border-radius: 20px;
+  background: #FFFFFF;
+  box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.1);
+  font-family: 'Vazirmatn', var(--body-font);
+  color: var(--title-color);
+  transition: box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.vp-acct-order:hover,
+.vp-acct-order:focus-visible {
+  background: rgba(16, 17, 17, 0.028);
+  box-shadow: inset 0 0 0 1.5px rgba(164, 127, 37, 0.5);
+  color: var(--title-color);
+}
+
+.vp-acct-order-no {
+  grid-area: no;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 700;
+  font-size: 14.5px;
+}
+
+/* The five tones are `.vp-adm-badge`'s, quoted: amber while it waits, blue
+   while it moves, green when it arrives, red when it is off. If those move in
+   `admin.css`, these move with them. */
+.vp-acct-order-state {
+  grid-area: state;
+  justify-self: end;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(16, 17, 17, 0.063);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.vp-acct-order-state.is-placed {
+  background: #FFF6EC;
+  color: #A85B00;
+}
+
+.vp-acct-order-state.is-paid,
+.vp-acct-order-state.is-shipped {
+  background: #EEF4FC;
+  color: #1D5FAD;
+}
+
+.vp-acct-order-state.is-delivered {
+  background: #EDF7F1;
+  color: #1B7F4B;
+}
+
+.vp-acct-order-state.is-cancelled {
+  background: #FCEEED;
+  color: #B3261E;
+}
+
+.vp-acct-order-meta {
+  grid-area: meta;
+  font-size: 12px;
+  color: #6E7070;
+}
+
+.vp-acct-order-sum {
+  grid-area: sum;
+  justify-self: end;
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.vp-acct-order-sum small {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #6E7070;
+}
+
+.vp-acct-order-go {
+  grid-area: go;
+  justify-self: end;
+  font-size: 13px;
+  color: #9A9C9C;
+}
+
+/* From 768 the card is one row of five fixed columns, so the dates, the money
+   and the chips line up down the whole list instead of every card arranging
+   itself. Two rows is the telephone's answer, where there is no width to line
+   anything up in — and on a desktop that same stacking left the middle of a
+   1100px card empty, with the number alone at one end and the money at the
+   other. */
+@media (min-width: 768px) {
+  .vp-acct-order {
+    grid-template-columns: 132px minmax(0, 1fr) 150px 104px 16px;
+    grid-template-areas: 'no meta sum state go';
+    gap: 0 12px;
+    padding-block: 16px;
+  }
+
+  /* `start`, which is the right in a right-to-left page: each column's
+     contents begin on the same pixel down the list. */
+  .vp-acct-order-meta,
+  .vp-acct-order-sum,
+  .vp-acct-order-state {
+    justify-self: start;
+  }
+}
+
+/* --- 3. the settings ------------------------------------------------------ */
+
+/* The two halves of the settings panel, side by side from 768. Stacked, the
+   panel was a 360px column of form against 700px of empty white — which is
+   the shape the whole page was being complained about for. */
+.vp-acct-set {
+  display: grid;
+  gap: 20px;
+}
+
+@media (min-width: 768px) {
+  .vp-acct-set {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    gap: 24px;
+  }
+}
+
+/* The name, which had no way of being changed at all until now. Held to the
+   width of a field rather than the width of the panel: three boxes stretched
+   across a desktop read as a form somebody else's page lost. */
+.vp-acct-form {
+  display: grid;
+  gap: 8px;
+  max-width: 360px;
+}
+
+.vp-acct-label {
+  margin: 0;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #6E7070;
+}
+
+.vp-acct-fixed {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.9;
+  color: #6E7070;
+}
+
+/* What a rejected form says. The account page had no place for one at all: a
+   wrong current password redirected back here and the message was thrown
+   away, so the fold shut and nothing happened. */
+.vp-acct-err {
+  margin: 0;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #B3261E;
+}
+
+.vp-acct-save {
+  justify-self: start;
+  height: 44px;
+  margin-top: 4px;
+  padding-inline: 26px;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
+  color: #FFFFFF;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 700;
+  font-size: 14.5px;
+  cursor: pointer;
+  transition: filter 0.2s ease;
+}
+
+.vp-acct-save:hover {
+  color: #FFFFFF;
+  filter: brightness(1.04);
+}
+
+/* «تغییر رمز عبور», folded away. A `<details>`, because the orders are what the
+   page is for and this is housekeeping — it is in the housekeeping panel now,
+   so the fold is about length rather than about hiding it.
 
    `.vp-doc-q`, the FAQ's own fold, is the same idea drawn for a page of prose;
-   this one is narrower and sits on the panel rather than in a column of text,
-   so it is its own three rules rather than a borrowed class that would have to
-   answer to both. */
+   this one is narrower and sits on a panel rather than in a column of text, so
+   it is its own rules rather than a borrowed class answering to both. */
 .vp-acct-pass {
-  margin: 18px 0 6px;
+  margin: 0;
   padding: 14px 16px;
   border-radius: 16px;
   background: rgba(16, 17, 17, 0.028);
   box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.07);
+  max-width: 360px;
 }
 
 .vp-acct-pass > summary {
@@ -9110,76 +9587,6 @@ button.vp-cart-keep {
   display: grid;
   gap: 10px;
   margin: 14px 0 0;
-  /* The panel is as wide as the orders table; three password fields stretched
-     to that width read as a form somebody else's page lost. */
-  max-width: 340px;
-}
-
-.vp-account-orders {
-  list-style: none;
-  margin: 14px 0 0;
-  padding: 0;
-}
-
-.vp-account-orders li + li {
-  margin-top: 8px;
-}
-
-/* A row that reads across on a desktop and stacks on a phone. `auto-fit` with
-   a floor rather than a media query: the columns are five different lengths
-   and the width they stop fitting at is not a round number. */
-.vp-account-orders a {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
-  align-items: center;
-  gap: 6px 14px;
-  padding: 14px 16px;
-  border-radius: 18px;
-  background: rgba(16, 17, 17, 0.063);
-  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.05);
-  font-family: 'Vazirmatn', var(--body-font);
-  font-size: 13px;
-  color: #101111;
-  text-decoration: none;
-  transition: background-color 0.2s ease;
-}
-
-.vp-account-orders a:hover {
-  background: rgba(16, 17, 17, 0.06);
-  color: #101111;
-}
-
-.vp-account-no {
-  font-weight: 700;
-  direction: ltr;
-  text-align: right;
-}
-
-.vp-account-when,
-.vp-account-what {
-  color: #6E7070;
-}
-
-.vp-account-sum {
-  font-weight: 700;
-}
-
-.vp-account-state {
-  justify-self: start;
-  padding: 3px 10px;
-  border-radius: 10px;
-  background: rgba(192, 151, 47, 0.12);
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--vp-gold-ink);
-}
-
-.vp-account-shop {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 14px;
-  padding-inline: 22px;
 }
 
 /* --------------------------------------------------------------------------
@@ -12157,15 +12564,6 @@ button.vp-cart-keep {
   box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.16);
   background: #FFFFFF;
   color: #101111;
-}
-
-/* The account head's two controls — the wishlist and the sign-out — which used
-   to be one form on its own. A row, so the second does not drop under the
-   first and leave the heading beside a gap. */
-.vp-account-acts {
-  display: flex;
-  align-items: center;
-  gap: 10px;
 }
 
 /* Taking a shoe back off the list. Quiet, under its card: it is the page's own
@@ -15638,34 +16036,23 @@ button.vp-cart-keep {
 
   /* The heading and the old search box are the desktop's.
 
-     `:not(.vp-acct-head)` is the account's exemption, and it is not a taste:
-     this rule was written for the listing, and `.vp-shop-head` turned out to be
-     shared by the cart, the checkout, an order, the wishlist and the account
-     too — so on a phone all six lost their heading and everything sitting
-     beside it. On the account that is the customer's own name, «لیست علاقمندی»
-     and **«خروج»**, which left a shopper on a telephone with no way to sign out
-     at all. The account is exempted here because the account is what this round
-     rebuilt; the other four are still hiding theirs, and «ادامه خرید» on the
-     cart is the next one that matters. Do not widen this rule again without
-     rendering each of those pages at 390 — the heads were laid out for a
-     desktop and none of them has been measured narrow. */
-  .vp-shop-head:not(.vp-acct-head) {
+     **This rule hides a heading on a telephone, and that has cost a round
+     already.** It was written for the listing, and `.vp-shop-head` turned out
+     to be shared by the cart, the checkout, an order, the wishlist, the
+     messages and the account too — so on a phone all of them lost their
+     heading and everything sitting beside it. On the account that was the
+     customer's own name and **«خروج»**, which left a shopper on a telephone
+     with no way to sign out at all; it carried `.vp-acct-head` for a while to
+     be exempted here.
+
+     The account no longer appears in this rule at all: it is drawn from
+     `.vp-acct-top` and `.vp-acct-sect`, which are its own and are laid out for
+     390 first. The others still hide theirs, and «ادامه خرید» on the cart is
+     the next one that matters. Do not widen this rule without rendering each
+     of those pages at 390 — the heads were laid out for a desktop and none of
+     them has been measured narrow. */
+  .vp-shop-head {
     display: none;
-  }
-
-  /* The account's, laid out for the width it actually gets: the name over the
-     number, and the two controls on their own line under both. Side by side at
-     390 the name wraps to three lines and «خروج» ends up under «لیست
-     علاقمندی» anyway. */
-  .vp-acct-head {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 12px;
-    margin-bottom: 18px;
-  }
-
-  .vp-acct-head .vp-account-acts {
-    justify-content: flex-start;
   }
 }
 

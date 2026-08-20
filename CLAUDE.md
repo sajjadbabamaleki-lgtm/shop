@@ -190,6 +190,15 @@ the client saw an old page and had no way to tell why. So, plainly:
   **no minimum length**, at the client's explicit instruction, so the throttles
   on `/account/password` and `/account/verify` are most of what stands against
   guessing. See `AccountController` and `LoginCode`.
+- **`/account` is three panels — who you are, the orders, the settings** — and
+  it is `.vp-acct-*` throughout, laid out for 390 first. It was a heading, three
+  gold words and a grey box until «این چه حساب کاربری داغونیه» arrived; HANDOFF
+  has the rebuild. **The only thing editable on it is the name.** `POST
+  /account/profile` takes the name and nothing else: the number is the
+  credential, the thing a code is sent to and the key every order is written
+  against, so a form that could change it would be an account takeover with no
+  code involved. The status chips are `.vp-adm-badge`'s five tones, quoted, so
+  one order is one colour to the shopper and to the shop.
 - **The code is a credential and is stored hashed**, good once, for two minutes,
   for five guesses; the number it was sent to lives in the *session*, never in
   the form, or a code could be verified against a number of the sender's

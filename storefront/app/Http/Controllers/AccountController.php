@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Conversation;
 use App\Models\Customer;
 use App\Models\LoginCode;
 use App\Models\Order;
@@ -285,24 +286,73 @@ class AccountController extends Controller
     }
 
     /**
-     * What the account is for: the orders.
+     * The account's own page.
      *
-     * This branch's orders, because `Order` is branch-scoped and asking it
-     * anything without a branch bound returns nothing on purpose. A customer
-     * standing in the Shiraz shop is shown what they bought in Shiraz — which
-     * is also the only list that branch's staff could help them with.
+     * What it is for is still the orders, and they are this branch's, because
+     * `Order` is branch-scoped and asking it anything without a branch bound
+     * returns nothing on purpose. A customer standing in the Shiraz shop is
+     * shown what they bought in Shiraz — which is also the only list that
+     * branch's staff could help them with.
+     *
+     * The four figures above them are counted here rather than in the view.
+     * The unread one used to be a `@php` block in the middle of the markup
+     * that loaded every conversation and summed them in PHP; it is the same
+     * question `Conversation::unreadFor` answers, asked once.
+     *
+     * «در جریان» is the count a shopper actually wants: an order that is still
+     * moving. Delivered and cancelled ones are finished, so what is left is
+     * placed, paid and shipped — the same three the panel chases.
      */
     public function index(Request $request): View
     {
         $customer = Auth::guard('customer')->user();
 
+        $orders = Order::where('customer_id', $customer->id)
+            ->withCount('items')
+            ->latest('placed_at')
+            ->paginate(10);
+
         return view('shop.account', [
             'customer' => $customer,
-            'orders' => Order::where('customer_id', $customer->id)
-                ->withCount('items')
-                ->latest('placed_at')
-                ->paginate(10),
+            'orders' => $orders,
+            // The paginator has already counted them, so this is not a
+            // second query.
+            'ordersTotal' => $orders->total(),
+            'ordersOpen' => Order::where('customer_id', $customer->id)
+                ->whereIn('status', [Order::PLACED, Order::PAID, Order::SHIPPED])
+                ->count(),
+            'wishlistCount' => $customer->wishlistItems()->count(),
+            'unreadMessages' => Conversation::where('customer_id', $customer->id)
+                ->with('participants')
+                ->get()
+                ->sum(fn (Conversation $c): int => $c->unreadFor(Conversation::CUSTOMER, $customer->id)),
         ]);
+    }
+
+    /**
+     * The name on the account.
+     *
+     * The number is not editable and must not become so: it is what signs this
+     * account in, what a code is sent to and what every order on it is keyed
+     * on. Changing it here would be an account takeover with no code involved.
+     * A shopper whose number has changed signs in on the new one, which the
+     * code step turns into an account of its own — that is the same rule the
+     * rest of this controller is built on.
+     */
+    public function updateProfile(Request $request): RedirectResponse
+    {
+        $customer = Auth::guard('customer')->user();
+
+        $input = $request->validate(
+            ['name' => ['required', 'string', 'max:80']],
+            [],
+            ['name' => 'نام'],
+        );
+
+        $customer->name = $input['name'];
+        $customer->save();
+
+        return redirect()->to(storefront_route('account'))->with('status', 'نامت ذخیره شد.');
     }
 
     /**
