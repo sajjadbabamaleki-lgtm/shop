@@ -444,6 +444,64 @@ page's width with `width: 85%` and `margin-inline: auto` above 992, and
 `initialSlide: 1` so the deck still opens on the slide carrying the real
 product photograph. Confirm it against the page before writing any of it.
 
+## «گلد سبز» — the green gold
+
+**Symptom, in the client's words:** «رنگ گلد ما گلد زرده چرا از اون گلد سبز
+برای آیکونا و دکمه ها استفاده میکنی». Said twice, a round apart, about two
+different screens — the first time as «دکمه ادامه هم نباید اون رنگی باشه باید
+همرنگ باقی دکمه های سایت باشه».
+
+**There is no green in this palette.** Every gold in `:root` is the same hue,
+within half a degree, at the same saturation:
+
+| token | hex | hue | sat | **lightness** |
+| --- | --- | --- | --- | --- |
+| `--vp-gold-lit` | `#EFC94F` | 45.8° | 83% | **62.4%** |
+| `--vp-gold-fill` | `#DAB226` | 46.7° | 71% | **50.2%** |
+| `--vp-gold-fill-ink` | `#BB9920` | 46.8° | 71% | **42.9%** |
+| `--theme-color` = `--vp-gold` | `#A08119` | 46.2° | 73% | **36.3%** |
+| `--vp-gold-ink` | `#8B7217` | 47.1° | 72% | **31.8%** |
+
+What reads as green is **lightness alone**: a dark yellow is olive to the eye.
+Nothing about the hue can be adjusted to fix a fill that is simply too dark.
+
+The one real hue in the file is the *previous* gold, `#A47F25` at **42.5°** —
+four degrees browner and eight points less saturated. It survives as
+`rgba(164,127,37,…)` literals in 30-odd tints that the 2026-08-16 sweep could
+not see, because a tint written as raw channels is invisible to a search for a
+token. Two of them were on the account page and are now the new gold; the rest
+are still there, and they are why some tints on this site look a shade muddier
+than others.
+
+**The rule.**
+
+- A **button** — anything filled that gets pressed — is
+  `linear-gradient(90deg, var(--vp-gold-fill), var(--vp-gold-lit))` with white
+  text and `filter: brightness(1.04)` on hover. That is what `.vp-pick-go`,
+  `.vp-cart-go`, `.vp-enter-go` and now `.vp-filter-apply` (nine views),
+  `.vp-shop-search button`, `.vp-empty-out`, `.vp-seller-add` and
+  `.vp-page.is-on` all carry.
+- An **icon glyph** is `var(--vp-gold-fill-ink)` flat, on a tint of
+  `rgba(218,178,38,…)` if it needs a chip. That is what the header's three icon
+  squares have always been, and it is now what `.vp-acct-door-mark` and
+  `.vp-empty-mark` are.
+- **The dark golds stay where they are: as text.** `--vp-gold-ink` and
+  `--vp-gold-ink-deep` had their lightness solved to hold a measured contrast
+  on white (the table in HANDOFF), so repainting a *heading* or a *price* to
+  the fill gold trades a legible page for a bright one. Text is not a fill.
+
+**Why this is a codename and not a one-line fix.** The first round fixed the
+one button that was complained about and wrote, in the comment above it, that
+the filter button «was not asked about». It was asked about the next time the
+client opened the site. When a colour is wrong it is wrong everywhere it is
+used that way — fix the class, not the screen.
+
+**Two are deliberately still on the dark gold**, both measured, both to be
+raised before changing: `.vp-pdp-cut` and `.vp-seller-tag` are white-on-gold
+*labels* (5.09:1; on the fill gold white would be 1.9:1, so they would have to
+flip to ink), and `.vp-pdp-dot.is-on` is a 3px indicator bar on white, where
+the fill gold reads 2.0:1 and disappears.
+
 ## «قالب قبلی» — the template comes back
 
 **Symptom, in the client's words:** «چرا الان دوباره وقتی سایت داشت آپدیت میشد

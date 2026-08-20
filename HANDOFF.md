@@ -2934,3 +2934,63 @@ nothing to offer between «پیگیری سفارش» and the settings, and every
 carries an address that was typed again at checkout. That is a table, a screen
 and a checkout change, so it is a round of its own rather than something to
 squeeze into this one.
+
+## The green gold — «رنگ گلد ما گلد زرده»
+
+«رنگ گلد ما گلد زرده چرا از اون گلد سبز برای آیکونا و دکمه ها استفاده میکنی»,
+said on the account page an hour after it shipped. **It is the second time this
+has been said** — the first was «دکمه ادامه هم نباید اون رنگی باشه باید همرنگ
+باقی دکمه های سایت باشه», about the basket's «ادامه» button, and the comment
+written above that fix says in as many words that the filter button «was not
+asked about». It got asked about. `CLAUDE.md` now carries this as the codename
+**«گلد سبز»**, with the table.
+
+**There is no green.** Every gold in `:root` is one hue: 46.2° to 46.8° across
+`--theme-color`, `--vp-gold-fill` and `--vp-gold-fill-ink`, all at ~71%
+saturation. What separates them is lightness — 36.3% against 50.2% — and a dark
+yellow reads olive. Nothing in the hue can be adjusted to save a fill that is
+simply too dark; the fill has to get lighter.
+
+**What moved, all of it measured after:**
+
+| | was | is |
+| --- | --- | --- |
+| `.vp-filter-apply` — **nine views**: checkout, cart, order, track, messages, message, vendor-apply, filters, enquiry | flat `#A08119` | the ramp |
+| `.vp-shop-search button` | flat `#A08119` | the ramp |
+| `.vp-empty-out` — the account's and the wishlist's «رفتن به فروشگاه» | flat `#A08119` | the ramp |
+| `.vp-seller-add` | flat `#A08119` | the ramp |
+| `.vp-page.is-on` — the paginator's live page | flat `#A08119` | the ramp |
+| `.vp-empty-mark` glyph | `#A08119` on a tint of the *old* gold | `#BB9920` on `rgba(218,178,38,0.14)` |
+| `.vp-acct-door-mark` glyph | `#8B7217` on the same old tint | `#BB9920` on `rgba(218,178,38,0.16)` |
+| the account's hover rings | `rgba(164,127,37,0.5)` | `rgba(218,178,38,0.65)` |
+
+The ramp is `linear-gradient(90deg, #DAB226, #EFC94F)` — `.vp-enter-go`'s, which
+is `.vp-pick-go`'s and `.vp-cart-go`'s. Hover was `--gr-color2`; it is
+`brightness(1.04)` now, the same as the buttons it is joining. Read back off the
+rendered page, the door glyph is `rgb(187,153,32)` — **the identical value the
+header's three icon squares paint**, which is the point.
+
+`.vp-pdp-buy` was flat too and is now the ramp, but it is on **no page**: the
+product page's «افزودن به سبد» is `.vp-pick-go`. Corrected rather than deleted,
+so a rule named `-buy` cannot come back wearing the one colour a buy button may
+not be.
+
+**Three left on the dark gold, deliberately, all to be raised before touching:**
+`.vp-pdp-cut` and `.vp-seller-tag` are white-on-gold labels at 5.09:1 — on the
+fill gold white would be 1.9:1, so they would have to flip to ink, which is a
+bigger change than a colour; and `.vp-pdp-dot.is-on` is a 3px indicator bar on
+white, where the fill gold reads 2.0:1 and vanishes.
+
+**Left alone on purpose: text.** `--vp-gold-ink` and `--vp-gold-ink-deep` had
+their lightness solved to hold measured contrast on white (the table at the top
+of this file). Repainting a heading or a price to the fill gold trades a legible
+page for a bright one.
+
+**Still there, and worth a round of its own:** ~30 `rgba(164,127,37,…)` literals
+— the *previous* gold, `#A47F25`, which really is a different hue at 42.5° and
+63% saturation. The 2026-08-16 sweep moved the tokens and could not see tints
+written as raw channels. Two of them were on the account page and moved here;
+the rest are why some tints on this site read a shade muddier than others.
+
+533 tests, Pint clean, parity identical at 992/1200/1440/1920, no sideways
+scroll at 390/768/1200/1920.

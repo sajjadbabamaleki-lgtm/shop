@@ -5729,20 +5729,41 @@ ul.vp-how-list.is-ticked li:before {
   outline: none;
 }
 
+/* ⚠️ **A filled gold control is the light ramp, never `--theme-color`.**
+   «رنگ گلد ما گلد زرده چرا از اون گلد سبز برای آیکونا و دکمه ها استفاده
+   میکنی» — and before that, about the basket's own button, «دکمه ادامه هم
+   نباید اون رنگی باشه باید همرنگ باقی دکمه های سایت باشه». Twice, about two
+   different buttons, which is what said this was a rule and not a taste.
+
+   There is no green in this palette to use. Every gold here is the same hue —
+   `--theme-color` is 46.2°, `--vp-gold-fill` 46.7°, `--vp-gold-fill-ink`
+   46.8°, half a degree apart — and they carry the same saturation, ~71%. What
+   separates them is **lightness**: 36.3% against 50.2%. A dark yellow reads
+   olive; that is the whole of it, and no amount of hue-picking fixes a fill
+   that is simply too dark.
+
+   So: a **button** is `--vp-gold-fill → --vp-gold-lit`, the ramp the buy
+   button and «ادامه» already wear, with `brightness(1.04)` on hover. An
+   **icon** is `--vp-gold-fill-ink` flat, which is what the header's three
+   icon squares carry. The dark golds stay where they were chosen for a
+   reason — as *text*, where each one's lightness was solved to hold a
+   measured contrast on white (see the table in HANDOFF). Text is not a fill.
+   -------------------------------------------------------------------------- */
+
 .vp-shop-search button {
   flex: none;
   width: 36px;
   height: 36px;
   border: 0;
   border-radius: 50%;
-  background: var(--theme-color);
+  background: linear-gradient(90deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   color: #FFFFFF;
   font-size: 13px;
-  transition: background 0.2s ease;
+  transition: filter 0.2s ease;
 }
 
 .vp-shop-search button:hover {
-  background: var(--gr-color2);
+  filter: brightness(1.04);
 }
 
 /* --- the two columns ------------------------------------------------------ */
@@ -5894,16 +5915,19 @@ ul.vp-how-list.is-ticked li:before {
   height: 40px;
   border: 0;
   border-radius: 999px;
-  background: var(--theme-color);
+  /* The phone's own filter panel had already been moved to this ramp on its
+     own, far below; the rail's copy was left behind and is the one a desktop
+     sees. */
+  background: linear-gradient(90deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   color: #FFFFFF;
   font-family: 'Cairo', var(--title-font);
   font-weight: 700;
   font-size: 14px;
-  transition: background 0.2s ease;
+  transition: filter 0.2s ease;
 }
 
 .vp-filter-apply:hover {
-  background: var(--gr-color2);
+  filter: brightness(1.04);
 }
 
 .vp-filter-clear {
@@ -5983,7 +6007,7 @@ ul.vp-how-list.is-ticked li:before {
 
 .vp-page.is-on {
   color: #FFFFFF;
-  background: var(--theme-color);
+  background: linear-gradient(90deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   box-shadow: none;
 }
 
@@ -6204,11 +6228,20 @@ ul.vp-how-list.is-ticked li:before {
   margin-top: 20px;
   border: 0;
   border-radius: 999px;
-  background: var(--theme-color);
+  /* **On no page today** — the product page's «افزودن به سبد» is `.vp-pick-go`,
+     which has been the ramp all along. Kept and corrected rather than left
+     flat: a rule named `-buy` that comes back one day must not come back the
+     one colour a buy button is not allowed to be. */
+  background: linear-gradient(90deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   color: #FFFFFF;
   font-family: 'Cairo', var(--title-font);
   font-weight: 700;
   font-size: 16px;
+  transition: filter 0.2s ease;
+}
+
+.vp-pdp-buy:not(:disabled):hover {
+  filter: brightness(1.04);
 }
 
 .vp-pdp-buy:disabled {
@@ -6740,14 +6773,21 @@ button.vp-cart-keep {
 }
 
 /* «دکمه ادامه هم نباید اون رنگی باشه باید همرنگ باقی دکمه های سایت باشه» —
-   it inherits `.vp-filter-apply`'s `background: var(--theme-color)`, which is
+   it inherited `.vp-filter-apply`'s `background: var(--theme-color)`, which is
    `var(--vp-gold)`, the flat midpoint tone the gradient is drawn from rather
-   than the gradient itself (see the three `--vp-gold-*` declarations near the
-   top of this file) — every buy button on the shop (`.vp-pick-go`,
-   `.vp-cart-more`, `.vp-mini-out`) is the gradient, and the flat midpoint
-   alone reads visibly duller, olive rather than gold. Overridden here rather
-   than on `.vp-filter-apply` itself, which the filter rail's own «اعمال
-   فیلتر» button still uses and was not asked about. */
+   than the gradient itself (see the `--vp-gold-*` declarations near the top of
+   this file) — every buy button on the shop (`.vp-pick-go`, `.vp-cart-more`,
+   `.vp-mini-out`) is the gradient, and the flat midpoint alone reads visibly
+   duller, olive rather than gold.
+
+   **This was overridden here alone, on the grounds that the filter rail's own
+   «اعمال فیلتر» «was not asked about» — and the client asked about it, and
+   about the icons, the next time they saw the site**: «رنگ گلد ما گلد زرده چرا
+   از اون گلد سبز برای آیکونا و دکمه ها استفاده میکنی». `.vp-filter-apply` is
+   the ramp itself now, so this rule no longer changes the colour — it is kept
+   for the width, the margin and the centring, and because its 96° is this
+   button's own angle. Fixing the *one* button that was complained about is
+   what bought the second complaint. */
 .vp-cart-go {
   display: grid;
   place-items: center;
@@ -7591,14 +7631,15 @@ button.vp-cart-keep {
   padding-inline: 16px;
   border: 0;
   border-radius: 999px;
-  background: var(--theme-color);
+  background: linear-gradient(90deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   color: #FFFFFF;
   font-size: 13px;
   white-space: nowrap;
+  transition: filter 0.2s ease;
 }
 
 .vp-seller-add:hover {
-  background: var(--gr-color2);
+  filter: brightness(1.04);
 }
 
 /* --- the vendor panel ----------------------------------------------------- */
@@ -7770,8 +7811,11 @@ button.vp-cart-keep {
   width: 76px;
   height: 76px;
   border-radius: 50%;
-  background: rgba(164, 127, 37, 0.08);
-  color: var(--theme-color);
+  /* The tint was `rgba(164,127,37,…)` — that is #A47F25, the gold this whole
+     site moved off on 2026-08-16, written as a literal where the sweep could
+     not see it. It is the new fill gold now, and warmer for it. */
+  background: rgba(218, 178, 38, 0.14);
+  color: var(--vp-gold-fill-ink);
 }
 
 .vp-empty-mark svg {
@@ -7793,13 +7837,14 @@ button.vp-cart-keep {
   display: inline-grid;
   place-items: center;
   border-radius: 999px;
-  background: var(--theme-color);
+  background: linear-gradient(90deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   color: #FFFFFF;
   font-size: 14px;
+  transition: filter 0.2s ease;
 }
 
 .vp-empty-out:hover {
-  background: var(--gr-color2);
+  filter: brightness(1.04);
   color: #FFFFFF;
 }
 
@@ -9246,7 +9291,7 @@ button.vp-cart-keep {
 .vp-acct-door:hover,
 .vp-acct-door:focus-visible {
   background: rgba(16, 17, 17, 0.028);
-  box-shadow: inset 0 0 0 1.5px rgba(164, 127, 37, 0.5);
+  box-shadow: inset 0 0 0 1.5px rgba(218, 178, 38, 0.65);
   color: var(--title-color);
 }
 
@@ -9257,8 +9302,11 @@ button.vp-cart-keep {
   width: 38px;
   height: 38px;
   border-radius: 13px;
-  background: rgba(164, 127, 37, 0.1);
-  color: var(--vp-gold-ink);
+  /* The header's own icon treatment: the fill gold as the glyph, on a tint of
+     the same. It was `--vp-gold-ink` on a tint of the *old* gold — a 31.8%
+     yellow, which is the one the client sees as green. */
+  background: rgba(218, 178, 38, 0.16);
+  color: var(--vp-gold-fill-ink);
   font-size: 15px;
 }
 
@@ -9367,7 +9415,7 @@ button.vp-cart-keep {
 .vp-acct-order:hover,
 .vp-acct-order:focus-visible {
   background: rgba(16, 17, 17, 0.028);
-  box-shadow: inset 0 0 0 1.5px rgba(164, 127, 37, 0.5);
+  box-shadow: inset 0 0 0 1.5px rgba(218, 178, 38, 0.65);
   color: var(--title-color);
 }
 
