@@ -164,7 +164,13 @@ class FetchBasalam extends Command
         }
 
         $this->newLine();
-        $this->table(['Found', 'Written', 'Skipped', 'Failed'], [[$found, $written, $skipped, $failed]]);
+        // «Written» is a lie on a dry run — nothing is written — and a column
+        // that says otherwise is exactly the kind of thing somebody quotes back
+        // later as proof the fetch ran.
+        $this->table(
+            ['Found', $dry ? 'Read' : 'Written', 'Skipped', 'Failed'],
+            [[$found, $written, $skipped, $failed]]
+        );
 
         $this->priceReading($priceCheck);
 
