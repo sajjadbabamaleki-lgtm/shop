@@ -461,6 +461,55 @@ class BasalamImportTest extends TestCase
         $this->assertSame(1, Product::where('source_id', '9001')->count());
     }
 
+    /**
+     * A supplier's name is longer than a card, and its photograph was not
+     * framed for one.
+     *
+     * «اسم طولانیه در قسمت اسم باید ۴ تا ۶ کلمه نهایتا بیاد باقیش بره تو صفحه
+     * جزئیات محصول», sent with a photograph of the first imported card: three
+     * lines of type and a shoe with its foot cut off.
+     */
+    public function test_a_long_supplier_name_is_trimmed_on_the_card_only(): void
+    {
+        $long = $this->payload(9005, 'کتونی نایک جردن وان ساق کوتاه Air Jordan 1 Low رنگ سفید قرمز');
+
+        $this->writeManifest([$long]);
+        $this->artisan('basalam:import')->assertSuccessful();
+
+        $product = Product::where('source_id', '9005')->firstOrFail();
+
+        // Six words, then an ellipsis.
+        $this->assertSame('کتونی نایک جردن وان ساق کوتاه…', $product->cardName());
+
+        /*
+         * The *label* is trimmed. The whole name is still in the markup — the
+         * photograph's alt text and the favourite's aria-label both carry it,
+         * and should: a screen reader saying «کتونی نایک جردن وان ساق کوتاه…»
+         * has read an ellipsis aloud. So this asserts what the anchor prints
+         * rather than what the page contains.
+         */
+        $listing = $this->get('/products')->assertOk();
+        $listing->assertSee('>کتونی نایک جردن وان ساق کوتاه…</a>', false);
+
+        // The whole name is the product's real name, and its own page says so.
+        $this->get('/products/'.$product->slug)
+            ->assertOk()
+            ->assertSee('Air Jordan 1 Low', false);
+
+        // And its tile opts out of the nudge written for this shop's own
+        // cut-outs, which slices a photograph that fills its frame.
+        $listing->assertSee('vp-card-shot is-supplied', false);
+    }
+
+    /** A name already short enough is printed as it is. */
+    public function test_the_shops_own_names_are_untouched(): void
+    {
+        $product = Product::where('slug', 'golden-goose')->firstOrFail();
+
+        $this->assertSame('کتونی گلدن گوس', $product->cardName());
+        $this->get('/products')->assertOk()->assertDontSee('vp-card-shot is-supplied', false);
+    }
+
     /** The token is a credential and never reaches the repository. */
     public function test_no_credential_is_hard_coded(): void
     {

@@ -16324,6 +16324,17 @@ button.vp-cart-keep {
     transform: translateY(15px);
   }
 
+  /* Except on a photograph the shop did not prepare.
+     The paragraph above measures the 15 against this catalogue's own
+     1400×990 cut-outs and ends by saying a photograph squarer than 4:3 would
+     eat the margin it relies on. The catalogue now carries a supplier's, at
+     whatever shape the seller uploaded, and the first one imported came out
+     with its foot sliced off against the tile's `overflow: hidden`. A picture
+     nobody framed for this tile is centred in it instead. */
+  .vp-card-shot.is-supplied img {
+    transform: none;
+  }
+
   .vp-card-fav {
     inset-block-start: 8px;
     inset-block-end: auto;

@@ -46,7 +46,14 @@
          ends. Against the card it would measure from the card's foot, which is
          below the name and the price. --}}
     <div class="vp-card-top">
-        <a class="vp-card-shot" href="{{ storefront_route('product', $product) }}">
+        {{-- `is-supplied` cancels the phone's 15px nudge. That nudge is a
+             correction for *this shop's* photographs — 1400×990 cut-outs with
+             an empty band above and below the shoe — and the rule's own note
+             said in as many words that «a photograph squarer than 4:3 would
+             eat that margin». A supplier's photograph is whatever the seller
+             uploaded, and the first one imported came out with its bottom
+             sliced off inside the tile's `overflow: hidden`. --}}
+        <a class="vp-card-shot{{ $product->source ? ' is-supplied' : '' }}" href="{{ storefront_route('product', $product) }}">
             <img src="{{ asset($shot) }}" alt="{{ $product->title }}" loading="lazy">
             {{-- One badge, and out of stock wins it: a shoe that is both new
                  and unavailable is unavailable first. --}}
@@ -61,7 +68,10 @@
         </button>
     </div>
 
-    <a class="vp-card-name" href="{{ storefront_route('product', $product) }}">{{ $product->title }}</a>
+    {{-- Six words at most; the whole name is on the product's own page. A
+         name already that short is printed unchanged, which is every one of
+         the shop's own. --}}
+    <a class="vp-card-name" href="{{ storefront_route('product', $product) }}">{{ $product->cardName() }}</a>
 
     <strong class="vp-card-price">{{ toman($offer->price) }} <span>تومان</span></strong>
 

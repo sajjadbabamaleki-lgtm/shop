@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 
 /**
  * One shoe model. Every sellable colour-size combination is a Variant, so a
@@ -228,6 +229,30 @@ class Product extends Model
         }
 
         return $query->selectSub($sold, 'units_sold_recent');
+    }
+
+    /**
+     * The name a card shows, which is not always the whole name.
+     *
+     * The shop's own products are named in three or four words — «کتونی گلدن
+     * گوس» — and a supplier's are not: «کتونی نایک جردن وان ساق کوتاه Air
+     * Jordan 1 Low رنگ سفید قرمز» is one product, and on a 177px tile it is
+     * three lines of type under the photograph, pushing the price off the
+     * card's own shape. «اسم طولانیه در قسمت اسم باید ۴ تا ۶ کلمه نهایتا بیاد
+     * باقیش بره تو صفحه جزئیات محصول».
+     *
+     * Trimmed for display rather than stored short, because the whole name is
+     * the product's real name — the product page prints it in full, the search
+     * matches it in full, and a card is a label, not a record. Six words,
+     * which is where the client put the ceiling, and an ellipsis so the card
+     * says it is a label rather than pretending the name ends there.
+     *
+     * A name already inside the ceiling comes back untouched, which is why
+     * every card in the shop today reads exactly as it did.
+     */
+    public function cardName(int $words = 6): string
+    {
+        return Str::words($this->title, $words, '…');
     }
 
     /**
