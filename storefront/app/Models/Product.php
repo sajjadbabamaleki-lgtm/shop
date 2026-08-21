@@ -84,6 +84,57 @@ class Product extends Model
     }
 
     /**
+     * Products the listing shows, which is not the same set as the ones it can
+     * sell.
+     *
+     * «نمیشه کفشی که موجودیش ۰ هست بیاد تو لیست فقط موجودی بزنه ۰؟» — and it
+     * is the right question for a shop with a supplier in it. `purchasable()`
+     * answers «what can go in a basket today», and a shoe the shop stocks and
+     * has run out of disappears from the catalogue entirely, taking its page,
+     * its address and every link to it with it. That is the correct answer for
+     * the home page's bands, which exist to sell; it is the wrong one for the
+     * shop, where a customer looking for a shoe would rather be told it is out
+     * than be told it does not exist.
+     *
+     * So this is «what this branch sells», stock or no stock: published, and
+     * carrying an offer here. A product with no offer at this branch is still
+     * absent — a franchise lists what it has chosen to sell, and that has not
+     * changed.
+     *
+     * Nothing else moves to it. `purchasable()` still guards the home page,
+     * the story rings, the navigable categories and the basket, so an empty
+     * shelf can be *seen* and still cannot be sold.
+     */
+    public function scopeListable(Builder $query): Builder
+    {
+        return $query->where('status', 'active')
+            ->whereNotNull('published_at')
+            ->where('published_at', '<=', now())
+            ->whereHas('variants', fn (Builder $v) => $v
+                ->where('status', 'active')
+                ->whereHas('offer', fn (Builder $offer) => $offer->active()));
+    }
+
+    /**
+     * In stock first, then the rest — before whatever the shopper sorted by.
+     *
+     * A listing that shows what it has run out of has to lead with what it
+     * has, or «تازه‌ترین» puts an empty shelf at the top of the shop. The
+     * count is a subquery for the same reason the price sort is one: the
+     * sellable half of two hundred products is not the sellable half of the
+     * page you happen to be on.
+     */
+    public function scopeInStockFirst(Builder $query): Builder
+    {
+        return $query->orderByDesc(
+            Variant::query()
+                ->selectRaw('count(*)')
+                ->whereColumn('variants.product_id', 'products.id')
+                ->sellable()
+        );
+    }
+
+    /**
      * Adds `branch_price` — the cheapest sellable offer this branch has for
      * the product — as a column on the row.
      *

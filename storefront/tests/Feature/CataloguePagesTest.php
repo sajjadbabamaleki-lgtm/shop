@@ -264,17 +264,44 @@ class CataloguePagesTest extends TestCase
     }
 
     /**
-     * Sold out is the same answer as not sold: nothing to add to a basket.
+     * Sold out stays in the shop and says so.
+     *
+     * This used to assert the opposite — an empty shelf left the listing
+     * entirely — and «نمیشه کفشی که موجودیش ۰ هست بیاد تو لیست فقط موجودی بزنه
+     * ۰؟» ended that. Hiding it took the shoe, its page and every link to it
+     * away until somebody restocked, which is a worse answer to «do you have
+     * this?» than «not at the moment».
+     *
+     * Sold out is still not sellable, and that half has not moved: the card
+     * carries «ناموجود», and `purchasable()` — the home page, the story rings,
+     * the basket — never sees it.
      */
-    public function test_a_sold_out_product_leaves_the_listing(): void
+    public function test_a_sold_out_product_stays_in_the_listing_and_says_so(): void
     {
-        $variants = Product::where('slug', 'jordan-one-air')->firstOrFail()->variants()->pluck('id');
+        $product = Product::where('slug', 'jordan-one-air')->firstOrFail();
+        $variants = $product->variants()->pluck('id');
 
         $this->tenant->forBranch($this->shiraz, fn () => BranchInventory::whereIn('variant_id', $variants)
             ->update(['stock_on_hand' => 0]));
 
-        $this->get('/shiraz/products')->assertDontSee('کتونی جردن وان ایر', false);
+        $this->get('/shiraz/products')
+            ->assertSee('کتونی جردن وان ایر', false)
+            ->assertSee('ناموجود', false);
+
+        // Its page opens rather than 404ing, and offers nothing to add.
+        $this->get('/shiraz/products/jordan-one-air')
+            ->assertOk()
+            ->assertSee('فعلاً موجود نیست', false)
+            ->assertDontSee('name="variant"', false);
+
+        // Central still has stock, so nothing there has changed.
         $this->get('/products')->assertSee('کتونی جردن وان ایر', false);
+
+        // And it is out of everything that exists to sell.
+        $this->tenant->forBranch(
+            $this->shiraz,
+            fn () => $this->assertFalse(Product::purchasable()->whereKey($product->id)->exists()),
+        );
     }
 
     /**

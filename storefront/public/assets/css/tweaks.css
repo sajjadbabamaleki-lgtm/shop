@@ -16170,6 +16170,30 @@ button.vp-cart-keep {
   line-height: 1.4;
 }
 
+/* «ناموجود», in the badge's place.
+
+   The listing shows what the shop has run out of rather than hiding it, so the
+   tile needs to say so where the eye already looks for a badge — «جدید»'s
+   corner, which is why this is the same box with a different fill. Grey rather
+   than the ink: it is a state, not an announcement, and a black chip reads as
+   loudly as «جدید» does on a shoe that cannot be bought.
+
+   Measured: white type on this fill is 5.25:1, above the 4.5 a label this
+   small has to hold. */
+.vp-card-out {
+  position: absolute;
+  z-index: 2;
+  inset-inline-start: 8px;
+  inset-block-start: 8px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: #6C6C6C;
+  color: #FFFFFF;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
 /* The reference's circle, on the photograph's own foot corner. */
 .vp-card-fav {
   position: absolute;

@@ -386,10 +386,14 @@ class BasalamImportTest extends TestCase
             ->assertSuccessful();
 
         // It is a product all the same: in the catalogue, in the panel, and
-        // off the shelf until somebody puts stock on it.
+        // in the shop — marked «ناموجود» rather than hidden, since «نمیشه کفشی
+        // که موجودیش ۰ هست بیاد تو لیست فقط موجودی بزنه ۰؟». What it is out of
+        // is everything that exists to sell.
         $product = Product::where('source_id', '9004')->firstOrFail();
         $this->assertSame('active', $product->status);
-        $this->get('/products')->assertOk()->assertDontSee('کتونی ناموجود', false);
+
+        $this->get('/products')->assertOk()->assertSee('کتونی ناموجود', false);
+        $this->assertFalse(Product::purchasable()->whereKey($product->id)->exists());
     }
 
     /** The token is a credential and never reaches the repository. */

@@ -34,10 +34,26 @@ class ProductController extends Controller
             ->mapWithKeys(fn (Variant $variant) => [$variant->id => $sellers->for($variant)])
             ->filter(fn ($offers) => $offers->isNotEmpty());
 
-        // Reachable when *somebody* here sells it. A shoe the branch has
-        // dropped but a vendor still stocks is still a page — that is the
-        // whole point of a marketplace.
-        if ($product->status !== 'active' || $bySize->isEmpty()) {
+        /*
+         * Reachable when this shop sells it, whether or not it can supply it
+         * today.
+         *
+         * It used to need a seller with stock, which made an empty shelf a 404
+         * — the shoe, its address and every link to it gone until somebody
+         * restocked. «نمیشه کفشی که موجودیش ۰ هست بیاد تو لیست فقط موجودی بزنه
+         * ۰؟» is the same question about the listing, and the page has to give
+         * the same answer or every one of those cards leads to a 404.
+         *
+         * A branch offer is what makes it this shop's shoe; a vendor with
+         * stock still makes it a page on its own, which is the point of a
+         * marketplace. Neither of them, and it really is nobody's.
+         *
+         * The view already knows how to say it: with no sellable size it
+         * prints «فعلاً موجود نیست» and renders no basket form at all.
+         */
+        $sold = $product->offerHere();
+
+        if ($product->status !== 'active' || ($bySize->isEmpty() && $sold === null)) {
             throw new NotFoundHttpException('Nobody here sells that.');
         }
 
@@ -49,9 +65,12 @@ class ProductController extends Controller
         return view('shop.product', [
             'product' => $product,
             // The headline price is the cheapest anybody here charges, which
-            // is not always the branch's — and is never null, because a page
-            // with no seller never got this far.
-            'offer' => $bySize->flatten(1)->sortBy(fn (array $seller) => $seller['offer']->price)->first()['offer'],
+            // is not always the branch's. With nothing sellable it falls back
+            // to the branch's own offer — the shoe still has a price, it is
+            // just not on the shelf, and a page with neither never got here.
+            'offer' => $bySize->isEmpty()
+                ? $sold
+                : $bySize->flatten(1)->sortBy(fn (array $seller) => $seller['offer']->price)->first()['offer'],
             'colorways' => $product->colorways(),
             'sizes' => $sizes,
             // Every size the row draws — «سایزها باید ۳۷ ۳۸ ۳۹ ۴۰ ۴۱». The

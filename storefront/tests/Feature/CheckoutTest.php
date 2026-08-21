@@ -340,12 +340,32 @@ class CheckoutTest extends TestCase
         $this->assertSame(1, InventoryMovement::where('type', 'sale')->count());
     }
 
-    public function test_a_sold_out_shoe_leaves_the_shop_while_it_is_only_reserved(): void
+    /**
+     * A pair somebody else is checking out with is not yours to buy.
+     *
+     * The shoe stays in the shop and reads «ناموجود» — the listing shows what
+     * this shop sells and marks what it cannot supply, rather than hiding it
+     * («نمیشه کفشی که موجودیش ۰ هست بیاد تو لیست فقط موجودی بزنه ۰؟»). What has
+     * not changed is the half this test was written for: reserved stock is not
+     * sellable stock, so it is out of `purchasable()` and out of every basket
+     * until that order settles or lapses.
+     */
+    public function test_a_shoe_reserved_by_somebody_else_is_marked_unavailable(): void
     {
-        $this->post('/cart', ['variant' => $this->variant('new-balance-530')->id]);
+        $variant = $this->variant('new-balance-530');
+
+        $this->post('/cart', ['variant' => $variant->id]);
         $this->post('/checkout', $this->contact());
 
-        $this->get('/products')->assertDontSee('کتونی نیوبالانس ۵۳۰', false);
+        $this->get('/products')
+            ->assertSee('کتونی نیوبالانس ۵۳۰', false)
+            ->assertSee('ناموجود', false);
+
+        $this->assertFalse($variant->fresh()->isSellable());
+        $this->assertFalse(
+            Product::purchasable()->whereKey($variant->product_id)->exists(),
+            'reserved stock is not sellable stock',
+        );
     }
 
     // --- reading an order back --------------------------------------------

@@ -29,6 +29,14 @@
     $cut = $offer?->discountPercent();
     $shot = $product->imagePath();
     $sold = (int) ($product->units_sold ?? 0);
+
+    /*
+     * The listing shows what the shop sells, including what it has run out of
+     * — «نمیشه کفشی که موجودیش ۰ هست بیاد تو لیست فقط موجودی بزنه ۰؟». The card
+     * has to say which, or an empty shelf looks like a shoe you can buy right
+     * up until the product page refuses.
+     */
+    $out = $product->sellableStock() === 0;
 @endphp
 <article class="vp-card">
     {{-- The photograph and the favourite share a box of their own, and that is
@@ -40,7 +48,13 @@
     <div class="vp-card-top">
         <a class="vp-card-shot" href="{{ storefront_route('product', $product) }}">
             <img src="{{ asset($shot) }}" alt="{{ $product->title }}" loading="lazy">
-            @if ($product->isNew())<span class="vp-card-new">جدید</span>@endif
+            {{-- One badge, and out of stock wins it: a shoe that is both new
+                 and unavailable is unavailable first. --}}
+            @if ($out)
+                <span class="vp-card-out">ناموجود</span>
+            @elseif ($product->isNew())
+                <span class="vp-card-new">جدید</span>
+            @endif
         </a>
         <button type="button" class="vp-card-fav" aria-label="افزودن {{ $product->title }} به علاقه‌مندی‌ها">
             <i class="fa-regular fa-heart" aria-hidden="true"></i>

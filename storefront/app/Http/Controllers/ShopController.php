@@ -161,8 +161,14 @@ class ShopController extends Controller
     {
         [, $column, $direction] = self::SORTS[$filters['sort']];
 
+        /*
+         * `listable()`, not `purchasable()`: the shop shows what it sells and
+         * marks what it has run out of, rather than hiding it. `inStockFirst()`
+         * keeps the empty shelves at the back, whatever the shopper sorted by.
+         */
         $query = Product::query()
-            ->purchasable()
+            ->listable()
+            ->inStockFirst()
             ->pricedHere()
             ->countingSales()
             ->countingRecentSales()
