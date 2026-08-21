@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
+use App\Support\FrontPage;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
 
@@ -58,16 +59,12 @@ class HomeController extends Controller
      */
     private function ladderDeals(Collection $products): Collection
     {
-        $named = (array) config('storefront.front_page.ladder_products', []);
-
-        if ($named === []) {
-            return $products;
-        }
-
         // `only()` would have been the obvious call and is the wrong one: on an
         // Eloquent collection it selects by *primary key*, not by the slug this
-        // one is keyed on, so it quietly returned nothing at all.
-        return $products->filter(fn (Product $product) => in_array($product->slug, $named, true));
+        // one is keyed on, so it quietly returns nothing at all. `FrontPage`
+        // does the filtering, and is also where «the panel's choice, or the
+        // file's default» is decided — once, for all five bands.
+        return app(FrontPage::class)->filter($products, 'ladder');
     }
 
     /**
@@ -122,7 +119,7 @@ class HomeController extends Controller
      */
     private function heroSlides(Collection $products): array
     {
-        $chosen = collect(config('storefront.hero.products'))
+        $chosen = collect(app(FrontPage::class)->slugs('hero'))
             ->map(fn (string $slug) => $products->get($slug))
             ->filter()
             ->map(function (Product $product) {
@@ -189,7 +186,7 @@ class HomeController extends Controller
     {
         $placeholder = config('storefront.placeholders.best_sellers');
 
-        $priced = collect($placeholder['priced_from'])
+        $priced = collect(app(FrontPage::class)->slugs('best_sellers'))
             ->map(fn (string $slug) => $products->get($slug))
             ->filter()
             ->values();
@@ -218,7 +215,7 @@ class HomeController extends Controller
      */
     private function dailyDeal(Collection $products): ?array
     {
-        $product = $products->get(config('storefront.daily_deal.product'));
+        $product = $products->get(app(FrontPage::class)->slugs('daily_deal')[0] ?? null);
 
         if ($product === null) {
             return null;

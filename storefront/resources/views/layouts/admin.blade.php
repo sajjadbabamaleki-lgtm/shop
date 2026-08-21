@@ -52,6 +52,7 @@
                  only for the platform-wide permissions that own them. --}}
             @if (auth()->user()->hasPermissionTo('catalogue.manage'))
                 <a href="{{ route('admin.catalogue') }}" @class(['is-on' => request()->routeIs('admin.catalogue') || request()->routeIs('admin.product.*')])>کاتالوگ</a>
+                <a href="{{ route('admin.front-page') }}" @class(['is-on' => request()->routeIs('admin.front-page*')])>صفحه اصلی</a>
             @endif
             @if (auth()->user()->hasPermissionTo('report.view'))
                 <a href="{{ route('admin.reports.platform') }}" @class(['is-on' => request()->routeIs('admin.reports.platform')])>گزارش پلتفرم</a>

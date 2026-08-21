@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Models\Category;
 use App\Models\Product;
 use App\Support\Checkout\CartManager;
+use App\Support\FrontPage;
 use App\Support\Tenancy\TenantContext;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -121,7 +122,7 @@ class AppServiceProvider extends ServiceProvider
              * of the design. Named products are still products: purchasable(),
              * so a ring never offers a basket button the checkout would refuse.
              */
-            $named = (array) config('storefront.front_page.story_products', []);
+            $named = app(FrontPage::class)->slugs('stories');
 
             $stories = Product::query()
                 ->purchasable()

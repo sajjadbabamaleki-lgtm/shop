@@ -6998,6 +6998,24 @@ button.vp-cart-keep {
   background: var(--gr-color2);
 }
 
+/* The panel's destructive pill.
+
+   `.vp-admin-save` is the panel's one button and it is the theme's gold, which
+   is right for «ثبت» and «افزودن» and wrong for «حذف»: a row of identical gold
+   pills makes removing something exactly as easy to hit as adding it. The red
+   is `.vp-media-one figcaption button.is-off`'s, quoted rather than chosen, so
+   the two places in the panel that delete something are the same colour.
+
+   A modifier on the existing class rather than a class of its own — the shape,
+   the height and the radius are all still the panel's button. */
+.vp-admin-save.is-off {
+  background: #B3261E;
+}
+
+.vp-admin-save.is-off:hover {
+  background: #8F1E18;
+}
+
 .vp-admin-tabs {
   display: flex;
   gap: 4px;

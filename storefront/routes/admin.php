@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\CatalogueController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DiscountController;
 use App\Http\Controllers\Admin\EnquiryController;
+use App\Http\Controllers\Admin\FrontPageController;
 use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Admin\MarketplaceController;
 use App\Http\Controllers\Admin\OrderController;
@@ -127,6 +128,28 @@ Route::middleware(['auth:web', ResolveAdminTenant::class])->group(function (): v
     Route::post('/catalogue/{product}/media/{media}/delete', [CatalogueController::class, 'deleteMedia'])
         ->middleware(RequirePlatformPermission::class.':catalogue.manage')
         ->name('product.media.delete');
+
+    /*
+     * The front page's cast. Same permission as the catalogue and for the same
+     * reason: deciding which shoe is on the front of the shop is a decision
+     * about the shop, not about one branch, and a franchise manager has no
+     * business making it for everybody.
+     */
+    Route::get('/front-page', [FrontPageController::class, 'edit'])
+        ->middleware(RequirePlatformPermission::class.':catalogue.manage')
+        ->name('front-page');
+    Route::post('/front-page/{band}/add', [FrontPageController::class, 'add'])
+        ->middleware(RequirePlatformPermission::class.':catalogue.manage')
+        ->name('front-page.add');
+    Route::post('/front-page/{band}/reset', [FrontPageController::class, 'reset'])
+        ->middleware(RequirePlatformPermission::class.':catalogue.manage')
+        ->name('front-page.reset');
+    Route::post('/front-page/placements/{placement}/remove', [FrontPageController::class, 'remove'])
+        ->middleware(RequirePlatformPermission::class.':catalogue.manage')
+        ->name('front-page.remove');
+    Route::post('/front-page/placements/{placement}/move', [FrontPageController::class, 'move'])
+        ->middleware(RequirePlatformPermission::class.':catalogue.manage')
+        ->name('front-page.move');
 
     // Staff, on the other hand, are entirely the branch's — the bound tenant
     // scopes every row, and no form carries a branch id to edit.
