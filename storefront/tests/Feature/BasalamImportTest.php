@@ -396,6 +396,71 @@ class BasalamImportTest extends TestCase
         $this->assertFalse(Product::purchasable()->whereKey($product->id)->exists());
     }
 
+    /**
+     * The photographs come off a CDN, not off the gateway, and the request has
+     * to look like it.
+     *
+     * The first real run against the stall answered 400 for every picture: the
+     * download reused the API request, which asks for `application/json` — of a
+     * PNG — and carries the shop's bearer token to a host that has no business
+     * seeing it. One refusal took the whole product with it and the manifest
+     * came back empty.
+     */
+    public function test_photographs_are_fetched_without_the_api_headers(): void
+    {
+        Storage::fake('public');
+
+        Http::fake([
+            '*/v1/vendors/4242/products*' => Http::response([
+                'data' => [['id' => 9001, 'title' => 'کتونی زنانه ویکی']],
+                'total_count' => 1,
+                'total_page' => 1,
+            ]),
+            '*/v1/products/9001*' => Http::response($this->payload()),
+            'https://statics.basalam.com/*' => Http::response('a-jpeg', 200),
+        ]);
+
+        $this->artisan('basalam:fetch')->assertSuccessful();
+
+        Http::assertSent(function ($request) {
+            if (! str_contains($request->url(), 'statics.basalam.com')) {
+                return true;
+            }
+
+            return ! $request->hasHeader('Authorization')
+                && ! in_array('application/json', $request->header('Accept'), true);
+        });
+    }
+
+    /**
+     * A photograph that cannot be downloaded costs a photograph, not a shoe.
+     */
+    public function test_a_broken_photograph_does_not_lose_the_product(): void
+    {
+        Storage::fake('public');
+
+        Http::fake([
+            '*/v1/vendors/4242/products*' => Http::response([
+                'data' => [['id' => 9001, 'title' => 'کتونی زنانه ویکی']],
+                'total_count' => 1,
+                'total_page' => 1,
+            ]),
+            '*/v1/products/9001*' => Http::response($this->payload()),
+            'https://statics.basalam.com/*' => Http::response('nope', 400),
+        ]);
+
+        $this->artisan('basalam:fetch')
+            ->expectsOutputToContain('could not be downloaded')
+            ->assertSuccessful();
+
+        $index = json_decode((string) file_get_contents($this->manifestRoot.'/index.json'), true);
+        $this->assertSame([9001], $index['ids'], 'the product was dropped over a picture');
+
+        // And it still imports, with the pictures it does have — none.
+        $this->artisan('basalam:import')->assertSuccessful();
+        $this->assertSame(1, Product::where('source_id', '9001')->count());
+    }
+
     /** The token is a credential and never reaches the repository. */
     public function test_no_credential_is_hard_coded(): void
     {

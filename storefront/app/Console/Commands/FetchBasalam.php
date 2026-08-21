@@ -33,7 +33,10 @@ class FetchBasalam extends Command
         {--per-page=50 : Products per listing request}
         {--no-images : Skip the photographs, take the data only}';
 
-    protected $description = 'Read the Basalam stall into database/data/basalam/, photographs and all.';
+    protected $description = 'Read the Basalam stall into the manifest, photographs and all.';
+
+    /** @var list<string> */
+    private array $photoFailures = [];
 
     public function handle(): int
     {
@@ -172,6 +175,20 @@ class FetchBasalam extends Command
             [[$found, $written, $skipped, $failed]]
         );
 
+        if ($this->photoFailures !== []) {
+            $this->newLine();
+            $this->warn(count($this->photoFailures).' photograph(s) could not be downloaded. Their products were '
+                .'kept — a shoe with one broken link is still a shoe:');
+
+            foreach (array_slice($this->photoFailures, 0, 10) as $failure) {
+                $this->line('  · '.$failure);
+            }
+
+            if (count($this->photoFailures) > 10) {
+                $this->line('  … and '.(count($this->photoFailures) - 10).' more.');
+            }
+        }
+
         $this->priceReading($priceCheck);
 
         if ($dry) {
@@ -216,13 +233,28 @@ class FetchBasalam extends Command
             $target = $manifest->photoTarget($product['id'], $photo['id'] ?? md5($url), $url);
             $disk = Storage::disk($target['disk']);
 
-            // A second run does not re-download what it already has, which is
-            // most of what makes --resume quick.
-            if (! $disk->exists($target['relative'])) {
-                $disk->put($target['relative'], $client->download($url));
-            }
+            try {
+                // A second run does not re-download what it already has, which
+                // is most of what makes --resume quick.
+                if (! $disk->exists($target['relative'])) {
+                    $disk->put($target['relative'], $client->download($url));
+                }
 
-            $paths[] = $target['path'];
+                $paths[] = $target['path'];
+            } catch (Throwable $e) {
+                /*
+                 * One photograph, not the product.
+                 *
+                 * This used to throw out to the caller, which abandoned the
+                 * whole product — on the first real run against the stall, one
+                 * CDN refusal was enough to leave the manifest with no
+                 * products in it at all. A shoe with four photographs and one
+                 * broken link is a shoe, and a hundred and forty-three of them
+                 * cannot be held hostage by whichever file the CDN is unhappy
+                 * about today. The failure is named in the summary.
+                 */
+                $this->photoFailures[] = "{$product['id']}: {$e->getMessage()}";
+            }
         }
 
         return $paths;

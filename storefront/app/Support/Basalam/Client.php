@@ -26,6 +26,13 @@ use RuntimeException;
  */
 class Client
 {
+    /**
+     * The stall is this shop's own, so the caller says who it is rather than
+     * pretending to be a browser. If Basalam ever wants to rate-limit or block
+     * this, they should be able to.
+     */
+    private const AGENT = 'VikyPlus-Importer/1.0 (+https://vikyplus.ir)';
+
     public function __construct(
         private readonly string $baseUri,
         private readonly ?string $token,
@@ -104,7 +111,29 @@ class Client
      */
     public function download(string $url): string
     {
-        $response = $this->request()->get($url);
+        /*
+         * A bare request, and that is the whole point of it not being
+         * `request()`.
+         *
+         * The photographs are not on the gateway. They are on
+         * `statics.basalam.com`, which is a CDN serving files to anybody, and
+         * the API request this used to reuse carried two headers that have no
+         * business there: `Accept: application/json`, asking a PNG to be JSON,
+         * and the shop's bearer token. Measured on the first real run against
+         * the stall: every photograph answered **400**, the product they
+         * belonged to was abandoned with them, and the manifest came back with
+         * an empty `ids` and one failure.
+         *
+         * Not sending the token is also the right thing on its own — a
+         * credential for one host does not belong in a request to another.
+         */
+        $response = Http::withHeaders([
+            'Accept' => 'image/*',
+            'User-Agent' => self::AGENT,
+        ])
+            ->timeout(60)
+            ->retry($this->retries, 2000, throw: false)
+            ->get($url);
 
         if (! $response->successful()) {
             throw new RuntimeException("Downloading {$url} answered {$response->status()}.");
@@ -143,10 +172,7 @@ class Client
     {
         return Http::acceptJson()
             ->withHeaders(array_filter([
-                // The stall is this shop's own, so identify the caller rather
-                // than pretending to be a browser. If Basalam ever wants to
-                // rate-limit or block this, they should be able to.
-                'User-Agent' => 'VikyPlus-Importer/1.0 (+https://vikyplus.ir)',
+                'User-Agent' => self::AGENT,
                 'Authorization' => $this->token ? 'Bearer '.$this->token : null,
             ]))
             ->timeout(30)
