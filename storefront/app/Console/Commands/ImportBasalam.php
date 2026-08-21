@@ -80,9 +80,19 @@ class ImportBasalam extends Command
         $limit = $this->option('limit') !== null ? max(1, (int) $this->option('limit')) : null;
 
         $counts = ['processed' => 0, 'imported' => 0, 'updated' => 0, 'skipped' => 0, 'failed' => 0];
+
+        /*
+         * Counted apart, because it is the one outcome that looks like a
+         * failure and is not. A product Basalam is out of stock of imports
+         * perfectly and then does not appear in the shop: the listing shows
+         * what this branch can sell, and nothing with no stock qualifies. Told
+         * afterwards — «132 imported, 96 on the site» — that reads as an
+         * importer that dropped a third of the catalogue.
+         */
+        $unsellable = 0;
         $notes = [];
 
-        $run = function () use ($ids, $limit, $manifest, $importer, $branch, $tenant, &$counts, &$notes) {
+        $run = function () use ($ids, $limit, $manifest, $importer, $branch, $tenant, &$counts, &$notes, &$unsellable) {
             foreach ($ids as $sourceId) {
                 if ($limit !== null && $counts['processed'] >= $limit) {
                     break;
@@ -109,6 +119,23 @@ class ImportBasalam extends Command
                         'updated' => $counts['updated']++,
                         default => $counts['failed']++,
                     };
+
+                    /*
+                     * Read inside the branch, like everything else about
+                     * stock. `sellableStock()` walks `variants.stock`, which
+                     * is branch-scoped and fails closed — asked with nothing
+                     * bound it answers 0 for every product, and this counter
+                     * would have reported the whole catalogue as unsellable.
+                     */
+                    if ($result['product'] && $result['status'] !== 'failed') {
+                        $stock = $tenant->forBranch($branch, fn () => $result['product']
+                            ->load('variants.stock')
+                            ->sellableStock());
+
+                        if ($stock === 0) {
+                            $unsellable++;
+                        }
+                    }
 
                     foreach ($result['notes'] as $note) {
                         $notes[] = "{$sourceId}: {$note}";
@@ -151,6 +178,14 @@ class ImportBasalam extends Command
             ['Found', 'Processed', 'Imported', 'Updated', 'Skipped', 'Failed'],
             [[count($ids), $counts['processed'], $counts['imported'], $counts['updated'], $counts['skipped'], $counts['failed']]]
         );
+
+        if ($unsellable > 0) {
+            $this->newLine();
+            $this->warn(
+                "{$unsellable} of them have no stock, so they are in the catalogue and in the panel but not on the "
+                .'site — this shop lists what it can sell. Give them stock and they appear.'
+            );
+        }
 
         if ($notes !== []) {
             $this->newLine();

@@ -361,6 +361,37 @@ class BasalamImportTest extends TestCase
         $this->assertFileExists($this->manifestRoot.'/products/9001.json');
     }
 
+    /**
+     * The outcome that looks like a failure and is not.
+     *
+     * A product Basalam has none of imports perfectly and then does not appear
+     * in the shop, because the listing shows what this branch can sell. Said
+     * out loud at the end of the run, or «۱۳۲ وارد شد» and 96 on the site is
+     * the next question.
+     */
+    public function test_it_says_how_many_landed_with_no_stock(): void
+    {
+        $empty = $this->payload(9004, 'کتونی ناموجود');
+        $empty['inventory'] = 0;
+        $empty['variants'] = array_map(function (array $variant) {
+            $variant['stock'] = 0;
+
+            return $variant;
+        }, $empty['variants']);
+
+        $this->writeManifest([$empty]);
+
+        $this->artisan('basalam:import')
+            ->expectsOutputToContain('1 of them have no stock')
+            ->assertSuccessful();
+
+        // It is a product all the same: in the catalogue, in the panel, and
+        // off the shelf until somebody puts stock on it.
+        $product = Product::where('source_id', '9004')->firstOrFail();
+        $this->assertSame('active', $product->status);
+        $this->get('/products')->assertOk()->assertDontSee('کتونی ناموجود', false);
+    }
+
     /** The token is a credential and never reaches the repository. */
     public function test_no_credential_is_hard_coded(): void
     {
