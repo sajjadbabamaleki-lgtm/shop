@@ -16,7 +16,7 @@
     },
     "disks": [
         {
-            "name": "vikyplus",
+            "name": "viikyplus",
             "mountTo": "storage/app"
         }
     ]
