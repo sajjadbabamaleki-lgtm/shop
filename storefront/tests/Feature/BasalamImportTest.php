@@ -15,6 +15,7 @@ use Database\Seeders\CatalogueSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 /**
@@ -97,10 +98,10 @@ class BasalamImportTest extends TestCase
 
         // The gallery, in the order it was fetched, with a primary.
         $this->assertSame(
-            ['assets/img/basalam/9001-1.jpg', 'assets/img/basalam/9001-2.jpg'],
+            ['storage/basalam/9001-1.jpg', 'storage/basalam/9001-2.jpg'],
             $product->media()->orderBy('position')->pluck('path')->all()
         );
-        $this->assertSame('assets/img/basalam/9001-1.jpg', $product->primaryMedia()->path);
+        $this->assertSame('storage/basalam/9001-1.jpg', $product->primaryMedia()->path);
 
         // Mapped onto a category this shop already had.
         $this->assertTrue($product->categories->pluck('slug')->contains('sneaker'));
@@ -293,6 +294,45 @@ class BasalamImportTest extends TestCase
         $this->assertSame(1, Product::where('source_id', '9001')->count());
     }
 
+    /**
+     * The photographs are downloaded, not hotlinked, and they land on the
+     * `public` disk with the same `storage/` path the panel's own uploads use.
+     */
+    public function test_fetch_stores_photographs_on_the_public_disk(): void
+    {
+        Storage::fake('public');
+
+        Http::fake([
+            '*/v1/vendors/4242/products*' => Http::response([
+                'data' => [['id' => 9001, 'title' => 'کتونی زنانه ویکی']],
+                'total_count' => 1,
+                'total_page' => 1,
+            ]),
+            '*/v1/products/9001*' => Http::response($this->payload()),
+            'https://statics.basalam.com/*' => Http::response('a-jpeg', 200),
+        ]);
+
+        $this->artisan('basalam:fetch')->assertSuccessful();
+
+        Storage::disk('public')->assertExists('basalam/9001-1.jpg');
+        Storage::disk('public')->assertExists('basalam/9001-2.jpg');
+
+        $written = json_decode((string) file_get_contents($this->manifestRoot.'/products/9001.json'), true);
+
+        $this->assertSame(
+            ['storage/basalam/9001-1.jpg', 'storage/basalam/9001-2.jpg'],
+            $written['photos_local']
+        );
+
+        // And the import hands those paths to the card unchanged.
+        $this->artisan('basalam:import')->assertSuccessful();
+
+        $this->assertSame(
+            ['storage/basalam/9001-1.jpg', 'storage/basalam/9001-2.jpg'],
+            Product::where('source_id', '9001')->firstOrFail()->media()->orderBy('position')->pluck('path')->all()
+        );
+    }
+
     /** The token is a credential and never reaches the repository. */
     public function test_no_credential_is_hard_coded(): void
     {
@@ -355,8 +395,8 @@ class BasalamImportTest extends TestCase
                 ['id' => 2, 'original' => 'https://statics.basalam.com/public/users/x/2.jpg'],
             ],
             'photos_local' => [
-                'assets/img/basalam/'.$id.'-1.jpg',
-                'assets/img/basalam/'.$id.'-2.jpg',
+                'storage/basalam/'.$id.'-1.jpg',
+                'storage/basalam/'.$id.'-2.jpg',
             ],
             'variants' => [
                 [

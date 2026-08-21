@@ -184,9 +184,27 @@ return [
         'vendor_id' => env('BASALAM_VENDOR_ID'),
         'price_unit' => env('BASALAM_PRICE_UNIT', 'rial'),
 
-        // Where fetch writes and import reads. In the repository on purpose —
-        // see App\Support\Basalam\Manifest for why the file is committed.
-        'manifest_path' => env('BASALAM_MANIFEST_PATH', database_path('data/basalam')),
+        /*
+         * Where fetch writes and import reads.
+         *
+         * Under `storage/app` rather than in the repository, and that is a
+         * correction rather than a preference: the first version of this put
+         * the manifest in `database/data/` so a diff could show what an import
+         * was about to create, which assumed the fetch could run on a machine
+         * that has the repository. It cannot — basalam.com refuses connections
+         * from outside Iran, so the fetch runs on the server. Keep it beside
+         * the photographs, on the same mounted disk, so `--resume` still means
+         * something after a deploy.
+         */
+        'manifest_path' => env('BASALAM_MANIFEST_PATH', storage_path('app/basalam')),
+
+        /*
+         * Where the photographs land. The `public` disk, which is what the
+         * panel's own upload uses, so an imported picture and one somebody
+         * added by hand are the same kind of file in the same place.
+         */
+        'media_disk' => env('BASALAM_MEDIA_DISK', 'public'),
+        'media_dir' => env('BASALAM_MEDIA_DIR', 'basalam'),
 
         // Politeness. The gateway is somebody else's and 132 products is a
         // few hundred requests with the photographs; this keeps it to a walk.

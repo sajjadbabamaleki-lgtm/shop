@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Support\Basalam\Client;
 use App\Support\Basalam\Manifest;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Storage;
 use Throwable;
 
 /**
@@ -160,6 +161,10 @@ class FetchBasalam extends Command
      * shop's pages depend on a competitor's CDN, and would keep working right
      * up until the day the stall closes.
      *
+     * They land on the `public` disk — see `Manifest::photoTarget` for why they
+     * are there rather than in `public/assets/` with the rest of the shop's
+     * pictures, and for what has to be mounted for them to survive a deploy.
+     *
      * @param  array<string, mixed>  $product
      * @return list<string>
      */
@@ -182,15 +187,12 @@ class FetchBasalam extends Command
             }
 
             $target = $manifest->photoTarget($product['id'], $photo['id'] ?? md5($url), $url);
-
-            if (! is_dir(dirname($target['absolute']))) {
-                mkdir(dirname($target['absolute']), 0755, true);
-            }
+            $disk = Storage::disk($target['disk']);
 
             // A second run does not re-download what it already has, which is
             // most of what makes --resume quick.
-            if (! is_file($target['absolute'])) {
-                file_put_contents($target['absolute'], $client->download($url));
+            if (! $disk->exists($target['relative'])) {
+                $disk->put($target['relative'], $client->download($url));
             }
 
             $paths[] = $target['path'];

@@ -101,12 +101,27 @@ class Manifest
     /**
      * Where a photograph goes, and what the database will call it.
      *
+     * **On the `public` disk, not in `public/assets/`.** The first version of
+     * this put them in the repository beside every other picture the shop
+     * ships, which is where they belong when the fetch runs on a machine that
+     * has the repository. It does not: basalam.com refuses connections from
+     * outside Iran, so the fetch runs on the server, and the server cannot
+     * commit anything. What it can do is write to a mounted disk.
+     *
+     * So the path is `storage/basalam/…`, which is exactly what the panel
+     * already writes when somebody uploads a photograph by hand — same disk,
+     * same `storage/` prefix, same `asset()` call in the card. **It is only
+     * permanent if a disk is mounted at `storage/app`**; without one the
+     * container's filesystem takes the pictures with it on the next deploy,
+     * which is true of the panel's uploads today and is written down in
+     * `CatalogueController::storeMedia` as well.
+     *
      * Deterministic on Basalam's own two identifiers, which is what makes a
      * second fetch overwrite the same file instead of accumulating copies, and
      * what lets the import match media it has already created without a column
      * to remember them by.
      *
-     * @return array{path: string, absolute: string}
+     * @return array{path: string, disk: string, relative: string}
      */
     public function photoTarget(int|string $sourceId, int|string $photoId, string $url): array
     {
@@ -116,9 +131,16 @@ class Manifest
             $extension = 'jpg';
         }
 
-        $path = "assets/img/basalam/{$sourceId}-{$photoId}.{$extension}";
+        $disk = (string) config('services.basalam.media_disk', 'public');
+        $dir = trim((string) config('services.basalam.media_dir', 'basalam'), '/');
+        $relative = "{$dir}/{$sourceId}-{$photoId}.{$extension}";
 
-        return ['path' => $path, 'absolute' => public_path($path)];
+        return [
+            // What VariantMedia holds and `asset()` resolves.
+            'path' => 'storage/'.$relative,
+            'disk' => $disk,
+            'relative' => $relative,
+        ];
     }
 
     /** @return array<string, mixed> */

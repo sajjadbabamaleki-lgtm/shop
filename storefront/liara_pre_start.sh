@@ -46,6 +46,20 @@ php artisan catalogue:seed
 # roles are left alone.
 php artisan db:seed --class=RolesAndPermissionsSeeder --force
 
+# The link that makes uploaded and imported photographs reachable.
+#
+# `storage/app/public` is served at `/storage` only through this symlink, and a
+# fresh container has no symlink — so without this, every picture the panel
+# uploads and every picture `basalam:fetch` downloads is a broken image, with
+# the file sitting right there on disk. `--force` because the link may already
+# exist on a warm container, and `|| true` because `set -eu` is in force above
+# and a missing link is not a reason to refuse to start the shop.
+#
+# **The files behind it are only permanent if a disk is mounted at
+# `storage/app`.** Without one they are a container's lifetime, which for a
+# catalogue imported from Basalam means until the next deploy.
+php artisan storage:link --force || true
+
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
