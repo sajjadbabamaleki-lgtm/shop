@@ -46,6 +46,22 @@ class Client
     }
 
     /**
+     * Who the token belongs to, and which stall is theirs.
+     *
+     * The vendor id is a number nobody knows off the top of their head — the
+     * stall's address is `basalam.com/viky-plus` and `viky-plus` is its
+     * `identifier`, not its id — so rather than making somebody hunt for it in
+     * a seller panel, the token is asked. A token belongs to one account and an
+     * account has one stall, so this cannot pick the wrong one.
+     *
+     * @return array<string, mixed>
+     */
+    public function me(): array
+    {
+        return $this->get('/v1/users/me');
+    }
+
+    /**
      * One page of the stall's products.
      *
      * The list is the cheap call and carries only what a listing needs — id,

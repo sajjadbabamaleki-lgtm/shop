@@ -37,19 +37,40 @@ class FetchBasalam extends Command
 
     public function handle(): int
     {
-        $vendorId = (int) config('services.basalam.vendor_id');
-
-        if ($vendorId <= 0) {
-            $this->error('BASALAM_VENDOR_ID is not set. It is the numeric id of the stall, not its address.');
-
-            return self::FAILURE;
-        }
-
         if (! config('services.basalam.token')) {
             $this->warn('BASALAM_TOKEN is empty. If the gateway wants one, every call will answer 401.');
         }
 
         $client = Client::fromConfig();
+        $vendorId = (int) config('services.basalam.vendor_id');
+
+        /*
+         * Nobody knows their own vendor id. The stall's address is
+         * `basalam.com/viky-plus`, and `viky-plus` is its identifier rather
+         * than the number this endpoint wants — so when the variable is not
+         * set, the token is asked whose stall it is. Setting BASALAM_VENDOR_ID
+         * still wins, for the case of a token that can see more than one.
+         */
+        if ($vendorId <= 0) {
+            try {
+                $vendor = (array) (($client->me()['vendor'] ?? []) ?: []);
+                $vendorId = (int) ($vendor['id'] ?? 0);
+
+                if ($vendorId > 0) {
+                    $this->info("Stall: {$vendor['title']} (/{$vendor['identifier']}) — id {$vendorId}.");
+                }
+            } catch (Throwable $e) {
+                $this->error('Asking the token whose stall it is failed: '.$e->getMessage());
+
+                return self::FAILURE;
+            }
+        }
+
+        if ($vendorId <= 0) {
+            $this->error('No stall. Set BASALAM_VENDOR_ID, or use a token that belongs to one.');
+
+            return self::FAILURE;
+        }
         $manifest = Manifest::default();
         $dry = (bool) $this->option('dry-run');
         $limit = $this->option('limit') !== null ? max(1, (int) $this->option('limit')) : null;

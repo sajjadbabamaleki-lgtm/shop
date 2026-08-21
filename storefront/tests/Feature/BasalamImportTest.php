@@ -333,6 +333,34 @@ class BasalamImportTest extends TestCase
         );
     }
 
+    /**
+     * Nobody knows their own vendor id, so the token is asked.
+     */
+    public function test_fetch_finds_the_stall_from_the_token(): void
+    {
+        config()->set('services.basalam.vendor_id', null);
+
+        Http::fake([
+            '*/v1/users/me*' => Http::response([
+                'id' => 7,
+                'name' => 'ویکی',
+                'vendor' => ['id' => 4242, 'identifier' => 'viky-plus', 'title' => 'ویکی پلاس'],
+            ]),
+            '*/v1/vendors/4242/products*' => Http::response([
+                'data' => [['id' => 9001, 'title' => 'کتونی زنانه ویکی']],
+                'total_count' => 1,
+                'total_page' => 1,
+            ]),
+            '*/v1/products/9001*' => Http::response($this->payload()),
+        ]);
+
+        $this->artisan('basalam:fetch --no-images')
+            ->expectsOutputToContain('/viky-plus')
+            ->assertSuccessful();
+
+        $this->assertFileExists($this->manifestRoot.'/products/9001.json');
+    }
+
     /** The token is a credential and never reaches the repository. */
     public function test_no_credential_is_hard_coded(): void
     {
