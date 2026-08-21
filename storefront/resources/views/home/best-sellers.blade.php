@@ -22,16 +22,20 @@
 --}}
 <section class="space overflow-hidden overflow-hidden vp-best-section">
         <div class="vp-best-panel">
+            {{-- The way out sits opposite the title rather than at the end of the
+                 filter row — «مشاهده همه محصولات اینجا باید حذف بشه بیاد روبروی عنوان
+                 سمت چپ». Kept in step with theme/make-rtl-page.js's BEST_HEAD by hand,
+                 the way every hand-owned band is; check-parity.js is what notices. --}}
             <div class="vp-best-head">
                 <h2 class="vp-best-title">پرفروش‌ترین‌ها</h2>
-                <div class="vp-best-filters">
-                    <button type="button" class="vp-best-filter active">همه</button>
-                    <button type="button" class="vp-best-filter">نایک</button>
-                    <button type="button" class="vp-best-filter">جردن</button>
-                    <button type="button" class="vp-best-filter">نیوبالانس</button>
-                    <button type="button" class="vp-best-filter">گلدن گوس</button>
-                    <a class="vp-best-all" href="{{ page_url('shop.html') }}">مشاهده همه محصولات</a>
-                </div>
+                <a class="vp-best-all" href="{{ page_url('shop.html') }}">مشاهده همه محصولات</a>
+            </div>
+            <div class="vp-best-filters">
+                <button type="button" class="vp-best-filter active">همه</button>
+                <button type="button" class="vp-best-filter">نایک</button>
+                <button type="button" class="vp-best-filter">جردن</button>
+                <button type="button" class="vp-best-filter">نیوبالانس</button>
+                <button type="button" class="vp-best-filter">گلدن گوس</button>
             </div>
             <div class="row gy-4 row-cols-2 row-cols-md-3 row-cols-xl-6 vp-best-row">
                 @foreach ($bestSellers as $tile)

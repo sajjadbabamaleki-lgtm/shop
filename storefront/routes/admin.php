@@ -5,11 +5,15 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DiscountController;
 use App\Http\Controllers\Admin\EnquiryController;
 use App\Http\Controllers\Admin\FrontPageController;
+use App\Http\Controllers\Admin\FulfilmentController;
+use App\Http\Controllers\Admin\FulfilmentSettingsController;
+use App\Http\Controllers\Admin\InboxController;
 use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Admin\MarketplaceController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\PricingController;
 use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\SearchController;
 use App\Http\Controllers\Admin\SessionController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\StaffController;
@@ -60,11 +64,100 @@ Route::middleware(['auth:web', ResolveAdminTenant::class])->group(function (): v
 
     Route::post('/branch', [SettingsController::class, 'switchBranch'])->name('branch.switch');
 
+    /*
+     * §14's global search. Inside the branch group because most of what it
+     * finds is a branch's — an order, a customer, a code — and the tenant has
+     * to be resolved before any of those can be read. No permission of its
+     * own: it searches only what the person could already open, and the
+     * controller drops each group they may not.
+     */
+    Route::get('/search', SearchController::class)->name('search');
+
     Route::get('/orders', [OrderController::class, 'index'])->name('orders');
+
+    // Both of these are declared **before** `/orders/{order}`, or the bare
+    // segment swallows them: «export» and «bulk» are perfectly good order keys
+    // as far as a route parameter is concerned, and the model binding would
+    // 404 on them with nothing to say why. Laravel matches in registration
+    // order, so the specific ones come first — the same reason `/admin` itself
+    // is registered before the storefront's `{branch}` group.
+    Route::get('/orders/export', [OrderController::class, 'export'])->name('orders.export');
+    Route::post('/orders/bulk', [OrderController::class, 'bulk'])
+        ->middleware(RequirePermission::class.':branch.orders.manage')
+        ->name('orders.bulk');
+
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('order');
     Route::post('/orders/{order}', [OrderController::class, 'update'])
         ->middleware(RequirePermission::class.':branch.orders.manage')
         ->name('order.update');
+    Route::post('/orders/{order}/note', [OrderController::class, 'annotate'])
+        ->middleware(RequirePermission::class.':branch.orders.manage')
+        ->name('order.annotate');
+
+    // §7's primary actions. Separate routes rather than one «update» with a
+    // mode, because each writes different things and each has its own rules:
+    // confirming starts the clock, shipping records an event, delaying moves a
+    // promise. One endpoint switching on a hidden field is how a delay ends up
+    // able to mark something delivered.
+    Route::post('/orders/{order}/confirm', [FulfilmentController::class, 'confirm'])
+        ->middleware(RequirePermission::class.':branch.orders.manage')
+        ->name('order.confirm');
+    Route::post('/orders/{order}/ship', [FulfilmentController::class, 'ship'])
+        ->middleware(RequirePermission::class.':branch.orders.manage')
+        ->name('order.ship');
+    Route::post('/orders/{order}/delay', [FulfilmentController::class, 'delay'])
+        ->middleware(RequirePermission::class.':branch.orders.manage')
+        ->name('order.delay');
+
+    // The rest of the lifecycle, in the same shape and for the same reason.
+    //
+    // The order page used to end in a row of bare status buttons under the
+    // sentence «از «ثبت شد» می‌توان رفت به:», which describes the state machine
+    // rather than the shop's work — and «پرداخت شد» flipped a column without
+    // recording when the money came, how, or against what. «لغو شد» threw away
+    // the reason even though `SettleOrder::cancelled` has always taken one.
+    //
+    // So: taking payment writes a payment, cancelling writes a reason, and
+    // delivery records the hour it arrived. `order.update` stays — the bulk bar
+    // moves many orders at once and needs a plain transition — but nothing on
+    // the page posts to it any more.
+    Route::post('/orders/{order}/pay', [OrderController::class, 'pay'])
+        ->middleware(RequirePermission::class.':branch.orders.manage')
+        ->name('order.pay');
+    Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel'])
+        ->middleware(RequirePermission::class.':branch.orders.manage')
+        ->name('order.cancel');
+    Route::post('/orders/{order}/deliver', [OrderController::class, 'deliver'])
+        ->middleware(RequirePermission::class.':branch.orders.manage')
+        ->name('order.deliver');
+
+    /*
+     * §11's inbox, the shop's side.
+     *
+     * `branch.orders.manage`, reused rather than invented. A new permission
+     * would be a row in `RolesAndPermissionsSeeder`, and the seeder only runs
+     * on an empty catalogue — production has not been empty for weeks, so the
+     * permission would not exist there and this screen would be unreachable on
+     * the live site while passing every test. See CLAUDE.md on seeders.
+     *
+     * The audience is right anyway: whoever answers about an order is whoever
+     * handles orders.
+     */
+    Route::get('/inbox', [InboxController::class, 'index'])
+        ->middleware(RequirePermission::class.':branch.orders.manage')
+        ->name('inbox');
+    Route::get('/inbox/{conversation}', [InboxController::class, 'show'])
+        ->middleware(RequirePermission::class.':branch.orders.manage')
+        ->name('conversation');
+    Route::post('/inbox/{conversation}', [InboxController::class, 'reply'])
+        ->middleware(RequirePermission::class.':branch.orders.manage')
+        ->name('conversation.reply');
+    Route::post('/inbox/{conversation}/status', [InboxController::class, 'status'])
+        ->middleware(RequirePermission::class.':branch.orders.manage')
+        ->name('conversation.status');
+    Route::get('/inbox/{conversation}/files/{attachment}', [InboxController::class, 'file'])
+        ->middleware(RequirePermission::class.':branch.orders.manage')
+        ->name('conversation.file');
 
     Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory');
     Route::post('/inventory', [InventoryController::class, 'update'])
@@ -169,6 +262,21 @@ Route::middleware(['auth:web', ResolveAdminTenant::class])->group(function (): v
     Route::get('/reports', [ReportController::class, 'branch'])
         ->middleware(RequirePermission::class.':report.view')
         ->name('reports');
+
+    // §10's «Order Processing & Shipping Settings» — its own screen, because
+    // the working calendar is not a branch's address.
+    Route::get('/fulfilment', [FulfilmentSettingsController::class, 'edit'])
+        ->middleware(RequirePermission::class.':branch.settings.manage')
+        ->name('fulfilment');
+    Route::post('/fulfilment', [FulfilmentSettingsController::class, 'update'])
+        ->middleware(RequirePermission::class.':branch.settings.manage')
+        ->name('fulfilment.update');
+    Route::post('/fulfilment/methods', [FulfilmentSettingsController::class, 'storeMethod'])
+        ->middleware(RequirePermission::class.':branch.settings.manage')
+        ->name('fulfilment.methods.store');
+    Route::post('/fulfilment/methods/{method}/toggle', [FulfilmentSettingsController::class, 'toggleMethod'])
+        ->middleware(RequirePermission::class.':branch.settings.manage')
+        ->name('fulfilment.methods.toggle');
 
     Route::get('/settings', [SettingsController::class, 'edit'])
         ->middleware(RequirePermission::class.':branch.settings.manage')

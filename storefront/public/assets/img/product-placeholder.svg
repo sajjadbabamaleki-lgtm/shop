@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400" role="img" aria-label="بدون تصویر">
+  <!--
+    Stands in for a product photograph that has not been uploaded yet.
+
+    Drawn rather than borrowed: it is a box outline in the shop's own gold ramp
+    on the pane's own grey, so a card missing its photograph still reads as a
+    card of this shop rather than as a broken image. No text, deliberately —
+    text here would need the Persian face to have loaded, and this is exactly
+    the moment when something has not arrived.
+  -->
+  <rect width="400" height="400" fill="#F2F3F5"/>
+  <g fill="none" stroke="#CE9E29" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" opacity="0.55">
+    <path d="M200 118 L286 160 v84 L200 286 L114 244 v-84 Z"/>
+    <path d="M114 160 L200 202 L286 160"/>
+    <path d="M200 202 v84"/>
+  </g>
+</svg>

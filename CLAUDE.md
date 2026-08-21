@@ -76,12 +76,15 @@ the client saw an old page and had no way to tell why. So, plainly:
   eventually vikyplus.ir. It is driven by
   `.github/workflows/deploy-liara.yml` — tests, then Pint, then
   `liara deploy` — and by nothing else. Nobody runs a deploy by hand.
-- **The only trigger is a push to a branch named in that workflow's `on.push`
-  list.** Right now that is `main` and
-  `claude/wiki-plus-latest-work-enpjl1`. Working on any other branch and
-  pushing deploys *nothing*, silently, and the workflow is where that gets
-  fixed — add the branch to the list. A pull request runs the tests and is
-  explicitly barred from deploying.
+- **The only trigger is a push to `main`.** This bullet used to name a list of
+  deploy branches and it is the list that caused the accident in the block at
+  the top of this file; there is no list any more. `on.push` has no branch
+  filter at all, so **every** branch runs the whole suite — that is the signal
+  a working branch needs — and the deploy job alone is gated, on
+  `github.ref == 'refs/heads/main'`. A pull request is barred from deploying
+  explicitly, and so is the "Run workflow" button pointed at another ref.
+  Pushing a working branch therefore ships *nothing*, on purpose: to ship,
+  bring `main` up and push `main`.
 - **After a push, say what happened.** The client asks «بیلد تغییراتو بفرست»
   after every change and means the Liara deploy specifically. Read the run's
   two jobs (Tests, Deploy to Liara) and report the conclusion of both. Note
@@ -118,8 +121,24 @@ the client saw an old page and had no way to tell why. So, plainly:
 - `theme/make-category-photos.js` — the category tiles. The photographs go
   in exactly as supplied: resize only, no crop, no cut-out.
 - `theme/make-favicons.js` — the whole icon set, `favicon.ico`, `manifest.json`
-  and `browserconfig.xml`, all from `assets/img/vikyplus-appicon.png`. Same rule
-  as the category photographs: resize only. Re-run it if the mark ever changes.
+  and `browserconfig.xml`, all from **`assets/img/vikyplus-appicon-1024.png`**.
+  Same rule as the category photographs: resize only. Re-run it if the mark ever
+  changes. **Two sources, deliberately:** the 208px `vikyplus-appicon.png` is
+  also the logo in the header, the footer and the phone drawer, so it is left
+  alone — changing it changes the visible site and breaks parity. The 1024 is
+  the same mark at the resolution the client later supplied, framed identically
+  (the gem is 59.62% of the canvas in both), and Android's required 512px icon
+  is resized from it rather than upscaled from 208.
+- **The shop is installable on a telephone, and three separate things make it
+  so**: `start_url` in the manifest, a 512px icon (plus a `maskable` one so the
+  launcher does not draw a white box), and `public/sw.js` registered from the
+  page. Miss any one and Chrome will not offer «نصب برنامه» — it mints a
+  throwaway APK instead, which Google Play Protect blocks with «built for an
+  older version of Android». That is what the client photographed.
+  **`sw.js` caches nothing and must not start**: this site's whole appearance
+  is one stylesheet, and a cache-first worker would make «قالب قبلی» permanent
+  and unfixable by deploying. `InstallableTest` holds all of it, including that
+  the worker stores nothing.
   The shop's mark appears in three places (header, footer, phone drawer) and all
   three are the same lockup — see HANDOFF.md before adjusting any of them.
 - `storefront/resources/views/` — the Laravel app renders the same page, and
@@ -171,6 +190,15 @@ the client saw an old page and had no way to tell why. So, plainly:
   **no minimum length**, at the client's explicit instruction, so the throttles
   on `/account/password` and `/account/verify` are most of what stands against
   guessing. See `AccountController` and `LoginCode`.
+- **`/account` is three panels — who you are, the orders, the settings** — and
+  it is `.vp-acct-*` throughout, laid out for 390 first. It was a heading, three
+  gold words and a grey box until «این چه حساب کاربری داغونیه» arrived; HANDOFF
+  has the rebuild. **The only thing editable on it is the name.** `POST
+  /account/profile` takes the name and nothing else: the number is the
+  credential, the thing a code is sent to and the key every order is written
+  against, so a form that could change it would be an account takeover with no
+  code involved. The status chips are `.vp-adm-badge`'s five tones, quoted, so
+  one order is one colour to the shopper and to the shop.
 - **The code is a credential and is stored hashed**, good once, for two minutes,
   for five guesses; the number it was sent to lives in the *session*, never in
   the form, or a code could be verified against a number of the sender's
@@ -179,7 +207,26 @@ the client saw an old page and had no way to tell why. So, plainly:
   production, so the shop cannot go live silently swallowing its own sign-in
   codes. Going live is a provider account, `SMS_KEY`, a service line and an
   approved pattern, plus a `Sender` implementation registered in that provider's
-  `DRIVERS` map — the interface is one method.
+  `DRIVERS` map — the interface is one method. **Melipayamak is already written**
+  in four doors, and picking the wrong one wastes an evening. Two axes: which
+  host the account's key belongs to, and whether the line is the shop's own.
+  **This shop is `melipayamak.panel.simple`** — the older
+  `rest.payamak-panel.com` host, `SMS_USER` plus the key standing in for the
+  password, its own line in `SMS_FROM`, free text, **no pattern**. The key on
+  the panel's «تنظیمات وبسرویس» page is a *panel* key, which its own help text
+  says outright («به جای رمز عبور در پارامتر Password»); posted to the console
+  host it answers HTTP 400 «کلید کنسول معتبر نیست», a message about a key whose
+  fix is a host. The others: `melipayamak.simple` (console host, own line),
+  `melipayamak` and `melipayamak.panel` (shared «۹۹۹۹» line, and both need
+  `SMS_PATTERN` — a provider will not carry unapproved transactional text on a
+  line it lends to hundreds of senders, and getting one approved is the slow
+  half of connecting).
+  Connecting is `SMS_*` variables in the Liara panel and no code at all.
+  **`php artisan sms:test 09xxxxxxxxx` is how anybody finds out whether it
+  worked**: `Sender` swallows a provider's refusal on purpose — a 500 in front
+  of a shopper is worse than a message that did not arrive — so a wrong key and
+  a message still in flight look identical from the outside, and without this
+  command the only test is signing a real customer in and hoping.
 - **The content pages are `/about`, `/contact`, `/size-guide`, `/faq`, `/terms`
   and `/privacy`** — `PageController`, one view each under `resources/views/pages/`,
   copy and no database. They exist because the footer had been linking to them
@@ -216,7 +263,41 @@ the client saw an old page and had no way to tell why. So, plainly:
 - The panel is at `/admin`, hand-built (no Filament, at the client's request)
   in the storefront's own materials — `resources/views/admin/` and
   `layouts/admin.blade.php`. Its branch comes from the **signed-in user**, not
-  the URL; `php artisan staff:invite` makes an account.
+  the URL; `php artisan staff:invite` makes an account, and
+  `php artisan staff:password <email>` sets one — **not** a query-builder
+  `update(['password' => ...])`, which skips the `hashed` cast and writes the
+  plaintext, after which every sign-in 500s on `Hash::check`. That has
+  happened; `BrokenPasswordTest` and `App\Support\Auth\Passwords` are what
+  came of it.
+- **`php artisan demo:orders` fills the panel with pretend orders**, one in
+  every state the shop can produce — unconfirmed, confirmed, late, shipped,
+  delivered, cancelled before payment, refunded after it — because against an
+  empty shop every screen in `/admin` reads zero and none of them can be
+  judged. They go through `PlaceOrder` and `SettleOrder`, so the stock they
+  take is really taken and the panel's own counts agree with them; they carry
+  `MakeDemoOrders::NOTE` in `staff_note` and a 0999 telephone, which is all
+  `--remove` trusts. **`--remove` gives the stock back**, walking a shipped or
+  delivered one to «paid» first so the sale reverses. Every size keeps
+  `--floor` units (1 by default): eight demo orders on a shop holding one of
+  each size emptied «پرفروش‌ترین‌ها» and cut the home page by 1800px, which
+  `check-parity.js` caught and `DemoOrdersTest` now holds. **On a shop with
+  nothing above the floor — which is what production holds, one of each size —
+  use `--lend`, never `--floor=0`.** `--lend` puts the units on the shelf
+  first, as `inventory_movements` rows carrying `MakeDemoOrders::LENT`, and
+  `--remove` takes them back off; measured on that shop, every size stays
+  sellable and `check-parity.js` prints zero the whole time. `--floor=0` there
+  empties all eight sizes and collapses the home page. Never wire any of it
+  into a seeder or into `liara_pre_start.sh`.
+- **The panel's dates are Jalali on both sides.** `fa_date()` prints them, and
+  `public/assets/js/admin-jalali.js` — loaded from `layouts/admin.blade.php`,
+  fingerprinted like admin.css — puts a Persian calendar on the five fields
+  you *type* into, which the browser would otherwise draw in the device's own
+  calendar. **It hides the real `<input type="date">`, never replaces it**: the
+  field keeps its name and its `YYYY-MM-DD`, so nothing on the server knows
+  this exists. Add a date field anywhere under `.vp-adm` and it is covered.
+  `PanelDatesTest` holds that promise, because a rewrite that swapped the input
+  for a text field would look identical and would post a Persian date to a
+  parser expecting a Gregorian one.
 - The marketplace is at `/vendor` (a vendor's own panel) and under `/admin`
   for the platform's side. **Nothing in it is branch-scoped** — a vendor sells
   across the platform, so those screens sit outside the branch group and use
@@ -362,6 +443,64 @@ and 1200 breakpoints of the hero's `data-slider-options`, the track back to the
 page's width with `width: 85%` and `margin-inline: auto` above 992, and
 `initialSlide: 1` so the deck still opens on the slide carrying the real
 product photograph. Confirm it against the page before writing any of it.
+
+## «گلد سبز» — the green gold
+
+**Symptom, in the client's words:** «رنگ گلد ما گلد زرده چرا از اون گلد سبز
+برای آیکونا و دکمه ها استفاده میکنی». Said twice, a round apart, about two
+different screens — the first time as «دکمه ادامه هم نباید اون رنگی باشه باید
+همرنگ باقی دکمه های سایت باشه».
+
+**There is no green in this palette.** Every gold in `:root` is the same hue,
+within half a degree, at the same saturation:
+
+| token | hex | hue | sat | **lightness** |
+| --- | --- | --- | --- | --- |
+| `--vp-gold-lit` | `#EFC94F` | 45.8° | 83% | **62.4%** |
+| `--vp-gold-fill` | `#DAB226` | 46.7° | 71% | **50.2%** |
+| `--vp-gold-fill-ink` | `#BB9920` | 46.8° | 71% | **42.9%** |
+| `--theme-color` = `--vp-gold` | `#A08119` | 46.2° | 73% | **36.3%** |
+| `--vp-gold-ink` | `#8B7217` | 47.1° | 72% | **31.8%** |
+
+What reads as green is **lightness alone**: a dark yellow is olive to the eye.
+Nothing about the hue can be adjusted to fix a fill that is simply too dark.
+
+The one real hue in the file is the *previous* gold, `#A47F25` at **42.5°** —
+four degrees browner and eight points less saturated. It survives as
+`rgba(164,127,37,…)` literals in 30-odd tints that the 2026-08-16 sweep could
+not see, because a tint written as raw channels is invisible to a search for a
+token. Two of them were on the account page and are now the new gold; the rest
+are still there, and they are why some tints on this site look a shade muddier
+than others.
+
+**The rule.**
+
+- A **button** — anything filled that gets pressed — is
+  `linear-gradient(90deg, var(--vp-gold-fill), var(--vp-gold-lit))` with white
+  text and `filter: brightness(1.04)` on hover. That is what `.vp-pick-go`,
+  `.vp-cart-go`, `.vp-enter-go` and now `.vp-filter-apply` (nine views),
+  `.vp-shop-search button`, `.vp-empty-out`, `.vp-seller-add` and
+  `.vp-page.is-on` all carry.
+- An **icon glyph** is `var(--vp-gold-fill-ink)` flat, on a tint of
+  `rgba(218,178,38,…)` if it needs a chip. That is what the header's three icon
+  squares have always been, and it is now what `.vp-acct-door-mark` and
+  `.vp-empty-mark` are.
+- **The dark golds stay where they are: as text.** `--vp-gold-ink` and
+  `--vp-gold-ink-deep` had their lightness solved to hold a measured contrast
+  on white (the table in HANDOFF), so repainting a *heading* or a *price* to
+  the fill gold trades a legible page for a bright one. Text is not a fill.
+
+**Why this is a codename and not a one-line fix.** The first round fixed the
+one button that was complained about and wrote, in the comment above it, that
+the filter button «was not asked about». It was asked about the next time the
+client opened the site. When a colour is wrong it is wrong everywhere it is
+used that way — fix the class, not the screen.
+
+**Two are deliberately still on the dark gold**, both measured, both to be
+raised before changing: `.vp-pdp-cut` and `.vp-seller-tag` are white-on-gold
+*labels* (5.09:1; on the fill gold white would be 1.9:1, so they would have to
+flip to ink), and `.vp-pdp-dot.is-on` is a 3px indicator bar on white, where
+the fill gold reads 2.0:1 and disappears.
 
 ## «قالب قبلی» — the template comes back
 

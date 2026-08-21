@@ -68,14 +68,26 @@
                         </li>
                         @endforeach
                     </ul>
-                    {{-- Two chips rather than two more full-width rows: they
-                         are not sections of the shop and reading as though they
-                         were made the drawer a page and a half long. --}}
+                    {{-- Tiles rather than more full-width rows: these are not
+                         sections of the shop, and reading as though they were
+                         made the drawer a page and a half long.
+
+                         Four tiles, in the client's order read RTL: «فروش عمده»,
+                         «فروشنده شوید», «پیگیری سفارش», «راهنمای سایز».
+
+                         «سوالات متداول» left this row — «از اون ۴ مستطیل پایین منو
+                         سوالات متداول باید حذف بشه پیگیری سفارش بره جاش و اولین مورد
+                         بشه فروش عمده». The page stays: `/faq` is in the footer, in
+                         `/contact` and `/size-guide`, and the home page's own band asks
+                         the same eight questions. Only the tile went.
+
+                         Kept in step with theme/make-rtl-page.js's DRAWER_LINKS by
+                         hand, the way the rest of this file is. --}}
                     <ul class="vp-drawer-links">
                         <li>
-                            <a href="{{ page_url('order-tracking.html') }}">
-                                <i class="fa-solid fa-truck-fast" aria-hidden="true"></i>
-                                <span>پیگیری سفارش</span>
+                            <a href="{{ page_url('wholesale.html') }}">
+                                <i class="fa-solid fa-boxes-stacked" aria-hidden="true"></i>
+                                <span>فروش عمده</span>
                             </a>
                         </li>
                         <li>
@@ -84,16 +96,10 @@
                                 <span>فروشنده شوید</span>
                             </a>
                         </li>
-                        {{-- The help pages, which the shop had built and then hidden:
-                             «یه چنین چیزی قبلا با عنوان سوالات متداول ساخته شده ولی هیچ
-                             جا نمیبینمش». Both are in the footer too, but on a phone that
-                             copy sits at y≈6830 of a 6975px page. Kept in step with
-                             theme/make-rtl-page.js's DRAWER_LINKS by hand, the way the
-                             rest of this file is. --}}
                         <li>
-                            <a href="{{ page_url('faq.html') }}">
-                                <i class="fa-solid fa-circle-question" aria-hidden="true"></i>
-                                <span>سوالات متداول</span>
+                            <a href="{{ page_url('order-tracking.html') }}">
+                                <i class="fa-solid fa-truck-fast" aria-hidden="true"></i>
+                                <span>پیگیری سفارش</span>
                             </a>
                         </li>
                         <li>

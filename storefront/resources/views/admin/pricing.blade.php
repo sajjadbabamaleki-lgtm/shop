@@ -1,5 +1,7 @@
 @extends('layouts.admin')
 
+@section('title', 'قیمت‌ها')
+
 {{--
     What this branch charges. Typed and read in Toman; stored in Rial.
 
@@ -8,22 +10,32 @@
 --}}
 
 @section('content')
-<section class="vp-shop-panel">
-    <div class="vp-shop-head">
-        <div class="vp-shop-heading">
-            <h1 class="vp-shop-title">قیمت‌ها</h1>
-            <p class="vp-shop-count">{{ $branch->name }} — همه مبلغ‌ها به تومان</p>
-        </div>
-        <form class="vp-shop-search" method="get" action="{{ route('admin.pricing') }}" role="search">
-            <input type="search" name="q" value="{{ $q }}" placeholder="نام کالا یا کد" aria-label="جست‌وجو">
-            <button type="submit" aria-label="جست‌وجو"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></button>
+<div class="vp-adm-head">
+    <p class="vp-adm-sub">{{ $branch->name }} — همه مبلغ‌ها به تومان</p>
+
+    <div class="vp-adm-head-side">
+        <form class="vp-adm-filters" method="get" action="{{ route('admin.pricing') }}" role="search">
+            <label class="visually-hidden" for="vp-pri-q">جست‌وجو</label>
+            <input id="vp-pri-q" class="vp-adm-search" type="search" name="q" value="{{ $q }}" placeholder="نام کالا یا کد">
+            <button type="submit" class="vp-adm-apply">جست‌وجو</button>
+            @if ($q !== '')
+                <a class="vp-adm-clear" href="{{ route('admin.pricing') }}">پاک کردن</a>
+            @endif
         </form>
     </div>
+</div>
 
+<section class="vp-adm-card">
     @if ($offers->isEmpty())
-        <p class="vp-shop-empty">چیزی پیدا نشد.</p>
+        <p class="vp-adm-empty">
+            @if ($q === '')
+                هنوز کالایی برای فروش در این شعبه باز نشده.
+            @else
+                چیزی با این نام یا کد پیدا نشد.
+            @endif
+        </p>
     @else
-        <table class="vp-admin-table is-wide">
+        <table class="vp-admin-table">
             <thead>
                 <tr><th>کالا</th><th>کد</th><th>سایز</th><th>قیمت فروش</th><th>قبل از تخفیف</th><th>وضعیت</th><th></th></tr>
             </thead>
@@ -36,22 +48,22 @@
                     <form method="post" action="{{ route('admin.pricing.update', ['q' => $q]) }}">
                         @csrf
                         <input type="hidden" name="offer" value="{{ $offer->id }}">
-                        <td><input class="vp-admin-num is-wide" type="text" inputmode="numeric" name="price" value="{{ intdiv($offer->price, 10) }}"></td>
-                        <td><input class="vp-admin-num is-wide" type="text" inputmode="numeric" name="compare_at_price" value="{{ $offer->compare_at_price ? intdiv($offer->compare_at_price, 10) : '' }}"></td>
+                        <td><input class="vp-adm-cell is-wide" type="text" inputmode="numeric" name="price" value="{{ intdiv($offer->price, 10) }}"></td>
+                        <td><input class="vp-adm-cell is-wide" type="text" inputmode="numeric" name="compare_at_price" value="{{ $offer->compare_at_price ? intdiv($offer->compare_at_price, 10) : '' }}"></td>
                         <td>
-                            <select name="status" class="vp-admin-pick">
+                            <select name="status" class="vp-adm-cell">
                                 <option value="active" @selected($offer->status === 'active')>فروش</option>
                                 <option value="inactive" @selected($offer->status === 'inactive')>متوقف</option>
                             </select>
                         </td>
-                        <td><button type="submit" class="vp-admin-save">ثبت</button></td>
+                        <td><button type="submit" class="vp-adm-mini">ثبت</button></td>
                     </form>
                 </tr>
             @endforeach
             </tbody>
         </table>
 
-        <div class="vp-shop-pages">{{ $offers->links('pagination.vikyplus') }}</div>
+        <div class="vp-adm-pager">{{ $offers->links('pagination.vikyplus') }}</div>
     @endif
 </section>
 @endsection

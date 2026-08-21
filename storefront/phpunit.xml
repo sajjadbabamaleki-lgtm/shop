@@ -30,6 +30,13 @@
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>
         <env name="PULSE_ENABLED" value="false"/>
+        <!-- Pinned so the suite tests the shipped default rather than whatever
+             the developer's .env happens to say. Without this, a machine with
+             PAYMENT_DRIVER=zarinpal in .env runs a different order page from
+             CI, and the two disagree about whether there is a pay button —
+             which is the kind of difference nothing goes red on. PaymentTest
+             sets the driver it needs, per test. -->
+        <env name="PAYMENT_DRIVER" value="at-the-door"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>
     </php>

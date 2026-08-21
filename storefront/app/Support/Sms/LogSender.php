@@ -20,7 +20,10 @@ use Illuminate\Support\Facades\Log;
  */
 class LogSender implements Sender
 {
-    public function send(string $phone, string $message): void
+    /**
+     * @param  list<string>  $args
+     */
+    public function send(string $phone, string $message, array $args = []): void
     {
         Log::info("SMS to {$phone}: {$message}");
     }

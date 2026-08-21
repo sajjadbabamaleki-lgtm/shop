@@ -223,6 +223,53 @@ layers.push('assets/css/tweaks.css');
 // It costs nothing when the file arrives: one computed-style read, and the
 // gate returns before it touches the document. check-parity.js still prints
 // zero — both pages run this and both open it.
+//
+// ── the hole this left, found the hard way ────────────────────────────────
+//
+// All of the above is written for a stylesheet that **fails**. It says nothing
+// about one that is merely **slow**, and the client saw the template a third
+// time — not during a deploy, half an hour after one, on an iPhone, with the
+// site barely answering at all: «چرا باز دوباره اثرات قالب قبلیو دیدم چند
+// لحظه؟؟؟».
+//
+// There is a load-bearing assumption above: "this script sits after every
+// <link> in the head, which means the browser has already finished with all of
+// them — loaded or failed — before it runs." That is true of a stylesheet that
+// has resolved. One still in flight has not finished, and what a browser does
+// while it waits is its own business. Chromium blocks: measured here with
+// tweaks.css held back three seconds, the body is not parsed at 2.5s and
+// nothing paints. **Safari does not have to**, and the client is on an iPhone.
+// A 644KB stylesheet on a container that is struggling is exactly the case
+// that takes long enough to find out.
+//
+// So the gate no longer relies on the browser's choice. The document is hidden
+// by an inline style **above the first <link>** — before any stylesheet has
+// been asked for, let alone painted — and only the gate reveals it, on the one
+// condition that the design signed itself. Hidden is the default and visible
+// is earned, which is the way round that cannot be lost by a browser deciding
+// to paint early.
+//
+// What it costs: on a slow connection the visitor waits on white rather than
+// watching the template assemble itself. That is the trade, and being shown
+// somebody else's design has now cost this project three rounds. `<noscript>`
+// reveals the page where there is no JavaScript, and both bail-outs in the
+// gate reveal it too, so nothing can leave a page hidden for ever.
+//
+// The real cure is still the one in CLAUDE.md: the template's stylesheet is
+// 648KB of foundation under this page, and while it is there it can always be
+// what paints. The gate stops it being *seen*. Nothing else does.
+// Hidden until the design says otherwise. This goes above the first <link> on
+// purpose: at that point the browser has not requested a single stylesheet, so
+// there is no state in which the template can paint first.
+const DESIGN_HOLD = [
+  '    <!-- Hidden until the design signs itself; the gate below reveals it.',
+  '         See «قالب قبلی» in CLAUDE.md before touching either half. -->',
+  '    <style>html{visibility:hidden}</style>',
+  '    <noscript><style>html{visibility:visible}</style></noscript>',
+  '',
+  '',
+].join('\n');
+
 const DESIGN_GATE = [
   '',
   '',
@@ -232,18 +279,23 @@ const DESIGN_GATE = [
   '        (function () {',
   '            var root = document.documentElement;',
   '',
+  '            // Whatever happens below, a document left hidden is worse than',
+  '            // one showing the wrong thing, so every path out of here either',
+  '            // reveals the page or replaces it with the notice.',
+  "            var show = function () { root.style.visibility = 'visible'; };",
+  '',
   '            // A browser with no custom properties would fail this for ever,',
   '            // and it has bigger problems with this page than the gate.',
-  "            if (!window.getComputedStyle || !window.CSS || !CSS.supports || !CSS.supports('--vp-design', 'ok')) return;",
+  "            if (!window.getComputedStyle || !window.CSS || !CSS.supports || !CSS.supports('--vp-design', 'ok')) { show(); return; }",
   '',
   '            var key = "vp-design-retry";',
   '            var mark = function (v) { try { v === null ? sessionStorage.removeItem(key) : sessionStorage.setItem(key, v); } catch (e) {} };',
   '            var marked = function () { try { return sessionStorage.getItem(key) === "1"; } catch (e) { return false; } };',
   '',
-  "            if (getComputedStyle(root).getPropertyValue('--vp-design').trim() === 'ok') { mark(null); return; }",
+  "            if (getComputedStyle(root).getPropertyValue('--vp-design').trim() === 'ok') { show(); mark(null); return; }",
   '',
-  '            // Nothing is painted yet. Keep it that way.',
-  "            root.style.visibility = 'hidden';",
+  '            // Nothing is painted yet — the hold above saw to that — and it',
+  '            // stays that way until there is something true to show.',
   '',
   '            if (!marked()) {',
   '                mark("1");',
@@ -268,6 +320,14 @@ const DESIGN_GATE = [
   '        })();',
   '    </script>',
 ].join('\n');
+
+// The hold goes above the first stylesheet the head asks for; the gate goes
+// below the last one. Between them, nothing paints unsigned.
+const FIRST_SHEET = /([ \t]*<link[^>]+href="assets\/css\/bootstrap\.rtl\.min\.css"[^>]*>)/i;
+if (!FIRST_SHEET.test(html)) {
+  throw new Error('the head has no bootstrap stylesheet to put the design hold above');
+}
+html = html.replace(FIRST_SHEET, DESIGN_HOLD + '$1');
 
 html = html.replace(
   /(<link[^>]+href="assets\/css\/style\.rtl\.css"[^>]*>)/i,
@@ -303,9 +363,25 @@ const HERO_TITLES = {
   hero_6_3: 'کتونی گلدن گوس',
 };
 
+// The label above the heading is the slide's reason for being in the deck, one
+// line per shoe — «بجای اسم تکراری هم این ۳ تا بیاد رو هر کفش یکیش». It was the
+// product's name, printed a second time immediately above the heading that
+// already says it, and the client asked for that repeat to go.
+//
+// These must stay in step with `storefront.hero.products` in the Laravel
+// config, which carries the same three lines against the same three slugs:
+// hero_6_1 is new-balance-530, _2 is jordan-one-air, _3 is golden-goose. The
+// two copies of this page are compared pixel for pixel by check-parity.js, so
+// a line changed on one side and not the other fails there.
+const HERO_EYEBROWS = {
+  hero_6_1: 'پر فروش این هفته',
+  hero_6_2: 'یه پیشنهاد ویژه',
+  hero_6_3: 'موجودی محدود',
+};
+
 // The model is bound with non-breaking spaces so the second line stays one
 // line whatever the type size — the break belongs to the name, not to the
-// measure. The label above the heading keeps the plain name on one line.
+// measure.
 const heroHeading = (name) => {
   const [kind, ...model] = name.split(' ');
   return kind + '<br>' + model.join('\u00A0');
@@ -325,7 +401,7 @@ html = html.replace(
   /(<span class="sub-title"[^>]*>)[^<]*(<\/span>\s*<h1 class="hero-title"[^>]*>)[\s\S]*?(<\/h1>[\s\S]*?<img src=")assets\/img\/hero\/(hero_6_[123])\.png(")/g,
   (_, openLabel, openTitle, betweenTitleAndImg, slot, closeSrc) => {
     const title = HERO_TITLES[slot];
-    return openLabel + title + openTitle + '\n                                                ' +
+    return openLabel + HERO_EYEBROWS[slot] + openTitle + '\n                                                ' +
       heroHeading(title) + ' ' + betweenTitleAndImg + `assets/img/hero/${HERO_PHOTOS[slot]}` + closeSrc;
   }
 );
@@ -554,21 +630,30 @@ const QUICK_LINKS = [
   ['fa-arrow-trend-up', 'پرفروش‌ترین‌ها', ''],
 ];
 
-// The last two are the help pages, put here because the shop had built them
-// and then hidden them: «یه چنین چیزی قبلا با عنوان سوالات متداول ساخته شده ولی
-// هیچ جا نمیبینمش». They were reachable — `/faq` and `/size-guide` are in the
-// footer, and on a phone the footer's own copy of them sits at y≈6830 on a
-// 6975px page. A page you can only reach by scrolling the whole shop is a page
-// nobody reaches, and the menu is where a phone visitor looks for help.
+// The four tiles at the foot of the drawer. Their order is the client's, read
+// in RTL: «فروش عمده» first, then «فروشنده شوید», then «پیگیری سفارش», then
+// «راهنمای سایز».
+//
+// «سوالات متداول» came out of here — «از اون ۴ مستطیل پایین منو سوالات متداول
+// باید حذف بشه پیگیری سفارش بره جاش و اولین مورد بشه فروش عمده». The page is
+// not gone: `/faq` is still in the footer, still linked from `/contact` and
+// `/size-guide`, and the home page still carries the band of the same eight
+// questions. What left is its tile, and the slot went to the thing a phone
+// visitor with an order in the post actually opens the menu for.
+//
+// «فروش عمده» is `/wholesale`, which the shop has advertised on the front
+// page's trust row since the template was dressed. Its mark is the same
+// `fa-boxes-stacked` that badge uses, so the two places the shop says «عمده»
+// say it with one glyph.
 //
 // Four entries make the 1fr 1fr grid two even rows. The body they sit in is
 // `overflow-y: auto` already, so the extra 48px scrolls on a 375×667 screen
 // rather than pushing the sign-in button off it; at 390×844 the drawer is
 // 695 of 824 and nothing scrolls at all. Both measured.
 const DRAWER_LINKS = [
-  ['fa-truck-fast', 'پیگیری سفارش', 'order-tracking.html'],
+  ['fa-boxes-stacked', 'فروش عمده', 'wholesale.html'],
   ['fa-store', 'فروشنده شوید', 'vendor-register.html'],
-  ['fa-circle-question', 'سوالات متداول', 'faq.html'],
+  ['fa-truck-fast', 'پیگیری سفارش', 'order-tracking.html'],
   ['fa-ruler', 'راهنمای سایز', 'size-guide.html'],
 ];
 
@@ -788,6 +873,42 @@ const TRUST_ROW =
   ).join('') +
   '\n            </div>';
 
+// --------------------------------------------------------------------------
+// «تاس شانس» — the game band, under the trust row.
+//
+// Two dice at rest, a button, and a line saying one throw per person. What is
+// here is the **opening state and nothing else**: the result card is built by
+// the script when the server answers, so this markup is the same for every
+// visitor — which is what lets check-parity.js compare the static preview
+// against the Laravel page at all. A band whose HTML depended on who was
+// looking could not be checked that way.
+//
+// The dice faces are drawn, not pictures: seven pip positions per die, shown
+// and hidden by a class. That is one element per pip and no request, against
+// six images per die that would each have to load before the first throw
+// could be shown.
+// --------------------------------------------------------------------------
+const DIE_FACE = (n) =>
+  '\n                        <span class="vp-die" data-face="' + n + '" aria-hidden="true">' +
+  [1, 2, 3, 4, 5, 6, 7].map(() => '<i></i>').join('') +
+  '</span>';
+
+const DICE_BAND =
+  '\n    <section class="vp-dice-area" id="vp-dice">' +
+  '\n        <div class="container th-container">' +
+  '\n            <div class="vp-dice-card">' +
+  '\n                <h2 class="vp-dice-title">تاس شانس — بنداز و ببر!</h2>' +
+  '\n                <p class="vp-dice-say">روی دکمه شروع بزن تا تاس‌ها بچرخن؛<br>جفت شیش بیاد، جایزه‌ات فعال می‌شه</p>' +
+  '\n                <div class="vp-dice-pair" data-dice-pair>' +
+  DIE_FACE(3) +
+  DIE_FACE(5) +
+  '\n                </div>' +
+  '\n                <button type="button" class="vp-dice-go" data-dice-go>شروع بازی</button>' +
+  '\n                <p class="vp-dice-foot">هر کاربر ۲ بار شانس داره</p>' +
+  '\n            </div>' +
+  '\n        </div>' +
+  '\n    </section>';
+
 // The trust row sits outside .th-container, in its own full-bleed wrapper —
 // the client wants it run out to the same 18px-from-the-edge margin as the
 // header island (.th-header .menu-area), not held to the container's width
@@ -801,7 +922,8 @@ html = html.replace(
   '        <div class="vp-trust-row-wrap">\n' +
   '            ' + TRUST_ROW + '\n' +
   '        </div>\n' +
-  '    </section>'
+  '    </section>\n' +
+  DICE_BAND
 );
 
 // Best sellers: six cards in a fixed row rather than the template's
@@ -1049,15 +1171,19 @@ const BEST_ROW =
 // already on the site (DEAL_ITEMS below), not invented.
 const BEST_FILTERS = ['همه', 'نایک', 'جردن', 'نیوبالانس', 'گلدن گوس'];
 
+// The way out sits opposite the title, not at the end of the filter row —
+// «مشاهده همه محصولات اینجا باید حذف بشه بیاد روبروی عنوان سمت چپ». That is
+// also what `.vp-brands-head` already does, and its comment says it is
+// copying this band; now the two really do match.
 const BEST_HEAD =
   '<div class="vp-best-head">' +
   '\n                <h2 class="vp-best-title">پرفروش‌ترین‌ها</h2>' +
-  '\n                <div class="vp-best-filters">' +
+  '\n                <a class="vp-best-all" href="shop.html">مشاهده همه محصولات</a>' +
+  '\n            </div>' +
+  '\n            <div class="vp-best-filters">' +
   BEST_FILTERS.map((label, i) =>
-    `\n                    <button type="button" class="vp-best-filter${i === 0 ? ' active' : ''}">${label}</button>`
+    `\n                <button type="button" class="vp-best-filter${i === 0 ? ' active' : ''}">${label}</button>`
   ).join('') +
-  '\n                    <a class="vp-best-all" href="shop.html">مشاهده همه محصولات</a>' +
-  '\n                </div>' +
   '\n            </div>';
 
 // vp-best-section on the <section> itself: the default .space class gives
@@ -2189,6 +2315,356 @@ html = html.replace('</body>',
 // The one thing this adds rather than preserves is the reserve: the height the
 // island gives up when it leaves the flow, measured and handed to tweaks.css,
 // which is what stops the page stepping at the threshold. See «پریدگی» there.
+// «تاس شانس» — the throw, from the page's side.
+//
+// Plain DOM, no jQuery: the band is one button and it should not wait on a
+// library that the rest of this page happens to carry. It reads two addresses
+// off the section (`data-dice-url`, `data-shop-url`) so the same markup works
+// in the Laravel app and in this static preview, where there is no server and
+// the throw simply says so.
+//
+// **Nothing here decides anything.** The faces, the win and the code all come
+// back from the server; this only shows them. A visitor who edits this script
+// changes what their own screen says and nothing else — which is the whole
+// reason the roll is not done in the browser.
+const DICE_SCRIPT =
+`    <script>
+        (function () {
+            var band = document.getElementById('vp-dice');
+            if (!band) { return; }
+
+            var pair = band.querySelector('[data-dice-pair]');
+            var go = band.querySelector('[data-dice-go]');
+            if (!pair || !go) { return; }
+
+            var dice = pair.querySelectorAll('.vp-die');
+            var url = band.getAttribute('data-dice-url') || '/game/dice';
+            var shop = band.getAttribute('data-shop-url') || '/products';
+            var busy = false;
+
+            // The dice tumble for this long whatever the network does. An
+            // answer that arrives in 40ms and stops them dead is not a throw;
+            // a slow one keeps them going until it lands.
+            //
+            // It was 1100 and «خیلی بیخودو کوتاهه» — so 2400, about as long as
+            // a real pair takes to leave a hand, hit the table and settle. The
+            // face churns underneath every CHURN ms, which is what makes it a
+            // throw rather than a shape wobbling: the pips have to be moving
+            // or the eye reads the die as being pushed, not rolled.
+            var TUMBLE = 2400;
+            var CHURN = 90;
+            var LAND = 260;
+            // A double six is the whole point of the band, so it is allowed to
+            // be looked at. «وقتی جفت شیش میشه باید ۲ ثانیه رو جفت شیش بمونه
+            // بعد این پاپاپ باز بشه» — the card covers the dice, and opening
+            // it the instant they stop means nobody ever sees what they threw.
+            var GLOAT = 2000;
+
+            function fa(text) {
+                return String(text).replace(/[0-9]/g, function (d) {
+                    return String.fromCharCode(1776 + Number(d));
+                });
+            }
+
+            function csrf() {
+                var meta = document.querySelector('meta[name="csrf-token"]');
+                return band.getAttribute('data-dice-token') || (meta ? meta.getAttribute('content') : '');
+            }
+
+            // The button is spent after one throw, so it is replaced by the
+            // sentence rather than left sitting there disabled.
+            function spend(text) {
+                var line = document.createElement('p');
+                line.className = 'vp-dice-done';
+                line.textContent = text;
+                if (go.parentNode) { go.parentNode.replaceChild(line, go); }
+            }
+
+            // A throw that never reached the server is not a throw. The button
+            // comes back and the reason goes under it — spending it here would
+            // charge somebody their one go for a dropped packet.
+            function excuse(text) {
+                var line = band.querySelector('.vp-dice-done');
+
+                if (!line) {
+                    line = document.createElement('p');
+                    line.className = 'vp-dice-done';
+                    go.parentNode.insertBefore(line, go.nextSibling);
+                }
+
+                line.textContent = text;
+                go.disabled = false;
+                busy = false;
+            }
+
+            function copy(text, button) {
+                function done() {
+                    button.textContent = 'کپی شد';
+                    setTimeout(function () { button.textContent = 'کپی'; }, 1600);
+                }
+
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(text).then(done, function () {});
+                    return;
+                }
+
+                // http, or an older browser. execCommand is deprecated and is
+                // the only thing that works there.
+                var box = document.createElement('textarea');
+                box.value = text;
+                box.setAttribute('readonly', 'readonly');
+                box.style.position = 'fixed';
+                box.style.insetBlockStart = '-1000px';
+                document.body.appendChild(box);
+                box.select();
+                try { document.execCommand('copy'); done(); } catch (e) {}
+                document.body.removeChild(box);
+            }
+
+            function confetti(into) {
+                // The page's gold, its ink and its grey. Confetti in colours
+                // the site does not otherwise own is how the band ended up
+                // looking like somebody else's site the first time.
+                var colours = ['#DAB226', '#EFC94F', '#A08119', '#101111', '#E7E9EC'];
+                var field = document.createElement('div');
+                field.className = 'vp-confetti';
+
+                for (var i = 0; i < 24; i++) {
+                    var piece = document.createElement('i');
+                    piece.style.insetInlineStart = (Math.random() * 100) + '%';
+                    piece.style.background = colours[i % colours.length];
+                    piece.style.animationDelay = (Math.random() * 0.8) + 's';
+                    piece.style.animationDuration = (2.2 + Math.random() * 1.2) + 's';
+                    field.appendChild(piece);
+                }
+
+                into.appendChild(field);
+            }
+
+            function prize(answer) {
+                var scrim = document.createElement('div');
+                scrim.className = 'vp-prize-scrim';
+                scrim.setAttribute('role', 'dialog');
+                scrim.setAttribute('aria-modal', 'true');
+                scrim.setAttribute('aria-label', 'جایزه تاس شانس');
+
+                var card = document.createElement('div');
+                card.className = 'vp-prize';
+                scrim.appendChild(card);
+
+                var shut = document.createElement('button');
+                shut.type = 'button';
+                shut.className = 'vp-prize-shut';
+                shut.setAttribute('aria-label', 'بستن');
+                shut.textContent = '×';
+                card.appendChild(shut);
+
+                // The shop's own star, not a disc — the hero's mark and the
+                // sale cards' mark are this same shape, and the path and the
+                // studs are interpolated from the very constants that draw
+                // them, so the three can never drift apart. The figure is
+                // Latin on purpose, the way the hero's «25% OFF» is.
+                var badge = document.createElement('div');
+                badge.className = 'vp-prize-badge';
+                badge.innerHTML = '<svg class="vp-prize-burst" viewBox="0 0 150 150" aria-hidden="true">'
+                    + '<defs><linearGradient id="vp-prize-burst-gold" x1="0" y1="0" x2="0" y2="1">'
+                    + '<stop offset="0%" stop-color="#C0972F"></stop><stop offset="100%" stop-color="#E3B54A"></stop>'
+                    + '</linearGradient></defs>'
+                    + '<g class="vp-burst-star">'
+                    + '<path fill="url(#vp-prize-burst-gold)" d="${BURST_PATH}"></path>'
+                    + '${BURST_STUDS}'
+                    + '</g>'
+                    + '<text class="vp-burst-num" x="75" y="72"></text>'
+                    + '<text class="vp-burst-off" x="75" y="98">OFF</text>'
+                    + '</svg>';
+                badge.querySelector('.vp-burst-num').textContent = answer.percent + '%';
+                card.appendChild(badge);
+
+                var what = document.createElement('p');
+                what.className = 'vp-prize-what';
+                what.textContent = 'جفت شیش آوردی 🎲';
+                card.appendChild(what);
+
+                var title = document.createElement('h3');
+                title.className = 'vp-prize-title';
+                title.textContent = answer.fresh ? 'تبریک! 🎉' : 'جایزه‌ات همین‌جاست';
+                card.appendChild(title);
+
+                var say = document.createElement('p');
+                say.className = 'vp-prize-say';
+                say.textContent = fa(answer.percent) + '٪ تخفیف روی سفارشت، برای شما فعال شد.';
+                card.appendChild(say);
+
+                var box = document.createElement('div');
+                box.className = 'vp-prize-code';
+                var label = document.createElement('span');
+                label.textContent = 'کد تخفیف';
+                var value = document.createElement('b');
+                value.textContent = answer.code;
+                var take = document.createElement('button');
+                take.type = 'button';
+                take.className = 'vp-prize-copy';
+                take.textContent = 'کپی';
+                take.addEventListener('click', function () { copy(answer.code, take); });
+                box.appendChild(label);
+                box.appendChild(value);
+                box.appendChild(take);
+                card.appendChild(box);
+
+                var use = document.createElement('a');
+                use.className = 'vp-prize-go';
+                use.href = shop;
+                use.textContent = 'استفاده از تخفیف';
+                card.appendChild(use);
+
+                var when = document.createElement('p');
+                when.className = 'vp-prize-when';
+                when.textContent = '⏱ اعتبار کد: ' + fa(answer.hours) + ' ساعت';
+                card.appendChild(when);
+
+                // Around the card, not across it: inside the card itself
+                // these twenty-four opaque flakes landed on the code and
+                // the title.
+                confetti(scrim);
+
+                function shutIt() {
+                    if (scrim.parentNode) { scrim.parentNode.removeChild(scrim); }
+                    document.body.classList.remove('vp-prize-open');
+                    document.removeEventListener('keydown', onKey);
+                    go.focus && go.focus();
+                }
+
+                function onKey(event) {
+                    if (event.key === 'Escape') { shutIt(); }
+                }
+
+                shut.addEventListener('click', shutIt);
+                scrim.addEventListener('click', function (event) {
+                    if (event.target === scrim) { shutIt(); }
+                });
+                document.addEventListener('keydown', onKey);
+
+                // The corner's WhatsApp button is fixed and outranks nothing,
+                // so without this it sits on the scrim as a green square over
+                // the celebration. tweaks.css hides it on this class.
+                document.body.classList.add('vp-prize-open');
+                document.body.appendChild(scrim);
+                shut.focus();
+            }
+
+            // While the dice are in the air their faces are meaningless, so
+            // they may as well churn. Nothing here decides anything — the
+            // server has already decided, or is about to — and land() writes
+            // the real faces over whatever this left behind.
+            var churn = null;
+
+            function startChurn() {
+                stopChurn();
+                churn = setInterval(function () {
+                    for (var i = 0; i < dice.length; i++) {
+                        dice[i].setAttribute('data-face', String(1 + Math.floor(Math.random() * 6)));
+                    }
+                }, CHURN);
+            }
+
+            function stopChurn() {
+                if (churn) { clearInterval(churn); churn = null; }
+            }
+
+            function land(answer) {
+                stopChurn();
+                pair.classList.remove('is-rolling');
+
+                if (answer.dice && answer.dice.length === 2) {
+                    for (var i = 0; i < dice.length && i < 2; i++) {
+                        dice[i].setAttribute('data-face', String(answer.dice[i]));
+                    }
+                }
+
+                // The settle. Removed afterwards so the next throw can play it
+                // again — an animation that is already on an element does not
+                // restart when the class is merely still there.
+                pair.classList.add('is-landing');
+                setTimeout(function () { pair.classList.remove('is-landing'); }, LAND + 60);
+
+                if (answer.won && answer.code) {
+                    // The code goes on the band as well as in the card, so
+                    // closing the card does not take it away.
+                    spend('جفت شیش! کد تخفیفت: ' + answer.code);
+                    // Two seconds on the two sixes before the card covers
+                    // them. Winning is the moment; it should be seen.
+                    setTimeout(function () { prize(answer); }, GLOAT);
+                    return;
+                }
+
+                if (answer.won) {
+                    // Won, but the code has been spent or has expired.
+                    spend('قبلاً بازی کردی و برده بودی؛ کد تخفیفت دیگر معتبر نیست.');
+                    return;
+                }
+
+                // A loss with a throw still owed is not the end of the game,
+                // so the button stays and the line goes under it. Ending it
+                // here is what «۲ شانس» would look like as one.
+                if (answer.left > 0) {
+                    excuse(answer.left === 1
+                        ? 'این بار جفت شیش نیامد — یک شانس دیگر داری.'
+                        : 'این بار جفت شیش نیامد — ' + fa(answer.left) + ' شانس دیگر داری.');
+                    return;
+                }
+
+                spend(answer.fresh
+                    ? 'این بار هم جفت شیش نیامد. شانس‌هایت تمام شد.'
+                    : 'شانس‌هایت تمام شده بود.');
+            }
+
+            go.addEventListener('click', function () {
+                if (busy) { return; }
+                busy = true;
+
+                go.disabled = true;
+                pair.classList.remove('is-landing');
+                pair.classList.add('is-rolling');
+                startChurn();
+
+                var thrown = Date.now();
+                var landed = function (answer) {
+                    var left = Math.max(0, TUMBLE - (Date.now() - thrown));
+                    setTimeout(function () { land(answer); }, left);
+                };
+
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrf(),
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    },
+                    credentials: 'same-origin'
+                }).then(function (response) {
+                    return response.json().catch(function () { return {}; }).then(function (body) {
+                        if (!response.ok) {
+                            throw new Error(body.error || (response.status === 429
+                                ? 'کمی صبر کن و دوباره بزن.'
+                                : 'الان نشد؛ کمی بعد دوباره امتحان کن.'));
+                        }
+                        return body;
+                    });
+                }).then(landed, function (error) {
+                    var left = Math.max(0, TUMBLE - (Date.now() - thrown));
+                    setTimeout(function () {
+                        stopChurn();
+                        pair.classList.remove('is-rolling');
+                        excuse(error && error.message ? error.message : 'الان نشد؛ کمی بعد دوباره امتحان کن.');
+                    }, left);
+                });
+            });
+        })();
+    </script>
+</body>`;
+
+html = html.replace('</body>', DICE_SCRIPT);
+
 html = html.replace('</body>',
   '    <script>\n' +
   '        (function () {\n' +
@@ -2808,6 +3284,30 @@ html = html.replace(
   /(<button type="button" class="icon-btn sideMenuToggler"[\s\S]*?)<span class="badge">5<\/span>/,
   '$1<span class="badge">۰</span>'
 );
+
+// --- the shop, installable ---------------------------------------------------
+//
+// Android will not offer «نصب برنامه» unless the site registers a service
+// worker with a fetch handler. Without one — and without the `start_url` and
+// 512px icon the manifest was also missing — Chrome fell back to minting a
+// throwaway APK, which Google Play Protect refused: «This app was built for an
+// older version of Android». The client photographed exactly that.
+//
+// Registered last and only after `load`, so it can never delay the page.
+// `isSecureContext` rather than a check for https: it is true for https *and*
+// for localhost, so the thing that ships is the thing that can be tested —
+// a check for the scheme alone is unverifiable on a development machine,
+// which is how a registration that never worked would have shipped green. `sw.js` itself caches nothing — see the note at the top of it, and
+// «قالب قبلی» in CLAUDE.md for why caching this site's assets is not a small
+// decision.
+html = html.replace('</body>',
+  '    <script>\n' +
+  '        if ("serviceWorker" in navigator && window.isSecureContext) {\n' +
+  '            window.addEventListener("load", function () {\n' +
+  '                navigator.serviceWorker.register("/sw.js").catch(function () {});\n' +
+  '            });\n' +
+  '        }\n' +
+  '    </script>\n</body>');
 
 fs.writeFileSync(out, html);
 console.log(`wrote ${path.relative(ROOT, out)} (theme: ${theme || 'none — template colours'})`);

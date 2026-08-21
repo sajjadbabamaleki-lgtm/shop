@@ -47,14 +47,29 @@ class Order extends Model
     protected $fillable = [
         'branch_id', 'customer_id', 'number', 'status',
         'subtotal', 'discount_total', 'shipping_total', 'grand_total',
-        'payment_method', 'payment_status',
+        'payment_method', 'payment_status', 'tracking_number',
         'contact_name', 'contact_phone', 'province', 'city', 'address',
-        'postal_code', 'note', 'placed_at', 'paid_at', 'cancelled_at',
+        'postal_code', 'note', 'staff_note', 'placed_at', 'paid_at', 'cancelled_at',
+        // The fulfilment promise — §2 of the order-management addendum. An
+        // estimate and an event are separate columns on purpose: sharing one
+        // makes «when we said it would go» and «when it went» the same number,
+        // and the shop can no longer tell a kept promise from a broken one.
+        'confirmed_at', 'estimated_ship_by', 'actual_shipped_at',
+        'estimated_delivery_from', 'estimated_delivery_to', 'actual_delivered_at',
+        'is_delayed', 'delay_reason', 'carrier', 'shipping_method_id', 'promise_basis',
     ];
 
     protected function casts(): array
     {
         return [
+            'confirmed_at' => 'datetime',
+            'estimated_ship_by' => 'date',
+            'actual_shipped_at' => 'datetime',
+            'estimated_delivery_from' => 'date',
+            'estimated_delivery_to' => 'date',
+            'actual_delivered_at' => 'datetime',
+            'is_delayed' => 'boolean',
+            'promise_basis' => 'array',
             'subtotal' => 'integer',
             'discount_total' => 'integer',
             'shipping_total' => 'integer',
@@ -68,6 +83,18 @@ class Order extends Model
     public function items(): HasMany
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    /**
+     * Every attempt to pay for it — successful or not.
+     *
+     * A customer who abandons the gateway and comes back leaves two rows, and
+     * both are kept: «چرا این سفارش دو بار پرداخت شد» has an answer only if
+     * the failures are on the record too.
+     */
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
     }
 
     public function customer(): BelongsTo
@@ -126,5 +153,72 @@ class Order extends Model
     public function statusLabel(): string
     {
         return self::statusLabels()[$this->status] ?? $this->status;
+    }
+
+    /**
+     * What happened to the money.
+     *
+     * A separate question from the status, and one the panel used to answer
+     * with `paid ? … : 'پرداخت‌نشده'`. `SettleOrder::cancelled` writes
+     * **refunded** when it reverses an order that had been paid for, and that
+     * two-way branch called it «پرداخت‌نشده» — money that was taken and given
+     * back, reported as money that never arrived. A shop reconciling a day's
+     * takings cannot tell those apart, and nothing anywhere said which it was.
+     *
+     * Kept beside `statusLabels()` so the next value somebody writes into this
+     * column has one place to be named.
+     *
+     * @return array<string, string>
+     */
+    public static function paymentLabels(): array
+    {
+        return [
+            'unpaid' => 'پرداخت‌نشده',
+            'paid' => 'پرداخت‌شده',
+            'refunded' => 'برگشت‌خورده',
+        ];
+    }
+
+    public function paymentLabel(): string
+    {
+        return self::paymentLabels()[$this->payment_status] ?? (string) $this->payment_status;
+    }
+
+    /**
+     * How it was paid for, in words.
+     *
+     * `payment_method` holds a token — `cash_on_delivery` is the only one this
+     * application writes so far — and the order screen printed it raw, which
+     * put an English snake_case word in the middle of a Persian panel. Falls
+     * back to the token so a method added later is visible rather than blank.
+     *
+     * @return array<string, string>
+     */
+    public static function methodLabels(): array
+    {
+        return [
+            'cash_on_delivery' => 'پرداخت در محل',
+            'online' => 'پرداخت اینترنتی',
+        ];
+    }
+
+    public function methodLabel(): string
+    {
+        return self::methodLabels()[$this->payment_method] ?? (string) $this->payment_method;
+    }
+
+    /** Which badge the payment wears — reversed money reads like a cancellation. */
+    public function paymentTone(): string
+    {
+        return match ($this->payment_status) {
+            'paid' => 'delivered',
+            'refunded' => 'cancelled',
+            default => 'placed',
+        };
+    }
+
+    public function shippingMethod(): BelongsTo
+    {
+        return $this->belongsTo(ShippingMethod::class);
     }
 }

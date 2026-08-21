@@ -94,6 +94,339 @@
     </script>
     <script>
         (function () {
+            var band = document.getElementById('vp-dice');
+            if (!band) { return; }
+
+            var pair = band.querySelector('[data-dice-pair]');
+            var go = band.querySelector('[data-dice-go]');
+            if (!pair || !go) { return; }
+
+            var dice = pair.querySelectorAll('.vp-die');
+            var url = band.getAttribute('data-dice-url') || '/game/dice';
+            var shop = band.getAttribute('data-shop-url') || '/products';
+            var busy = false;
+
+            // The dice tumble for this long whatever the network does. An
+            // answer that arrives in 40ms and stops them dead is not a throw;
+            // a slow one keeps them going until it lands.
+            //
+            // It was 1100 and «خیلی بیخودو کوتاهه» — so 2400, about as long as
+            // a real pair takes to leave a hand, hit the table and settle. The
+            // face churns underneath every CHURN ms, which is what makes it a
+            // throw rather than a shape wobbling: the pips have to be moving
+            // or the eye reads the die as being pushed, not rolled.
+            var TUMBLE = 2400;
+            var CHURN = 90;
+            var LAND = 260;
+            // A double six is the whole point of the band, so it is allowed to
+            // be looked at. «وقتی جفت شیش میشه باید ۲ ثانیه رو جفت شیش بمونه
+            // بعد این پاپاپ باز بشه» — the card covers the dice, and opening
+            // it the instant they stop means nobody ever sees what they threw.
+            var GLOAT = 2000;
+
+            function fa(text) {
+                return String(text).replace(/[0-9]/g, function (d) {
+                    return String.fromCharCode(1776 + Number(d));
+                });
+            }
+
+            function csrf() {
+                var meta = document.querySelector('meta[name="csrf-token"]');
+                return band.getAttribute('data-dice-token') || (meta ? meta.getAttribute('content') : '');
+            }
+
+            // The button is spent after one throw, so it is replaced by the
+            // sentence rather than left sitting there disabled.
+            function spend(text) {
+                var line = document.createElement('p');
+                line.className = 'vp-dice-done';
+                line.textContent = text;
+                if (go.parentNode) { go.parentNode.replaceChild(line, go); }
+            }
+
+            // A throw that never reached the server is not a throw. The button
+            // comes back and the reason goes under it — spending it here would
+            // charge somebody their one go for a dropped packet.
+            function excuse(text) {
+                var line = band.querySelector('.vp-dice-done');
+
+                if (!line) {
+                    line = document.createElement('p');
+                    line.className = 'vp-dice-done';
+                    go.parentNode.insertBefore(line, go.nextSibling);
+                }
+
+                line.textContent = text;
+                go.disabled = false;
+                busy = false;
+            }
+
+            function copy(text, button) {
+                function done() {
+                    button.textContent = 'کپی شد';
+                    setTimeout(function () { button.textContent = 'کپی'; }, 1600);
+                }
+
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(text).then(done, function () {});
+                    return;
+                }
+
+                // http, or an older browser. execCommand is deprecated and is
+                // the only thing that works there.
+                var box = document.createElement('textarea');
+                box.value = text;
+                box.setAttribute('readonly', 'readonly');
+                box.style.position = 'fixed';
+                box.style.insetBlockStart = '-1000px';
+                document.body.appendChild(box);
+                box.select();
+                try { document.execCommand('copy'); done(); } catch (e) {}
+                document.body.removeChild(box);
+            }
+
+            function confetti(into) {
+                // The page's gold, its ink and its grey. Confetti in colours
+                // the site does not otherwise own is how the band ended up
+                // looking like somebody else's site the first time.
+                var colours = ['#DAB226', '#EFC94F', '#A08119', '#101111', '#E7E9EC'];
+                var field = document.createElement('div');
+                field.className = 'vp-confetti';
+
+                for (var i = 0; i < 24; i++) {
+                    var piece = document.createElement('i');
+                    piece.style.insetInlineStart = (Math.random() * 100) + '%';
+                    piece.style.background = colours[i % colours.length];
+                    piece.style.animationDelay = (Math.random() * 0.8) + 's';
+                    piece.style.animationDuration = (2.2 + Math.random() * 1.2) + 's';
+                    field.appendChild(piece);
+                }
+
+                into.appendChild(field);
+            }
+
+            function prize(answer) {
+                var scrim = document.createElement('div');
+                scrim.className = 'vp-prize-scrim';
+                scrim.setAttribute('role', 'dialog');
+                scrim.setAttribute('aria-modal', 'true');
+                scrim.setAttribute('aria-label', 'جایزه تاس شانس');
+
+                var card = document.createElement('div');
+                card.className = 'vp-prize';
+                scrim.appendChild(card);
+
+                var shut = document.createElement('button');
+                shut.type = 'button';
+                shut.className = 'vp-prize-shut';
+                shut.setAttribute('aria-label', 'بستن');
+                shut.textContent = '×';
+                card.appendChild(shut);
+
+                // The shop's own star, not a disc — the hero's mark and the
+                // sale cards' mark are this same shape, and the path and the
+                // studs are interpolated from the very constants that draw
+                // them, so the three can never drift apart. The figure is
+                // Latin on purpose, the way the hero's «25% OFF» is.
+                var badge = document.createElement('div');
+                badge.className = 'vp-prize-badge';
+                badge.innerHTML = '<svg class="vp-prize-burst" viewBox="0 0 150 150" aria-hidden="true">'
+                    + '<defs><linearGradient id="vp-prize-burst-gold" x1="0" y1="0" x2="0" y2="1">'
+                    + '<stop offset="0%" stop-color="#C0972F"></stop><stop offset="100%" stop-color="#E3B54A"></stop>'
+                    + '</linearGradient></defs>'
+                    + '<g class="vp-burst-star">'
+                    + '<path fill="url(#vp-prize-burst-gold)" d="M 75,3 C 80.73,3 85.7,14.57 92.19,16.47 C 98.67,18.38 109.11,11.33 113.93,14.43 C 118.75,17.53 116.67,29.94 121.1,35.05 C 125.53,40.16 138.11,39.88 140.49,45.09 C 142.87,50.3 134.42,59.63 135.38,66.32 C 136.34,73.01 147.08,79.58 146.27,85.25 C 145.45,90.92 133.3,94.19 130.49,100.34 C 127.68,106.49 133.17,117.82 129.41,122.15 C 125.66,126.48 113.67,122.66 107.98,126.32 C 102.29,129.97 100.78,142.47 95.28,144.08 C 89.79,145.7 81.76,136 75,136 C 68.24,136 60.21,145.7 54.72,144.08 C 49.22,142.47 47.71,129.97 42.02,126.32 C 36.33,122.66 24.34,126.48 20.59,122.15 C 16.83,117.82 22.32,106.49 19.51,100.34 C 16.7,94.19 4.55,90.92 3.73,85.25 C 2.92,79.58 13.66,73.01 14.62,66.32 C 15.58,59.63 7.13,50.3 9.51,45.09 C 11.89,39.88 24.47,40.16 28.9,35.05 C 33.33,29.94 31.25,17.53 36.07,14.43 C 40.89,11.33 51.33,18.38 57.81,16.47 C 64.3,14.57 69.27,3 75,3 Z"></path>'
+                    + '<circle class="vp-burst-stud" cx="75.00" cy="19.50" r="2.4"></circle><circle class="vp-burst-stud" cx="105.01" cy="28.31" r="2.4"></circle><circle class="vp-burst-stud" cx="125.48" cy="51.94" r="2.4"></circle><circle class="vp-burst-stud" cx="129.94" cy="82.90" r="2.4"></circle><circle class="vp-burst-stud" cx="116.94" cy="111.34" r="2.4"></circle><circle class="vp-burst-stud" cx="90.64" cy="128.25" r="2.4"></circle><circle class="vp-burst-stud" cx="59.36" cy="128.25" r="2.4"></circle><circle class="vp-burst-stud" cx="33.06" cy="111.34" r="2.4"></circle><circle class="vp-burst-stud" cx="20.06" cy="82.90" r="2.4"></circle><circle class="vp-burst-stud" cx="24.52" cy="51.94" r="2.4"></circle><circle class="vp-burst-stud" cx="44.99" cy="28.31" r="2.4"></circle>'
+                    + '</g>'
+                    + '<text class="vp-burst-num" x="75" y="72"></text>'
+                    + '<text class="vp-burst-off" x="75" y="98">OFF</text>'
+                    + '</svg>';
+                badge.querySelector('.vp-burst-num').textContent = answer.percent + '%';
+                card.appendChild(badge);
+
+                var what = document.createElement('p');
+                what.className = 'vp-prize-what';
+                what.textContent = 'جفت شیش آوردی 🎲';
+                card.appendChild(what);
+
+                var title = document.createElement('h3');
+                title.className = 'vp-prize-title';
+                title.textContent = answer.fresh ? 'تبریک! 🎉' : 'جایزه‌ات همین‌جاست';
+                card.appendChild(title);
+
+                var say = document.createElement('p');
+                say.className = 'vp-prize-say';
+                say.textContent = fa(answer.percent) + '٪ تخفیف روی سفارشت، برای شما فعال شد.';
+                card.appendChild(say);
+
+                var box = document.createElement('div');
+                box.className = 'vp-prize-code';
+                var label = document.createElement('span');
+                label.textContent = 'کد تخفیف';
+                var value = document.createElement('b');
+                value.textContent = answer.code;
+                var take = document.createElement('button');
+                take.type = 'button';
+                take.className = 'vp-prize-copy';
+                take.textContent = 'کپی';
+                take.addEventListener('click', function () { copy(answer.code, take); });
+                box.appendChild(label);
+                box.appendChild(value);
+                box.appendChild(take);
+                card.appendChild(box);
+
+                var use = document.createElement('a');
+                use.className = 'vp-prize-go';
+                use.href = shop;
+                use.textContent = 'استفاده از تخفیف';
+                card.appendChild(use);
+
+                var when = document.createElement('p');
+                when.className = 'vp-prize-when';
+                when.textContent = '⏱ اعتبار کد: ' + fa(answer.hours) + ' ساعت';
+                card.appendChild(when);
+
+                // Around the card, not across it: inside the card itself
+                // these twenty-four opaque flakes landed on the code and
+                // the title.
+                confetti(scrim);
+
+                function shutIt() {
+                    if (scrim.parentNode) { scrim.parentNode.removeChild(scrim); }
+                    document.body.classList.remove('vp-prize-open');
+                    document.removeEventListener('keydown', onKey);
+                    go.focus && go.focus();
+                }
+
+                function onKey(event) {
+                    if (event.key === 'Escape') { shutIt(); }
+                }
+
+                shut.addEventListener('click', shutIt);
+                scrim.addEventListener('click', function (event) {
+                    if (event.target === scrim) { shutIt(); }
+                });
+                document.addEventListener('keydown', onKey);
+
+                // The corner's WhatsApp button is fixed and outranks nothing,
+                // so without this it sits on the scrim as a green square over
+                // the celebration. tweaks.css hides it on this class.
+                document.body.classList.add('vp-prize-open');
+                document.body.appendChild(scrim);
+                shut.focus();
+            }
+
+            // While the dice are in the air their faces are meaningless, so
+            // they may as well churn. Nothing here decides anything — the
+            // server has already decided, or is about to — and land() writes
+            // the real faces over whatever this left behind.
+            var churn = null;
+
+            function startChurn() {
+                stopChurn();
+                churn = setInterval(function () {
+                    for (var i = 0; i < dice.length; i++) {
+                        dice[i].setAttribute('data-face', String(1 + Math.floor(Math.random() * 6)));
+                    }
+                }, CHURN);
+            }
+
+            function stopChurn() {
+                if (churn) { clearInterval(churn); churn = null; }
+            }
+
+            function land(answer) {
+                stopChurn();
+                pair.classList.remove('is-rolling');
+
+                if (answer.dice && answer.dice.length === 2) {
+                    for (var i = 0; i < dice.length && i < 2; i++) {
+                        dice[i].setAttribute('data-face', String(answer.dice[i]));
+                    }
+                }
+
+                // The settle. Removed afterwards so the next throw can play it
+                // again — an animation that is already on an element does not
+                // restart when the class is merely still there.
+                pair.classList.add('is-landing');
+                setTimeout(function () { pair.classList.remove('is-landing'); }, LAND + 60);
+
+                if (answer.won && answer.code) {
+                    // The code goes on the band as well as in the card, so
+                    // closing the card does not take it away.
+                    spend('جفت شیش! کد تخفیفت: ' + answer.code);
+                    // Two seconds on the two sixes before the card covers
+                    // them. Winning is the moment; it should be seen.
+                    setTimeout(function () { prize(answer); }, GLOAT);
+                    return;
+                }
+
+                if (answer.won) {
+                    // Won, but the code has been spent or has expired.
+                    spend('قبلاً بازی کردی و برده بودی؛ کد تخفیفت دیگر معتبر نیست.');
+                    return;
+                }
+
+                // A loss with a throw still owed is not the end of the game,
+                // so the button stays and the line goes under it. Ending it
+                // here is what «۲ شانس» would look like as one.
+                if (answer.left > 0) {
+                    excuse(answer.left === 1
+                        ? 'این بار جفت شیش نیامد — یک شانس دیگر داری.'
+                        : 'این بار جفت شیش نیامد — ' + fa(answer.left) + ' شانس دیگر داری.');
+                    return;
+                }
+
+                spend(answer.fresh
+                    ? 'این بار هم جفت شیش نیامد. شانس‌هایت تمام شد.'
+                    : 'شانس‌هایت تمام شده بود.');
+            }
+
+            go.addEventListener('click', function () {
+                if (busy) { return; }
+                busy = true;
+
+                go.disabled = true;
+                pair.classList.remove('is-landing');
+                pair.classList.add('is-rolling');
+                startChurn();
+
+                var thrown = Date.now();
+                var landed = function (answer) {
+                    var left = Math.max(0, TUMBLE - (Date.now() - thrown));
+                    setTimeout(function () { land(answer); }, left);
+                };
+
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrf(),
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    },
+                    credentials: 'same-origin'
+                }).then(function (response) {
+                    return response.json().catch(function () { return {}; }).then(function (body) {
+                        if (!response.ok) {
+                            throw new Error(body.error || (response.status === 429
+                                ? 'کمی صبر کن و دوباره بزن.'
+                                : 'الان نشد؛ کمی بعد دوباره امتحان کن.'));
+                        }
+                        return body;
+                    });
+                }).then(landed, function (error) {
+                    var left = Math.max(0, TUMBLE - (Date.now() - thrown));
+                    setTimeout(function () {
+                        stopChurn();
+                        pair.classList.remove('is-rolling');
+                        excuse(error && error.message ? error.message : 'الان نشد؛ کمی بعد دوباره امتحان کن.');
+                    }, left);
+                });
+            });
+        })();
+    </script>
+    <script>
+        (function () {
             var $ = window.jQuery;
             var wrap = document.querySelector(".sticky-wrapper");
             var header = wrap && wrap.closest(".th-header");
@@ -237,4 +570,11 @@
                 });
             }
         }());
+    </script>
+    <script>
+        if ("serviceWorker" in navigator && window.isSecureContext) {
+            window.addEventListener("load", function () {
+                navigator.serviceWorker.register("/sw.js").catch(function () {});
+            });
+        }
     </script>

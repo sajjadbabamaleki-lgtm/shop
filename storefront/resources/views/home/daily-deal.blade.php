@@ -44,7 +44,7 @@
                             <li><div class="seconds count-number">00</div><span class="count-name">ثانیه</span></li>
                         </ul>
                     </div>
-                    <div class="vp-daily-deal-shot"><img src="{{ asset($dailyDeal['product']->primaryMedia()->path) }}" alt="" loading="lazy"></div>
+                    <div class="vp-daily-deal-shot"><img src="{{ asset($dailyDeal['product']->imagePath()) }}" alt="" loading="lazy"></div>
                 </div>
             </div>
         </div>

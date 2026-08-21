@@ -28,15 +28,19 @@ class FrontPage
      * The bands, their labels, how many each has room for, and where their
      * default comes from.
      *
-     * The counts are the layout's, not opinions: the hero deck repeats three
-     * products, the sale row is `row-cols-xl-5`, the rings are five, the
-     * best-seller tiles cycle through whatever they are given across six
-     * photographs, and a daily deal is one shoe.
+     * The counts are the layout's, not opinions: the sale row is
+     * `row-cols-xl-5`, the rings are five, the best-seller tiles cycle through
+     * whatever they are given across six photographs, and a daily deal is one
+     * shoe.
+     *
+     * **The hero deck is not here**, and that is a decision rather than an
+     * omission: a hero slide is a slug *and* the eyebrow printed above the
+     * name, so choosing one is two decisions and this screen collects one.
+     * Giving it half a slide would be worse than leaving it in the file.
      *
      * @var array<string, array{label: string, max: int, config: string}>
      */
     public const BANDS = [
-        'hero' => ['label' => 'اسلایدر بالای صفحه', 'max' => 3, 'config' => 'storefront.hero.products'],
         'ladder' => ['label' => 'حراج پله‌ای', 'max' => 5, 'config' => 'storefront.front_page.ladder_products'],
         'stories' => ['label' => 'استوری‌ها', 'max' => 5, 'config' => 'storefront.front_page.story_products'],
         'best_sellers' => ['label' => 'پرفروش‌ترین‌ها', 'max' => 6, 'config' => 'storefront.placeholders.best_sellers.priced_from'],

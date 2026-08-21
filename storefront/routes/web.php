@@ -3,10 +3,13 @@
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\DiceGameController;
 use App\Http\Controllers\EnquiryController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\VendorApplicationController;
@@ -123,6 +126,14 @@ $storefront = function (): void {
         ->middleware('auth:customer')->name('account.password.change');
 
     /*
+     * The name on the account, and nothing else. The number is deliberately
+     * not editable here — see `updateProfile`: it is the credential, and a
+     * form that could change it would be a takeover with no code involved.
+     */
+    Route::post('/account/profile', [AccountController::class, 'updateProfile'])
+        ->middleware('auth:customer')->name('account.profile');
+
+    /*
      * The content pages. Fixed paths, one controller, no parameters — the
      * segment is a route default rather than something a visitor supplies, so
      * /about is the only way to reach the about page and there is no
@@ -171,6 +182,57 @@ $storefront = function (): void {
         Route::post('/account/wishlist', [WishlistController::class, 'store'])->name('account.wishlist.add');
         Route::post('/account/wishlist/remove', [WishlistController::class, 'destroy'])->name('account.wishlist.remove');
     });
+
+    /*
+     * §11's messages, the customer's side.
+     *
+     * Behind `auth:customer` and named `account.*` — both deliberate. The
+     * guard, because a thread is a history with photographs in it and the
+     * order page's «number plus telephone» is not a standard to open that at;
+     * the name, because `redirectGuestsTo` picks between the two sign-ins by
+     * matching `*account*`, so a shopper who taps «پیام‌های من» lands on the
+     * shopper's form and not the staff one.
+     */
+    Route::middleware('auth:customer')->group(function (): void {
+        Route::get('/account/messages', [MessageController::class, 'index'])->name('account.messages');
+        Route::post('/account/messages', [MessageController::class, 'store'])
+            ->middleware('throttle:20,60')->name('account.messages.store');
+        Route::get('/account/messages/{conversation}', [MessageController::class, 'show'])->name('account.message');
+        Route::post('/account/messages/{conversation}', [MessageController::class, 'reply'])
+            ->middleware('throttle:40,60')->name('account.message.reply');
+        Route::get('/account/messages/{conversation}/files/{attachment}', [MessageController::class, 'file'])
+            ->name('account.message.file');
+    });
+
+    /*
+     * §6's card payment.
+     *
+     * `/checkout/callback` carries no authentication and that is deliberate:
+     * the customer coming back from ZarinPal may have lost their session on
+     * the way — a gateway can return in a new tab, and a phone can drop a
+     * cookie — and refusing them there would mean money taken with the order
+     * left unpaid. What stands in its place is the authority, which ZarinPal
+     * chose and nobody can guess, and the server-to-server verify behind it.
+     *
+     * Declared inside the storefront group so the callback URL carries the
+     * branch prefix: a franchise's customer must come back to the franchise's
+     * own address, or the order page they land on is the wrong shop's.
+     */
+    Route::post('/orders/{order}/pay', [PaymentController::class, 'pay'])
+        ->middleware('throttle:20,10')->name('order.pay');
+    Route::get('/checkout/callback', [PaymentController::class, 'callback'])->name('payment.callback');
+
+    /*
+     * «تاس شانس». One throw per visitor, decided on this side — see
+     * App\Support\Game\DiceGame for why the browser is told the result
+     * rather than asked for it.
+     *
+     * Throttled because it writes a row and can mint a discount code; the
+     * unique index is what actually stops a second throw, and this stops
+     * somebody hammering it from making the database work for nothing.
+     */
+    Route::post('/game/dice', [DiceGameController::class, 'roll'])
+        ->middleware('throttle:20,1')->name('game.dice');
 
     Route::get('/orders', [OrderController::class, 'track'])->name('orders.track');
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('order');

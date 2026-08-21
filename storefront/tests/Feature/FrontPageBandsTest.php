@@ -174,10 +174,10 @@ class FrontPageBandsTest extends TestCase
         $a = Product::where('slug', 'golden-goose')->firstOrFail();
         $b = Product::where('slug', 'on-cloudtilt')->firstOrFail();
 
-        $this->actingAs($admin)->post('/admin/front-page/hero/add', ['product' => $a->id]);
-        $this->actingAs($admin)->post('/admin/front-page/hero/add', ['product' => $b->id]);
+        $this->actingAs($admin)->post('/admin/front-page/stories/add', ['product' => $a->id]);
+        $this->actingAs($admin)->post('/admin/front-page/stories/add', ['product' => $b->id]);
 
-        $second = FrontPagePlacement::where('band', 'hero')->orderBy('position')->get()->last();
+        $second = FrontPagePlacement::where('band', 'stories')->orderBy('position')->get()->last();
 
         $this->actingAs($admin)
             ->post("/admin/front-page/placements/{$second->id}/move", ['direction' => 'up'])
@@ -185,7 +185,7 @@ class FrontPageBandsTest extends TestCase
 
         $this->assertSame(
             [$b->id, $a->id],
-            FrontPagePlacement::where('band', 'hero')->orderBy('position')->pluck('product_id')->all()
+            FrontPagePlacement::where('band', 'stories')->orderBy('position')->pluck('product_id')->all()
         );
     }
 

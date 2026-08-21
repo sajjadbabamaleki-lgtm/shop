@@ -219,4 +219,74 @@ class PhoneDrawerTest extends TestCase
             'The preview and the application list different categories in the phone drawer.'
         );
     }
+
+    /**
+     * The four tiles at the foot of the drawer, in the order they were asked
+     * for — «از اون ۴ مستطیل پایین منو سوالات متداول باید حذف بشه پیگیری سفارش
+     * بره جاش و اولین مورد بشه فروش عمده».
+     *
+     * The order is the request, not a detail: the row is read right-to-left and
+     * «فروش عمده» was asked to be first, so a list that holds the same four in
+     * a different sequence is not what was asked for. Pinned as a sequence for
+     * that reason, and because these four live in two files — this one and
+     * theme/make-rtl-page.js — that nothing else keeps in step.
+     */
+    public function test_the_four_tiles_are_the_ones_asked_for_in_the_order_asked_for(): void
+    {
+        $this->assertSame(
+            ['فروش عمده', 'فروشنده شوید', 'پیگیری سفارش', 'راهنمای سایز'],
+            $this->tiles($this->drawer())
+        );
+    }
+
+    /**
+     * «سوالات متداول» left the drawer and nothing else.
+     *
+     * The page was not removed — it is in the footer, in `/contact`, in
+     * `/size-guide` and as the home page's own band — so the assertion is
+     * narrow on purpose: gone from these four tiles, still reachable from the
+     * shop. A test that simply searched the whole page for the words would
+     * pass by deleting the page, which is the opposite of what was asked.
+     */
+    public function test_the_faq_left_the_tiles_and_stayed_in_the_shop(): void
+    {
+        $this->assertNotContains('سوالات متداول', $this->tiles($this->drawer()));
+
+        $this->get('/')->assertOk()->assertSee('سوالات متداول');
+        $this->get('/faq')->assertOk();
+    }
+
+    /** And the static preview carries the same four, in the same order. */
+    public function test_the_static_preview_carries_the_same_tiles(): void
+    {
+        $preview = base_path('../download-version/shoe-shop-rtl.html');
+
+        if (! is_file($preview)) {
+            $this->markTestSkipped('The static preview is not in this checkout.');
+        }
+
+        $this->assertSame(
+            $this->tiles($this->drawer()),
+            $this->tiles(file_get_contents($preview)),
+            'The preview and the application offer different tiles at the foot of the drawer.'
+        );
+    }
+
+    /**
+     * The labels of `.vp-drawer-links`, in document order.
+     *
+     * @return list<string>
+     */
+    private function tiles(string $html): array
+    {
+        $open = strpos($html, '<ul class="vp-drawer-links">');
+
+        $this->assertNotFalse($open, 'The drawer has no tile row.');
+
+        $slice = substr($html, $open, strpos($html, '</ul>', $open) - $open);
+
+        preg_match_all('~<span>([^<]+)</span>~', $slice, $m);
+
+        return $m[1];
+    }
 }

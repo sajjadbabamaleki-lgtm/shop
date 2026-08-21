@@ -28,15 +28,10 @@
      | not the length of the shoe, which is what somebody measuring at home
      | has in front of them.
      */
-    $chart = [
-        ['eu' => 35, 'cm' => 22.5, 'us' => 5, 'uk' => 2.5],
-        ['eu' => 36, 'cm' => 23, 'us' => 6, 'uk' => 3.5],
-        ['eu' => 37, 'cm' => 23.5, 'us' => 6.5, 'uk' => 4],
-        ['eu' => 38, 'cm' => 24.5, 'us' => 7.5, 'uk' => 5],
-        ['eu' => 39, 'cm' => 25, 'us' => 8.5, 'uk' => 6],
-        ['eu' => 40, 'cm' => 25.5, 'us' => 9, 'uk' => 6.5],
-        ['eu' => 41, 'cm' => 26.5, 'us' => 10, 'uk' => 7.5],
-    ];
+    // Moved to config/storefront.php when the product page's EU/US/CM switch
+    // needed the same correspondence: two copies of this table would be two
+    // answers to the same question.
+    $chart = config('storefront.size_chart');
 @endphp
 
 @section('content')

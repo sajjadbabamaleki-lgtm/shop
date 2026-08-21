@@ -760,26 +760,62 @@ The reply to «send me a code» is the same whether or not the number is known
 here. Saying «this number is not registered» would turn the form into a way of
 asking the shop which of its customers a number belongs to.
 
-### The SMS goes nowhere yet — and it says so
+### The SMS has a provider now — and it is still switched off by default
 
-`config('services.sms.driver')` is `log`, so a code lands in
-`storage/logs/laravel.log` and on no telephone. **`SmsServiceProvider` throws at
-boot if that is still true in production**, so the shop cannot go live quietly
-swallowing its own sign-in codes — the failure is at the first request, not at
-the first customer.
+The client bought a registered service on **ملی پیامک**, so Melipayamak is
+implemented and the code is written. What is left is settings, and they are the
+client's to fill in.
 
-Going live needs four things from the client and one small class:
+`config('services.sms.driver')` is still `log` by default, so a code lands in
+`storage/logs/laravel.log` and on no telephone. **`SmsServiceProvider` refuses
+to build a sender at all if that is still true in production**, so the shop
+cannot go live quietly swallowing its own sign-in codes — which also means that
+until the settings below are on the Liara app, **the shopper sign-in 500s on the
+live site**, deliberately and loudly. Nothing else does: the refusal is inside
+the singleton's factory, so the catalogue, the basket and the checkout are
+untouched.
 
-1. an account with an Iranian SMS provider — Kavenegar, SMS.ir, Ghasedak, any of
-   them; they all do the same thing,
-2. `SMS_KEY`, the API key,
-3. `SMS_LINE`, the service line number the message is sent from,
-4. `SMS_PATTERN`, the approved pattern («کد ورود شما به ویکی پلاس: %code%») —
-   Iranian providers will not send an unapproved transactional template,
+Melipayamak is **two drivers**, because the provider has two doors and an
+account has whichever it was sold:
 
-then a `Sender` beside `LogSender` and one line in `SmsServiceProvider::DRIVERS`.
-The interface is a single method, `send(string $phone, string $message)`, on
-purpose: swapping providers later is that class and nothing else.
+| `SMS_DRIVER` | host | signs with | needs |
+|---|---|---|---|
+| `melipayamak` | console.melipayamak.com | an API key | `SMS_KEY`, `SMS_PATTERN` |
+| `melipayamak.panel` | rest.payamak-panel.com | the panel's username and password | `SMS_USER`, `SMS_KEY`, `SMS_PATTERN` |
+
+Prefer the first: the key is revocable from the panel on its own, so the server
+and the owner do not share a credential. They are two names rather than one
+class reading whichever credentials happen to be filled in, because "whichever
+is set" is a runtime value and this application has been bitten by one of those
+before.
+
+`SMS_PATTERN` is the **id** of the approved pattern — «کد متن» in the panel,
+`bodyId` in the documentation — not its text. The text lives with Melipayamak,
+because an Iranian provider will not carry an unapproved transactional message,
+and it has to be a *service* pattern rather than an advertising one: an
+advertising line does not reach anybody who has opted out of advertising, which
+for a sign-in code means those customers simply cannot get in.
+
+None of these belong in the repository. The deploy ships no `.env`, so they are
+environment variables on the Liara app.
+
+**The interface carries the message twice**, and this is the part worth reading
+before changing anything: `send(string $phone, string $message, array $args)`.
+`$message` is the whole sentence, for a driver that sends text; `$args` is the
+same information as data, in the order the pattern expects. Both are passed so
+that no pattern driver has to dig a six-digit code back out of a Persian
+sentence with a regular expression — that would work until somebody reworded
+the sentence, and then it would put a blank code on a real telephone with
+nothing anywhere going red.
+
+`SMS_LINE` is unused today. Both Melipayamak drivers send a pattern on a shared
+line, which is what an account gets without renting a number; the setting stays
+for the day the shop rents one.
+
+**`SmsSenderTest` fakes the HTTP layer, so a green run means the shop asked
+correctly — not that a telephone rang.** Whether Melipayamak accepts the
+account, the pattern and the line can only be checked on the live site, and this
+container cannot reach the provider to check it early.
 
 Two smaller things fell out of it:
 
@@ -2824,3 +2860,137 @@ and «707 × 600». They ship, so that is what the live page shows behind those
 two headings. Nobody has asked about them and there is no photograph to put
 there yet, but the round that gives those bands their corners is the round to
 say it out loud.
+
+## The account page, rebuilt — «این چه حساب کاربری داغونیه»
+
+The complaint came with a photograph of `/account` on a telephone: «این چه حساب
+کاربری داغونیه برای کاربر زدی خیلی داغونه». It is fair, and it is not really a
+design complaint — the page had never been designed. It was written on the day
+the orders list existed and everything the account grew afterwards was pushed
+into the margin beside the customer's name: «پیام‌های من»، «لیست علاقمندی» and
+«خروج» as three gold words at body size, then a grey fold, then a grey box
+saying «هنوز سفارشی ثبت نکرده‌ای»، then a button, then 700px of nothing.
+
+**It is three panels now**, in the order somebody reads them:
+
+1. **who you are** — the first letter of the name in a gold tile, the name, the
+   number, «خروج» as a quiet chip; then four figures on the glass — سفارش، در
+   جریان، علاقه‌مندی، پیام تازه; then four doors to the messages, the wishlist,
+   the tracking form and the shop, each with its mark, a line of its own and
+   (for the messages) the unread count in red on the door itself.
+2. **the orders** — a card each, with the panel's own status chip.
+3. **the settings** — the name, and the password fold.
+
+**Nothing new was drawn.** The pane is `.vp-shop-panel`, which is
+`.vp-best-panel`'s. The figures sit on `rgba(16,17,17,0.063)`, the tint the
+header island wears. The doors and the order cards are white with the sign-in
+field's own 1.5px ring, and they take a gold ring on hover. The empty state is
+`.vp-empty`, which the wishlist wrote. The status chip's five tones are
+**`.vp-adm-badge`'s, quoted** — amber while it waits, blue while it moves, green
+when it arrives, red when it is off — so one order is one colour to the shopper
+and to the shop; if those move in `admin.css` they move here too.
+
+**Three things the page could not do before, which are the actual complaint:**
+
+- **«در جریان» did not exist.** The page could not say how many orders were
+  still moving — placed, paid or shipped, as against delivered or cancelled.
+  That is the number somebody opens an account to check.
+- **The name could not be changed at all.** It is set once on the code step, and
+  a shopper who typed it in a hurry — or whose row came from a checkout somebody
+  else filled in — was stuck with it. `POST /account/profile` takes the name and
+  **only** the name: the number is the credential, and a form that could change
+  it would be a takeover with no code involved. There is a test that posts one
+  anyway.
+- **A refused password change said nothing.** `changePassword` redirected back
+  to a page that printed no errors anywhere, so «رمز فعلی درست نیست» was flashed
+  into the session and thrown away — the fold shut and nothing happened. The
+  errors are printed under the field that failed now, and the fold is `open`
+  when it is the thing that failed.
+
+**Layout, measured rather than guessed.** The doors are 1 column on a phone, 2
+from 576, 4 from 992 — fixed counts, not `auto-fit`, because there are exactly
+four and a floor that fits three leaves one on a line of its own. The order card
+is two rows on a phone (number and chip above, date, count and money below) and
+**one row of five fixed columns from 768** — `132px 1fr 150px 104px 16px` — so
+the dates, the money and the chips line up down the list instead of every card
+arranging itself. Stacked on a desktop it left the middle of a 1100px card
+empty, which is the same shape the whole page was being complained about for.
+The settings panel is two columns from 768 for the same reason.
+
+`.vp-shop-head` is gone from this page, and with it `.vp-acct-head`,
+`.vp-account-acts` and the `:not(.vp-acct-head)` exemption in the phone rule
+that hides that head: the account is drawn from `.vp-acct-top` and
+`.vp-acct-sect` now, both laid out for 390 first. **The other five pages that
+share `.vp-shop-head` still lose their heading on a phone** — the cart's «ادامه
+خرید» is the next one that matters.
+
+533 tests, Pint clean, parity identical at 992/1200/1440/1920, no sideways
+scroll at 360/390/576/768/992/1200/1920 with the page signed in and holding
+eight orders — and none on an account holding nothing, where the empty state is
+the parcel mark and «رفتن به فروشگاه».
+
+**Not built, and worth saying:** there is still no address book — `/account` has
+nothing to offer between «پیگیری سفارش» and the settings, and every order
+carries an address that was typed again at checkout. That is a table, a screen
+and a checkout change, so it is a round of its own rather than something to
+squeeze into this one.
+
+## The green gold — «رنگ گلد ما گلد زرده»
+
+«رنگ گلد ما گلد زرده چرا از اون گلد سبز برای آیکونا و دکمه ها استفاده میکنی»,
+said on the account page an hour after it shipped. **It is the second time this
+has been said** — the first was «دکمه ادامه هم نباید اون رنگی باشه باید همرنگ
+باقی دکمه های سایت باشه», about the basket's «ادامه» button, and the comment
+written above that fix says in as many words that the filter button «was not
+asked about». It got asked about. `CLAUDE.md` now carries this as the codename
+**«گلد سبز»**, with the table.
+
+**There is no green.** Every gold in `:root` is one hue: 46.2° to 46.8° across
+`--theme-color`, `--vp-gold-fill` and `--vp-gold-fill-ink`, all at ~71%
+saturation. What separates them is lightness — 36.3% against 50.2% — and a dark
+yellow reads olive. Nothing in the hue can be adjusted to save a fill that is
+simply too dark; the fill has to get lighter.
+
+**What moved, all of it measured after:**
+
+| | was | is |
+| --- | --- | --- |
+| `.vp-filter-apply` — **nine views**: checkout, cart, order, track, messages, message, vendor-apply, filters, enquiry | flat `#A08119` | the ramp |
+| `.vp-shop-search button` | flat `#A08119` | the ramp |
+| `.vp-empty-out` — the account's and the wishlist's «رفتن به فروشگاه» | flat `#A08119` | the ramp |
+| `.vp-seller-add` | flat `#A08119` | the ramp |
+| `.vp-page.is-on` — the paginator's live page | flat `#A08119` | the ramp |
+| `.vp-empty-mark` glyph | `#A08119` on a tint of the *old* gold | `#BB9920` on `rgba(218,178,38,0.14)` |
+| `.vp-acct-door-mark` glyph | `#8B7217` on the same old tint | `#BB9920` on `rgba(218,178,38,0.16)` |
+| the account's hover rings | `rgba(164,127,37,0.5)` | `rgba(218,178,38,0.65)` |
+
+The ramp is `linear-gradient(90deg, #DAB226, #EFC94F)` — `.vp-enter-go`'s, which
+is `.vp-pick-go`'s and `.vp-cart-go`'s. Hover was `--gr-color2`; it is
+`brightness(1.04)` now, the same as the buttons it is joining. Read back off the
+rendered page, the door glyph is `rgb(187,153,32)` — **the identical value the
+header's three icon squares paint**, which is the point.
+
+`.vp-pdp-buy` was flat too and is now the ramp, but it is on **no page**: the
+product page's «افزودن به سبد» is `.vp-pick-go`. Corrected rather than deleted,
+so a rule named `-buy` cannot come back wearing the one colour a buy button may
+not be.
+
+**Three left on the dark gold, deliberately, all to be raised before touching:**
+`.vp-pdp-cut` and `.vp-seller-tag` are white-on-gold labels at 5.09:1 — on the
+fill gold white would be 1.9:1, so they would have to flip to ink, which is a
+bigger change than a colour; and `.vp-pdp-dot.is-on` is a 3px indicator bar on
+white, where the fill gold reads 2.0:1 and vanishes.
+
+**Left alone on purpose: text.** `--vp-gold-ink` and `--vp-gold-ink-deep` had
+their lightness solved to hold measured contrast on white (the table at the top
+of this file). Repainting a heading or a price to the fill gold trades a legible
+page for a bright one.
+
+**Still there, and worth a round of its own:** ~30 `rgba(164,127,37,…)` literals
+— the *previous* gold, `#A47F25`, which really is a different hue at 42.5° and
+63% saturation. The 2026-08-16 sweep moved the tokens and could not see tints
+written as raw channels. Two of them were on the account page and moved here;
+the rest are why some tints on this site read a shade muddier than others.
+
+533 tests, Pint clean, parity identical at 992/1200/1440/1920, no sideways
+scroll at 390/768/1200/1920.

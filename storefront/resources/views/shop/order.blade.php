@@ -29,8 +29,40 @@
                 <p class="vp-note is-bad">{{ $error }}</p>
             @endforeach
 
+            {{-- What the shop is actually waiting for.
+
+                 Two different sentences, because they are two different
+                 arrangements and the customer has to know which one they are
+                 in: with a card gateway configured there is a button and the
+                 order is waiting for money; without one the courier takes it
+                 at the door and there is nothing to do. Printing «پرداخت هنگام
+                 تحویل» under a shop that has a gateway would be telling
+                 somebody not to pay. --}}
             @if ($order->status === \App\Models\Order::PLACED)
-                <p class="vp-note">سفارشت ثبت شد. کالاها برایت کنار گذاشته شده و پرداخت هنگام تحویل انجام می‌شود.</p>
+                @if ($canPayOnline)
+                    <p class="vp-note">سفارشت ثبت شد و کالاها برایت کنار گذاشته شده. برای نهایی شدن، مبلغ را پرداخت کن.</p>
+
+                    <form class="vp-order-pay" method="post" action="{{ storefront_route('order.pay', $order) }}">
+                        @csrf
+                        <button type="submit" class="vp-filter-apply vp-cart-go">
+                            پرداخت {{ toman($order->grand_total) }} تومان
+                        </button>
+                    </form>
+                @else
+                    <p class="vp-note">سفارشت ثبت شد. کالاها برایت کنار گذاشته شده و پرداخت هنگام تحویل انجام می‌شود.</p>
+                @endif
+            @endif
+
+            {{-- The receipt, once there is one. The reference number is what a
+                 customer quotes on the telephone, so it is on their own page
+                 rather than only in the panel. --}}
+            @if ($receipt)
+                <p class="vp-note is-good">
+                    پرداخت شد — شماره پیگیری <bdi dir="ltr">{{ $receipt->ref_id }}</bdi>
+                    @if ($receipt->card_pan)
+                        · کارت <bdi dir="ltr">{{ $receipt->card_pan }}</bdi>
+                    @endif
+                </p>
             @endif
 
             <div class="vp-cart">

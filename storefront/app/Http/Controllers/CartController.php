@@ -90,6 +90,15 @@ class CartController extends Controller
                 ->withErrors(['cart' => 'این سایز در این شعبه موجود نیست.']);
         }
 
+        // «خرید فوری» skips the basket. It is the same add — same stock check,
+        // same reservation, same row — and only the destination differs, so
+        // there is no second path through this that could drift from the
+        // first. A shopper who pressed it wants the form, not a review of what
+        // they already chose.
+        if ($request->boolean('buy_now')) {
+            return redirect()->to(storefront_route('checkout'));
+        }
+
         // No «به سبد خرید اضافه شد» on the way in. The redirect lands on the
         // basket with the thing in it, so the banner said what the page was
         // already showing — and it is the first thing the eye meets above the

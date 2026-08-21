@@ -81,7 +81,33 @@ jobs:
           extensions: dom, curl, intl, libxml, mbstring, zip, pcntl, pdo, pgsql, pdo_pgsql
           coverage: none
 
+      # Composer's cache, keyed on the lock file.
+      #
+      # Not a speed-up — a correctness one. Every dist package comes off
+      # codeload.github.com, and an anonymous run downloading two hundred of
+      # them gets rate-limited: run #383 died on `symfony/uid` with an
+      # HTTP 429, before a single test body ran, and because the deploy needs
+      # this job it took a finished fix off the road to the site with it.
+      # Nothing about the change was wrong and nothing about the failure said
+      # so.
+      #
+      # A hit restores vendor/ from the runner's own cache and asks GitHub for
+      # nothing. A miss still downloads, but with `COMPOSER_AUTH` below it does
+      # so as this repository rather than as an anonymous stranger sharing one
+      # allowance with the whole runner fleet.
+      - name: Cache Composer's downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/composer/files
+          key: composer-${{ hashFiles('storefront/composer.lock') }}
+          restore-keys: composer-
+
       - name: Install dependencies
+        env:
+          # The workflow's own token, which every run already has. It only
+          # raises the download allowance; `permissions: contents: read` at the
+          # top of this file is what it can actually do.
+          COMPOSER_AUTH: '{"github-oauth":{"github.com":"${{ github.token }}"}}'
         run: composer install --prefer-dist --no-interaction --no-progress
 
       - name: Prepare the environment

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Support\Auth\Passwords;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -33,7 +34,15 @@ class SessionController extends Controller
             'password' => ['required', 'string'],
         ]);
 
-        if (! Auth::attempt($credentials, $request->boolean('remember'))) {
+        // Through `Passwords::attempted` rather than bare: a stored value that
+        // is not a bcrypt hash makes `Hash::check` throw, and unhandled that
+        // answers a sign-in with a 500. See that class — it happened here.
+        $signedIn = Passwords::attempted(
+            fn (): bool => Auth::attempt($credentials, $request->boolean('remember')),
+            $credentials['email'],
+        );
+
+        if (! $signedIn) {
             throw ValidationException::withMessages([
                 'email' => 'ایمیل یا رمز درست نیست.',
             ]);

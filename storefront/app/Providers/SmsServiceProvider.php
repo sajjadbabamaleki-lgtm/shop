@@ -3,6 +3,10 @@
 namespace App\Providers;
 
 use App\Support\Sms\LogSender;
+use App\Support\Sms\Melipayamak\ApiKeySender;
+use App\Support\Sms\Melipayamak\PanelSender;
+use App\Support\Sms\Melipayamak\PanelSimpleSender;
+use App\Support\Sms\Melipayamak\SimpleSender;
 use App\Support\Sms\Sender;
 use Illuminate\Support\ServiceProvider;
 use RuntimeException;
@@ -16,10 +20,26 @@ use RuntimeException;
 class SmsServiceProvider extends ServiceProvider
 {
     /**
+     * Melipayamak is two entries rather than one because the provider has two
+     * ways in and an account has whichever it was sold: `melipayamak` signs
+     * with an API key from console.melipayamak.com, `melipayamak.panel` with
+     * the panel's own username and password against rest.payamak-panel.com.
+     *
+     * They are named apart instead of being one class that uses whichever
+     * credentials happen to be filled in, because "whichever is set" is a
+     * runtime value and this application has already been bitten once by an
+     * authentication path that rested on one — see the note about bare `auth`
+     * in the staff routes. Here the setting says which, and a name nothing
+     * implements is refused below by that name.
+     *
      * @var array<string, class-string<Sender>>
      */
     private const DRIVERS = [
         'log' => LogSender::class,
+        'melipayamak' => ApiKeySender::class,
+        'melipayamak.simple' => SimpleSender::class,
+        'melipayamak.panel' => PanelSender::class,
+        'melipayamak.panel.simple' => PanelSimpleSender::class,
     ];
 
     public function register(): void

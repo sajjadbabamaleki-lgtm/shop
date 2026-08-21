@@ -14,6 +14,62 @@ return [
     |
     */
 
+    /*
+    |--------------------------------------------------------------------------
+    | «تاس شانس» — the dice game
+    |--------------------------------------------------------------------------
+    |
+    | A band on the front page: one throw of two dice per visitor, and a double
+    | six wins a discount code.
+    |
+    | **The odds are the dice's own: 1 in 36, about 3 people in 100.** That is
+    | what «جفت شیش» means and it is not adjustable here on purpose — a game
+    | with a hidden thumb on the scale is a different product, and if the shop
+    | wants most people to win, the honest version of that is easier odds
+    | printed on the card («هر جفتی برنده است»), not dice that lie.
+    |
+    | Every number below is the shop's to set. `percent` is whole percent.
+    | `hours` is how long a winner's code lives — the card says it, so the two
+    | come from the same place. The two amounts are in **Rial**, like every
+    | other amount in this application; `max_discount_rial` of 0 means no
+    | ceiling.
+    |
+    | `tries` is how many throws one person gets — «کاربر هم ۲ شانس داشته باشه
+    | نه یک شانس». It is enforced by the unique key on
+    | (branch, player, attempt), not by a count in PHP, so two taps arriving
+    | together cannot buy a third. Two throws at 1 in 36 each is about 5 or 6
+    | winners in every hundred players, against 3 for one throw. The band's own
+    | footnote reads this number, so raising it changes what the page promises
+    | in the same breath.
+    |
+    | **`rig_attempt` makes a throw win on purpose, and it is not a toy.**
+    | Set to a throw number, every player's throw of that number comes up a
+    | double six — so with 2, *everybody* who throws twice wins 30% off. That
+    | is the shop paying 30% on effectively every order somebody bothers to
+    | play for, not the 5 or 6 in a hundred the honest dice cost. It is here
+    | because it was asked for in those words — «فعلا دفعه دوم تستو جفت شیش
+    | بزار برای همه» — and «فعلا» is the important word: it is meant to come
+    | back off.
+    |
+    | It reads `GAME_DICE_RIG` from the environment, so it can be turned off on
+    | the Liara panel without waiting for a deploy: set GAME_DICE_RIG=0 and
+    | restart. Null or 0 means honest dice.
+    |
+    | `enabled` switches the whole band off, markup included. A game nobody is
+    | running should not be a button that does nothing.
+    |
+    */
+
+    'game' => [
+        'enabled' => env('GAME_DICE', true),
+        'tries' => 2,
+        'rig_attempt' => (int) env('GAME_DICE_RIG', 2) ?: null,
+        'percent' => 30,
+        'hours' => 24,
+        'min_subtotal_rial' => 0,
+        'max_discount_rial' => 0,
+    ],
+
     'pages' => [
         // The template's own home link, the demo page this storefront was cut
         // from, and the file the static preview is actually served as. All
@@ -239,10 +295,25 @@ return [
     | The hero runs its three twice: six slides over three photographs, so the
     | deck reads as a loop of three rather than six of anything.
     |
+    | The eyebrow above each heading is the slide's reason for being there, one
+    | per shoe — «بجای اسم تکراری هم این ۳ تا بیاد رو هر کفش یکیش». It used to
+    | be the product's own name, printed a second time directly above the
+    | heading that already says it. Which line goes on which shoe is an
+    | editorial choice like the slugs beside them, so it is written here: swap a
+    | string and the deck says something else.
+    |
+    | It is a claim about the shoe, not a fact read off the catalogue — nothing
+    | checks that «موجودی محدود» is true of the stock, and nothing should
+    | without somebody deciding what the threshold is.
+    |
     */
 
     'hero' => [
-        'products' => ['new-balance-530', 'jordan-one-air', 'golden-goose'],
+        'products' => [
+            'new-balance-530' => 'پر فروش این هفته',
+            'jordan-one-air' => 'یه پیشنهاد ویژه',
+            'golden-goose' => 'موجودی محدود',
+        ],
         'repeat' => 2,
     ],
 
@@ -481,6 +552,37 @@ return [
     | visible. Everything here is waiting on the client for its real value.
     |
     */
+
+    /*
+    |--------------------------------------------------------------------------
+    | The size chart
+    |--------------------------------------------------------------------------
+    |
+    | EU size, the foot length in centimetres it is cut for, and the US and UK
+    | equivalents. **The centimetre figure is the foot, not the shoe** — it is
+    | the number somebody measuring at home has in front of them.
+    |
+    | It lived inside `pages/size-guide.blade.php` until the product page
+    | needed the same table for its EU/US/CM switch. Two copies of a
+    | correspondence table is two answers to «سایز ۴۰ یعنی چند؟», so it moved
+    | here and both views read it.
+    |
+    | It is the ordinary women's correspondence, not measured off our own
+    | lasts — the size-guide page says so in as many words, and that caveat is
+    | the reason this is a published table rather than a claim about a
+    | particular shoe.
+    |
+    */
+
+    'size_chart' => [
+        ['eu' => 35, 'cm' => 22.5, 'us' => 5, 'uk' => 2.5],
+        ['eu' => 36, 'cm' => 23, 'us' => 6, 'uk' => 3.5],
+        ['eu' => 37, 'cm' => 23.5, 'us' => 6.5, 'uk' => 4],
+        ['eu' => 38, 'cm' => 24.5, 'us' => 7.5, 'uk' => 5],
+        ['eu' => 39, 'cm' => 25, 'us' => 8.5, 'uk' => 6],
+        ['eu' => 40, 'cm' => 25.5, 'us' => 9, 'uk' => 6.5],
+        ['eu' => 41, 'cm' => 26.5, 'us' => 10, 'uk' => 7.5],
+    ],
 
     'placeholders' => [
 

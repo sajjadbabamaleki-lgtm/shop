@@ -129,6 +129,39 @@
      file has already had one round of them being told apart by accident. */
   --vp-gold-burst-top: #C0972F;   /* the sampled fill, kept                   */
   --vp-gold-burst-foot: #E3B54A;  /* the sampled lit end, kept                */
+
+/* --------------------------------------------------------------------------
+   The glass tint: rgba(16,17,17,0.063), which is 240 on white.
+
+   Twenty-one elements carry it and they carry the *same* value on purpose —
+   the header island, the hero pane, the trust cards, the ladder panel, the
+   deal and best-seller labels, the sign-in tabs and the rest are meant to
+   read as one material, and a material is its tint. Changing one of them
+   alone is what makes a page look assembled from parts.
+
+   It was 0.034 — 247 on white — for most of this build, then 0.084 for one
+   round. «قسمتهای شیشه ای وبسایتو ۵ درصد تیره تر کن» took 247 × 0.95 = 235;
+   seen on a phone that was «خیلی تیره», and «۲ درصد روشنتر بشن شیشه ها» takes
+   235 × 1.02 = 239.7, which rounds to 240. The alpha that lands a pane exactly
+   there over white is 15/239 = 0.0628. Measured after, all five panes sampled
+   read 240 flat, so the material stayed uniform.
+
+   Two things that were checked rather than assumed:
+
+   - **«لبه پنهان» did not come back.** At 235 the foot column read
+     235 → 219 → 255 against the original 247 → 234 → 255; at 240 it is
+     240 → 224 → 255. Every version of this has a bigger step at the foot than
+     the 13 levels the original had, so the bottom edge is more defined than it
+     was, not less.
+   - **Contrast.** Ink (#101111) is 16.24:1 on this ground and the body grey
+     (#4D4D4D) is 7.26:1, both comfortable. `--vp-gold-ink` (#8B7217) is the
+     one to watch: it was picked at 4.65:1 on white, reads 4.34 on the old
+     glass, 3.90 at 235 and **3.99** here — still under AA for small text. It
+     lands on glass in «مشاهده همه» and the stepped sale's done-step label.
+     Raised with the client and left as it is at their instruction; the fix,
+     if it is ever wanted, is `--vp-gold-ink-deep` (#6B550E), which holds
+     6.15:1 here.
+   -------------------------------------------------------------------------- */
 }
 
 :root,
@@ -1043,12 +1076,15 @@ option:hover {
   .heroSlide6 .discount-tag .vp-burst .vp-burst-star,
   .heroSlide6 .discount-tag .vp-burst .vp-burst-stud,
   .vp-deal-burst .vp-burst-star,
-  .vp-deal-burst .vp-burst-stud {
+  .vp-deal-burst .vp-burst-stud,
+  .vp-prize-burst .vp-burst-star,
+  .vp-prize-burst .vp-burst-stud {
     animation: none;
   }
 
   .heroSlide6 .discount-tag .vp-burst .vp-burst-stud,
-  .vp-deal-burst .vp-burst-stud {
+  .vp-deal-burst .vp-burst-stud,
+  .vp-prize-burst .vp-burst-stud {
     opacity: 1;
   }
 }
@@ -1238,12 +1274,22 @@ option:hover {
    the island the moment the page scrolls. */
 .th-header .menu-area,
 .th-header .sticky-wrapper.sticky .menu-area {
-  /* 18 above and to both sides. Nothing below: the gap down to the hero is
-     the hero's own 36px of padding, and a bottom margin here would stack on
-     top of it and break the equal air above and below the deck. */
-  margin: 18px 18px 0;
-  border-radius: 24px;
-  background: rgba(16, 17, 17, 0.034);
+  /* 40 above, 18 to both sides. Nothing below: the gap down to the hero is
+     the hero's own padding, and a bottom margin here would stack on top of it.
+     
+     The top was 18 and matched the sides, which is a sensible rule and the
+     wrong one here — «فاصله بالای هدر اندازه فاصله هدر با هیرو بشه». Measured
+     at 1200: the island sat 18 below the page's top edge and 40 above the hero
+     card, so the island looked pinned to the top of the window rather than
+     floating between two equal gaps. 40 is that measured gap, not a guess; if
+     the hero's padding ever moves, this moves with it. */
+  margin: 40px 18px 0;
+  /* 20 — «جزیره هدر ۲۰/۲۴», read in the order the same message used for the
+     hero: the desktop first. It is the tightest corner on the page now, which
+     suits the shape: the island is 1160 wide and 76 tall, and a radius that
+     works on a 450-tall hero card reads as a lozenge on a bar. */
+  border-radius: 20px;
+  background: rgba(16, 17, 17, 0.063);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   /* The same foot as the hero card, for the same reason — «لبه پنهان» /
@@ -1283,8 +1329,9 @@ option:hover {
    where the glass had been. The hero's pane and this island are meant to read
    as one material, and a material is its tint, not its opacity.
 
-   So the tint is the hero's own, to the third decimal — rgba(16,17,17,0.034),
-   the value five passes went into — and the frosting is done where frosting
+   So the tint is the hero's own, to the third decimal — rgba(16,17,17,0.084),
+   the value five passes went into and one more moved — and the frosting is
+   done where frosting
    is actually done, in the blur. 10px is right at rest, where all it has
    under it is the page's white; over content moving past it, 10px leaves type
    readable straight through the bar, and 30 does not. The saturation is
@@ -1294,7 +1341,7 @@ option:hover {
    What that buys is the thing worth having: what passes under the bar is
    still visibly there, as colour and movement, and none of it is legible. */
 .th-header .sticky-wrapper.sticky .menu-area {
-  background: rgba(16, 17, 17, 0.034);
+  background: rgba(16, 17, 17, 0.063);
   -webkit-backdrop-filter: blur(30px) saturate(1.5);
   backdrop-filter: blur(30px) saturate(1.5);
   box-shadow:
@@ -1442,7 +1489,7 @@ option:hover {
      was still heavier than wanted, 3.5% landed on #F7F7F7, 2.3% went to
      #FAFAFA and read as white, 3.2% came back to #F8F8F8, and this is a hair
      under the 3.5. */
-  background: rgba(16, 17, 17, 0.034);
+  background: rgba(16, 17, 17, 0.063);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   /* A hairline at the foot instead of a shadow under it. «لبه پنهان» /
@@ -1717,6 +1764,23 @@ option:hover {
 .heroSlide6 .hero-inner .sub-title {
   font-family: 'Cairo', var(--body-font);
   font-weight: 700;
+}
+
+/* «اون خط باید حذف بشه» — the dash beside the hero's eyebrow.
+
+   It is the template's `.sub-title:before`: a 50×2px bar in the label's own
+   colour, `position: absolute` and pulled out to the side on a negative
+   margin. It was drawn beside a line that repeated the shoe's name; the label
+   now says why the slide is in the deck, and the client asked for the bar to
+   go with the repeat.
+
+   `content: none` rather than `display: none` — a pseudo-element with no
+   content is never generated, which is the same instruction said once. It is
+   out of flow either way, so nothing moves: measured at 390 and 1200, the
+   label's own box is unchanged to the pixel and the two panes below it keep
+   their positions. */
+.heroSlide6 .hero-inner .sub-title::before {
+  content: none;
 }
 
 /* The button's label a step heavier than the small label above the title. Cairo
@@ -2003,16 +2067,21 @@ option:hover {
   .th-header .menu-area,
   .th-header .sticky-wrapper.sticky .menu-area {
     margin-inline: 10px;
-    /* And the same above. The desktop's 18 is one number on three sides and the
-       phone's should be too — it was 18 above against 9 either side, which is
-       the thing the island was set up to avoid in the first place. Still
-       nothing below: the gap down to the hero is the hero's own padding, and a
-       margin here would stack on top of it. */
-    margin-top: 10px;
+    /* Above, the same rule the desktop now follows: match the gap down to the
+       hero rather than the gap to the sides. Measured at 390 that gap is 13.5,
+       where this was 10. The sides stay 10 — on a 390px screen 18 a side is
+       nine per cent of the width spent on nothing, twice, which is what this
+       block was written to fix. */
+    margin-top: 13.5px;
     /* Twenty per cent off 24. The corner follows the panel: a smaller inset
        with the same radius reads rounder than it did, because the curve is a
        larger fraction of what is left. */
-    border-radius: 19.2px;
+    /* 24 on the phone, against the desktop's 20 — the one place on this page
+       where the narrow screen is rounder than the wide one. That is what the
+       numbers asked for and it is not unreasonable: at 370 wide and 63 tall
+       this island is nearly a pill already, and 19.2 read as a rectangle with
+       the corners knocked off. */
+    border-radius: 24px;
   }
 }
 
@@ -2285,7 +2354,7 @@ option:hover {
    the site, which the template reuses on pages this pass never touched. */
 .vp-trust-row .feature-card {
   border: none;
-  background: rgba(16, 17, 17, 0.034);
+  background: rgba(16, 17, 17, 0.063);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   box-shadow: inset 0 -1.4px 0 rgba(16, 17, 17, 0.07);
@@ -2407,7 +2476,7 @@ option:hover {
      larger bite out of a shape that has more going on near its edges. The lit
      hairline inherits it. */
   border-radius: 50px;
-  background: rgba(16, 17, 17, 0.034);
+  background: rgba(16, 17, 17, 0.063);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   box-shadow: inset 0 -1.4px 0 rgba(16, 17, 17, 0.07);
@@ -2560,7 +2629,7 @@ option:hover {
 .vp-step-flag {
   padding: 0 7px;
   border-radius: 8px;
-  background: rgba(16, 17, 17, 0.034);
+  background: rgba(16, 17, 17, 0.063);
   box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.05);
   font-size: 11px;
   /* The line box is the whole height, so the row is exactly --tag-h and the
@@ -2640,7 +2709,7 @@ option:hover {
      ink over the head's white composites to 247 against its 255, the same
      step the panel below has against the page. The ring keeps the corners
      readable at this size. */
-  background: rgba(16, 17, 17, 0.034);
+  background: rgba(16, 17, 17, 0.063);
   box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.06);
 }
 
@@ -3023,7 +3092,7 @@ option:hover {
   height: 52.8px;
   padding-inline: 16px;
   border-radius: 26.4px;
-  background: rgba(16, 17, 17, 0.034);
+  background: rgba(16, 17, 17, 0.063);
   -webkit-backdrop-filter: blur(12px) saturate(1.2);
   backdrop-filter: blur(12px) saturate(1.2);
   box-shadow:
@@ -3283,7 +3352,7 @@ option:hover {
   height: 52.8px;
   padding-inline: 16px;
   border-radius: 26.4px;
-  background: rgba(16, 17, 17, 0.034);
+  background: rgba(16, 17, 17, 0.063);
   box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.05);
 }
 
@@ -3373,7 +3442,7 @@ option:hover {
   padding: 0;
   border: 0;
   border-radius: 50%;
-  background: rgba(16, 17, 17, 0.034);
+  background: rgba(16, 17, 17, 0.063);
   box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.05);
   color: #101111;
   /* 15 scaled by the same 20% the circle took, for the reason the deal
@@ -3490,13 +3559,19 @@ option:hover {
 /* The card's own header: title at its own top-right (reading start in
    RTL), filters and the way out opposite it on the left — wraps to a
    second line rather than overflowing on narrow cards. */
+/* Title at the reading start, the way out opposite it, and the filters on
+   their own line under both — «مشاهده همه محصولات اینجا باید حذف بشه بیاد
+   روبروی عنوان سمت چپ». The link used to be the last item inside the filter
+   row, which put it at the end of a queue of five buttons and, once the row
+   wrapped, on a line of its own below them. `.vp-brands-head` has said in a
+   comment for some time that it copies this arrangement; it now does. */
 .vp-best-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 12px;
-  margin-bottom: 24px;
+  margin-bottom: 14px;
 }
 
 /* Small — client's own word — against the section's usual sec-title, which
@@ -3512,18 +3587,58 @@ option:hover {
   color: #101111;
 }
 
+/* «فضای سمت چپ این موارد با بغل فاصله استانداردی نداره باید مث فاصله راستش
+   باشه یا بیضی هارو بکش یا فاصلشون بیشتر بشه» — the pills are stretched, which
+   is the first of the two the client offered.
+
+   On a phone the head has wrapped, so this row is the full width of the panel
+   while the five pills are only as wide as their own words: the row ended
+   flush against the start edge and 29.6px short of the other one at 390, 14.6
+   at 375, 69.6 at 430 — the slack is whatever the panel's width happens to
+   leave, so it is a different number on every handset and never zero.
+
+   `flex: 1 1 auto` hands that slack to the five, in proportion to nothing —
+   each takes an equal share of what is left, so the pills keep the relative
+   widths their words gave them and the row ends where the panel ends. It needs
+   no width to be named and no breakpoint: growth only happens where a line has
+   free space, and on a desktop this row is sized to its own content and sits
+   opposite the title, so there is none and nothing moves. Measured at 540,
+   768, 992 and 1200: identical to the pixel, before and after.
+
+   The gap is 7 rather than 8 for one reason: at 360 the five wanted 340.42 in
+   340 and the last one wrapped to a line of its own. Four pixels back off the
+   four gaps buys the row 360, and 375/390/414/430 keep landing on one line as
+   they already did.
+
+   Measured after, start edge / end edge: 360 0/0, 375 0/0, 390 0/0, 414
+   0/0.02, 430 0/0. Under about 350 the fifth pill still wraps — it does today
+   too — and both lines are at least flush now instead of ragged. Nothing this
+   repo checks goes below 390. */
 .vp-best-filters {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 7px;
+  /* The 24 the head used to carry down to the row of tiles; the head keeps 14
+     of it for the gap up to these, so the pair still spends the same air. */
+  margin-bottom: 24px;
 }
 
 .vp-best-filter {
+  flex: 1 1 auto;
   border: 0;
   padding: 6px 14px;
   border-radius: 14px;
-  background: rgba(16, 17, 17, 0.04);
+  /* White — «بیضی ها هم سفید بشن». The tint they carried was 0.04 of ink,
+     which is the page's own grey, and on a phone the panel behind them is
+     transparent so they read as grey on grey.
+
+     The hairline is not decoration: above 992 the panel *is* white, and a
+     white pill on it with nothing else would have no edge at all. It is the
+     same 1px inset the daily deal's card carries, at the same alpha, so the
+     page is not gaining an eighth way of drawing an edge. */
+  background: #FFFFFF;
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.08);
   color: rgba(16, 17, 17, 0.62);
   font-family: 'Vazirmatn', var(--body-font);
   font-size: 12px;
@@ -3544,6 +3659,9 @@ option:hover {
 .vp-best-filter.active,
 .vp-best-filter:hover {
   background: linear-gradient(180deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
+  /* The resting pill's hairline goes: the gold states its own edge, and a ring
+     on top of it reads as a border the others do not have. */
+  box-shadow: none;
   color: #101111;
 }
 
@@ -3622,15 +3740,28 @@ option:hover {
   display: flex;
   align-items: center;
   gap: 40px;
-  padding: 28px;
+  /* The frame's two numbers live here as variables and the card inside reads
+     them, because a fit written as two independent numbers is a fit that comes
+     apart the first time one of them moves at a breakpoint nobody re-checked.
+     That had already happened: at 991 this pane was 42 with 10 of padding and
+     the card inside it was still turning at the desktop's value. A media query
+     below now only has to move `--frame-r` and `--frame-pad`. */
+  --frame-pad: 28px;
+  --frame-r: 50px;
+  padding: var(--frame-pad);
   /* «این گوشه ها ... فیت هم نیستن ... بیرونیه باید کمی بیشتر کرو بشه» — a
      frame's corner is concentric with the card inside it only when it is the
-     inner corner plus the gap between them. `.vp-daily-deal-card` turns at 32
-     and stands 28 off this edge, so this is 60. At 40 the outer curve was
-     tighter than the inner one it wraps: the gap held 28 down the straight and
-     closed to about 20 through the turn, which is the two corners "not
-     fitting". */
-  border-radius: 60px;
+     inner corner plus the gap between them. At 40 the outer curve was tighter
+     than the inner one it wraps: the gap held 28 down the straight and closed
+     to about 20 through the turn, which is the two corners "not fitting".
+     That rule stands; only the number it starts from has moved.
+
+     «کرو گوشه های کارت پیشنهاد امروز ... باید بشه اندازه ی گوشه ی کارت حراج
+     پله ای» — so this is the ladder panel's 50 now, and
+     `.vp-daily-deal-card` follows it down to 50 − 28 = 22 to stay
+     concentric. Fixing the outer alone would have broken the fit that the
+     paragraph above exists to protect. */
+  border-radius: var(--frame-r);
   background: #FFFFFF;
   box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.1);
 }
@@ -3661,7 +3792,8 @@ option:hover {
   margin: 0 0 10px;
   font-family: 'Cairo', var(--title-font);
   font-weight: 800;
-  font-size: 39px;
+  /* 35.1 — «عنوان هاشونم باید ۱۰ درصد کوچیکتر بشن», ten per cent off 39. */
+  font-size: 35.1px;
   line-height: 1.3;
   color: var(--title-color);
 }
@@ -3712,8 +3844,11 @@ option:hover {
   align-items: center;
   gap: 24px;
   padding: 40px;
-  border-radius: 32px;
-  background: rgba(16, 17, 17, 0.034);
+  /* Not a number of its own: the frame's radius less the gap it stands off
+     it, which is the only value that makes the two curves concentric. It
+     follows the frame at every width automatically. */
+  border-radius: calc(var(--frame-r) - var(--frame-pad));
+  background: rgba(16, 17, 17, 0.063);
   box-shadow:
     inset 0 0 0 1px rgba(16, 17, 17, 0.05),
     0 24px 48px -28px rgba(16, 17, 17, 0.22);
@@ -3910,14 +4045,18 @@ option:hover {
 }
 
 @media (max-width: 1199px) {
-  .vp-daily-deal { flex-direction: column; align-items: stretch; gap: 28px; padding: 28px; }
+  /* No padding here: it is `--frame-pad`'s, and restating it silently beat
+     the variable at every width below 1200 — which is how the phone ended up
+     with a 42px frame around a card still turning at the desktop's value.
+     Layout only. */
+  .vp-daily-deal { flex-direction: column; align-items: stretch; gap: 28px; }
   .vp-daily-deal-card { flex-basis: auto; }
 }
 
 @media (max-width: 575px) {
   .vp-daily-deal-card { flex-direction: column; }
   .vp-daily-deal-shot { width: 100%; height: 200px; }
-  .vp-daily-deal-title { font-size: 26px; }
+  .vp-daily-deal-title { font-size: 23.4px; }   /* the same ten per cent off 26 */
 }
 
 /* --- the way out --------------------------------------------------------- */
@@ -4264,9 +4403,12 @@ option:hover {
   color: #101111;
 }
 
-/* The hero cards' corners, a little rounder than the template's 60. */
+/* The hero cards' corners. It was the template's 60, then 72 — «a little
+   rounder» — and it is 60 again: «هیرو هم بشه ۶۰ / ۳۰». At 72 it was the
+   roundest thing on the page by twenty-two pixels, against panels that have
+   since settled on 50. */
 .heroSlide6 .hero-inner {
-  border-radius: 72px;
+  border-radius: 60px;
 }
 
 /* --------------------------------------------------------------------------
@@ -4690,7 +4832,7 @@ option:hover {
   margin: 0 0 26px;
   padding: 16px 12px;
   border-radius: 22px;
-  background: rgba(16, 17, 17, 0.034);
+  background: rgba(16, 17, 17, 0.063);
   list-style: none;
 }
 
@@ -4934,10 +5076,16 @@ ul.vp-how-list.is-ticked li:before {
      this reason. 100 -> 150 with the rest of the page's rhythm, and still
      the same number as .vp-best-panel's, as that comment requires. */
   margin-top: 150px;
-  padding: 28px;
-  /* Concentric with the brand tiles: they turn at 36 and stand 28 off this
-     edge, so 36 + 28. Same complaint and same arithmetic as `.vp-daily-deal`,
-     where it is written out in full.
+  /* The same two variables the daily deal carries, read by `.vp-brand` through
+     a calc, so the tiles cannot fall out of step with the frame. */
+  --frame-pad: 28px;
+  --frame-r: 50px;
+  padding: var(--frame-pad);
+  /* Concentric with the brand tiles, the same arithmetic as `.vp-daily-deal`,
+     where it is written out in full. «کرو گوشه های ... کارت برندهای موجود باید
+     بشه اندازه ی گوشه ی کارت حراج پله ای» sets this to the ladder panel's 50,
+     and `.vp-brand` follows it down to 50 − 28 = 22 so the fit survives the
+     move — it was 36 + 28 = 64.
 
      **This is the one number `.vp-best-panel` no longer shares.** That pane is
      this one twice over — same margins, same ring, and it carried this same 50
@@ -4946,8 +5094,11 @@ ul.vp-how-list.is-ticked li:before {
      the fit this fixes is not a fault it has. The two panes are stacked in
      view of each other and now differ by 14 here. If that reads wrong, the
      choice is between the two panes matching and this one fitting its tiles;
-     it cannot be both at this padding. */
-  border-radius: 64px;
+     it cannot be both at this padding.
+
+     Both panes now read 50, so that difference is closed as a side effect of
+     matching the ladder. */
+  border-radius: var(--frame-r);
   background: #FFFFFF;
   /* A soft ring the whole way round — «یه سایه نرم دورتا دور مث سایه مربع های
      هدر بهش بده که حریمش مشخصتر بشه». The two outer values are the header
@@ -4998,7 +5149,8 @@ ul.vp-how-list.is-ticked li:before {
   margin: 0;
   font-family: 'Cairo', var(--title-font);
   font-weight: 700;
-  font-size: 24px;
+  /* 21.6 — ten per cent off 24, «عنوان هاشونم باید ۱۰ درصد کوچیکتر بشن». */
+  font-size: 21.6px;
   line-height: 1.4;
   color: #101111;
 }
@@ -5051,7 +5203,11 @@ ul.vp-how-list.is-ticked li:before {
   position: relative;
   display: block;
   aspect-ratio: 4 / 3;
-  border-radius: 36px;
+  /* The panel's radius less the gap it stands off it — «کارتهای وسطشونم باید
+     فیت باشه با کارت بیرونی» — computed rather than written, so it follows the
+     panel through every breakpoint instead of being re-derived by hand at each
+     one and forgotten at some of them. */
+  border-radius: calc(var(--frame-r) - var(--frame-pad));
   overflow: hidden;
   text-decoration: none;
   box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.06);
@@ -5238,8 +5394,11 @@ ul.vp-how-list.is-ticked li:before {
    less, so nothing inside it has to change. */
 @media (max-width: 1199px) {
   .vp-brands-row { grid-template-columns: repeat(2, 1fr); }
-  /* 36 of tile plus this rule's own 22 of padding. */
-  .vp-brands-panel { border-radius: 58px; padding: 22px; }
+  /* The panel keeps the ladder's 50 here too; only the padding narrows, and
+     the tiles' own radius follows it through the calc. It was 58 to sit
+     concentric with a 36px tile — same rule, different starting number, and
+     the request was to start from the ladder's. */
+  .vp-brands-panel { --frame-pad: 22px; }
 }
 
 @media (max-width: 575px) {
@@ -5248,9 +5407,15 @@ ul.vp-how-list.is-ticked li:before {
      gap's phone-sized version of the old 100, and none of the other five
      gaps ever had one. With all six at 150 it would have been the only
      one at 70 on a phone, which reads as a mistake rather than as a
-     choice. The pane's own radius and padding still shrink. */
-  .vp-brands-panel { border-radius: 32px; padding: 16px; }
-  .vp-brands-title { font-size: 20px; }
+     choice.
+
+     **The radius and padding that used to sit here were dead.** This block is
+     at 575 and the one that puts the panes back into their frames is at
+     991.98, which comes *later* in the file, so its 46/10 won on every phone
+     and this 32/16 never painted once. Found by listing the rules the browser
+     actually matched at 390 rather than by reading the file. The live pair is
+     in that block; nothing belongs here but the column count and the type. */
+  .vp-brands-title { font-size: 18px; }   /* the same ten per cent off 20 */
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -5564,20 +5729,41 @@ ul.vp-how-list.is-ticked li:before {
   outline: none;
 }
 
+/* ⚠️ **A filled gold control is the light ramp, never `--theme-color`.**
+   «رنگ گلد ما گلد زرده چرا از اون گلد سبز برای آیکونا و دکمه ها استفاده
+   میکنی» — and before that, about the basket's own button, «دکمه ادامه هم
+   نباید اون رنگی باشه باید همرنگ باقی دکمه های سایت باشه». Twice, about two
+   different buttons, which is what said this was a rule and not a taste.
+
+   There is no green in this palette to use. Every gold here is the same hue —
+   `--theme-color` is 46.2°, `--vp-gold-fill` 46.7°, `--vp-gold-fill-ink`
+   46.8°, half a degree apart — and they carry the same saturation, ~71%. What
+   separates them is **lightness**: 36.3% against 50.2%. A dark yellow reads
+   olive; that is the whole of it, and no amount of hue-picking fixes a fill
+   that is simply too dark.
+
+   So: a **button** is `--vp-gold-fill → --vp-gold-lit`, the ramp the buy
+   button and «ادامه» already wear, with `brightness(1.04)` on hover. An
+   **icon** is `--vp-gold-fill-ink` flat, which is what the header's three
+   icon squares carry. The dark golds stay where they were chosen for a
+   reason — as *text*, where each one's lightness was solved to hold a
+   measured contrast on white (see the table in HANDOFF). Text is not a fill.
+   -------------------------------------------------------------------------- */
+
 .vp-shop-search button {
   flex: none;
   width: 36px;
   height: 36px;
   border: 0;
   border-radius: 50%;
-  background: var(--theme-color);
+  background: linear-gradient(90deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   color: #FFFFFF;
   font-size: 13px;
-  transition: background 0.2s ease;
+  transition: filter 0.2s ease;
 }
 
 .vp-shop-search button:hover {
-  background: var(--gr-color2);
+  filter: brightness(1.04);
 }
 
 /* --- the two columns ------------------------------------------------------ */
@@ -5729,16 +5915,19 @@ ul.vp-how-list.is-ticked li:before {
   height: 40px;
   border: 0;
   border-radius: 999px;
-  background: var(--theme-color);
+  /* The phone's own filter panel had already been moved to this ramp on its
+     own, far below; the rail's copy was left behind and is the one a desktop
+     sees. */
+  background: linear-gradient(90deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   color: #FFFFFF;
   font-family: 'Cairo', var(--title-font);
   font-weight: 700;
   font-size: 14px;
-  transition: background 0.2s ease;
+  transition: filter 0.2s ease;
 }
 
 .vp-filter-apply:hover {
-  background: var(--gr-color2);
+  filter: brightness(1.04);
 }
 
 .vp-filter-clear {
@@ -5818,7 +6007,7 @@ ul.vp-how-list.is-ticked li:before {
 
 .vp-page.is-on {
   color: #FFFFFF;
-  background: var(--theme-color);
+  background: linear-gradient(90deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   box-shadow: none;
 }
 
@@ -6039,11 +6228,20 @@ ul.vp-how-list.is-ticked li:before {
   margin-top: 20px;
   border: 0;
   border-radius: 999px;
-  background: var(--theme-color);
+  /* **On no page today** — the product page's «افزودن به سبد» is `.vp-pick-go`,
+     which has been the ramp all along. Kept and corrected rather than left
+     flat: a rule named `-buy` that comes back one day must not come back the
+     one colour a buy button is not allowed to be. */
+  background: linear-gradient(90deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   color: #FFFFFF;
   font-family: 'Cairo', var(--title-font);
   font-weight: 700;
   font-size: 16px;
+  transition: filter 0.2s ease;
+}
+
+.vp-pdp-buy:not(:disabled):hover {
+  filter: brightness(1.04);
 }
 
 .vp-pdp-buy:disabled {
@@ -6575,14 +6773,21 @@ button.vp-cart-keep {
 }
 
 /* «دکمه ادامه هم نباید اون رنگی باشه باید همرنگ باقی دکمه های سایت باشه» —
-   it inherits `.vp-filter-apply`'s `background: var(--theme-color)`, which is
+   it inherited `.vp-filter-apply`'s `background: var(--theme-color)`, which is
    `var(--vp-gold)`, the flat midpoint tone the gradient is drawn from rather
-   than the gradient itself (see the three `--vp-gold-*` declarations near the
-   top of this file) — every buy button on the shop (`.vp-pick-go`,
-   `.vp-cart-more`, `.vp-mini-out`) is the gradient, and the flat midpoint
-   alone reads visibly duller, olive rather than gold. Overridden here rather
-   than on `.vp-filter-apply` itself, which the filter rail's own «اعمال
-   فیلتر» button still uses and was not asked about. */
+   than the gradient itself (see the `--vp-gold-*` declarations near the top of
+   this file) — every buy button on the shop (`.vp-pick-go`, `.vp-cart-more`,
+   `.vp-mini-out`) is the gradient, and the flat midpoint alone reads visibly
+   duller, olive rather than gold.
+
+   **This was overridden here alone, on the grounds that the filter rail's own
+   «اعمال فیلتر» «was not asked about» — and the client asked about it, and
+   about the icons, the next time they saw the site**: «رنگ گلد ما گلد زرده چرا
+   از اون گلد سبز برای آیکونا و دکمه ها استفاده میکنی». `.vp-filter-apply` is
+   the ramp itself now, so this rule no longer changes the colour — it is kept
+   for the width, the margin and the centring, and because its 96° is this
+   button's own angle. Fixing the *one* button that was complained about is
+   what bought the second complaint. */
 .vp-cart-go {
   display: grid;
   place-items: center;
@@ -6772,9 +6977,27 @@ button.vp-cart-keep {
   color: var(--title-color);
 }
 
+/* The panel's gold is the shop's gold — «باید از دکمه های گلد هوم برداری رنگو».
+
+   It was not. Every gold in this panel was `var(--theme-color)`, which resolves
+   to `--vp-gold` (#A08119), the *midpoint* of the ramp and the value this file
+   already warns about twice: `.vp-best-filter.active` carries the note that
+   using `--theme-color` for a gold surface «was the exact mistake already made
+   once on this page (the header cart icon, before it got fixed) and was not
+   supposed to happen a second time». The panel was the third time.
+
+   Measured side by side: a gold button on the front page paints
+   `linear-gradient(#DAB226 → #EFC94F)`; «ثبت» in the panel painted a flat
+   rgb(160,129,25). Two different golds on one product.
+
+   So the surfaces take the front page's own ramp, and the text takes
+   `--vp-gold-ink`, which is the gold this file keeps for type on white
+   (4.65:1). The label on the ramp goes to ink rather than white for the reason
+   written at `.vp-best-filter.active`: ink on this ramp measures 6.94:1–9.88:1
+   and white measures 2.46:1, which is not a contrast at all. */
 .vp-admin-mark span {
   font-size: 12px;
-  color: var(--theme-color);
+  color: var(--vp-gold-ink);
 }
 
 .vp-admin-nav {
@@ -6799,8 +7022,8 @@ button.vp-cart-keep {
 /* The current screen, marked by fill rather than by an underline: an
    underline under Persian type sits on the descenders. */
 .vp-admin-nav a.is-on {
-  background: var(--theme-color);
-  color: #FFFFFF;
+  background: linear-gradient(180deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
+  color: #101111;
 }
 
 .vp-admin-who {
@@ -6844,13 +7067,35 @@ button.vp-cart-keep {
   padding-block: 28px 80px;
 }
 
-.vp-admin-main .vp-shop-panel {
+/* The panel is a surface, not a pane — «قاب های تو هم تو هم … اصلا مورد پسندم
+   نیست».
+
+   `.vp-shop-panel` is the storefront's material: 50px of radius, a 1.5px inset
+   ring and a drop shadow, quoted from `.vp-best-panel` so the shop reads as one
+   sheet of glass. The panel borrowed it and cut the radius to 28, and that is
+   the frame the client is looking at. Put a card inside it and there are two;
+   before the rule below there were four, because the template also draws a
+   border on `table` and on every `td`.
+
+   The specification is explicit about which way this goes: «Prefer borders and
+   surface hierarchy over large shadows», «Avoid excessively rounded admin UI»
+   with LG at 16px, «Avoid unnecessary decorative UI in the admin product», and
+   «Do not copy the customer storefront UI». So: a 16px radius, a 1px border in
+   the specification's own #E7E7E7, and no shadow at all. Depth comes from the
+   surface being white on the #F7F8FA behind it.
+
+   Scoped to `.vp-admin-main` on purpose — `.vp-shop-panel` is the shop's class
+   too, and the shop's panes are not being changed here. */
+.vp-admin-main .vp-shop-panel,
+.vp-adm-page .vp-shop-panel {
   margin-inline: 0;
-  padding: 22px;
-  border-radius: 28px;
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: inset 0 0 0 1px #E7E7E7;
 }
 
-.vp-admin-main .vp-shop-panel + .vp-shop-panel {
+.vp-admin-main .vp-shop-panel + .vp-shop-panel,
+.vp-adm-page .vp-shop-panel + .vp-shop-panel {
   margin-top: 20px;
 }
 
@@ -6927,7 +7172,8 @@ button.vp-cart-keep {
   white-space: nowrap;
 }
 
-.vp-admin-main .vp-shop-panel {
+.vp-admin-main .vp-shop-panel,
+.vp-adm-page .vp-shop-panel {
   overflow-x: auto;
 }
 
@@ -6951,7 +7197,7 @@ button.vp-cart-keep {
 }
 
 .vp-admin-table a {
-  color: var(--theme-color);
+  color: var(--vp-gold-ink);
 }
 
 .vp-admin-num,
@@ -6989,13 +7235,13 @@ button.vp-cart-keep {
   padding-inline: 14px;
   border: 0;
   border-radius: 999px;
-  background: var(--theme-color);
-  color: #FFFFFF;
+  background: linear-gradient(180deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
+  color: #101111;
   font-size: 13px;
 }
 
 .vp-admin-save:hover {
-  background: var(--gr-color2);
+  background: var(--vp-gold-lit);
 }
 
 /* The panel's destructive pill.
@@ -7034,8 +7280,8 @@ button.vp-cart-keep {
 }
 
 .vp-admin-tabs a.is-on {
-  background: var(--theme-color);
-  color: #FFFFFF;
+  background: linear-gradient(180deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
+  color: #101111;
 }
 
 .vp-admin-moves {
@@ -7050,13 +7296,13 @@ button.vp-cart-keep {
   height: 40px;
   border: 0;
   border-radius: 999px;
-  background: var(--theme-color);
-  color: #FFFFFF;
+  background: linear-gradient(180deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
+  color: #101111;
   font-size: 14px;
 }
 
 .vp-admin-move:hover {
-  background: var(--gr-color2);
+  background: var(--vp-gold-lit);
 }
 
 .vp-admin-move.is-off {
@@ -7067,6 +7313,230 @@ button.vp-cart-keep {
 
 .vp-admin-move.is-off:hover {
   background: rgba(179, 38, 30, 0.06);
+}
+
+/* --- the panel on a phone -------------------------------------------------- */
+/* «پنل ادمین حتما باید کاملا ریسپانسیو موبایل باشه».
+
+   Measured before, at 390: the header was **364px tall** — 43% of an 844px
+   screen gone before any content, because fourteen navigation links, the mark,
+   the branch name and «خروج» were one `flex-wrap: wrap` row and wrapped into a
+   ragged block with items landing wherever the previous line ran out. And the
+   tables did not fit: inventory wants 925px at its narrowest and the panel had
+   322, so nine columns became three with the six that carry the numbers — and
+   the box you type a new count into — off-screen behind a sideways scroll with
+   nothing on screen saying so.
+
+   Neither showed up in `check-overflow.js`, and that is worth knowing: the
+   panel is `overflow-x: auto`, so the table scrolls *inside* it and the page
+   itself never scrolls sideways. The check was right; it measures the page.
+
+   Two changes, both below 992 — the breakpoint the rest of this file uses.
+
+   **The bar becomes two rows.** The mark and «خروج» keep the first; the links
+   drop to a second as a single-line strip that scrolls, which is what
+   `.vp-shop-tabs` already does on the shop side for the same reason. No
+   drawer, no toggle, no hidden state — the phone drawer on the shop is
+   invisible to every check we have and that is a lesson, not a pattern to
+   copy. The strip bleeds to the bar's edges so a link cut in half is the hint
+   that it scrolls.
+
+   **The tables become cards**, one per row, each cell labelled with its own
+   column heading. There is a comment above `.is-wide` saying wide tables stay
+   tables because `display: block` loses table layout and leaves half the panel
+   empty — that is true of a half-measure, where the cells are still trying to
+   be a row. Here the row *is* the card and the cell is a flex line with its
+   label opposite its value, so there is no table layout left to lose. Above
+   992 nothing changes and the note still holds.
+
+   The labels are written onto the cells by the script in layouts/admin.blade
+   from the table's own `<thead>`, so this works for all seventeen tables in
+   the panel and for the next one somebody adds without them knowing about
+   this block. If that script does not run, the tables stay tables and the
+   panel scrolls exactly as it does today — the old behaviour is the fallback,
+   not a broken page. */
+@media (max-width: 991.98px) {
+  .vp-admin-bar-in {
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 10px 12px;
+  }
+
+  /* The mark takes the first row's slack so «خروج» sits against the far edge. */
+  .vp-admin-mark {
+    flex: 1 1 auto;
+  }
+
+  .vp-admin-who {
+    flex: 0 0 auto;
+  }
+
+  .vp-admin-nav {
+    order: 3;
+    flex: 1 0 100%;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    /* `auto` was pushing the bar's third item away on one line; on two lines
+       there is nothing to push. */
+    margin-inline: -12px;
+    padding-inline: 12px;
+  }
+
+  .vp-admin-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .vp-admin-nav a {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+
+  /* The panel no longer has a table to scroll, and leaving it `auto` would
+     keep a scrollbar's worth of gutter under every card. */
+  .vp-admin-main .vp-shop-panel,
+  .vp-adm-page .vp-shop-panel {
+    overflow-x: visible;
+  }
+
+  /* One frame, not two. A panel whose whole content is a list of cards has
+     nothing left to enclose — the cards are the enclosure — so it gives up its
+     own border and padding and lets them have the width. A panel that holds
+     anything else (a form, the figures on the dashboard) keeps its surface;
+     `:has()` is what tells them apart, and where it is not supported the panel
+     simply keeps its frame, which is the old look rather than a broken one. */
+  .vp-admin-main .vp-shop-panel:has(> .vp-admin-table[data-vp-stack]),
+  .vp-adm-page .vp-shop-panel:has(> .vp-admin-table[data-vp-stack]) {
+    padding: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+  }
+
+  /* The heading above the table belongs to the panel, and the panel's padding
+     was what held it off the edge. */
+  .vp-admin-main .vp-shop-panel:has(.vp-admin-table[data-vp-stack]) > .vp-admin-title,
+  .vp-admin-main .vp-shop-panel:has(.vp-admin-table[data-vp-stack]) > form,
+  .vp-adm-page .vp-shop-panel:has(.vp-admin-table[data-vp-stack]) > .vp-admin-title,
+  .vp-adm-page .vp-shop-panel:has(.vp-admin-table[data-vp-stack]) > form {
+    padding-inline: 4px;
+  }
+
+  .vp-admin-table[data-vp-stack],
+  .vp-admin-table[data-vp-stack] tbody {
+    display: block;
+  }
+
+  /* The template's own stylesheet puts `border: 1px solid #E1E4E5` on `table`
+     and on `td`. Collapsed into a grid that is the ruling this table is drawn
+     with, and invisible as anything else — until the boxes stop being a grid,
+     and then it is a rectangle around the whole table and another around every
+     single cell, three rings deep inside the panel. Measured: table at x=34,
+     row at 35, cell at 49, each with its own line. */
+  .vp-admin-table[data-vp-stack],
+  .vp-admin-table[data-vp-stack] tbody,
+  .vp-admin-table[data-vp-stack] tbody tr,
+  .vp-admin-table[data-vp-stack] td {
+    border: 0;
+  }
+
+  /* The headings are on the cells now. */
+  .vp-admin-table[data-vp-stack] thead {
+    display: none;
+  }
+
+  .vp-admin-table[data-vp-stack] tbody tr {
+    display: block;
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: #FFFFFF;
+    box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.1);
+  }
+
+  .vp-admin-table[data-vp-stack] tbody tr + tr {
+    margin-top: 10px;
+  }
+
+  /* Hover was a row-scanning affordance. There are no rows to scan and no
+     pointer to hover with. */
+  .vp-admin-table[data-vp-stack] tbody tr:hover td {
+    background: none;
+  }
+
+  .vp-admin-table[data-vp-stack] td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 6px 0;
+    box-shadow: none;
+    /* `.is-wide` sets nowrap so the columns keep their shape while scrolling.
+       A card has the width to wrap, and a product name that cannot is a card
+       that overflows. */
+    white-space: normal;
+  }
+
+  /* The ruling the grid used to give, kept between the lines of one card. */
+  .vp-admin-table[data-vp-stack] td + td {
+    box-shadow: inset 0 1px 0 rgba(16, 17, 17, 0.06);
+  }
+
+  .vp-admin-table[data-vp-stack] td::before {
+    content: attr(data-label);
+    flex: 0 0 auto;
+    font-size: 12px;
+    font-weight: 700;
+    color: rgba(16, 17, 17, 0.55);
+  }
+
+  /* A column whose heading is blank — the actions column — would otherwise
+     draw an empty label and take the gap with it. */
+  .vp-admin-table[data-vp-stack] td[data-label='']::before {
+    content: none;
+  }
+
+  /* A cell spanning the table is an empty state («هنوز سفارشی ثبت نشده»), not
+     a value with a heading. The script marks it and it stays a plain block. */
+  .vp-admin-table[data-vp-stack] td[data-vp-full] {
+    display: block;
+    text-align: center;
+  }
+
+  .vp-admin-table[data-vp-stack] td[data-vp-full]::before {
+    content: none;
+  }
+
+  /* Controls inside a card get the room the label leaves rather than the
+     width the column gave them. */
+  .vp-admin-table[data-vp-stack] td .vp-admin-num,
+  .vp-admin-table[data-vp-stack] td .vp-admin-text,
+  .vp-admin-table[data-vp-stack] td select {
+    max-width: 60%;
+  }
+}
+
+/* The laptop's 33 pixels.
+
+   «هم ریسپانسیو موبایل هم دستاپ نیازه», and this is the desktop half of it.
+   Between 992 and 1200 the container holds the panel at one width, so the
+   inventory table — the widest in the panel, nine columns — wants 33px more
+   than it has and the panel scrolls by exactly that at 992, 1024 and 1100
+   alike. Above 1200 the container grows and it fits; below 992 the rows are
+   cards and there is no table to scroll.
+
+   Nine columns have eighteen inside edges, so taking 3px off each side of a
+   cell buys 54 — more than the 33 needed, and it only has to hold until the
+   container's next step. Measured across /inventory, /pricing, /vendors and
+   /discounts at 992, 1024, 1100 and 1200: no panel scrolls at any of them.
+
+   This is the only table that needs it, but the rule is written against the
+   type rather than that one screen: a tenth column added to any of them would
+   otherwise put the scroll back with nothing to say why. */
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  .vp-admin-table th,
+  .vp-admin-table td {
+    padding-inline: 5px;
+  }
 }
 
 /* --- signing in ----------------------------------------------------------- */
@@ -7179,14 +7649,15 @@ button.vp-cart-keep {
   padding-inline: 16px;
   border: 0;
   border-radius: 999px;
-  background: var(--theme-color);
+  background: linear-gradient(90deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   color: #FFFFFF;
   font-size: 13px;
   white-space: nowrap;
+  transition: filter 0.2s ease;
 }
 
 .vp-seller-add:hover {
-  background: var(--gr-color2);
+  filter: brightness(1.04);
 }
 
 /* --- the vendor panel ----------------------------------------------------- */
@@ -7358,8 +7829,11 @@ button.vp-cart-keep {
   width: 76px;
   height: 76px;
   border-radius: 50%;
-  background: rgba(164, 127, 37, 0.08);
-  color: var(--theme-color);
+  /* The tint was `rgba(164,127,37,…)` — that is #A47F25, the gold this whole
+     site moved off on 2026-08-16, written as a literal where the sweep could
+     not see it. It is the new fill gold now, and warmer for it. */
+  background: rgba(218, 178, 38, 0.14);
+  color: var(--vp-gold-fill-ink);
 }
 
 .vp-empty-mark svg {
@@ -7381,13 +7855,14 @@ button.vp-cart-keep {
   display: inline-grid;
   place-items: center;
   border-radius: 999px;
-  background: var(--theme-color);
+  background: linear-gradient(90deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   color: #FFFFFF;
   font-size: 14px;
+  transition: filter 0.2s ease;
 }
 
 .vp-empty-out:hover {
-  background: var(--gr-color2);
+  filter: brightness(1.04);
   color: #FFFFFF;
 }
 
@@ -8567,7 +9042,7 @@ button.vp-cart-keep {
   margin: 18px 0 20px;
   padding: 5px;
   border-radius: 16px;
-  background: rgba(16, 17, 17, 0.034);
+  background: rgba(16, 17, 17, 0.063);
   box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.05);
 }
 
@@ -8642,24 +9117,504 @@ button.vp-cart-keep {
 }
 
 /* --------------------------------------------------------------------------
-   The account: a list of what this customer has bought here.
+   The account — «حساب کاربری».
+
+   **What was here was not a screen anybody had designed.** The account grew a
+   wishlist, then messages, then a password, and each one arrived as another
+   word in a row beside the customer's name; the page itself stayed what it had
+   been on the first day, which was the orders list with a heading. The client
+   saw it on a telephone — «این چه حساب کاربری داغونیه برای کاربر زدی خیلی
+   داغونه» — and the photograph is the argument: a name, a number, three gold
+   words at body size, a grey fold, a grey box, a gold button, and 700px of
+   white under it.
+
+   It is three panels now — who you are, the orders, the settings — and every
+   part of it is a material this page already had:
+
+     - the pane is `.vp-shop-panel`, which is `.vp-best-panel`'s,
+     - the figures sit on the glass tint the header island wears,
+     - the doors are the white-with-a-ring box the sign-in's fields are,
+     - the empty state is `.vp-empty`, which the wishlist wrote,
+     - the status chip is **the panel's own** — `is-placed` through
+       `is-cancelled`, the same five tones `.vp-adm-badge` carries in
+       `admin.css`, so one order is one colour to the shopper and to the shop.
+
+   Nothing new is invented. What changed is that the page has a head, a shape
+   and somewhere to go next.
    -------------------------------------------------------------------------- */
 
-/* «تغییر رمز عبور», folded away. A `<details>`, because the page is for the
-   orders and this is housekeeping — but it has to be here, since a shopper
-   sets the password on the screen that verified their number and would
-   otherwise have no way back to it.
+/* --- 1. who you are ------------------------------------------------------- */
+
+.vp-acct-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+/* The first letter of the name, in the shop's gold.
+
+   A mark rather than a photograph: there is nowhere to upload one, and a grey
+   silhouette says less than the letter does. The radius is the header tile's
+   own ratio — 15.18 of 52 — carried to 54, so this square belongs to the same
+   set as the three at the top of every page. */
+.vp-acct-face {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 54px;
+  height: 54px;
+  border-radius: 15.8px;
+  background: linear-gradient(135deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
+  color: #FFFFFF;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 1;
+}
+
+/* `min-width: 0` so a long name wraps inside this column instead of pushing
+   «خروج» off the panel — a flex item's floor is its content otherwise. */
+.vp-acct-who {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.vp-acct-name {
+  margin: 0;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.vp-acct-phone {
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: #6E7070;
+}
+
+/* «خروج». It was a bare gold word between two other gold words; signing out is
+   the one control on this page somebody presses by accident, so it is set
+   apart as a quiet chip and only turns red under the finger.
+
+   Everything the template's form reset gives a `<button>` — a border, a grey
+   fill, 45px of padding — is written over here, the same way `.vp-cart-keep`
+   had to. */
+.vp-acct-out {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  height: 34px;
+  padding-inline: 13px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(16, 17, 17, 0.063);
+  color: #4D4D4D;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.vp-acct-out:hover,
+.vp-acct-out:focus-visible {
+  background: rgba(179, 38, 30, 0.08);
+  color: #B3261E;
+}
+
+.vp-acct-out i {
+  font-size: 12px;
+}
+
+/* The four figures, on the glass. «در جریان» is the one the page never said
+   and the one a shopper opens the account to check.
+
+   `border-inline-start` for the dividers rather than a shadow: the page is RTL
+   and the cell a divider belongs to is the one *after* it in reading order,
+   which is the left in a physical measure and the start in a logical one. */
+.vp-acct-figs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 0 0 16px;
+  padding: 14px 4px;
+  list-style: none;
+  border-radius: 22px;
+  background: rgba(16, 17, 17, 0.063);
+}
+
+.vp-acct-figs li {
+  display: grid;
+  justify-items: center;
+  gap: 3px;
+  padding-inline: 4px;
+  text-align: center;
+}
+
+.vp-acct-figs li + li {
+  border-inline-start: 1px solid rgba(16, 17, 17, 0.09);
+}
+
+.vp-acct-figs b {
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 700;
+  font-size: 19px;
+  line-height: 1.2;
+  color: var(--title-color);
+}
+
+.vp-acct-figs span {
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: #6E7070;
+}
+
+/* Where else the account goes. One column on a telephone, two from 576 and
+   four from 992 — fixed counts rather than `auto-fit`, because there are
+   exactly four of them and a floor that fits three leaves one on a line of its
+   own. */
+.vp-acct-doors {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+}
+
+@media (min-width: 576px) {
+  .vp-acct-doors {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 992px) {
+  .vp-acct-doors {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.vp-acct-door {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 20px;
+  background: #FFFFFF;
+  box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.1);
+  color: var(--title-color);
+  transition: box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.vp-acct-door:hover,
+.vp-acct-door:focus-visible {
+  background: rgba(16, 17, 17, 0.028);
+  box-shadow: inset 0 0 0 1.5px rgba(218, 178, 38, 0.65);
+  color: var(--title-color);
+}
+
+.vp-acct-door-mark {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 38px;
+  height: 38px;
+  border-radius: 13px;
+  /* The header's own icon treatment: the fill gold as the glyph, on a tint of
+     the same. It was `--vp-gold-ink` on a tint of the *old* gold — a 31.8%
+     yellow, which is the one the client sees as green. */
+  background: rgba(218, 178, 38, 0.16);
+  color: var(--vp-gold-fill-ink);
+  font-size: 15px;
+}
+
+.vp-acct-door-what {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+}
+
+.vp-acct-door-what b {
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.vp-acct-door-what small {
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: #6E7070;
+}
+
+/* The unread count, on the door rather than only inside it: a reply the shop
+   sent is worth noticing from the page somebody lands on. `margin-inline-start:
+   auto` puts it at the far end of the row without taking it out of the flow,
+   so it cannot land on top of a title that wrapped. */
+.vp-acct-door-new {
+  margin-inline-start: auto;
+  display: grid;
+  place-items: center;
+  flex: none;
+  min-width: 22px;
+  height: 22px;
+  padding-inline: 7px;
+  border-radius: 999px;
+  background: #B3261E;
+  color: #FFFFFF;
+  font-size: 11.5px;
+  font-weight: 700;
+  font-style: normal;
+  line-height: 1;
+}
+
+/* --- 2. the orders -------------------------------------------------------- */
+
+/* A panel's own head. Not `.vp-shop-head`: that one is shared by the cart, the
+   checkout, an order, the wishlist and the messages, and it is `display: none`
+   on a telephone — see the rule that hides it. A heading that disappears at
+   390 is no use to a page whose whole complaint was about a telephone. */
+.vp-acct-sect {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  margin-bottom: 16px;
+}
+
+.vp-acct-sect-title {
+  margin: 0;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 1.4;
+}
+
+.vp-acct-sect-count {
+  font-size: 12.5px;
+  color: #6E7070;
+}
+
+.vp-acct-orders {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.vp-acct-orders li + li {
+  margin-top: 10px;
+}
+
+/* One order. Two rows on every width — the number and its state above, the
+   date, the count and the money below — because those are two different
+   questions and the old row put all five in one line that broke into five on a
+   phone.
+
+   The chevron has a column of its own rather than sitting inside a cell: it
+   spans both rows, which is what makes the card read as one thing to press. */
+.vp-acct-order {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto 16px;
+  grid-template-areas:
+    'no   state go'
+    'meta sum   go';
+  align-items: center;
+  gap: 4px 12px;
+  padding: 14px 16px;
+  border-radius: 20px;
+  background: #FFFFFF;
+  box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.1);
+  font-family: 'Vazirmatn', var(--body-font);
+  color: var(--title-color);
+  transition: box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.vp-acct-order:hover,
+.vp-acct-order:focus-visible {
+  background: rgba(16, 17, 17, 0.028);
+  box-shadow: inset 0 0 0 1.5px rgba(218, 178, 38, 0.65);
+  color: var(--title-color);
+}
+
+.vp-acct-order-no {
+  grid-area: no;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 700;
+  font-size: 14.5px;
+}
+
+/* The five tones are `.vp-adm-badge`'s, quoted: amber while it waits, blue
+   while it moves, green when it arrives, red when it is off. If those move in
+   `admin.css`, these move with them. */
+.vp-acct-order-state {
+  grid-area: state;
+  justify-self: end;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(16, 17, 17, 0.063);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.vp-acct-order-state.is-placed {
+  background: #FFF6EC;
+  color: #A85B00;
+}
+
+.vp-acct-order-state.is-paid,
+.vp-acct-order-state.is-shipped {
+  background: #EEF4FC;
+  color: #1D5FAD;
+}
+
+.vp-acct-order-state.is-delivered {
+  background: #EDF7F1;
+  color: #1B7F4B;
+}
+
+.vp-acct-order-state.is-cancelled {
+  background: #FCEEED;
+  color: #B3261E;
+}
+
+.vp-acct-order-meta {
+  grid-area: meta;
+  font-size: 12px;
+  color: #6E7070;
+}
+
+.vp-acct-order-sum {
+  grid-area: sum;
+  justify-self: end;
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.vp-acct-order-sum small {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #6E7070;
+}
+
+.vp-acct-order-go {
+  grid-area: go;
+  justify-self: end;
+  font-size: 13px;
+  color: #9A9C9C;
+}
+
+/* From 768 the card is one row of five fixed columns, so the dates, the money
+   and the chips line up down the whole list instead of every card arranging
+   itself. Two rows is the telephone's answer, where there is no width to line
+   anything up in — and on a desktop that same stacking left the middle of a
+   1100px card empty, with the number alone at one end and the money at the
+   other. */
+@media (min-width: 768px) {
+  .vp-acct-order {
+    grid-template-columns: 132px minmax(0, 1fr) 150px 104px 16px;
+    grid-template-areas: 'no meta sum state go';
+    gap: 0 12px;
+    padding-block: 16px;
+  }
+
+  /* `start`, which is the right in a right-to-left page: each column's
+     contents begin on the same pixel down the list. */
+  .vp-acct-order-meta,
+  .vp-acct-order-sum,
+  .vp-acct-order-state {
+    justify-self: start;
+  }
+}
+
+/* --- 3. the settings ------------------------------------------------------ */
+
+/* The two halves of the settings panel, side by side from 768. Stacked, the
+   panel was a 360px column of form against 700px of empty white — which is
+   the shape the whole page was being complained about for. */
+.vp-acct-set {
+  display: grid;
+  gap: 20px;
+}
+
+@media (min-width: 768px) {
+  .vp-acct-set {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    gap: 24px;
+  }
+}
+
+/* The name, which had no way of being changed at all until now. Held to the
+   width of a field rather than the width of the panel: three boxes stretched
+   across a desktop read as a form somebody else's page lost. */
+.vp-acct-form {
+  display: grid;
+  gap: 8px;
+  max-width: 360px;
+}
+
+.vp-acct-label {
+  margin: 0;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #6E7070;
+}
+
+.vp-acct-fixed {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.9;
+  color: #6E7070;
+}
+
+/* What a rejected form says. The account page had no place for one at all: a
+   wrong current password redirected back here and the message was thrown
+   away, so the fold shut and nothing happened. */
+.vp-acct-err {
+  margin: 0;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #B3261E;
+}
+
+.vp-acct-save {
+  justify-self: start;
+  height: 44px;
+  margin-top: 4px;
+  padding-inline: 26px;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
+  color: #FFFFFF;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 700;
+  font-size: 14.5px;
+  cursor: pointer;
+  transition: filter 0.2s ease;
+}
+
+.vp-acct-save:hover {
+  color: #FFFFFF;
+  filter: brightness(1.04);
+}
+
+/* «تغییر رمز عبور», folded away. A `<details>`, because the orders are what the
+   page is for and this is housekeeping — it is in the housekeeping panel now,
+   so the fold is about length rather than about hiding it.
 
    `.vp-doc-q`, the FAQ's own fold, is the same idea drawn for a page of prose;
-   this one is narrower and sits on the panel rather than in a column of text,
-   so it is its own three rules rather than a borrowed class that would have to
-   answer to both. */
+   this one is narrower and sits on a panel rather than in a column of text, so
+   it is its own rules rather than a borrowed class answering to both. */
 .vp-acct-pass {
-  margin: 18px 0 6px;
+  margin: 0;
   padding: 14px 16px;
   border-radius: 16px;
   background: rgba(16, 17, 17, 0.028);
   box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.07);
+  max-width: 360px;
 }
 
 .vp-acct-pass > summary {
@@ -8698,76 +9653,6 @@ button.vp-cart-keep {
   display: grid;
   gap: 10px;
   margin: 14px 0 0;
-  /* The panel is as wide as the orders table; three password fields stretched
-     to that width read as a form somebody else's page lost. */
-  max-width: 340px;
-}
-
-.vp-account-orders {
-  list-style: none;
-  margin: 14px 0 0;
-  padding: 0;
-}
-
-.vp-account-orders li + li {
-  margin-top: 8px;
-}
-
-/* A row that reads across on a desktop and stacks on a phone. `auto-fit` with
-   a floor rather than a media query: the columns are five different lengths
-   and the width they stop fitting at is not a round number. */
-.vp-account-orders a {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
-  align-items: center;
-  gap: 6px 14px;
-  padding: 14px 16px;
-  border-radius: 18px;
-  background: rgba(16, 17, 17, 0.034);
-  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.05);
-  font-family: 'Vazirmatn', var(--body-font);
-  font-size: 13px;
-  color: #101111;
-  text-decoration: none;
-  transition: background-color 0.2s ease;
-}
-
-.vp-account-orders a:hover {
-  background: rgba(16, 17, 17, 0.06);
-  color: #101111;
-}
-
-.vp-account-no {
-  font-weight: 700;
-  direction: ltr;
-  text-align: right;
-}
-
-.vp-account-when,
-.vp-account-what {
-  color: #6E7070;
-}
-
-.vp-account-sum {
-  font-weight: 700;
-}
-
-.vp-account-state {
-  justify-self: start;
-  padding: 3px 10px;
-  border-radius: 10px;
-  background: rgba(192, 151, 47, 0.12);
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--vp-gold-ink);
-}
-
-.vp-account-shop {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 14px;
-  padding-inline: 22px;
 }
 
 /* --------------------------------------------------------------------------
@@ -9631,7 +10516,11 @@ button.vp-cart-keep {
    moved apart twice now and neither move was a mistake. */
 @media (max-width: 991.98px) {
   .heroSlide6 .hero-inner {
-    border-radius: 32.4px;
+    /* 30 — «۶۰ / ۳۰» — which is also what the three large panels take at this
+       width, so the phone now has one corner for everything below its header.
+       The arithmetic in the note above is the old chain (72 → 43.2 → 32.4) and
+       is left there because it explains where those numbers came from. */
+    border-radius: 30px;
   }
 }
 
@@ -9709,14 +10598,28 @@ button.vp-cart-keep {
 
      Both keep the margins the block above gave them, so the pane's outer edge
      is at 9 and its inner edge at 18. */
+  /* One corner for all three narrow panels.
+  
+     «بنظرم ۳۰ بشه ۴۰ زیاده / گوشه ی کارت پیشنهاد امروز هم ۳۰ بشه / گوشه کارت
+     برندهای موجود هم همینطور». They were 42, 46 and 20 — three numbers set in
+     three separate rounds, none of them looking at the other two, and stacked
+     down one phone screen. Above 992 they already share the ladder panel's 50;
+     below it they share 30.
+
+     The inner cards need no rule: they are
+     `calc(var(--frame-r) - var(--frame-pad))`, so they follow to 20 and stay
+     concentric with their frames. */
   .vp-daily-deal {
-    padding: 10px;
+    --frame-pad: 10px;
+    --frame-r: 30px;
   }
 
   .vp-brands-panel {
     margin-inline: 10px;
-    padding: 10px;
+    --frame-pad: 10px;
+    --frame-r: 30px;
   }
+
 }
 
 /* The sale card's name-and-price strip, a tenth shorter.
@@ -10317,11 +11220,8 @@ button.vp-cart-keep {
    If the panes ever have to read as one set again, that is a choice between
    matching each other and fitting their own contents, and at these paddings it
    cannot be had both ways. */
-@media (max-width: 991.98px) {
-  .vp-daily-deal {
-    border-radius: 42px;
-  }
-}
+/* The 42 that used to be here is gone: all three narrow panels take one
+   corner now, set where they are put back into their frames. */
 
 /* The lines round the daily deal's pane and the brand panel, off.
 
@@ -11732,15 +12632,6 @@ button.vp-cart-keep {
   color: #101111;
 }
 
-/* The account head's two controls — the wishlist and the sign-out — which used
-   to be one form on its own. A row, so the second does not drop under the
-   first and leave the heading beside a gap. */
-.vp-account-acts {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
 /* Taking a shoe back off the list. Quiet, under its card: it is the page's own
    control, not the card's, and it should not compete with the card's price. */
 .vp-fav-drop button {
@@ -12101,7 +12992,7 @@ button.vp-cart-keep {
 
 .vp-mini-go {
   margin-block-end: 8px;
-  background: rgba(16, 17, 17, 0.034);
+  background: rgba(16, 17, 17, 0.063);
   box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.05);
   color: #101111;
 }
@@ -12373,7 +13264,7 @@ button.vp-cart-keep {
        painted panel with a little light behind it rather than glass. The blur
        is deeper than their 10 because what passes under this one is the
        basket's own photographs rather than a white page. */
-    background: rgba(16, 17, 17, 0.034);
+    background: rgba(16, 17, 17, 0.063);
     -webkit-backdrop-filter: blur(22px) saturate(1.15);
     backdrop-filter: blur(22px) saturate(1.15);
     box-shadow: none;
@@ -12467,7 +13358,7 @@ button.vp-cart-keep {
     box-shadow: none;
     padding: 12px;
     border-radius: 20px;
-    background: rgba(16, 17, 17, 0.034);
+    background: rgba(16, 17, 17, 0.063);
   }
 
   /* A line the shop cannot supply keeps its mark — it is the one rule on this
@@ -12570,7 +13461,7 @@ button.vp-cart-keep {
   height: 44px;
   padding-inline: 12px;
   border-radius: 14px;
-  background: rgba(16, 17, 17, 0.034);
+  background: rgba(16, 17, 17, 0.063);
   font-family: 'Vazirmatn', var(--body-font);
   font-weight: 700;
   font-size: 15px;
@@ -12749,7 +13640,7 @@ button.vp-cart-keep {
     aspect-ratio: 1 / 1;
     position: relative;
     border-radius: 16px;
-    background: rgba(16, 17, 17, 0.034);
+    background: rgba(16, 17, 17, 0.063);
   }
 
   .vp-pdp-thumb.is-on {
@@ -13509,7 +14400,7 @@ button.vp-cart-keep {
     height: auto;
     padding-inline: 12px;
     border-radius: 13.85px;
-    background: rgba(16, 17, 17, 0.034);
+    background: rgba(16, 17, 17, 0.063);
     direction: rtl;
     font-size: 12px;
     line-height: 1;
@@ -13593,7 +14484,7 @@ button.vp-cart-keep {
   }
 
   .vp-pick-size.is-off > span {
-    background: rgba(16, 17, 17, 0.034);
+    background: rgba(16, 17, 17, 0.063);
     box-shadow: none;
     color: rgba(16, 17, 17, 0.32);
     cursor: default;
@@ -15211,34 +16102,23 @@ button.vp-cart-keep {
 
   /* The heading and the old search box are the desktop's.
 
-     `:not(.vp-acct-head)` is the account's exemption, and it is not a taste:
-     this rule was written for the listing, and `.vp-shop-head` turned out to be
-     shared by the cart, the checkout, an order, the wishlist and the account
-     too — so on a phone all six lost their heading and everything sitting
-     beside it. On the account that is the customer's own name, «لیست علاقمندی»
-     and **«خروج»**, which left a shopper on a telephone with no way to sign out
-     at all. The account is exempted here because the account is what this round
-     rebuilt; the other four are still hiding theirs, and «ادامه خرید» on the
-     cart is the next one that matters. Do not widen this rule again without
-     rendering each of those pages at 390 — the heads were laid out for a
-     desktop and none of them has been measured narrow. */
-  .vp-shop-head:not(.vp-acct-head) {
+     **This rule hides a heading on a telephone, and that has cost a round
+     already.** It was written for the listing, and `.vp-shop-head` turned out
+     to be shared by the cart, the checkout, an order, the wishlist, the
+     messages and the account too — so on a phone all of them lost their
+     heading and everything sitting beside it. On the account that was the
+     customer's own name and **«خروج»**, which left a shopper on a telephone
+     with no way to sign out at all; it carried `.vp-acct-head` for a while to
+     be exempted here.
+
+     The account no longer appears in this rule at all: it is drawn from
+     `.vp-acct-top` and `.vp-acct-sect`, which are its own and are laid out for
+     390 first. The others still hide theirs, and «ادامه خرید» on the cart is
+     the next one that matters. Do not widen this rule without rendering each
+     of those pages at 390 — the heads were laid out for a desktop and none of
+     them has been measured narrow. */
+  .vp-shop-head {
     display: none;
-  }
-
-  /* The account's, laid out for the width it actually gets: the name over the
-     number, and the two controls on their own line under both. Side by side at
-     390 the name wraps to three lines and «خروج» ends up under «لیست
-     علاقمندی» anyway. */
-  .vp-acct-head {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 12px;
-    margin-bottom: 18px;
-  }
-
-  .vp-acct-head .vp-account-acts {
-    justify-content: flex-start;
   }
 }
 
@@ -16148,6 +17028,29 @@ button.vp-cart-keep {
    It has a minimum height so the line does not jump up the sheet when the
    first chip lands in it. */
 @media (max-width: 991.98px) {
+  /* «برند و قیمت باید وسط بیضی باشن» — and they were not, by 2.5px each.
+
+     `.vp-shop-tab` is `display: flex` with `gap: 5px`, and that gap is left
+     over from the carets that used to sit beside these two labels («فلش کنار
+     قیمت و برند باید حذف بشن»). On the four `<a>` chips it separates nothing —
+     one text node, no second item — so removing the carets cost them nothing.
+     These two are `<details>`, and a `<details>` holds its scrim and its sheet
+     as children as well as the summary. Both are `position: fixed`, so they
+     take no width; Chromium still counts the gap against them, and the summary
+     is centred inside a content box that thinks it is 5px shorter than it is.
+     The label lands 2.5px toward the start.
+
+     Measured at 320/360/375/390/414/768/991 on `/search` and `/products`, in
+     the plain, sorted and branded states: 2.5px on every one, 0 on every one
+     after. The 10px the two gaps were holding goes back to the row, which is
+     `flex: 1 0 auto`, so all six pills widen by about 1.7px.
+
+     The gap stays on `.vp-shop-tab` itself — `.vp-shop-tab i` is still styled,
+     so a chip that does carry an icon still wants it. */
+  .vp-shop-sheet {
+    gap: 0;
+  }
+
   .vp-shop-sheet > summary {
     display: inline-flex;
     align-items: center;
@@ -17852,11 +18755,8 @@ html {
    than that 5% asked for, so if the panel reads as too round on its own this
    is the number to argue about; it is, though, the one that makes the frame
    and the tile turn together. */
-@media (max-width: 991.98px) {
-  .vp-brands-panel {
-    border-radius: 46px;
-  }
-}
+/* The 46 that used to be here is gone, for the reason written at
+   `.vp-daily-deal`'s: one corner for all three narrow panels. */
 
 /* Three pixels into the brand card's head.
 
@@ -18451,6 +19351,741 @@ body.vp-bare .vp-cart-shot {
 }
 
 /* --------------------------------------------------------------------------
+   The pay button on an unpaid order.
+
+   It is the page's one action, so it sits apart from the notice above it and
+   spans the panel on a phone rather than being a chip somebody has to aim at.
+   The button itself is the shop's own `.vp-filter-apply .vp-cart-go` — the
+   same gold as «ثبت سفارش», because it is the same commitment one step later.
+   -------------------------------------------------------------------------- */
+
+.vp-order-pay {
+  margin: 14px 0 4px;
+}
+
+.vp-order-pay button {
+  width: 100%;
+}
+
+@media (min-width: 576px) {
+  .vp-order-pay button {
+    width: auto;
+    min-width: 260px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   «تاس شانس» — the game band.
+
+   A tall panel of the page's own glass, under the trust row. It is the one band on
+   this page that is not the template's — nothing here is `th-*` — so it is
+   written from nothing rather than adapted, and it keeps to the page's own
+   measures: the container's width, the trust row's corner radius, the gold of
+   the buttons.
+
+   **It took three goes to land on that.** First it was purple, off the stock
+   screenshots the request arrived with — «سایت ما بنفشه؟؟؟». Then it was ink,
+   which at least used a colour the page owns, and that was wrong too:
+   «بکگراندش شیشه ۲۳۵ بشه نه سیاهی که الان هست». Both mistakes are the same
+   mistake. This page has one material — `rgba(16,17,17,0.084)` under a 10px
+   blur, on twenty-one elements — and a band that invents a ground for itself
+   is a band that stops belonging to the page, whatever the ground happens to
+   be. So this panel is the ladder's panel exactly: same tint, same blur, same
+   inked foot. The gold in the title is `--theme-color`, which is what the
+   ladder's own title carries on the same glass.
+
+   Checked against this file before naming: none of `vp-dice*`, `vp-die*`,
+   `vp-prize*` or `vp-confetti*` existed.
+   -------------------------------------------------------------------------- */
+
+.vp-dice-area {
+  padding: 40px 0 10px;
+}
+
+/* The page's glass, to the third decimal, with the ladder panel's own foot —
+   see «لبه پنهان» in CLAUDE.md for why the bottom edge is drawn as ink rather
+   than left to a shadow.
+
+   The corner is 50 — the ladder panel's, which is now also the daily deal's
+   and the brands panel's. It took five passes to get here: 26 (the ink
+   version's), 31.2 on «گوشه هاش ۲۰ درصد کروتر بشن», 50, then 40 on «گوشه کارت
+   شیشه ای باید ۴۰ باشه», and back to 50 on «گوشه کارت بازی هم همینطور» — the
+   round that put every large panel on the page on one number. That is the
+   better answer: four panels of the same material at four radii was the thing
+   making the page look assembled from parts. */
+.vp-dice-card {
+  position: relative;
+  padding: 44px 20px 36px;
+  border-radius: 50px;
+  overflow: hidden;
+  text-align: center;
+  background: rgba(16, 17, 17, 0.063);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  box-shadow: inset 0 -1.4px 0 rgba(16, 17, 17, 0.07);
+}
+
+.vp-dice-title {
+  margin: 0 0 10px;
+  font-size: 26px;
+  line-height: 38px;
+  font-weight: 800;
+  /* The ladder's title colour, because the ladder's title sits on this same
+     glass four hundred pixels further down and the two are the same voice. */
+  color: var(--theme-color);
+}
+
+.vp-dice-say {
+  margin: 0 auto 30px;
+  max-width: 30ch;
+  font-size: 15px;
+  line-height: 28px;
+  color: var(--body-color);
+}
+
+/* --- the dice ------------------------------------------------------------
+   Drawn, not photographed: seven pip positions in a 3x3 grid, and a face shows
+   the ones it needs. Six images per die would be six requests that all have to
+   arrive before the first throw can be shown. */
+
+.vp-dice-pair {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  margin-bottom: 34px;
+  perspective: 600px;
+}
+
+.vp-die {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 6px;
+  width: 104px;
+  height: 104px;
+  padding: 14px;
+  /* «تاس هارم گرد کن» — 22 → 32, which is 31% of the die's own width where it
+     was 21%. Kept as a fraction of the size rather than a flat number so the
+     phone's smaller die below takes the same shape, not a squarer one. */
+  border-radius: 32px;
+  background: linear-gradient(160deg, #FFFFFF 0%, #F4F5F6 100%);
+  /* On ink a shadow was optional; on 235 glass it is the only thing telling a
+     white die from the panel behind it. Two of them: a tight one that draws
+     the edge and a soft one that lifts the die off the glass. */
+  box-shadow:
+    0 1px 2px rgba(16, 17, 17, 0.22),
+    0 12px 24px rgba(16, 17, 17, 0.16),
+    inset 0 -3px 0 rgba(16, 17, 17, 0.07);
+}
+
+.vp-die i {
+  border-radius: 50%;
+  /* Ink, the way a real die is. The gold is the title and the button; pips in
+     it as well would leave the card with no dark note at all against the ink
+     ground, and the dice would stop reading as dice. */
+  background: radial-gradient(circle at 32% 30%, #3A3B3B 0%, #1C1D1D 55%, #101111 100%);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.22);
+  opacity: 0;
+}
+
+/* The seven positions, in document order:
+   1 top-start, 2 top-end, 3 middle-start, 4 centre, 5 middle-end,
+   6 bottom-start, 7 bottom-end. A face lights the ones it uses, so the pips
+   never move — only their opacity changes, which is what keeps a roll from
+   reflowing anything. */
+.vp-die i:nth-child(1) { grid-area: 1 / 1; }
+.vp-die i:nth-child(2) { grid-area: 1 / 3; }
+.vp-die i:nth-child(3) { grid-area: 2 / 1; }
+.vp-die i:nth-child(4) { grid-area: 2 / 2; }
+.vp-die i:nth-child(5) { grid-area: 2 / 3; }
+.vp-die i:nth-child(6) { grid-area: 3 / 1; }
+.vp-die i:nth-child(7) { grid-area: 3 / 3; }
+
+.vp-die[data-face='1'] i:nth-child(4),
+.vp-die[data-face='2'] i:nth-child(1),
+.vp-die[data-face='2'] i:nth-child(7),
+.vp-die[data-face='3'] i:nth-child(1),
+.vp-die[data-face='3'] i:nth-child(4),
+.vp-die[data-face='3'] i:nth-child(7),
+.vp-die[data-face='4'] i:nth-child(1),
+.vp-die[data-face='4'] i:nth-child(2),
+.vp-die[data-face='4'] i:nth-child(6),
+.vp-die[data-face='4'] i:nth-child(7),
+.vp-die[data-face='5'] i:nth-child(1),
+.vp-die[data-face='5'] i:nth-child(2),
+.vp-die[data-face='5'] i:nth-child(4),
+.vp-die[data-face='5'] i:nth-child(6),
+.vp-die[data-face='5'] i:nth-child(7),
+.vp-die[data-face='6'] i:nth-child(1),
+.vp-die[data-face='6'] i:nth-child(2),
+.vp-die[data-face='6'] i:nth-child(3),
+.vp-die[data-face='6'] i:nth-child(5),
+.vp-die[data-face='6'] i:nth-child(6),
+.vp-die[data-face='6'] i:nth-child(7) { opacity: 1; }
+
+/* The throw. The dice tumble while the server is being asked, and stop on
+   whatever it says — the animation is a picture of a result that has already
+   happened, never the thing that decides it.
+
+   **It was 1.1 seconds of a die wobbling in place and it read as nothing:**
+   «انیمیشن تاسش هم خیلی بیخودو کوتاهه». Two things were wrong and only one of
+   them was the length. A die that rocks ±18° never leaves the pose it started
+   in, so there was no moment of not-knowing — and the pips never changed, so
+   the thing on screen was not a die being thrown, it was a die being nudged.
+
+   Now: a whole turn plus a bounce, over 0.62s, and the script swaps the face
+   underneath every 90ms so the pips are genuinely churning. The two dice run
+   at different speeds and out of phase, because two identical tumbles read as
+   one object drawn twice. The whole throw lasts 2.4s, which is about as long
+   as a real pair takes to leave a hand, hit the table and settle. */
+@keyframes vp-die-roll {
+  0%   { transform: rotate(0deg)    scale(1)    translateY(0);     }
+  20%  { transform: rotate(120deg)  scale(1.1)  translateY(-14px); }
+  40%  { transform: rotate(215deg)  scale(1.06) translateY(-20px); }
+  60%  { transform: rotate(300deg)  scale(0.97) translateY(-6px);  }
+  80%  { transform: rotate(345deg)  scale(1.04) translateY(-11px); }
+  100% { transform: rotate(360deg)  scale(1)    translateY(0);     }
+}
+
+/* The landing: one settle after the tumble stops, so the die arrives rather
+   than simply ceasing to move. This is what the last 260ms of the throw is. */
+@keyframes vp-die-land {
+  0%   { transform: scale(1.12) translateY(-8px); }
+  55%  { transform: scale(0.96) translateY(0);    }
+  100% { transform: scale(1)    translateY(0);    }
+}
+
+.vp-dice-pair.is-rolling .vp-die {
+  animation: vp-die-roll 0.62s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+}
+
+.vp-dice-pair.is-rolling .vp-die:last-child {
+  /* Out of phase and a shade slower: two dice thrown from one hand do not
+     agree with each other, and two that do read as one object drawn twice. */
+  animation-duration: 0.74s;
+  animation-delay: -0.21s;
+}
+
+.vp-dice-pair.is-landing .vp-die {
+  animation: vp-die-land 0.26s ease-out both;
+}
+
+.vp-dice-pair.is-landing .vp-die:last-child {
+  animation-delay: 0.09s;
+}
+
+/* --- the button ---------------------------------------------------------- */
+
+.vp-dice-go {
+  min-width: 260px;
+  min-height: 52px;
+  padding-inline: 32px;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(180deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
+  color: #3A2708;
+  font: inherit;
+  font-size: 17px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 10px 30px rgba(233, 187, 74, 0.28);
+}
+
+.vp-dice-go:disabled {
+  cursor: default;
+  filter: grayscale(0.35);
+  opacity: 0.75;
+  box-shadow: none;
+}
+
+.vp-dice-foot {
+  margin: 18px 0 0;
+  font-size: 13px;
+  color: rgba(16, 17, 17, 0.55);
+}
+
+/* What a losing throw, or a second visit, says instead of the button. */
+.vp-dice-done {
+  margin: 6px 0 0;
+  font-size: 15px;
+  line-height: 26px;
+  color: rgba(16, 17, 17, 0.82);
+}
+
+/* The line under the button while a throw is still owed — it sits *with* the
+   button rather than replacing it, so it is quieter than the closing one. */
+.vp-dice-go + .vp-dice-done {
+  margin-top: 14px;
+  font-size: 14px;
+  color: rgba(16, 17, 17, 0.62);
+}
+
+/* The WhatsApp button is fixed to the corner and outranks nothing, so it sat
+   on top of the prize card's scrim — a green square over the celebration.
+   «اون دکمه واتسپ هم نباید وقتی این تبریک باز میشه باشدش». The script puts
+   this class on <body> while the card is open and takes it off again. */
+body.vp-prize-open .vp-whatsapp {
+  display: none;
+}
+
+/* --- the prize card ------------------------------------------------------
+   Over the page, not inside the band: it is the answer to the whole band and
+   it should not be read past. Built by the script, so nothing of it is in the
+   markup a visitor gets before they play. */
+
+.vp-prize-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(16, 17, 17, 0.72);
+}
+
+.vp-prize {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 420px;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  padding: 34px 24px 26px;
+  border-radius: 22px;
+  background: #FFFFFF;
+  text-align: center;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.42);
+}
+
+/* The prize is the shop's own star, not a disc.
+   «بجای دایره اون تخفیف تو ستاره های خودمون نوشته بشه با همون حالت چرخشی و
+   نوشته انگلیسی» — so this is the hero's mark exactly: the same eleven-lobed
+   path, the same eleven studs, the same twelve-second turn and the same
+   one-and-a-fifth-second blink, carrying `30%` / `OFF` in Latin the way the
+   hero's carries `25%` / `OFF`. The shape is built by the script from the same
+   two constants `make-rtl-page.js` draws the other two stars with, so all
+   three move together the next time any of them is edited. */
+.vp-prize-badge {
+  width: 138px;
+  height: 138px;
+  margin: 6px auto 18px;
+}
+
+.vp-prize-burst {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* The star turns; the offer stays upright and still. Same reasoning, same
+   numbers and the same `view-box` origin as the hero's — see the mark on the
+   hero shot above, which is where all of this is explained. */
+.vp-prize-burst .vp-burst-star {
+  transform-box: view-box;
+  transform-origin: 50% 50%;
+  animation: vp-burst-turn 12s linear infinite;
+}
+
+.vp-prize-burst .vp-burst-stud {
+  fill: #FFFFFF;
+  animation: vp-burst-twinkle 1.2s ease-in-out infinite;
+}
+
+.vp-prize-burst text {
+  fill: #FFFFFF;
+  text-anchor: middle;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 900;
+  font-size: 28.7px;
+  /* Latin, and this element is inside an RTL document — without it the `%`
+     goes to the wrong side of the digits. */
+  direction: ltr;
+}
+
+.vp-prize-what {
+  margin: 0 0 4px;
+  font-size: 14px;
+  color: rgba(16, 17, 17, 0.6);
+}
+
+.vp-prize-title {
+  margin: 0 0 10px;
+  font-size: 26px;
+  font-weight: 800;
+}
+
+.vp-prize-say {
+  margin: 0 0 20px;
+  line-height: 28px;
+  color: rgba(16, 17, 17, 0.75);
+}
+
+/* The code, in a box that says «this is the thing to keep». Dashed, because a
+   solid frame here reads as a button and it is not one — the button is below. */
+.vp-prize-code {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 18px;
+  padding: 12px 14px;
+  border: 1px dashed rgba(160, 129, 25, 0.45);
+  border-radius: 14px;
+  background: rgba(218, 178, 38, 0.07);
+}
+
+.vp-prize-code b {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 17px;
+  letter-spacing: 0.06em;
+  direction: ltr;
+  unicode-bidi: isolate;
+  /* A discount code split over two lines is a code somebody mistypes. The
+     monospace fallback differs on every machine — in Safari's Lockdown Mode,
+     which blocks web fonts outright, it came out wide enough to wrap
+     `DICE-KCWWGZ` after the hyphen. This forbids that outright; the label
+     beside it gives up its space instead. */
+  white-space: nowrap;
+}
+
+.vp-prize-code > span {
+  min-width: 0;
+}
+
+.vp-prize-copy {
+  min-height: 32px;
+  padding-inline: 14px;
+  border: 0;
+  border-radius: 999px;
+  background: #101111;
+  color: #FFFFFF;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.vp-prize-go {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 54px;
+  border-radius: 14px;
+  /* The page's own button ramp, and its ink type with it — see the badge. */
+  background: linear-gradient(90deg, var(--vp-gold-ramp-top) 0%, var(--vp-gold-ramp-foot) 100%);
+  color: #101111;
+  font-size: 17px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.vp-prize-when {
+  margin: 14px 0 0;
+  font-size: 13px;
+  color: rgba(16, 17, 17, 0.55);
+}
+
+.vp-prize-shut {
+  position: absolute;
+  inset-block-start: 10px;
+  inset-inline-start: 10px;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(16, 17, 17, 0.06);
+  color: rgba(16, 17, 17, 0.6);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+/* --- the confetti --------------------------------------------------------
+   Twenty-four pieces, placed and coloured by the script so they are not
+   twenty-four rules here. They fall once and are removed with the card.
+
+   **They fall around the card, not across it.** They were inside `.vp-prize`
+   at first, which put twenty-four opaque rectangles on top of the one thing
+   the card exists to deliver: on a 350px screen a gold flake landed across the
+   discount code and another across «تبریک». Moving the field to the scrim and
+   giving the card `z-index: 1` keeps the celebration and takes it off the
+   type. */
+
+.vp-confetti {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.vp-confetti i {
+  position: absolute;
+  inset-block-start: -12px;
+  width: 9px;
+  height: 14px;
+  border-radius: 2px;
+  animation: vp-confetti-fall 2.6s linear forwards;
+}
+
+@keyframes vp-confetti-fall {
+  0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(105vh) rotate(720deg); opacity: 0.9; }
+}
+
+/* Somebody who has asked their machine not to animate things gets the result
+   without the tumble and without the falling paper. The card still appears and
+   still carries the code — the information is never the thing that is dropped. */
+@media (prefers-reduced-motion: reduce) {
+  .vp-dice-pair.is-rolling .vp-die,
+  .vp-dice-pair.is-landing .vp-die,
+  .vp-confetti i {
+    animation: none;
+  }
+
+  .vp-confetti {
+    display: none;
+  }
+}
+
+/* The prize card on a phone.
+   It was only ever looked at on a 1200px screen, and at 390 the same numbers
+   read quite differently: the star took two fifths of the card's width and the
+   whole thing stood 505 tall for four short lines. Everything here is the same
+   card at a size that suits 350px of glass. */
+@media (max-width: 575.98px) {
+  .vp-prize {
+    padding: 26px 18px 20px;
+    border-radius: 20px;
+  }
+
+  .vp-prize-badge {
+    width: 104px;
+    height: 104px;
+    margin-bottom: 14px;
+  }
+
+  .vp-prize-title {
+    font-size: 23px;
+  }
+
+  .vp-prize-say {
+    margin-bottom: 16px;
+    font-size: 14px;
+    line-height: 26px;
+  }
+
+  .vp-prize-code {
+    gap: 8px;
+    margin-bottom: 14px;
+    padding: 10px;
+  }
+
+  .vp-prize-code b {
+    font-size: 15px;
+    letter-spacing: 0.04em;
+  }
+
+  .vp-prize-go {
+    min-height: 48px;
+    font-size: 16px;
+  }
+}
+
+/* The narrow-screen corner for the game band — 30, the same one the daily
+   deal and the brands panel take below 992.
+
+   «بنظرم ۳۰ بشه ۴۰ زیاده / گوشه ی کارت پیشنهاد امروز هم ۳۰ بشه / گوشه کارت
+   برندهای موجود هم همینطور». The three were 20, 42 and 46, set in three
+   separate rounds without looking at each other and stacked down one phone
+   screen. Above 992 they already share the ladder panel's 50.
+
+   **It is here rather than beside the other two**, which set theirs where the
+   panes go back into their frames. That block is earlier in this file than
+   `.vp-dice-card`'s own `border-radius: 50px`, and a media query does not
+   outrank a later rule of the same specificity — put it there and it loses,
+   silently, which is exactly what it did on the first attempt. Measured at
+   390/575/768/991 before and after. */
+@media (max-width: 991.98px) {
+  .vp-dice-card {
+    border-radius: 30px;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .vp-dice-area {
+    padding-top: 28px;
+  }
+
+  .vp-dice-card {
+    padding: 34px 16px 28px;
+  }
+
+  .vp-dice-title {
+    font-size: 22px;
+    line-height: 34px;
+  }
+
+  .vp-die {
+    width: 88px;
+    height: 88px;
+    padding: 12px;
+    /* 27/88 is the same 31% the desktop die carries. */
+    border-radius: 27px;
+  }
+
+  .vp-dice-go {
+    min-width: 0;
+    width: 100%;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   The customer's messages — «پیام‌های من».
+
+   The shop's own materials, not the panel's: a shopper is on this page, and it
+   sits beside the basket and the order page. `.vp-shop-panel` is the pane;
+   these are only the parts that pane does not already have.
+
+   Checked against this file before naming: none of `vp-thread*` or `vp-said*`
+   existed. That check is not a formality — `.vp-page` is one link in the
+   paginator and a panel that borrowed the name came out 64px tall with its
+   content under the footer, which nothing failed on.
+   -------------------------------------------------------------------------- */
+
+.vp-threads {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.vp-thread {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 2px;
+}
+
+.vp-thread + .vp-thread {
+  box-shadow: inset 0 1px 0 rgba(16, 17, 17, 0.08);
+}
+
+.vp-thread-what {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+.vp-thread-title {
+  display: block;
+  font-weight: 700;
+}
+
+.vp-thread-meta {
+  display: block;
+  margin-top: 2px;
+  font-size: 13px;
+  color: rgba(16, 17, 17, 0.55);
+}
+
+/* «۲ پاسخ تازه». The gold reads as the shop's own voice, which is what an
+   unanswered reply is. */
+.vp-thread-new {
+  flex: 0 0 auto;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
+  color: #101111;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* --- one thread ----------------------------------------------------------- */
+
+.vp-said-list {
+  margin: 18px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.vp-said {
+  padding: 12px 14px;
+  border-inline-start: 3px solid rgba(16, 17, 17, 0.1);
+}
+
+.vp-said + .vp-said {
+  margin-top: 10px;
+}
+
+/* The customer's own lines carry the shop's gold on the reading edge, so
+   «which of these did I write» is answerable without reading a word. */
+.vp-said.is-me {
+  border-inline-start-color: var(--vp-gold-fill);
+  background: rgba(218, 178, 38, 0.06);
+}
+
+/* A line nobody said — the application, about an order. */
+.vp-said.is-note {
+  color: rgba(16, 17, 17, 0.55);
+  font-size: 13px;
+}
+
+.vp-said-who {
+  margin: 0 0 4px;
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(16, 17, 17, 0.55);
+}
+
+.vp-said-when {
+  margin-inline-start: 8px;
+  font-weight: 400;
+}
+
+/* `pre-wrap` so the paragraphs somebody typed survive being read back. */
+.vp-said-body {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.vp-said-files {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.vp-said-files li {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 10px;
+  background: rgba(16, 17, 17, 0.04);
+  font-size: 13px;
+}
+
+.vp-said-size {
+  color: rgba(16, 17, 17, 0.5);
+  font-size: 12px;
+}
+
+.vp-said-form {
+  margin-top: 20px;
+}
+
+.vp-said-form textarea {
+  resize: vertical;
+}
+
+/* --------------------------------------------------------------------------
    The last rule in the last stylesheet — the shop's signature on the design.
 
    The page is the ThemeForest template's stylesheet with this file on top of
@@ -18478,6 +20113,383 @@ body.vp-bare .vp-cart-shot {
    it would be a rule that arrives after the signature — i.e. one the gate
    cannot vouch for.
    -------------------------------------------------------------------------- */
+/* A size chip carries its EU, US and CM figures and the page shows one of
+   them. EU is what the shoes are marked in, so it is what shows unless the
+   desktop's switch says otherwise — and this rule is deliberately outside that
+   switch's media query: the chips exist on the phone too, where there is no
+   switch, and a chip that printed all three read «۳۶۲۳٫۵» as one number. */
+.vp-pick .vp-size-us,
+.vp-pick .vp-size-cm {
+  display: none;
+}
+
+/* --------------------------------------------------------------------------
+   The product page on a desktop, rebuilt to the reference.
+
+   «صفحه جزئیات محصول در دستاپ دقیق دقیق شبیه این ساخته بشه ولی از راست چین» —
+   a screen with the shoe on one side and, on the other, maker, name, rating,
+   description, price, colour, a size grid with a unit switch, a quantity
+   stepper and three buttons. Mirrored, because this page reads right to left:
+   the photograph is on the right and the column of decisions on the left, and
+   every "left" in that reference is a "right" here.
+
+   **Everything in this block is above 992 and nothing below it moves.** The
+   phone's arrangement of this page was settled over a dozen rounds of the
+   client's own instructions — the header off, the close instead of a heart,
+   the bar at the foot, «بالاش ننویس هیچی» — and none of that is in scope.
+   That is also why the desktop's new pieces are added rather than swapped in:
+   they are hidden below 992 a few rules down.
+
+   The order is done with `order` on a flex column rather than by moving the
+   markup, because the markup's order is the phone's and it is correct there.
+   `.vp-pdp-head` becomes `display: contents` so the name and the price, which
+   share a row on the phone, can be placed independently here — the reference
+   puts four things between them.
+   -------------------------------------------------------------------------- */
+@media (min-width: 992px) {
+  .vp-pdp-info {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+  }
+
+  /* Its two children become items of the column above. */
+  .vp-pdp-head { display: contents; }
+
+  .vp-pdp-info > .vp-pdp-maker  { order: 1; }
+  .vp-pdp-naming                { order: 2; }
+  .vp-pdp-info > .vp-pdp-stars  { order: 3; }
+  .vp-pdp-info > .vp-pdp-desc   { order: 4; }
+  .vp-pdp-price                 { order: 5; }
+  .vp-pdp-info > .vp-pdp-choice { order: 6; }
+  .vp-pdp-info > .vp-pdp-from   { order: 7; }
+  .vp-pdp-info > .vp-pick       { order: 8; }
+  .vp-pdp-info > .vp-pdp-out    { order: 9; }
+  .vp-pdp-info > .vp-pdp-sizes-title { order: 10; }
+  .vp-pdp-info > .vp-sellers    { order: 11; }
+  .vp-pdp-info > .vp-pdp-facts  { order: 12; }
+
+  /* --- the maker ---------------------------------------------------------
+     Mark then name, small, over the title. The mark is the brand's own
+     `logo_path`, the same file the home page's brand tiles carry. */
+  .vp-pdp-maker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    color: rgba(16, 17, 17, 0.7);
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .vp-pdp-maker img {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+  }
+
+  .vp-pdp-maker:hover { color: #101111; }
+
+  .vp-pdp-naming { margin-bottom: 8px; }
+
+  /* The reference's title is the largest thing in the column and the page's
+     own heading scale has nothing that big; 34 is the daily deal's 35.1 rounded
+     down to sit under it rather than compete with it. */
+  .vp-pdp-title {
+    font-size: 34px;
+    line-height: 1.35;
+  }
+
+  /* The brand under the name is the maker row's job now. */
+  .vp-pdp-naming .vp-pdp-brand { display: none; }
+
+  /* --- the rating -------------------------------------------------------- */
+  .vp-pdp-stars {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 18px;
+  }
+
+  .vp-pdp-stars-row {
+    display: inline-flex;
+    gap: 2px;
+    color: var(--vp-gold-fill);
+    font-size: 13px;
+  }
+
+  .vp-pdp-stars-say {
+    color: rgba(16, 17, 17, 0.55);
+    font-size: 12px;
+  }
+
+  /* --- the description ---------------------------------------------------
+     The stand-in paragraph is drawn here, where the base rules hide it. On the
+     phone it is hidden because the same words appear again in the
+     `.vp-pdp-about` panel below the card; the desktop has no such panel, and
+     the reference puts a description in this column. It says the specification
+     has not been recorded yet, which is true and is the honest thing for this
+     space to say until it has. */
+  .vp-pdp-desc,
+  .vp-pdp-desc.is-standin {
+    display: block;
+    margin-bottom: 20px;
+  }
+
+  .vp-pdp-desc-title {
+    margin: 0 0 6px;
+    font-family: 'Cairo', var(--title-font);
+    font-size: 14px;
+    font-weight: 800;
+    color: #101111;
+  }
+
+  .vp-pdp-desc p {
+    margin: 0;
+    max-width: 52ch;
+    font-size: 13px;
+    line-height: 2;
+    color: var(--body-color);
+  }
+
+  /* --- the price --------------------------------------------------------- */
+  .vp-pdp-price {
+    margin-bottom: 20px;
+  }
+
+  .vp-pdp-price strong {
+    font-size: 38px;
+    line-height: 1.2;
+  }
+
+  /* --- the size grid and its unit switch ---------------------------------- */
+  .vp-pdp-units {
+    display: inline-flex;
+    align-self: flex-start;
+    gap: 4px;
+    margin-bottom: 10px;
+    padding: 3px;
+    border-radius: 999px;
+    background: rgba(16, 17, 17, 0.05);
+  }
+
+  .vp-pdp-unit input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .vp-pdp-unit span {
+    display: block;
+    padding: 4px 12px;
+    border-radius: 999px;
+    color: rgba(16, 17, 17, 0.6);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  .vp-pdp-unit input:checked + span {
+    background: #FFFFFF;
+    color: #101111;
+    box-shadow: 0 1px 2px rgba(16, 17, 17, 0.12);
+  }
+
+  .vp-pdp-unit input:focus-visible + span {
+    outline: 2px solid var(--vp-gold-fill);
+    outline-offset: 2px;
+  }
+
+  /* One unit shows at a time. The chip carries all three and the switch above
+     picks; `:has()` is what lets a radio outside the chip decide what is inside
+     it without a line of script.
+
+     **The hiding is not here.** It is a base rule below this block, because a
+     chip carries all three units at every width and only the desktop has a
+     switch — put the `display: none` inside this media query and the phone
+     prints «۳۶۲۳٫۵» inside one chip, which is exactly what it did until this
+     was measured on a 390px screen rather than assumed. */
+  .vp-pick:has(.vp-pdp-unit input[value="us"]:checked) .vp-size-eu,
+  .vp-pick:has(.vp-pdp-unit input[value="cm"]:checked) .vp-size-eu { display: none; }
+
+  .vp-pick:has(.vp-pdp-unit input[value="us"]:checked) .vp-size-us,
+  .vp-pick:has(.vp-pdp-unit input[value="cm"]:checked) .vp-size-cm { display: inline; }
+
+  /* --- the buy row -------------------------------------------------------
+     Three controls on one line, the way the reference has them: the dark one
+     that goes straight to the checkout, the outlined one that adds to the
+     basket, and the heart. The quantity stepper joins them — it was phone-only
+     because the desktop had no room for it in the old single-button row. */
+  /* The stepper on its own line, the three buttons on the next — the
+     reference's arrangement. The break is a zero-height pseudo-element with a
+     full basis, ordered between them: a flex line cannot be broken any other
+     way without a wrapper the phone does not want. */
+  .vp-pick-bar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .vp-pick-bar::after {
+    content: '';
+    order: -1;
+    flex-basis: 100%;
+    height: 0;
+  }
+
+  /* The price is said once, above; a second copy on this row is the reference's
+     phone bar, not its desktop. */
+  .vp-pick-bar .vp-pick-price { display: none; }
+
+  /* The stepper, drawn for this row rather than inherited from the phone's
+     full-width bar. It was inherited at first and the result was a 132px box
+     with the phone's paddings inside it: the digit was pushed out of its own
+     field and the control read as empty. Everything here is stated, so nothing
+     depends on what the phone happens to set. */
+  .vp-pick-bar .vp-qty {
+    display: inline-flex;
+    align-items: center;
+    order: -2;
+    flex: 0 0 auto;
+    width: auto;
+    height: 40px;
+    padding: 3px;
+    border: 0;
+    border-radius: 999px;
+    background: rgba(16, 17, 17, 0.05);
+    overflow: visible;
+  }
+
+  .vp-pick-bar .vp-qty .qty-btn {
+    width: 34px;
+    height: 34px;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: #FFFFFF;
+    color: #101111;
+    font-size: 12px;
+    box-shadow: 0 1px 2px rgba(16, 17, 17, 0.12);
+  }
+
+  .vp-pick-bar .qty-input {
+    width: 44px;
+    height: 34px;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: #101111;
+    font-size: 14px;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  /* Right to left: the way to buy first, then the way to keep shopping, then
+     the heart — the reference's order, mirrored. */
+  .vp-pick-now {
+    order: 1;
+    flex: 1 1 160px;
+    min-height: 52px;
+    padding-inline: 24px;
+    border: 0;
+    border-radius: 14px;
+    background: #101111;
+    color: #FFFFFF;
+    font: inherit;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  .vp-pick-now:hover { background: #2A2C2C; }
+
+  /* The basket button gives up the full width it has on the phone and becomes
+     the outlined half of the pair. */
+  .vp-pick-bar .vp-pick-go {
+    order: 2;
+    flex: 1 1 160px;
+    width: auto;
+    min-height: 52px;
+    border-radius: 14px;
+    background: #FFFFFF;
+    box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.14);
+    color: #101111;
+  }
+
+  .vp-pick-bar .vp-pick-go:hover {
+    background: rgba(16, 17, 17, 0.04);
+  }
+
+  .vp-pdp-like {
+    order: 3;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    border: 0;
+    border-radius: 14px;
+    background: rgba(16, 17, 17, 0.05);
+    color: rgba(16, 17, 17, 0.6);
+    font-size: 16px;
+    cursor: pointer;
+  }
+
+  .vp-pdp-like:hover {
+    background: rgba(16, 17, 17, 0.09);
+    color: #101111;
+  }
+
+  /* --- the delivery line -------------------------------------------------- */
+  .vp-pdp-ship {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 14px 0 0;
+    color: rgba(16, 17, 17, 0.55);
+    font-size: 12px;
+  }
+
+  .vp-pdp-ship i { color: var(--vp-gold-ink); }
+
+  /* The colour row the phone draws inside the form: on the desktop the
+     reference has it above the sizes, so it comes out of the form's flow and
+     takes its place in the column. `display: contents` on the form is not an
+     option — it is a form. Ordering inside it is. */
+  .vp-pick { display: flex; flex-direction: column; }
+  .vp-pick > .vp-pdp-colors { order: -1; }
+  .vp-pick > .vp-pick-head  { order: 0; }
+  .vp-pick > .vp-pdp-units  { order: 1; }
+  .vp-pick > .vp-pick-sizes { order: 2; }
+  .vp-pick > .vp-pick-bar   { order: 3; }
+  .vp-pick > .vp-pdp-ship   { order: 4; }
+
+  .vp-pick > .vp-pdp-colors { margin-bottom: 16px; }
+}
+
+/* And the other side of the same coin: the pieces above belong to the desktop
+   only, so below 992 they are not drawn at all. Listed together rather than
+   each beside its own rule, because "which of these is the phone's" is the
+   question somebody will actually be asking. */
+@media (max-width: 991.98px) {
+  .vp-pdp-maker,
+  .vp-pdp-stars,
+  .vp-pdp-desc-title,
+  .vp-pdp-units,
+  .vp-pick-now,
+  .vp-pdp-like,
+  .vp-pdp-ship {
+    display: none;
+  }
+}
+
 :root {
   --vp-design: ok;
 }
