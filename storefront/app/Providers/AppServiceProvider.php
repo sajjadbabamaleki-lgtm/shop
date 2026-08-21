@@ -112,13 +112,27 @@ class AppServiceProvider extends ServiceProvider
          * about twenty queries.
          */
         View::composer('home.stories', function ($view): void {
-            $view->with('stories', Product::query()
+            /*
+             * Five, and *which* five is `front_page.story_products` when that
+             * list is set. It was «the newest five», which is the right answer
+             * for a shop of five shoes and the wrong one for a shop with an
+             * imported supplier in it — the rings would become whatever landed
+             * last, in insertion order, on a strip whose photographs are part
+             * of the design. Named products are still products: purchasable(),
+             * so a ring never offers a basket button the checkout would refuse.
+             */
+            $named = (array) config('storefront.front_page.story_products', []);
+
+            $stories = Product::query()
                 ->purchasable()
                 ->pricedHere()
                 ->with(['brand', 'media', 'variants.offer', 'variants.stock', 'defaultVariant.offer', 'defaultVariant.stock'])
+                ->when($named !== [], fn ($q) => $q->whereIn('slug', $named))
                 ->latest('id')
                 ->take(5)
-                ->get());
+                ->get();
+
+            $view->with('stories', $stories);
         });
     }
 }

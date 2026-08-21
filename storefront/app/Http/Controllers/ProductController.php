@@ -65,9 +65,16 @@ class ProductController extends Controller
             // missing from the config list would have no chip, and with no
             // chip there is nothing to put in the basket. The list decides
             // what is *added* to the row, never what is taken out of it.
+            //
+            // Numeric only, on both halves. A bag has no size — an imported
+            // one carries «تک‌سایز» — and `(int)` on that is 0, which would
+            // have drawn a chip reading «۰» next to 37 and 38. A size that is
+            // not a number is not a chip; `shop.sizes` puts the variant in the
+            // form directly instead.
             'shopSizes' => collect(config('storefront.size_row'))
                 ->map(fn ($size) => (int) $size)
                 ->merge($sizes->map(fn (Variant $variant) => (int) $variant->size_value))
+                ->filter(fn (int $size) => $size > 0)
                 ->unique()
                 ->sort()
                 ->values(),

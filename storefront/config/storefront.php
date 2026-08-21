@@ -269,6 +269,42 @@ return [
     |
     */
 
+    /*
+    |--------------------------------------------------------------------------
+    | Which products the front page shows
+    |--------------------------------------------------------------------------
+    |
+    | Two bands used to answer this from the catalogue and stopped being able
+    | to the day the catalogue grew past the five shoes it was drawn around.
+    |
+    | The stepped sale's row was «every purchasable product with a
+    | compare-at price», and the story rings were «the five newest». Both were
+    | exactly right while the shop had five products and both are wrong the
+    | moment it has a hundred and thirty-seven: the row wraps into a wall of
+    | cards it was never laid out for, and the rings become whatever was
+    | imported last, in the order it happened to be inserted. Neither is a
+    | decision anybody made.
+    |
+    | So the front page names its own cast, the way the hero and the daily deal
+    | already do, and the shop underneath it can grow without redrawing it.
+    |
+    | **These lists filter; they do not order.** Each band keeps the ordering it
+    | already had — the sale row by publication date, the rings by id — so the
+    | page reads exactly as it did, which is why `check-parity.js` still prints
+    | zero after this. Writing the slugs in a different order here changes
+    | nothing, and that is deliberate: an order in two places is an order that
+    | will disagree with itself.
+    |
+    | Empty either list and the old behaviour comes back — the sale row takes
+    | everything discounted, the rings take the newest five.
+    |
+    */
+
+    'front_page' => [
+        'ladder_products' => ['jordan-one-air', 'nike-v2k-run', 'new-balance-530', 'on-cloudtilt', 'golden-goose'],
+        'story_products' => ['jordan-one-air', 'nike-v2k-run', 'new-balance-530', 'on-cloudtilt', 'golden-goose'],
+    ],
+
     'ladder' => [
         'live' => 2,
 

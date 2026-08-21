@@ -34,11 +34,40 @@ class HomeController extends Controller
             'categories' => $categories,
             'heroSlides' => $this->heroSlides($products),
             'ladder' => $this->ladder(),
-            'ladderDeals' => $products,
+            'ladderDeals' => $this->ladderDeals($products),
             'bestSellers' => $this->bestSellers($categories, $products),
             'dailyDeal' => $this->dailyDeal($products),
             'brands' => $this->brands($categories),
         ]);
+    }
+
+    /**
+     * The cards under the stepped sale's board.
+     *
+     * Everything discounted, until the catalogue grew: the row is laid out for
+     * five and takes as many as it is handed, so an import of a hundred and
+     * thirty products would have turned the front page into a wall of them
+     * without anybody choosing that. The campaign now names its own products —
+     * `front_page.ladder_products` — and this filters the promoted pool down to
+     * them, keeping the pool's own newest-first order rather than the list's.
+     *
+     * With the list empty it is the old behaviour, unchanged.
+     *
+     * @param  Collection<string, Product>  $products
+     * @return Collection<string, Product>
+     */
+    private function ladderDeals(Collection $products): Collection
+    {
+        $named = (array) config('storefront.front_page.ladder_products', []);
+
+        if ($named === []) {
+            return $products;
+        }
+
+        // `only()` would have been the obvious call and is the wrong one: on an
+        // Eloquent collection it selects by *primary key*, not by the slug this
+        // one is keyed on, so it quietly returned nothing at all.
+        return $products->filter(fn (Product $product) => in_array($product->slug, $named, true));
     }
 
     /**

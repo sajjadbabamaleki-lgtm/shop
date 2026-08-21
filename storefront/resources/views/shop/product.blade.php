@@ -135,9 +135,17 @@
                                  بنویس ۳۰٪ تخفیف پله ای» — and the number in it
                                  is the offer's own cut, not the words'. A shoe
                                  with no cut keeps the brand there, which is
-                                 what the desktop shows either way. --}}
+                                 what the desktop shows either way.
+
+                                 It says «پله‌ای» only when the offer really is
+                                 in the stepped sale, and a campaign is a thing
+                                 with dates: an imported product carries the
+                                 supplier's own before-price and no window, so
+                                 the line would have announced it as part of a
+                                 sale it has nothing to do with. The cut is the
+                                 same number either way. --}}
                             @if ($offer->discountPercent())
-                                <span class="vp-pdp-ladder">٪{{ fa_number($offer->discountPercent()) }} تخفیف پله‌ای</span>
+                                <span class="vp-pdp-ladder">٪{{ fa_number($offer->discountPercent()) }} {{ $offer->promotion_starts_at || $offer->promotion_ends_at ? 'تخفیف پله‌ای' : 'تخفیف' }}</span>
                             @endif
 
                             @if ($product->brand)
