@@ -23,6 +23,7 @@ class Product extends Model
     protected $fillable = [
         'slug', 'title', 'short_title', 'brand_id', 'description', 'material',
         'care_instructions', 'use_case', 'status', 'source', 'source_id',
+        'title_latin',
         'default_variant_id', 'seo_title', 'seo_description', 'canonical_url',
         'published_at',
     ];
@@ -258,41 +259,56 @@ class Product extends Model
     }
 
     /**
-     * The title up to where it stops being Persian.
+     * A title split where it stops being Persian: the name to show, and the
+     * tail to keep.
      *
-     * Four words is a *ceiling*, not a quota — «من گفتم اسم هر کفش نهایتها ۴
-     * حرف نگفتم حتما باید ۴ حرف تو قسمت اسم باشه … اگه اسم یه کفشی ۲ کلمس باید
-     * ۲ کلمه باشه» — and `Str::words` has always honoured that. What it could
-     * not know is that a supplier's title carries the same name twice: Basalam
-     * sells «کتونی نیوبالانس New balance 530», the Persian name and then the
-     * Latin one, and four words off the front of that is «کتونی نیوبالانس New
-     * balance…» — two words of name and two of the same name again.
+     * A supplier's title carries the same name twice. Basalam sells «کتونی
+     * نیوبالانس New balance 530» and «کتونی نایک جردن وان ساق کوتاه Air Jordan
+     * 1 Low رنگ سفید قرمز» — the Persian name, then the Latin one, then
+     * whatever else was worth typing into a marketplace search box. Printed
+     * whole, that is a heading in two alphabets; four words off the front of
+     * it is two words of name and two of the same name again.
      *
-     * So the Latin half is cut before the counting starts, and the two-word
-     * shoe gets two words with no ellipsis after them, because nothing was
-     * dropped that the card was meant to say.
+     * So the tail comes off the *stored* title and lives in `title_latin`,
+     * which nothing displays and the search matches — «اسم انگلیسی کفشارو …
+     * یجایی گذاشت تو بک اند … که وقتی به انگلیسی سرچ میشه اون کفش بیاد و ولی
+     * تو اسم کفش بصورت ظاهری نباشه». `brands.name_latin` has held a brand's
+     * Latin name for the same reason since the catalogue was built; this is
+     * that, one table along.
      *
-     * Digits are not letters: «کتونی نیوبالانس 530» keeps its 530, in either
+     * Digits are not letters, so «کتونی نیوبالانس 530» keeps its 530 in either
      * set of numerals. A title that opens in Latin is left whole rather than
      * emptied — there is no Persian name in it to prefer.
      *
-     * The whole title is untouched everywhere else. The product page prints it
-     * in full and the search matches it in full; a card is a label, not a
-     * record.
+     * @return array{0: string, 1: string} what to show, and what to keep
+     */
+    public static function splitTitle(string $title): array
+    {
+        $words = preg_split('/\s+/u', trim($title)) ?: [];
+        $head = [];
+
+        foreach ($words as $index => $word) {
+            if (preg_match('/\p{Latin}/u', $word)) {
+                return $head === []
+                    ? [trim($title), '']
+                    : [implode(' ', $head), implode(' ', array_slice($words, $index))];
+            }
+
+            $head[] = $word;
+        }
+
+        return [implode(' ', $head), ''];
+    }
+
+    /**
+     * The stored title is already the Persian half — the migration split every
+     * row and the importer splits every new one. This is the same cut applied
+     * again, for a title typed into the panel by hand and never through
+     * either.
      */
     private function persianTitle(): string
     {
-        $kept = [];
-
-        foreach (preg_split('/\s+/u', trim($this->title)) as $word) {
-            if (preg_match('/\p{Latin}/u', $word)) {
-                break;
-            }
-
-            $kept[] = $word;
-        }
-
-        return $kept === [] ? $this->title : implode(' ', $kept);
+        return static::splitTitle($this->title)[0];
     }
 
     /**

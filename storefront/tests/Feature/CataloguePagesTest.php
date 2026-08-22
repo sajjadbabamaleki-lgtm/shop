@@ -432,6 +432,72 @@ class CataloguePagesTest extends TestCase
     }
 
     /**
+     * The English name is out of the title and inside the search.
+     *
+     * «اسم انگلیسی کفشارو نمیشه ازشون حذف کرد ولی یجایی گذاشت تو بک اند … که
+     * وقتی به انگلیسی سرچ میشه اون کفش بیاد و ولی تو اسم کفش بصورت ظاهری نباشه»
+     * — so this asserts both halves at once, because either one alone is a
+     * regression somebody would ship happily: a title with the English back in
+     * it looks fine, and a search that has lost it fails silently.
+     */
+    public function test_a_kept_english_name_is_searchable_and_never_printed(): void
+    {
+        $product = Product::where('slug', 'golden-goose')->firstOrFail();
+        $product->update(['title_latin' => 'Golden Goose Super Star']);
+
+        $this->get('/products')
+            ->assertOk()
+            ->assertSee('کتونی گلدن گوس', false)
+            ->assertDontSee('Super Star', false);
+
+        $this->get('/products/golden-goose')
+            ->assertOk()
+            ->assertDontSee('Super Star', false);
+
+        // Typed in Latin, in either case, and it comes back.
+        foreach (['Golden Goose', 'super star', 'SUPER'] as $typed) {
+            $this->get('/search?q='.urlencode($typed))
+                ->assertOk()
+                ->assertSee('کتونی گلدن گوس', false);
+        }
+
+        // And a shoe without one is not dragged in by an empty column. Asserted
+        // against the card's own anchor: the shell around a listing names other
+        // products too, so a bare name is not evidence of a result.
+        $this->get('/search?q='.urlencode('Super Star'))
+            ->assertOk()
+            ->assertDontSee('>کتونی اون کلادتیلت</a>', false);
+    }
+
+    /**
+     * The split itself, in one place, because three callers depend on it: the
+     * migration that ran once, the importer that runs on every product, and
+     * the card's own label.
+     */
+    public function test_a_title_splits_where_it_stops_being_persian(): void
+    {
+        $this->assertSame(
+            ['کتونی نیوبالانس', 'New balance 530'],
+            Product::splitTitle('کتونی نیوبالانس New balance 530'),
+        );
+
+        // The tail is everything after the first Latin word, Persian included:
+        // those words are worth searching and are not worth a heading.
+        $this->assertSame(
+            ['کتونی نایک جردن وان ساق کوتاه', 'Air Jordan 1 Low رنگ سفید قرمز'],
+            Product::splitTitle('کتونی نایک جردن وان ساق کوتاه Air Jordan 1 Low رنگ سفید قرمز'),
+        );
+
+        // Nothing to cut, in either set of numerals — digits are not letters.
+        $this->assertSame(['کتونی نیوبالانس ۵۳۰', ''], Product::splitTitle('کتونی نیوبالانس ۵۳۰'));
+        $this->assertSame(['کتونی نیوبالانس 530', ''], Product::splitTitle('کتونی نیوبالانس 530'));
+
+        // A title that opens in Latin is left whole: there is no Persian name
+        // in it to prefer, and half a name is worse than a foreign one.
+        $this->assertSame(['Nike Air Max 90', ''], Product::splitTitle('Nike Air Max 90'));
+    }
+
+    /**
      * The name on a card: four words at most, and Persian.
      *
      * «من گفتم اسم هر کفش نهایتها ۴ حرف نگفتم حتما باید ۴ حرف تو قسمت اسم

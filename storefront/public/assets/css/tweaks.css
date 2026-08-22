@@ -1284,11 +1284,12 @@ option:hover {
      floating between two equal gaps. 40 is that measured gap, not a guess; if
      the hero's padding ever moves, this moves with it. */
   margin: 40px 18px 0;
-  /* 20 — «جزیره هدر ۲۰/۲۴», read in the order the same message used for the
-     hero: the desktop first. It is the tightest corner on the page now, which
-     suits the shape: the island is 1160 wide and 76 tall, and a radius that
-     works on a 450-tall hero card reads as a lozenge on a bar. */
-  border-radius: 20px;
+  /* 22 — «دستاپ بشه ۲۲ موبایل هم بشه ۲۲», which ends the split this line used
+     to carry («جزیره هدر ۲۰/۲۴», desktop first). The island was the one place
+     on the page where the narrow screen was rounder than the wide one; it is
+     one number at every width now, and 22 is the middle of the two it
+     replaces. */
+  border-radius: 22px;
   background: rgba(16, 17, 17, 0.063);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
@@ -2073,15 +2074,17 @@ option:hover {
        nine per cent of the width spent on nothing, twice, which is what this
        block was written to fix. */
     margin-top: 13.5px;
-    /* Twenty per cent off 24. The corner follows the panel: a smaller inset
-       with the same radius reads rounder than it did, because the curve is a
-       larger fraction of what is left. */
-    /* 24 on the phone, against the desktop's 20 — the one place on this page
-       where the narrow screen is rounder than the wide one. That is what the
-       numbers asked for and it is not unreasonable: at 370 wide and 63 tall
-       this island is nearly a pill already, and 19.2 read as a rectangle with
-       the corners knocked off. */
-    border-radius: 24px;
+    /* The phone had 24 against the desktop's 20 for several rounds, and does
+       not any more: «دستاپ بشه ۲۲ موبایل هم بشه ۲۲». The rule stays rather
+       than being deleted, because the desktop's 22 is inside a `.th-header`
+       selector this block already overrides for the margin — leaving the
+       corner out would work today and break the day either margin rule moves.
+
+       What the rounds settled, in case a split is ever wanted again: at 370
+       wide and 63 tall this island is nearly a pill already, so it carries a
+       larger radius than the 1160 × 76 desktop one without reading as a
+       lozenge, and 19.2 read as a rectangle with the corners knocked off. */
+    border-radius: 22px;
   }
 }
 

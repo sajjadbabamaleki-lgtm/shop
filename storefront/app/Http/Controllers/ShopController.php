@@ -232,7 +232,12 @@ class ShopController extends Controller
             $needle = '%'.fold_persian($filters['q']).'%';
 
             $query->where(function (Builder $q) use ($needle): void {
-                foreach (['products.title', 'products.short_title', 'products.description'] as $column) {
+                // `title_latin` is the half of a supplier's title that the page
+                // stopped printing — «Air Jordan 1 Low» and whatever followed
+                // it. It is here so that taking the English off the heading did
+                // not take it out of the search with it: a shopper who types
+                // «jordan» is typing the only name they were given.
+                foreach (['products.title', 'products.title_latin', 'products.short_title', 'products.description'] as $column) {
                     $q->orWhere(Search::fold($column), 'ilike', $needle);
                 }
 

@@ -74,7 +74,11 @@ class Importer
             return ['status' => 'failed', 'product' => null, 'notes' => ['The payload carries no id.']];
         }
 
-        return DB::transaction(function () use ($payload, $branch, $publish, $sourceId, &$notes) {
+        // The supplier's title, cut where it stops being Persian: the shop
+        // shows the first half and searches both.
+        [$shown, $kept] = Product::splitTitle((string) ($payload['title'] ?? ''));
+
+        return DB::transaction(function () use ($payload, $branch, $publish, $sourceId, $shown, $kept, &$notes) {
             $existing = Product::query()
                 ->where('source', 'basalam')
                 ->where('source_id', $sourceId)
@@ -89,8 +93,11 @@ class Importer
             ]);
 
             $product->fill([
-                'title' => trim((string) ($payload['title'] ?? '')),
-                'short_title' => Str::limit(trim((string) ($payload['title'] ?? '')), 40, ''),
+                'title' => $shown,
+                // The English name and whatever followed it, kept out of sight
+                // and inside the search — see `Product::splitTitle()`.
+                'title_latin' => $kept === '' ? null : $kept,
+                'short_title' => Str::limit($shown, 40, ''),
                 'description' => $this->description($payload),
                 'source' => 'basalam',
                 'source_id' => $sourceId,

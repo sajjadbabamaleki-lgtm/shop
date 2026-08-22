@@ -482,19 +482,35 @@ class BasalamImportTest extends TestCase
         $this->assertSame('کتونی نایک جردن وان…', $product->cardName());
 
         /*
-         * The *label* is trimmed. The whole name is still in the markup — the
+         * The *label* is trimmed. The stored name is still in the markup — the
          * photograph's alt text and the favourite's aria-label both carry it,
-         * and should: a screen reader saying «کتونی نایک جردن وان ساق کوتاه…»
-         * has read an ellipsis aloud. So this asserts what the anchor prints
-         * rather than what the page contains.
+         * and should: a screen reader saying «کتونی نایک جردن وان…» has read an
+         * ellipsis aloud. So this asserts what the anchor prints rather than
+         * what the page contains.
          */
         $listing = $this->get('/products')->assertOk();
         $listing->assertSee('>کتونی نایک جردن وان…</a>', false);
 
-        // The whole name is the product's real name, and its own page says so.
+        // The English name is not the shop's name for this shoe any more. It
+        // came off the title at import — «تو اسم کفش بصورت ظاهری نباشه» — and
+        // the product's own page, which prints the title in full, no longer
+        // has it either.
+        $this->assertSame('کتونی نایک جردن وان ساق کوتاه', $product->title);
+        $this->assertSame('Air Jordan 1 Low رنگ سفید قرمز', $product->title_latin);
+
         $this->get('/products/'.$product->slug)
             ->assertOk()
-            ->assertSee('Air Jordan 1 Low', false);
+            ->assertSee('کتونی نایک جردن وان ساق کوتاه', false)
+            ->assertDontSee('Air Jordan 1 Low', false);
+
+        // And it is still findable by the name it was sold under — «که وقتی به
+        // انگلیسی سرچ میشه اون کفش بیاد». Both spellings, because a shopper who
+        // was given an English name types an English name.
+        foreach (['Air Jordan', 'jordan', 'ساق کوتاه'] as $typed) {
+            $this->get('/search?q='.urlencode($typed))
+                ->assertOk()
+                ->assertSee('کتونی نایک جردن وان…', false);
+        }
 
         // And its tile opts out of the nudge written for this shop's own
         // cut-outs, which slices a photograph that fills its frame.
