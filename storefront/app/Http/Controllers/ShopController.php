@@ -32,11 +32,23 @@ use Illuminate\Support\Collection;
 class ShopController extends Controller
 {
     /**
-     * Twelve to a page: three rows of four above 1200, four rows of three
-     * between, six rows of two on a phone — a whole number of rows at every
+     * Twenty-four to a page: six rows of four above 1200, eight rows of three
+     * between, twelve rows of two on a phone — a whole number of rows at every
      * width the grid is drawn at.
+     *
+     * It was twelve, which was the same promise on a shop of twenty-six shoes.
+     * The Basalam stall made it a hundred and forty-three, and twelve to a page
+     * is thirteen pages: the numbers under the last card became the biggest
+     * thing on the listing. Doubling it is the other half of that fix — the
+     * paginator's window stops it *looking* long, this stops it *being* long —
+     * and 143 comes to six pages.
+     *
+     * **Only multiples of twelve keep the promise above**, because the grid is
+     * four, three and two across. Eighteen would land on eight pages exactly,
+     * which is the number that was asked for, at the cost of a half-empty last
+     * row on every desktop page. Whole rows won.
      */
-    private const PER_PAGE = 12;
+    private const PER_PAGE = 24;
 
     /**
      * What the sort control offers, and what each one means to the database.

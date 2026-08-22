@@ -6026,10 +6026,24 @@ ul.vp-how-list.is-ticked li:before {
    under the last card before this — the page numbers were bigger than the
    shop. `is-near` is the current page's two neighbours, and only they; the
    first, the last, the current one and both arrows stay, which is
-   `‹ ۱ … ۷ … ۱۳ ›`, seven cells, 314px. */
+   `‹ ۱ … ۴ … ۶ ›`, seven cells, 314px.
+
+   `is-gap-phone` is the other half of that and runs the opposite way: an
+   ellipsis that is only true once the neighbours are gone. The Blade works out
+   which gaps those are — a hidden number can turn `۱ ۲ ۳ ۴ … ۶` into a page
+   claiming one and three are neighbours — so each side draws only the skips
+   that its own set actually has. */
+.vp-page.is-gap-phone {
+  display: none;
+}
+
 @media (max-width: 575.98px) {
   .vp-page.is-near {
     display: none;
+  }
+
+  .vp-page.is-gap-phone {
+    display: grid;
   }
 }
 
