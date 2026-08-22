@@ -432,6 +432,61 @@ class CataloguePagesTest extends TestCase
     }
 
     /**
+     * The name on a card: four words at most, and Persian.
+     *
+     * «من گفتم اسم هر کفش نهایتها ۴ حرف نگفتم حتما باید ۴ حرف تو قسمت اسم
+     * باشه» — the four is a ceiling. What broke it was not the counting but
+     * what was being counted: a supplier's title carries the name twice, once
+     * in Persian and once in Latin, so four words off «کتونی نیوبالانس New
+     * balance 530» is two words of name and two of the same name again.
+     */
+    public function test_a_card_name_is_as_long_as_the_name_is(): void
+    {
+        $name = fn (string $title) => (new Product(['title' => $title]))->cardName();
+
+        // Two words in, two words out, and no ellipsis: nothing the card was
+        // meant to say was dropped.
+        $this->assertSame('کتونی نیوبالانس', $name('کتونی نیوبالانس New balance 530'));
+        $this->assertSame('کتونی گلدن گوس', $name('کتونی گلدن گوس'));
+
+        // Digits are not Latin letters, in either set of numerals.
+        $this->assertSame('کتونی نیوبالانس ۵۳۰', $name('کتونی نیوبالانس ۵۳۰'));
+        $this->assertSame('کیف زنانه 530', $name('کیف زنانه 530 New Balance'));
+
+        // Longer than the ceiling is still cut, and says so.
+        $this->assertSame(
+            'کتونی نایک جردن وان…',
+            $name('کتونی نایک جردن وان ساق کوتاه Air Jordan 1 Low رنگ سفید قرمز'),
+        );
+
+        // A title with no Persian in it is left whole rather than emptied.
+        $this->assertSame('Nike Air Max 90', $name('Nike Air Max 90'));
+    }
+
+    /**
+     * «اسم کفش باید سایزش ۱۰ درصد بزرگتر و ده درصد بولدتر بشه» — ten percent
+     * of 12px and of 400. Vazirmatn is loaded as a variable font, so 440 is a
+     * weight the file can actually draw rather than one the browser rounds.
+     */
+    public function test_the_card_name_is_a_tenth_larger_and_a_tenth_bolder(): void
+    {
+        $css = file_get_contents(public_path('assets/css/tweaks.css'));
+
+        $this->assertMatchesRegularExpression(
+            '/\.vp-card-name \{[^}]*font-size: 13\.2px;\s*font-weight: 440;/s',
+            $css,
+        );
+
+        $fonts = file_get_contents(public_path('assets/css/fonts-fa.css'));
+
+        $this->assertStringContainsString(
+            'font-weight: 100 900;',
+            $fonts,
+            '440 is only a weight if the variable axis is loaded.',
+        );
+    }
+
+    /**
      * Round at both ends, and gold the one way a pressed thing is gold here.
      *
      * «دکمه ۲ طرف گرد» is a shape, and a radius in pixels stops being round

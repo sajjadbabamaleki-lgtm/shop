@@ -254,7 +254,45 @@ class Product extends Model
      */
     public function cardName(int $words = 4): string
     {
-        return Str::words($this->title, $words, '…');
+        return Str::words($this->persianTitle(), $words, '…');
+    }
+
+    /**
+     * The title up to where it stops being Persian.
+     *
+     * Four words is a *ceiling*, not a quota — «من گفتم اسم هر کفش نهایتها ۴
+     * حرف نگفتم حتما باید ۴ حرف تو قسمت اسم باشه … اگه اسم یه کفشی ۲ کلمس باید
+     * ۲ کلمه باشه» — and `Str::words` has always honoured that. What it could
+     * not know is that a supplier's title carries the same name twice: Basalam
+     * sells «کتونی نیوبالانس New balance 530», the Persian name and then the
+     * Latin one, and four words off the front of that is «کتونی نیوبالانس New
+     * balance…» — two words of name and two of the same name again.
+     *
+     * So the Latin half is cut before the counting starts, and the two-word
+     * shoe gets two words with no ellipsis after them, because nothing was
+     * dropped that the card was meant to say.
+     *
+     * Digits are not letters: «کتونی نیوبالانس 530» keeps its 530, in either
+     * set of numerals. A title that opens in Latin is left whole rather than
+     * emptied — there is no Persian name in it to prefer.
+     *
+     * The whole title is untouched everywhere else. The product page prints it
+     * in full and the search matches it in full; a card is a label, not a
+     * record.
+     */
+    private function persianTitle(): string
+    {
+        $kept = [];
+
+        foreach (preg_split('/\s+/u', trim($this->title)) as $word) {
+            if (preg_match('/\p{Latin}/u', $word)) {
+                break;
+            }
+
+            $kept[] = $word;
+        }
+
+        return $kept === [] ? $this->title : implode(' ', $kept);
     }
 
     /**

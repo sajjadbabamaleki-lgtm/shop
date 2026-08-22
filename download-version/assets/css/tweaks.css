@@ -16363,7 +16363,12 @@ button.vp-cart-keep {
   overflow: hidden;
   margin-block-start: 10px;
   color: rgba(16, 17, 17, 0.78);
-  font-size: 12px;
+  /* «اسم کفش باید سایزش ۱۰ درصد بزرگتر و ده درصد بولدتر بشه» — ten percent of
+     12px and of 400, taken literally: 13.2px and 440. Vazirmatn is loaded as a
+     variable font at `font-weight: 100 900`, so 440 is a real weight here and
+     not a browser rounding it up to 500. */
+  font-size: 13.2px;
+  font-weight: 440;
   line-height: 1.65;
   text-decoration: none;
 }
