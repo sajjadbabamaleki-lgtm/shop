@@ -45,6 +45,18 @@ class CataloguePagesTest extends TestCase
         );
     }
 
+    /**
+     * Read as the main store.
+     *
+     * `branch_offers` and `branch_inventory` fail closed: with no branch bound
+     * a query matches nothing rather than everything, which in a test looks
+     * exactly like a shop that sells nothing.
+     */
+    private function atCentral(callable $callback): mixed
+    {
+        return $this->tenant->forBranch(Branch::central(), $callback);
+    }
+
     public function test_the_listing_shows_what_the_branch_sells(): void
     {
         $this->get('/products')
@@ -429,6 +441,99 @@ class CataloguePagesTest extends TestCase
         $one = $count('/products?q=جردن');
 
         $this->assertSame($one, $all, "Six shoes cost {$all} queries and one cost {$one}; the difference is a lookup per card.");
+    }
+
+    /**
+     * One line under the price, and the sale has first claim on it.
+     *
+     * «استراتژی این فضا باید این باشه که اگه اون کفش تخفیف داشت اولویت اختصاص
+     * دادن اون فضا به نمایش تخفیف باشه و اگه تخفیف نداشت اعلام موجودی رنگ و
+     * سایز» — before this the line was simply absent on a shoe with no cut,
+     * which is most of an imported catalogue, so the grid had a hole under
+     * every second price.
+     */
+    public function test_a_shoe_with_no_sale_says_what_is_in_stock_instead(): void
+    {
+        // Golden Goose is seeded in two sizes and at thirty per cent off, so it
+        // can be both cases in one test.
+        $product = Product::where('slug', 'golden-goose')->firstOrFail();
+
+        $this->get('/products')
+            ->assertOk()
+            ->assertSee('vp-card-was', false)
+            ->assertDontSee('۲ سایز موجود', false);
+
+        // Take the sale off and the line becomes the shelf.
+        $this->atCentral(fn () => BranchOffer::whereIn(
+            'variant_id', $product->variants()->pluck('id'),
+        )->update(['compare_at_price' => null]));
+
+        $listing = $this->get('/products')->assertOk();
+
+        $listing->assertSee('۲ سایز موجود', false);
+        $listing->assertSee('vp-card-stock', false);
+
+        // The shoes that are still on sale keep the sale: the choice is made a
+        // card at a time, not a page at a time.
+        $listing->assertSee('vp-card-was', false);
+
+        // «اندازه نوشته فلان سایز موجود خیلی کوچیکه پانزده درصد بزرگتر بشه» —
+        // 10 → 11.5, larger than the struck price beside it on purpose: that
+        // one is read next to the price above it and should be quieter, this
+        // is the card's only sentence. The 28px box is unchanged, so a grid of
+        // cut and uncut shoes keeps one rhythm.
+        $css = file_get_contents(public_path('assets/css/tweaks.css'));
+
+        $this->assertMatchesRegularExpression(
+            '/\.vp-card-stock \{[^}]*min-height: 28px;[^}]*font-size: 11\.5px;/s',
+            $css,
+        );
+    }
+
+    /**
+     * What that line is allowed to claim.
+     *
+     * The sizes are this branch's, counted distinctly. The colours are only
+     * mentioned when the catalogue actually holds more than one named
+     * colourway — every variant here still says «نامشخص», and the product
+     * page's own «۳ رنگ موجود» is a placeholder out of config, so counting off
+     * that would put an invented number on the one line a shopper reads as
+     * fact.
+     */
+    public function test_the_stock_line_counts_only_what_the_catalogue_knows(): void
+    {
+        $product = Product::where('slug', 'golden-goose')->firstOrFail();
+
+        $line = fn () => Product::with(['variants.offer', 'variants.stock'])
+            ->whereKey($product->id)
+            ->firstOrFail()
+            ->stockLine();
+
+        $this->assertSame('۲ سایز موجود', $this->atCentral($line));
+
+        // A size this branch cannot sell is not a size it offers.
+        $this->atCentral(fn () => BranchInventory::where(
+            'variant_id', $product->variants()->orderBy('id')->value('id'),
+        )->update(['stock_on_hand' => 0]));
+
+        $this->assertSame('۱ سایز موجود', $this->atCentral($line));
+
+        // Named colourways are counted, and «نامشخص» is not a colour.
+        $this->atCentral(function () use ($product) {
+            $product->variants()->orderByDesc('id')->limit(1)->update([
+                'display_color' => 'سفید',
+                'color_family' => 'white',
+            ]);
+        });
+
+        $this->assertSame('۱ سایز موجود', $this->atCentral($line), 'One colour is not a choice worth announcing.');
+
+        // Nothing sellable at all says nothing: the tile already says «ناموجود».
+        $this->atCentral(fn () => BranchInventory::whereIn(
+            'variant_id', $product->variants()->pluck('id'),
+        )->update(['stock_on_hand' => 0]));
+
+        $this->assertNull($this->atCentral($line));
     }
 
     /**

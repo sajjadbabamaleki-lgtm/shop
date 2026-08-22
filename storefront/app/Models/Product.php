@@ -312,6 +312,53 @@ class Product extends Model
     }
 
     /**
+     * What a card prints where a discount would go.
+     *
+     * That line is the sale — the cut as a chip and the old price struck
+     * through — and on a shoe with no sale it was empty air. «اگه اون کفش تخفیف
+     * داشت اولویت اختصاص دادن اون فضا به نمایش تخفیف باشه و اگه تخفیف نداشت
+     * اعلام موجودی رنگ و سایز.» So the card asks for this only when there is no
+     * cut, and the strategy lives in the view, in those two words.
+     *
+     * **Only what the catalogue actually knows.** The sizes are the ones this
+     * branch can sell today, counted distinctly, so a shoe listed in five and
+     * holding two says two. The colours are only mentioned when there is more
+     * than one *named* colourway: every variant in this catalogue still carries
+     * `color_family = unspecified`, and the product page's own «۳ رنگ موجود» is
+     * a placeholder out of config — printing a count off that would be a claim
+     * nobody made, on the one line a shopper reads as fact. One named colour is
+     * not a choice either, so it is not announced.
+     *
+     * Null when nothing is sellable. The tile already says «ناموجود», and
+     * «۰ سایز موجود» is the same news said worse.
+     */
+    public function stockLine(): ?string
+    {
+        $sizes = $this->variants
+            ->filter(fn (Variant $variant) => $variant->isSellable())
+            ->pluck('size_value')
+            ->filter(fn ($size) => $size !== null && $size !== '')
+            ->unique()
+            ->count();
+
+        if ($sizes === 0) {
+            return null;
+        }
+
+        $colours = $this->colorways()
+            ->filter(fn (array $way) => $way['sellable'] && $way['color_family'] !== 'unspecified')
+            ->count();
+
+        $line = fa_number($sizes).' سایز';
+
+        if ($colours > 1) {
+            $line .= ' و '.fa_number($colours).' رنگ';
+        }
+
+        return $line.' موجود';
+    }
+
+    /**
      * The colourways offered by the product page's colour selector, each
      * carrying its own sizes. Changing colour must update media, price and
      * availability together (spec 16.1), so they travel as one structure.

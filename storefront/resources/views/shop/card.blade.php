@@ -75,11 +75,17 @@
 
     <strong class="vp-card-price">{{ toman($offer->price) }} <span>تومان</span></strong>
 
+    {{-- One line, and the sale has first claim on it — «اگه اون کفش تخفیف داشت
+         اولویت اختصاص دادن اون فضا به نمایش تخفیف باشه و اگه تخفیف نداشت اعلام
+         موجودی رنگ و سایز». Before this the line simply was not drawn on a shoe
+         with no cut, which left a hole under the price on most of the grid. --}}
     @if ($cut)
         <span class="vp-card-was">
             <span class="vp-card-cut">٪{{ fa_number($cut) }}</span>
             <del>{{ toman($offer->compare_at_price) }}</del>
         </span>
+    @elseif ($stock = $product->stockLine())
+        <span class="vp-card-stock">{{ $stock }}</span>
     @endif
 
     @if ($sold > 0)
