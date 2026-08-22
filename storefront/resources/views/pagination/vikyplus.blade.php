@@ -14,12 +14,14 @@
     Basalam import took the shop from two pages to thirteen: on a 390px screen
     that wrapped into three rows of tiles under the last shoe — «این چه وضع
     افتضاحیه پایین فروشگاه». A cell is 38px wide with an 8px gap, so 350px of
-    usable width holds seven of them and no more, which is what the two rules
-    below spend (at six pages, which is where `ShopController::PER_PAGE` now
-    puts a hundred and forty-three shoes):
+    usable width holds seven of them and no more. Shrunk to 34px with a 6px gap
+    it holds eight, which is six numbers and both arrows — and six pages is
+    where `ShopController::PER_PAGE` puts a hundred and forty-three shoes, so
+    the whole listing fits and nothing is hidden from anybody:
 
-      phone    ‹ 1 … 4 … 6 ›        7 cells, 314px
-      desktop  ‹ 1 … 3 4 5 … 6 ›    9 cells
+      six pages or fewer   ‹ 1 2 3 4 5 6 ›      8 cells, 314px on a phone
+      more than six        ‹ 1 … 7 … 13 ›       7 cells on a phone
+                           ‹ 1 … 6 7 8 … 13 ›   9 cells on a desktop
 
     The difference is CSS, not markup — the neighbours carry `is-near` and are
     display:none under 576px — except for the ellipses, which cannot be, because
@@ -31,20 +33,31 @@
     $current = $paginator->currentPage();
     $last = $paginator->lastPage();
 
+    // Six numbers and two arrows is eight cells, which is what a 34px cell and
+    // a 6px gap spend on the narrowest phone we draw for — 314px of the 336px
+    // a 360px screen gives the listing. So six pages or fewer are all printed,
+    // and nothing is hidden from anybody: «بنظرم سایز شماره ها جوری باشه که ۶
+    // صفحه جا بشه». Above six, the window below.
+    $whole = $last <= 6;
+
     // First, last, and the current page with a neighbour either side. Unique
     // and sorted, so a current page sitting next to either end simply folds
     // into it rather than printing the number twice.
-    $numbers = array_merge([1], range(max(1, $current - 1), min($last, $current + 1)), [$last]);
+    $numbers = $whole
+        ? range(1, $last)
+        : array_merge([1], range(max(1, $current - 1), min($last, $current + 1)), [$last]);
     $numbers = array_values(array_unique($numbers));
     sort($numbers);
 
-    // What is left once the phone hides the two neighbours. It is needed here
+    // What is left once the phone hides the neighbours. It is worked out here
     // rather than in the stylesheet because a gap is a *claim* — «the numbers
     // skip here» — and hiding a number can make that claim true where it was
     // not. `۱ ۲ ۳ ۴ … ۶` losing its 2 and 4 would read `۱ ۳ … ۶`, which says
     // one and three are neighbours. So the skips are counted twice, once for
     // each set, and a gap only the phone needs is drawn only for the phone.
-    $onPhone = array_values(array_filter($numbers, fn ($page) => $page === 1 || $page === $last || $page === $current));
+    $onPhone = $whole
+        ? $numbers
+        : array_values(array_filter($numbers, fn ($page) => $page === 1 || $page === $last || $page === $current));
 @endphp
 @if ($paginator->hasPages())
 <nav class="vp-pages" role="navigation" aria-label="صفحه‌بندی">
@@ -82,7 +95,7 @@
         @if ($page === $current)
             <span class="vp-page is-on" aria-current="page">{{ fa_number($page) }}</span>
         @else
-            <a class="vp-page {{ $page === 1 || $page === $last ? '' : 'is-near' }}" href="{{ $paginator->url($page) }}" aria-label="صفحه {{ fa_number($page) }}">{{ fa_number($page) }}</a>
+            <a class="vp-page {{ $shownOnPhone ? '' : 'is-near' }}" href="{{ $paginator->url($page) }}" aria-label="صفحه {{ fa_number($page) }}">{{ fa_number($page) }}</a>
         @endif
 
         @php

@@ -71,14 +71,42 @@ class PaginatorWindowTest extends TestCase
 
     public function test_neither_screen_is_given_more_cells_than_it_can_hold(): void
     {
-        foreach (range(1, 13) as $current) {
-            $html = $this->render($current, 13);
+        foreach (range(2, 30) as $pages) {
+            foreach (range(1, $pages) as $current) {
+                $html = $this->render($current, $pages);
 
-            // A cell is 38px with an 8px gap, so 350px of phone holds seven,
-            // two of which are the arrows. Desktop has room for nine.
-            $this->assertLessThanOrEqual(5, count($this->cells($html, 'phone')), "Phone, page {$current} of 13.");
-            $this->assertLessThanOrEqual(7, count($this->cells($html, 'desktop')), "Desktop, page {$current} of 13.");
+                // A phone cell is 34px with a 6px gap and the listing gives the
+                // paginator 336px on a 360px screen, so eight cells fit and two
+                // of them are the arrows. Desktop keeps 38px and has room for
+                // nine. Neither number is a guess — both are measured, and both
+                // are what these two counts stand for.
+                $this->assertLessThanOrEqual(6, count($this->cells($html, 'phone')), "Phone, page {$current} of {$pages}.");
+                $this->assertLessThanOrEqual(7, count($this->cells($html, 'desktop')), "Desktop, page {$current} of {$pages}.");
+            }
         }
+    }
+
+    public function test_six_pages_are_all_printed_and_nothing_is_hidden(): void
+    {
+        // The listing is twenty-four to a page and the shop holds a hundred and
+        // forty-three shoes, so this is the case the storefront is actually in.
+        foreach (range(1, 6) as $current) {
+            $html = $this->render($current, 6);
+            $all = ['۱', '۲', '۳', '۴', '۵', '۶'];
+
+            $this->assertSame($all, $this->cells($html, 'desktop'), "Desktop, standing on {$current}.");
+            $this->assertSame($all, $this->cells($html, 'phone'), "Phone, standing on {$current}.");
+        }
+
+        $this->assertStringNotContainsString('is-near', $this->render(3, 6), 'Six pages hide nothing from the phone.');
+    }
+
+    public function test_the_seventh_page_is_where_the_window_starts(): void
+    {
+        // Seven numbers and two arrows is nine cells, 354px, and the narrowest
+        // phone has 336px. So seven pages is one too many to print whole.
+        $this->assertSame(['۱', '۲', '۳', '…', '۷'], $this->cells($this->render(2, 7), 'desktop'));
+        $this->assertSame(['۱', '۲', '…', '۷'], $this->cells($this->render(2, 7), 'phone'));
     }
 
     public function test_the_window_is_the_first_the_last_and_the_current_page(): void
@@ -99,19 +127,20 @@ class PaginatorWindowTest extends TestCase
     public function test_a_short_paginator_prints_every_page_with_no_gap(): void
     {
         $this->assertSame(['۱', '۲', '۳'], $this->cells($this->render(2, 3), 'desktop'));
+        $this->assertSame(['۱', '۲', '۳'], $this->cells($this->render(2, 3), 'phone'));
         $this->assertSame([], $this->cells($this->render(1, 1), 'desktop'), 'One page is no paginator at all.');
     }
 
     public function test_a_gap_the_phone_alone_needs_is_drawn_for_the_phone_alone(): void
     {
-        // Six pages, standing on the third. The full window is ۱ ۲ ۳ ۴ … ۶, so
-        // there is no skip between one and three; hide the neighbours and there
-        // is one. Without the phone's own ellipsis the page would read ۱ ۳ … ۶
-        // and claim one and three are next to each other.
-        $html = $this->render(3, 6);
+        // Eight pages, standing on the third. The full window is ۱ ۲ ۳ ۴ … ۸,
+        // so there is no skip between one and three; hide the neighbours and
+        // there is one. Without the phone's own ellipsis the page would read
+        // ۱ ۳ … ۸ and claim one and three are next to each other.
+        $html = $this->render(3, 8);
 
-        $this->assertSame(['۱', '۲', '۳', '۴', '…', '۶'], $this->cells($html, 'desktop'));
-        $this->assertSame(['۱', '…', '۳', '…', '۶'], $this->cells($html, 'phone'));
+        $this->assertSame(['۱', '۲', '۳', '۴', '…', '۸'], $this->cells($html, 'desktop'));
+        $this->assertSame(['۱', '…', '۳', '…', '۸'], $this->cells($html, 'phone'));
     }
 
     public function test_a_gap_both_screens_have_is_drawn_once_and_serves_both(): void
@@ -143,9 +172,14 @@ class PaginatorWindowTest extends TestCase
             'Without this the desktop gets an ellipsis it has the numbers for.',
         );
         $this->assertMatchesRegularExpression(
-            '/@media \(max-width: 575\.98px\) \{\s*\.vp-page\.is-near \{\s*display: none;\s*\}\s*\.vp-page\.is-gap-phone \{\s*display: grid;/',
+            '/\.vp-page \{\s*min-width: 34px;\s*padding-inline: 6px;\s*\}\s*\.vp-page\.is-near \{\s*display: none;\s*\}\s*\.vp-page\.is-gap-phone \{\s*display: grid;/',
             $css,
             'Without these the phone gets nine cells and wraps.',
+        );
+        $this->assertMatchesRegularExpression(
+            '/@media \(max-width: 575\.98px\) \{.*?\.vp-pages \{\s*gap: 6px;/s',
+            $css,
+            'Eight cells only fit at 34px if the gap comes down with them.',
         );
     }
 }

@@ -6038,6 +6038,21 @@ ul.vp-how-list.is-ticked li:before {
 }
 
 @media (max-width: 575.98px) {
+  /* 34px and a 6px gap, so eight cells come to 314px and a 360px screen — the
+     narrowest we draw for, and 336px of room once the listing's gutters are
+     off it — holds six page numbers and both arrows with nothing hidden. At
+     38px and an 8px gap that was 360px and it wrapped. The height does not
+     move: it is what the finger presses, and the digits are 14px, so the two
+     that fit a page number of thirteen still fit at 34 wide. */
+  .vp-pages {
+    gap: 6px;
+  }
+
+  .vp-page {
+    min-width: 34px;
+    padding-inline: 6px;
+  }
+
   .vp-page.is-near {
     display: none;
   }
