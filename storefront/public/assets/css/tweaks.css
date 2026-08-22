@@ -6020,6 +6020,19 @@ ul.vp-how-list.is-ticked li:before {
   opacity: 0.6;
 }
 
+/* The paginator's window is the Blade's; this is only how wide it is allowed
+   to be. A cell is 38px with an 8px gap, so 350px of phone holds seven and no
+   more. Thirteen pages of imported shoes wrapped into three rows of tiles
+   under the last card before this — the page numbers were bigger than the
+   shop. `is-near` is the current page's two neighbours, and only they; the
+   first, the last, the current one and both arrows stay, which is
+   `‹ ۱ … ۷ … ۱۳ ›`, seven cells, 314px. */
+@media (max-width: 575.98px) {
+  .vp-page.is-near {
+    display: none;
+  }
+}
+
 /* --- one shoe ------------------------------------------------------------- */
 
 .vp-pdp-crumbs {
