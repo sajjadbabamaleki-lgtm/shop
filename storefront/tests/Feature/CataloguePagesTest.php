@@ -489,6 +489,48 @@ class CataloguePagesTest extends TestCase
     }
 
     /**
+     * The tile's two corners.
+     *
+     * «مربع قلب فیوریت ۵ درصد کوچیکتر و مستطیل جدید تو گوشه راست ۵ درصد بزرگتر
+     * بشه و رنگش بشه سفید بجای گلد».
+     *
+     * Both numbers have a second measurement hanging off them that is easy to
+     * miss, which is why they are held here: the favourite's corner is the
+     * header's ratio and has to be recomputed when the square changes, and a
+     * white chip on a #F5F5F5 tile is 1.09:1 — the box is invisible and only
+     * the shadow draws it.
+     */
+    public function test_the_badge_and_the_favourite_keep_what_their_sizes_imply(): void
+    {
+        $css = file_get_contents(public_path('assets/css/tweaks.css'));
+
+        // 30 × 0.95 = 28.5, and 28.5 × 0.30119 = 8.58 — the header's ratio,
+        // which is the whole reason this square is that shape.
+        $this->assertMatchesRegularExpression('/\.vp-card-fav \{[^}]*width: 28\.5px;\s*height: 28\.5px;/s', $css);
+        $this->assertMatchesRegularExpression('/\.vp-card-fav \{\s*inset-block-start: 8px;[^}]*border-radius: 8\.58px;/s', $css);
+
+        // «جدید» and «ناموجود» are one box in two fills, and only one of them
+        // is ever drawn: different sizes would change the corner's shape with
+        // the shoe's stock.
+        foreach (['vp-card-new', 'vp-card-out'] as $chip) {
+            $this->assertMatchesRegularExpression(
+                '/\.'.$chip.' \{[^}]*padding: 4\.2px 10\.5px;\s*border-radius: 8\.4px;/s',
+                $css,
+                "{$chip} did not grow with the other one.",
+            );
+            $this->assertMatchesRegularExpression('/\.'.$chip.' \{[^}]*font-size: 10\.5px;/s', $css);
+        }
+
+        // White ground, gold word — and the dark gold, because 10.5px bold on
+        // white is 4.65:1 at #8B7217 and 3.72 at #A08119.
+        $this->assertMatchesRegularExpression(
+            '/\.vp-card-new \{\s*background: #FFFFFF;\s*color: var\(--vp-gold-ink\);\s*box-shadow:/s',
+            $css,
+        );
+        $this->assertStringContainsString('--vp-gold-ink: #8B7217', $css);
+    }
+
+    /**
      * Round at both ends, white, and the words in ink.
      *
      * «دکمه ۲ طرف گرد» is a shape, and a radius in pixels stops being round the

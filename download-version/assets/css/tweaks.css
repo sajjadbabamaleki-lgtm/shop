@@ -16296,16 +16296,21 @@ button.vp-cart-keep {
   transform: none;
 }
 
+/* Five percent larger than it was — «مستطیل جدید تو گوشه راست ۵ درصد بزرگتر
+   بشه» — which is every measurement of the box and not only its type: 4/10
+   padding → 4.2/10.5, 10px → 10.5, and the corner with them, or a chip that
+   grows keeps a corner drawn for a smaller one. Measured after: 42.9 × 23.1
+   where it was 40.86 × 22. */
 .vp-card-new {
   position: absolute;
   z-index: 2;
   inset-inline-start: 8px;
   inset-block-start: 8px;
-  padding: 4px 10px;
-  border-radius: 8px;
+  padding: 4.2px 10.5px;
+  border-radius: 8.4px;
   background: #101111;
   color: #FFFFFF;
-  font-size: 10px;
+  font-size: 10.5px;
   font-weight: 700;
   line-height: 1.4;
 }
@@ -16325,16 +16330,20 @@ button.vp-cart-keep {
   z-index: 2;
   inset-inline-start: 8px;
   inset-block-start: 8px;
-  padding: 4px 10px;
-  border-radius: 8px;
+  /* The same box as «جدید», and it grew with it. Only one of the two is ever
+     drawn, in the same corner: if they were different sizes the corner would
+     change shape depending on whether the shoe was in stock. */
+  padding: 4.2px 10.5px;
+  border-radius: 8.4px;
   background: #6C6C6C;
   color: #FFFFFF;
-  font-size: 10px;
+  font-size: 10.5px;
   font-weight: 700;
   line-height: 1.4;
 }
 
-/* The reference's circle, on the photograph's own foot corner. */
+/* The reference's circle, on the photograph's own foot corner.
+   28.5 rather than 30: «مربع قلب فیوریت ۵ درصد کوچیکتر». */
 .vp-card-fav {
   position: absolute;
   z-index: 2;
@@ -16343,8 +16352,8 @@ button.vp-cart-keep {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
+  width: 28.5px;
+  height: 28.5px;
   padding: 0;
   border: 0;
   border-radius: 50%;
@@ -16563,22 +16572,39 @@ button.vp-cart-keep {
     transform: translateY(15px);
   }
 
+  /* The corner is the header's ratio, 0.30119, and it has to be recomputed at
+     the new width or the square stops being the header's square: 28.5 ×
+     0.30119 = 8.58, where 30 gave 9.04. */
   .vp-card-fav {
     inset-block-start: 8px;
     inset-block-end: auto;
-    border-radius: 9.04px;
+    border-radius: 8.58px;
     box-shadow:
       0 0 2px rgba(16, 17, 17, 0.10),
       0 0 8px -2px rgba(16, 17, 17, 0.14);
   }
 
-  /* «اون جدید رو کارتها باید با سفید نوشته بشه». It was #101111 on the gold,
-     which is the pairing the basket count uses and measures 6.94:1. White on
-     the same ramp is 3.0:1, which is under AA for text this size — said once,
-     here, because the ask is explicit and the client has now seen both. */
+  /* «رنگش بشه سفید بجای گلد» — so the ground and the word swap places: the
+     chip is white and «جدید» is the gold, which is also where this started
+     («نوشته جدید باید رنگ گلد باشه نه مشکی») before the gold moved to the
+     ground and took the word with it.
+
+     **`--vp-gold-ink`, not `--vp-gold`.** Measured on this chip's white:
+     #8B7217 is 4.65:1 and #A08119 is 3.72, and 10.5px bold needs 4.5. That is
+     the «گلد سبز» rule read the way it is written — the dark golds stay where
+     they are, as text — and it is the only gold on the page that passes here.
+
+     **The shadow is the favourite's, exactly.** A white chip on a #F5F5F5 tile
+     is 1.09:1: the box itself is invisible and only the word would show. The
+     two-stop shadow is what draws it, and borrowing the square's rather than
+     inventing one makes the tile's two corners the same material — which is
+     what the block above spends a paragraph getting right. */
   .vp-card-new {
-    background: linear-gradient(180deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
-    color: #FFFFFF;
+    background: #FFFFFF;
+    color: var(--vp-gold-ink);
+    box-shadow:
+      0 0 2px rgba(16, 17, 17, 0.10),
+      0 0 8px -2px rgba(16, 17, 17, 0.14);
   }
 }
 
