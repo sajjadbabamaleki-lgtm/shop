@@ -16376,29 +16376,26 @@ button.vp-cart-keep {
   box-shadow: 0 2px 8px -3px rgba(16, 17, 17, 0.3);
 }
 
-/* The gaps down the card are 10 apiece — «همه فاصله ها بشن ۱۰» — and the five
-   numbers below are not 10, on purpose.
+/* The gaps down the card are 15 apiece — «فاصله عکس با اسم بشه ۱۵ / اسم با
+   قیمت بشه ۱۵ / قیمت با سایز بشه ۱۵ / سایز با دکمه خرید بشه ۱۵» — and the five
+   numbers below are not 15, on purpose.
 
    What is being measured is the white between the *printed* lines. What a
    margin sets is the distance between line *boxes*, and every box here is
    taller than its ink: the name is 13.86 in a 22.87 line, the price 14 in a 26,
    the stock line's 11.5 is centred in a 28, and the sales line's 10 is in
-   another 26. Rendered at 390 and read off the raster, the old
-   10 / 4 / 3 / 3 / 10 painted
+   another 26. Rendered at 390 and read off the raster, a plain
+   15 / 15 / 15 / 15 / 15 would paint 20 / 26 / 32 / 31 / 23.9.
 
-     tile foot → name    15        name  → price   15
-     price → stock/sale  20        stock → sold    19
-     last line → button  18.9
+   Each value below is therefore 15 minus the leading either side of it, which
+   is why two of them are negative: the half-leading around the stock line is
+   already more than the whole gap asked for. Nothing overlaps — a negative
+   margin here eats empty leading, not ink, and every line keeps the height it
+   had, so the sale line and the stock line still both measure 28 and a grid of
+   shoes, some cut and most not, still keeps one rhythm down the column.
 
-   Each value below is therefore the old one minus its surplus, which is why
-   three of them are negative: the half-leading either side of a gap is already
-   more than the whole gap asked for. Nothing overlaps — a negative margin here
-   eats empty leading, not ink, and every line keeps the height it had — the
-   sale line and the stock line still both measure 28, so a grid of shoes, some
-   cut and most not, still keeps one rhythm down the column.
-
-   Measured after, at 360, 390, 768, 1200 and 1920: 10 apiece, give or take
-   the third of a pixel the 1200 column rounds off.
+   Measured after, at 360, 390, 768, 1200 and 1920: 15 apiece, give or take the
+   third of a pixel the 1200 column rounds off.
 
    **These are set from the ink, so re-measure if the type changes.** Move a
    font-size, a line-height or the stock line's 28 and every number below is
@@ -16406,13 +16403,20 @@ button.vp-cart-keep {
    minus leading. The button's gap is the one that can still grow: it is pinned
    to the card's foot by `margin-block-start: auto` so a row of cards keeps its
    buttons level, and on a card shorter than its neighbour the row's slack
-   lands there. 10 is the intrinsic gap, not a ceiling. */
+   lands there. 15 is the intrinsic gap, not a ceiling.
+
+   The chip on a sale card is the one thing these numbers do not reach. It is a
+   filled box rather than a line of type, so its own tint stands where the
+   stock line's clear leading would be: measured, it leaves 10 above and 10
+   below rather than 15. Shrinking it to the height of a line of text would buy
+   that back and was tried — «اون مربعی که تخفیف توش نوشته میشه باید مربع بمونه
+   فقط کمی کوچیکتر بشه». It stays a box; 10 is what a box costs. */
 .vp-card-name {
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  margin-block-start: 5px;
+  margin-block-start: 10px;
   color: rgba(16, 17, 17, 0.78);
   /* «اسم کفش باید سایزش ۱۰ درصد بزرگتر و ده درصد بولدتر بشه», and then five
      percent again on top of that — «باز جا داره ۵ درصد بزرگتر و بولدتر بشه».
@@ -16426,7 +16430,7 @@ button.vp-cart-keep {
 }
 
 .vp-card-price {
-  margin-block-start: -1px;
+  margin-block-start: 4px;
   font-family: 'Vazirmatn', var(--body-font);
   font-weight: 800;
   font-size: 14px;
@@ -16450,20 +16454,22 @@ button.vp-cart-keep {
      two have to measure the same or a row of cards with a cut in it stops
      agreeing with a row without. */
   min-height: 28px;
-  margin-block-start: -7px;
+  margin-block-start: -2px;
 }
 
 /* The cut as a chip, the reference's own device for it.
 
-   `line-height: 1` because a chip is drawn by its padding: inheriting the
-   body's 26px put a 28px slab of tint behind a 10px number — 9 above it and 9
-   below against 6 at the ends — and being the tallest thing in the row it set
-   the whole line's height too. At 1 the chip is 12 and is centred in the line,
-   which leaves 8 of clear above and below it. That is within a pixel of the
-   9.14 / 8.86 the stock line's own text leaves, so one set of margins gives
-   both variants the same 10 and neither card is taller than the other. */
+   A box, and it stays one — «باید مربع بمونه فقط کمی کوچیکتر بشه». It was 28
+   tall, which was not a decision: it inherited the body's 26px line-height and
+   put a slab of tint behind a 10px number, 9 clear above it and 9 below against
+   6 at the ends, and being the tallest thing in the row it set the line's
+   height too. `line-height: 18px` makes it 20 with the padding — a box still,
+   two thirds of a line shorter — centred in the 28 the line now keeps on its
+   own. It was 12 for a round, which is the height at which the chip clears as
+   much as the stock line's text does; that read as a pill rather than a box
+   and was asked back. */
 .vp-card-cut {
-  line-height: 1;
+  line-height: 18px;
   padding: 1px 6px;
   border-radius: 5px;
   background: rgba(192, 151, 47, 0.14);
@@ -16495,13 +16501,13 @@ button.vp-cart-keep {
   display: flex;
   align-items: center;
   min-height: 28px;
-  margin-block-start: -7px;
+  margin-block-start: -2px;
   font-size: 11.5px;
   color: rgba(16, 17, 17, 0.5);
 }
 
 .vp-card-sold {
-  margin-block-start: -6px;
+  margin-block-start: -1px;
   font-size: 10px;
   color: rgba(16, 17, 17, 0.5);
 }
@@ -16520,7 +16526,7 @@ button.vp-cart-keep {
    happens when a button on this site is painted any other gold. */
 .vp-card-buy {
   margin-block-start: auto;
-  padding-block-start: 2.16px;
+  padding-block-start: 7.16px;
 }
 
 .vp-card-add {
@@ -16535,8 +16541,17 @@ button.vp-cart-keep {
   /* Both ends round, at any height this ever takes. */
   border-radius: 999px;
   /* The palest of four yellows, and no outline — «همون کمرنگ اولی بهتره», «اون
-     خط از دور دکمه اضافه کردن بردار». 7% of the fill gold on the card's white,
-     which composites to #FCFAF0.
+     خط از دور دکمه اضافه کردن بردار» — and then a step up from that palest:
+     «دکمه اضافه کردن به سبد خرید ۱۰ درصد پررنگتر بشه». 12% of the fill gold on
+     the card's white now, where it was 7%, which composites to #FBF6E5 rather
+     than #FCFAF0.
+
+     **The literal ten percent is nothing and that is why this is twelve.**
+     7% × 1.1 is 7.7%, and rendered, that moves the ground from #FCFAF0 to
+     #FCF9EE — under two levels of 255 on the channel that carries most of the
+     colour, which is below what a phone in daylight can show. The distance
+     from white is what «پررنگ» means here: 15.2 levels of blue at 7%, 26.0 at
+     12%. Anything under about 10% is the same button.
 
      **This is the one filled control on the site that is not gold, and that is
      deliberate.** «گلد سبز» in CLAUDE.md says a *filled* button is the gold
@@ -16550,7 +16565,7 @@ button.vp-cart-keep {
      this control, so it cannot go back to white without the line coming back
      with it. Which is also why the hover deepens the tint rather than touching
      an edge that is not there. */
-  background: rgba(218, 178, 38, 0.07);
+  background: rgba(218, 178, 38, 0.12);
   color: #101111;
   font-family: 'Vazirmatn', var(--body-font);
   /* 12px, the card name's size. The label is twenty-two characters and it does
@@ -16575,10 +16590,11 @@ button.vp-cart-keep {
   }
 }
 
-/* Twice the tint. There is no edge to light up any more, and `brightness()` on
-   a ground this pale moves it by about one level. */
+/* Twice the tint, still — the ground moved from 7% to 12%, so this moves with
+   it. There is no edge to light up any more, and `brightness()` on a ground
+   this pale moves it by about one level. */
 .vp-card-add:hover {
-  background: rgba(218, 178, 38, 0.14);
+  background: rgba(218, 178, 38, 0.24);
 }
 
 .vp-card-add svg {
