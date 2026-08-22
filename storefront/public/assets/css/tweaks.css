@@ -6076,6 +6076,64 @@ ul.vp-how-list.is-ticked li:before {
   object-fit: contain;
 }
 
+/* More than one photograph: a strip you turn instead of a picture you look at.
+
+   «ممکن هست ۵ عکس اومده باشه اما خود جزئیات محصول ایراد داشته باشه و عکسا ورق
+   نخورن» — and that was exactly it. This page had one photograph and a row of
+   thumbnails that its own comment described as «not controls, because there is
+   nothing to switch to». A supplier's product arrives with five.
+
+   `scroll-snap` rather than a script: the phone's own gesture turns the page,
+   with nothing to load and nothing to go wrong, and the marks under it are
+   anchors that land on the same frames. The script beside them only spares the
+   page the jump an anchor makes and lights the mark that is showing.
+
+   The frames keep the framing the single photograph had — 76% of the square,
+   fitted — so a cut-out looks exactly as it did; `is-supplied` fills instead,
+   for the same reason the card does. */
+.vp-pdp-frames {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  border-radius: inherit;
+  /* The strip is turned by swiping and by the marks under it; a scrollbar
+     across the photograph is neither. */
+  scrollbar-width: none;
+}
+
+.vp-pdp-frames::-webkit-scrollbar {
+  display: none;
+}
+
+.vp-pdp-shot .vp-pdp-frames img {
+  position: static;
+  flex: 0 0 100%;
+  width: 100%;
+  height: 100%;
+  padding: 18% 12%;
+  box-sizing: border-box;
+  object-fit: contain;
+  scroll-snap-align: center;
+}
+
+.vp-pdp-shot.is-supplied .vp-pdp-frames img,
+.vp-pdp-shot.is-supplied > img {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  object-fit: cover;
+}
+
+/* A mark that turns the page is a control and says so under a finger. */
+a.vp-pdp-dot,
+a.vp-pdp-thumb {
+  cursor: pointer;
+}
+
 .vp-pdp-thumbs {
   display: flex;
   gap: 10px;

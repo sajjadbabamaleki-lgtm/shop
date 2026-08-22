@@ -609,6 +609,46 @@ class BasalamImportTest extends TestCase
         $this->assertSame('storage/products/hand-picked.jpg', $product->refresh()->primaryMedia()->path);
     }
 
+    /**
+     * Five photographs are a gallery you can turn, not one picture and four
+     * thumbnails that do nothing.
+     *
+     * «ممکن هست ۵ عکس اومده باشه اما خود جزئیات محصول ایراد داشته باشه و عکسا
+     * ورق نخورن» — which is what it was: the page drew one photograph, and its
+     * own comment said the thumbnails were «not controls, because there is
+     * nothing to switch to».
+     */
+    public function test_a_product_with_several_photographs_gets_a_gallery(): void
+    {
+        $this->writeManifest([$this->payload()]);
+        $this->artisan('basalam:import')->assertSuccessful();
+
+        $product = Product::where('source_id', '9001')->firstOrFail();
+        $page = $this->get('/products/'.$product->slug)->assertOk();
+
+        // Every photograph is in the strip, not just the primary.
+        $page->assertSee('vp-pdp-frames', false);
+        $page->assertSee('storage/basalam/9001-1.jpg', false);
+        $page->assertSee('storage/basalam/9001-2.jpg', false);
+
+        // And the marks under it point at them.
+        $page->assertSee('data-vp-shot="0"', false);
+        $page->assertSee('data-vp-shot="1"', false);
+        $page->assertSee('href="#vp-shot-'.$product->id.'-1"', false);
+    }
+
+    /**
+     * A product with one photograph keeps the page it always had — the strip
+     * standing in for a gallery is not a gallery, and its marks say nothing.
+     */
+    public function test_a_single_photograph_is_left_as_it_was(): void
+    {
+        $page = $this->get('/products/golden-goose')->assertOk();
+
+        $page->assertDontSee('vp-pdp-frames', false);
+        $page->assertDontSee('data-vp-shot', false);
+    }
+
     /** The token is a credential and never reaches the repository. */
     public function test_no_credential_is_hard_coded(): void
     {

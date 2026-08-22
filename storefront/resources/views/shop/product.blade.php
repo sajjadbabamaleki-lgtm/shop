@@ -55,7 +55,11 @@
                 @endphp
 
                 <div class="vp-pdp-gallery">
-                    <div class="vp-pdp-shot">
+                    {{-- `is-supplied` for the same reason the card has it: the
+                         framing below — 76% of the tile, fitted — is measured
+                         for this shop's cut-outs, and a supplier's photograph
+                         has its own margin already in it. --}}
+                    <div class="vp-pdp-shot{{ $product->source ? ' is-supplied' : '' }}">
                         {{-- The brand's name used to sit behind the shoe here,
                              very faint, the way the reference screen has it.
                              «اون نوشته پشت کفش که نوشته گلدن گوس باید پاک بشه
@@ -66,7 +70,26 @@
                              is left behind the shoe is the page itself, 255 at
                              every pixel. `brands.name_latin` is still a real
                              column and nothing else reads it. --}}
-                        @if ($product->primaryMedia())
+                        {{-- More than one photograph is a strip you can swipe,
+                             and one is the picture it always was.
+
+                             The strip is `scroll-snap`, so the phone's own
+                             gesture turns the page with nothing loaded and
+                             nothing to go wrong; the marks below it are
+                             anchors, so they work the same way. The script
+                             underneath only spares the page the jump an anchor
+                             makes and lights the mark that is showing — take it
+                             away and this is still a gallery. --}}
+                        @if ($gallery->count() > 1)
+                            <div class="vp-pdp-frames">
+                                @foreach ($gallery as $i => $shot)
+                                    <img id="vp-shot-{{ $product->id }}-{{ $i }}"
+                                         src="{{ asset($shot->path) }}"
+                                         alt="{{ $product->title }}"
+                                         @if ($i) loading="lazy" @endif>
+                                @endforeach
+                            </div>
+                        @elseif ($product->primaryMedia())
                             <img src="{{ asset($product->imagePath()) }}" alt="{{ $product->title }}">
                         @endif
 
@@ -106,18 +129,37 @@
                         </span>
                     @endif
 
+                    @php
+                        // A full block, not `@php(...)`: the one-line form does
+                        // not survive the parentheses in this expression — it
+                        // compiles to `<?php(` and takes the rest of the
+                        // template with it, which is how $sellerCount below
+                        // came to be undefined.
+                        $live = $gallery->count() > 1;
+                    @endphp
+
                     @if ($shots->count() > 1)
-                        {{-- Dots for the strip under it, the reference's own. They
-                             say how many there are and which one is showing; they
-                             are not controls, because there is nothing to switch
-                             to while the row is standing in for itself. --}}
-                        <div class="vp-pdp-dots" aria-hidden="true">
+                        {{-- Dots for the strip under it, the reference's own.
+                             They say how many there are and which one is
+                             showing. They became controls the day a product
+                             arrived with five real photographs; while the row
+                             is standing in for a single one they are still
+                             what they were, because there is nothing to switch
+                             to. --}}
+                        <div class="vp-pdp-dots" @unless ($live) aria-hidden="true" @endunless>
                             @foreach ($shots as $shot)
-                                <span @class(['vp-pdp-dot', 'is-on' => $loop->first])></span>
+                                @if ($live)
+                                    <a class="vp-pdp-dot{{ $loop->first ? ' is-on' : '' }}"
+                                       data-vp-shot="{{ $loop->index }}"
+                                       href="#vp-shot-{{ $product->id }}-{{ $loop->index }}"
+                                       aria-label="عکس {{ fa_number($loop->iteration) }}"></a>
+                                @else
+                                    <span @class(['vp-pdp-dot', 'is-on' => $loop->first])></span>
+                                @endif
                             @endforeach
                         </div>
 
-                        @include('shop.gallery', ['shots' => $shots])
+                        @include('shop.gallery', ['shots' => $shots, 'live' => $live, 'product' => $product])
                     @endif
                 </div>
 
