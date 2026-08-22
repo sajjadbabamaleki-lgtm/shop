@@ -16281,7 +16281,11 @@ button.vp-cart-keep {
   overflow: hidden;
   /* «جایی که محصول قرار میگیره باید مربع باشه». */
   aspect-ratio: 1;
-  border-radius: 14px;
+  /* A fifth rounder than it was — «کرو گوشه های عکس در فروشگاه ۲۰ درصد بیشتر
+     بشه». 14 → 16.8. One number at every width, because the tile is square at
+     every width too: 162 on a 360px screen, 234.7 above 1200, and the same
+     corner reads the same on all of them. */
+  border-radius: 16.8px;
   background: #F5F5F5;
 }
 

@@ -757,6 +757,14 @@ class CataloguePagesTest extends TestCase
         $this->assertMatchesRegularExpression('/\.vp-card-fav \{[^}]*width: 28\.5px;\s*height: 28\.5px;/s', $css);
         $this->assertMatchesRegularExpression('/\.vp-card-fav \{\s*inset-block-start: 8px;[^}]*border-radius: 8\.58px;/s', $css);
 
+        // A fifth rounder than the 14 it opened at — «کرو گوشه های عکس در
+        // فروشگاه ۲۰ درصد بیشتر بشه». One number at every width, because the
+        // tile is square at every width.
+        $this->assertMatchesRegularExpression(
+            '/\.vp-card-shot \{[^}]*aspect-ratio: 1;[^}]*border-radius: 16\.8px;/s',
+            $css,
+        );
+
         // «ناموجود» is the corner's only occupant now.
         $this->assertMatchesRegularExpression(
             '/\.vp-card-out \{[^}]*padding: 4\.2px 10\.5px;\s*border-radius: 8\.4px;/s',
