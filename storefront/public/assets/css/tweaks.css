@@ -5653,7 +5653,15 @@ ul.vp-how-list.is-ticked li:before {
 
 .vp-shop-section {
   /* Clear of the header, and the same 150 down to the footer that every band
-     of the home page now sits at. */
+     of the home page now sits at.
+
+     The top is published as a variable because something inside it needs to
+     measure from the screen rather than from the panel: the product page's two
+     floating chips are 12 from the screen on all three sides, and the only way
+     to say "12 from the top" from inside a padded box is to subtract the
+     padding. A bare number there would be a copy of this one, and the two would
+     drift the first time either moved. */
+  --vp-shop-top: 40px;
   padding-block: 40px 150px;
   overflow: hidden;
 }
@@ -6395,6 +6403,7 @@ a.vp-pdp-thumb {
    of drift this file exists to stop. */
 @media (max-width: 575px) {
   .vp-shop-section {
+    --vp-shop-top: 10px;
     padding-block: 10px;
   }
 
@@ -14211,8 +14220,18 @@ button.vp-cart-keep {
     display: flex;
     position: absolute;
     z-index: 2;
-    /* 12 from the photograph's own top: the gallery pads 4 above it. */
-    top: 16px;
+    /* 12 from the top of the screen, which is what the sides are — «اون فاصله
+       از بالا باید بشه اندازه فاصلشون از بغلا». It was 12 from the *photograph*
+       and that came to 26 from the screen, because `.vp-shop-section` pads 10
+       above the panel and the gallery pads 4 above the shot. These two hang
+       over the panel's white rather than over the photograph — the shot is 80%
+       and centred, so it is 50 in from each side while they are 12 — so the
+       edge they are read against is the screen's, on all three sides.
+
+       Written as a subtraction from `--vp-shop-top` rather than as a number,
+       because that padding is 10 on a phone and 40 above 575, and a bare 2px
+       would be right at one of those widths and silently wrong at the other. */
+    top: calc(12px - var(--vp-shop-top, 10px));
     align-items: center;
     justify-content: center;
     height: 34px;

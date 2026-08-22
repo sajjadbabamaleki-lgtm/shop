@@ -489,6 +489,46 @@ class CataloguePagesTest extends TestCase
     }
 
     /**
+     * The product page's two floating chips sit 12 from the screen on all
+     * three sides.
+     *
+     * «اون فاصله از بالا باید بشه اندازه فاصلشون از بغلا». The sides were
+     * already 12 — `calc(50% - 50vw + 12px)`, which lands on the screen's edge
+     * from inside a panel with a margin — and the top was 16 from the gallery,
+     * which is 26 from the screen on a phone and 56 above 575, because
+     * `.vp-shop-section` pads 10 at one and 40 at the other.
+     *
+     * So the top is that padding subtracted from 12, and the padding is
+     * published as a variable rather than copied. A bare number would be right
+     * at one width and silently wrong at the other, which is exactly the shape
+     * of the bug this replaces.
+     */
+    public function test_the_products_floating_chips_measure_from_the_screen(): void
+    {
+        $css = file_get_contents(public_path('assets/css/tweaks.css'));
+
+        $this->assertMatchesRegularExpression(
+            '/\.vp-pdp-close,\s*\.vp-pdp-rate \{[^}]*top: calc\(12px - var\(--vp-shop-top, 10px\)\);/s',
+            $css,
+        );
+
+        // The variable has to be set wherever the padding is, or the fallback
+        // quietly becomes the answer at the wrong width.
+        $this->assertMatchesRegularExpression(
+            '/\.vp-shop-section \{[^}]*--vp-shop-top: 40px;\s*padding-block: 40px 150px;/s',
+            $css,
+        );
+        $this->assertMatchesRegularExpression(
+            '/\.vp-shop-section \{\s*--vp-shop-top: 10px;\s*padding-block: 10px;/s',
+            $css,
+        );
+
+        // And the sides are still measured the same way.
+        $this->assertStringContainsString('left: calc(50% - 50vw + 12px);', $css);
+        $this->assertStringContainsString('right: calc(50% - 50vw + 12px);', $css);
+    }
+
+    /**
      * The picker's three gaps, on a phone.
      *
      * «فاصله اسم کفش با انتخاب سایز و انتخاب سایز با انتخاب رنگ و انتخاب رنگ با
