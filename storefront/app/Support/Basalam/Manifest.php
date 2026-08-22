@@ -143,6 +143,18 @@ class Manifest
         ];
     }
 
+    /**
+     * The path every imported photograph starts with.
+     *
+     * The importer needs it to tell its own pictures from one somebody chose
+     * in the panel, and both sides have to derive it from the same place or a
+     * change to `media_dir` would quietly split them.
+     */
+    public function mediaPrefix(): string
+    {
+        return 'storage/'.trim((string) config('services.basalam.media_dir', 'basalam'), '/').'/';
+    }
+
     /** @return array<string, mixed> */
     private function read(string $path): array
     {

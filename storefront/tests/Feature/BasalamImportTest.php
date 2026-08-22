@@ -554,6 +554,61 @@ class BasalamImportTest extends TestCase
         $this->assertSame('storage/basalam/9001-1.jpg', $product->primaryMedia()->path);
     }
 
+    /**
+     * A gallery that changes moves the card's photograph with it.
+     *
+     * The first import of this product had no cover — the gateway sends it
+     * apart from `photos` and the fetch was reading only the list — so the
+     * card carried a detail shot. When the cover arrived on the next run it
+     * took position 0 and the card did not move, because something was
+     * already primary. «عکس هنوز همون یکیه ها».
+     */
+    public function test_a_later_import_moves_the_primary_to_the_new_first_photograph(): void
+    {
+        // First run: the cover is missing, so a detail shot leads.
+        $without = $this->payload();
+        $without['photos_local'] = ['storage/basalam/9001-2.jpg'];
+
+        $this->writeManifest([$without]);
+        $this->artisan('basalam:import')->assertSuccessful();
+
+        $product = Product::where('source_id', '9001')->firstOrFail();
+        $this->assertSame('storage/basalam/9001-2.jpg', $product->primaryMedia()->path);
+
+        // Second run: the cover arrives and leads the gallery.
+        $this->writeManifest([$this->payload()]);
+        $this->artisan('basalam:import')->assertSuccessful();
+
+        $product->refresh()->load('media');
+
+        $this->assertSame('storage/basalam/9001-1.jpg', $product->primaryMedia()->path);
+        $this->assertSame(1, $product->media()->where('is_primary', true)->count(), 'two primaries is none');
+    }
+
+    /**
+     * But a photograph chosen in the panel outranks the supplier's.
+     */
+    public function test_a_primary_chosen_by_hand_is_left_alone(): void
+    {
+        $this->writeManifest([$this->payload()]);
+        $this->artisan('basalam:import')->assertSuccessful();
+
+        $product = Product::where('source_id', '9001')->firstOrFail();
+
+        // Somebody uploads their own photograph in the panel and makes it the
+        // card's — a different path, because it is not the importer's.
+        $own = $product->media()->create([
+            'path' => 'storage/products/hand-picked.jpg',
+            'position' => 9,
+            'is_primary' => true,
+        ]);
+        $product->media()->whereKeyNot($own->id)->update(['is_primary' => false]);
+
+        $this->artisan('basalam:import')->assertSuccessful();
+
+        $this->assertSame('storage/products/hand-picked.jpg', $product->refresh()->primaryMedia()->path);
+    }
+
     /** The token is a credential and never reaches the repository. */
     public function test_no_credential_is_hard_coded(): void
     {

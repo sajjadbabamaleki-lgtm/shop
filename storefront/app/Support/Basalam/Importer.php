@@ -213,7 +213,25 @@ class Importer
             return;
         }
 
-        $hasPrimary = $product->media()->where('is_primary', true)->exists();
+        /*
+         * Whether the card's photograph is ours to move.
+         *
+         * It was «set the first one primary if nothing is primary yet», which
+         * is right the first time and wrong on every run after it: the second
+         * import of a product whose gallery had changed left the card showing
+         * whichever picture happened to be first the *previous* time. That is
+         * exactly what the cover fix ran into — the cover arrived, took
+         * position 0, and the card went on showing the detail shot that had
+         * been position 0 before, because something was already primary.
+         *
+         * So a primary that is one of this import's own pictures may be moved,
+         * and a primary that is not — a photograph somebody chose in the panel,
+         * which lives under a different path — is left exactly where it is.
+         * The panel's choice outranks the supplier's.
+         */
+        $prefix = $this->manifest->mediaPrefix();
+        $primary = $product->media()->where('is_primary', true)->first();
+        $mayMovePrimary = $primary === null || str_starts_with($primary->path, $prefix);
 
         foreach (array_values($photos) as $position => $path) {
             $media = VariantMedia::updateOrCreate(
@@ -229,9 +247,9 @@ class Importer
                 ]
             );
 
-            if (! $hasPrimary && $position === 0) {
+            if ($mayMovePrimary && $position === 0 && ! $media->is_primary) {
+                $product->media()->update(['is_primary' => false]);
                 $media->update(['is_primary' => true]);
-                $hasPrimary = true;
             }
         }
     }
