@@ -16156,6 +16156,33 @@ button.vp-cart-keep {
   object-fit: contain;
 }
 
+/* A supplier's photograph fills the tile instead.
+
+   «عکس باید کل اون فضای اختصاص داده برای عکس کفشو پوشش بده», about the first
+   imported card, and the difference is in what the two kinds of picture are.
+   This shop's own are **cut-outs**: a shoe on nothing, 1400×990, and the rule
+   above exists because cropping one to a square takes the toe or the heel off
+   the silhouette. A supplier's is a **photograph** — a shoe on a surface, with
+   its own margin already in it — and fitting that inside 80% of the tile puts
+   a margin inside a margin, which is the grey band on three sides of the first
+   one imported.
+
+   So it covers, and the 15px nudge the phone gives a cut-out comes off with
+   it: both were measured for a picture this one is not. Nothing about the
+   shop's own tiles changes — they never carry this class.
+
+   The crop this risks is the one the rule above refuses, and it is a different
+   risk here: Basalam serves square originals, so a square tile takes all of a
+   square photograph. Where a seller uploaded a tall one it loses the top and
+   foot of the *frame*, not of the shoe, which sits in the middle of it. */
+.vp-card-shot.is-supplied img {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: none;
+}
+
 .vp-card-new {
   position: absolute;
   z-index: 2;
@@ -16322,17 +16349,6 @@ button.vp-cart-keep {
 @media (max-width: 991.98px) {
   .vp-card-shot img {
     transform: translateY(15px);
-  }
-
-  /* Except on a photograph the shop did not prepare.
-     The paragraph above measures the 15 against this catalogue's own
-     1400×990 cut-outs and ends by saying a photograph squarer than 4:3 would
-     eat the margin it relies on. The catalogue now carries a supplier's, at
-     whatever shape the seller uploaded, and the first one imported came out
-     with its foot sliced off against the tile's `overflow: hidden`. A picture
-     nobody framed for this tile is centred in it instead. */
-  .vp-card-shot.is-supplied img {
-    transform: none;
   }
 
   .vp-card-fav {

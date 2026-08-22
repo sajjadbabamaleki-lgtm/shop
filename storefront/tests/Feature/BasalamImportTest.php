@@ -510,6 +510,50 @@ class BasalamImportTest extends TestCase
         $this->get('/products')->assertOk()->assertDontSee('vp-card-shot is-supplied', false);
     }
 
+    /**
+     * The cover leads the gallery, and nothing is fetched twice.
+     *
+     * «عکس اول همیشه متفاوت از باقی عکساس» — the stall's first picture is the
+     * one composed to be seen small, and the rest are detail shots. The
+     * payload names it separately as `photo` and repeats it somewhere inside
+     * `photos`, so taking `photos` in the order it arrives puts a close-up of
+     * a heel on the card.
+     */
+    public function test_the_cover_photograph_leads_and_is_not_duplicated(): void
+    {
+        Storage::fake('public');
+
+        Http::fake([
+            '*/v1/vendors/4242/products*' => Http::response([
+                'data' => [['id' => 9001, 'title' => 'کتونی زنانه ویکی']],
+                'total_count' => 1,
+                'total_page' => 1,
+            ]),
+            '*/v1/products/9001*' => Http::response($this->payload()),
+            'https://statics.basalam.com/*' => Http::response('a-jpeg', 200),
+        ]);
+
+        $this->artisan('basalam:fetch')->assertSuccessful();
+
+        $written = json_decode((string) file_get_contents($this->manifestRoot.'/products/9001.json'), true);
+
+        $this->assertSame(
+            ['storage/basalam/9001-1.jpg', 'storage/basalam/9001-2.jpg'],
+            $written['photos_local'],
+            'the cover has to come first, and only once',
+        );
+
+        $this->artisan('basalam:import')->assertSuccessful();
+
+        $product = Product::where('source_id', '9001')->firstOrFail();
+
+        $this->assertSame(
+            ['storage/basalam/9001-1.jpg', 'storage/basalam/9001-2.jpg'],
+            $product->media()->orderBy('position')->pluck('path')->all(),
+        );
+        $this->assertSame('storage/basalam/9001-1.jpg', $product->primaryMedia()->path);
+    }
+
     /** The token is a credential and never reaches the repository. */
     public function test_no_credential_is_hard_coded(): void
     {
@@ -567,9 +611,13 @@ class BasalamImportTest extends TestCase
             'status' => ['name' => 'published', 'value' => 2976],
             'category' => ['id' => 12, 'title' => 'کفش زنانه'],
             'category_list' => [['id' => 12, 'title' => 'کفش زنانه']],
+            // As the gateway sends it: `photo` is the cover the stall shows,
+            // and `photos` carries every picture — not promised to lead with
+            // the cover, and here deliberately not doing so.
+            'photo' => ['id' => 1, 'original' => 'https://statics.basalam.com/public/users/x/1.jpg'],
             'photos' => [
-                ['id' => 1, 'original' => 'https://statics.basalam.com/public/users/x/1.jpg'],
                 ['id' => 2, 'original' => 'https://statics.basalam.com/public/users/x/2.jpg'],
+                ['id' => 1, 'original' => 'https://statics.basalam.com/public/users/x/1.jpg'],
             ],
             'photos_local' => [
                 'storage/basalam/'.$id.'-1.jpg',

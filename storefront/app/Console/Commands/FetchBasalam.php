@@ -214,10 +214,38 @@ class FetchBasalam extends Command
      */
     private function photographs(Client $client, Manifest $manifest, array $product): array
     {
-        $photos = (array) ($product['photos'] ?? []);
+        /*
+         * The cover first, then the rest, in the stall's own order.
+         *
+         * «عکس ها باید با همون ترتیبی بیان که تو باسلام هستش چون عکس اول همیشه
+         * متفاوت از باقی عکساس» — and the payload carries the cover twice over:
+         * once as `photo`, which is the one the stall shows on its own card,
+         * and once somewhere inside `photos`, which is not promised to lead
+         * with it. Taking `photos` as it comes therefore lands a detail shot
+         * on the card about as often as not.
+         *
+         * So `photo` is put at the head and skipped by id where it turns up
+         * again, and everything after it keeps the order the seller arranged.
+         * The gallery is written in this order and `is_primary` goes to the
+         * first, so the card and the stall show the same picture.
+         */
+        $photos = [];
 
-        if ($photos === [] && isset($product['photo'])) {
-            $photos = [$product['photo']];
+        if (isset($product['photo']) && is_array($product['photo'])) {
+            $photos[] = $product['photo'];
+        }
+
+        foreach ((array) ($product['photos'] ?? []) as $photo) {
+            if (! is_array($photo)) {
+                continue;
+            }
+
+            $isCover = isset($photo['id'], $product['photo']['id'])
+                && $photo['id'] === $product['photo']['id'];
+
+            if (! $isCover) {
+                $photos[] = $photo;
+            }
         }
 
         $paths = [];
