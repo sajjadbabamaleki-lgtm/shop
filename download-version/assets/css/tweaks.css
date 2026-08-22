@@ -13511,7 +13511,21 @@ button.vp-cart-keep {
   pointer-events: none;
 }
 
-.vp-pick-size span {
+/* The chip is the *direct* child span, and the `>` is load-bearing.
+
+   Each chip carries three spans inside it — `.vp-size-eu`, `.vp-size-us`,
+   `.vp-size-cm`, one per unit, with CSS showing whichever the switch has on.
+   Written as `.vp-pick-size span` this rule drew a 48×44 chip with its own
+   background for each of *those* as well, and the innermost one painted over
+   the outer. The gold below lands on the outer span — it is the input's
+   sibling — so a chosen size computed as gold and painted white: «باید گلد بشه
+   سایز انتخاب شده», and before that «روشون میزنم انتخاب نمیشه», because a chip
+   that does not change when you press it has not been pressed as far as
+   anybody can tell.
+
+   Measured after, at 390: the chosen chip paints 229,190,59 at its centre —
+   the ramp's midpoint — and every other chip 255. */
+.vp-pick-size > span {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -14509,7 +14523,8 @@ button.vp-cart-keep {
      count at the end of the line: 48.4 → 45.98, corner 45.98 × 0.30119 =
      13.85. The row now holds five squares, the box and five 8 gaps in 358.9 of
      the 362 it has at 390. */
-  .vp-pick-size span {
+  /* The direct child again — see the note on the rule above. */
+  .vp-pick-size > span {
     width: var(--vp-chip);
     max-width: 100%;
     min-width: 0;

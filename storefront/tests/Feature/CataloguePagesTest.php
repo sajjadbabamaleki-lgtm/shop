@@ -264,6 +264,34 @@ class CataloguePagesTest extends TestCase
     }
 
     /**
+     * The chosen size is gold, and the selector that makes it so is `>`.
+     *
+     * Each chip carries three spans inside it — one per size unit, EU, US and
+     * CM — and `.vp-pick-size span` drew a full chip, with its own background,
+     * for each of them as well as for the chip itself. The gold lands on the
+     * outer one, because that is the radio's sibling, so the innermost span
+     * painted white straight over it: a chosen size computed as gold and
+     * looked untouched, and «روشون میزنم انتخاب نمیشه» is what a control that
+     * cannot show it was pressed looks like from outside.
+     *
+     * Asserted against the stylesheet because nothing else here can see it:
+     * the markup was right, the computed style was right, and only the paint
+     * was wrong. `check-parity.js` renders the home page and never opens this
+     * one.
+     */
+    public function test_a_size_chip_is_styled_by_its_direct_child_only(): void
+    {
+        $css = (string) file_get_contents(public_path('assets/css/tweaks.css'));
+
+        $this->assertStringContainsString('.vp-pick-size > span {', $css);
+        $this->assertStringNotContainsString(
+            ".vp-pick-size span {\n",
+            $css,
+            'A chip styled by any descendant span paints its own unit labels over the gold.',
+        );
+    }
+
+    /**
      * Sold out stays in the shop and says so.
      *
      * This used to assert the opposite — an empty shelf left the listing
