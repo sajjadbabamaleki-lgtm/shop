@@ -296,19 +296,6 @@ class Product extends Model
     }
 
     /**
-     * Published inside the window the listing calls new.
-     *
-     * A product is "new" for a while after it goes on sale and then quietly
-     * stops being it; nothing has to be switched off by hand. `published_at`
-     * is nullable, so a draft that never went live is never new.
-     */
-    public function isNew(int $days = 21): bool
-    {
-        return $this->published_at !== null
-            && $this->published_at->greaterThanOrEqualTo(now()->subDays($days));
-    }
-
-    /**
      * The colourways offered by the product page's colour selector, each
      * carrying its own sizes. Changing colour must update media, price and
      * availability together (spec 16.1), so they travel as one structure.

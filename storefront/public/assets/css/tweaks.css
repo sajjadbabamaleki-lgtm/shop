@@ -16296,25 +16296,6 @@ button.vp-cart-keep {
   transform: none;
 }
 
-/* Five percent larger than it was — «مستطیل جدید تو گوشه راست ۵ درصد بزرگتر
-   بشه» — which is every measurement of the box and not only its type: 4/10
-   padding → 4.2/10.5, 10px → 10.5, and the corner with them, or a chip that
-   grows keeps a corner drawn for a smaller one. Measured after: 42.9 × 23.1
-   where it was 40.86 × 22. */
-.vp-card-new {
-  position: absolute;
-  z-index: 2;
-  inset-inline-start: 8px;
-  inset-block-start: 8px;
-  padding: 4.2px 10.5px;
-  border-radius: 8.4px;
-  background: #101111;
-  color: #FFFFFF;
-  font-size: 10.5px;
-  font-weight: 700;
-  line-height: 1.4;
-}
-
 /* «ناموجود», in the badge's place.
 
    The listing shows what the shop has run out of rather than hiding it, so the
@@ -16457,20 +16438,23 @@ button.vp-cart-keep {
   border: 0;
   /* Both ends round, at any height this ever takes. */
   border-radius: 999px;
-  /* White, with the page's own hairline, and the words in ink — «دکمه هم سفید
-     و نوشته داخلش مشکی بشه», chosen off four treatments rendered on the real
-     grid.
+  /* The palest of four yellows, and no outline — «همون کمرنگ اولی بهتره», «اون
+     خط از دور دکمه اضافه کردن بردار». 7% of the fill gold on the card's white,
+     which composites to #FCFAF0.
 
-     **This is the one filled-looking control on the site that is not gold, and
-     that is deliberate.** «گلد سبز» in CLAUDE.md says a *filled* button is the
-     gold gradient with white on it, and it is right: every screen with one
-     button on it keeps that. A card is the case the rule was not written for
-     — six of these appear at once, and six gold slabs in a grid outweigh the
-     photographs they are selling. The eye should land on the shoe. The
-     hairline is the same 1.5px the paginator and the filter chips wear, and it
-     goes gold on hover, which is where the gold went. */
-  background: #FFFFFF;
-  box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.12);
+     **This is the one filled control on the site that is not gold, and that is
+     deliberate.** «گلد سبز» in CLAUDE.md says a *filled* button is the gold
+     gradient with white on it, and it is right: every screen with one button
+     on it keeps that. A card is the case the rule was not written for — six of
+     these appear at once, and six gold slabs in a grid outweigh the
+     photographs they are selling. The eye should land on the shoe.
+
+     **The tint is the whole button now.** It was white with a 1.5px hairline
+     for a round; with the hairline gone the ground is the only thing drawing
+     this control, so it cannot go back to white without the line coming back
+     with it. Which is also why the hover deepens the tint rather than touching
+     an edge that is not there. */
+  background: rgba(218, 178, 38, 0.07);
   color: #101111;
   font-family: 'Vazirmatn', var(--body-font);
   /* 12px, the card name's size. The label is twenty-two characters and it does
@@ -16495,10 +16479,10 @@ button.vp-cart-keep {
   }
 }
 
-/* `brightness()` does nothing to white, so the hover is the hairline — the
-   same move `.vp-page:hover` makes. */
+/* Twice the tint. There is no edge to light up any more, and `brightness()` on
+   a ground this pale moves it by about one level. */
 .vp-card-add:hover {
-  box-shadow: inset 0 0 0 1.5px rgba(164, 127, 37, 0.45);
+  background: rgba(218, 178, 38, 0.14);
 }
 
 .vp-card-add svg {
@@ -16513,21 +16497,27 @@ button.vp-cart-keep {
    colour of the fill: greyed words on a grey wash, and no hover at all. */
 .vp-card-add.is-off {
   background: rgba(16, 17, 17, 0.05);
-  box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.08);
   color: rgba(16, 17, 17, 0.42);
   cursor: default;
 }
 
 .vp-card-add.is-off:hover {
-  box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.08);
+  background: rgba(16, 17, 17, 0.05);
 }
 
 /* --------------------------------------------------------------------------
-   The card's tile, on the phone: the photograph 15 lower, the favourite as one
-   of the header's squares in the head corner, and the badge in gold.
+   The card's tile, on the phone: the photograph 15 lower and the favourite as
+   one of the header's squares in the head corner.
 
    «عکس محصول باید ۱۵ پیکسل بیاد پایینتر» / «لوگوی قلب باید تو یه مربع کرو مث
-   مربع های هدر بره گوشه ی بالا چپ» / «نوشته جدید باید رنگ گلد باشه نه مشکی».
+   مربع های هدر بره گوشه ی بالا چپ».
+
+   There was a «جدید» chip in the other corner and three rounds went into its
+   colour — black on gold, then white on gold, then gold on white — before
+   «کلا کلمه جدید پاک بشه با دکمش» took the whole thing off. What the rounds
+   settled is worth keeping if anything gold ever goes back on this tile:
+   white type on the gold ramp is 3.0:1 at 10px and fails AA, #101111 on it is
+   6.94:1, and #8B7217 on white is 4.65 where #A08119 is 3.72.
 
    Asked for the phone and written for the phone — «ما میخوایم رو نسخه موبایل
    کار کنیم» — so it is scoped to the width the card was designed at. Above 992
@@ -16558,14 +16548,9 @@ button.vp-cart-keep {
    material at the card's scale.
 
    Its ink stays #101111. «مث مربع های هدر» is about the square — and the
-   header's glyphs are gold because the band has no other gold in it, while
-   this tile now has the badge two corners away. Two golds on one photograph
-   would be the second gold this file's header block spends a paragraph
-   refusing.
+   header's glyphs are gold because the band has no other gold in it, which a
+   photograph is not short of.
 
-   **The badge takes the page's one gold**, the button ramp #C0972F → #E3B54A,
-   with #101111 on it — the basket count's exact pairing, already measured at
-   6.94:1 and AA. Not white on gold: at 10px that is 3.0:1 and fails.
    -------------------------------------------------------------------------- */
 @media (max-width: 991.98px) {
   .vp-card-shot img {
@@ -16584,28 +16569,6 @@ button.vp-cart-keep {
       0 0 8px -2px rgba(16, 17, 17, 0.14);
   }
 
-  /* «رنگش بشه سفید بجای گلد» — so the ground and the word swap places: the
-     chip is white and «جدید» is the gold, which is also where this started
-     («نوشته جدید باید رنگ گلد باشه نه مشکی») before the gold moved to the
-     ground and took the word with it.
-
-     **`--vp-gold-ink`, not `--vp-gold`.** Measured on this chip's white:
-     #8B7217 is 4.65:1 and #A08119 is 3.72, and 10.5px bold needs 4.5. That is
-     the «گلد سبز» rule read the way it is written — the dark golds stay where
-     they are, as text — and it is the only gold on the page that passes here.
-
-     **The shadow is the favourite's, exactly.** A white chip on a #F5F5F5 tile
-     is 1.09:1: the box itself is invisible and only the word would show. The
-     two-stop shadow is what draws it, and borrowing the square's rather than
-     inventing one makes the tile's two corners the same material — which is
-     what the block above spends a paragraph getting right. */
-  .vp-card-new {
-    background: #FFFFFF;
-    color: var(--vp-gold-ink);
-    box-shadow:
-      0 0 2px rgba(16, 17, 17, 0.10),
-      0 0 8px -2px rgba(16, 17, 17, 0.14);
-  }
 }
 
 /* The filter rail, folded on a phone and in the sidebar above 992.

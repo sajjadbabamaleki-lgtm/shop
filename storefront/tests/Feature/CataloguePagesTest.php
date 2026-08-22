@@ -489,18 +489,19 @@ class CataloguePagesTest extends TestCase
     }
 
     /**
-     * The tile's two corners.
+     * The tile's corners: one control and one label, and nothing else.
      *
-     * «مربع قلب فیوریت ۵ درصد کوچیکتر و مستطیل جدید تو گوشه راست ۵ درصد بزرگتر
-     * بشه و رنگش بشه سفید بجای گلد».
+     * The favourite is five percent smaller than it was — «مربع قلب فیوریت ۵
+     * درصد کوچیکتر» — and that number has a second measurement hanging off it
+     * that is easy to miss: the corner is the header's ratio, so it has to be
+     * recomputed with the width or the square stops being the header's square.
      *
-     * Both numbers have a second measurement hanging off them that is easy to
-     * miss, which is why they are held here: the favourite's corner is the
-     * header's ratio and has to be recomputed when the square changes, and a
-     * white chip on a #F5F5F5 tile is 1.09:1 — the box is invisible and only
-     * the shadow draws it.
+     * The «جدید» chip that stood in the other corner is gone, word and box —
+     * «کلا کلمه جدید پاک بشه با دکمش». It is asserted absent because it was
+     * asked for, styled over three rounds and then asked away, and the way it
+     * comes back is somebody restoring a rule that looks orphaned.
      */
-    public function test_the_badge_and_the_favourite_keep_what_their_sizes_imply(): void
+    public function test_the_tile_has_a_favourite_and_at_most_one_label(): void
     {
         $css = file_get_contents(public_path('assets/css/tweaks.css'));
 
@@ -509,34 +510,29 @@ class CataloguePagesTest extends TestCase
         $this->assertMatchesRegularExpression('/\.vp-card-fav \{[^}]*width: 28\.5px;\s*height: 28\.5px;/s', $css);
         $this->assertMatchesRegularExpression('/\.vp-card-fav \{\s*inset-block-start: 8px;[^}]*border-radius: 8\.58px;/s', $css);
 
-        // «جدید» and «ناموجود» are one box in two fills, and only one of them
-        // is ever drawn: different sizes would change the corner's shape with
-        // the shoe's stock.
-        foreach (['vp-card-new', 'vp-card-out'] as $chip) {
-            $this->assertMatchesRegularExpression(
-                '/\.'.$chip.' \{[^}]*padding: 4\.2px 10\.5px;\s*border-radius: 8\.4px;/s',
-                $css,
-                "{$chip} did not grow with the other one.",
-            );
-            $this->assertMatchesRegularExpression('/\.'.$chip.' \{[^}]*font-size: 10\.5px;/s', $css);
-        }
-
-        // White ground, gold word — and the dark gold, because 10.5px bold on
-        // white is 4.65:1 at #8B7217 and 3.72 at #A08119.
+        // «ناموجود» is the corner's only occupant now.
         $this->assertMatchesRegularExpression(
-            '/\.vp-card-new \{\s*background: #FFFFFF;\s*color: var\(--vp-gold-ink\);\s*box-shadow:/s',
+            '/\.vp-card-out \{[^}]*padding: 4\.2px 10\.5px;\s*border-radius: 8\.4px;/s',
             $css,
         );
-        $this->assertStringContainsString('--vp-gold-ink: #8B7217', $css);
+        $this->assertStringNotContainsString('.vp-card-new', $css);
+
+        $card = file_get_contents(resource_path('views/shop/card.blade.php'));
+
+        $this->assertStringNotContainsString('vp-card-new', $card);
+        $this->assertStringNotContainsString('>جدید<', $card);
+
+        // And the method the chip was the only caller of went with it.
+        $this->assertFalse(method_exists(Product::class, 'isNew'));
     }
 
     /**
-     * Round at both ends, white, and the words in ink.
+     * Round at both ends, the palest yellow, and the words in ink.
      *
      * «دکمه ۲ طرف گرد» is a shape, and a radius in pixels stops being round the
      * moment the button's height changes.
      */
-    public function test_the_card_button_is_a_white_pill_with_the_words_in_ink(): void
+    public function test_the_card_button_is_a_pale_pill_with_the_words_in_ink(): void
     {
         $css = file_get_contents(public_path('assets/css/tweaks.css'));
 
@@ -545,22 +541,23 @@ class CataloguePagesTest extends TestCase
             $css,
             'A pixel radius is not round at every height this button takes.',
         );
-        // White with the words in ink, and the page's own 1.5px hairline —
-        // «دکمه هم سفید و نوشته داخلش مشکی بشه». The one filled-looking control
-        // here that is not gold, because six of it appear at once and six gold
-        // slabs outweigh the photographs they are selling; «گلد سبز» is about
-        // the single button on a screen, and a card is not that.
-        $this->assertMatchesRegularExpression('/\.vp-card-add \{[^}]*background: #FFFFFF;/s', $css);
-        $this->assertMatchesRegularExpression('/\.vp-card-add \{[^}]*color: #101111;/s', $css);
+        // The palest of four yellows and the words in ink — «همون کمرنگ اولی
+        // بهتره». The one filled control here that is not gold: six of it
+        // appear at once and six gold slabs outweigh the photographs they are
+        // selling, and «گلد سبز» is about the single button on a screen.
         $this->assertMatchesRegularExpression(
-            '/\.vp-card-add \{[^}]*box-shadow: inset 0 0 0 1\.5px rgba\(16, 17, 17, 0\.12\);/s',
+            '/\.vp-card-add \{[^}]*background: rgba\(218, 178, 38, 0\.07\);\s*color: #101111;/s',
             $css,
         );
 
-        // The gold went to the hover, because brightness() does nothing to
-        // white.
+        // **No outline** — «اون خط از دور دکمه اضافه کردن بردار» — which is
+        // what makes the tint load-bearing: white here would be an invisible
+        // button, so the ground and the missing hairline have to move together.
+        $this->assertDoesNotMatchRegularExpression('/\.vp-card-add \{[^}]*box-shadow:/s', $css);
+
+        // The hover deepens the ground, there being no edge to light.
         $this->assertMatchesRegularExpression(
-            '/\.vp-card-add:hover \{\s*box-shadow: inset 0 0 0 1\.5px rgba\(164, 127, 37, 0\.45\);/s',
+            '/\.vp-card-add:hover \{\s*background: rgba\(218, 178, 38, 0\.14\);/s',
             $css,
         );
 

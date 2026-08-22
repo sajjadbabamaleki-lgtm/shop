@@ -21,8 +21,9 @@
       every product — printing «۰ فروش» on all of them says less than saying
       nothing. It appears on its own once orders exist.
 
-    The «جدید» badge is real too: `isNew()` is `published_at` inside a window,
-    so a product stops being new by itself.
+    There is no «جدید» chip any more — it was asked for and then asked away
+    again, with `Product::isNew()`, which it was the only caller of. The corner
+    is «ناموجود»'s alone now.
 --}}
 @php
     $offer = $product->offerHere();
@@ -55,12 +56,11 @@
              sliced off inside the tile's `overflow: hidden`. --}}
         <a class="vp-card-shot{{ $product->source ? ' is-supplied' : '' }}" href="{{ storefront_route('product', $product) }}">
             <img src="{{ asset($shot) }}" alt="{{ $product->title }}" loading="lazy">
-            {{-- One badge, and out of stock wins it: a shoe that is both new
-                 and unavailable is unavailable first. --}}
+            {{-- «کلا کلمه جدید پاک بشه با دکمش». There was a «جدید» chip in
+                 this corner and it is gone, badge and word together; what is
+                 left is the one thing the corner has to be able to say. --}}
             @if ($out)
                 <span class="vp-card-out">ناموجود</span>
-            @elseif ($product->isNew())
-                <span class="vp-card-new">جدید</span>
             @endif
         </a>
         <button type="button" class="vp-card-fav" aria-label="افزودن {{ $product->title }} به علاقه‌مندی‌ها">
