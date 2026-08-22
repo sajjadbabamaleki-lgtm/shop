@@ -14,6 +14,7 @@ use App\Support\Tenancy\TenantContext;
 use Database\Seeders\BranchSeeder;
 use Database\Seeders\CatalogueSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 /**
@@ -316,11 +317,17 @@ class CataloguePagesTest extends TestCase
             ->assertSee('کتونی جردن وان ایر', false)
             ->assertSee('ناموجود', false);
 
-        // Its page opens rather than 404ing, and offers nothing to add.
-        $this->get('/shiraz/products/jordan-one-air')
+        // Its page opens rather than 404ing, and offers none of *its* sizes to
+        // add. Not `name="variant"` outright any more: the related shoes at the
+        // foot of the page are cards, and a card has a basket button now, so
+        // the page carries other products' variants on purpose.
+        $page = $this->get('/shiraz/products/jordan-one-air')
             ->assertOk()
-            ->assertSee('فعلاً موجود نیست', false)
-            ->assertDontSee('name="variant"', false);
+            ->assertSee('فعلاً موجود نیست', false);
+
+        foreach ($variants as $variant) {
+            $page->assertDontSee('name="variant" value="'.$variant.'"', false);
+        }
 
         // Central still has stock, so nothing there has changed.
         $this->get('/products')->assertSee('کتونی جردن وان ایر', false);
@@ -330,6 +337,127 @@ class CataloguePagesTest extends TestCase
             $this->shiraz,
             fn () => $this->assertFalse(Product::purchasable()->whereKey($product->id)->exists()),
         );
+    }
+
+    /**
+     * The card's basket button.
+     *
+     * «تو قسمت فروشگاه کارتهای فروش باید پایینشون یه دکمه ۲ طرف گرد داشته باشن
+     * که روش نوشته باشه اضافه کردن به سبد خرید» — and a button that says that
+     * has to do it. What it adds is `addableVariant()`: the default size when
+     * the branch can supply it, the first one it can otherwise. Adding the
+     * default blindly would put a line in the basket that the checkout then
+     * refuses, because a listing shows a shoe while *any* size is sellable.
+     */
+    public function test_the_card_adds_a_size_this_branch_can_actually_supply(): void
+    {
+        // Golden Goose is seeded in two sizes, which is what this needs: one
+        // to sell out and one to still be there.
+        $product = Product::where('slug', 'golden-goose')->firstOrFail();
+
+        $this->tenant->forBranch($this->shiraz, fn () => BranchInventory::where('variant_id', $product->default_variant_id)
+            ->update(['stock_on_hand' => 0]));
+
+        $addable = $this->tenant->forBranch($this->shiraz, fn () => Product::with([
+            'variants.offer', 'variants.stock', 'defaultVariant.offer', 'defaultVariant.stock',
+        ])->whereKey($product->id)->firstOrFail()->addableVariant());
+
+        $this->assertNotNull($addable, 'The other size is still sellable.');
+        $this->assertNotSame($product->default_variant_id, $addable->id, 'The sold-out size is what a naive button would post.');
+
+        $this->get('/shiraz/products')
+            ->assertOk()
+            ->assertSee('اضافه کردن به سبد خرید', false)
+            ->assertSee('name="variant" value="'.$addable->id.'"', false)
+            ->assertDontSee('name="variant" value="'.$product->default_variant_id.'"', false);
+
+        // And the button is a button: posting it puts the shoe in the basket.
+        $this->post('/shiraz/cart', ['variant' => $addable->id])->assertRedirect();
+
+        $this->get('/shiraz/cart')->assertOk()->assertSee('کتونی گلدن گوس', false);
+    }
+
+    public function test_a_sold_out_card_keeps_the_shape_and_loses_the_button(): void
+    {
+        $product = Product::where('slug', 'jordan-one-air')->firstOrFail();
+        $variants = $product->variants()->pluck('id');
+
+        $this->tenant->forBranch($this->shiraz, fn () => BranchInventory::whereIn('variant_id', $variants)
+            ->update(['stock_on_hand' => 0]));
+
+        $listing = $this->get('/shiraz/products')->assertOk();
+
+        // The dead pill is drawn — a card missing its foot would leave the row
+        // ragged — and none of this shoe's sizes is offered to the basket. The
+        // other shoes on the page keep their buttons, so the label itself is
+        // no test of anything.
+        $listing->assertSee('vp-card-add is-off', false);
+
+        foreach ($variants as $variant) {
+            $listing->assertDontSee('name="variant" value="'.$variant.'"', false);
+        }
+    }
+
+    /**
+     * The button reads a variant off every card, so the size it names has to
+     * come out of the eager load rather than a query of its own.
+     *
+     * Counting queries against a fixed number would only measure the shell.
+     * What matters is the slope: a listing of every shoe must cost the same as
+     * a listing of one, or the page gets dearer with every product imported —
+     * and at twenty-four cards to a page nothing on the rendered page would
+     * show it.
+     */
+    public function test_the_listing_costs_the_same_whether_it_shows_one_shoe_or_all_of_them(): void
+    {
+        $this->get('/products')->assertOk();
+
+        $count = function (string $url): int {
+            $queries = 0;
+            DB::listen(function () use (&$queries) {
+                $queries++;
+            });
+
+            $this->get($url)->assertOk();
+
+            DB::flushQueryLog();
+
+            return $queries;
+        };
+
+        $all = $count('/products');
+        $one = $count('/products?q=جردن');
+
+        $this->assertSame($one, $all, "Six shoes cost {$all} queries and one cost {$one}; the difference is a lookup per card.");
+    }
+
+    /**
+     * Round at both ends, and gold the one way a pressed thing is gold here.
+     *
+     * «دکمه ۲ طرف گرد» is a shape, and a radius in pixels stops being round
+     * the moment the button's height changes. The colour is the «گلد سبز»
+     * rule in CLAUDE.md: a filled control is the fill gradient with white on
+     * it, and every other gold on a button has come back as a complaint.
+     */
+    public function test_the_card_button_is_a_gold_pill(): void
+    {
+        $css = file_get_contents(public_path('assets/css/tweaks.css'));
+
+        $this->assertMatchesRegularExpression(
+            '/\.vp-card-add \{[^}]*border-radius: 999px;/s',
+            $css,
+            'A pixel radius is not round at every height this button takes.',
+        );
+        $this->assertMatchesRegularExpression(
+            '/\.vp-card-add \{[^}]*background: linear-gradient\(90deg, var\(--vp-gold-fill\) 0%, var\(--vp-gold-lit\) 100%\);/s',
+            $css,
+            'See «گلد سبز»: a button on this site is the fill gradient or it is wrong.',
+        );
+
+        // And it sits at the foot, not under the last line of text — cards in
+        // one row are different heights and the buttons have to agree.
+        $this->assertMatchesRegularExpression('/\.vp-card-buy \{[^}]*margin-block-start: auto;/s', $css);
+        $this->assertMatchesRegularExpression('/\.vp-card \{[^}]*height: 100%;/s', $css);
     }
 
     /**

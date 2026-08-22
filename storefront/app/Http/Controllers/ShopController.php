@@ -184,7 +184,7 @@ class ShopController extends Controller
             ->pricedHere()
             ->countingSales()
             ->countingRecentSales()
-            ->with(['brand', 'media', 'variants.offer', 'variants.stock', 'defaultVariant.offer']);
+            ->with(['brand', 'media', 'variants.offer', 'variants.stock', 'defaultVariant.offer', 'defaultVariant.stock']);
 
         if ($filters['category']) {
             $query->whereHas('categories', fn (Builder $c) => $c->whereKey($filters['category']->id));

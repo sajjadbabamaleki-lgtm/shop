@@ -16238,6 +16238,9 @@ button.vp-cart-keep {
 .vp-card {
   display: flex;
   flex-direction: column;
+  /* So the basket button can sit at the card's foot rather than under the last
+     line of text, which is a different height on every card. */
+  height: 100%;
 }
 
 /* The photograph and the favourite, in a box that ends where the photograph
@@ -16409,6 +16412,82 @@ button.vp-cart-keep {
   margin-block-start: 3px;
   font-size: 10px;
   color: rgba(16, 17, 17, 0.5);
+}
+
+/* The basket button, at the foot of every card.
+
+   `margin-block-start: auto` and a full-height card are what put it *at the
+   foot* rather than under whatever the last line happened to be: a card with
+   two lines of name and a sale line is taller than one with neither, and two
+   buttons at different heights in one row of a grid is the thing this is for.
+   The row stretches its columns already, so the card only has to take the
+   height it is given.
+
+   Gold, and gold this way: a filled thing that gets pressed is the fill
+   gradient with white on it — see «گلد سبز» in CLAUDE.md, which is what
+   happens when a button on this site is painted any other gold. */
+.vp-card-buy {
+  margin-block-start: auto;
+  padding-block-start: 10px;
+}
+
+.vp-card-add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  width: 100%;
+  height: 36px;
+  padding-inline: 8px;
+  border: 0;
+  /* Both ends round, at any height this ever takes. */
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
+  color: #FFFFFF;
+  font-family: 'Vazirmatn', var(--body-font);
+  /* 12px, the card name's size. The label is twenty-two characters and it does
+     not wrap: measured, the icon and the words come to 139px inside the 162px
+     the button gets in a two-column grid on a 360px screen — the narrowest
+     this card is ever drawn at. 13px there would be 149px and still fit, but
+     with four pixels either side of it, which is not a margin. */
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: filter 0.2s ease;
+}
+
+/* Above 992 the card is in the listing's wide column and the button is more
+   than twice the width it needs, so the type comes up with it. */
+@media (min-width: 992px) {
+  .vp-card-add {
+    height: 40px;
+    font-size: 13px;
+  }
+}
+
+.vp-card-add:hover {
+  filter: brightness(1.04);
+}
+
+.vp-card-add svg {
+  flex: none;
+  width: 16px;
+  height: 16px;
+}
+
+/* Sold out keeps the shape and loses the gold. It is not a button — there is
+   nothing to press — so it is a span, and it says so. */
+.vp-card-add.is-off {
+  background: rgba(16, 17, 17, 0.05);
+  box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.08);
+  color: rgba(16, 17, 17, 0.42);
+  cursor: default;
+}
+
+.vp-card-add.is-off:hover {
+  filter: none;
 }
 
 /* --------------------------------------------------------------------------

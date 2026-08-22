@@ -85,4 +85,50 @@
     @if ($sold > 0)
         <span class="vp-card-sold">{{ fa_number($sold) }} فروش</span>
     @endif
+
+    {{-- The basket, at the foot of every card.
+
+         `addableVariant()` is what it adds, and its own docblock has said «the
+         size a card's basket button adds» since before there was a card with a
+         button on it — the default size where this branch can supply it, and
+         the first one it can otherwise. That second half is the whole reason
+         this is not `defaultVariant`: a listing shows a shoe while *any* size
+         is sellable, so the default one is often the one that has just run out,
+         and a button that added it would put a line in the basket that the
+         checkout then refuses. The stories band on the home page adds the same
+         way.
+
+         Null means no size is sellable, which is the «ناموجود» the badge on the
+         photograph is already saying. It gets a dead pill rather than nothing,
+         so a sold-out card is the same shape as the others and the grid does
+         not go ragged. --}}
+    @php
+        $addable = $product->addableVariant();
+    @endphp
+
+    @if ($addable)
+        <form class="vp-card-buy" method="post" action="{{ storefront_route('cart.add') }}">
+            @csrf
+            <input type="hidden" name="variant" value="{{ $addable->id }}">
+            <button type="submit" class="vp-card-add">
+                اضافه کردن به سبد خرید
+                {{-- A bag with a plus at its corner. The bag rather than a
+                     trolley because every other basket on this site is
+                     `fa-bag-shopping` and they are meant to read as one thing;
+                     drawn rather than set, because the plus is a badge beside
+                     the bag and no glyph in the icon font is that.
+
+                     After the words, not before them — «آیکون باید جلوی جمله
+                     باشه نه پشتش». On a right-to-left row that puts it on the
+                     left, at the end the sentence is facing. --}}
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M4.4 8.9h12.2v9.3a2.4 2.4 0 0 1-2.4 2.4H6.8a2.4 2.4 0 0 1-2.4-2.4Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path>
+                    <path d="M7.9 8.9V7.2a2.6 2.6 0 0 1 5.2 0v1.7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+                    <path d="M19.6 2.9v5.4M16.9 5.6h5.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+                </svg>
+            </button>
+        </form>
+    @else
+        <span class="vp-card-buy vp-card-add is-off" aria-disabled="true">ناموجود</span>
+    @endif
 </article>
