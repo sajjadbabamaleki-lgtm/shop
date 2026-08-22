@@ -243,14 +243,16 @@ class Product extends Model
      *
      * Trimmed for display rather than stored short, because the whole name is
      * the product's real name — the product page prints it in full, the search
-     * matches it in full, and a card is a label, not a record. Six words,
-     * which is where the client put the ceiling, and an ellipsis so the card
-     * says it is a label rather than pretending the name ends there.
+     * matches it in full, and a card is a label, not a record. Four words,
+     * «برای اسم نهایتا ۴ کلمه», with an ellipsis so the card says it is a label
+     * rather than pretending the name ends there.
      *
-     * A name already inside the ceiling comes back untouched, which is why
-     * every card in the shop today reads exactly as it did.
+     * A name already inside the ceiling comes back untouched, and every one
+     * of this shop's own is: the longest are «کتونی نایک وی۲کی ران» and «کتونی
+     * جردن وان ایر» at exactly four. That is why no existing card moves and
+     * check-parity.js still prints zero.
      */
-    public function cardName(int $words = 6): string
+    public function cardName(int $words = 4): string
     {
         return Str::words($this->title, $words, '…');
     }

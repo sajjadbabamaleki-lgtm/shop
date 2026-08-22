@@ -478,8 +478,8 @@ class BasalamImportTest extends TestCase
 
         $product = Product::where('source_id', '9005')->firstOrFail();
 
-        // Six words, then an ellipsis.
-        $this->assertSame('کتونی نایک جردن وان ساق کوتاه…', $product->cardName());
+        // Four words, then an ellipsis.
+        $this->assertSame('کتونی نایک جردن وان…', $product->cardName());
 
         /*
          * The *label* is trimmed. The whole name is still in the markup — the
@@ -489,7 +489,7 @@ class BasalamImportTest extends TestCase
          * rather than what the page contains.
          */
         $listing = $this->get('/products')->assertOk();
-        $listing->assertSee('>کتونی نایک جردن وان ساق کوتاه…</a>', false);
+        $listing->assertSee('>کتونی نایک جردن وان…</a>', false);
 
         // The whole name is the product's real name, and its own page says so.
         $this->get('/products/'.$product->slug)
