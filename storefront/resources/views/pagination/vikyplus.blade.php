@@ -6,39 +6,47 @@
     come out in latin digits on a page that writes every other number in
     Persian. This is small enough to own.
 
-    The arrows point the way the language reads: on an RTL page "next" is to
-    the left, so the chevrons are set by direction rather than hard-coded.
+    **The numbers run left to right, and the page around them does not.**
+    «ریاضی از چپ به راسته» — one, two, three ascends leftward on an RTL row,
+    which is the one place on this site where the Persian direction is wrong
+    about its own content. `.vp-pages` is `direction: ltr` for that, and the
+    chevrons follow it: previous points left, next points right.
+
+    **The arrows are only there when a page is missing.** With every page
+    printed they are two cells spent saying what the numbers next to them
+    already say — «وقتی ما همه ۶ تارو داریم چرا دیگه فلش ۲ طرف باشه؟» — so
+    `$whole` drops them.
 
     **The window is built here, not read from `$elements`.** Laravel's own
     window keeps every page number until there are fifteen of them, and the
     Basalam import took the shop from two pages to thirteen: on a 390px screen
     that wrapped into three rows of tiles under the last shoe — «این چه وضع
-    افتضاحیه پایین فروشگاه». A cell is 38px wide with an 8px gap, so 350px of
-    usable width holds seven of them and no more. Shrunk to 34px with a 6px gap
-    it holds eight, which is six numbers and both arrows — and six pages is
-    where `ShopController::PER_PAGE` puts a hundred and forty-three shoes, so
-    the whole listing fits and nothing is hidden from anybody:
+    افتضاحیه پایین فروشگاه». A cell is 38px wide with an 8px gap and the
+    listing gives the paginator 336px on the narrowest phone we draw for, so
+    seven cells fit and an eighth does not. That one number is both rules:
 
-      six pages or fewer   ‹ 1 2 3 4 5 6 ›      8 cells, 314px on a phone
-      more than six        ‹ 1 … 7 … 13 ›       7 cells on a phone
-                           ‹ 1 … 6 7 8 … 13 ›   9 cells on a desktop
+      seven pages or fewer   ۱ ۲ ۳ ۴ ۵ ۶        no arrows, 6 cells, 268px
+      more than seven        ‹ ۱ … ۷ … ۱۳ ›     7 cells, 314px on a phone
+                             ‹ ۱ … ۶ ۷ ۸ … ۱۳ › 9 cells on a desktop
 
-    The difference is CSS, not markup — the neighbours carry `is-near` and are
-    display:none under 576px — except for the ellipses, which cannot be, because
-    an ellipsis is a claim about the numbers either side of it and hiding a
-    number can make that claim true where it was not. Both sets of skips are
-    counted, and a gap only one of them needs is drawn only for that one.
+    The last difference is CSS, not markup — the neighbours carry `is-near` and
+    are display:none under 576px — except for the ellipses, which cannot be,
+    because an ellipsis is a claim about the numbers either side of it and
+    hiding a number can make that claim true where it was not. Both sets of
+    skips are counted, and a gap only one of them needs is drawn only for that
+    one.
 --}}
 @php
     $current = $paginator->currentPage();
     $last = $paginator->lastPage();
 
-    // Six numbers and two arrows is eight cells, which is what a 34px cell and
-    // a 6px gap spend on the narrowest phone we draw for — 314px of the 336px
-    // a 360px screen gives the listing. So six pages or fewer are all printed,
-    // and nothing is hidden from anybody: «بنظرم سایز شماره ها جوری باشه که ۶
-    // صفحه جا بشه». Above six, the window below.
-    $whole = $last <= 6;
+    // Seven cells is what a 38px cell and an 8px gap spend inside the 336px a
+    // 360px screen gives the listing, so seven pages or fewer are printed whole
+    // — every number, no ellipsis, and no arrows either, because with nothing
+    // missing they only cost two of the seven. Above seven, the window below.
+    // The shop itself is six: twenty-four to a page over a hundred and
+    // forty-three shoes.
+    $whole = $last <= 7;
 
     // First, last, and the current page with a neighbour either side. Unique
     // and sorted, so a current page sitting next to either end simply folds
@@ -62,11 +70,13 @@
 @if ($paginator->hasPages())
 <nav class="vp-pages" role="navigation" aria-label="صفحه‌بندی">
 
-    @if ($paginator->onFirstPage())
-        <span class="vp-page is-off" aria-disabled="true"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></span>
-    @else
-        <a class="vp-page" href="{{ $paginator->previousPageUrl() }}" rel="prev" aria-label="صفحه قبل"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></a>
-    @endif
+    @unless ($whole)
+        @if ($paginator->onFirstPage())
+            <span class="vp-page is-off" aria-disabled="true"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></span>
+        @else
+            <a class="vp-page" href="{{ $paginator->previousPageUrl() }}" rel="prev" aria-label="صفحه قبل"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></a>
+        @endif
+    @endunless
 
     @php
         $previous = null;
@@ -108,11 +118,13 @@
         @endphp
     @endforeach
 
-    @if ($paginator->hasMorePages())
-        <a class="vp-page" href="{{ $paginator->nextPageUrl() }}" rel="next" aria-label="صفحه بعد"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></a>
-    @else
-        <span class="vp-page is-off" aria-disabled="true"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></span>
-    @endif
+    @unless ($whole)
+        @if ($paginator->hasMorePages())
+            <a class="vp-page" href="{{ $paginator->nextPageUrl() }}" rel="next" aria-label="صفحه بعد"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></a>
+        @else
+            <span class="vp-page is-off" aria-disabled="true"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></span>
+        @endif
+    @endunless
 
 </nav>
 @endif

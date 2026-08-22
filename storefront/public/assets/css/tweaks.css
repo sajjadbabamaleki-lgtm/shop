@@ -5978,12 +5978,18 @@ ul.vp-how-list.is-ticked li:before {
   margin-top: 32px;
 }
 
+/* `direction: ltr` on an RTL page, and only here. Everything else on this site
+   is Persian text and reads rightward; a run of page numbers is arithmetic and
+   does not — «ریاضی از چپ به راسته». Laid out the page's way, ۱ ۲ ۳ ascends
+   leftward, which is the one place the document's direction is wrong about its
+   own content. The chevrons in the Blade follow this, not the page. */
 .vp-pages {
   display: flex;
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
   gap: 8px;
+  direction: ltr;
 }
 
 .vp-page {
@@ -6026,33 +6032,22 @@ ul.vp-how-list.is-ticked li:before {
    under the last card before this — the page numbers were bigger than the
    shop. `is-near` is the current page's two neighbours, and only they; the
    first, the last, the current one and both arrows stay, which is
-   `‹ ۱ … ۴ … ۶ ›`, seven cells, 314px.
+   `‹ ۱ … ۷ … ۱۳ ›`, seven cells, 314px.
 
    `is-gap-phone` is the other half of that and runs the opposite way: an
    ellipsis that is only true once the neighbours are gone. The Blade works out
-   which gaps those are — a hidden number can turn `۱ ۲ ۳ ۴ … ۶` into a page
+   which gaps those are — a hidden number can turn `۱ ۲ ۳ ۴ … ۸` into a page
    claiming one and three are neighbours — so each side draws only the skips
-   that its own set actually has. */
+   that its own set actually has.
+
+   The cell was briefly 34px here, to buy an eighth for six numbers and two
+   arrows. Dropping the arrows when nothing is missing bought the same room and
+   gave the finger its 38px back, so that is gone. */
 .vp-page.is-gap-phone {
   display: none;
 }
 
 @media (max-width: 575.98px) {
-  /* 34px and a 6px gap, so eight cells come to 314px and a 360px screen — the
-     narrowest we draw for, and 336px of room once the listing's gutters are
-     off it — holds six page numbers and both arrows with nothing hidden. At
-     38px and an 8px gap that was 360px and it wrapped. The height does not
-     move: it is what the finger presses, and the digits are 14px, so the two
-     that fit a page number of thirteen still fit at 34 wide. */
-  .vp-pages {
-    gap: 6px;
-  }
-
-  .vp-page {
-    min-width: 34px;
-    padding-inline: 6px;
-  }
-
   .vp-page.is-near {
     display: none;
   }
