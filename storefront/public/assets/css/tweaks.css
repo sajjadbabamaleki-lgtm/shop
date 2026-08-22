@@ -16376,12 +16376,43 @@ button.vp-cart-keep {
   box-shadow: 0 2px 8px -3px rgba(16, 17, 17, 0.3);
 }
 
+/* The gaps down the card are 10 apiece — «همه فاصله ها بشن ۱۰» — and the five
+   numbers below are not 10, on purpose.
+
+   What is being measured is the white between the *printed* lines. What a
+   margin sets is the distance between line *boxes*, and every box here is
+   taller than its ink: the name is 13.86 in a 22.87 line, the price 14 in a 26,
+   the stock line's 11.5 is centred in a 28, and the sales line's 10 is in
+   another 26. Rendered at 390 and read off the raster, the old
+   10 / 4 / 3 / 3 / 10 painted
+
+     tile foot → name    15        name  → price   15
+     price → stock/sale  20        stock → sold    19
+     last line → button  18.9
+
+   Each value below is therefore the old one minus its surplus, which is why
+   three of them are negative: the half-leading either side of a gap is already
+   more than the whole gap asked for. Nothing overlaps — a negative margin here
+   eats empty leading, not ink, and every line keeps the height it had — the
+   sale line and the stock line still both measure 28, so a grid of shoes, some
+   cut and most not, still keeps one rhythm down the column.
+
+   Measured after, at 360, 390, 768, 1200 and 1920: 10 apiece, give or take
+   the third of a pixel the 1200 column rounds off.
+
+   **These are set from the ink, so re-measure if the type changes.** Move a
+   font-size, a line-height or the stock line's 28 and every number below is
+   wrong by exactly what you moved — they are not spacing, they are spacing
+   minus leading. The button's gap is the one that can still grow: it is pinned
+   to the card's foot by `margin-block-start: auto` so a row of cards keeps its
+   buttons level, and on a card shorter than its neighbour the row's slack
+   lands there. 10 is the intrinsic gap, not a ceiling. */
 .vp-card-name {
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  margin-block-start: 10px;
+  margin-block-start: 5px;
   color: rgba(16, 17, 17, 0.78);
   /* «اسم کفش باید سایزش ۱۰ درصد بزرگتر و ده درصد بولدتر بشه», and then five
      percent again on top of that — «باز جا داره ۵ درصد بزرگتر و بولدتر بشه».
@@ -16395,7 +16426,7 @@ button.vp-cart-keep {
 }
 
 .vp-card-price {
-  margin-block-start: 4px;
+  margin-block-start: -1px;
   font-family: 'Vazirmatn', var(--body-font);
   font-weight: 800;
   font-size: 14px;
@@ -16412,11 +16443,27 @@ button.vp-cart-keep {
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-block-start: 3px;
+  /* The 28 the stock line measures, said out loud. It used to come from the
+     chip below, which was 28 tall only because it inherited the body's 26px
+     line-height; with the chip cut down to a pill this line would be the
+     struck price's 26 and a sale card would sit 2 short of a plain one. The
+     two have to measure the same or a row of cards with a cut in it stops
+     agreeing with a row without. */
+  min-height: 28px;
+  margin-block-start: -7px;
 }
 
-/* The cut as a chip, the reference's own device for it. */
+/* The cut as a chip, the reference's own device for it.
+
+   `line-height: 1` because a chip is drawn by its padding: inheriting the
+   body's 26px put a 28px slab of tint behind a 10px number — 9 above it and 9
+   below against 6 at the ends — and being the tallest thing in the row it set
+   the whole line's height too. At 1 the chip is 12 and is centred in the line,
+   which leaves 8 of clear above and below it. That is within a pixel of the
+   9.14 / 8.86 the stock line's own text leaves, so one set of margins gives
+   both variants the same 10 and neither card is taller than the other. */
 .vp-card-cut {
+  line-height: 1;
   padding: 1px 6px;
   border-radius: 5px;
   background: rgba(192, 151, 47, 0.14);
@@ -16448,13 +16495,13 @@ button.vp-cart-keep {
   display: flex;
   align-items: center;
   min-height: 28px;
-  margin-block-start: 3px;
+  margin-block-start: -7px;
   font-size: 11.5px;
   color: rgba(16, 17, 17, 0.5);
 }
 
 .vp-card-sold {
-  margin-block-start: 3px;
+  margin-block-start: -6px;
   font-size: 10px;
   color: rgba(16, 17, 17, 0.5);
 }
@@ -16473,7 +16520,7 @@ button.vp-cart-keep {
    happens when a button on this site is painted any other gold. */
 .vp-card-buy {
   margin-block-start: auto;
-  padding-block-start: 10px;
+  padding-block-start: 2.16px;
 }
 
 .vp-card-add {
