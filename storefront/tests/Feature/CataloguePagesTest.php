@@ -489,6 +489,42 @@ class CataloguePagesTest extends TestCase
     }
 
     /**
+     * The picker's three gaps, on a phone.
+     *
+     * «فاصله اسم کفش با انتخاب سایز و انتخاب سایز با انتخاب رنگ و انتخاب رنگ با
+     * ردیف آخر هر کدوم ده درصد کم بشه» — 20 → 18, 27 → 24.3, 36 → 32.4.
+     *
+     * They are held together because they are one rhythm and have been moved
+     * as one four times now; a round that changes two of the three leaves the
+     * panel reading unevenly, and nothing renders differently enough to notice.
+     * The numbers are odd on purpose — each is a percentage of what the round
+     * before it settled, and rounding them to something tidy would quietly
+     * undo an earlier decision.
+     */
+    public function test_the_pickers_gaps_are_the_ones_that_were_measured(): void
+    {
+        $css = file_get_contents(public_path('assets/css/tweaks.css'));
+
+        // The name to «انتخاب سایز».
+        $this->assertMatchesRegularExpression(
+            '/\.vp-pick-head \{\s*display: block;\s*margin-block-start: 18px;/s',
+            $css,
+        );
+
+        // The sizes to «انتخاب رنگ».
+        $this->assertMatchesRegularExpression(
+            '/\.vp-pdp-colors \{\s*display: block;\s*margin-block-start: 24\.3px;/s',
+            $css,
+        );
+
+        // The colours to the buy row.
+        $this->assertMatchesRegularExpression(
+            '/\.vp-pick-bar \{[^}]*margin-block-start: 32\.4px;/s',
+            $css,
+        );
+    }
+
+    /**
      * The tile's corners: one control and one label, and nothing else.
      *
      * The favourite is five percent smaller than it was — «مربع قلب فیوریت ۵

@@ -14328,10 +14328,11 @@ button.vp-cart-keep {
      colours would be hearing a claim the catalogue has not made. The named
      block above is what the page draws the day a variant carries a colour. */
   /* Half again off the size line above it — «فاصله بین انتخاب سایز و انتخاب
-     رنگ ... باید ۵۰ درصد بیشتر بشن». 18 → 27. */
+     رنگ ... باید ۵۰ درصد بیشتر بشن» — 18 → 27, and now a tenth back off that:
+     «انتخاب سایز با انتخاب رنگ … ده درصد کم بشه». 27 → 24.3. */
   .vp-pdp-colors {
     display: block;
-    margin-block-start: 27px;
+    margin-block-start: 24.3px;
   }
 
   /* The line is the size row's, so the two read as one system: left to right
@@ -14387,9 +14388,11 @@ button.vp-cart-keep {
      The rectangle ended up in the size row itself, as its last item, so this
      copy of the count — the one beside the heading, which is what the desktop
      draws — is not shown here at all. */
+  /* A tenth off the gap to the name above it — «فاصله اسم کفش با انتخاب سایز
+     … ده درصد کم بشه». 20 → 18. */
   .vp-pick-head {
     display: block;
-    margin-block-start: 20px;
+    margin-block-start: 18px;
   }
 
   .vp-pick-head .vp-pick-note {
@@ -14681,12 +14684,13 @@ button.vp-cart-keep {
     display: flex;
     align-items: center;
     gap: 10px;
-    /* The gap to the colour line above it, three rounds of it: 20 → 30 at
+    /* The gap to the colour line above it, four rounds of it: 20 → 30 at
        «فاصله افزودن به سبد خرید و انتخاب تعداد با بهش انتخاب رنگ هم باید ۵۰
        درصد بیشتر بشه», 30 → 45 at «...و ردیف افزودن به سبد خرید باید ۵۰ درصد
-       بیشتر بشن», and now a fifth back off it — «فاصله بین رنگها و ردیف اضافه
-       کردن به سبد خرید باید ۲۰ درصد کمتر بشه» — which is 36. */
-    margin-block-start: 36px;
+       بیشتر بشن», then a fifth back off it — «فاصله بین رنگها و ردیف اضافه
+       کردن به سبد خرید باید ۲۰ درصد کمتر بشه» — for 36, and now a tenth more:
+       «انتخاب رنگ با ردیف آخر … ده درصد کم بشه». 36 → 32.4. */
+    margin-block-start: 32.4px;
   }
 
   /* Gold again — «دکمه افزودن به سبد خرید هم باید طلایی بشه». It was white for
