@@ -16463,14 +16463,25 @@ button.vp-cart-keep {
    tall, which was not a decision: it inherited the body's 26px line-height and
    put a slab of tint behind a 10px number, 9 clear above it and 9 below against
    6 at the ends, and being the tallest thing in the row it set the line's
-   height too. `line-height: 18px` makes it 20 with the padding — a box still,
-   two thirds of a line shorter — centred in the 28 the line now keeps on its
-   own. It was 12 for a round, which is the height at which the chip clears as
-   much as the stock line's text does; that read as a pill rather than a box
-   and was asked back. */
+   height too. 16 of line and 4 of padding make it 20 — a box still, two thirds
+   of a line shorter — centred in the 28 the line now keeps on its own. It was
+   12 for a round, which is the height at which the chip clears as much as the
+   stock line's text does; that read as a pill rather than a box and was asked
+   back.
+
+   **The padding is 3 above and 1 below, and that is what centres the digits** —
+   «۳۰ درصد تخفیف از بالا و پایین باید وسط مستطیلش قرار بگیره». Even padding does
+   not: a line box is centred on the font's ascent *and descent*, and «٪۳۰» has
+   no descender, so the whole label hangs in the top half of it. Measured at 8×
+   inside the 20, evenly padded, the digits printed 5.25 of ground above them
+   and 7.88 below. The extra 2 on top pays that back: 6.25 above, 6.88 below.
+   The remaining third of a pixel cannot be spent — Chromium snaps a baseline to
+   the pixel grid, so the three positions this box can put the label in are
+   5.25, 6.25 and 7.25, and the middle one is the closest to centred that
+   exists. */
 .vp-card-cut {
-  line-height: 18px;
-  padding: 1px 6px;
+  line-height: 16px;
+  padding: 3px 6px 1px;
   border-radius: 5px;
   background: rgba(192, 151, 47, 0.14);
   color: var(--vp-gold);
