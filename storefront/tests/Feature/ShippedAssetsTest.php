@@ -185,6 +185,31 @@ class ShippedAssetsTest extends TestCase
     }
 
     /**
+     * The card's basket icon ships with its licence too.
+     *
+     * It is not a category icon and the test below cannot see it: that one
+     * reads files off `storefront.category_icons`, and this drawing is inline
+     * SVG in a Blade — it sits inside a button and has to take the button's
+     * ink, which an `<img>` cannot do. Same obligation, different shape, so it
+     * gets its own check rather than being bent into that list.
+     */
+    public function test_the_cards_basket_icon_says_where_it_came_from(): void
+    {
+        $card = file_get_contents(resource_path('views/shop/card.blade.php'));
+
+        $this->assertStringContainsString('Tabler Icons', $card, 'Somebody else drew this; the card has to say so.');
+
+        $licence = base_path('../download-version/assets/img/icon/LICENSE-tabler.txt');
+
+        $this->assertFileExists($licence, 'The icon ships without Tabler\'s MIT notice.');
+
+        $text = file_get_contents($licence);
+
+        $this->assertStringContainsString('MIT License', $text);
+        $this->assertStringContainsString('Paweł Kuna', $text);
+    }
+
+    /**
      * The category icons are somebody else's artwork, and MIT's one condition
      * travels with them.
      *

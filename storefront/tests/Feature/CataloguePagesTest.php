@@ -464,16 +464,18 @@ class CataloguePagesTest extends TestCase
     }
 
     /**
-     * «اسم کفش باید سایزش ۱۰ درصد بزرگتر و ده درصد بولدتر بشه» — ten percent
-     * of 12px and of 400. Vazirmatn is loaded as a variable font, so 440 is a
-     * weight the file can actually draw rather than one the browser rounds.
+     * «اسم کفش باید سایزش ۱۰ درصد بزرگتر و ده درصد بولدتر بشه», and then «باز
+     * جا داره ۵ درصد بزرگتر و بولدتر بشه» — ten percent of 12px and of 400,
+     * then five percent of that again. Vazirmatn is loaded as a variable font,
+     * so 462 is a weight the file can actually draw rather than one the
+     * browser rounds.
      */
-    public function test_the_card_name_is_a_tenth_larger_and_a_tenth_bolder(): void
+    public function test_the_card_name_is_a_tenth_and_then_a_twentieth_larger(): void
     {
         $css = file_get_contents(public_path('assets/css/tweaks.css'));
 
         $this->assertMatchesRegularExpression(
-            '/\.vp-card-name \{[^}]*font-size: 13\.2px;\s*font-weight: 440;/s',
+            '/\.vp-card-name \{[^}]*font-size: 13\.86px;\s*font-weight: 462;/s',
             $css,
         );
 
@@ -487,14 +489,12 @@ class CataloguePagesTest extends TestCase
     }
 
     /**
-     * Round at both ends, and gold the one way a pressed thing is gold here.
+     * Round at both ends, white, and the words in ink.
      *
-     * «دکمه ۲ طرف گرد» is a shape, and a radius in pixels stops being round
-     * the moment the button's height changes. The colour is the «گلد سبز»
-     * rule in CLAUDE.md: a filled control is the fill gradient with white on
-     * it, and every other gold on a button has come back as a complaint.
+     * «دکمه ۲ طرف گرد» is a shape, and a radius in pixels stops being round the
+     * moment the button's height changes.
      */
-    public function test_the_card_button_is_a_gold_pill(): void
+    public function test_the_card_button_is_a_white_pill_with_the_words_in_ink(): void
     {
         $css = file_get_contents(public_path('assets/css/tweaks.css'));
 
@@ -503,10 +503,23 @@ class CataloguePagesTest extends TestCase
             $css,
             'A pixel radius is not round at every height this button takes.',
         );
+        // White with the words in ink, and the page's own 1.5px hairline —
+        // «دکمه هم سفید و نوشته داخلش مشکی بشه». The one filled-looking control
+        // here that is not gold, because six of it appear at once and six gold
+        // slabs outweigh the photographs they are selling; «گلد سبز» is about
+        // the single button on a screen, and a card is not that.
+        $this->assertMatchesRegularExpression('/\.vp-card-add \{[^}]*background: #FFFFFF;/s', $css);
+        $this->assertMatchesRegularExpression('/\.vp-card-add \{[^}]*color: #101111;/s', $css);
         $this->assertMatchesRegularExpression(
-            '/\.vp-card-add \{[^}]*background: linear-gradient\(90deg, var\(--vp-gold-fill\) 0%, var\(--vp-gold-lit\) 100%\);/s',
+            '/\.vp-card-add \{[^}]*box-shadow: inset 0 0 0 1\.5px rgba\(16, 17, 17, 0\.12\);/s',
             $css,
-            'See «گلد سبز»: a button on this site is the fill gradient or it is wrong.',
+        );
+
+        // The gold went to the hover, because brightness() does nothing to
+        // white.
+        $this->assertMatchesRegularExpression(
+            '/\.vp-card-add:hover \{\s*box-shadow: inset 0 0 0 1\.5px rgba\(164, 127, 37, 0\.45\);/s',
+            $css,
         );
 
         // And it sits at the foot, not under the last line of text — cards in

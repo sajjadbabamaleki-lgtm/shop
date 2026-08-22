@@ -16363,12 +16363,13 @@ button.vp-cart-keep {
   overflow: hidden;
   margin-block-start: 10px;
   color: rgba(16, 17, 17, 0.78);
-  /* «اسم کفش باید سایزش ۱۰ درصد بزرگتر و ده درصد بولدتر بشه» — ten percent of
-     12px and of 400, taken literally: 13.2px and 440. Vazirmatn is loaded as a
-     variable font at `font-weight: 100 900`, so 440 is a real weight here and
-     not a browser rounding it up to 500. */
-  font-size: 13.2px;
-  font-weight: 440;
+  /* «اسم کفش باید سایزش ۱۰ درصد بزرگتر و ده درصد بولدتر بشه», and then five
+     percent again on top of that — «باز جا داره ۵ درصد بزرگتر و بولدتر بشه».
+     Taken literally both times: 12 → 13.2 → 13.86px, 400 → 440 → 462.
+     Vazirmatn is loaded as a variable font at `font-weight: 100 900`, so 462
+     is a real weight here and not a browser rounding it up to 500. */
+  font-size: 13.86px;
+  font-weight: 462;
   line-height: 1.65;
   text-decoration: none;
 }
@@ -16447,8 +16448,21 @@ button.vp-cart-keep {
   border: 0;
   /* Both ends round, at any height this ever takes. */
   border-radius: 999px;
-  background: linear-gradient(90deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
-  color: #FFFFFF;
+  /* White, with the page's own hairline, and the words in ink — «دکمه هم سفید
+     و نوشته داخلش مشکی بشه», chosen off four treatments rendered on the real
+     grid.
+
+     **This is the one filled-looking control on the site that is not gold, and
+     that is deliberate.** «گلد سبز» in CLAUDE.md says a *filled* button is the
+     gold gradient with white on it, and it is right: every screen with one
+     button on it keeps that. A card is the case the rule was not written for
+     — six of these appear at once, and six gold slabs in a grid outweigh the
+     photographs they are selling. The eye should land on the shoe. The
+     hairline is the same 1.5px the paginator and the filter chips wear, and it
+     goes gold on hover, which is where the gold went. */
+  background: #FFFFFF;
+  box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.12);
+  color: #101111;
   font-family: 'Vazirmatn', var(--body-font);
   /* 12px, the card name's size. The label is twenty-two characters and it does
      not wrap: measured, the icon and the words come to 139px inside the 162px
@@ -16472,8 +16486,10 @@ button.vp-cart-keep {
   }
 }
 
+/* `brightness()` does nothing to white, so the hover is the hairline — the
+   same move `.vp-page:hover` makes. */
 .vp-card-add:hover {
-  filter: brightness(1.04);
+  box-shadow: inset 0 0 0 1.5px rgba(164, 127, 37, 0.45);
 }
 
 .vp-card-add svg {
@@ -16482,8 +16498,10 @@ button.vp-cart-keep {
   height: 16px;
 }
 
-/* Sold out keeps the shape and loses the gold. It is not a button — there is
-   nothing to press — so it is a span, and it says so. */
+/* Sold out keeps the shape and goes grey. It is not a button — there is
+   nothing to press — so it is a span, and it says so. Now that the live one is
+   white too, the difference has to be the ink and the ground rather than the
+   colour of the fill: greyed words on a grey wash, and no hover at all. */
 .vp-card-add.is-off {
   background: rgba(16, 17, 17, 0.05);
   box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.08);
@@ -16492,7 +16510,7 @@ button.vp-cart-keep {
 }
 
 .vp-card-add.is-off:hover {
-  filter: none;
+  box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.08);
 }
 
 /* --------------------------------------------------------------------------

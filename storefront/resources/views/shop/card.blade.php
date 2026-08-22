@@ -112,19 +112,27 @@
             <input type="hidden" name="variant" value="{{ $addable->id }}">
             <button type="submit" class="vp-card-add">
                 اضافه کردن به سبد خرید
-                {{-- A bag with a plus at its corner. The bag rather than a
-                     trolley because every other basket on this site is
-                     `fa-bag-shopping` and they are meant to read as one thing;
-                     drawn rather than set, because the plus is a badge beside
-                     the bag and no glyph in the icon font is that.
+                {{-- `shopping-bag-plus` from **Tabler Icons**, MIT, unchanged
+                     from the set. Picked off a sheet of eleven baskets and
+                     trolleys with a plus — «یک عالیه» — the way every other
+                     icon in this repository has been chosen. Its notice is
+                     `download-version/assets/img/icon/LICENSE-tabler.txt`,
+                     beside Fluent's and Phosphor's.
+
+                     **Inline, not a file.** The category icons are `<img>`
+                     with the gold baked in, and an `<img>` cannot inherit
+                     `currentColor`; this one sits inside a button and has to
+                     take the button's ink, which is the whole reason it is
+                     markup here.
 
                      After the words, not before them — «آیکون باید جلوی جمله
                      باشه نه پشتش». On a right-to-left row that puts it on the
                      left, at the end the sentence is facing. --}}
                 <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <path d="M4.4 8.9h12.2v9.3a2.4 2.4 0 0 1-2.4 2.4H6.8a2.4 2.4 0 0 1-2.4-2.4Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path>
-                    <path d="M7.9 8.9V7.2a2.6 2.6 0 0 1 5.2 0v1.7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
-                    <path d="M19.6 2.9v5.4M16.9 5.6h5.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+                    <g stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                        <path d="M12.5 21H8.574a3 3 0 0 1-2.965-2.544l-1.255-8.152A2 2 0 0 1 6.331 8H17.67a2 2 0 0 1 1.977 2.304l-.263 1.708M16 19h6m-3-3v6"></path>
+                        <path d="M9 11V6a3 3 0 0 1 6 0v5"></path>
+                    </g>
                 </svg>
             </button>
         </form>
