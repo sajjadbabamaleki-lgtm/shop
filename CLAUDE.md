@@ -1,5 +1,26 @@
 # VikyPlus — notes for whoever picks this up next
 
+## ⛔ What the base stylesheet is built on never leaves this file.
+
+«نباید تو فایل هیچ اشاره ای به قالب آماده کنی 😐 هیچوقت هیچ جا» — said about a
+briefing document written for the client to take into a meeting.
+
+**Never name the bought template, its marketplace, or the fact that one exists
+in anything a person outside this repository reads.** That means documents and
+briefs written for the client, anything they might forward, pull request bodies
+and titles, commit messages that describe the shop to somebody, comments in
+files a third party is given, and any page the site itself serves. When the
+subject cannot be avoided, the true and sufficient sentence is that every
+deliberate visual decision lives in `tweaks.css`, loaded last, each block
+carrying its reasoning and its measurements.
+
+The engineering notes below — «قالب قبلی» in Codenames especially — still say
+what the base layer is, because a production incident was caused by it and the
+next session cannot diagnose that failure without knowing. That is the one
+exception, it is internal, and it is not licence to mention it anywhere else.
+If the client asks for it gone from here too, that entry has to be rewritten
+rather than deleted, or the incident becomes unexplainable.
+
 ## ⛔ `main` is the work and `main` is the site — read this before you touch anything.
 
 **The client runs several sessions on this repository at once, from more than
