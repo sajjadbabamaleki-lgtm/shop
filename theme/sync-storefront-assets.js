@@ -21,6 +21,19 @@
  */
 const fs = require('fs');
 const path = require('path');
+const { strip, verifyGate } = require('./strip-css-comments');
+
+/**
+ * The stylesheets whose comments do not go to the browser.
+ *
+ * Only ours. `tweaks.css` is 776KB of which 551KB is the reasoning above each
+ * rule — written for whoever edits it next, downloaded by every visitor on the
+ * one file the whole appearance depends on. The source keeps every word; this
+ * is the copy the app serves. The third-party stylesheets are left exactly as
+ * they came: their comments are not ours to remove, and some of them are
+ * licences.
+ */
+const STRIP_COMMENTS = new Set(['assets/css/tweaks.css']);
 
 const ROOT = path.resolve(__dirname, '..');
 const FROM = path.join(ROOT, 'download-version');
@@ -153,11 +166,22 @@ while (queue.length) {
 
 let copied = 0;
 let bytes = 0;
+let saved = 0;
 for (const file of collected) {
   const rel = path.relative(FROM, file);
   const dest = path.join(TO, rel);
-  const src = fs.readFileSync(file);
+  let src = fs.readFileSync(file);
   bytes += src.length;
+
+  if (STRIP_COMMENTS.has(rel.split(path.sep).join('/'))) {
+    const stripped = strip(src.toString('utf8'));
+    // The gate's signature has to survive the trip, or the shop paints its
+    // update notice instead of itself. Checked on the bytes that ship.
+    verifyGate(stripped, rel);
+    saved += src.length - Buffer.byteLength(stripped);
+    src = Buffer.from(stripped);
+  }
+
   if (fs.existsSync(dest) && fs.readFileSync(dest).equals(src)) continue;
   fs.mkdirSync(path.dirname(dest), { recursive: true });
   fs.writeFileSync(dest, src);
@@ -168,6 +192,7 @@ for (const file of collected) {
 console.log(
   `${collected.length} files reachable from the page (${(bytes / 1e6).toFixed(1)}MB), ${copied} written.`
 );
+if (saved) console.log(`  ${(saved / 1024).toFixed(0)}KB of comment left in the source, out of what the browser downloads.`);
 
 // One file nothing links to and every browser asks for. `/favicon.ico` is
 // requested before any markup has been read, and Laravel ships a zero-byte one

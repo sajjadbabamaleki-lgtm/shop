@@ -796,12 +796,18 @@ class CataloguePagesTest extends TestCase
             $css,
             'A pixel radius is not round at every height this button takes.',
         );
-        // The palest of four yellows and the words in ink — «همون کمرنگ اولی
-        // بهتره». The one filled control here that is not gold: six of it
-        // appear at once and six gold slabs outweigh the photographs they are
+        // A tint and the words in ink — «همون کمرنگ اولی بهتره» — and then a
+        // step up from that palest: «دکمه اضافه کردن به سبد خرید ۱۰ درصد
+        // پررنگتر بشه», which is 12% where it was 7%. The literal ten percent
+        // is 7.7% and moves the ground under two levels of 255; the distance
+        // from white is what «پررنگ» measures, and 12 is the smallest step
+        // that is a step.
+        //
+        // Still the one filled control here that is not gold: six of it appear
+        // at once and six gold slabs outweigh the photographs they are
         // selling, and «گلد سبز» is about the single button on a screen.
         $this->assertMatchesRegularExpression(
-            '/\.vp-card-add \{[^}]*background: rgba\(218, 178, 38, 0\.07\);\s*color: #101111;/s',
+            '/\.vp-card-add \{[^}]*background: rgba\(218, 178, 38, 0\.12\);\s*color: #101111;/s',
             $css,
         );
 
@@ -810,9 +816,10 @@ class CataloguePagesTest extends TestCase
         // button, so the ground and the missing hairline have to move together.
         $this->assertDoesNotMatchRegularExpression('/\.vp-card-add \{[^}]*box-shadow:/s', $css);
 
-        // The hover deepens the ground, there being no edge to light.
+        // The hover deepens the ground, there being no edge to light: twice
+        // the tint, which moved with it when the ground went from 7% to 12%.
         $this->assertMatchesRegularExpression(
-            '/\.vp-card-add:hover \{\s*background: rgba\(218, 178, 38, 0\.14\);/s',
+            '/\.vp-card-add:hover \{\s*background: rgba\(218, 178, 38, 0\.24\);/s',
             $css,
         );
 
