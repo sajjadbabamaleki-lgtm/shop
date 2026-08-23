@@ -13185,9 +13185,10 @@ button.vp-cart-keep {
    its own
    photo tile (opaque) — neither was asked about. */
 /* The sheet needs the blur the other two whites do not: it sits over the
-   live page, dimmed by the template's own 0.75 scrim underneath, and at 90%
+   live page, dimmed by the 0.75 scrim underneath, and at 90%
    opaque that remaining 10% was enough to carry the page's own type and
-   product photograph through, legibly — «قالب قبلی»'s own lesson, that a
+   product photograph through, legibly — the same lesson as the design gate's:
+   that a
    thin remainder of what is behind a translucent surface is still there and
    is still read. `.vp-cart-line` and `.vp-cart-shot` don't need it: nothing
    behind either of them is worth reading in the first place. 30px and the
@@ -20481,8 +20482,8 @@ body.vp-prize-open .vp-whatsapp {
    So the design says so, in the one place that cannot be reached unless the
    whole file was read: its last declaration. The gate in the head asks the
    computed style for this property before the body is parsed, and if it is not
-   here it does not let the template paint. See the head of
-   theme/make-rtl-page.js's design gate, and «قالب قبلی» in CLAUDE.md.
+   here it does not let the page paint. See the head of
+   theme/make-rtl-page.js's design gate.
 
    Nothing may be appended below this. A rule added after it still works, but
    it would be a rule that arrives after the signature — i.e. one the gate

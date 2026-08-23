@@ -44,7 +44,7 @@
 	============================== -->
     <!-- Bootstrap -->
     <!-- Hidden until the design signs itself; the gate below reveals it.
-         See «قالب قبلی» in CLAUDE.md before touching either half. -->
+         Both halves are one mechanism — see theme/make-rtl-page.js. -->
     <style>html{visibility:hidden}</style>
     <noscript><style>html{visibility:visible}</style></noscript>
 
@@ -61,8 +61,8 @@
     <link rel="stylesheet" href="assets/css/rtl-fixes.css">
     <link rel="stylesheet" href="assets/css/tweaks.css">
 
-    <!-- The design gate: no template paints without tweaks.css. See its last
-         rule, theme/make-rtl-page.js, and «قالب قبلی» in CLAUDE.md. -->
+    <!-- The design gate: nothing paints until tweaks.css has arrived whole.
+         See its last rule and theme/make-rtl-page.js before changing either. -->
     <script>
         (function () {
             var root = document.documentElement;
@@ -1869,7 +1869,7 @@ Brand Area
             var header = wrap && wrap.closest(".th-header");
             var menu = wrap && wrap.querySelector(".menu-area");
             var catMenu = document.querySelector(".category-menu");
-            // The corner button. It was the template's scroll-to-top ring
+            // The corner button. It was a scroll-to-top ring once
             // and is the WhatsApp link now; the name says which, because a
             // variable called toTop that shows a chat button is a trap.
             var corner = document.querySelector(".vp-whatsapp");
@@ -1940,7 +1940,7 @@ Brand Area
                 var atFoot = screenEl ? (y + winH > screenTop) : false;
                 if (corner) corner.classList.toggle("show", y > 0 && !atFoot);
                 if (screenEl) {
-                    // The template's own test, unchanged: the footer is left
+                    // The original test, unchanged: the footer is left
                     // alone while it sits whole in the viewport, allowing 200.
                     var whole = screenTop + screenH - 200 <= y + winH && screenTop >= y;
                     screenEl.classList.toggle("th-visible", !whole);

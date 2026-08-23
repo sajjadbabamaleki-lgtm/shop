@@ -261,9 +261,12 @@ layers.push('assets/css/tweaks.css');
 // Hidden until the design says otherwise. This goes above the first <link> on
 // purpose: at that point the browser has not requested a single stylesheet, so
 // there is no state in which the template can paint first.
+// **These two comments are served to every visitor**, so they say what the
+// mechanism is and where its source lives, and nothing else. What the page is
+// built on is not a thing an HTML comment tells the world.
 const DESIGN_HOLD = [
   '    <!-- Hidden until the design signs itself; the gate below reveals it.',
-  '         See «قالب قبلی» in CLAUDE.md before touching either half. -->',
+  '         Both halves are one mechanism — see theme/make-rtl-page.js. -->',
   '    <style>html{visibility:hidden}</style>',
   '    <noscript><style>html{visibility:visible}</style></noscript>',
   '',
@@ -273,8 +276,8 @@ const DESIGN_HOLD = [
 const DESIGN_GATE = [
   '',
   '',
-  '    <!-- The design gate: no template paints without tweaks.css. See its last',
-  '         rule, theme/make-rtl-page.js, and «قالب قبلی» in CLAUDE.md. -->',
+  '    <!-- The design gate: nothing paints until tweaks.css has arrived whole.',
+  '         See its last rule and theme/make-rtl-page.js before changing either. -->',
   '    <script>',
   '        (function () {',
   '            var root = document.documentElement;',
@@ -2673,7 +2676,7 @@ html = html.replace('</body>',
   '            var header = wrap && wrap.closest(".th-header");\n' +
   '            var menu = wrap && wrap.querySelector(".menu-area");\n' +
   '            var catMenu = document.querySelector(".category-menu");\n' +
-  '            // The corner button. It was the template\'s scroll-to-top ring\n' +
+  '            // The corner button. It was a scroll-to-top ring once\n' +
   '            // and is the WhatsApp link now; the name says which, because a\n' +
   '            // variable called toTop that shows a chat button is a trap.\n' +
   '            var corner = document.querySelector(".vp-whatsapp");\n' +
@@ -2744,7 +2747,7 @@ html = html.replace('</body>',
   '                var atFoot = screenEl ? (y + winH > screenTop) : false;\n' +
   '                if (corner) corner.classList.toggle("show", y > 0 && !atFoot);\n' +
   '                if (screenEl) {\n' +
-  '                    // The template\'s own test, unchanged: the footer is left\n' +
+  '                    // The original test, unchanged: the footer is left\n' +
   '                    // alone while it sits whole in the viewport, allowing 200.\n' +
   '                    var whole = screenTop + screenH - 200 <= y + winH && screenTop >= y;\n' +
   '                    screenEl.classList.toggle("th-visible", !whole);\n' +

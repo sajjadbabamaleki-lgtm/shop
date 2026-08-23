@@ -432,7 +432,7 @@
             var header = wrap && wrap.closest(".th-header");
             var menu = wrap && wrap.querySelector(".menu-area");
             var catMenu = document.querySelector(".category-menu");
-            // The corner button. It was the template's scroll-to-top ring
+            // The corner button. It was a scroll-to-top ring once
             // and is the WhatsApp link now; the name says which, because a
             // variable called toTop that shows a chat button is a trap.
             var corner = document.querySelector(".vp-whatsapp");
@@ -503,7 +503,7 @@
                 var atFoot = screenEl ? (y + winH > screenTop) : false;
                 if (corner) corner.classList.toggle("show", y > 0 && !atFoot);
                 if (screenEl) {
-                    // The template's own test, unchanged: the footer is left
+                    // The original test, unchanged: the footer is left
                     // alone while it sits whole in the viewport, allowing 200.
                     var whole = screenTop + screenH - 200 <= y + winH && screenTop >= y;
                     screenEl.classList.toggle("th-visible", !whole);
