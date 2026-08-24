@@ -197,13 +197,18 @@
                          by name here rather than inherited by anything that reuses
                          the block. --}}
                     @php
-                        $payable = $cart->subtotal() - $discount['amount'] + $shipping;
+                        $payable = $cart->subtotal() - $discount['amount'];
                     @endphp
 
-                    {{-- «از ردیف های پایین هزینه ارسال حذف بشه» — the row is gone; the
-                         charge is not. `$payable` below still adds `$shipping` in,
-                         so «مبلغ قابل پرداخت» and the checkout's own total agree —
-                         only the line naming it here is what came off. --}}
+                    {{-- «از ردیف های پایین هزینه ارسال حذف بشه» took the delivery
+                         row off this summary while the charge was still folded into
+                         `$payable`. It is not folded in any more: delivery is the
+                         chosen shipping method's, two of the three are پس‌کرایه and
+                         one is a fixed amount, and none of that is known until the
+                         next page. So this is the goods less the discount, and the
+                         line under the button says where the rest is decided —
+                         rather than a figure the checkout would immediately
+                         contradict. --}}
                     <aside class="vp-cart-sum is-island">
                         <div class="vp-cart-row"><span>جمع کالاها</span><span>{{ toman($cart->subtotal()) }} تومان</span></div>
                         <div class="vp-cart-row"><span>تخفیف</span><span>{{ toman($discount['amount']) }} تومان</span></div>
@@ -217,6 +222,7 @@
                             <p class="vp-note is-bad">اول ردیف‌های مشخص‌شده را درست کن.</p>
                         @else
                             <a class="vp-filter-apply vp-cart-go" href="{{ storefront_route('checkout') }}">ادامه ({{ toman($payable) }} تومان)</a>
+                            <p class="vp-cart-ship-note">روش ارسال و هزینه‌اش را در مرحلهٔ بعد انتخاب می‌کنید.</p>
                         @endif
                     </aside>
                 </div>

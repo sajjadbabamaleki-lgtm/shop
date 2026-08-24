@@ -11,13 +11,13 @@ use App\Models\LedgerEntry;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\Role;
+use App\Models\ShippingMethod;
 use App\Models\User;
 use App\Models\Variant;
 use App\Models\Vendor;
 use App\Models\VendorOffer;
 use App\Support\Branches\BranchOpener;
 use App\Support\Checkout\SettleOrder;
-use App\Support\Checkout\Shipping;
 use App\Support\Tenancy\TenantContext;
 use Database\Seeders\BranchSeeder;
 use Database\Seeders\CatalogueSeeder;
@@ -87,7 +87,15 @@ class DiscountsAndReportsTest extends TestCase
 
     private function place(): Order
     {
-        $this->post('/checkout', ['name' => 'مشتری', 'phone' => '09121112233', 'address' => 'نشانی']);
+        $this->post('/checkout', [
+            'name' => 'مشتری',
+            'phone' => '09121112233',
+            'address' => 'نشانی',
+            // Required since §10's shipping methods landed. The پس‌کرایه one,
+            // so the totals this file asserts stay the discount's arithmetic
+            // and not the post's.
+            'shipping_method_id' => ShippingMethod::where('name', 'پست پیشتاز')->firstOrFail()->id,
+        ]);
 
         return Order::latest('id')->firstOrFail();
     }
@@ -113,10 +121,11 @@ class DiscountsAndReportsTest extends TestCase
         // was one figure — «جمع کل», with the code already taken off — until the
         // client asked for the reference's four rows: goods, discount, delivery,
         // and the payable total under a rule. So the basket is checked for the
-        // parts it now shows separately, and for the total being the three of
-        // them put together rather than a figure of its own.
+        // parts it now shows separately, and for the total being the two of
+        // them put together rather than a figure of its own. Delivery is not in
+        // that sum any more — it is the shipping method's, chosen a page later.
         $off = intdiv($price, 10);
-        $payable = $price - $off + Shipping::on($price);
+        $payable = $price - $off;
 
         $this->get('/checkout')->assertOk()->assertSee(toman($off), false);
 

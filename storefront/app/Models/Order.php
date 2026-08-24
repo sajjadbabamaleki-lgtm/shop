@@ -207,6 +207,32 @@ class Order extends Model
         return self::methodLabels()[$this->payment_method] ?? (string) $this->payment_method;
     }
 
+    /**
+     * How this order is being sent, and what its delivery costs.
+     *
+     * **Read off the order, not off the method.** The method is a settings row
+     * the shop can rename, reprice or switch off, and an order that asked it
+     * afresh would answer today's question about last month's parcel. So the
+     * name comes from the relation and the *money* from `shipping_total`,
+     * which was fixed when the order was placed.
+     *
+     * «پس‌کرایه» is a shipping total of zero on a method that collects — which
+     * is not the same as free delivery, and is why this cannot be a bare check
+     * for zero.
+     */
+    public function shippingLabel(): string
+    {
+        $method = $this->shippingMethod;
+
+        if (! $method) {
+            return $this->shipping_total > 0 ? toman($this->shipping_total).' تومان' : 'رایگان';
+        }
+
+        return $method->isCollect() ? 'پس‌کرایه' : ($this->shipping_total > 0
+            ? toman($this->shipping_total).' تومان'
+            : 'رایگان');
+    }
+
     /** Which badge the payment wears — reversed money reads like a cancellation. */
     public function paymentTone(): string
     {

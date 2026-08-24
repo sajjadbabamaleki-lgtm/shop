@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Http\Controllers\PageController;
 use App\Models\Branch;
+use App\Models\ShippingMethod;
 use App\Support\Branches\BranchOpener;
 use App\Support\Tenancy\TenantContext;
 use Database\Seeders\BranchSeeder;
@@ -120,16 +121,32 @@ class ContentPagesTest extends TestCase
     }
 
     /**
-     * The FAQ quotes the delivery charge, and the checkout charges it. They
-     * read the same config key, and this is what says so — a page of copy that
-     * names a price is a page that can go out of date silently.
+     * The FAQ lists the methods the checkout offers, at their own prices.
+     *
+     * It used to quote a flat charge out of `storefront.checkout` and this
+     * test held the two to one config key. There is no flat charge any more —
+     * delivery is the shipping method the shopper picks — so the promise moves
+     * to the rows themselves: rename or reprice one from the panel and the
+     * answer follows it. A page of copy that names a price is a page that can
+     * go out of date silently, which is why it names none.
      */
-    public function test_the_faq_quotes_the_charge_the_checkout_applies(): void
+    public function test_the_faq_lists_the_methods_the_checkout_offers(): void
     {
-        $this->get('/faq')
-            ->assertOk()
-            ->assertSee(toman((int) config('storefront.checkout.shipping_flat')), false)
-            ->assertSee(toman((int) config('storefront.checkout.free_shipping_above')), false);
+        // Read outside a request, so nothing is bound and a branch-scoped
+        // model would find nothing — the central branch's own rows, which are
+        // what `/faq` renders.
+        $methods = app(TenantContext::class)->forBranch(
+            Branch::central(),
+            fn () => ShippingMethod::where('is_active', true)->get(),
+        );
+
+        $this->assertTrue($methods->isNotEmpty());
+
+        $page = $this->get('/faq')->assertOk();
+
+        foreach ($methods as $method) {
+            $page->assertSee($method->name, false)->assertSee($method->chargeLabel(), false);
+        }
     }
 
     /**

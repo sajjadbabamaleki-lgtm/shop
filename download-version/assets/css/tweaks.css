@@ -21310,6 +21310,146 @@ body.shoe-shop {
   font-weight: 360;
 }
 
+/* --------------------------------------------------------------------------
+   THE THREE WAYS A PARCEL CAN TRAVEL
+
+   «در بخش ثبت سفارش، امکان انتخاب روش ارسال اضافه شود» — پست پیشتاز و تیپاکس
+   پس‌کرایه, پست معمولی at a fixed amount. Three cards, one radio each, the cost
+   at the far end of the row.
+
+   `grid-template-columns: auto 1fr auto` and not flex, so the three costs line
+   up down the right-hand edge whatever the names are: «پس‌کرایه» and «۲۰۰٬۰۰۰
+   تومان» are different lengths, and ragged they read as three unrelated boxes
+   rather than one list to choose from.
+
+   The chosen one is drawn with an inset ring rather than a thicker border —
+   a border that changes width moves the text inside it, and the row twitching
+   as you tap down the list is the thing that makes a control feel cheap.
+
+   `.vp-ship-cost.is-collect` is muted on purpose: «پس‌کرایه» is a *kind* and
+   not a price, and painting it in the same gold as «۲۰۰٬۰۰۰ تومان» reads as
+   two amounts, one of which happens to be spelled out in words.
+   -------------------------------------------------------------------------- */
+
+.vp-ship-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.vp-ship {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid rgba(16, 17, 17, 0.12);
+  border-radius: 14px;
+  background: #FFFFFF;
+  cursor: pointer;
+}
+
+.vp-ship:has(input:checked) {
+  border-color: var(--vp-gold-fill);
+  box-shadow: inset 0 0 0 1px var(--vp-gold-fill);
+}
+
+/* **The radio has to be drawn here, because the base stylesheet hides every
+ * one on the site.** `input[type="radio"]` there is `display: none` with
+ * `width: 0`, and what it draws instead is a `~ label::before` — an icon-font
+ * circle on a *sibling* label. This markup puts the input inside its label, so
+ * that sibling rule never matches and the three methods rendered as three
+ * plain boxes with no control in them at all: measured 0×0, `display: none`,
+ * `visibility: hidden`. Not a specificity fight — the base rule simply sets a
+ * property this one did not.
+ *
+ * So it is un-hidden by name and repainted from nothing: `appearance: none`
+ * drops the platform dial, and the dot is a `::before` that grows from 0 to
+ * 8px when checked. 18px is the same target the account page's controls use,
+ * and the whole 44px row is the label, so the tap area is the card and not the
+ * dot. */
+.vp-ship input[type="radio"] {
+  display: inline-grid;
+  place-content: center;
+  visibility: visible;
+  opacity: 1;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  padding: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  border: 1px solid rgba(16, 17, 17, 0.28);
+  border-radius: 50%;
+  background: #FFFFFF;
+  cursor: pointer;
+}
+
+.vp-ship input[type="radio"]::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--vp-gold-fill);
+  transform: scale(0);
+  transition: transform 0.12s ease;
+}
+
+.vp-ship input[type="radio"]:checked {
+  border-color: var(--vp-gold-fill);
+}
+
+.vp-ship input[type="radio"]:checked::before {
+  transform: scale(1);
+}
+
+.vp-ship input[type="radio"]:focus-visible {
+  outline: 2px solid var(--vp-gold-fill);
+  outline-offset: 2px;
+}
+
+.vp-ship-name {
+  font-weight: 700;
+}
+
+.vp-ship-cost {
+  font-weight: 700;
+  color: var(--vp-gold-ink);
+  white-space: nowrap;
+}
+
+.vp-ship-cost.is-collect {
+  color: #6B6B6B;
+  font-weight: 500;
+}
+
+.vp-ship-note {
+  margin: 8px 0 0;
+  font-size: 12px;
+  line-height: 20px;
+  color: #6B6B6B;
+}
+
+/* The basket's footnote where its delivery figure used to be.
+ *
+ * The button says «ادامه (X تومان)» and X is now the goods less the discount
+ * — delivery is the shipping method's and the method is chosen on the next
+ * page. Without this line a shopper reads that total as the final one and
+ * meets a larger number one screen later, which is the complaint this whole
+ * summary was rebuilt to avoid. 11px/17px, the same muted ink as
+ * `.vp-ship-cost.is-collect`, so it reads as a note under the button rather
+ * than a fourth row of the summary. */
+.vp-cart-ship-note {
+  margin: 8px 0 0;
+  font-size: 11px;
+  line-height: 17px;
+  color: #6B6B6B;
+  text-align: center;
+}
+
 :root {
   --vp-design: ok;
 }

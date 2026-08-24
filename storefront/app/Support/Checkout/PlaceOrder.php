@@ -10,6 +10,7 @@ use App\Models\Customer;
 use App\Models\DiscountRedemption;
 use App\Models\InventoryMovement;
 use App\Models\Order;
+use App\Models\ShippingMethod;
 use App\Models\Variant;
 use App\Models\VendorOffer;
 use App\Support\Marketplace\Sellers;
@@ -57,11 +58,11 @@ class PlaceOrder
      *
      * @throws CannotFulfil
      */
-    public function __invoke(Cart $cart, array $contact): Order
+    public function __invoke(Cart $cart, array $contact, ?ShippingMethod $shippingMethod = null): Order
     {
         $branch = $this->tenant->branch();
 
-        return DB::transaction(function () use ($cart, $contact, $branch) {
+        return DB::transaction(function () use ($cart, $contact, $branch, $shippingMethod) {
             $items = $cart->items()
                 ->with('variant.product', 'vendor')
                 ->get()
@@ -94,8 +95,17 @@ class PlaceOrder
             // moment where the answer is worth anything.
             $discount = $this->discounts->on($cart, $customer->id);
 
-            // The same rule the basket printed a moment ago — see Shipping.
-            $shipping = Shipping::on($subtotal);
+            // **What delivery costs is the chosen method's business.** A
+            // پس‌کرایه method adds nothing here — the carrier collects at the
+            // door — so this is `costAtCheckout()` and not `price`, which are
+            // different numbers for exactly the methods where being wrong
+            // means charging somebody twice or not at all.
+            //
+            // With no method chosen it falls back to the flat rule, which is
+            // what every order placed before this existed was charged. Not a
+            // silent default for new orders: `CheckoutController` requires the
+            // choice, so nothing reaching this without one came from the shop.
+            $shipping = $shippingMethod ? $shippingMethod->costAtCheckout() : Shipping::on($subtotal);
             $off = $discount['amount'];
 
             $order = Order::create([
@@ -106,6 +116,7 @@ class PlaceOrder
                 'subtotal' => $subtotal,
                 'discount_total' => $off,
                 'shipping_total' => $shipping,
+                'shipping_method_id' => $shippingMethod?->id,
                 'grand_total' => $subtotal - $off + $shipping,
                 // How this one is going to be paid for, decided by the
                 // gateway the shop actually has rather than written flat. It

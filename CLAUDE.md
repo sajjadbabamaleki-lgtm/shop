@@ -189,6 +189,20 @@ the client saw an old page and had no way to tell why. So, plainly:
   returns nothing rather than everything, on purpose.
   `php artisan branch:open <slug> <name> --markup= --stock=` opens a franchise
   at `/<slug>` with the central catalogue at its own prices.
+- **A shipping method's `price` is not what it charges.** «پس‌کرایه» means the
+  carrier collects their own tariff at the door, so the shop takes nothing and
+  `orders.shipping_total` is 0 — but the parcel is not free, and the order still
+  points at the method so whoever packs it knows to send it collect. That is
+  `shipping_methods.charge` (`prepaid`/`collect`), and
+  `ShippingMethod::costAtCheckout()` is the only thing that may decide what an
+  order is charged. Read through it, never off `price`: the two differ for
+  exactly the methods where being wrong means charging somebody twice or not at
+  all. The choice is **required** at checkout, the money lands in
+  `orders.shipping_total` and the kind in `orders.shipping_method_id`, and
+  `Order::shippingLabel()` takes one from each — so repricing a method from
+  `/admin/fulfilment` never restates an invoice already issued. The basket
+  quotes no delivery figure at all any more; it cannot know one.
+  `ShippingMethod::DEFAULTS` is what a new branch opens with.
 - **Stock only ever moves in two places**: `PlaceOrder` reserves it and
   `SettleOrder` sells or releases it, both under `FOR UPDATE`. Anything else
   that writes `branch_inventory` is a bug waiting to be an oversell. Every

@@ -6,10 +6,11 @@
     the foot of the shop as well — «بنظرم قسمت انتهای سایت هم بزارش این سوالات
     متداولو خود سوالاتو» — and a second copy of eight answers is a second copy
     that goes stale. Every answer here is read off the application rather than
-    written about it: the delivery charge and the free-delivery threshold are
-    `storefront.checkout`, the same two numbers `CheckoutController` adds up
-    with; the cancellation answer is `Order::isCancellable()` in words; the
-    registration answer is what `AccountController` actually asks for.
+    written about it: the delivery answer lists the `shipping_methods` rows the
+    checkout will actually offer, so renaming or repricing one from the panel
+    rewrites the answer too; the cancellation answer is `Order::isCancellable()`
+    in words; the registration answer is what `AccountController` actually
+    asks for.
 
     `<details>` rather than a scripted accordion: it needs no script, it opens
     with the keyboard, and a browser's find-in-page can see inside a closed
@@ -28,8 +29,23 @@
 --}}
 
 @php
-    $shippingFlat = (int) config('storefront.checkout.shipping_flat');
-    $freeAbove = (int) config('storefront.checkout.free_shipping_above');
+    // The delivery answer is the shipping methods themselves, not a number in
+    // a config file. It used to quote `storefront.checkout`'s flat fee and its
+    // free-delivery threshold; neither is charged any more — what a shopper
+    // pays is the method they choose at checkout, and the shop can rename,
+    // reprice or switch one off from the panel at any time. So the answer is
+    // read off the rows the checkout will actually offer.
+    //
+    // Wrapped in `rescue()` because this partial is also included from the
+    // home page's band, and a branch-scoped read with no branch bound throws
+    // rather than returning everything — the models fail closed on purpose. An
+    // FAQ is not worth a 500, so the answer degrades to its second sentence,
+    // which is true either way.
+    $shipMethods = rescue(
+        fn () => \App\Models\ShippingMethod::where('is_active', true)->orderBy('id')->get(),
+        fn () => collect(),
+        false,
+    );
     $exchangeDays = (int) config('storefront.content.exchange_days');
 @endphp
 
@@ -37,10 +53,15 @@
             <summary>هزینه ارسال چقدر است؟</summary>
             <div class="vp-faq-a">
             <p>
-                هزینه ارسال {{ toman($shippingFlat) }} تومان است و برای
-                سفارش‌های بالای {{ toman($freeAbove) }} تومان رایگان
-                می‌شود. مبلغ دقیق، پیش از ثبت سفارش در صفحه پرداخت
-                نوشته می‌شود؛ چیزی بعداً به آن اضافه نمی‌شود.
+                بستگی به روشی دارد که هنگام ثبت سفارش انتخاب می‌کنید.
+                @if ($shipMethods->isNotEmpty())
+                    گزینه‌ها اینها هستند:
+                    {{ $shipMethods->map(fn ($m) => $m->name.' ('.$m->chargeLabel().')')->join('، ', ' و ') }}.
+                    «پس‌کرایه» یعنی هزینهٔ ارسال را هنگام تحویل به شرکت حمل
+                    می‌پردازید و فروشگاه بابتش چیزی از شما نمی‌گیرد.
+                @endif
+                مبلغ دقیق، پیش از پرداخت در صفحهٔ ثبت سفارش نوشته
+                می‌شود؛ چیزی بعداً به آن اضافه نمی‌شود.
             </p>
             </div>
         </details>

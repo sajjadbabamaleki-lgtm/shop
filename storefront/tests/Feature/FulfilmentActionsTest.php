@@ -310,14 +310,96 @@ class FulfilmentActionsTest extends TestCase
     public function test_a_transit_range_typed_backwards_is_stored_the_right_way_round(): void
     {
         $this->actingAs($this->admin(), 'web')->post('/admin/fulfilment/methods', [
-            'name' => 'تیپاکس',
+            'name' => 'باربری',
             'transit_min_days' => 6,
             'transit_max_days' => 2,
+            'charge' => ShippingMethod::COLLECT,
         ])->assertRedirect();
 
-        $made = ShippingMethod::acrossAllBranches()->where('branch_id', $this->branch->id)->where('name', 'تیپاکس')->firstOrFail();
+        $made = $this->made('باربری');
 
         $this->assertSame(2, $made->transit_min_days);
         $this->assertSame(6, $made->transit_max_days);
+    }
+
+    // --- what the panel may set, so no amount is hard-coded ----------------
+
+    /**
+     * A price typed in the panel is Toman, and lands in the column as Rial.
+     *
+     * «تا مبلغ ۲۰۰ هزار تومان به‌صورت Hard-code داخل سیستم نباشد». The panel
+     * types and reads Toman everywhere and the column is Rial everywhere, and
+     * the one place those two meet is this form — get the factor wrong here
+     * and the shop charges a tenth or ten times, silently, on every order.
+     */
+    public function test_a_fixed_price_is_typed_in_toman_and_stored_in_rial(): void
+    {
+        $this->actingAs($this->admin(), 'web')->post('/admin/fulfilment/methods', [
+            'name' => 'پست سفارشی',
+            'transit_min_days' => 3,
+            'transit_max_days' => 6,
+            'charge' => ShippingMethod::PREPAID,
+            'price' => '۱۲۰,۰۰۰',
+        ])->assertRedirect();
+
+        $made = $this->made('پست سفارشی');
+
+        $this->assertSame(1_200_000, $made->price);
+        $this->assertSame(1_200_000, $made->costAtCheckout());
+    }
+
+    /**
+     * A number typed next to «پس‌کرایه» is dropped rather than stored.
+     *
+     * Otherwise the row carries a price nothing charges, and the next person
+     * to read the table — or to switch the method to prepaid — finds a figure
+     * nobody decided sitting there ready to be collected.
+     */
+    public function test_a_collect_method_keeps_no_price(): void
+    {
+        $this->actingAs($this->admin(), 'web')->post('/admin/fulfilment/methods', [
+            'name' => 'پیک',
+            'transit_min_days' => 0,
+            'transit_max_days' => 1,
+            'charge' => ShippingMethod::COLLECT,
+            'price' => '90000',
+        ])->assertRedirect();
+
+        $made = $this->made('پیک');
+
+        $this->assertSame(0, $made->price);
+        $this->assertSame('پس‌کرایه', $made->chargeLabel());
+    }
+
+    /** The price and the kind are both editable afterwards. */
+    public function test_a_methods_price_and_kind_can_be_changed_from_the_panel(): void
+    {
+        $method = ShippingMethod::acrossAllBranches()
+            ->where('branch_id', $this->branch->id)->where('name', 'پست معمولی')->firstOrFail();
+        $admin = $this->admin();
+
+        $this->actingAs($admin, 'web')->post("/admin/fulfilment/methods/{$method->id}", [
+            'transit_min_days' => 4,
+            'transit_max_days' => 8,
+            'charge' => ShippingMethod::PREPAID,
+            'price' => '۲۵۰٬۰۰۰',
+        ])->assertRedirect();
+
+        $this->assertSame(2_500_000, $method->fresh()->price);
+
+        $this->actingAs($admin, 'web')->post("/admin/fulfilment/methods/{$method->id}", [
+            'transit_min_days' => 4,
+            'transit_max_days' => 8,
+            'charge' => ShippingMethod::COLLECT,
+        ])->assertRedirect();
+
+        $this->assertTrue($method->fresh()->isCollect());
+        $this->assertSame(0, $method->fresh()->costAtCheckout());
+    }
+
+    private function made(string $name): ShippingMethod
+    {
+        return ShippingMethod::acrossAllBranches()
+            ->where('branch_id', $this->branch->id)->where('name', $name)->firstOrFail();
     }
 }

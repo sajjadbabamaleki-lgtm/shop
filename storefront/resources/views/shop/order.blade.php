@@ -132,7 +132,10 @@
                     @if ($order->discount_total > 0)
                         <div class="vp-cart-row"><span>تخفیف</span><span>− {{ toman($order->discount_total) }}</span></div>
                     @endif
-                    <div class="vp-cart-row"><span>هزینه ارسال</span><span>{{ $order->shipping_total === 0 ? 'رایگان' : toman($order->shipping_total) }}</span></div>
+                    @if ($order->shippingMethod)
+                        <div class="vp-cart-row"><span>روش ارسال</span><span>{{ $order->shippingMethod->name }}</span></div>
+                    @endif
+                    <div class="vp-cart-row"><span>هزینه ارسال</span><span>{{ $order->shippingLabel() }}</span></div>
                     <div class="vp-cart-row is-total"><span>قابل پرداخت</span><span>{{ toman($order->grand_total) }} تومان</span></div>
 
                     <h2 class="vp-filter-title vp-order-to">تحویل به</h2>

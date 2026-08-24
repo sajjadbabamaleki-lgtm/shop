@@ -77,29 +77,62 @@
         @if ($methods->isEmpty())
             <p class="vp-adm-empty">هنوز روش ارسالی تعریف نشده. بدون آن، بازه تحویل با تخمین پیش‌فرض ۲ تا ۴ روز کاری حساب می‌شود.</p>
         @else
-            <table class="vp-admin-table">
-                <thead><tr><th>نام</th><th>شرکت</th><th>ترانزیت</th><th>وضعیت</th><th></th></tr></thead>
-                <tbody>
+            {{-- A card per method rather than a table.
+                 This screen's column is about 300px wide inside the panel's
+                 grid, and a five-column table was already reading at three
+                 words a line in it; a sixth column and a form under each row
+                 pushed the toggle off the side entirely — measured, the last
+                 two columns were outside the card. A method has four facts and
+                 three of them are editable, so each one gets its own block: it
+                 fits the narrow column, it fits a telephone, and the form sits
+                 next to the numbers it changes. --}}
+            <ul class="vp-ship-admin">
                 @foreach ($methods as $method)
-                    <tr>
-                        <td>{{ $method->name }}</td>
-                        <td>{{ $method->carrier ?: '—' }}</td>
-                        <td>{{ fa_number($method->transit_min_days) }} تا {{ fa_number($method->transit_max_days) }} روز کاری</td>
-                        <td>
+                    <li class="vp-ship-admin-item">
+                        <div class="vp-ship-admin-head">
+                            <b>{{ $method->name }}</b>
                             <span class="vp-adm-badge is-{{ $method->is_active ? 'delivered' : 'cancelled' }}">
                                 {{ $method->is_active ? 'فعال' : 'غیرفعال' }}
                             </span>
-                        </td>
-                        <td>
                             <form method="post" action="{{ route('admin.fulfilment.methods.toggle', $method) }}">
                                 @csrf
                                 <button type="submit" class="vp-adm-clear">{{ $method->is_active ? 'خاموش' : 'روشن' }}</button>
                             </form>
-                        </td>
-                    </tr>
+                        </div>
+
+                        <p class="vp-ship-admin-facts">
+                            {{ $method->carrier ?: 'بدون شرکت حمل' }} ·
+                            {{ fa_number($method->transit_min_days) }} تا {{ fa_number($method->transit_max_days) }} روز کاری ·
+                            {{ $method->chargeLabel() }}
+                        </p>
+
+                        <form class="vp-ship-edit" method="post" action="{{ route('admin.fulfilment.methods.update', $method) }}">
+                            @csrf
+                            <label for="fm-charge-{{ $method->id }}">هزینه ارسال</label>
+                            <select id="fm-charge-{{ $method->id }}" name="charge">
+                                <option value="prepaid" @selected(! $method->isCollect())>مبلغ ثابت</option>
+                                <option value="collect" @selected($method->isCollect())>پس‌کرایه</option>
+                            </select>
+
+                            <label for="fm-price-{{ $method->id }}">مبلغ (تومان)</label>
+                            <input id="fm-price-{{ $method->id }}" type="text" inputmode="numeric" name="price"
+                                   value="{{ $method->isCollect() ? '' : intdiv($method->price, 10) }}" placeholder="۰">
+
+                            <label for="fm-emin-{{ $method->id }}">ترانزیت (روز کاری)</label>
+                            <span class="vp-ship-days">
+                                <input id="fm-emin-{{ $method->id }}" type="number" name="transit_min_days"
+                                       min="0" max="60" value="{{ $method->transit_min_days }}" required>
+                                <span>تا</span>
+                                <input type="number" name="transit_max_days" aria-label="بیشترین روز کاری ترانزیت"
+                                       min="0" max="60" value="{{ $method->transit_max_days }}" required>
+                            </span>
+
+                            <button type="submit" class="vp-adm-clear">ذخیره</button>
+                        </form>
+                    </li>
                 @endforeach
-                </tbody>
-            </table>
+            </ul>
+            <p class="vp-adm-note">تغییر مبلغ روی سفارش‌های ثبت‌شده اثر ندارد؛ هر سفارش هزینه‌ای را که مشتری پذیرفته با خودش نگه می‌دارد.</p>
         @endif
 
         <form class="vp-adm-form" method="post" action="{{ route('admin.fulfilment.methods.store') }}">
@@ -115,6 +148,15 @@
 
             <label for="fm-max">بیشترین روز کاری ترانزیت</label>
             <input id="fm-max" type="number" name="transit_max_days" min="0" max="60" value="4" required>
+
+            <label for="fm-charge">هزینه ارسال</label>
+            <select id="fm-charge" name="charge">
+                <option value="prepaid">مبلغ ثابت (در سفارش حساب می‌شود)</option>
+                <option value="collect">پس‌کرایه (هنگام تحویل)</option>
+            </select>
+
+            <label for="fm-price">مبلغ (تومان)</label>
+            <input id="fm-price" type="text" inputmode="numeric" name="price" placeholder="۰">
 
             <button type="submit" class="vp-adm-apply">افزودن</button>
         </form>

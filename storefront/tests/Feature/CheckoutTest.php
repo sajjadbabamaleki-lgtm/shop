@@ -8,13 +8,13 @@ use App\Models\Customer;
 use App\Models\InventoryMovement;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\ShippingMethod;
 use App\Models\Variant;
 use App\Support\Branches\BranchOpener;
 use App\Support\Checkout\CannotFulfil;
 use App\Support\Checkout\CartManager;
 use App\Support\Checkout\PlaceOrder;
 use App\Support\Checkout\SettleOrder;
-use App\Support\Checkout\Shipping;
 use App\Support\Tenancy\TenantContext;
 use Database\Seeders\BranchSeeder;
 use Database\Seeders\CatalogueSeeder;
@@ -55,10 +55,30 @@ class CheckoutTest extends TestCase
         return Product::where('slug', $slug)->firstOrFail()->defaultVariant;
     }
 
-    /** @return array{name: string, phone: string, address: string} */
-    private function contact(string $phone = '09123456789'): array
+    /**
+     * What a filled-in checkout form posts.
+     *
+     * The shipping method rides along because the field is required — «انتخاب
+     * یکی از این روش‌ها الزامی است» — and a helper that left it out would make
+     * every test below a test of the validation rule instead of the thing it
+     * is named after. `method()` picks it by name so the tests that care which
+     * one can say so.
+     *
+     * @return array{name: string, phone: string, address: string, shipping_method_id: int}
+     */
+    private function contact(string $phone = '09123456789', ?string $method = null): array
     {
-        return ['name' => 'سجاد', 'phone' => $phone, 'address' => 'خیابان ولیعصر، پلاک ۱'];
+        return [
+            'name' => 'سجاد',
+            'phone' => $phone,
+            'address' => 'خیابان ولیعصر، پلاک ۱',
+            'shipping_method_id' => $this->method($method ?? 'پست معمولی')->id,
+        ];
+    }
+
+    private function method(string $name): ShippingMethod
+    {
+        return ShippingMethod::where('name', $name)->firstOrFail();
     }
 
     // --- the basket -------------------------------------------------------
@@ -181,31 +201,128 @@ class CheckoutTest extends TestCase
     }
 
     /**
-     * The basket's total already carries the delivery fee the order then charges.
+     * The basket quotes the goods, says so, and the checkout adds the method.
      *
-     * «دقیقا این ui بساز» once put «هزینه ارسال» on the basket's summary as its
-     * own row, so the fee was printed twice on the way to an order — once as a
-     * quote and once as a charge. «از ردیف های پایین هزینه ارسال حذف بشه» took
-     * the row off; the figure itself did not move, it is still folded into
-     * «مبلغ قابل پرداخت» and the button's own total, which is what this test
-     * checks now instead of the row. The rule still lives in Shipping alone,
-     * so the quote and the charge still cannot become two rules that disagree
-     * — this is the test that says so either way.
+     * This test used to assert the opposite: that the basket's button already
+     * carried the flat delivery fee the order would charge, so a shopper never
+     * met a larger number later. That was right while there was one fee. There
+     * are three methods now — two پس‌کرایه and one fixed — and the basket
+     * cannot know which is coming, so folding *any* figure in would guarantee
+     * the contradiction the old test existed to prevent. The promise moves
+     * rather than disappearing: the button is the goods, and the line under it
+     * says delivery is chosen next.
      */
-    public function test_the_basket_total_already_carries_the_delivery_fee_the_order_charges(): void
+    public function test_the_basket_quotes_the_goods_and_says_delivery_comes_next(): void
     {
         $variant = $this->variant('nike-v2k-run');
 
         $this->post('/cart', ['variant' => $variant->id]);
 
-        $quoted = Shipping::on($variant->offer->price);
-
         $this->get('/cart')->assertOk()
-            ->assertSee('ادامه ('.toman($variant->offer->price + $quoted).' تومان)', false);
+            ->assertSee('ادامه ('.toman($variant->offer->price).' تومان)', false)
+            ->assertSee('روش ارسال و هزینه‌اش را در مرحلهٔ بعد انتخاب می‌کنید', false);
 
-        $this->post('/checkout', $this->contact());
+        $this->post('/checkout', $this->contact(method: 'پست معمولی'));
 
-        $this->assertSame($quoted, Order::latest('id')->firstOrFail()->shipping_total);
+        $order = Order::latest('id')->firstOrFail();
+
+        $this->assertSame($this->method('پست معمولی')->price, $order->shipping_total);
+        $this->assertSame($variant->offer->price + $order->shipping_total, $order->grand_total);
+    }
+
+    // --- §10's shipping methods -------------------------------------------
+
+    /**
+     * The choice is required, and the checkout offers all three by name.
+     *
+     * «انتخاب یکی از این روش‌ها الزامی است» — required rather than defaulted,
+     * because the two پس‌کرایه methods and the fixed-price one differ by two
+     * hundred thousand Toman and a default would collect that from somebody
+     * who never chose it, or fail to.
+     */
+    public function test_the_checkout_offers_the_three_methods_and_will_not_take_an_order_without_one(): void
+    {
+        $variant = $this->variant('nike-v2k-run');
+
+        $this->post('/cart', ['variant' => $variant->id]);
+
+        $this->get('/checkout')->assertOk()
+            ->assertSee('پست پیشتاز', false)
+            ->assertSee('تیپاکس', false)
+            ->assertSee('پست معمولی', false)
+            ->assertSee('پس‌کرایه', false);
+
+        $contact = $this->contact();
+        unset($contact['shipping_method_id']);
+
+        $this->post('/checkout', $contact)->assertSessionHasErrors('shipping_method_id');
+
+        $this->assertSame(0, Order::count());
+    }
+
+    /**
+     * A پس‌کرایه method adds nothing to the total and is recorded anyway.
+     *
+     * The parcel is not free — the carrier takes their tariff at the door —
+     * which is why the order still points at the method. Charging the shop's
+     * `price` column for it would take the money twice; recording nothing at
+     * all would leave whoever packs the shoes unable to tell the courier which
+     * parcels go collect.
+     */
+    public function test_a_collect_method_adds_nothing_but_is_still_recorded(): void
+    {
+        $variant = $this->variant('nike-v2k-run');
+
+        $this->post('/cart', ['variant' => $variant->id]);
+        $this->post('/checkout', $this->contact(method: 'پست پیشتاز'));
+
+        $order = Order::latest('id')->firstOrFail();
+
+        $this->assertSame(0, $order->shipping_total);
+        $this->assertSame($this->method('پست پیشتاز')->id, $order->shipping_method_id);
+        $this->assertSame($variant->offer->price, $order->grand_total);
+        $this->assertSame('پس‌کرایه', $order->shippingLabel());
+    }
+
+    /**
+     * Repricing a method does not reprice an order already placed.
+     *
+     * §10 again — «do not silently rewrite historical promises». The money the
+     * shopper agreed to is `orders.shipping_total`, a column; the method row is
+     * a setting the shop edits whenever it likes. `shippingLabel()` reads the
+     * kind off the relation and the amount off the column for exactly this
+     * reason, and a rewrite that took both from the relation would silently
+     * restate every past invoice.
+     */
+    public function test_raising_a_methods_price_leaves_a_placed_order_alone(): void
+    {
+        $variant = $this->variant('nike-v2k-run');
+
+        $this->post('/cart', ['variant' => $variant->id]);
+        $this->post('/checkout', $this->contact(method: 'پست معمولی'));
+
+        $order = Order::latest('id')->firstOrFail();
+        $was = $order->shipping_total;
+
+        $this->method('پست معمولی')->update(['price' => $was * 3]);
+
+        $this->assertSame($was, $order->fresh()->shipping_total);
+        $this->assertStringContainsString(toman($was), $order->fresh()->shippingLabel());
+    }
+
+    /** A method switched off in the panel cannot be chosen, even by hand. */
+    public function test_a_method_that_is_off_is_not_offered_and_is_not_accepted(): void
+    {
+        $variant = $this->variant('nike-v2k-run');
+        $off = $this->method('تیپاکس');
+        $off->update(['is_active' => false]);
+
+        $this->post('/cart', ['variant' => $variant->id]);
+
+        $this->get('/checkout')->assertOk()->assertDontSee('تیپاکس', false);
+
+        $this->post('/checkout', ['shipping_method_id' => $off->id] + $this->contact())
+            ->assertSessionHasErrors('shipping_method_id');
     }
 
     /**
@@ -224,7 +341,7 @@ class CheckoutTest extends TestCase
         $this->post('/cart', ['variant' => $variant->id]);
 
         $price = $variant->offer->price;
-        $payable = $price + Shipping::on($price);
+        $payable = $price;
 
         $this->get('/cart')->assertOk()
             ->assertDontSee('هزینه ارسال', false)

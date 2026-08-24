@@ -7,6 +7,7 @@ use App\Models\Customer;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\Product;
+use App\Models\ShippingMethod;
 use App\Models\Variant;
 use App\Support\Checkout\SettleOrder;
 use App\Support\Payments\AtTheDoor;
@@ -541,7 +542,12 @@ class PaymentTest extends TestCase
     public function test_an_order_placed_under_a_card_gateway_says_online(): void
     {
         $this->post('/cart', ['variant' => $this->aVariant()->id]);
-        $this->post('/checkout', ['name' => 'سجاد', 'phone' => '09123456789', 'address' => 'خیابان ولیعصر، پلاک ۱']);
+        $this->post('/checkout', [
+            'name' => 'سجاد', 'phone' => '09123456789', 'address' => 'خیابان ولیعصر، پلاک ۱',
+            // Required since §10's shipping methods landed — the checkout
+            // will not take an order without one.
+            'shipping_method_id' => ShippingMethod::where('name', 'پست پیشتاز')->firstOrFail()->id,
+        ]);
 
         $this->assertSame('online', Order::latest('id')->firstOrFail()->payment_method);
     }
@@ -553,7 +559,12 @@ class PaymentTest extends TestCase
         $this->app->forgetInstance(Gateway::class);
 
         $this->post('/cart', ['variant' => $this->aVariant()->id]);
-        $this->post('/checkout', ['name' => 'سجاد', 'phone' => '09123456789', 'address' => 'خیابان ولیعصر، پلاک ۱']);
+        $this->post('/checkout', [
+            'name' => 'سجاد', 'phone' => '09123456789', 'address' => 'خیابان ولیعصر، پلاک ۱',
+            // Required since §10's shipping methods landed — the checkout
+            // will not take an order without one.
+            'shipping_method_id' => ShippingMethod::where('name', 'پست پیشتاز')->firstOrFail()->id,
+        ]);
 
         $this->assertSame('cash_on_delivery', Order::latest('id')->firstOrFail()->payment_method);
     }

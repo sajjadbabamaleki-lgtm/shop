@@ -12,6 +12,7 @@ use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\Role;
 use App\Models\Settlement;
+use App\Models\ShippingMethod;
 use App\Models\User;
 use App\Models\Variant;
 use App\Models\Vendor;
@@ -106,7 +107,12 @@ class MarketplaceTest extends TestCase
     private function buyFromVendor(VendorOffer $offer): array
     {
         $this->post('/cart', ['variant' => $offer->variant_id, 'vendor' => $offer->vendor_id]);
-        $this->post('/checkout', ['name' => 'مشتری', 'phone' => '09121112233', 'address' => 'یک نشانی']);
+        $this->post('/checkout', [
+            'name' => 'مشتری', 'phone' => '09121112233', 'address' => 'یک نشانی',
+            // Required since §10's shipping methods landed — the checkout
+            // will not take an order without one.
+            'shipping_method_id' => ShippingMethod::where('name', 'پست پیشتاز')->firstOrFail()->id,
+        ]);
 
         $order = Order::latest('id')->firstOrFail();
 

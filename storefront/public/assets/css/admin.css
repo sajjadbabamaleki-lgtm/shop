@@ -1979,3 +1979,93 @@ a.vp-adm-mini {
 .vp-adm-jfoot button:hover {
   background: var(--adm-bg);
 }
+
+/* The shipping methods, a card each.
+ *
+ * This card sits in a ~300px column of the panel's grid, and the methods were
+ * a table: name, carrier, transit, cost, state, toggle. Measured at 1200, the
+ * last two columns were outside the card — the toggle a shop owner needs in
+ * order to switch a method off was off the side of it. Six columns do not fit
+ * 300px, and no amount of narrowing them makes «۲ تا ۵ روز کاری» read as one
+ * line. So each method is a block: its name and state on one row, its facts on
+ * a second, its form on a third. The same shape works on a telephone, which
+ * the table never did. */
+.vp-ship-admin {
+  margin: 0 0 12px;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.vp-ship-admin-item {
+  padding: 10px 12px;
+  border: 1px solid var(--adm-line);
+  border-radius: var(--adm-r-sm);
+  background: var(--adm-bg);
+}
+
+.vp-ship-admin-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* The toggle to the far end, so the three methods' buttons line up down the
+ * column instead of each sitting wherever its own name stopped. */
+.vp-ship-admin-head form {
+  margin-inline-start: auto;
+}
+
+.vp-ship-admin-facts {
+  margin: 4px 0 8px;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--adm-ink-2);
+}
+
+/* The form wraps rather than scrolls: in a column this narrow every field
+ * takes its own line, and at a wider breakpoint they sit two or three abreast
+ * without a media query saying so. */
+.vp-ship-edit {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+}
+
+.vp-ship-edit label {
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--adm-ink-2);
+}
+
+.vp-ship-edit select,
+.vp-ship-edit input {
+  height: 32px;
+  min-width: 0;
+  padding-inline: 8px;
+  border: 1px solid var(--adm-line);
+  border-radius: var(--adm-r-sm);
+  background: var(--adm-surface);
+  color: var(--adm-ink);
+  font: inherit;
+  font-size: 12px;
+}
+
+.vp-ship-edit input[type="text"] {
+  width: 84px;
+}
+
+.vp-ship-days {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--adm-ink-2);
+}
+
+.vp-ship-days input {
+  width: 52px;
+}

@@ -71,6 +71,42 @@
                         </div>
                     </div>
 
+                    {{-- The delivery choice, required.
+                         Radios rather than a select: three options that differ
+                         in what they cost are a comparison, and a select hides
+                         two thirds of it behind a tap. `required` on the first
+                         is enough for the group — the browser will not submit
+                         until one of the name-sharing inputs is checked — and
+                         the server checks it again against this branch's own
+                         live methods, because a form can post anything. --}}
+                    <div class="vp-field">
+                        <span class="vp-field-label">روش ارسال</span>
+
+                        <ul class="vp-ship-list">
+                            @foreach ($methods as $i => $method)
+                                <li>
+                                    <label class="vp-ship" for="co-ship-{{ $method->id }}">
+                                        <input id="co-ship-{{ $method->id }}" type="radio" name="shipping_method_id"
+                                               value="{{ $method->id }}"
+                                               data-ship-cost="{{ $method->costAtCheckout() }}"
+                                               @checked((int) old('shipping_method_id') === $method->id)
+                                               @if ($i === 0) required @endif>
+                                        <span class="vp-ship-name">{{ $method->name }}</span>
+                                        <span class="vp-ship-cost{{ $method->isCollect() ? ' is-collect' : '' }}">
+                                            {{ $method->chargeLabel() }}
+                                        </span>
+                                    </label>
+                                </li>
+                            @endforeach
+                        </ul>
+
+                        @error('shipping_method_id')
+                            <p class="vp-code-note">{{ $message }}</p>
+                        @enderror
+
+                        <p class="vp-ship-note">«پس‌کرایه» یعنی هزینهٔ ارسال را هنگام تحویل به شرکت حمل می‌پردازید.</p>
+                    </div>
+
                     <div class="vp-field">
                         <span class="vp-field-label">روش پرداخت</span>
                         <p class="vp-checkout-pay">پرداخت اینترنتی. بعد از ثبت سفارش به درگاه بانکی می‌روید.</p>
@@ -82,8 +118,13 @@
                 @php
                     $subtotal = $cart->subtotal();
                     $off = $discount['amount'];
-                    $free = (int) config('storefront.checkout.free_shipping_above');
-                    $shipping = $free > 0 && $subtotal >= $free ? 0 : (int) config('storefront.checkout.shipping_flat');
+
+                    // What the summary opens on. Nothing is chosen yet, so the
+                    // delivery row says so rather than quoting one of the three
+                    // — a total that changes the moment somebody picks is worse
+                    // than one that waits to be told.
+                    $chosen = $methods->firstWhere('id', (int) old('shipping_method_id'));
+                    $shipping = $chosen?->costAtCheckout() ?? 0;
                 @endphp
 
                 <aside class="vp-cart-sum">
@@ -121,12 +162,64 @@
                     @endif
                     <div class="vp-cart-row">
                         <span>هزینه ارسال</span>
-                        <span>{{ $shipping === 0 ? 'رایگان' : toman($shipping).' تومان' }}</span>
+                        <span data-ship-line>
+                            @if (! $chosen)
+                                — روش ارسال را انتخاب کنید
+                            @else
+                                {{ $chosen->chargeLabel() }}
+                            @endif
+                        </span>
                     </div>
-                    <div class="vp-cart-row is-total"><span>قابل پرداخت</span><span>{{ toman($subtotal - $off + $shipping) }} تومان</span></div>
+                    <div class="vp-cart-row is-total">
+                        <span>قابل پرداخت</span>
+                        <span data-ship-total data-ship-base="{{ $subtotal - $off }}">{{ toman($subtotal - $off + $shipping) }} تومان</span>
+                    </div>
                 </aside>
             </div>
         </div>
     </div>
 </section>
+
+{{-- The summary follows the choice.
+     Server-side this is settled anyway — `PlaceOrder` prices the order from
+     the method it is handed, never from anything the browser computed — so
+     this script is a courtesy, not a source of truth. Written to fail quiet:
+     with no JavaScript the delivery row keeps saying «روش ارسال را انتخاب
+     کنید» and the order still comes out priced correctly, because the total
+     that matters is the one the server writes. --}}
+<script>
+    (function () {
+        var line = document.querySelector('[data-ship-line]');
+        var total = document.querySelector('[data-ship-total]');
+        var radios = document.querySelectorAll('input[name="shipping_method_id"]');
+
+        if (!line || !total || !radios.length) return;
+
+        var base = Number(total.getAttribute('data-ship-base')) || 0;
+
+        // Toman for the eye, Rial in the data — the same ten-to-one the rest of
+        // the shop keeps, and the reason this divides rather than prints what
+        // it was given.
+        function toman(rial) {
+            return (rial / 10).toLocaleString('fa-IR');
+        }
+
+        function show() {
+            var picked = document.querySelector('input[name="shipping_method_id"]:checked');
+            if (!picked) return;
+
+            var cost = Number(picked.getAttribute('data-ship-cost')) || 0;
+            var label = picked.closest('.vp-ship').querySelector('.vp-ship-cost');
+
+            line.textContent = label ? label.textContent.trim() : '';
+            total.textContent = toman(base + cost) + ' تومان';
+        }
+
+        radios.forEach(function (radio) {
+            radio.addEventListener('change', show);
+        });
+
+        show();
+    }());
+</script>
 @endsection

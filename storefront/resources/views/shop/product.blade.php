@@ -392,14 +392,17 @@
                                 </button>
                             </div>
 
-                            {{-- What the reference puts under the buttons, and the
-                                 number is the checkout's own — the same
-                                 `storefront.checkout` figure the FAQ quotes, so
-                                 the page cannot promise a threshold the basket
-                                 does not honour. --}}
+                            {{-- What the reference puts under the buttons. It used
+                                 to promise free delivery above a threshold, off
+                                 `storefront.checkout`. That threshold is not what
+                                 the shopper is charged any more — delivery is the
+                                 shipping method they pick at checkout, and two of
+                                 the three are پس‌کرایه — so this says what is
+                                 actually true instead of a promise the basket no
+                                 longer honours. --}}
                             <p class="vp-pdp-ship">
                                 <i class="fa-solid fa-truck-fast" aria-hidden="true"></i>
-                                ارسال رایگان برای خریدهای بالای {{ toman(config('storefront.checkout.free_shipping_above')) }} تومان
+                                ارسال با پست پیشتاز، تیپاکس یا پست معمولی — روش را هنگام ثبت سفارش انتخاب می‌کنید
                             </p>
                         </form>
 

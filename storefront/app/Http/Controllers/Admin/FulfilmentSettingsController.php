@@ -10,6 +10,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 /**
  * §10's «Order Processing & Shipping Settings».
@@ -103,7 +104,7 @@ class FulfilmentSettingsController extends Controller
         return array_values(array_unique($out));
     }
 
-    /** A shipping method and its transit range — §10's carrier list. */
+    /** A shipping method, its transit range and who pays for it. */
     public function storeMethod(Request $request, TenantContext $tenant): RedirectResponse
     {
         $input = $request->validate([
@@ -111,7 +112,8 @@ class FulfilmentSettingsController extends Controller
             'carrier' => ['nullable', 'string', 'max:80'],
             'transit_min_days' => ['required', 'integer', 'min:0', 'max:60'],
             'transit_max_days' => ['required', 'integer', 'min:0', 'max:60'],
-            'price' => ['nullable', 'integer', 'min:0'],
+            'charge' => ['required', Rule::in([ShippingMethod::PREPAID, ShippingMethod::COLLECT])],
+            'price' => ['nullable', 'string', 'max:20'],
         ]);
 
         // Read the right way round rather than refused: a range typed backwards
@@ -125,11 +127,56 @@ class FulfilmentSettingsController extends Controller
             'carrier' => $input['carrier'] ?? null,
             'transit_min_days' => $min,
             'transit_max_days' => $max,
-            'price' => (int) ($input['price'] ?? 0),
+            'charge' => $input['charge'],
+            // A پس‌کرایه method's price is nobody's business — the carrier
+            // takes it at the door — so a number typed next to that choice is
+            // dropped rather than stored, or the basket would add it up.
+            'price' => $input['charge'] === ShippingMethod::COLLECT ? 0 : ($this->rial($input['price'] ?? null) ?? 0),
             'is_active' => true,
         ]);
 
         return redirect()->route('admin.fulfilment')->with('status', 'روش ارسال اضافه شد.');
+    }
+
+    /**
+     * The price and who pays it, editable — «تا مبلغ … به‌صورت Hard-code داخل
+     * سیستم نباشد».
+     *
+     * **It does not touch an order already placed.** `orders.shipping_total`
+     * carries the money the shopper actually agreed to, and `shippingLabel()`
+     * reads that column rather than this row, so raising the post's price this
+     * afternoon leaves last week's invoices saying what they said.
+     */
+    public function updateMethod(Request $request, ShippingMethod $method): RedirectResponse
+    {
+        $input = $request->validate([
+            'transit_min_days' => ['required', 'integer', 'min:0', 'max:60'],
+            'transit_max_days' => ['required', 'integer', 'min:0', 'max:60'],
+            'charge' => ['required', Rule::in([ShippingMethod::PREPAID, ShippingMethod::COLLECT])],
+            'price' => ['nullable', 'string', 'max:20'],
+        ]);
+
+        $method->update([
+            'transit_min_days' => min($input['transit_min_days'], $input['transit_max_days']),
+            'transit_max_days' => max($input['transit_min_days'], $input['transit_max_days']),
+            'charge' => $input['charge'],
+            'price' => $input['charge'] === ShippingMethod::COLLECT ? 0 : ($this->rial($input['price'] ?? null) ?? 0),
+        ]);
+
+        return redirect()->route('admin.fulfilment')
+            ->with('status', 'روش ارسال ویرایش شد. سفارش‌های ثبت‌شده با همان مبلغ قبلی می‌مانند.');
+    }
+
+    /**
+     * Toman in, Rial out — the panel types and reads Toman everywhere, and the
+     * column is Rial everywhere. Persian digits fold first and the thousands
+     * separators somebody pastes are thrown away.
+     */
+    private function rial(?string $value): ?int
+    {
+        $digits = preg_replace('/\D/', '', latin_digits((string) $value));
+
+        return $digits === '' ? null : (int) $digits * 10;
     }
 
     /**

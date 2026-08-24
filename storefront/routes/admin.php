@@ -274,6 +274,9 @@ Route::middleware(['auth:web', ResolveAdminTenant::class])->group(function (): v
     Route::post('/fulfilment/methods', [FulfilmentSettingsController::class, 'storeMethod'])
         ->middleware(RequirePermission::class.':branch.settings.manage')
         ->name('fulfilment.methods.store');
+    Route::post('/fulfilment/methods/{method}', [FulfilmentSettingsController::class, 'updateMethod'])
+        ->middleware(RequirePermission::class.':branch.settings.manage')
+        ->name('fulfilment.methods.update');
     Route::post('/fulfilment/methods/{method}/toggle', [FulfilmentSettingsController::class, 'toggleMethod'])
         ->middleware(RequirePermission::class.':branch.settings.manage')
         ->name('fulfilment.methods.toggle');

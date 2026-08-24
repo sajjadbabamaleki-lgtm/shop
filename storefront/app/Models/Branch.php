@@ -77,20 +77,20 @@ class Branch extends Model
         // methods. Here rather than in `BranchOpener`, because that is not the
         // only way a branch comes into being: `BranchSeeder` makes the central
         // one with `firstOrNew`, and a console command or an import could make
-        // the next. A branch with no method still works — the promise falls
-        // back to a two-to-four-day window — but it is promising against a
-        // guess, and the shop never sees the setting it was meant to choose.
+        // the next. A branch with no method cannot take an order at all now —
+        // the checkout requires one to be chosen — so this is the difference
+        // between a franchise that opens sellable and one that opens broken.
+        //
+        // The list is `ShippingMethod::DEFAULTS` rather than written here, so
+        // there is one answer to «what does a shop offer» and a branch opened
+        // tomorrow offers what the branches opened already do.
         static::created(function (self $branch): void {
-            ShippingMethod::acrossAllBranches()->firstOrCreate(
-                ['branch_id' => $branch->id, 'name' => 'پست پیشتاز'],
-                [
-                    'carrier' => 'شرکت ملی پست',
-                    'transit_min_days' => 2,
-                    'transit_max_days' => 4,
-                    'price' => 0,
-                    'is_active' => true,
-                ],
-            );
+            foreach (ShippingMethod::DEFAULTS as $method) {
+                ShippingMethod::acrossAllBranches()->firstOrCreate(
+                    ['branch_id' => $branch->id, 'name' => $method['name']],
+                    $method + ['is_active' => true],
+                );
+            }
         });
     }
 

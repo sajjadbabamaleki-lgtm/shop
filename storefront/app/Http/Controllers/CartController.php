@@ -6,7 +6,6 @@ use App\Models\Variant;
 use App\Models\Vendor;
 use App\Support\Checkout\CartManager;
 use App\Support\Checkout\Discounts;
-use App\Support\Checkout\Shipping;
 use App\Support\Marketplace\Sellers;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -37,19 +36,16 @@ class CartController extends Controller
 
         $discount = $this->discounts->on($cart);
 
-        // The summary prints «هزینه ارسال», so the basket has to know it. It
-        // comes from the same Shipping rule the order will use, rather than
-        // this page working it out its own way — a fee that changes between
-        // the basket and the confirmation is the one thing a summary must
-        // never do.
+        // **The basket no longer quotes delivery, because it cannot know it.**
+        // What delivery costs is now the shipping method's, and the method is
+        // chosen on the next page: two of the three are پس‌کرایه and add
+        // nothing, one is a fixed amount the shop sets. Quoting any single
+        // figure here would be a number the checkout then contradicts, which
+        // is the one thing a summary must never do — so this page adds up the
+        // goods and says where the rest is decided.
         return view('shop.cart', [
             'cart' => $cart,
             'discount' => $discount,
-            // On the subtotal *before* the discount, because that is the number
-            // PlaceOrder passes it. Feeding it the discounted total here would
-            // put a basket one code away from quoting a delivery fee the order
-            // then contradicts.
-            'shipping' => Shipping::on($cart->subtotal()),
         ]);
     }
 

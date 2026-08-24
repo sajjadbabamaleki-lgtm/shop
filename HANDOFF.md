@@ -2591,7 +2591,7 @@ then مبلغ قابل پرداخت under a rule — and the button carries the 
 cut this block down to two rows on the grounds that delivery was decided at the
 next step and the code was typed there; the reference has all four, so all four
 are back. The row that was hardest to make honest is delivery, and that is what
-`App\Support\Checkout\Shipping` is for:
+`App\Support\Checkout\Shipping` was for:
 
 > The fee is now printed twice on the way to an order — quoted on the basket,
 > charged by `PlaceOrder`. It used to be a private method on `PlaceOrder`, so a
@@ -2601,10 +2601,19 @@ are back. The row that was hardest to make honest is delivery, and that is what
 > here passed the discounted total, which would have put a basket one code away
 > from quoting a fee the order then contradicted.
 
-`CheckoutTest::test_the_basket_quotes_the_delivery_fee_the_order_charges` is the
-test that would have caught exactly that, and
-`test_the_basket_summary_shows_the_reference_four_rows` pins the four rows —
-worth having, since the shape they replaced was asked for by name too.
+**That is now history: the basket quotes no delivery fee at all.** See
+«روش‌های ارسال» below — there are three methods, two of them پس‌کرایه, and
+which one is chosen is a decision made a page later. Folding *any* figure into
+«مبلغ قابل پرداخت» would guarantee the contradiction the paragraph above exists
+to prevent, so the button is the goods less the discount and a line under it
+says delivery is chosen next. `Shipping::on()` survives as the fallback for an
+order placed without a method — nothing on the storefront can do that, the field
+is required — and is what `demo:orders` charges.
+
+`CheckoutTest::test_the_basket_quotes_the_goods_and_says_delivery_comes_next`
+replaced the test that pinned the old promise, and
+`test_the_basket_summary_shows_the_three_kept_rows` pins the rows — worth
+having, since the shape they replaced was asked for by name too.
 
 ### And then to the reference's proportions, not just its arrangement
 
@@ -2993,4 +3002,84 @@ written as raw channels. Two of them were on the account page and moved here;
 the rest are why some tints on this site read a shade muddier than others.
 
 533 tests, Pint clean, parity identical at 992/1200/1440/1920, no sideways
+scroll at 390/768/1200/1920.
+
+## روش‌های ارسال — three methods, chosen at checkout
+
+«در بخش ثبت سفارش، امکان انتخاب روش ارسال اضافه شود» with three of them:
+**پست پیشتاز — پس‌کرایه**, **تیپاکس — پس‌کرایه**, **پست معمولی — ۲۰۰,۰۰۰
+تومان**. Required, added to the total, kept on the order, shown to the shopper
+and to the shop, and editable from the panel «تا مبلغ ۲۰۰ هزار تومان به‌صورت
+Hard-code داخل سیستم نباشد».
+
+### The one distinction the whole feature turns on
+
+**A method's `price` is not what it adds to the order.** پس‌کرایه means the
+carrier collects their own tariff at the door: the shop takes nothing, so the
+order's `shipping_total` is 0 — but the parcel is *not* free and the order still
+has to point at the method, or whoever packs it cannot tell the courier which
+parcels go collect. That is `charge`, an enum of `prepaid`/`collect`, and
+`ShippingMethod::costAtCheckout()`. **Read through `costAtCheckout()`, never off
+`price`.** The two differ for exactly the methods where being wrong means
+charging somebody twice or not at all.
+
+### What holds the money, and what holds the kind
+
+`orders.shipping_total` holds the money and `orders.shipping_method_id` holds
+the kind, and `Order::shippingLabel()` reads one from each. That is deliberate:
+the shop may reprice پست معمولی any afternoon it likes, and an invoice that took
+its amount from the relation would silently restate what a customer agreed to
+last week. `test_raising_a_methods_price_leaves_a_placed_order_alone` is the one
+that says so.
+
+### The basket stopped quoting delivery
+
+It had to. With three methods and the choice a page away, any figure the basket
+printed would be one the checkout contradicted. So «مبلغ قابل پرداخت» and the
+«ادامه (…)» button are the goods less the discount, and `.vp-cart-ship-note`
+under the button says the rest is chosen next. Two other places quoted the old
+flat fee and now describe the methods instead: the FAQ's delivery answer (read
+off the `shipping_methods` rows, so renaming or repricing one rewrites the
+answer) and the product page's `.vp-pdp-ship` line, which used to promise free
+delivery above a threshold that no longer exists.
+
+### The radio had to be drawn from nothing
+
+The base stylesheet is `input[type="radio"] { display: none }` for the whole
+site, and what it draws instead is an icon-font circle on a **sibling**
+`~ label::before`. This markup puts the input inside its label, so that rule
+never matched: measured, all three controls were 0×0, `display: none`,
+`visibility: hidden` — three plain boxes with nothing to tap. `.vp-ship
+input[type="radio"]` un-hides it by name, `appearance: none` drops the platform
+dial, and the dot is a `::before` scaling 0 → 8px on `:checked`. Not a
+specificity fight; the base rule simply set a property the new one had not.
+
+### Where the defaults live
+
+`ShippingMethod::DEFAULTS` — the three, in checkout order. `Branch::booted()`
+creates them for every new branch, so a franchise opens sellable; a branch with
+no method cannot take an order at all now, because the field is required. The
+migration that put them on the branches that already existed carries its own
+frozen copy on purpose: a migration that read a constant would change meaning
+the next time somebody edited the constant.
+
+**It is a migration and not a seeder** for the reason at the top of `CLAUDE.md`:
+`catalogue:seed` fills only an empty catalogue, and production has not been
+empty for weeks. Editing a seeder there ships green and changes nothing.
+
+### The panel
+
+`/admin/fulfilment`, «روش‌های ارسال». A card per method — name, state, toggle,
+its facts, and a form for `charge`, price and transit. It was a table until the
+sixth column: measured at 1200, this card sits in a ~300px column of the panel's
+grid and the last two columns were **outside** it, the toggle among them. Price
+is typed and read in Toman like everywhere else in the panel and stored in Rial
+like everywhere else in the database; a number typed next to «پس‌کرایه» is
+dropped rather than stored, or the row would carry an amount nothing charges.
+
+The «ارسال کردم» section prints what the shopper chose, and prints it in the red
+tone when it is پس‌کرایه — hand a collect parcel to the carrier as prepaid and
+the shop pays the postage and finds out at the end of the month.
+
+627 tests, Pint clean, parity identical at 992/1200/1440/1920, no sideways
 scroll at 390/768/1200/1920.

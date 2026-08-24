@@ -65,7 +65,10 @@
             @if ($order->discount_total > 0)
                 <li><span>تخفیف</span><b>−{{ toman($order->discount_total) }}</b></li>
             @endif
-            <li><span>ارسال</span><b>{{ toman($order->shipping_total) }}</b></li>
+            <li><span>ارسال</span><b>{{ $order->shippingLabel() }}</b></li>
+            @if ($order->shippingMethod)
+                <li><span>روش ارسال</span><b>{{ $order->shippingMethod->name }}</b></li>
+            @endif
             <li><span>مبلغ کل</span><b>{{ toman($order->grand_total) }} تومان</b></li>
         </ul>
     </section>
@@ -209,6 +212,22 @@
 
             <p class="vp-adm-empty">فقط بعد از اینکه بسته واقعاً تحویل پست شد.</p>
 
+            @if ($order->shippingMethod)
+                {{-- The choice the shopper made, said out loud here rather than
+                     left implicit in the select below. A پس‌کرایه parcel has to
+                     be handed to the carrier as پس‌کرایه — the shop took no
+                     money for it — and getting that wrong means the shop pays
+                     the postage and finds out at the end of the month. --}}
+                <p class="vp-adm-note {{ $order->shippingMethod->isCollect() ? 'is-bad' : '' }}">
+                    مشتری «{{ $order->shippingMethod->name }}» را انتخاب کرده —
+                    @if ($order->shippingMethod->isCollect())
+                        <b>پس‌کرایه</b>: هزینه ارسال از فروشگاه گرفته نشده و باید هنگام تحویل از مشتری گرفته شود.
+                    @else
+                        هزینه ارسال {{ $order->shippingLabel() }} در سفارش حساب شده است.
+                    @endif
+                </p>
+            @endif
+
             <form class="vp-adm-form" method="post" action="{{ route('admin.order.ship', $order) }}">
                 @csrf
 
@@ -217,7 +236,7 @@
                     <select id="sh-method" name="shipping_method_id">
                         @foreach ($methods as $method)
                             <option value="{{ $method->id }}" @selected($order->shipping_method_id === $method->id)>
-                                {{ $method->name }}{{ $method->carrier ? ' — '.$method->carrier : '' }}
+                                {{ $method->name }}{{ $method->carrier ? ' — '.$method->carrier : '' }} ({{ $method->chargeLabel() }})
                             </option>
                         @endforeach
                     </select>
