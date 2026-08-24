@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
+use App\Support\FrontPage;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
 
@@ -34,11 +35,36 @@ class HomeController extends Controller
             'categories' => $categories,
             'heroSlides' => $this->heroSlides($products),
             'ladder' => $this->ladder(),
-            'ladderDeals' => $products,
+            'ladderDeals' => $this->ladderDeals($products),
             'bestSellers' => $this->bestSellers($categories, $products),
             'dailyDeal' => $this->dailyDeal($products),
             'brands' => $this->brands($categories),
         ]);
+    }
+
+    /**
+     * The cards under the stepped sale's board.
+     *
+     * Everything discounted, until the catalogue grew: the row is laid out for
+     * five and takes as many as it is handed, so an import of a hundred and
+     * thirty products would have turned the front page into a wall of them
+     * without anybody choosing that. The campaign now names its own products —
+     * `front_page.ladder_products` — and this filters the promoted pool down to
+     * them, keeping the pool's own newest-first order rather than the list's.
+     *
+     * With the list empty it is the old behaviour, unchanged.
+     *
+     * @param  Collection<string, Product>  $products
+     * @return Collection<string, Product>
+     */
+    private function ladderDeals(Collection $products): Collection
+    {
+        // `only()` would have been the obvious call and is the wrong one: on an
+        // Eloquent collection it selects by *primary key*, not by the slug this
+        // one is keyed on, so it quietly returns nothing at all. `FrontPage`
+        // does the filtering, and is also where «the panel's choice, or the
+        // file's default» is decided — once, for all five bands.
+        return app(FrontPage::class)->filter($products, 'ladder');
     }
 
     /**
@@ -125,6 +151,13 @@ class HomeController extends Controller
      */
     private function heroSlides(Collection $products): array
     {
+        /*
+         * The hero stays in the config file while the others moved to the
+         * panel, and the reason is in the shape of this list: a hero slide is
+         * a slug *and* the eyebrow printed above the name, so choosing one is
+         * two decisions and the panel's screen collects one. Giving it a
+         * half-filled slide would have been worse than leaving it here.
+         */
         $chosen = collect(config('storefront.hero.products'))
             ->mapWithKeys(fn (string $eyebrow, string $slug) => [$slug => [
                 'product' => $products->get($slug),
@@ -196,7 +229,7 @@ class HomeController extends Controller
     {
         $placeholder = config('storefront.placeholders.best_sellers');
 
-        $priced = collect($placeholder['priced_from'])
+        $priced = collect(app(FrontPage::class)->slugs('best_sellers'))
             ->map(fn (string $slug) => $products->get($slug))
             ->filter()
             ->values();
@@ -225,7 +258,7 @@ class HomeController extends Controller
      */
     private function dailyDeal(Collection $products): ?array
     {
-        $product = $products->get(config('storefront.daily_deal.product'));
+        $product = $products->get(app(FrontPage::class)->slugs('daily_deal')[0] ?? null);
 
         if ($product === null) {
             return null;

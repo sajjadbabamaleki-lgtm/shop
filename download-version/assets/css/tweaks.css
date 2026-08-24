@@ -8,6 +8,33 @@
    Loaded last.
    ========================================================================== */
 
+/* --------------------------------------------------------------------------
+   THE TWO WEIGHTS THE PAGE FALLS BACK TO, TEN PER CENT LIGHTER
+
+   «زخامت همه نوشته ها باید ده درصد نازکتر بشن». Every weight this file sets was
+   multiplied by 0.9 in place; these two are the ones it does not set — the
+   base layer's `b, strong { bolder }` and its 700 on every heading — mapped to
+   the same 0.9 so that «همه» really is all of it.
+
+   **At the top of the file, and that is the whole trick.** One class in front
+   of a `:where()` is exactly the weight of a single class, so every rule below
+   that names a class of its own — `.vp-mini-title`, `.vp-foot-m-name`,
+   `.vp-logo-text b` — wins on source order and keeps the weight it was tuned
+   to. Written at the end of the file instead, this same pair silently flattened
+   seven headings from 720 to 630, which is how it was found.
+
+   Still above the base layer, because this file is loaded last and a class
+   outweighs `b, strong` either way.
+   -------------------------------------------------------------------------- */
+
+.shoe-shop :where(b, strong, small) {
+  font-weight: 630;
+}
+
+.shoe-shop :where(h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6) {
+  font-weight: 630;
+}
+
 /* The hero cards sat flush against the header — measured gap was 0px. Space
    below the header, not above the section's own content, so the gap is there
    whatever the hero slide contains. 30px to start with, then 36, now 40.
@@ -1094,7 +1121,7 @@ option:hover {
   fill: #FFFFFF;
   text-anchor: middle;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 900;
+  font-weight: 810;
   /* In the burst's own units, so it scales with the shape. 28.7 against the
      101px the burst is drawn at puts the type 5% larger on the page than the
      26 did at 106 — the burst comes down and the writing goes up. */
@@ -1274,21 +1301,30 @@ option:hover {
    the island the moment the page scrolls. */
 .th-header .menu-area,
 .th-header .sticky-wrapper.sticky .menu-area {
-  /* 40 above, 18 to both sides. Nothing below: the gap down to the hero is
+  /* 20 above, 18 to both sides. Nothing below: the gap down to the hero is
      the hero's own padding, and a bottom margin here would stack on top of it.
-     
-     The top was 18 and matched the sides, which is a sensible rule and the
-     wrong one here — «فاصله بالای هدر اندازه فاصله هدر با هیرو بشه». Measured
-     at 1200: the island sat 18 below the page's top edge and 40 above the hero
-     card, so the island looked pinned to the top of the window rather than
-     floating between two equal gaps. 40 is that measured gap, not a guess; if
-     the hero's padding ever moves, this moves with it. */
-  margin: 40px 18px 0;
-  /* 20 — «جزیره هدر ۲۰/۲۴», read in the order the same message used for the
-     hero: the desktop first. It is the tightest corner on the page now, which
-     suits the shape: the island is 1160 wide and 76 tall, and a radius that
-     works on a 450-tall hero card reads as a lozenge on a bar. */
-  border-radius: 20px;
+
+     **20 is 40 halved, at the client's word: «اون فاصله بالای هدر باید نصف
+     بشه», said about the desktop.** The 40 it replaces was itself measured
+     rather than chosen — «فاصله بالای هدر اندازه فاصله هدر با هیرو بشه» — the
+     island had sat 18 below the window's edge and 40 above the hero card, and
+     40 made those two gaps equal so it floated between them instead of looking
+     pinned to the top.
+
+     That symmetry is what this gives up, deliberately: the page now opens with
+     20 above the island and 40 below it, so the shop starts nearer the top of
+     the window. The hero's own padding is untouched — if the two are ever
+     meant to match again, this is the number that moves, not that one.
+
+     The phone keeps its own 13.5, in the block that halves these margins
+     below 992; nothing here reaches it. */
+  margin: 20px 18px 0;
+  /* 22 — «دستاپ بشه ۲۲ موبایل هم بشه ۲۲», which ends the split this line used
+     to carry («جزیره هدر ۲۰/۲۴», desktop first). The island was the one place
+     on the page where the narrow screen was rounder than the wide one; it is
+     one number at every width now, and 22 is the middle of the two it
+     replaces. */
+  border-radius: 22px;
   background: rgba(16, 17, 17, 0.063);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
@@ -1607,6 +1643,45 @@ option:hover {
   align-items: center;
 }
 
+/* Ten per cent taller, on the desktop. «ارتفاع هیرو باید ده درصد بلندتر بشه».
+
+   **Padding rather than a height, because the card has never had one.** Its
+   height is whatever the tallest slide's contents come to: below about 1650
+   that is the writing column, a flat 450.4px at every width; above it the
+   photograph column overtakes and grows with the window — 510 at 1800, 551.6
+   at 1920. A `min-height` would lift the first regime and do nothing to the
+   second, so the wider the screen the less of the ten per cent would arrive.
+
+   So the padding is written as two regimes in one line: a pixel figure that
+   holds wherever the writing column is the tallest thing, and a `vw` figure
+   that takes over exactly where the photograph does.
+
+   **The ten per cent came back down by five.** «ارتفاع هیرو باید ده درصد
+   بلندتر بشه», then «باید ۵ درصد کوتاهتر بشه» once it was on the screen — five
+   per cent off what the first change produced, which leaves the card 4.5%
+   taller than it was before either. `max(22.5px, 1.44vw)` became
+   `max(10.1px, 0.65vw)`; the shape of the rule is unchanged, both numbers are
+   the same fraction of it. Measured, against the height this started at:
+
+     width   was      +10% was    now      net
+     1200    450.4    495.4       470.6    +4.5%
+     1440    450.4    495.4       470.6    +4.5%
+     1600    450.4    496.5       471.2    +4.6%
+     1800    510.0    561.8       533.4    +4.6%
+     1920    551.6    606.9       576.6    +4.5%
+
+   No breakpoints, and it keeps its proportion on a screen nobody here has. The
+   contents stay centred — the rule above sees to that — so the change is air
+   around the shoe rather than a shoe pushed about.
+
+   Desktop only, as asked: below 992 the card is a different shape and the
+   phone was not part of the instruction. */
+@media (min-width: 992px) {
+  .heroSlide6 .hero-inner {
+    padding-block: max(10.1px, 0.65vw);
+  }
+}
+
 .heroSlide6 .hero-inner > .container {
   width: 100%;
 }
@@ -1758,12 +1833,12 @@ option:hover {
 .heroSlide6 .hero-inner .hero-title,
 .heroSlide6 .hero-inner .hero-title a {
   font-family: 'Cairo', var(--title-font);
-  font-weight: 900;
+  font-weight: 810;
 }
 
 .heroSlide6 .hero-inner .sub-title {
   font-family: 'Cairo', var(--body-font);
-  font-weight: 700;
+  font-weight: 630;
 }
 
 /* «اون خط باید حذف بشه» — the dash beside the hero's eyebrow.
@@ -1787,7 +1862,7 @@ option:hover {
    is variable, so 800 is a real weight and not a synthesised one. */
 .heroSlide6 .hero-inner .th-btn {
   font-family: 'Cairo', var(--body-font);
-  font-weight: 800;
+  font-weight: 720;
 }
 
 /* --------------------------------------------------------------------------
@@ -1997,7 +2072,7 @@ option:hover {
 
 .vp-logo-text b {
   font-family: 'Cairo', var(--title-font);
-  font-weight: 800;
+  font-weight: 720;
   font-size: 19px;
   color: #101111;
   letter-spacing: -0.01em;
@@ -2010,7 +2085,7 @@ option:hover {
    the hero's own small label uses, so the page keeps one quiet tone. */
 .vp-logo-text small {
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 450;
   color: #6E7070;
   /* Cairo sets Persian with a deep descender: the tail of the پ in پلاس was
      reaching the line below, and at 1px of separation the two runs of ink were
@@ -2039,7 +2114,7 @@ option:hover {
      not a browser's synthetic bolding of 800. */
   .th-header .vp-logo-text b {
     font-size: 14.52px;
-    font-weight: 900;
+    font-weight: 810;
   }
 
   .th-header .vp-logo-text small {
@@ -2073,15 +2148,17 @@ option:hover {
        nine per cent of the width spent on nothing, twice, which is what this
        block was written to fix. */
     margin-top: 13.5px;
-    /* Twenty per cent off 24. The corner follows the panel: a smaller inset
-       with the same radius reads rounder than it did, because the curve is a
-       larger fraction of what is left. */
-    /* 24 on the phone, against the desktop's 20 — the one place on this page
-       where the narrow screen is rounder than the wide one. That is what the
-       numbers asked for and it is not unreasonable: at 370 wide and 63 tall
-       this island is nearly a pill already, and 19.2 read as a rectangle with
-       the corners knocked off. */
-    border-radius: 24px;
+    /* The phone had 24 against the desktop's 20 for several rounds, and does
+       not any more: «دستاپ بشه ۲۲ موبایل هم بشه ۲۲». The rule stays rather
+       than being deleted, because the desktop's 22 is inside a `.th-header`
+       selector this block already overrides for the margin — leaving the
+       corner out would work today and break the day either margin rule moves.
+
+       What the rounds settled, in case a split is ever wanted again: at 370
+       wide and 63 tall this island is nearly a pill already, so it carries a
+       larger radius than the 1160 × 76 desktop one without reading as a
+       lozenge, and 19.2 read as a rectangle with the corners knocked off. */
+    border-radius: 22px;
   }
 }
 
@@ -2256,7 +2333,7 @@ option:hover {
     0 4px 14px -8px rgba(16, 17, 17, 0.35);
   color: #101111;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 14px;
   line-height: 1.5;
   text-align: center;
@@ -2535,7 +2612,7 @@ option:hover {
 .vp-ladder-title {
   margin: 0 0 4px;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 800;
+  font-weight: 720;
   font-size: 24px;
   line-height: 1.5;
   color: var(--theme-color);
@@ -2550,7 +2627,7 @@ option:hover {
 
 .vp-ladder-how {
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 630;
   color: var(--theme-color);
   border-block-end: 1px solid currentColor;
 }
@@ -2662,7 +2739,7 @@ option:hover {
 }
 
 .vp-step-name {
-  font-weight: 700;
+  font-weight: 630;
   color: var(--title-color);
 }
 
@@ -2699,7 +2776,7 @@ option:hover {
   flex: none;
   border-radius: 15px;
   font-family: 'Vazirmatn', var(--body-font);
-  font-weight: 800;
+  font-weight: 720;
   font-size: 27px;
   line-height: 1;
   color: var(--title-color);
@@ -3021,7 +3098,7 @@ option:hover {
   fill: #FFFFFF;
   text-anchor: middle;
   font-family: 'Vazirmatn', var(--body-font);
-  font-weight: 800;
+  font-weight: 720;
   /* In the burst's own 150-unit space, so it scales with the shape. */
   font-size: 42px;
 }
@@ -3109,7 +3186,7 @@ option:hover {
 .vp-deal-name {
   display: block;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 12px;
   line-height: 1.6;
   color: #101111;
@@ -3133,14 +3210,14 @@ option:hover {
 
 .vp-deal-price strong {
   font-family: 'Vazirmatn', var(--body-font);
-  font-weight: 800;
+  font-weight: 720;
   font-size: 13.5px;
   color: #101111;
 }
 
 .vp-deal-price strong span {
   font-size: 9.9px;
-  font-weight: 600;
+  font-weight: 540;
   color: rgba(16, 17, 17, 0.62);
 }
 
@@ -3394,7 +3471,7 @@ option:hover {
 .vp-best-name {
   display: block;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 13.5px;
   line-height: 1.6;
   color: #101111;
@@ -3417,14 +3494,14 @@ option:hover {
 
 .vp-best-cta strong {
   font-family: 'Vazirmatn', var(--body-font);
-  font-weight: 800;
+  font-weight: 720;
   font-size: 14px;
   color: #101111;
 }
 
 .vp-best-cta strong span {
   font-size: 10.5px;
-  font-weight: 600;
+  font-weight: 540;
   color: rgba(16, 17, 17, 0.62);
 }
 
@@ -3581,7 +3658,7 @@ option:hover {
 .vp-best-title {
   margin: 0;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 800;
+  font-weight: 720;
   font-size: 19.2px;
   line-height: 1.4;
   color: #101111;
@@ -3642,7 +3719,7 @@ option:hover {
   color: rgba(16, 17, 17, 0.62);
   font-family: 'Vazirmatn', var(--body-font);
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 540;
   line-height: 1.6;
   cursor: pointer;
   transition: background-color 0.2s ease, color 0.2s ease;
@@ -3671,7 +3748,7 @@ option:hover {
   margin-inline-start: 6px;
   font-family: 'Vazirmatn', var(--body-font);
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 630;
   line-height: 1.6;
   color: var(--vp-gold-ink);
   white-space: nowrap;
@@ -3780,7 +3857,7 @@ option:hover {
   display: block;
   margin-block-end: 10px;
   font-family: 'Vazirmatn', var(--body-font);
-  font-weight: 800;
+  font-weight: 720;
   font-size: 19.5px;
   letter-spacing: 0.02em;
   /* Text on a light ground takes the accent ramp's dark end — same pairing
@@ -3791,7 +3868,7 @@ option:hover {
 .vp-daily-deal-title {
   margin: 0 0 10px;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 800;
+  font-weight: 720;
   /* 35.1 — «عنوان هاشونم باید ۱۰ درصد کوچیکتر بشن», ten per cent off 39. */
   font-size: 35.1px;
   line-height: 1.3;
@@ -3813,7 +3890,7 @@ option:hover {
   border-radius: 48px;
   background: linear-gradient(180deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   font-family: 'Vazirmatn', var(--body-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 17px;
   /* Ink, not white — this ramp's own measured pairing (6.94:1–9.88:1),
      documented at the top of this file, same as every other button label
@@ -3877,7 +3954,7 @@ option:hover {
 .vp-daily-deal-name {
   margin: 0 0 10px;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 19.5px;
   line-height: 1.5;
   color: var(--title-color);
@@ -3887,21 +3964,21 @@ option:hover {
   display: block;
   margin-block-end: 16px;
   font-family: 'Vazirmatn', var(--body-font);
-  font-weight: 800;
+  font-weight: 720;
   font-size: 23px;
   color: var(--title-color);
 }
 
 .vp-daily-deal-price span {
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 540;
   color: rgba(16, 17, 17, 0.62);
 }
 
 .vp-daily-deal-stock {
   margin-block-end: 18px;
   font-size: 14.4px;
-  font-weight: 600;
+  font-weight: 540;
   color: var(--title-color);
 }
 
@@ -3979,7 +4056,7 @@ option:hover {
 
 .vp-daily-deal-timer .count-number {
   font-family: 'Vazirmatn', var(--body-font);
-  font-weight: 800;
+  font-weight: 720;
   font-size: 19.5px;
   line-height: 1.3;
   color: var(--title-color);
@@ -4078,7 +4155,7 @@ option:hover {
   border-radius: 12px;
   background: rgba(164, 127, 37, 0.10);
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 630;
   line-height: 1.7;
   /* Both needed for the basis above to actually bind. A flex item will not go
      below its content width while min-width is auto, and this label sets 274
@@ -4574,7 +4651,7 @@ option:hover {
 .vp-how-title {
   margin: 0 0 8px;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 800;
+  font-weight: 720;
   font-size: 30px;
   line-height: 1.4;
   color: var(--theme-color);
@@ -4627,7 +4704,7 @@ option:hover {
 
 .vp-how-aside b {
   display: block;
-  font-weight: 800;
+  font-weight: 720;
   color: var(--theme-color);
 }
 
@@ -4674,7 +4751,7 @@ option:hover {
 .vp-how-step-no {
   margin-block-end: 10px;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 800;
+  font-weight: 720;
   font-size: 15px;
   line-height: 1.5;
   color: var(--title-color);
@@ -4750,12 +4827,12 @@ option:hover {
 
 .vp-how-off b {
   font-family: 'Vazirmatn', var(--body-font);
-  font-weight: 800;
+  font-weight: 720;
   font-size: 20px;
   line-height: 1.15;
 }
 
-.vp-how-off small { font-size: 10.5px; font-weight: 700; line-height: 1.5; }
+.vp-how-off small { font-size: 10.5px; font-weight: 630; line-height: 1.5; }
 
 /* Under the podium, where it says when that step runs rather than reading as
    another fact on the card. */
@@ -4881,7 +4958,7 @@ option:hover {
   padding-block-end: 10px;
   border-block-end: 1px solid rgba(16, 17, 17, 0.10);
   font-family: 'Cairo', var(--title-font);
-  font-weight: 800;
+  font-weight: 720;
   font-size: 15px;
   line-height: 1.6;
   color: var(--title-color);
@@ -4924,7 +5001,7 @@ ol.vp-how-list li:before {
   background: rgba(164, 127, 37, 0.10);
   color: var(--theme-color);
   font-family: 'Vazirmatn', var(--body-font);
-  font-weight: 800;
+  font-weight: 720;
   font-size: 10.5px;
   line-height: 19px;
   text-align: center;
@@ -4950,7 +5027,7 @@ ul.vp-how-list.is-ticked li:before {
   border-radius: 16px;
   background: rgba(164, 127, 37, 0.09);
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 630;
   line-height: 1.9;
   color: var(--title-color);
   text-align: center;
@@ -5148,7 +5225,7 @@ ul.vp-how-list.is-ticked li:before {
 .vp-brands-title {
   margin: 0;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   /* 21.6 — ten per cent off 24, «عنوان هاشونم باید ۱۰ درصد کوچیکتر بشن». */
   font-size: 21.6px;
   line-height: 1.4;
@@ -5157,7 +5234,7 @@ ul.vp-how-list.is-ticked li:before {
 
 .vp-brands-all {
   font-family: 'Vazirmatn', var(--body-font);
-  font-weight: 600;
+  font-weight: 540;
   font-size: 13.5px;
   color: var(--vp-gold);
   text-decoration: none;
@@ -5370,7 +5447,7 @@ ul.vp-how-list.is-ticked li:before {
 .vp-brand-name {
   display: block;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 16.8px;
   line-height: 1.5;
   color: #101111;
@@ -5382,7 +5459,7 @@ ul.vp-how-list.is-ticked li:before {
 .vp-brand-stock {
   display: block;
   font-family: 'Vazirmatn', var(--body-font);
-  font-weight: 600;
+  font-weight: 540;
   font-size: 13.2px;
   line-height: 1.5;
   color: rgba(16, 17, 17, 0.62);
@@ -5653,7 +5730,15 @@ ul.vp-how-list.is-ticked li:before {
 
 .vp-shop-section {
   /* Clear of the header, and the same 150 down to the footer that every band
-     of the home page now sits at. */
+     of the home page now sits at.
+
+     The top is published as a variable because something inside it needs to
+     measure from the screen rather than from the panel: the product page's two
+     floating chips are 12 from the screen on all three sides, and the only way
+     to say "12 from the top" from inside a padded box is to subtract the
+     padding. A bare number there would be a copy of this one, and the two would
+     drift the first time either moved. */
+  --vp-shop-top: 40px;
   padding-block: 40px 150px;
   overflow: hidden;
 }
@@ -5685,7 +5770,7 @@ ul.vp-how-list.is-ticked li:before {
 .vp-shop-title {
   margin: 0;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 24px;
   line-height: 1.4;
 }
@@ -5729,20 +5814,41 @@ ul.vp-how-list.is-ticked li:before {
   outline: none;
 }
 
+/* ⚠️ **A filled gold control is the light ramp, never `--theme-color`.**
+   «رنگ گلد ما گلد زرده چرا از اون گلد سبز برای آیکونا و دکمه ها استفاده
+   میکنی» — and before that, about the basket's own button, «دکمه ادامه هم
+   نباید اون رنگی باشه باید همرنگ باقی دکمه های سایت باشه». Twice, about two
+   different buttons, which is what said this was a rule and not a taste.
+
+   There is no green in this palette to use. Every gold here is the same hue —
+   `--theme-color` is 46.2°, `--vp-gold-fill` 46.7°, `--vp-gold-fill-ink`
+   46.8°, half a degree apart — and they carry the same saturation, ~71%. What
+   separates them is **lightness**: 36.3% against 50.2%. A dark yellow reads
+   olive; that is the whole of it, and no amount of hue-picking fixes a fill
+   that is simply too dark.
+
+   So: a **button** is `--vp-gold-fill → --vp-gold-lit`, the ramp the buy
+   button and «ادامه» already wear, with `brightness(1.04)` on hover. An
+   **icon** is `--vp-gold-fill-ink` flat, which is what the header's three
+   icon squares carry. The dark golds stay where they were chosen for a
+   reason — as *text*, where each one's lightness was solved to hold a
+   measured contrast on white (see the table in HANDOFF). Text is not a fill.
+   -------------------------------------------------------------------------- */
+
 .vp-shop-search button {
   flex: none;
   width: 36px;
   height: 36px;
   border: 0;
   border-radius: 50%;
-  background: var(--theme-color);
+  background: linear-gradient(90deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   color: #FFFFFF;
   font-size: 13px;
-  transition: background 0.2s ease;
+  transition: filter 0.2s ease;
 }
 
 .vp-shop-search button:hover {
-  background: var(--gr-color2);
+  filter: brightness(1.04);
 }
 
 /* --- the two columns ------------------------------------------------------ */
@@ -5781,7 +5887,7 @@ ul.vp-how-list.is-ticked li:before {
 .vp-filter-title {
   margin: 0 0 10px;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 15px;
 }
 
@@ -5894,16 +6000,19 @@ ul.vp-how-list.is-ticked li:before {
   height: 40px;
   border: 0;
   border-radius: 999px;
-  background: var(--theme-color);
+  /* The phone's own filter panel had already been moved to this ramp on its
+     own, far below; the rail's copy was left behind and is the one a desktop
+     sees. */
+  background: linear-gradient(90deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   color: #FFFFFF;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 14px;
-  transition: background 0.2s ease;
+  transition: filter 0.2s ease;
 }
 
 .vp-filter-apply:hover {
-  background: var(--gr-color2);
+  filter: brightness(1.04);
 }
 
 .vp-filter-clear {
@@ -5954,12 +6063,18 @@ ul.vp-how-list.is-ticked li:before {
   margin-top: 32px;
 }
 
+/* `direction: ltr` on an RTL page, and only here. Everything else on this site
+   is Persian text and reads rightward; a run of page numbers is arithmetic and
+   does not — «ریاضی از چپ به راسته». Laid out the page's way, ۱ ۲ ۳ ascends
+   leftward, which is the one place the document's direction is wrong about its
+   own content. The chevrons in the Blade follow this, not the page. */
 .vp-pages {
   display: flex;
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
   gap: 8px;
+  direction: ltr;
 }
 
 .vp-page {
@@ -5983,7 +6098,7 @@ ul.vp-how-list.is-ticked li:before {
 
 .vp-page.is-on {
   color: #FFFFFF;
-  background: var(--theme-color);
+  background: linear-gradient(90deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   box-shadow: none;
 }
 
@@ -5994,6 +6109,37 @@ ul.vp-how-list.is-ticked li:before {
 .vp-page.is-gap {
   box-shadow: none;
   opacity: 0.6;
+}
+
+/* The paginator's window is the Blade's; this is only how wide it is allowed
+   to be. A cell is 38px with an 8px gap, so 350px of phone holds seven and no
+   more. Thirteen pages of imported shoes wrapped into three rows of tiles
+   under the last card before this — the page numbers were bigger than the
+   shop. `is-near` is the current page's two neighbours, and only they; the
+   first, the last, the current one and both arrows stay, which is
+   `‹ ۱ … ۷ … ۱۳ ›`, seven cells, 314px.
+
+   `is-gap-phone` is the other half of that and runs the opposite way: an
+   ellipsis that is only true once the neighbours are gone. The Blade works out
+   which gaps those are — a hidden number can turn `۱ ۲ ۳ ۴ … ۸` into a page
+   claiming one and three are neighbours — so each side draws only the skips
+   that its own set actually has.
+
+   The cell was briefly 34px here, to buy an eighth for six numbers and two
+   arrows. Dropping the arrows when nothing is missing bought the same room and
+   gave the finger its 38px back, so that is gone. */
+.vp-page.is-gap-phone {
+  display: none;
+}
+
+@media (max-width: 575.98px) {
+  .vp-page.is-near {
+    display: none;
+  }
+
+  .vp-page.is-gap-phone {
+    display: grid;
+  }
 }
 
 /* --- one shoe ------------------------------------------------------------- */
@@ -6050,6 +6196,64 @@ ul.vp-how-list.is-ticked li:before {
   width: 76%;
   height: 64%;
   object-fit: contain;
+}
+
+/* More than one photograph: a strip you turn instead of a picture you look at.
+
+   «ممکن هست ۵ عکس اومده باشه اما خود جزئیات محصول ایراد داشته باشه و عکسا ورق
+   نخورن» — and that was exactly it. This page had one photograph and a row of
+   thumbnails that its own comment described as «not controls, because there is
+   nothing to switch to». A supplier's product arrives with five.
+
+   `scroll-snap` rather than a script: the phone's own gesture turns the page,
+   with nothing to load and nothing to go wrong, and the marks under it are
+   anchors that land on the same frames. The script beside them only spares the
+   page the jump an anchor makes and lights the mark that is showing.
+
+   The frames keep the framing the single photograph had — 76% of the square,
+   fitted — so a cut-out looks exactly as it did; `is-supplied` fills instead,
+   for the same reason the card does. */
+.vp-pdp-frames {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  border-radius: inherit;
+  /* The strip is turned by swiping and by the marks under it; a scrollbar
+     across the photograph is neither. */
+  scrollbar-width: none;
+}
+
+.vp-pdp-frames::-webkit-scrollbar {
+  display: none;
+}
+
+.vp-pdp-shot .vp-pdp-frames img {
+  position: static;
+  flex: 0 0 100%;
+  width: 100%;
+  height: 100%;
+  padding: 18% 12%;
+  box-sizing: border-box;
+  object-fit: contain;
+  scroll-snap-align: center;
+}
+
+.vp-pdp-shot.is-supplied .vp-pdp-frames img,
+.vp-pdp-shot.is-supplied > img {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  object-fit: cover;
+}
+
+/* A mark that turns the page is a control and says so under a finger. */
+a.vp-pdp-dot,
+a.vp-pdp-thumb {
+  cursor: pointer;
 }
 
 .vp-pdp-thumbs {
@@ -6115,7 +6319,7 @@ ul.vp-how-list.is-ticked li:before {
 .vp-pdp-title {
   margin: 0 0 14px;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 30px;
   line-height: 1.35;
 }
@@ -6130,14 +6334,14 @@ ul.vp-how-list.is-ticked li:before {
 
 .vp-pdp-price strong {
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 26px;
   color: var(--title-color);
 }
 
 .vp-pdp-price strong span {
   font-size: 15px;
-  font-weight: 400;
+  font-weight: 360;
 }
 
 .vp-pdp-price del {
@@ -6152,7 +6356,7 @@ ul.vp-how-list.is-ticked li:before {
   background: var(--theme-color);
   color: #FFFFFF;
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 630;
 }
 
 .vp-pdp-choice + .vp-pdp-choice {
@@ -6162,7 +6366,7 @@ ul.vp-how-list.is-ticked li:before {
 .vp-pdp-choice-title {
   margin: 0 0 8px;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 15px;
 }
 
@@ -6204,11 +6408,20 @@ ul.vp-how-list.is-ticked li:before {
   margin-top: 20px;
   border: 0;
   border-radius: 999px;
-  background: var(--theme-color);
+  /* **On no page today** — the product page's «افزودن به سبد» is `.vp-pick-go`,
+     which has been the ramp all along. Kept and corrected rather than left
+     flat: a rule named `-buy` that comes back one day must not come back the
+     one colour a buy button is not allowed to be. */
+  background: linear-gradient(90deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   color: #FFFFFF;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 16px;
+  transition: filter 0.2s ease;
+}
+
+.vp-pdp-buy:not(:disabled):hover {
+  filter: brightness(1.04);
 }
 
 .vp-pdp-buy:disabled {
@@ -6237,7 +6450,7 @@ ul.vp-how-list.is-ticked li:before {
 
 .vp-pdp-facts dt {
   min-width: 96px;
-  font-weight: 700;
+  font-weight: 630;
 }
 
 .vp-pdp-facts dd {
@@ -6267,6 +6480,7 @@ ul.vp-how-list.is-ticked li:before {
    of drift this file exists to stop. */
 @media (max-width: 575px) {
   .vp-shop-section {
+    --vp-shop-top: 10px;
     padding-block: 10px;
   }
 
@@ -6623,7 +6837,7 @@ button.vp-cart-keep {
 
 .vp-cart-name {
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 15px;
   color: var(--title-color);
 }
@@ -6673,13 +6887,13 @@ button.vp-cart-keep {
 
 .vp-cart-money strong {
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 16px;
 }
 
 .vp-cart-money strong span {
   font-size: 12px;
-  font-weight: 400;
+  font-weight: 360;
 }
 
 .vp-cart-each {
@@ -6735,19 +6949,26 @@ button.vp-cart-keep {
   padding-top: 12px;
   box-shadow: inset 0 1px 0 rgba(16, 17, 17, 0.1);
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 16px;
 }
 
 /* «دکمه ادامه هم نباید اون رنگی باشه باید همرنگ باقی دکمه های سایت باشه» —
-   it inherits `.vp-filter-apply`'s `background: var(--theme-color)`, which is
+   it inherited `.vp-filter-apply`'s `background: var(--theme-color)`, which is
    `var(--vp-gold)`, the flat midpoint tone the gradient is drawn from rather
-   than the gradient itself (see the three `--vp-gold-*` declarations near the
-   top of this file) — every buy button on the shop (`.vp-pick-go`,
-   `.vp-cart-more`, `.vp-mini-out`) is the gradient, and the flat midpoint
-   alone reads visibly duller, olive rather than gold. Overridden here rather
-   than on `.vp-filter-apply` itself, which the filter rail's own «اعمال
-   فیلتر» button still uses and was not asked about. */
+   than the gradient itself (see the `--vp-gold-*` declarations near the top of
+   this file) — every buy button on the shop (`.vp-pick-go`, `.vp-cart-more`,
+   `.vp-mini-out`) is the gradient, and the flat midpoint alone reads visibly
+   duller, olive rather than gold.
+
+   **This was overridden here alone, on the grounds that the filter rail's own
+   «اعمال فیلتر» «was not asked about» — and the client asked about it, and
+   about the icons, the next time they saw the site**: «رنگ گلد ما گلد زرده چرا
+   از اون گلد سبز برای آیکونا و دکمه ها استفاده میکنی». `.vp-filter-apply` is
+   the ramp itself now, so this rule no longer changes the colour — it is kept
+   for the width, the margin and the centring, and because its 96° is this
+   button's own angle. Fixing the *one* button that was complained about is
+   what bought the second complaint. */
 .vp-cart-go {
   display: grid;
   place-items: center;
@@ -6792,7 +7013,7 @@ button.vp-cart-keep {
 .vp-field label,
 .vp-field-label {
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 630;
 }
 
 .vp-field input,
@@ -7006,7 +7227,7 @@ button.vp-cart-keep {
 
 .vp-admin-branch {
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 630;
 }
 
 .vp-admin-out {
@@ -7088,7 +7309,7 @@ button.vp-cart-keep {
 .vp-admin-figure-num {
   display: block;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 26px;
   line-height: 1.2;
   color: var(--title-color);
@@ -7141,7 +7362,7 @@ button.vp-cart-keep {
   padding: 10px 8px;
   box-shadow: inset 0 -1px 0 rgba(16, 17, 17, 0.12);
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 630;
   text-align: start;
   white-space: nowrap;
 }
@@ -7202,6 +7423,24 @@ button.vp-cart-keep {
 
 .vp-admin-save:hover {
   background: var(--vp-gold-lit);
+}
+
+/* The panel's destructive pill.
+
+   `.vp-admin-save` is the panel's one button and it is the theme's gold, which
+   is right for «ثبت» and «افزودن» and wrong for «حذف»: a row of identical gold
+   pills makes removing something exactly as easy to hit as adding it. The red
+   is `.vp-media-one figcaption button.is-off`'s, quoted rather than chosen, so
+   the two places in the panel that delete something are the same colour.
+
+   A modifier on the existing class rather than a class of its own — the shape,
+   the height and the radius are all still the panel's button. */
+.vp-admin-save.is-off {
+  background: #B3261E;
+}
+
+.vp-admin-save.is-off:hover {
+  background: #8F1E18;
 }
 
 .vp-admin-tabs {
@@ -7427,7 +7666,7 @@ button.vp-cart-keep {
     content: attr(data-label);
     flex: 0 0 auto;
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 630;
     color: rgba(16, 17, 17, 0.55);
   }
 
@@ -7528,7 +7767,7 @@ button.vp-cart-keep {
 .vp-sellers-title {
   margin: 0 0 10px;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 15px;
 }
 
@@ -7562,7 +7801,7 @@ button.vp-cart-keep {
 
 .vp-seller-name {
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 14px;
   color: var(--title-color);
 }
@@ -7581,7 +7820,7 @@ button.vp-cart-keep {
 
 .vp-seller-price {
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 16px;
   white-space: nowrap;
 }
@@ -7591,14 +7830,15 @@ button.vp-cart-keep {
   padding-inline: 16px;
   border: 0;
   border-radius: 999px;
-  background: var(--theme-color);
+  background: linear-gradient(90deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   color: #FFFFFF;
   font-size: 13px;
   white-space: nowrap;
+  transition: filter 0.2s ease;
 }
 
 .vp-seller-add:hover {
-  background: var(--gr-color2);
+  filter: brightness(1.04);
 }
 
 /* --- the vendor panel ----------------------------------------------------- */
@@ -7770,8 +8010,11 @@ button.vp-cart-keep {
   width: 76px;
   height: 76px;
   border-radius: 50%;
-  background: rgba(164, 127, 37, 0.08);
-  color: var(--theme-color);
+  /* The tint was `rgba(164,127,37,…)` — that is #A47F25, the gold this whole
+     site moved off on 2026-08-16, written as a literal where the sweep could
+     not see it. It is the new fill gold now, and warmer for it. */
+  background: rgba(218, 178, 38, 0.14);
+  color: var(--vp-gold-fill-ink);
 }
 
 .vp-empty-mark svg {
@@ -7782,7 +8025,7 @@ button.vp-cart-keep {
 .vp-empty-say {
   margin: 0;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 17px;
   color: var(--title-color);
 }
@@ -7793,13 +8036,14 @@ button.vp-cart-keep {
   display: inline-grid;
   place-items: center;
   border-radius: 999px;
-  background: var(--theme-color);
+  background: linear-gradient(90deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   color: #FFFFFF;
   font-size: 14px;
+  transition: filter 0.2s ease;
 }
 
 .vp-empty-out:hover {
-  background: var(--gr-color2);
+  filter: brightness(1.04);
   color: #FFFFFF;
 }
 
@@ -7859,7 +8103,7 @@ button.vp-cart-keep {
 
 .vp-sellers-title span {
   font-size: 12px;
-  font-weight: 400;
+  font-weight: 360;
   color: var(--body-color);
   opacity: 0.7;
 }
@@ -7897,7 +8141,7 @@ button.vp-cart-keep {
   color: #FFFFFF;
   font-size: 11px;
   font-style: normal;
-  font-weight: 400;
+  font-weight: 360;
 }
 
 .vp-seller-stock.is-low {
@@ -7908,7 +8152,7 @@ button.vp-cart-keep {
 .vp-seller-price em {
   font-size: 12px;
   font-style: normal;
-  font-weight: 400;
+  font-weight: 360;
   opacity: 0.75;
 }
 
@@ -8449,7 +8693,7 @@ button.vp-cart-keep {
 
 .vp-logo-drawer .vp-logo-text b {
   font-size: 14.52px;
-  font-weight: 900;
+  font-weight: 810;
 }
 
 .vp-logo-drawer .vp-logo-text small {
@@ -8512,7 +8756,7 @@ button.vp-cart-keep {
 .vp-drawer-label {
   margin: 0 0 10px;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 12px;
   /* Gold, not ink. In the menu the client asked this to look like, the section
      names are the only coloured type on the panel and everything else is black
@@ -8541,7 +8785,7 @@ button.vp-cart-keep {
   border-radius: 10px;
   background: rgba(192, 151, 47, 0.10);
   font-family: 'Vazirmatn', var(--body-font);
-  font-weight: 600;
+  font-weight: 540;
   font-size: 11px;
   color: var(--vp-gold-ink);
   text-decoration: none;
@@ -8614,7 +8858,7 @@ button.vp-cart-keep {
 
 .vp-quick-name {
   font-family: 'Vazirmatn', var(--body-font);
-  font-weight: 600;
+  font-weight: 540;
   /* «پرفروش‌ترین‌ها» is thirteen characters into a third of the panel, and it is
      the one that decides this number. It was 10.5 while the panel was 270 wide;
      at 86vw it holds one line at 11.5, measured at 375 — the narrowest screen
@@ -8659,7 +8903,7 @@ button.vp-cart-keep {
   padding: 6px 10px;
   border-radius: 12px;
   font-family: 'Vazirmatn', var(--body-font);
-  font-weight: 400;
+  font-weight: 360;
   font-size: 15px;
   color: #101111;
   text-decoration: none;
@@ -8785,7 +9029,7 @@ button.vp-cart-keep {
   border-radius: 12px;
   box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.09);
   font-family: 'Vazirmatn', var(--body-font);
-  font-weight: 500;
+  font-weight: 450;
   font-size: 12px;
   color: #101111;
   text-decoration: none;
@@ -8832,7 +9076,7 @@ button.vp-cart-keep {
   border-radius: 13px;
   background: linear-gradient(180deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 13.5px;
   /* Ink on the gold, the page's settled answer everywhere gold is filled. */
   color: #101111;
@@ -8853,7 +9097,7 @@ button.vp-cart-keep {
   background: rgba(16, 17, 17, 0.12);
   font-family: 'Vazirmatn', var(--body-font);
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 540;
   line-height: 20px;
   text-align: center;
 }
@@ -8988,7 +9232,7 @@ button.vp-cart-keep {
   padding: 9px 0;
   border-radius: 12px;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 14px;
   color: #6E7070;
   text-align: center;
@@ -9050,34 +9294,514 @@ button.vp-cart-keep {
 
 .vp-signin-alt a {
   color: var(--vp-gold);
-  font-weight: 600;
+  font-weight: 540;
 }
 
 /* --------------------------------------------------------------------------
-   The account: a list of what this customer has bought here.
+   The account — «حساب کاربری».
+
+   **What was here was not a screen anybody had designed.** The account grew a
+   wishlist, then messages, then a password, and each one arrived as another
+   word in a row beside the customer's name; the page itself stayed what it had
+   been on the first day, which was the orders list with a heading. The client
+   saw it on a telephone — «این چه حساب کاربری داغونیه برای کاربر زدی خیلی
+   داغونه» — and the photograph is the argument: a name, a number, three gold
+   words at body size, a grey fold, a grey box, a gold button, and 700px of
+   white under it.
+
+   It is three panels now — who you are, the orders, the settings — and every
+   part of it is a material this page already had:
+
+     - the pane is `.vp-shop-panel`, which is `.vp-best-panel`'s,
+     - the figures sit on the glass tint the header island wears,
+     - the doors are the white-with-a-ring box the sign-in's fields are,
+     - the empty state is `.vp-empty`, which the wishlist wrote,
+     - the status chip is **the panel's own** — `is-placed` through
+       `is-cancelled`, the same five tones `.vp-adm-badge` carries in
+       `admin.css`, so one order is one colour to the shopper and to the shop.
+
+   Nothing new is invented. What changed is that the page has a head, a shape
+   and somewhere to go next.
    -------------------------------------------------------------------------- */
 
-/* «تغییر رمز عبور», folded away. A `<details>`, because the page is for the
-   orders and this is housekeeping — but it has to be here, since a shopper
-   sets the password on the screen that verified their number and would
-   otherwise have no way back to it.
+/* --- 1. who you are ------------------------------------------------------- */
+
+.vp-acct-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+/* The first letter of the name, in the shop's gold.
+
+   A mark rather than a photograph: there is nowhere to upload one, and a grey
+   silhouette says less than the letter does. The radius is the header tile's
+   own ratio — 15.18 of 52 — carried to 54, so this square belongs to the same
+   set as the three at the top of every page. */
+.vp-acct-face {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 54px;
+  height: 54px;
+  border-radius: 15.8px;
+  background: linear-gradient(135deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
+  color: #FFFFFF;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 630;
+  font-size: 24px;
+  line-height: 1;
+}
+
+/* `min-width: 0` so a long name wraps inside this column instead of pushing
+   «خروج» off the panel — a flex item's floor is its content otherwise. */
+.vp-acct-who {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.vp-acct-name {
+  margin: 0;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 630;
+  font-size: 20px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.vp-acct-phone {
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: #6E7070;
+}
+
+/* «خروج». It was a bare gold word between two other gold words; signing out is
+   the one control on this page somebody presses by accident, so it is set
+   apart as a quiet chip and only turns red under the finger.
+
+   Everything the template's form reset gives a `<button>` — a border, a grey
+   fill, 45px of padding — is written over here, the same way `.vp-cart-keep`
+   had to. */
+.vp-acct-out {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  height: 34px;
+  padding-inline: 13px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(16, 17, 17, 0.063);
+  color: #4D4D4D;
+  font-size: 13px;
+  font-weight: 540;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.vp-acct-out:hover,
+.vp-acct-out:focus-visible {
+  background: rgba(179, 38, 30, 0.08);
+  color: #B3261E;
+}
+
+.vp-acct-out i {
+  font-size: 12px;
+}
+
+/* The four figures, on the glass. «در جریان» is the one the page never said
+   and the one a shopper opens the account to check.
+
+   `border-inline-start` for the dividers rather than a shadow: the page is RTL
+   and the cell a divider belongs to is the one *after* it in reading order,
+   which is the left in a physical measure and the start in a logical one. */
+.vp-acct-figs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 0 0 16px;
+  padding: 14px 4px;
+  list-style: none;
+  border-radius: 22px;
+  background: rgba(16, 17, 17, 0.063);
+}
+
+.vp-acct-figs li {
+  display: grid;
+  justify-items: center;
+  gap: 3px;
+  padding-inline: 4px;
+  text-align: center;
+}
+
+.vp-acct-figs li + li {
+  border-inline-start: 1px solid rgba(16, 17, 17, 0.09);
+}
+
+.vp-acct-figs b {
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 630;
+  font-size: 19px;
+  line-height: 1.2;
+  color: var(--title-color);
+}
+
+.vp-acct-figs span {
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: #6E7070;
+}
+
+/* Where else the account goes. One column on a telephone, two from 576 and
+   four from 992 — fixed counts rather than `auto-fit`, because there are
+   exactly four of them and a floor that fits three leaves one on a line of its
+   own. */
+.vp-acct-doors {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+}
+
+@media (min-width: 576px) {
+  .vp-acct-doors {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 992px) {
+  .vp-acct-doors {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.vp-acct-door {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 20px;
+  background: #FFFFFF;
+  box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.1);
+  color: var(--title-color);
+  transition: box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.vp-acct-door:hover,
+.vp-acct-door:focus-visible {
+  background: rgba(16, 17, 17, 0.028);
+  box-shadow: inset 0 0 0 1.5px rgba(218, 178, 38, 0.65);
+  color: var(--title-color);
+}
+
+.vp-acct-door-mark {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 38px;
+  height: 38px;
+  border-radius: 13px;
+  /* The header's own icon treatment: the fill gold as the glyph, on a tint of
+     the same. It was `--vp-gold-ink` on a tint of the *old* gold — a 31.8%
+     yellow, which is the one the client sees as green. */
+  background: rgba(218, 178, 38, 0.16);
+  color: var(--vp-gold-fill-ink);
+  font-size: 15px;
+}
+
+.vp-acct-door-what {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+}
+
+.vp-acct-door-what b {
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 630;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.vp-acct-door-what small {
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: #6E7070;
+}
+
+/* The unread count, on the door rather than only inside it: a reply the shop
+   sent is worth noticing from the page somebody lands on. `margin-inline-start:
+   auto` puts it at the far end of the row without taking it out of the flow,
+   so it cannot land on top of a title that wrapped. */
+.vp-acct-door-new {
+  margin-inline-start: auto;
+  display: grid;
+  place-items: center;
+  flex: none;
+  min-width: 22px;
+  height: 22px;
+  padding-inline: 7px;
+  border-radius: 999px;
+  background: #B3261E;
+  color: #FFFFFF;
+  font-size: 11.5px;
+  font-weight: 630;
+  font-style: normal;
+  line-height: 1;
+}
+
+/* --- 2. the orders -------------------------------------------------------- */
+
+/* A panel's own head. Not `.vp-shop-head`: that one is shared by the cart, the
+   checkout, an order, the wishlist and the messages, and it is `display: none`
+   on a telephone — see the rule that hides it. A heading that disappears at
+   390 is no use to a page whose whole complaint was about a telephone. */
+.vp-acct-sect {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  margin-bottom: 16px;
+}
+
+.vp-acct-sect-title {
+  margin: 0;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 630;
+  font-size: 18px;
+  line-height: 1.4;
+}
+
+.vp-acct-sect-count {
+  font-size: 12.5px;
+  color: #6E7070;
+}
+
+.vp-acct-orders {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.vp-acct-orders li + li {
+  margin-top: 10px;
+}
+
+/* One order. Two rows on every width — the number and its state above, the
+   date, the count and the money below — because those are two different
+   questions and the old row put all five in one line that broke into five on a
+   phone.
+
+   The chevron has a column of its own rather than sitting inside a cell: it
+   spans both rows, which is what makes the card read as one thing to press. */
+.vp-acct-order {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto 16px;
+  grid-template-areas:
+    'no   state go'
+    'meta sum   go';
+  align-items: center;
+  gap: 4px 12px;
+  padding: 14px 16px;
+  border-radius: 20px;
+  background: #FFFFFF;
+  box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.1);
+  font-family: 'Vazirmatn', var(--body-font);
+  color: var(--title-color);
+  transition: box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.vp-acct-order:hover,
+.vp-acct-order:focus-visible {
+  background: rgba(16, 17, 17, 0.028);
+  box-shadow: inset 0 0 0 1.5px rgba(218, 178, 38, 0.65);
+  color: var(--title-color);
+}
+
+.vp-acct-order-no {
+  grid-area: no;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 630;
+  font-size: 14.5px;
+}
+
+/* The five tones are `.vp-adm-badge`'s, quoted: amber while it waits, blue
+   while it moves, green when it arrives, red when it is off. If those move in
+   `admin.css`, these move with them. */
+.vp-acct-order-state {
+  grid-area: state;
+  justify-self: end;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(16, 17, 17, 0.063);
+  font-size: 12px;
+  font-weight: 630;
+  white-space: nowrap;
+}
+
+.vp-acct-order-state.is-placed {
+  background: #FFF6EC;
+  color: #A85B00;
+}
+
+.vp-acct-order-state.is-paid,
+.vp-acct-order-state.is-shipped {
+  background: #EEF4FC;
+  color: #1D5FAD;
+}
+
+.vp-acct-order-state.is-delivered {
+  background: #EDF7F1;
+  color: #1B7F4B;
+}
+
+.vp-acct-order-state.is-cancelled {
+  background: #FCEEED;
+  color: #B3261E;
+}
+
+.vp-acct-order-meta {
+  grid-area: meta;
+  font-size: 12px;
+  color: #6E7070;
+}
+
+.vp-acct-order-sum {
+  grid-area: sum;
+  justify-self: end;
+  font-size: 14px;
+  font-weight: 630;
+  white-space: nowrap;
+}
+
+.vp-acct-order-sum small {
+  font-size: 11.5px;
+  font-weight: 540;
+  color: #6E7070;
+}
+
+.vp-acct-order-go {
+  grid-area: go;
+  justify-self: end;
+  font-size: 13px;
+  color: #9A9C9C;
+}
+
+/* From 768 the card is one row of five fixed columns, so the dates, the money
+   and the chips line up down the whole list instead of every card arranging
+   itself. Two rows is the telephone's answer, where there is no width to line
+   anything up in — and on a desktop that same stacking left the middle of a
+   1100px card empty, with the number alone at one end and the money at the
+   other. */
+@media (min-width: 768px) {
+  .vp-acct-order {
+    grid-template-columns: 132px minmax(0, 1fr) 150px 104px 16px;
+    grid-template-areas: 'no meta sum state go';
+    gap: 0 12px;
+    padding-block: 16px;
+  }
+
+  /* `start`, which is the right in a right-to-left page: each column's
+     contents begin on the same pixel down the list. */
+  .vp-acct-order-meta,
+  .vp-acct-order-sum,
+  .vp-acct-order-state {
+    justify-self: start;
+  }
+}
+
+/* --- 3. the settings ------------------------------------------------------ */
+
+/* The two halves of the settings panel, side by side from 768. Stacked, the
+   panel was a 360px column of form against 700px of empty white — which is
+   the shape the whole page was being complained about for. */
+.vp-acct-set {
+  display: grid;
+  gap: 20px;
+}
+
+@media (min-width: 768px) {
+  .vp-acct-set {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    gap: 24px;
+  }
+}
+
+/* The name, which had no way of being changed at all until now. Held to the
+   width of a field rather than the width of the panel: three boxes stretched
+   across a desktop read as a form somebody else's page lost. */
+.vp-acct-form {
+  display: grid;
+  gap: 8px;
+  max-width: 360px;
+}
+
+.vp-acct-label {
+  margin: 0;
+  font-size: 12.5px;
+  font-weight: 540;
+  color: #6E7070;
+}
+
+.vp-acct-fixed {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.9;
+  color: #6E7070;
+}
+
+/* What a rejected form says. The account page had no place for one at all: a
+   wrong current password redirected back here and the message was thrown
+   away, so the fold shut and nothing happened. */
+.vp-acct-err {
+  margin: 0;
+  font-size: 12.5px;
+  font-weight: 540;
+  color: #B3261E;
+}
+
+.vp-acct-save {
+  justify-self: start;
+  height: 44px;
+  margin-top: 4px;
+  padding-inline: 26px;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
+  color: #FFFFFF;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 630;
+  font-size: 14.5px;
+  cursor: pointer;
+  transition: filter 0.2s ease;
+}
+
+.vp-acct-save:hover {
+  color: #FFFFFF;
+  filter: brightness(1.04);
+}
+
+/* «تغییر رمز عبور», folded away. A `<details>`, because the orders are what the
+   page is for and this is housekeeping — it is in the housekeeping panel now,
+   so the fold is about length rather than about hiding it.
 
    `.vp-doc-q`, the FAQ's own fold, is the same idea drawn for a page of prose;
-   this one is narrower and sits on the panel rather than in a column of text,
-   so it is its own three rules rather than a borrowed class that would have to
-   answer to both. */
+   this one is narrower and sits on a panel rather than in a column of text, so
+   it is its own rules rather than a borrowed class answering to both. */
 .vp-acct-pass {
-  margin: 18px 0 6px;
+  margin: 0;
   padding: 14px 16px;
   border-radius: 16px;
   background: rgba(16, 17, 17, 0.028);
   box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.07);
+  max-width: 360px;
 }
 
 .vp-acct-pass > summary {
   cursor: pointer;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 14px;
   color: var(--title-color);
   list-style: none;
@@ -9096,7 +9820,7 @@ button.vp-cart-keep {
   content: '\f078';
   float: left;
   font-family: 'Font Awesome 6 Pro';
-  font-weight: 900;
+  font-weight: 810;
   font-size: 11px;
   color: #9A9C9C;
   transition: transform 0.2s ease;
@@ -9110,76 +9834,6 @@ button.vp-cart-keep {
   display: grid;
   gap: 10px;
   margin: 14px 0 0;
-  /* The panel is as wide as the orders table; three password fields stretched
-     to that width read as a form somebody else's page lost. */
-  max-width: 340px;
-}
-
-.vp-account-orders {
-  list-style: none;
-  margin: 14px 0 0;
-  padding: 0;
-}
-
-.vp-account-orders li + li {
-  margin-top: 8px;
-}
-
-/* A row that reads across on a desktop and stacks on a phone. `auto-fit` with
-   a floor rather than a media query: the columns are five different lengths
-   and the width they stop fitting at is not a round number. */
-.vp-account-orders a {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
-  align-items: center;
-  gap: 6px 14px;
-  padding: 14px 16px;
-  border-radius: 18px;
-  background: rgba(16, 17, 17, 0.063);
-  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.05);
-  font-family: 'Vazirmatn', var(--body-font);
-  font-size: 13px;
-  color: #101111;
-  text-decoration: none;
-  transition: background-color 0.2s ease;
-}
-
-.vp-account-orders a:hover {
-  background: rgba(16, 17, 17, 0.06);
-  color: #101111;
-}
-
-.vp-account-no {
-  font-weight: 700;
-  direction: ltr;
-  text-align: right;
-}
-
-.vp-account-when,
-.vp-account-what {
-  color: #6E7070;
-}
-
-.vp-account-sum {
-  font-weight: 700;
-}
-
-.vp-account-state {
-  justify-self: start;
-  padding: 3px 10px;
-  border-radius: 10px;
-  background: rgba(192, 151, 47, 0.12);
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--vp-gold-ink);
-}
-
-.vp-account-shop {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 14px;
-  padding-inline: 22px;
 }
 
 /* --------------------------------------------------------------------------
@@ -9319,7 +9973,7 @@ button.vp-cart-keep {
   .heroSlide6 .hero-inner .hero-title {
     font-size: 30.15px;
     line-height: 33.75px;
-    font-weight: 700;
+    font-weight: 630;
   }
 }
 
@@ -9848,7 +10502,7 @@ button.vp-cart-keep {
     inset-inline: 2px;
     padding: 5px 2px;
     font-size: 10.45px;
-    font-weight: 770;
+    font-weight: 693;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -10247,7 +10901,7 @@ button.vp-cart-keep {
 
   .vp-deal-name,
   .vp-best-name {
-    font-weight: 735;
+    font-weight: 662;
   }
 }
 
@@ -10443,7 +11097,7 @@ button.vp-cart-keep {
 
   .vp-foot-m-name {
     font-family: 'Cairo', var(--title-font);
-    font-weight: 800;
+    font-weight: 720;
     font-size: 22px;
     color: var(--vp-gold);
   }
@@ -10501,7 +11155,11 @@ button.vp-cart-keep {
     width: 42px;
     height: 42px;
     border-radius: 12.65px;
-    font-size: 19px;
+    /* Nothing in here is type any more — all five marks are images — but the
+       tile keeps a colour and a size for the day somebody puts a glyph back
+       into the row and expects it to look like its neighbours. */
+    font-size: 27px;
+    line-height: 1;
     color: #FFFFFF;
     /* Each on its own service's colour, which is what the screenshot shows and
        is the one place on this page where the palette is not the shop's. */
@@ -10517,23 +11175,76 @@ button.vp-cart-keep {
     color: #FFFFFF;
   }
 
-  /* بله and روبیکا have no mark in Font Awesome and no artwork here, so both
-     are a tile in the service's colour with a glyph on it rather than a
-     trademark drawn from memory. **They are stand-ins.** When the client sends
-     the two logos, each becomes an `<img>` in make-rtl-page.js's FOOT_SOCIAL
-     and these two rules keep only the ground behind it. */
-  .vp-foot-m-soc.is-bale { background: linear-gradient(135deg, #2FC4B2, #1177C4); }
-  .vp-foot-m-soc.is-rubika { background: linear-gradient(135deg, #8A4FE0, #5B2BC4); }
+  /* **The row is five images now, and that is what ended the centring.**
+
+     These three were Font Awesome glyphs and would not sit still: a glyph
+     rides a baseline inside a line box, `line-height: 1` makes that box
+     shorter than the font's own metrics, and where the ink then lands is the
+     engine's rounding. Measured on one build: Chromium put them exactly on the
+     tile's centre, WebKit put them 1.0–1.2px above it. A single `translateY`
+     could only be right on one of the two, which is what «وسط نیست» twice
+     looks like from the inside.
+
+     `theme/make-brand-marks.js` cuts the same three shapes out of the same
+     font file, with the ink's own bounding box as the viewBox — so the file's
+     edges are the mark's edges, `align-items: center` centres the mark itself,
+     and no baseline is involved anywhere. Measured after, at 390: every offset
+     0.00 or −0.13px, which is half a device pixel, the same as بله and روبیکا.
+
+     The sizes are the ones the font was drawing — 448 and 496 units of a
+     512-unit em at 27px — so the row's *size* is unchanged and only its
+     centring moved. */
+
   .vp-foot-m-soc.is-telegram { background: #2AABEE; }
   .vp-foot-m-soc.is-instagram { background: linear-gradient(135deg, #F9CE34, #EE2A7B 55%, #6228D7); }
 
-  /* روبیکا's stand-in is a letter rather than a second chat bubble: two
-     bubbles side by side in one row of five read as one service drawn twice. */
-  .vp-foot-m-soc-letter {
-    font-family: 'Cairo', var(--title-font);
-    font-weight: 800;
-    font-size: 19px;
-    line-height: 1;
+  /* بله and روبیکا: the marks themselves, on white.
+
+     They were stand-ins — a chat bubble and the letter R on a coloured tile,
+     because neither service is in Font Awesome and a trademark drawn from
+     memory is worse than an honest placeholder. The client has sent both
+     logos; `theme/make-social-marks.js` lifts each off its ground and writes
+     the file this points at.
+
+     **White, where the other three are on their service's colour.** Those
+     three are single-colour marks knocked out in white, so the colour *is*
+     the mark. These two carry their own colours — روبیکا's is six of them —
+     and on a coloured tile they read as a sticker somebody stuck on. White is
+     how both services present them.
+
+     Which leaves a white tile on a white footer, so it states its own edge the
+     way everything else on this page does: a hairline of ink inside the
+     corner, the same 10% the tile's own outer shadow carries. Measured at 390:
+     tile 255, hairline 231, card 255. */
+  .vp-foot-m-soc.is-bale,
+  .vp-foot-m-soc.is-rubika {
+    background: #FFFFFF;
+    box-shadow:
+      inset 0 0 0 1px rgba(16, 17, 17, 0.10),
+      0 0 8px -2px rgba(16, 17, 17, 0.14);
+  }
+
+  .vp-foot-m-soc-mark {
+    display: block;
+    width: 26px;
+    height: 26px;
+    object-fit: contain;
+  }
+
+  /* واتساپ and اینستاگرام are 448 units of the font's 512-unit em where تلگرام
+     is 496, and at 27px that was 23.6 against 26.2. Kept, rather than levelled
+     to one number: that is the size the row has had since «اونقد کوچیک هستن»
+     was settled, and a circle and a rounded square do not read as one size
+     when they are drawn as one size. */
+  .vp-foot-m-soc.is-whatsapp .vp-foot-m-soc-mark,
+  .vp-foot-m-soc.is-instagram .vp-foot-m-soc-mark {
+    width: 23.6px;
+    height: 23.6px;
+  }
+
+  .vp-foot-m-soc.is-telegram .vp-foot-m-soc-mark {
+    width: 26.2px;
+    height: 26.2px;
   }
 
   /* Three columns side by side, as narrow as they need to be. `1fr` each
@@ -10553,7 +11264,7 @@ button.vp-cart-keep {
     gap: 7px;
     margin: 0 0 14px;
     font-family: 'Cairo', var(--title-font);
-    font-weight: 800;
+    font-weight: 720;
     font-size: 13px;
     color: var(--vp-gold);
     white-space: nowrap;
@@ -10672,7 +11383,7 @@ button.vp-cart-keep {
 @media (max-width: 991.98px) {
   .vp-deal-name,
   .vp-best-name {
-    font-weight: 900;
+    font-weight: 810;
     -webkit-text-stroke-width: 0.3px;
     -webkit-text-stroke-color: currentColor;
     paint-order: stroke fill;
@@ -11556,7 +12267,7 @@ button.vp-cart-keep {
     direction: ltr;
     color: var(--vp-gold);
     font-size: 18px;
-    font-weight: 800;
+    font-weight: 720;
     line-height: 1;
     letter-spacing: -0.2px;
   }
@@ -11573,7 +12284,7 @@ button.vp-cart-keep {
   .vp-story-cut b,
   .vp-story-cut i {
     font-style: normal;
-    font-weight: 800;
+    font-weight: 720;
   }
 
   /* --- the movement ------------------------------------------------------
@@ -12113,7 +12824,7 @@ button.vp-cart-keep {
   border: 0;
   border-radius: 19px;
   font-size: 12.5px;
-  font-weight: 700;
+  font-weight: 630;
   white-space: nowrap;
   cursor: pointer;
 }
@@ -12159,15 +12870,6 @@ button.vp-cart-keep {
   color: #101111;
 }
 
-/* The account head's two controls — the wishlist and the sign-out — which used
-   to be one form on its own. A row, so the second does not drop under the
-   first and leave the heading beside a gap. */
-.vp-account-acts {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
 /* Taking a shoe back off the list. Quiet, under its card: it is the page's own
    control, not the card's, and it should not compete with the card's price. */
 .vp-fav-drop button {
@@ -12179,7 +12881,7 @@ button.vp-cart-keep {
   background: none;
   color: rgba(16, 17, 17, 0.5);
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 630;
   text-align: center;
   cursor: pointer;
 }
@@ -12335,7 +13037,7 @@ button.vp-cart-keep {
 .vp-mini-title {
   margin: 0;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 800;
+  font-weight: 720;
   font-size: 18px;
   color: #101111;
 }
@@ -12503,7 +13205,7 @@ button.vp-cart-keep {
   gap: 10px;
   margin-block-end: 12px;
   font-family: 'Vazirmatn', var(--body-font);
-  font-weight: 800;
+  font-weight: 720;
   font-size: 14px;
   color: #101111;
 }
@@ -12520,7 +13222,7 @@ button.vp-cart-keep {
   height: 44px;
   border-radius: 14px;
   font-family: 'Vazirmatn', var(--body-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 13.5px;
   text-decoration: none;
   transition: background-color 0.2s ease, color 0.2s ease;
@@ -12573,7 +13275,7 @@ button.vp-cart-keep {
 .vp-mini-say {
   margin: 0;
   font-family: 'Vazirmatn', var(--body-font);
-  font-weight: 600;
+  font-weight: 540;
   font-size: 14px;
   color: #6E7070;
 }
@@ -12585,7 +13287,7 @@ button.vp-cart-keep {
   border-radius: 14px;
   background: linear-gradient(96deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   font-family: 'Vazirmatn', var(--body-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 13px;
   color: #FFFFFF;
   text-decoration: none;
@@ -12614,9 +13316,10 @@ button.vp-cart-keep {
    its own
    photo tile (opaque) — neither was asked about. */
 /* The sheet needs the blur the other two whites do not: it sits over the
-   live page, dimmed by the template's own 0.75 scrim underneath, and at 90%
+   live page, dimmed by the 0.75 scrim underneath, and at 90%
    opaque that remaining 10% was enough to carry the page's own type and
-   product photograph through, legibly — «قالب قبلی»'s own lesson, that a
+   product photograph through, legibly — the same lesson as the design gate's:
+   that a
    thin remainder of what is behind a translucent surface is still there and
    is still read. `.vp-cart-line` and `.vp-cart-shot` don't need it: nothing
    behind either of them is worth reading in the first place. 30px and the
@@ -12745,7 +13448,7 @@ button.vp-cart-keep {
      with the rest of the stepper's 20% pass; the type grew with it, 15 → 18. */
   min-width: 21.6px;
   font-family: 'Vazirmatn', var(--body-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 18px;
   font-feature-settings: 'tnum' 1;
   text-align: center;
@@ -12989,7 +13692,21 @@ button.vp-cart-keep {
   pointer-events: none;
 }
 
-.vp-pick-size span {
+/* The chip is the *direct* child span, and the `>` is load-bearing.
+
+   Each chip carries three spans inside it — `.vp-size-eu`, `.vp-size-us`,
+   `.vp-size-cm`, one per unit, with CSS showing whichever the switch has on.
+   Written as `.vp-pick-size span` this rule drew a 48×44 chip with its own
+   background for each of *those* as well, and the innermost one painted over
+   the outer. The gold below lands on the outer span — it is the input's
+   sibling — so a chosen size computed as gold and painted white: «باید گلد بشه
+   سایز انتخاب شده», and before that «روشون میزنم انتخاب نمیشه», because a chip
+   that does not change when you press it has not been pressed as far as
+   anybody can tell.
+
+   Measured after, at 390: the chosen chip paints 229,190,59 at its centre —
+   the ramp's midpoint — and every other chip 255. */
+.vp-pick-size > span {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -12999,7 +13716,7 @@ button.vp-cart-keep {
   border-radius: 14px;
   background: rgba(16, 17, 17, 0.063);
   font-family: 'Vazirmatn', var(--body-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 15px;
   font-feature-settings: 'tnum' 1;
   color: #101111;
@@ -13028,7 +13745,7 @@ button.vp-cart-keep {
 
 .vp-pick-price {
   font-family: 'Vazirmatn', var(--body-font);
-  font-weight: 800;
+  font-weight: 720;
   font-size: 18px;
   font-feature-settings: 'tnum' 1;
   white-space: nowrap;
@@ -13036,7 +13753,7 @@ button.vp-cart-keep {
 
 .vp-pick-price em {
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 540;
   font-style: normal;
   color: #6E7070;
 }
@@ -13055,7 +13772,7 @@ button.vp-cart-keep {
   border-radius: 18px;
   background: linear-gradient(96deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   font-family: 'Vazirmatn', var(--body-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 15px;
   color: #FFFFFF;
   cursor: pointer;
@@ -13638,8 +14355,18 @@ button.vp-cart-keep {
     display: flex;
     position: absolute;
     z-index: 2;
-    /* 12 from the photograph's own top: the gallery pads 4 above it. */
-    top: 16px;
+    /* 12 from the top of the screen, which is what the sides are — «اون فاصله
+       از بالا باید بشه اندازه فاصلشون از بغلا». It was 12 from the *photograph*
+       and that came to 26 from the screen, because `.vp-shop-section` pads 10
+       above the panel and the gallery pads 4 above the shot. These two hang
+       over the panel's white rather than over the photograph — the shot is 80%
+       and centred, so it is 50 in from each side while they are 12 — so the
+       edge they are read against is the screen's, on all three sides.
+
+       Written as a subtraction from `--vp-shop-top` rather than as a number,
+       because that padding is 10 on a phone and 40 above 575, and a bare 2px
+       would be right at one of those widths and silently wrong at the other. */
+    top: calc(12px - var(--vp-shop-top, 10px));
     align-items: center;
     justify-content: center;
     height: 34px;
@@ -13667,7 +14394,7 @@ button.vp-cart-keep {
     gap: 5px;
     padding-inline: 10px;
     font-family: var(--body-font);
-    font-weight: 700;
+    font-weight: 630;
     font-size: 13px;
     font-feature-settings: 'tnum' 1;
     color: #101111;
@@ -13755,10 +14482,11 @@ button.vp-cart-keep {
      colours would be hearing a claim the catalogue has not made. The named
      block above is what the page draws the day a variant carries a colour. */
   /* Half again off the size line above it — «فاصله بین انتخاب سایز و انتخاب
-     رنگ ... باید ۵۰ درصد بیشتر بشن». 18 → 27. */
+     رنگ ... باید ۵۰ درصد بیشتر بشن» — 18 → 27, and now a tenth back off that:
+     «انتخاب سایز با انتخاب رنگ … ده درصد کم بشه». 27 → 24.3. */
   .vp-pdp-colors {
     display: block;
-    margin-block-start: 27px;
+    margin-block-start: 24.3px;
   }
 
   /* The line is the size row's, so the two read as one system: left to right
@@ -13814,9 +14542,11 @@ button.vp-cart-keep {
      The rectangle ended up in the size row itself, as its last item, so this
      copy of the count — the one beside the heading, which is what the desktop
      draws — is not shown here at all. */
+  /* A tenth off the gap to the name above it — «فاصله اسم کفش با انتخاب سایز
+     … ده درصد کم بشه». 20 → 18. */
   .vp-pick-head {
     display: block;
-    margin-block-start: 20px;
+    margin-block-start: 18px;
   }
 
   .vp-pick-head .vp-pick-note {
@@ -13987,7 +14717,8 @@ button.vp-cart-keep {
      count at the end of the line: 48.4 → 45.98, corner 45.98 × 0.30119 =
      13.85. The row now holds five squares, the box and five 8 gaps in 358.9 of
      the 362 it has at 390. */
-  .vp-pick-size span {
+  /* The direct child again — see the note on the rule above. */
+  .vp-pick-size > span {
     width: var(--vp-chip);
     max-width: 100%;
     min-width: 0;
@@ -14107,12 +14838,13 @@ button.vp-cart-keep {
     display: flex;
     align-items: center;
     gap: 10px;
-    /* The gap to the colour line above it, three rounds of it: 20 → 30 at
+    /* The gap to the colour line above it, four rounds of it: 20 → 30 at
        «فاصله افزودن به سبد خرید و انتخاب تعداد با بهش انتخاب رنگ هم باید ۵۰
        درصد بیشتر بشه», 30 → 45 at «...و ردیف افزودن به سبد خرید باید ۵۰ درصد
-       بیشتر بشن», and now a fifth back off it — «فاصله بین رنگها و ردیف اضافه
-       کردن به سبد خرید باید ۲۰ درصد کمتر بشه» — which is 36. */
-    margin-block-start: 36px;
+       بیشتر بشن», then a fifth back off it — «فاصله بین رنگها و ردیف اضافه
+       کردن به سبد خرید باید ۲۰ درصد کمتر بشه» — for 36, and now a tenth more:
+       «انتخاب رنگ با ردیف آخر … ده درصد کم بشه». 36 → 32.4. */
+    margin-block-start: 32.4px;
   }
 
   /* Gold again — «دکمه افزودن به سبد خرید هم باید طلایی بشه». It was white for
@@ -14201,7 +14933,7 @@ button.vp-cart-keep {
     border: 0;
     background: none;
     font-family: 'Vazirmatn', var(--body-font);
-    font-weight: 700;
+    font-weight: 630;
     font-size: 15px;
     font-feature-settings: 'tnum' 1;
     text-align: center;
@@ -15383,7 +16115,7 @@ button.vp-cart-keep {
       0 0 8px -2px rgba(16, 17, 17, 0.14);
     color: var(--vp-gold);
     font-size: 13px;
-    font-weight: 700;
+    font-weight: 630;
     cursor: pointer;
   }
 
@@ -15461,7 +16193,7 @@ button.vp-cart-keep {
     background: none;
     color: rgba(16, 17, 17, 0.55);
     font-size: 11.5px;
-    font-weight: 700;
+    font-weight: 630;
     text-decoration: none;
     white-space: nowrap;
   }
@@ -15638,34 +16370,23 @@ button.vp-cart-keep {
 
   /* The heading and the old search box are the desktop's.
 
-     `:not(.vp-acct-head)` is the account's exemption, and it is not a taste:
-     this rule was written for the listing, and `.vp-shop-head` turned out to be
-     shared by the cart, the checkout, an order, the wishlist and the account
-     too — so on a phone all six lost their heading and everything sitting
-     beside it. On the account that is the customer's own name, «لیست علاقمندی»
-     and **«خروج»**, which left a shopper on a telephone with no way to sign out
-     at all. The account is exempted here because the account is what this round
-     rebuilt; the other four are still hiding theirs, and «ادامه خرید» on the
-     cart is the next one that matters. Do not widen this rule again without
-     rendering each of those pages at 390 — the heads were laid out for a
-     desktop and none of them has been measured narrow. */
-  .vp-shop-head:not(.vp-acct-head) {
+     **This rule hides a heading on a telephone, and that has cost a round
+     already.** It was written for the listing, and `.vp-shop-head` turned out
+     to be shared by the cart, the checkout, an order, the wishlist, the
+     messages and the account too — so on a phone all of them lost their
+     heading and everything sitting beside it. On the account that was the
+     customer's own name and **«خروج»**, which left a shopper on a telephone
+     with no way to sign out at all; it carried `.vp-acct-head` for a while to
+     be exempted here.
+
+     The account no longer appears in this rule at all: it is drawn from
+     `.vp-acct-top` and `.vp-acct-sect`, which are its own and are laid out for
+     390 first. The others still hide theirs, and «ادامه خرید» on the cart is
+     the next one that matters. Do not widen this rule without rendering each
+     of those pages at 390 — the heads were laid out for a desktop and none of
+     them has been measured narrow. */
+  .vp-shop-head {
     display: none;
-  }
-
-  /* The account's, laid out for the width it actually gets: the name over the
-     number, and the two controls on their own line under both. Side by side at
-     390 the name wraps to three lines and «خروج» ends up under «لیست
-     علاقمندی» anyway. */
-  .vp-acct-head {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 12px;
-    margin-bottom: 18px;
-  }
-
-  .vp-acct-head .vp-account-acts {
-    justify-content: flex-start;
   }
 }
 
@@ -15675,6 +16396,9 @@ button.vp-cart-keep {
 .vp-card {
   display: flex;
   flex-direction: column;
+  /* So the basket button can sit at the card's foot rather than under the last
+     line of text, which is a different height on every card. */
+  height: 100%;
 }
 
 /* The photograph and the favourite, in a box that ends where the photograph
@@ -15689,7 +16413,11 @@ button.vp-cart-keep {
   overflow: hidden;
   /* «جایی که محصول قرار میگیره باید مربع باشه». */
   aspect-ratio: 1;
-  border-radius: 14px;
+  /* A fifth rounder than it was — «کرو گوشه های عکس در فروشگاه ۲۰ درصد بیشتر
+     بشه». 14 → 16.8. One number at every width, because the tile is square at
+     every width too: 162 on a 360px screen, 234.7 above 1200, and the same
+     corner reads the same on all of them. */
+  border-radius: 16.8px;
   background: #F5F5F5;
 }
 
@@ -15703,21 +16431,62 @@ button.vp-cart-keep {
   object-fit: contain;
 }
 
-.vp-card-new {
+/* A supplier's photograph fills the tile instead.
+
+   «عکس باید کل اون فضای اختصاص داده برای عکس کفشو پوشش بده», about the first
+   imported card, and the difference is in what the two kinds of picture are.
+   This shop's own are **cut-outs**: a shoe on nothing, 1400×990, and the rule
+   above exists because cropping one to a square takes the toe or the heel off
+   the silhouette. A supplier's is a **photograph** — a shoe on a surface, with
+   its own margin already in it — and fitting that inside 80% of the tile puts
+   a margin inside a margin, which is the grey band on three sides of the first
+   one imported.
+
+   So it covers, and the 15px nudge the phone gives a cut-out comes off with
+   it: both were measured for a picture this one is not. Nothing about the
+   shop's own tiles changes — they never carry this class.
+
+   The crop this risks is the one the rule above refuses, and it is a different
+   risk here: Basalam serves square originals, so a square tile takes all of a
+   square photograph. Where a seller uploaded a tall one it loses the top and
+   foot of the *frame*, not of the shoe, which sits in the middle of it. */
+.vp-card-shot.is-supplied img {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: none;
+}
+
+/* «ناموجود», in the badge's place.
+
+   The listing shows what the shop has run out of rather than hiding it, so the
+   tile needs to say so where the eye already looks for a badge — «جدید»'s
+   corner, which is why this is the same box with a different fill. Grey rather
+   than the ink: it is a state, not an announcement, and a black chip reads as
+   loudly as «جدید» does on a shoe that cannot be bought.
+
+   Measured: white type on this fill is 5.25:1, above the 4.5 a label this
+   small has to hold. */
+.vp-card-out {
   position: absolute;
   z-index: 2;
   inset-inline-start: 8px;
   inset-block-start: 8px;
-  padding: 4px 10px;
-  border-radius: 8px;
-  background: #101111;
+  /* The same box as «جدید», and it grew with it. Only one of the two is ever
+     drawn, in the same corner: if they were different sizes the corner would
+     change shape depending on whether the shoe was in stock. */
+  padding: 4.2px 10.5px;
+  border-radius: 8.4px;
+  background: #6C6C6C;
   color: #FFFFFF;
-  font-size: 10px;
-  font-weight: 700;
+  font-size: 10.5px;
+  font-weight: 630;
   line-height: 1.4;
 }
 
-/* The reference's circle, on the photograph's own foot corner. */
+/* The reference's circle, on the photograph's own foot corner.
+   28.5 rather than 30: «مربع قلب فیوریت ۵ درصد کوچیکتر». */
 .vp-card-fav {
   position: absolute;
   z-index: 2;
@@ -15726,8 +16495,8 @@ button.vp-cart-keep {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
+  width: 28.5px;
+  height: 28.5px;
   padding: 0;
   border: 0;
   border-radius: 50%;
@@ -15739,6 +16508,41 @@ button.vp-cart-keep {
   box-shadow: 0 2px 8px -3px rgba(16, 17, 17, 0.3);
 }
 
+/* The gaps down the card are 15 apiece — «فاصله عکس با اسم بشه ۱۵ / اسم با
+   قیمت بشه ۱۵ / قیمت با سایز بشه ۱۵ / سایز با دکمه خرید بشه ۱۵» — and the five
+   numbers below are not 15, on purpose.
+
+   What is being measured is the white between the *printed* lines. What a
+   margin sets is the distance between line *boxes*, and every box here is
+   taller than its ink: the name is 13.86 in a 22.87 line, the price 14 in a 26,
+   the stock line's 11.5 is centred in a 28, and the sales line's 10 is in
+   another 26. Rendered at 390 and read off the raster, a plain
+   15 / 15 / 15 / 15 / 15 would paint 20 / 26 / 32 / 31 / 23.9.
+
+   Each value below is therefore 15 minus the leading either side of it, which
+   is why two of them are negative: the half-leading around the stock line is
+   already more than the whole gap asked for. Nothing overlaps — a negative
+   margin here eats empty leading, not ink, and every line keeps the height it
+   had, so the sale line and the stock line still both measure 28 and a grid of
+   shoes, some cut and most not, still keeps one rhythm down the column.
+
+   Measured after, at 360, 390, 768, 1200 and 1920: 15 apiece, give or take the
+   third of a pixel the 1200 column rounds off.
+
+   **These are set from the ink, so re-measure if the type changes.** Move a
+   font-size, a line-height or the stock line's 28 and every number below is
+   wrong by exactly what you moved — they are not spacing, they are spacing
+   minus leading. The button's gap is the one that can still grow: it is pinned
+   to the card's foot by `margin-block-start: auto` so a row of cards keeps its
+   buttons level, and on a card shorter than its neighbour the row's slack
+   lands there. 15 is the intrinsic gap, not a ceiling.
+
+   The chip on a sale card is the one thing these numbers do not reach. It is a
+   filled box rather than a line of type, so its own tint stands where the
+   stock line's clear leading would be: measured, it leaves 10 above and 10
+   below rather than 15. Shrinking it to the height of a line of text would buy
+   that back and was tried — «اون مربعی که تخفیف توش نوشته میشه باید مربع بمونه
+   فقط کمی کوچیکتر بشه». It stays a box; 10 is what a box costs. */
 .vp-card-name {
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -15746,7 +16550,13 @@ button.vp-cart-keep {
   overflow: hidden;
   margin-block-start: 10px;
   color: rgba(16, 17, 17, 0.78);
-  font-size: 12px;
+  /* «اسم کفش باید سایزش ۱۰ درصد بزرگتر و ده درصد بولدتر بشه», and then five
+     percent again on top of that — «باز جا داره ۵ درصد بزرگتر و بولدتر بشه».
+     Taken literally both times: 12 → 13.2 → 13.86px, 400 → 440 → 462.
+     Vazirmatn is loaded as a variable font at `font-weight: 100 900`, so 462
+     is a real weight here and not a browser rounding it up to 500. */
+  font-size: 13.86px;
+  font-weight: 416;
   line-height: 1.65;
   text-decoration: none;
 }
@@ -15754,14 +16564,14 @@ button.vp-cart-keep {
 .vp-card-price {
   margin-block-start: 4px;
   font-family: 'Vazirmatn', var(--body-font);
-  font-weight: 800;
+  font-weight: 720;
   font-size: 14px;
   color: #101111;
 }
 
 .vp-card-price span {
   font-size: 10px;
-  font-weight: 600;
+  font-weight: 540;
   color: rgba(16, 17, 17, 0.62);
 }
 
@@ -15769,17 +16579,46 @@ button.vp-cart-keep {
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-block-start: 3px;
+  /* The 28 the stock line measures, said out loud. It used to come from the
+     chip below, which was 28 tall only because it inherited the body's 26px
+     line-height; with the chip cut down to a pill this line would be the
+     struck price's 26 and a sale card would sit 2 short of a plain one. The
+     two have to measure the same or a row of cards with a cut in it stops
+     agreeing with a row without. */
+  min-height: 28px;
+  margin-block-start: -2px;
 }
 
-/* The cut as a chip, the reference's own device for it. */
+/* The cut as a chip, the reference's own device for it.
+
+   A box, and it stays one — «باید مربع بمونه فقط کمی کوچیکتر بشه». It was 28
+   tall, which was not a decision: it inherited the body's 26px line-height and
+   put a slab of tint behind a 10px number, 9 clear above it and 9 below against
+   6 at the ends, and being the tallest thing in the row it set the line's
+   height too. 16 of line and 4 of padding make it 20 — a box still, two thirds
+   of a line shorter — centred in the 28 the line now keeps on its own. It was
+   12 for a round, which is the height at which the chip clears as much as the
+   stock line's text does; that read as a pill rather than a box and was asked
+   back.
+
+   **The padding is 3 above and 1 below, and that is what centres the digits** —
+   «۳۰ درصد تخفیف از بالا و پایین باید وسط مستطیلش قرار بگیره». Even padding does
+   not: a line box is centred on the font's ascent *and descent*, and «٪۳۰» has
+   no descender, so the whole label hangs in the top half of it. Measured at 8×
+   inside the 20, evenly padded, the digits printed 5.25 of ground above them
+   and 7.88 below. The extra 2 on top pays that back: 6.25 above, 6.88 below.
+   The remaining third of a pixel cannot be spent — Chromium snaps a baseline to
+   the pixel grid, so the three positions this box can put the label in are
+   5.25, 6.25 and 7.25, and the middle one is the closest to centred that
+   exists. */
 .vp-card-cut {
-  padding: 1px 6px;
+  line-height: 16px;
+  padding: 3px 6px 1px;
   border-radius: 5px;
   background: rgba(192, 151, 47, 0.14);
   color: var(--vp-gold);
   font-size: 10px;
-  font-weight: 700;
+  font-weight: 630;
 }
 
 .vp-card-was del {
@@ -15791,18 +16630,149 @@ button.vp-cart-keep {
   color: rgba(16, 17, 17, 0.42);
 }
 
+/* The other thing that line can be: what the shop has, when it has no sale to
+   announce. Same margin and the same 28px the sale line measures, so the two
+   are interchangeable and a grid of shoes — some cut, most not — keeps one
+   rhythm down the column.
+
+   11.5px rather than the 10 the sale line's own parts take — «اندازه نوشته
+   فلان سایز موجود خیلی کوچیکه پانزده درصد بزرگتر بشه». They are not the same
+   kind of thing: a struck price is read beside the price above it and is meant
+   to be quieter than it, while this is the only sentence on the card and has to
+   be read on its own. The box does not move, so nothing below it does either. */
+.vp-card-stock {
+  display: flex;
+  align-items: center;
+  min-height: 28px;
+  margin-block-start: -2px;
+  font-size: 11.5px;
+  color: rgba(16, 17, 17, 0.5);
+}
+
 .vp-card-sold {
-  margin-block-start: 3px;
+  margin-block-start: -1px;
   font-size: 10px;
   color: rgba(16, 17, 17, 0.5);
 }
 
+/* The basket button, at the foot of every card.
+
+   `margin-block-start: auto` and a full-height card are what put it *at the
+   foot* rather than under whatever the last line happened to be: a card with
+   two lines of name and a sale line is taller than one with neither, and two
+   buttons at different heights in one row of a grid is the thing this is for.
+   The row stretches its columns already, so the card only has to take the
+   height it is given.
+
+   Gold, and gold this way: a filled thing that gets pressed is the fill
+   gradient with white on it — see «گلد سبز» in CLAUDE.md, which is what
+   happens when a button on this site is painted any other gold. */
+.vp-card-buy {
+  margin-block-start: auto;
+  padding-block-start: 7.16px;
+}
+
+.vp-card-add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  width: 100%;
+  height: 36px;
+  padding-inline: 8px;
+  border: 0;
+  /* Both ends round, at any height this ever takes. */
+  border-radius: 999px;
+  /* The palest of four yellows, and no outline — «همون کمرنگ اولی بهتره», «اون
+     خط از دور دکمه اضافه کردن بردار» — and then a step up from that palest:
+     «دکمه اضافه کردن به سبد خرید ۱۰ درصد پررنگتر بشه». 12% of the fill gold on
+     the card's white now, where it was 7%, which composites to #FBF6E5 rather
+     than #FCFAF0.
+
+     **The literal ten percent is nothing and that is why this is twelve.**
+     7% × 1.1 is 7.7%, and rendered, that moves the ground from #FCFAF0 to
+     #FCF9EE — under two levels of 255 on the channel that carries most of the
+     colour, which is below what a phone in daylight can show. The distance
+     from white is what «پررنگ» means here: 15.2 levels of blue at 7%, 26.0 at
+     12%. Anything under about 10% is the same button.
+
+     **This is the one filled control on the site that is not gold, and that is
+     deliberate.** «گلد سبز» in CLAUDE.md says a *filled* button is the gold
+     gradient with white on it, and it is right: every screen with one button
+     on it keeps that. A card is the case the rule was not written for — six of
+     these appear at once, and six gold slabs in a grid outweigh the
+     photographs they are selling. The eye should land on the shoe.
+
+     **The tint is the whole button now.** It was white with a 1.5px hairline
+     for a round; with the hairline gone the ground is the only thing drawing
+     this control, so it cannot go back to white without the line coming back
+     with it. Which is also why the hover deepens the tint rather than touching
+     an edge that is not there. */
+  background: rgba(218, 178, 38, 0.12);
+  color: #101111;
+  font-family: 'Vazirmatn', var(--body-font);
+  /* 12px, the card name's size. The label is twenty-two characters and it does
+     not wrap: measured, the icon and the words come to 139px inside the 162px
+     the button gets in a two-column grid on a 360px screen — the narrowest
+     this card is ever drawn at. 13px there would be 149px and still fit, but
+     with four pixels either side of it, which is not a margin. */
+  font-size: 12px;
+  font-weight: 630;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: filter 0.2s ease;
+}
+
+/* Above 992 the card is in the listing's wide column and the button is more
+   than twice the width it needs, so the type comes up with it. */
+@media (min-width: 992px) {
+  .vp-card-add {
+    height: 40px;
+    font-size: 13px;
+  }
+}
+
+/* Twice the tint, still — the ground moved from 7% to 12%, so this moves with
+   it. There is no edge to light up any more, and `brightness()` on a ground
+   this pale moves it by about one level. */
+.vp-card-add:hover {
+  background: rgba(218, 178, 38, 0.24);
+}
+
+.vp-card-add svg {
+  flex: none;
+  width: 16px;
+  height: 16px;
+}
+
+/* Sold out keeps the shape and goes grey. It is not a button — there is
+   nothing to press — so it is a span, and it says so. Now that the live one is
+   white too, the difference has to be the ink and the ground rather than the
+   colour of the fill: greyed words on a grey wash, and no hover at all. */
+.vp-card-add.is-off {
+  background: rgba(16, 17, 17, 0.05);
+  color: rgba(16, 17, 17, 0.42);
+  cursor: default;
+}
+
+.vp-card-add.is-off:hover {
+  background: rgba(16, 17, 17, 0.05);
+}
+
 /* --------------------------------------------------------------------------
-   The card's tile, on the phone: the photograph 15 lower, the favourite as one
-   of the header's squares in the head corner, and the badge in gold.
+   The card's tile, on the phone: the photograph 15 lower and the favourite as
+   one of the header's squares in the head corner.
 
    «عکس محصول باید ۱۵ پیکسل بیاد پایینتر» / «لوگوی قلب باید تو یه مربع کرو مث
-   مربع های هدر بره گوشه ی بالا چپ» / «نوشته جدید باید رنگ گلد باشه نه مشکی».
+   مربع های هدر بره گوشه ی بالا چپ».
+
+   There was a «جدید» chip in the other corner and three rounds went into its
+   colour — black on gold, then white on gold, then gold on white — before
+   «کلا کلمه جدید پاک بشه با دکمش» took the whole thing off. What the rounds
+   settled is worth keeping if anything gold ever goes back on this tile:
+   white type on the gold ramp is 3.0:1 at 10px and fails AA, #101111 on it is
+   6.94:1, and #8B7217 on white is 4.65 where #A08119 is 3.72.
 
    Asked for the phone and written for the phone — «ما میخوایم رو نسخه موبایل
    کار کنیم» — so it is scoped to the width the card was designed at. Above 992
@@ -15833,37 +16803,27 @@ button.vp-cart-keep {
    material at the card's scale.
 
    Its ink stays #101111. «مث مربع های هدر» is about the square — and the
-   header's glyphs are gold because the band has no other gold in it, while
-   this tile now has the badge two corners away. Two golds on one photograph
-   would be the second gold this file's header block spends a paragraph
-   refusing.
+   header's glyphs are gold because the band has no other gold in it, which a
+   photograph is not short of.
 
-   **The badge takes the page's one gold**, the button ramp #C0972F → #E3B54A,
-   with #101111 on it — the basket count's exact pairing, already measured at
-   6.94:1 and AA. Not white on gold: at 10px that is 3.0:1 and fails.
    -------------------------------------------------------------------------- */
 @media (max-width: 991.98px) {
   .vp-card-shot img {
     transform: translateY(15px);
   }
 
+  /* The corner is the header's ratio, 0.30119, and it has to be recomputed at
+     the new width or the square stops being the header's square: 28.5 ×
+     0.30119 = 8.58, where 30 gave 9.04. */
   .vp-card-fav {
     inset-block-start: 8px;
     inset-block-end: auto;
-    border-radius: 9.04px;
+    border-radius: 8.58px;
     box-shadow:
       0 0 2px rgba(16, 17, 17, 0.10),
       0 0 8px -2px rgba(16, 17, 17, 0.14);
   }
 
-  /* «اون جدید رو کارتها باید با سفید نوشته بشه». It was #101111 on the gold,
-     which is the pairing the basket count uses and measures 6.94:1. White on
-     the same ramp is 3.0:1, which is under AA for text this size — said once,
-     here, because the ask is explicit and the client has now seen both. */
-  .vp-card-new {
-    background: linear-gradient(180deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
-    color: #FFFFFF;
-  }
 }
 
 /* The filter rail, folded on a phone and in the sidebar above 992.
@@ -16033,7 +16993,7 @@ button.vp-cart-keep {
     background: none;
     color: #101111;
     font-size: 10.2px;
-    font-weight: 700;
+    font-weight: 630;
     gap: 0;
   }
 
@@ -16066,7 +17026,7 @@ button.vp-cart-keep {
     box-shadow: none;
     color: inherit;
     font-size: 10.2px;
-    font-weight: 700;
+    font-weight: 630;
   }
 
   /* The price pair, the price sheet's: two boxes on one line, ltr so «از» is
@@ -16103,7 +17063,7 @@ button.vp-cart-keep {
     border-radius: 13.25px;
     background: linear-gradient(96deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
     font-family: 'Vazirmatn', var(--body-font);
-    font-weight: 700;
+    font-weight: 630;
     font-size: 14px;
     color: #FFFFFF;
   }
@@ -16111,7 +17071,7 @@ button.vp-cart-keep {
   .vp-shop-filter-panel .vp-filter-clear {
     flex: none;
     font-size: 12.5px;
-    font-weight: 700;
+    font-weight: 630;
     color: rgba(16, 17, 17, 0.55);
     text-decoration: none;
   }
@@ -16217,7 +17177,7 @@ button.vp-cart-keep {
   white-space: nowrap;
   text-overflow: ellipsis;
   font-size: 10px;
-  font-weight: 700;
+  font-weight: 630;
   color: rgba(16, 17, 17, 0.45);
 }
 
@@ -16229,7 +17189,7 @@ button.vp-cart-keep {
   background: rgba(192, 151, 47, 0.14);
   color: var(--vp-gold);
   font-size: 10px;
-  font-weight: 700;
+  font-weight: 630;
 }
 
 /* The name follows the row instead of opening the card, so its own top margin
@@ -16288,7 +17248,7 @@ button.vp-cart-keep {
     border-radius: 9px;
     color: rgba(16, 17, 17, 0.72);
     font-size: 12px;
-    font-weight: 600;
+    font-weight: 540;
     text-decoration: none;
     white-space: nowrap;
   }
@@ -16353,7 +17313,7 @@ button.vp-cart-keep {
     background: rgba(16, 17, 17, 0.045);
     color: rgba(16, 17, 17, 0.72);
     font-size: 11.5px;
-    font-weight: 700;
+    font-weight: 630;
     text-align: center;
     text-decoration: none;
   }
@@ -16669,7 +17629,7 @@ button.vp-cart-keep {
 
   .vp-sheet-title {
     font-family: 'Cairo', var(--title-font);
-    font-weight: 700;
+    font-weight: 630;
     font-size: 15px;
     color: #101111;
   }
@@ -16733,7 +17693,7 @@ button.vp-cart-keep {
     background: none;
     color: #101111;
     font-size: 10.2px;
-    font-weight: 700;
+    font-weight: 630;
     text-decoration: none;
   }
 
@@ -16831,7 +17791,7 @@ button.vp-cart-keep {
     padding: 0;
     border-radius: 13.25px;
     font-family: 'Vazirmatn', var(--body-font);
-    font-weight: 700;
+    font-weight: 630;
     font-size: 14px;
     text-decoration: none;
     cursor: pointer;
@@ -17137,7 +18097,7 @@ button.vp-cart-keep {
 .vp-doc h2 {
   margin: 32px 0 10px;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 18px;
   line-height: 1.6;
 }
@@ -17179,7 +18139,7 @@ button.vp-cart-keep {
 }
 
 .vp-doc-steps::marker {
-  font-weight: 700;
+  font-weight: 630;
 }
 
 /* The two quiet blocks: a tip somebody should read twice, and a caveat under
@@ -17226,7 +18186,7 @@ button.vp-cart-keep {
 
 .vp-doc-table thead th {
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 14px;
   box-shadow: inset 0 -1.4px 0 rgba(16, 17, 17, 0.12);
 }
@@ -17239,7 +18199,7 @@ button.vp-cart-keep {
 /* The EU column is the answer somebody came for, so it is the one that is
    set. */
 .vp-doc-table tbody th {
-  font-weight: 700;
+  font-weight: 630;
   font-size: 16px;
 }
 
@@ -17260,7 +18220,7 @@ button.vp-cart-keep {
   position: relative;
   padding: 16px 0 16px 34px;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 16px;
   line-height: 1.8;
   cursor: pointer;
@@ -17358,7 +18318,7 @@ button.vp-cart-keep {
   font-family: 'Cairo', var(--title-font);
   font-size: 14px;
   opacity: 0.65;
-  font-weight: 600;
+  font-weight: 540;
 }
 
 /* A telephone number is read left-to-right whatever the page's direction, and
@@ -17478,7 +18438,7 @@ button.vp-cart-keep {
 .vp-error-code {
   margin: 0;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 64px;
   line-height: 1;
   color: rgba(16, 17, 17, 0.1);
@@ -17487,7 +18447,7 @@ button.vp-cart-keep {
 .vp-error-title {
   margin: 6px 0 12px;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 22px;
   line-height: 1.6;
 }
@@ -17792,7 +18752,7 @@ html {
 }
 
 .vp-signin-alt a {
-  font-weight: 400;
+  font-weight: 360;
   text-decoration: underline;
   text-underline-offset: 4px;
   text-decoration-thickness: 1px;
@@ -17866,7 +18826,7 @@ html {
 .vp-enter-title {
   margin: 0 0 4px;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 19px;
   line-height: 1.45;
 }
@@ -18001,7 +18961,7 @@ html {
   background: linear-gradient(90deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   color: #FFFFFF;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 15.5px;
   cursor: pointer;
   transition: filter 0.2s ease;
@@ -18095,7 +19055,7 @@ html {
 .vp-enter-phone {
   direction: ltr;
   unicode-bidi: isolate;
-  font-weight: 700;
+  font-weight: 630;
   color: var(--title-color);
 }
 
@@ -18110,7 +19070,7 @@ html {
 .vp-inp-code input {
   padding: 0;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 22px;
   letter-spacing: 0.35em;
   /* The letter-spacing puts a gap after the last digit too, which reads as the
@@ -18147,12 +19107,12 @@ html {
 
 .vp-enter-resend {
   color: var(--vp-gold-ink-deep);
-  font-weight: 600;
+  font-weight: 540;
 }
 
 .vp-enter-resend:disabled {
   color: #9A9C9C;
-  font-weight: 400;
+  font-weight: 360;
   cursor: default;
 }
 
@@ -18223,7 +19183,7 @@ html {
     border-radius: 11.2px;
     background: linear-gradient(180deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
     font-family: 'Cairo', var(--body-font);
-    font-weight: 800;
+    font-weight: 720;
     font-size: 14.4px;
     line-height: 1;
     color: #FFFFFF;
@@ -18498,7 +19458,7 @@ html {
   .vp-home-faq-title {
     margin: 0 0 8px;
     font-family: 'Cairo', var(--title-font);
-    font-weight: 700;
+    font-weight: 630;
     font-size: 20px;
     line-height: 1.4;
     color: #101111;
@@ -18976,7 +19936,7 @@ body.vp-bare .vp-cart-shot {
   margin: 0 0 10px;
   font-size: 26px;
   line-height: 38px;
-  font-weight: 800;
+  font-weight: 720;
   /* The ladder's title colour, because the ladder's title sits on this same
      glass four hundred pixels further down and the two are the same voice. */
   color: var(--theme-color);
@@ -19134,7 +20094,7 @@ body.vp-bare .vp-cart-shot {
   color: #3A2708;
   font: inherit;
   font-size: 17px;
-  font-weight: 800;
+  font-weight: 720;
   cursor: pointer;
   box-shadow: 0 10px 30px rgba(233, 187, 74, 0.28);
 }
@@ -19244,7 +20204,7 @@ body.vp-prize-open .vp-whatsapp {
   fill: #FFFFFF;
   text-anchor: middle;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 900;
+  font-weight: 810;
   font-size: 28.7px;
   /* Latin, and this element is inside an RTL document — without it the `%`
      goes to the wrong side of the digits. */
@@ -19260,7 +20220,7 @@ body.vp-prize-open .vp-whatsapp {
 .vp-prize-title {
   margin: 0 0 10px;
   font-size: 26px;
-  font-weight: 800;
+  font-weight: 720;
 }
 
 .vp-prize-say {
@@ -19310,7 +20270,7 @@ body.vp-prize-open .vp-whatsapp {
   color: #FFFFFF;
   font: inherit;
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 630;
   cursor: pointer;
 }
 
@@ -19324,7 +20284,7 @@ body.vp-prize-open .vp-whatsapp {
   background: linear-gradient(90deg, var(--vp-gold-ramp-top) 0%, var(--vp-gold-ramp-foot) 100%);
   color: #101111;
   font-size: 17px;
-  font-weight: 800;
+  font-weight: 720;
   text-decoration: none;
 }
 
@@ -19528,7 +20488,7 @@ body.vp-prize-open .vp-whatsapp {
 
 .vp-thread-title {
   display: block;
-  font-weight: 700;
+  font-weight: 630;
 }
 
 .vp-thread-meta {
@@ -19547,7 +20507,7 @@ body.vp-prize-open .vp-whatsapp {
   background: linear-gradient(180deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   color: #101111;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 630;
   white-space: nowrap;
 }
 
@@ -19584,13 +20544,13 @@ body.vp-prize-open .vp-whatsapp {
 .vp-said-who {
   margin: 0 0 4px;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 630;
   color: rgba(16, 17, 17, 0.55);
 }
 
 .vp-said-when {
   margin-inline-start: 8px;
-  font-weight: 400;
+  font-weight: 360;
 }
 
 /* `pre-wrap` so the paragraphs somebody typed survive being read back. */
@@ -19653,8 +20613,8 @@ body.vp-prize-open .vp-whatsapp {
    So the design says so, in the one place that cannot be reached unless the
    whole file was read: its last declaration. The gate in the head asks the
    computed style for this property before the body is parsed, and if it is not
-   here it does not let the template paint. See the head of
-   theme/make-rtl-page.js's design gate, and «قالب قبلی» in CLAUDE.md.
+   here it does not let the page paint. See the head of
+   theme/make-rtl-page.js's design gate.
 
    Nothing may be appended below this. A rule added after it still works, but
    it would be a rule that arrives after the signature — i.e. one the gate
@@ -19727,7 +20687,7 @@ body.vp-prize-open .vp-whatsapp {
     margin-bottom: 10px;
     color: rgba(16, 17, 17, 0.7);
     font-size: 13px;
-    font-weight: 600;
+    font-weight: 540;
     text-decoration: none;
   }
 
@@ -19789,7 +20749,7 @@ body.vp-prize-open .vp-whatsapp {
     margin: 0 0 6px;
     font-family: 'Cairo', var(--title-font);
     font-size: 14px;
-    font-weight: 800;
+    font-weight: 720;
     color: #101111;
   }
 
@@ -19834,7 +20794,7 @@ body.vp-prize-open .vp-whatsapp {
     border-radius: 999px;
     color: rgba(16, 17, 17, 0.6);
     font-size: 11px;
-    font-weight: 700;
+    font-weight: 630;
     letter-spacing: 0.04em;
     cursor: pointer;
     transition: background-color 0.2s ease, color 0.2s ease;
@@ -19934,7 +20894,7 @@ body.vp-prize-open .vp-whatsapp {
     background: none;
     color: #101111;
     font-size: 14px;
-    font-weight: 700;
+    font-weight: 630;
     text-align: center;
   }
 
@@ -19951,7 +20911,7 @@ body.vp-prize-open .vp-whatsapp {
     color: #FFFFFF;
     font: inherit;
     font-size: 15px;
-    font-weight: 800;
+    font-weight: 720;
     cursor: pointer;
   }
 
@@ -20035,6 +20995,319 @@ body.vp-prize-open .vp-whatsapp {
   .vp-pdp-ship {
     display: none;
   }
+}
+
+/* --------------------------------------------------------------------------
+   THE نماد اعتماد الکترونیکی, ON THE BASEBOARD
+
+   The shop has an eNamad seal and now shows it, on the strip under the footer
+   — the same strip the copyright line sits on, which is on every page.
+
+   **This is the only image on the site that is not ours and cannot be made
+   local.** eNamad's check requires the picture to be fetched from their own
+   server, so `trustseal.enamad.ir` is a third party this page depends on for
+   one image, and third parties are sometimes down. The box is therefore
+   reserved in CSS: 90px square, `object-fit: contain` so a seal that is not
+   square is not stretched. The strip is the same height whether the image
+   arrives or not, and a failure costs a blank square rather than a footer that
+   jumps under somebody's thumb as they reach for a link.
+
+   90 rather than the seal's own size because nothing here can measure it — the
+   image cannot be fetched from this container. If it turns out to want more
+   room, this is the one number to change.
+
+   **It follows the copyright line rather than being placed on its own.** That
+   line is `text-align: start` from 992 up and `center` below it — measured,
+   not assumed — so the seal sits at the right edge on a desktop and centred on
+   a phone. Centring it at every width would have left the two things on this
+   strip disagreeing about where the strip's edge is.
+   -------------------------------------------------------------------------- */
+
+.vp-enamad {
+  display: flex;
+  justify-content: flex-start;
+  padding-bottom: 14px;
+}
+
+@media (max-width: 991.98px) {
+  .vp-enamad {
+    justify-content: center;
+  }
+}
+
+/* A white plate under it, and that is a decision rather than a default.
+
+   The strip is the gold baseboard, and eNamad's seal is issued with its own
+   pale ground — dropped straight onto the gold it would read as a stray white
+   rectangle somebody forgot to style. On a plate of its own, with the page's
+   own corner language, it reads as something the shop put there. 90px overall
+   either way: the padding is inside the reserved box, so nothing moves. */
+.vp-enamad a {
+  display: block;
+  box-sizing: border-box;
+  width: 90px;
+  height: 90px;
+  padding: 6px;
+  border-radius: 12px;
+  background: #FFFFFF;
+}
+
+.vp-enamad img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* --------------------------------------------------------------------------
+   FIGURES ARE SET IN THE BODY FACE, NOT THE DISPLAY ONE
+
+   «اون فونت قیمت تو دکمه هم باید فونت ساده بشه» — said about the pay button on
+   an order, where «پرداخت ۳٬۸۳۰٬۰۰۰ تومان» came out in a numeral style that is
+   not this site's.
+
+   **It is not a matter of taste and it is not only that button.** Cairo is the
+   display face here, and Cairo is an Arabic font: asked for the Persian digits
+   U+06F0–U+06F9 it draws them in the Arabic style. Rendered side by side at
+   44px, the difference is not decorative —
+
+     Vazirmatn   ۰۱۲۳۴۵۶۷۸۹     zero is a small ring, four is ۴
+     Cairo       ·۱۲۳۴۵۶۷۸۹     zero is a raised dot
+
+   — so «۳٬۸۳۰٬۰۰۰» ends in three dots instead of three zeros, which is what
+   the client photographed. Every element that shows a figure and names Cairo
+   has the same defect, so this is the class rather than the screen: the pay
+   button and its family, the price on a product page, the basket's lines and
+   its total, a vendor's price, the account's counts and the panel's figures.
+
+   Not touched: headings, names and titles keep Cairo — they carry no digits,
+   and the display face is the point of them. The discount bursts («٪۳۰» in the
+   hero and on the dice prize) also keep it: their digits are SVG `text` laid
+   out inside a drawn shape that was measured around them, so changing the face
+   there moves artwork rather than type. If those ever look wrong too, they are
+   a separate measurement.
+   -------------------------------------------------------------------------- */
+
+.vp-filter-apply,
+.vp-cart-go,
+.vp-pdp-price strong,
+.vp-cart-money strong,
+.vp-cart-row.is-total,
+.vp-seller-price,
+.vp-acct-figs b,
+.vp-admin-figure-num {
+  font-family: 'Vazirmatn', var(--body-font);
+}
+
+/* --------------------------------------------------------------------------
+   «قبل از پرداخت» — the word about the VPN, on the order page
+
+   «کاربر وقتی وارد آخرین صفحه قبل از رفتن به لینک پرداخت میشه باید تو یه پاپاپ
+   بهش بگی اگه فیلترشکنش روشنه خاموش کنه». The reason it is worth a modal
+   rather than a line of text: a shopper whose VPN is on does not get a message
+   from the bank, they get a page that will not open or a payment that dies in
+   the middle — and the middle one costs them money while leaving the order
+   unpaid.
+
+   **Its materials are the phone filter sheet's, quoted rather than re-chosen**
+   — scrim `rgba(16,17,17,0.45)` under a 6px blur, a white island 12px off the
+   sides, a 22px corner and `0 26px 60px -24px` under it, lifted 7vh off dead
+   centre because «پاپاپ ها خیلی بالان بهتره بیان پایینتر وسط قرار بگیرن» was
+   settled there. If those numbers ever move, they move here too.
+
+   **What is not the sheet's is the width and the media query.** The sheets are
+   phone-only and stretch to the screen; this arrives at every width, so it
+   takes a `max-width` and centres — a 22px island stretched across a desktop
+   reads as a bar, not as a card. And `::backdrop` does the scrim rather than a
+   div, because a `<dialog>` draws its own and a second one would sit under it.
+   -------------------------------------------------------------------------- */
+
+.vp-vpn {
+  width: calc(100% - 24px);
+  max-width: 420px;
+  margin: auto;
+  padding: 18px;
+  border: 0;
+  border-radius: 22px;
+  background: #FFFFFF;
+  box-shadow: 0 26px 60px -24px rgba(16, 17, 17, 0.55);
+  transform: translateY(-7vh);
+  color: var(--body-color);
+}
+
+.vp-vpn::backdrop {
+  background: rgba(16, 17, 17, 0.45);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+
+.vp-vpn-title {
+  margin: 0 0 8px;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 630;
+  font-size: 17px;
+  color: #101111;
+}
+
+.vp-vpn-say {
+  margin: 0 0 16px;
+  font-size: 14px;
+  line-height: 2;
+}
+
+/* The button is the page's own — the same gold ramp as «پرداخت» under it, so
+   the two read as one step rather than as two different kinds of action. It is
+   inside a `<form method="dialog">`, which closes the dialog with no script at
+   all; the script above the markup only has to open it. */
+.vp-vpn-ok {
+  margin-top: 0;
+}
+
+/* --------------------------------------------------------------------------
+   THE THREE AT THE LEFT OF THE HEADER SIT IN EQUAL AIR
+
+   «فاصله ۳ آیتم سمت چپ هدر باید از بالا پایین چپ و وسط یکی باشن» — the basket,
+   the account and the search box, and the four gaps around them.
+
+   Measured at 1440 before: 14 above, 14 below, **12** to the island's left
+   edge, **16** between the basket and the account, **24** between the account
+   and the search. Four different numbers around one cluster, and the two the
+   eye lands on first — the outer inset and the inner gaps — were the odd ones.
+
+   14 is the number they all become, and it is not a choice: the three are 48px
+   tall in a 76px island, so the air above and below them is (76 − 48) / 2 and
+   nothing here can move it without moving the island's height. The other three
+   gaps come to it.
+
+   Where each came from:
+     - 12 was the column's own gutter, set to the air around the *logo* —
+       (76 − 52) / 2, because the lockup is 52 tall. That is still right for
+       the logo and is left alone; this overrides it for the icons' column only.
+     - 16 was `.header-button`'s flex gap.
+     - 24 was that gap plus 8px of margin the template puts on `.icon-btn`,
+       which is why the two inner gaps were not even equal to each other.
+
+   **The logo keeps its 12 at the other end**, deliberately. Two clusters of
+   different heights cannot both sit in equal air inside one island unless each
+   takes the inset its own height gives it: the logo is 52 and gets 12, these
+   are 48 and get 14. Forcing one number on both would put one of them back out
+   of square, and the 2px between the island's two ends is a comparison across
+   1400px rather than one between neighbours.
+
+   Desktop only — below 992 the search is not in the row at all and the cluster
+   has its own spacing.
+   -------------------------------------------------------------------------- */
+
+@media (min-width: 992px) {
+  /* Both ends of the island, not just the icons'.
+
+     This started as an override on the icons' column alone, because the logo
+     was 52 tall and 12 was its own correct air. «اندازه مربع لوگو هم باید همون
+     اندازه مربع سبد خرید باشه» ended that: the mark is 48 now, the same as the
+     three, so 14 is every cluster's number and the inset can be said once.
+
+     14 = this padding, less the row's own −12 margin, plus the columns' 12. */
+  .th-header .menu-area > .container {
+    padding-inline: 14px;
+  }
+
+  .th-header .menu-area .header-button {
+    gap: 14px;
+  }
+
+  /* The template's own 8px, which stacked on the gap for the search box only. */
+  .th-header .menu-area .header-button > * {
+    margin-inline: 0;
+  }
+
+  /* --- the mark, at the basket's size and corner ------------------------- */
+
+  /* «گوشه های مربع لوگو باید کروشون اندازه مربع سبد خرید باشه و اندازه مربع
+     لوگو هم باید همون اندازه مربع سبد خرید باشه».
+
+     The desktop had two squares to two specifications: the basket 48 with an
+     18px corner, the mark 52 with a 12px one. Same island, adjacent, and the
+     eye reads them as one row of tiles — so they are one tile now.
+
+     **Below 992 nothing moves.** The phone has its own set at the end of this
+     file, where the mark and the buttons already share a size and a corner in
+     two steps (52/15.18, and 42/12.65 under 576), settled over two rounds of
+     «کروتر». This block is scoped to `.th-header`, so the footer's mark and the
+     drawer's keep their own 52 and 42 as well: one lockup, but each place sizes
+     it for the room it is in.
+
+     The lockup's height follows the mark — the text beside it is 46.3 — so it
+     is 48 tall now like everything else in the row, which is what lets the
+     inset above be one number. */
+  .th-header .vp-logo img {
+    width: 48px;
+    height: 48px;
+    border-radius: 18px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   TEN PER CENT OFF EVERY WEIGHT
+
+   «زخامت همه نوشته ها باید ده درصد نازکتر بشن».
+
+   Every numeric `font-weight` this file sets — 168 of them — was multiplied by
+   0.9 in place: 700 → 630, 800 → 720, 600 → 540, 900 → 810, 500 → 450,
+   400 → 360, and the four odd ones with them. Both faces are variable
+   (Vazirmatn 100–900, Cairo 200–1000), so 630 is a weight the font really
+   draws and not a browser's synthetic thinning of 700 — which is the only
+   reason a request like this can be answered honestly.
+
+   **This block is for the weights that are not ours.** Measured on the home
+   page afterwards, a few hundred elements still rendered at a round number,
+   because their weight comes from the layer underneath this file rather than
+   from it: the body's inherited 400, the browser's own 700 for `b`, and a
+   couple of the base layer's heading classes. They are mapped here at the same
+   0.9.
+
+   `:where()` on the element selectors, deliberately: it weighs nothing, so
+   every rule above that names a class still wins. Without it this block would
+   sit at the end of the file with the same specificity as `.vp-logo-text b`
+   and quietly flatten the lockup to 630.
+
+   Not scoped to a width. The instruction names none, and this file's habit is
+   one number at every width — the header's corner and the basket's tile were
+   both settled that way. If the phone is meant to keep the old weights, that
+   is a `@media` around the pass, not a different number.
+   -------------------------------------------------------------------------- */
+
+body.shoe-shop {
+  font-weight: 360;
+}
+
+.shoe-shop .box-title {
+  font-weight: 540;
+}
+
+/* Three classes deep because the base layer's own rule is
+   `.footer-layout5 .footer-widget .widget_title` and a shallower selector
+   loses to it. */
+.shoe-shop .footer-widget .widget_title {
+  font-weight: 450;
+}
+
+.shoe-shop .widget_title {
+  font-weight: 450;
+}
+
+.shoe-shop .badge {
+  font-weight: 360;
+}
+
+/* The two the base layer sets on links: the top menu's 500 and the footer
+   columns' 400. Both named the way it names them, so the specificity lands on
+   top rather than beside. */
+.shoe-shop .main-menu a {
+  font-weight: 450;
+}
+
+.shoe-shop .footer-widget a {
+  font-weight: 360;
 }
 
 :root {

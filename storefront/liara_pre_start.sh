@@ -46,6 +46,30 @@ php artisan catalogue:seed
 # roles are left alone.
 php artisan db:seed --class=RolesAndPermissionsSeeder --force
 
+# The two directories a mounted disk arrives without.
+#
+# The photographs live under `storage/app`, and that path is where a Liara disk
+# gets mounted so they survive a deploy. A fresh disk is **empty**, and mounting
+# it hides whatever the image had there — including `storage/app/public`, which
+# is the `public` disk's root, and `storage/app/private`, which is the `local`
+# disk's. Without them the first upload throws and `storage:link` points at
+# nothing, and the symptom is a broken image rather than an error anybody sees.
+mkdir -p storage/app/public storage/app/private
+
+# The link that makes uploaded and imported photographs reachable.
+#
+# `storage/app/public` is served at `/storage` only through this symlink, and a
+# fresh container has no symlink — so without this, every picture the panel
+# uploads and every picture `basalam:fetch` downloads is a broken image, with
+# the file sitting right there on disk. `--force` because the link may already
+# exist on a warm container, and `|| true` because `set -eu` is in force above
+# and a missing link is not a reason to refuse to start the shop.
+#
+# **The files behind it are only permanent if a disk is mounted at
+# `storage/app`.** Without one they are a container's lifetime, which for a
+# catalogue imported from Basalam means until the next deploy.
+php artisan storage:link --force || true
+
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache

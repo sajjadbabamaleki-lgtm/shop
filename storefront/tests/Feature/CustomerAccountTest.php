@@ -6,10 +6,13 @@ use App\Models\Branch;
 use App\Models\Customer;
 use App\Models\LoginCode;
 use App\Models\Order;
+use App\Models\Product;
 use App\Models\Role;
 use App\Models\User;
+use App\Models\WishlistItem;
 use App\Providers\SmsServiceProvider;
 use App\Support\Branches\BranchOpener;
+use App\Support\Messaging\Thread;
 use App\Support\Sms\Sender;
 use App\Support\Tenancy\TenantContext;
 use Database\Seeders\BranchSeeder;
@@ -537,6 +540,31 @@ class CustomerAccountTest extends TestCase
         $this->assertTrue(Hash::check('گل', $customer->fresh()->password));
     }
 
+    /**
+     * A rejected form has to say so **on the page**.
+     *
+     * It did not: `changePassword` redirected back to an account page that
+     * printed no errors anywhere, so a shopper who mistyped their current
+     * password saw the fold shut and nothing else happen. The message existed
+     * the whole time — it was in the session and the page threw it away.
+     */
+    public function test_a_refused_password_change_is_said_on_the_account_page(): void
+    {
+        $customer = Customer::create(['name' => 'مریم', 'phone' => '09123456789', 'password' => 'گل']);
+
+        $this->actingAs($customer, 'customer')
+            ->from(route('account'))
+            ->post('/account/password/change', [
+                'current' => 'اشتباه',
+                'password' => 'برگ',
+                'password_confirmation' => 'برگ',
+            ]);
+
+        $this->actingAs($customer, 'customer')->get('/account')
+            ->assertOk()
+            ->assertSee('رمز فعلی درست نیست.', false);
+    }
+
     // --- the sender -------------------------------------------------------
 
     /**
@@ -614,6 +642,80 @@ class CustomerAccountTest extends TestCase
             ->assertOk()
             ->assertSee($there->number, false)
             ->assertDontSee($here->number, false);
+    }
+
+    /**
+     * The four figures at the top of the page.
+     *
+     * They are what the client's complaint was actually about — «این چه حساب
+     * کاربری داغونیه» was a page that could not say how many orders somebody
+     * had, how many were still moving, or that the shop had written to them.
+     * Counted in the controller and asserted as view data rather than as
+     * rendered digits: the page prints them in Persian numerals, and a test
+     * that matched «۲» would be testing `fa_number`.
+     *
+     * «در جریان» is placed, paid and shipped — an order still moving.
+     * Delivered and cancelled ones are finished and must not be counted, which
+     * is the only part of this a rewrite could get wrong silently.
+     */
+    public function test_the_account_counts_the_orders_the_wishlist_and_the_unread_replies(): void
+    {
+        $customer = Customer::create(['name' => 'مریم', 'phone' => '09123456789', 'password' => 'password-1234']);
+
+        $this->orderFor($customer);
+        $done = $this->orderFor($customer);
+        app(TenantContext::class)->forBranch(Branch::central(), fn () => $done->update(['status' => Order::DELIVERED]));
+
+        WishlistItem::create(['customer_id' => $customer->id, 'product_id' => Product::firstOrFail()->id]);
+
+        $conversation = app(TenantContext::class)->forBranch(Branch::central(), fn () => app(Thread::class)
+            ->start($customer, 'تعویض سایز', 'سایز ۳۸ برایم کوچک بود.'));
+
+        $staff = User::create(['name' => 'کارمند', 'email' => 'staff@vikyplus.test', 'password' => 'secret']);
+        $staff->roles()->attach(Role::where('slug', Role::ADMIN)->sole());
+
+        app(TenantContext::class)->forBranch(Branch::central(), fn () => app(Thread::class)
+            ->reply($conversation, $staff, 'سایز ۳۹ موجود است.'));
+
+        $this->actingAs($customer, 'customer')->get('/account')
+            ->assertOk()
+            ->assertViewHas('ordersTotal', 2)
+            ->assertViewHas('ordersOpen', 1)
+            ->assertViewHas('wishlistCount', 1)
+            ->assertViewHas('unreadMessages', 1)
+            ->assertSee('در جریان', false)
+            ->assertSee('پیام‌های من', false);
+    }
+
+    /**
+     * The name, which had no way of being changed at all: it is set once on the
+     * code step, and a shopper who typed it in a hurry was stuck with it.
+     */
+    public function test_the_name_can_be_changed_from_the_account(): void
+    {
+        $customer = Customer::create(['name' => 'مریم', 'phone' => '09123456789', 'password' => 'password-1234']);
+
+        $this->actingAs($customer, 'customer')
+            ->post('/account/profile', ['name' => 'مریم رضایی'])
+            ->assertRedirect(route('account'));
+
+        $this->assertSame('مریم رضایی', $customer->fresh()->name);
+    }
+
+    /**
+     * **The number is not editable and must not become one.** It is what signs
+     * this account in, what a code is sent to and what every order on it is
+     * keyed on, so a form that could change it would be an account takeover
+     * with no code involved. This posts one anyway and expects it ignored.
+     */
+    public function test_the_number_cannot_be_changed_from_the_account(): void
+    {
+        $customer = Customer::create(['name' => 'مریم', 'phone' => '09123456789', 'password' => 'password-1234']);
+
+        $this->actingAs($customer, 'customer')
+            ->post('/account/profile', ['name' => 'مریم', 'phone' => '09120000000']);
+
+        $this->assertSame('09123456789', $customer->fresh()->phone);
     }
 
     public function test_one_customer_never_sees_anothers_orders(): void

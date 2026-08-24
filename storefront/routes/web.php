@@ -126,6 +126,14 @@ $storefront = function (): void {
         ->middleware('auth:customer')->name('account.password.change');
 
     /*
+     * The name on the account, and nothing else. The number is deliberately
+     * not editable here — see `updateProfile`: it is the credential, and a
+     * form that could change it would be a takeover with no code involved.
+     */
+    Route::post('/account/profile', [AccountController::class, 'updateProfile'])
+        ->middleware('auth:customer')->name('account.profile');
+
+    /*
      * The content pages. Fixed paths, one controller, no parameters — the
      * segment is a route default rather than something a visitor supplies, so
      * /about is the only way to reach the about page and there is no

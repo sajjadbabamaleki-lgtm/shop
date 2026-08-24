@@ -49,7 +49,7 @@ class WishlistController extends Controller
             ->wishlistProducts()
             ->purchasable()
             ->pricedHere()
-            ->with(['brand', 'media', 'variants.offer', 'variants.stock', 'defaultVariant.offer'])
+            ->with(['brand', 'media', 'variants.offer', 'variants.stock', 'defaultVariant.offer', 'defaultVariant.stock'])
             ->get();
 
         return view('shop.wishlist', ['products' => $products]);

@@ -261,9 +261,12 @@ layers.push('assets/css/tweaks.css');
 // Hidden until the design says otherwise. This goes above the first <link> on
 // purpose: at that point the browser has not requested a single stylesheet, so
 // there is no state in which the template can paint first.
+// **These two comments are served to every visitor**, so they say what the
+// mechanism is and where its source lives, and nothing else. What the page is
+// built on is not a thing an HTML comment tells the world.
 const DESIGN_HOLD = [
   '    <!-- Hidden until the design signs itself; the gate below reveals it.',
-  '         See «قالب قبلی» in CLAUDE.md before touching either half. -->',
+  '         Both halves are one mechanism — see theme/make-rtl-page.js. -->',
   '    <style>html{visibility:hidden}</style>',
   '    <noscript><style>html{visibility:visible}</style></noscript>',
   '',
@@ -273,8 +276,8 @@ const DESIGN_HOLD = [
 const DESIGN_GATE = [
   '',
   '',
-  '    <!-- The design gate: no template paints without tweaks.css. See its last',
-  '         rule, theme/make-rtl-page.js, and «قالب قبلی» in CLAUDE.md. -->',
+  '    <!-- The design gate: nothing paints until tweaks.css has arrived whole.',
+  '         See its last rule and theme/make-rtl-page.js before changing either. -->',
   '    <script>',
   '        (function () {',
   '            var root = document.documentElement;',
@@ -2673,7 +2676,7 @@ html = html.replace('</body>',
   '            var header = wrap && wrap.closest(".th-header");\n' +
   '            var menu = wrap && wrap.querySelector(".menu-area");\n' +
   '            var catMenu = document.querySelector(".category-menu");\n' +
-  '            // The corner button. It was the template\'s scroll-to-top ring\n' +
+  '            // The corner button. It was a scroll-to-top ring once\n' +
   '            // and is the WhatsApp link now; the name says which, because a\n' +
   '            // variable called toTop that shows a chat button is a trap.\n' +
   '            var corner = document.querySelector(".vp-whatsapp");\n' +
@@ -2744,7 +2747,7 @@ html = html.replace('</body>',
   '                var atFoot = screenEl ? (y + winH > screenTop) : false;\n' +
   '                if (corner) corner.classList.toggle("show", y > 0 && !atFoot);\n' +
   '                if (screenEl) {\n' +
-  '                    // The template\'s own test, unchanged: the footer is left\n' +
+  '                    // The original test, unchanged: the footer is left\n' +
   '                    // alone while it sits whole in the viewport, allowing 200.\n' +
   '                    var whole = screenTop + screenH - 200 <= y + winH && screenTop >= y;\n' +
   '                    screenEl.classList.toggle("th-visible", !whole);\n' +
@@ -2956,6 +2959,48 @@ html = html.replace(
   '                        '
 );
 
+// The seal, exactly as the eNamad panel issues it — see the note below the
+// next comment for why every attribute in here matters. One string, so the
+// day it is reissued there is one line to change.
+//
+// **It is pasted exactly as eNamad issued it, and «exactly» is their rule:**
+// «لوگو خود را کپی کرده بدون تغییر در سایت خود قرار دهید». Two consequences
+// that look like sloppiness and are not:
+//
+//   - `alt` is empty. It was filled in here once, to name the seal for a
+//     screen reader, and it has been put back: their check reads the markup,
+//     and a seal that does not verify is worth less than the alt text is worth.
+//   - **The link carries no `rel`, and none may be added.** eNamad say so
+//     outright — «عبارت rel="noopener noreferrer" باعث عدم نمایش لوگو در سایت
+//     شما میشود» — because their server refuses the picture to a request that
+//     arrives without a referrer. Every other `target="_blank"` on this site
+//     has `rel="noopener"` and that is right; adding it here, on the grounds
+//     that it is missing, breaks the seal silently. `TrustSealTest` fails if
+//     it ever appears.
+//
+// The same rule is why opening the image's address straight in a browser
+// answers `HTTP 400`: no referrer, no picture. That is not evidence of a wrong
+// code, and an afternoon went into learning it.
+//
+// **`onerror` hides the whole plate, and it is there because it happened.**
+// The first code we were given answered `HTTP 400 Bad Request` from
+// trustseal.enamad.ir for every visitor — the id and Code did not name a seal
+// their server would serve — and what a failed image leaves behind is not
+// nothing: it is the reserved 90px box with its white plate, an empty white
+// square on the baseboard of every page, which is worse than no seal at all.
+// A trust mark that cannot load must take its frame with it. When the right
+// code arrives the picture loads, `onerror` never fires, and the plate is
+// there as designed.
+//
+// Inline rather than in a script file on purpose: it has to be armed before
+// the image finishes failing, and the page's own scripts load at the foot of
+// the document, long after.
+const ENAMAD =
+  "<a referrerpolicy='origin' target='_blank' href='https://trustseal.enamad.ir/?id=696411&Code=oyQ6picRwm2lLEPobQWLuNSW37WIf7mV'>" +
+  "<img referrerpolicy='origin' src='https://trustseal.enamad.ir/logo.aspx?id=696411&Code=oyQ6picRwm2lLEPobQWLuNSW37WIf7mV' " +
+  "alt='' style='cursor:pointer' code='oyQ6picRwm2lLEPobQWLuNSW37WIf7mV' " +
+  "onerror=\"var p=this.closest('.vp-enamad'); if (p) p.style.display='none';\"></a>";
+
 // --- the strip under the footer ----------------------------------------------
 //
 // «پایین فوتر اون کارتها باید کامل حذف بشن و کپی رایت هم به فارسی نوشته بشه
@@ -2972,12 +3017,28 @@ html = html.replace(
 // the word Erna linked to the template's own demo page — the shop's own footer
 // crediting somebody else's product, in English, on a Persian site.
 //
-// What is left is one line in the shop's own language, centred because it is
-// now the only thing on the strip.
+// What is left is the shop's own line, and — since the shop has one — the
+// نماد اعتماد الکترونیکی above it.
+//
+// **The seal is eNamad's own markup, kept as they issue it.** The `code`
+// attribute on the image, both `referrerpolicy='origin'`s and the two query
+// strings are not decoration: eNamad's own script reads the code, and their
+// check requires the image to be fetched from *their* server, from a page
+// whose referrer is this domain. A copy of the picture served from our own
+// assets would look identical and count as not installed. So the one thing
+// changed is `alt`, which arrives empty and now names the seal for a screen
+// reader.
+//
+// It is the one image on this site that is not ours and cannot be made local.
+// `tweaks.css` therefore reserves its box, so the strip is the same height
+// whether or not enamad.ir answers — see the block by `.vp-enamad`.
 html = html.replace(
   /<div class="copyright-wrap">[\s\S]*?<\/footer>/,
   '<div class="copyright-wrap">\n' +
   '            <div class="container th-container5">\n' +
+  '                <div class="vp-enamad">\n' +
+  '                    ' + ENAMAD + '\n' +
+  '                </div>\n' +
   '                <p class="copyright-text">تمامی حقوق این وب‌سایت متعلق به ویکی پلاس است.</p>\n' +
   '            </div>\n' +
   '        </div>\n' +
@@ -3065,11 +3126,26 @@ const FOOT_SOCIAL = [
   // fails that test — which is the guard doing its job, not a false alarm, so
   // the label moves rather than the test. «Instagram» is how the service is
   // said in Persian anyway.
-  ['instagram', 'Instagram', '#', '<i class="fa-brands fa-instagram" aria-hidden="true"></i>'],
-  ['telegram', 'تلگرام', '#', '<i class="fa-brands fa-telegram" aria-hidden="true"></i>'],
-  ['whatsapp', 'واتساپ', 'https://wa.me/989918905993', '<i class="fa-brands fa-whatsapp" aria-hidden="true"></i>'],
-  ['bale', 'بله', '#', '<i class="fa-solid fa-comment-dots" aria-hidden="true"></i>'],
-  ['rubika', 'روبیکا', '#', '<b class="vp-foot-m-soc-letter" aria-hidden="true">R</b>'],
+  // **Images, not glyphs, and that was a decision with a measurement behind
+  // it.** These three were `<i class="fa-brands …">` until the same complaint
+  // arrived twice: a glyph sits on a baseline, `line-height: 1` shortens the
+  // line box below the font's own metrics, and where the ink lands is then the
+  // engine's rounding — Chromium centred them exactly while WebKit drew them
+  // 1.0–1.2px high, on one build, measured both ways. `make-brand-marks.js`
+  // cuts the same shapes out of the same font file the browser was drawing
+  // them from, with the ink's bounding box as the viewBox, so the file's edges
+  // are the mark's edges and centring the image centres the mark everywhere.
+  ['instagram', 'Instagram', '#', '<img class="vp-foot-m-soc-mark" src="assets/img/social/instagram.svg" alt="" width="24" height="24">'],
+  ['telegram', 'تلگرام', '#', '<img class="vp-foot-m-soc-mark" src="assets/img/social/telegram.svg" alt="" width="26" height="26">'],
+  ['whatsapp', 'واتساپ', 'https://wa.me/989918905993', '<img class="vp-foot-m-soc-mark" src="assets/img/social/whatsapp.svg" alt="" width="24" height="24">'],
+  // The client sent these two as photographs of the logos; `make-social-marks.js`
+  // lifts them off their grey ground and writes the two files below. They were
+  // a chat bubble and the letter R until then — see the note beside
+  // `.vp-foot-m-soc.is-bale` in tweaks.css, which said exactly this would
+  // happen. The mark carries its own colours, so its chip is white where the
+  // other three are on their service's colour.
+  ['bale', 'بله', '#', '<img class="vp-foot-m-soc-mark" src="assets/img/social/bale.png" alt="" width="26" height="26">'],
+  ['rubika', 'روبیکا', '#', '<img class="vp-foot-m-soc-mark" src="assets/img/social/rubika.png" alt="" width="26" height="26">'],
 ];
 
 const FOOT_PHONE_HTML =

@@ -73,7 +73,7 @@
 
                     <div class="vp-field">
                         <span class="vp-field-label">روش پرداخت</span>
-                        <p class="vp-checkout-pay">پرداخت در محل، هنگام تحویل. درگاه بانکی هنوز وصل نشده.</p>
+                        <p class="vp-checkout-pay">پرداخت اینترنتی. بعد از ثبت سفارش به درگاه بانکی می‌روید.</p>
                     </div>
 
                     <button type="submit" class="vp-filter-apply vp-cart-go">ثبت سفارش</button>

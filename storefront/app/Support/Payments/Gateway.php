@@ -38,4 +38,18 @@ interface Gateway
 
     /** The name this gateway is configured under, for the row it writes. */
     public function name(): string;
+
+    /**
+     * Can this shop take a card at all?
+     *
+     * Asked rather than inferred, in one place, because three parts of the
+     * application have to agree about it and they are far apart: the order
+     * page shows a pay button or says payment is not available, `PlaceOrder`
+     * writes `online` or `cash_on_delivery` onto the order, and the panel
+     * prints that word to whoever is packing the shoes. A driver that cannot
+     * send a customer anywhere says so here; every one that can says true, and
+     * a driver added later has to answer the question rather than be guessed
+     * at with an `instanceof` in each of those places.
+     */
+    public function takesCardOnline(): bool;
 }

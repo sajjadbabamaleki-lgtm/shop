@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 
 /**
  * One shoe model. Every sellable colour-size combination is a Variant, so a
@@ -21,8 +22,10 @@ class Product extends Model
 
     protected $fillable = [
         'slug', 'title', 'short_title', 'brand_id', 'description', 'material',
-        'care_instructions', 'use_case', 'status', 'default_variant_id',
-        'seo_title', 'seo_description', 'canonical_url', 'published_at',
+        'care_instructions', 'use_case', 'status', 'source', 'source_id',
+        'title_latin',
+        'default_variant_id', 'seo_title', 'seo_description', 'canonical_url',
+        'published_at',
     ];
 
     protected function casts(): array
@@ -80,6 +83,57 @@ class Product extends Model
             ->whereNotNull('published_at')
             ->where('published_at', '<=', now())
             ->whereHas('variants', fn (Builder $v) => $v->sellable());
+    }
+
+    /**
+     * Products the listing shows, which is not the same set as the ones it can
+     * sell.
+     *
+     * «نمیشه کفشی که موجودیش ۰ هست بیاد تو لیست فقط موجودی بزنه ۰؟» — and it
+     * is the right question for a shop with a supplier in it. `purchasable()`
+     * answers «what can go in a basket today», and a shoe the shop stocks and
+     * has run out of disappears from the catalogue entirely, taking its page,
+     * its address and every link to it with it. That is the correct answer for
+     * the home page's bands, which exist to sell; it is the wrong one for the
+     * shop, where a customer looking for a shoe would rather be told it is out
+     * than be told it does not exist.
+     *
+     * So this is «what this branch sells», stock or no stock: published, and
+     * carrying an offer here. A product with no offer at this branch is still
+     * absent — a franchise lists what it has chosen to sell, and that has not
+     * changed.
+     *
+     * Nothing else moves to it. `purchasable()` still guards the home page,
+     * the story rings, the navigable categories and the basket, so an empty
+     * shelf can be *seen* and still cannot be sold.
+     */
+    public function scopeListable(Builder $query): Builder
+    {
+        return $query->where('status', 'active')
+            ->whereNotNull('published_at')
+            ->where('published_at', '<=', now())
+            ->whereHas('variants', fn (Builder $v) => $v
+                ->where('status', 'active')
+                ->whereHas('offer', fn (Builder $offer) => $offer->active()));
+    }
+
+    /**
+     * In stock first, then the rest — before whatever the shopper sorted by.
+     *
+     * A listing that shows what it has run out of has to lead with what it
+     * has, or «تازه‌ترین» puts an empty shelf at the top of the shop. The
+     * count is a subquery for the same reason the price sort is one: the
+     * sellable half of two hundred products is not the sellable half of the
+     * page you happen to be on.
+     */
+    public function scopeInStockFirst(Builder $query): Builder
+    {
+        return $query->orderByDesc(
+            Variant::query()
+                ->selectRaw('count(*)')
+                ->whereColumn('variants.product_id', 'products.id')
+                ->sellable()
+        );
     }
 
     /**
@@ -179,16 +233,129 @@ class Product extends Model
     }
 
     /**
-     * Published inside the window the listing calls new.
+     * The name a card shows, which is not always the whole name.
      *
-     * A product is "new" for a while after it goes on sale and then quietly
-     * stops being it; nothing has to be switched off by hand. `published_at`
-     * is nullable, so a draft that never went live is never new.
+     * The shop's own products are named in three or four words — «کتونی گلدن
+     * گوس» — and a supplier's are not: «کتونی نایک جردن وان ساق کوتاه Air
+     * Jordan 1 Low رنگ سفید قرمز» is one product, and on a 177px tile it is
+     * three lines of type under the photograph, pushing the price off the
+     * card's own shape. «اسم طولانیه در قسمت اسم باید ۴ تا ۶ کلمه نهایتا بیاد
+     * باقیش بره تو صفحه جزئیات محصول».
+     *
+     * Trimmed for display rather than stored short, because the whole name is
+     * the product's real name — the product page prints it in full, the search
+     * matches it in full, and a card is a label, not a record. Four words,
+     * «برای اسم نهایتا ۴ کلمه», with an ellipsis so the card says it is a label
+     * rather than pretending the name ends there.
+     *
+     * A name already inside the ceiling comes back untouched, and every one
+     * of this shop's own is: the longest are «کتونی نایک وی۲کی ران» and «کتونی
+     * جردن وان ایر» at exactly four. That is why no existing card moves and
+     * check-parity.js still prints zero.
      */
-    public function isNew(int $days = 21): bool
+    public function cardName(int $words = 4): string
     {
-        return $this->published_at !== null
-            && $this->published_at->greaterThanOrEqualTo(now()->subDays($days));
+        return Str::words($this->persianTitle(), $words, '…');
+    }
+
+    /**
+     * A title split where it stops being Persian: the name to show, and the
+     * tail to keep.
+     *
+     * A supplier's title carries the same name twice. Basalam sells «کتونی
+     * نیوبالانس New balance 530» and «کتونی نایک جردن وان ساق کوتاه Air Jordan
+     * 1 Low رنگ سفید قرمز» — the Persian name, then the Latin one, then
+     * whatever else was worth typing into a marketplace search box. Printed
+     * whole, that is a heading in two alphabets; four words off the front of
+     * it is two words of name and two of the same name again.
+     *
+     * So the tail comes off the *stored* title and lives in `title_latin`,
+     * which nothing displays and the search matches — «اسم انگلیسی کفشارو …
+     * یجایی گذاشت تو بک اند … که وقتی به انگلیسی سرچ میشه اون کفش بیاد و ولی
+     * تو اسم کفش بصورت ظاهری نباشه». `brands.name_latin` has held a brand's
+     * Latin name for the same reason since the catalogue was built; this is
+     * that, one table along.
+     *
+     * Digits are not letters, so «کتونی نیوبالانس 530» keeps its 530 in either
+     * set of numerals. A title that opens in Latin is left whole rather than
+     * emptied — there is no Persian name in it to prefer.
+     *
+     * @return array{0: string, 1: string} what to show, and what to keep
+     */
+    public static function splitTitle(string $title): array
+    {
+        $words = preg_split('/\s+/u', trim($title)) ?: [];
+        $head = [];
+
+        foreach ($words as $index => $word) {
+            if (preg_match('/\p{Latin}/u', $word)) {
+                return $head === []
+                    ? [trim($title), '']
+                    : [implode(' ', $head), implode(' ', array_slice($words, $index))];
+            }
+
+            $head[] = $word;
+        }
+
+        return [implode(' ', $head), ''];
+    }
+
+    /**
+     * The stored title is already the Persian half — the migration split every
+     * row and the importer splits every new one. This is the same cut applied
+     * again, for a title typed into the panel by hand and never through
+     * either.
+     */
+    private function persianTitle(): string
+    {
+        return static::splitTitle($this->title)[0];
+    }
+
+    /**
+     * What a card prints where a discount would go.
+     *
+     * That line is the sale — the cut as a chip and the old price struck
+     * through — and on a shoe with no sale it was empty air. «اگه اون کفش تخفیف
+     * داشت اولویت اختصاص دادن اون فضا به نمایش تخفیف باشه و اگه تخفیف نداشت
+     * اعلام موجودی رنگ و سایز.» So the card asks for this only when there is no
+     * cut, and the strategy lives in the view, in those two words.
+     *
+     * **Only what the catalogue actually knows.** The sizes are the ones this
+     * branch can sell today, counted distinctly, so a shoe listed in five and
+     * holding two says two. The colours are only mentioned when there is more
+     * than one *named* colourway: every variant in this catalogue still carries
+     * `color_family = unspecified`, and the product page's own «۳ رنگ موجود» is
+     * a placeholder out of config — printing a count off that would be a claim
+     * nobody made, on the one line a shopper reads as fact. One named colour is
+     * not a choice either, so it is not announced.
+     *
+     * Null when nothing is sellable. The tile already says «ناموجود», and
+     * «۰ سایز موجود» is the same news said worse.
+     */
+    public function stockLine(): ?string
+    {
+        $sizes = $this->variants
+            ->filter(fn (Variant $variant) => $variant->isSellable())
+            ->pluck('size_value')
+            ->filter(fn ($size) => $size !== null && $size !== '')
+            ->unique()
+            ->count();
+
+        if ($sizes === 0) {
+            return null;
+        }
+
+        $colours = $this->colorways()
+            ->filter(fn (array $way) => $way['sellable'] && $way['color_family'] !== 'unspecified')
+            ->count();
+
+        $line = fa_number($sizes).' سایز';
+
+        if ($colours > 1) {
+            $line .= ' و '.fa_number($colours).' رنگ';
+        }
+
+        return $line.' موجود';
     }
 
     /**

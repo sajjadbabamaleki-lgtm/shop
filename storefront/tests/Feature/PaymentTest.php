@@ -6,6 +6,8 @@ use App\Models\Branch;
 use App\Models\Customer;
 use App\Models\Order;
 use App\Models\Payment;
+use App\Models\Product;
+use App\Models\Variant;
 use App\Support\Checkout\SettleOrder;
 use App\Support\Payments\AtTheDoor;
 use App\Support\Payments\Gateway;
@@ -367,18 +369,21 @@ class PaymentTest extends TestCase
     }
 
     /**
-     * The default is not a stub. «پرداخت در محل» is the arrangement this shop
-     * has always run on, so the provider must **not** refuse to boot on it the
-     * way the SMS provider refuses to boot on `log`.
+     * The provider must **not** refuse to boot on the default driver, the way
+     * the SMS provider refuses to boot on `log`. A shop with no gateway
+     * configured yet can still be browsed and ordered from while somebody sets
+     * two variables; refusing to boot takes the whole site down over a setting
+     * that is merely incomplete.
      */
-    public function test_the_default_gateway_is_pay_at_the_door_and_production_does_not_refuse_it(): void
+    public function test_the_default_driver_does_not_refuse_to_boot_in_production(): void
     {
         config()->set('services.payment.driver', 'at-the-door');
         $this->app->forgetInstance(Gateway::class);
 
         $this->assertInstanceOf(AtTheDoor::class, app(Gateway::class));
 
-        // Even in production, because the shop really does sell this way.
+        // In production too: the site staying up is worth more than the
+        // configuration being complete.
         $this->app['env'] = 'production';
         $this->app->forgetInstance(Gateway::class);
 
@@ -423,7 +428,15 @@ class PaymentTest extends TestCase
 
     // --- the page ----------------------------------------------------------
 
-    /** With a gateway the order page offers to pay; without one it does not. */
+    /**
+     * With a gateway the order page offers to pay; without one it says so.
+     *
+     * The second sentence used to be «پرداخت هنگام تحویل انجام می‌شود», which
+     * is no longer an arrangement this shop has — the client took paying at
+     * the door off the site. A card-only shop with no gateway configured is
+     * broken, not offering something else, and the page has to read that way
+     * or a customer waits at home for a courier nobody sent.
+     */
     public function test_the_order_page_offers_payment_only_when_a_gateway_can_take_it(): void
     {
         $order = $this->order();
@@ -431,13 +444,143 @@ class PaymentTest extends TestCase
         $this->holding($order)->get("/orders/{$order->number}")
             ->assertOk()
             ->assertSee('پرداخت')
-            ->assertDontSee('پرداخت هنگام تحویل انجام می‌شود');
+            ->assertDontSee('پرداخت اینترنتی همین حالا در دسترس نیست');
 
         config()->set('services.payment.driver', 'at-the-door');
         $this->app->forgetInstance(Gateway::class);
 
         $this->holding($order)->get("/orders/{$order->number}")
             ->assertOk()
-            ->assertSee('پرداخت هنگام تحویل انجام می‌شود');
+            ->assertSee('پرداخت اینترنتی همین حالا در دسترس نیست');
+    }
+
+    /**
+     * **The word about the VPN, on the page that leaves the site.**
+     *
+     * «اگه فیلترشکنش روشنه خاموش کنه تا در مراحل ثبت سفارش و پرداخت اختلال
+     * ایجاد نشه». An Iranian card gateway is reached from inside Iran, and a
+     * shopper who arrives at it through a VPN meets either a page that will not
+     * open or a payment that dies half way — and the half-way one moves their
+     * money without settling the order.
+     *
+     * It belongs to the state rather than to the page: an order with nothing
+     * left to pay must not be interrupted by advice about paying.
+     */
+    public function test_an_unpaid_order_warns_about_a_vpn_and_a_paid_one_does_not(): void
+    {
+        $order = $this->order();
+
+        $this->holding($order)->get("/orders/{$order->number}")
+            ->assertOk()
+            ->assertSee('قبل از پرداخت')
+            ->assertSee('فیلترشکن (VPN)', false);
+
+        $order->update(['status' => Order::PAID, 'payment_status' => 'paid']);
+
+        $this->holding($order)->get("/orders/{$order->number}")
+            ->assertOk()
+            ->assertDontSee('فیلترشکن', false);
+    }
+
+    // --- the address they come back to -------------------------------------
+
+    /**
+     * **The callback returns to the domain the customer was on.**
+     *
+     * The shop answers to both `vikyplus.ir` and `www.vikyplus.ir`, and the
+     * address sent to ZarinPal is built from the request that started the
+     * payment rather than from a fixed setting — so somebody who shopped on
+     * the `www` one comes back to the `www` one. Two consequences, both worth
+     * a test rather than a memory: **both domains have to be approved on the
+     * gateway** (an unapproved one is refused at `request.json`, for half the
+     * customers, which is the half nobody notices), and both have to be in
+     * `CENTRAL_HOSTS` or that domain 404s long before anybody reaches paying.
+     *
+     * If this ever has to become one fixed address, it is `URL::forceRootUrl`
+     * at boot plus a redirect from the other domain — not a literal here.
+     */
+    public function test_the_callback_comes_back_to_the_domain_the_customer_shopped_on(): void
+    {
+        $order = $this->order();
+
+        // One order, two attempts — which is the shape a customer who comes
+        // back and tries the other address makes. Each attempt gets its own
+        // authority because the column is unique: that uniqueness is the
+        // idempotency key for the whole flow, so a test may not fake it away.
+        Http::fake([
+            '*/pg/v4/payment/request.json' => Http::sequence()
+                ->push(['data' => ['code' => 100, 'authority' => 'A00000000000000000000000000000000001'], 'errors' => []])
+                ->push(['data' => ['code' => 100, 'authority' => 'A00000000000000000000000000000000002'], 'errors' => []]),
+        ]);
+
+        foreach (['vikyplus.ir', 'www.vikyplus.ir'] as $host) {
+            $this->holding($order)->post("http://{$host}/orders/{$order->number}/pay")
+                ->assertRedirect();
+
+            Http::assertSent(function ($request) use ($host) {
+                if (! str_contains($request->url(), 'payment/request.json')) {
+                    return false;
+                }
+
+                return $request['callback_url'] === "http://{$host}/checkout/callback";
+            });
+        }
+    }
+
+    // --- what the order says about itself ----------------------------------
+
+    /**
+     * The order records the arrangement it was placed under.
+     *
+     * `payment_method` was written flat as `cash_on_delivery` while that was
+     * the only way money arrived. Left that way, a shop with a gateway would
+     * hand whoever packs the shoes an order that says «پرداخت در محل» on money
+     * the customer has already paid by card — and the courier would ask for it
+     * again.
+     */
+    public function test_an_order_placed_under_a_card_gateway_says_online(): void
+    {
+        $this->post('/cart', ['variant' => $this->aVariant()->id]);
+        $this->post('/checkout', ['name' => 'سجاد', 'phone' => '09123456789', 'address' => 'خیابان ولیعصر، پلاک ۱']);
+
+        $this->assertSame('online', Order::latest('id')->firstOrFail()->payment_method);
+    }
+
+    /** And a shop without one still says the courier takes it. */
+    public function test_an_order_placed_without_a_gateway_still_says_at_the_door(): void
+    {
+        config()->set('services.payment.driver', 'at-the-door');
+        $this->app->forgetInstance(Gateway::class);
+
+        $this->post('/cart', ['variant' => $this->aVariant()->id]);
+        $this->post('/checkout', ['name' => 'سجاد', 'phone' => '09123456789', 'address' => 'خیابان ولیعصر، پلاک ۱']);
+
+        $this->assertSame('cash_on_delivery', Order::latest('id')->firstOrFail()->payment_method);
+    }
+
+    /**
+     * The column accepts the second method the panel has been offering.
+     *
+     * `Order::methodLabels()` has listed «پرداخت اینترنتی» since the payments
+     * work landed, the admin order screen prints those labels as the options
+     * of a select, and the controller validates against the same list — but
+     * the CHECK constraint on the column allowed one value, so choosing the
+     * option the screen offered was a 500. Asserted at the database rather
+     * than through the panel so it fails for the reason it is about.
+     */
+    public function test_an_order_may_be_marked_paid_online(): void
+    {
+        $order = $this->order();
+
+        $order->forceFill(['payment_method' => 'online'])->save();
+
+        $this->assertSame('online', $order->fresh()->payment_method);
+        $this->assertSame('پرداخت اینترنتی', $order->fresh()->methodLabel());
+    }
+
+    /** Something the shop sells, to put an order behind. */
+    private function aVariant(): Variant
+    {
+        return Product::where('slug', 'nike-v2k-run')->firstOrFail()->defaultVariant;
     }
 }

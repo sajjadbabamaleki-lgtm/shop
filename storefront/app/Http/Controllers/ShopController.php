@@ -32,11 +32,23 @@ use Illuminate\Support\Collection;
 class ShopController extends Controller
 {
     /**
-     * Twelve to a page: three rows of four above 1200, four rows of three
-     * between, six rows of two on a phone — a whole number of rows at every
+     * Twenty-four to a page: six rows of four above 1200, eight rows of three
+     * between, twelve rows of two on a phone — a whole number of rows at every
      * width the grid is drawn at.
+     *
+     * It was twelve, which was the same promise on a shop of twenty-six shoes.
+     * The Basalam stall made it a hundred and forty-three, and twelve to a page
+     * is thirteen pages: the numbers under the last card became the biggest
+     * thing on the listing. Doubling it is the other half of that fix — the
+     * paginator's window stops it *looking* long, this stops it *being* long —
+     * and 143 comes to six pages.
+     *
+     * **Only multiples of twelve keep the promise above**, because the grid is
+     * four, three and two across. Eighteen would land on eight pages exactly,
+     * which is the number that was asked for, at the cost of a half-empty last
+     * row on every desktop page. Whole rows won.
      */
-    private const PER_PAGE = 12;
+    private const PER_PAGE = 24;
 
     /**
      * What the sort control offers, and what each one means to the database.
@@ -161,12 +173,18 @@ class ShopController extends Controller
     {
         [, $column, $direction] = self::SORTS[$filters['sort']];
 
+        /*
+         * `listable()`, not `purchasable()`: the shop shows what it sells and
+         * marks what it has run out of, rather than hiding it. `inStockFirst()`
+         * keeps the empty shelves at the back, whatever the shopper sorted by.
+         */
         $query = Product::query()
-            ->purchasable()
+            ->listable()
+            ->inStockFirst()
             ->pricedHere()
             ->countingSales()
             ->countingRecentSales()
-            ->with(['brand', 'media', 'variants.offer', 'variants.stock', 'defaultVariant.offer']);
+            ->with(['brand', 'media', 'variants.offer', 'variants.stock', 'defaultVariant.offer', 'defaultVariant.stock']);
 
         if ($filters['category']) {
             $query->whereHas('categories', fn (Builder $c) => $c->whereKey($filters['category']->id));
@@ -214,7 +232,12 @@ class ShopController extends Controller
             $needle = '%'.fold_persian($filters['q']).'%';
 
             $query->where(function (Builder $q) use ($needle): void {
-                foreach (['products.title', 'products.short_title', 'products.description'] as $column) {
+                // `title_latin` is the half of a supplier's title that the page
+                // stopped printing — «Air Jordan 1 Low» and whatever followed
+                // it. It is here so that taking the English off the heading did
+                // not take it out of the search with it: a shopper who types
+                // «jordan» is typing the only name they were given.
+                foreach (['products.title', 'products.title_latin', 'products.short_title', 'products.description'] as $column) {
                     $q->orWhere(Search::fold($column), 'ilike', $needle);
                 }
 

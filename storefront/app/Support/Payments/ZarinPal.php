@@ -47,21 +47,21 @@ class ZarinPal implements Gateway
         return 'zarinpal';
     }
 
+    public function takesCardOnline(): bool
+    {
+        return true;
+    }
+
     public function start(Payment $payment, string $callbackUrl): string
     {
-        $answer = $this->ask('/pg/v4/payment/request.json', [
-            'merchant_id' => $this->merchantId,
-            'amount' => $payment->amount,
-            // Named, not assumed. See the note above.
-            'currency' => 'IRR',
-            'callback_url' => $callbackUrl,
-            'description' => 'سفارش '.$payment->orderNumber().' — ویکی پلاس',
+        $answer = $this->ask('/pg/v4/payment/request.json', $this->requestBody(
+            amount: $payment->amount,
+            callbackUrl: $callbackUrl,
+            description: 'سفارش '.$payment->orderNumber().' — ویکی پلاس',
             // Read without the branch scope for the same reason as the
             // description above: this must not depend on a bound tenant.
-            'metadata' => array_filter([
-                'mobile' => (string) ($payment->order()->withoutGlobalScopes()->first()?->contact_phone ?? ''),
-            ]),
-        ]);
+            mobile: (string) ($payment->order()->withoutGlobalScopes()->first()?->contact_phone ?? ''),
+        ));
 
         $code = (int) data_get($answer, 'data.code');
         $authority = (string) data_get($answer, 'data.authority', '');
@@ -73,6 +73,50 @@ class ZarinPal implements Gateway
         $payment->update(['authority' => $authority]);
 
         return $this->host().'/pg/StartPay/'.$authority;
+    }
+
+    /**
+     * The body of a payment request, in one place.
+     *
+     * Shared with `probe()` so that `payment:test` asks ZarinPal exactly what
+     * a customer's own payment asks — a diagnostic that sends a *different*
+     * request can be green while the real one is refused, which is the whole
+     * failure mode it exists to rule out.
+     *
+     * @return array<string, mixed>
+     */
+    private function requestBody(int $amount, string $callbackUrl, string $description, ?string $mobile): array
+    {
+        return [
+            'merchant_id' => $this->merchantId,
+            'amount' => $amount,
+            // Named, not assumed. See the note above.
+            'currency' => 'IRR',
+            'callback_url' => $callbackUrl,
+            'description' => $description,
+            'metadata' => array_filter(['mobile' => (string) $mobile]),
+        ];
+    }
+
+    /**
+     * Ask the gateway to open a payment and hand back its whole answer.
+     *
+     * **For `payment:test` only, and it writes nothing.** No `payments` row, no
+     * authority, no order — a shop diagnosing a refused gateway should not be
+     * accumulating half-finished payment attempts. It returns the raw decoded
+     * response rather than a receipt, because when the gateway says no the
+     * useful thing is exactly what it said.
+     *
+     * @return array<string, mixed>
+     */
+    public function probe(int $amount, string $callbackUrl): array
+    {
+        return $this->ask('/pg/v4/payment/request.json', $this->requestBody(
+            amount: $amount,
+            callbackUrl: $callbackUrl,
+            description: 'آزمایش اتصال درگاه — ویکی پلاس',
+            mobile: null,
+        ));
     }
 
     public function verify(Payment $payment): Receipt
@@ -160,7 +204,14 @@ class ZarinPal implements Gateway
         throw new PaymentFailed($say);
     }
 
-    private function host(): string
+    /**
+     * Live or sandbox — public because `payment:test` prints it.
+     *
+     * A live merchant id posted to the sandbox host is refused with the same
+     * «Invalid merchant_id» as a wrong one, so which host was talked to is
+     * half the diagnosis.
+     */
+    public function host(): string
     {
         return $this->sandbox ? self::SANDBOX : self::LIVE;
     }

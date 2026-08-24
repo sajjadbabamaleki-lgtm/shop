@@ -233,13 +233,11 @@ class CatalogueSeeder extends Seeder
                 'status' => 'active',
                 // Twelve days apart rather than one, and starting today
                 // rather than a month back. The order is the same and the deal
-                // cards read the same; what changes is that the catalogue now
+                // cards read the same; what changes is that the catalogue
                 // spans about two months instead of five days, so «تازه‌ترین»
-                // sorts something visible and the listing's «جدید» badge —
-                // `Product::isNew()`, a 21-day window — lands on the newest
-                // two rather than on all five or none of them. All five were
-                // a month old to the day before this, which is why it did
-                // neither.
+                // sorts something visible. All five were a month old to the
+                // day before this. It also fed the listing's «جدید» badge,
+                // which has since been taken off the card.
                 'published_at' => now()->subDays($i * 12),
             ]);
 

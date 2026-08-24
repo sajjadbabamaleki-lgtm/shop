@@ -6,12 +6,21 @@
 #
 # The pages under download-version/ are committed already generated — the
 # generator (theme/make-rtl-page.js) is run by hand and its output checked in —
-# so there is nothing for Netlify to build.
+# so there is no page for Netlify to build. The one build step it does have is
+# the stylesheet, below.
 #
 # No redirect rule: the generator writes the Persian page to index.html as well
 # as shoe-shop-rtl.html, so the host serves it at / on its own. A rule here had
 # to fight Netlify's shadowing — a file that exists at the requested path beats
 # a matching rule unless the rule is forced — and a home page that depends on
 # getting that precedence right is a home page that breaks on the next host.
+# The one thing there *is* to build: the stylesheet the browser downloads has
+# its comments taken out. `tweaks.css` is 776KB of which 551KB is the reasoning
+# above each rule — written for whoever edits it next, and no business of a
+# visitor's. This rewrites Netlify's own checkout, never the file in git, so the
+# source keeps every word. theme/strip-css-comments.js says why it is a comment
+# stripper rather than a minifier, and checks that the design gate's signature
+# is still the last declaration in the file it writes.
 [build]
   publish = "download-version"
+  command = "node theme/strip-css-comments.js download-version/assets/css/tweaks.css --in-place"

@@ -31,13 +31,15 @@
 
             {{-- What the shop is actually waiting for.
 
-                 Two different sentences, because they are two different
-                 arrangements and the customer has to know which one they are
-                 in: with a card gateway configured there is a button and the
-                 order is waiting for money; without one the courier takes it
-                 at the door and there is nothing to do. Printing «پرداخت هنگام
-                 تحویل» under a shop that has a gateway would be telling
-                 somebody not to pay. --}}
+                 **The shop no longer offers paying at the door**, at the
+                 client's instruction — «پرداخت در محل از وبسایت حذف بشه» — so
+                 the second sentence is not an alternative arrangement any
+                 more. It is what a shopper sees if the shop has no gateway
+                 configured, which on a card-only shop is a fault rather than a
+                 choice: it says so and points at the telephone, instead of
+                 inviting somebody to pay a courier the shop is not expecting.
+                 `Order::methodLabels()` keeps «پرداخت در محل» for the panel,
+                 because orders that really were paid that way still exist. --}}
             @if ($order->status === \App\Models\Order::PLACED)
                 @if ($canPayOnline)
                     <p class="vp-note">سفارشت ثبت شد و کالاها برایت کنار گذاشته شده. برای نهایی شدن، مبلغ را پرداخت کن.</p>
@@ -48,8 +50,53 @@
                             پرداخت {{ toman($order->grand_total) }} تومان
                         </button>
                     </form>
+
+                    {{-- «اگه فیلترشکنش روشنه خاموش کنه تا در مراحل ثبت سفارش و
+                         پرداخت اختلال ایجاد نشه» — said about this page, which
+                         is the last one the shopper sees before the bank's.
+
+                         **Here rather than at checkout**, because this is the
+                         step that leaves the site: an Iranian card gateway is
+                         reached from inside Iran, and a shopper whose VPN is on
+                         meets either a page that will not open or a payment
+                         that dies half way — and the half-way one is the
+                         expensive kind, because their money has moved and the
+                         order has not.
+
+                         A `<dialog>` rather than the shop's own `<details>`
+                         sheets: those are phone-only and they are filters,
+                         which a person opens. This one has to arrive by itself,
+                         at every width, and take the keyboard with it — which
+                         `showModal()` does and nothing else here does. With no
+                         script it simply never opens: the page and its pay
+                         button behave exactly as they did before, which is the
+                         right way for an advisory to fail. --}}
+                    <dialog class="vp-vpn" id="vp-vpn" aria-labelledby="vp-vpn-title">
+                        <h2 class="vp-vpn-title" id="vp-vpn-title">قبل از پرداخت</h2>
+                        <p class="vp-vpn-say">
+                            اگر فیلترشکن (VPN) روشن است، خاموشش کن و بعد پرداخت را بزن.
+                            درگاه بانکی با فیلترشکن ممکن است باز نشود یا وسط کار قطع شود.
+                        </p>
+                        <form method="dialog">
+                            <button class="vp-filter-apply vp-cart-go vp-vpn-ok" autofocus>متوجه شدم</button>
+                        </form>
+                    </dialog>
+
+                    <script>
+                        // Next to the dialog rather than in the shared script
+                        // file: that one is generated from the static page and
+                        // runs at the foot of the document, and this has to be
+                        // armed the moment the element exists.
+                        (function () {
+                            var box = document.getElementById('vp-vpn');
+
+                            if (box && typeof box.showModal === 'function') {
+                                box.showModal();
+                            }
+                        }());
+                    </script>
                 @else
-                    <p class="vp-note">سفارشت ثبت شد. کالاها برایت کنار گذاشته شده و پرداخت هنگام تحویل انجام می‌شود.</p>
+                    <p class="vp-note">سفارشت ثبت شد و کالاها برایت کنار گذاشته شده. پرداخت اینترنتی همین حالا در دسترس نیست؛ برای هماهنگی پرداخت با پشتیبانی تماس بگیر.</p>
                 @endif
             @endif
 

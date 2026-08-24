@@ -99,6 +99,10 @@ class SearchController extends Controller
             $products = Product::query()
                 ->where(function (Builder $q) use ($needle): void {
                     $q->where(Search::fold('title'), 'ilike', $needle)
+                        // The English name the storefront no longer prints.
+                        // Staff search for what the supplier called it as often
+                        // as for what the shop calls it.
+                        ->orWhere(Search::fold('title_latin'), 'ilike', $needle)
                         ->orWhere(Search::fold('slug'), 'ilike', $needle)
                         // A SKU is typed off a label far more often than a
                         // product's name is, and it hangs off the variant.

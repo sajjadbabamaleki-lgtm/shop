@@ -59,6 +59,7 @@ class Navigation
             'group' => 'کالا',
             'items' => [
                 ['route' => 'admin.catalogue', 'label' => 'محصولات', 'icon' => 'box', 'match' => 'admin.catalogue|admin.product.*', 'permission' => 'catalogue.manage'],
+                ['route' => 'admin.front-page', 'label' => 'صفحه اصلی', 'icon' => 'panel', 'match' => 'admin.front-page*', 'permission' => 'catalogue.manage'],
                 ['route' => 'admin.inventory', 'label' => 'موجودی', 'icon' => 'stack', 'match' => 'admin.inventory*', 'branch' => true],
                 ['route' => 'admin.pricing', 'label' => 'قیمت‌ها', 'icon' => 'price', 'match' => 'admin.pricing*', 'branch' => true, 'branchPermission' => 'branch.pricing.manage'],
             ],

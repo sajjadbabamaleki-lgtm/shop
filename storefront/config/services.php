@@ -152,4 +152,91 @@ return [
         ],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Basalam, the shop this catalogue is being moved off
+    |--------------------------------------------------------------------------
+    |
+    | The stall at basalam.com/viky-plus is the same shop, sold through
+    | somebody else's marketplace, and its products are being brought over.
+    | Basalam has a documented gateway at openapi.basalam.com — the same one
+    | its own SDK talks to — so nothing here scrapes a page. The two endpoints
+    | used are `GET /v1/vendors/{id}/products` for the list and
+    | `GET /v1/products/{id}` for everything a listing does not carry
+    | (description, the whole gallery, the category, the variations).
+    |
+    | **The token is the shop's own and belongs in the environment, never
+    | here.** It is only needed while fetching; `basalam:import` reads the
+    | manifest that fetch wrote and never opens a socket, so the running site
+    | does not hold this credential at all.
+    |
+    | `price_unit` exists because it is the one thing in the payload that
+    | cannot be settled by reading a schema: the gateway returns an integer and
+    | the schema does not say which unit it is in. `basalam:fetch --dry-run`
+    | prints a few prices both ways against the titles they belong to, which
+    | settles it in one look rather than by argument.
+    |
+    */
+
+    'basalam' => [
+        'base_uri' => env('BASALAM_BASE_URI', 'https://openapi.basalam.com'),
+        'token' => env('BASALAM_TOKEN'),
+        'vendor_id' => env('BASALAM_VENDOR_ID'),
+        'price_unit' => env('BASALAM_PRICE_UNIT', 'rial'),
+
+        /*
+         * Where fetch writes and import reads.
+         *
+         * Under `storage/app` rather than in the repository, and that is a
+         * correction rather than a preference: the first version of this put
+         * the manifest in `database/data/` so a diff could show what an import
+         * was about to create, which assumed the fetch could run on a machine
+         * that has the repository. It cannot — basalam.com refuses connections
+         * from outside Iran, so the fetch runs on the server. Keep it beside
+         * the photographs, on the same mounted disk, so `--resume` still means
+         * something after a deploy.
+         */
+        'manifest_path' => env('BASALAM_MANIFEST_PATH', storage_path('app/basalam')),
+
+        /*
+         * Where the photographs land. The `public` disk, which is what the
+         * panel's own upload uses, so an imported picture and one somebody
+         * added by hand are the same kind of file in the same place.
+         */
+        'media_disk' => env('BASALAM_MEDIA_DISK', 'public'),
+        'media_dir' => env('BASALAM_MEDIA_DIR', 'basalam'),
+
+        // Politeness. The gateway is somebody else's and 132 products is a
+        // few hundred requests with the photographs; this keeps it to a walk.
+        'pause_ms' => (int) env('BASALAM_PAUSE_MS', 350),
+        'retries' => (int) env('BASALAM_RETRIES', 4),
+
+        /*
+         * Basalam's categories are theirs, and this shop's eight are on the
+         * home page and in the phone drawer — both of which render *every*
+         * active category, with no limit. So an import that invented a
+         * category would redraw the front page, and `check-parity.js` would
+         * stop printing zero for a reason nobody would connect to an import.
+         *
+         * Mapping is therefore explicit and by hand. Anything unmapped is
+         * imported without a category and named in the run's summary, so the
+         * decision stays with a person rather than being made by a default.
+         */
+        'category_map' => [
+            'کفش' => 'sneaker',
+            'کفش زنانه' => 'sneaker',
+            'کتانی' => 'sneaker',
+            'کتونی' => 'sneaker',
+            'کفش ورزشی' => 'sneaker',
+            'کفش مجلسی' => 'majlesi',
+            'کالج' => 'college',
+            'صندل' => 'sandal',
+            'بوت' => 'boot',
+            'نیم بوت' => 'boot',
+            'کیف' => 'bag-set',
+            'کیف زنانه' => 'bag-set',
+            'اکسسوری' => 'accessory',
+        ],
+    ],
+
 ];

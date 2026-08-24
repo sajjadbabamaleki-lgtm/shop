@@ -10,8 +10,9 @@
  *
  * **It caches nothing, and that is a decision rather than an omission.** This
  * site's whole appearance lives in one stylesheet, and it has already gone
- * live once looking like somebody else's template because that file did not
- * arrive — see «قالب قبلی» in CLAUDE.md. A cache-first worker is a machine for
+ * live once painted wrong because that file did not arrive in time — the
+ * design gate in the head is what catches it. A cache-first worker is a
+ * machine for
  * making exactly that failure permanent: it would serve yesterday's CSS from
  * disk with no network involved and no way for a deploy to correct it. The
  * fetch handler below is a pass-through, so every request behaves exactly as

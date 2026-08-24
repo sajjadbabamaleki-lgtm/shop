@@ -36,7 +36,7 @@
 
     <!-- Bootstrap -->
     <!-- Hidden until the design signs itself; the gate below reveals it.
-         See «قالب قبلی» in CLAUDE.md before touching either half. -->
+         Both halves are one mechanism — see theme/make-rtl-page.js. -->
     <style>html{visibility:hidden}</style>
     <noscript><style>html{visibility:visible}</style></noscript>
 
@@ -54,8 +54,8 @@
     @php($tweaks = public_path('assets/css/tweaks.css'))
     <link rel="stylesheet" href="{{ asset('assets/css/tweaks.css') }}{{ file_exists($tweaks) ? '?v='.substr(md5_file($tweaks), 0, 8) : '' }}">
 
-    <!-- The design gate: no template paints without tweaks.css. See its last
-         rule, theme/make-rtl-page.js, and «قالب قبلی» in CLAUDE.md. -->
+    <!-- The design gate: nothing paints until tweaks.css has arrived whole.
+         See its last rule and theme/make-rtl-page.js before changing either. -->
     <script>
         (function () {
             var root = document.documentElement;

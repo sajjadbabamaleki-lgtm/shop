@@ -13,5 +13,11 @@
         "ssr": false,
         "configCache": false,
         "routeCache": false
-    }
+    },
+    "disks": [
+        {
+            "name": "viikyplus",
+            "mountTo": "storage/app"
+        }
+    ]
 }

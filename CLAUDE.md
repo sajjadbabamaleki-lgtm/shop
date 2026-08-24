@@ -1,5 +1,26 @@
 # VikyPlus — notes for whoever picks this up next
 
+## ⛔ What the base stylesheet is built on never leaves this file.
+
+«نباید تو فایل هیچ اشاره ای به قالب آماده کنی 😐 هیچوقت هیچ جا» — said about a
+briefing document written for the client to take into a meeting.
+
+**Never name the bought template, its marketplace, or the fact that one exists
+in anything a person outside this repository reads.** That means documents and
+briefs written for the client, anything they might forward, pull request bodies
+and titles, commit messages that describe the shop to somebody, comments in
+files a third party is given, and any page the site itself serves. When the
+subject cannot be avoided, the true and sufficient sentence is that every
+deliberate visual decision lives in `tweaks.css`, loaded last, each block
+carrying its reasoning and its measurements.
+
+The engineering notes below — «قالب قبلی» in Codenames especially — still say
+what the base layer is, because a production incident was caused by it and the
+next session cannot diagnose that failure without knowing. That is the one
+exception, it is internal, and it is not licence to mention it anywhere else.
+If the client asks for it gone from here too, that entry has to be rewritten
+rather than deleted, or the incident becomes unexplainable.
+
 ## ⛔ `main` is the work and `main` is the site — read this before you touch anything.
 
 **The client runs several sessions on this repository at once, from more than
@@ -190,6 +211,15 @@ the client saw an old page and had no way to tell why. So, plainly:
   **no minimum length**, at the client's explicit instruction, so the throttles
   on `/account/password` and `/account/verify` are most of what stands against
   guessing. See `AccountController` and `LoginCode`.
+- **`/account` is three panels — who you are, the orders, the settings** — and
+  it is `.vp-acct-*` throughout, laid out for 390 first. It was a heading, three
+  gold words and a grey box until «این چه حساب کاربری داغونیه» arrived; HANDOFF
+  has the rebuild. **The only thing editable on it is the name.** `POST
+  /account/profile` takes the name and nothing else: the number is the
+  credential, the thing a code is sent to and the key every order is written
+  against, so a form that could change it would be an account takeover with no
+  code involved. The status chips are `.vp-adm-badge`'s five tones, quoted, so
+  one order is one colour to the shopper and to the shop.
 - **The code is a credential and is stored hashed**, good once, for two minutes,
   for five guesses; the number it was sent to lives in the *session*, never in
   the form, or a code could be verified against a number of the sender's
@@ -218,6 +248,29 @@ the client saw an old page and had no way to tell why. So, plainly:
   of a shopper is worse than a message that did not arrive — so a wrong key and
   a message still in flight look identical from the outside, and without this
   command the only test is signing a real customer in and hoping.
+- **The card gateway is ZarinPal and connecting it is two variables, not code.**
+  `PAYMENT_DRIVER=zarinpal` and `ZARINPAL_MERCHANT_ID` on the Liara app;
+  `App\Support\Payments\ZarinPal` speaks v4, sends `currency: IRR` on every
+  call, and `verify()` server-to-server is the only thing that may declare a
+  payment good. `at-the-door` stays the default so a shop with the variables
+  unset still runs — but **the shop no longer offers paying at the door**
+  («پرداخت در محل از وبسایت حذف بشه»), so that driver now means «no online
+  payment configured» and the order page says so.
+  **ZarinPal checks the callback's domain, and every domain a shopper can
+  arrive on must be registered on the terminal.** `vikyplus.ir` and
+  `www.vikyplus.ir` are two domains to them; an unregistered one is refused
+  with `-14`, which is half the customers failing and nothing going red. The
+  callback a customer gets is built from the host they are on — not from
+  `APP_URL`, which only the console has to fall back on.
+  **`php artisan payment:test` is how anybody finds out why a gateway refuses.**
+  «درگاه پرداخت درخواست را نپذیرفت» is one sentence for a dozen causes, and the
+  gateway's own reason lands on a `payments` row and in a log nobody reads from
+  a telephone. The command asks ZarinPal the same question a real payment asks,
+  writes nothing, and prints the six things the next question needs: the host
+  (a live id on the sandbox is refused exactly like a wrong one), whether the
+  config is cached, the merchant id's shape and its two ends, the callback URL,
+  this server's outbound IP (an allow-list refuses everything as «Invalid
+  merchant_id»), and the answer verbatim.
 - **The content pages are `/about`, `/contact`, `/size-guide`, `/faq`, `/terms`
   and `/privacy`** — `PageController`, one view each under `resources/views/pages/`,
   copy and no database. They exist because the footer had been linking to them
@@ -443,6 +496,64 @@ and 1200 breakpoints of the hero's `data-slider-options`, the track back to the
 page's width with `width: 85%` and `margin-inline: auto` above 992, and
 `initialSlide: 1` so the deck still opens on the slide carrying the real
 product photograph. Confirm it against the page before writing any of it.
+
+## «گلد سبز» — the green gold
+
+**Symptom, in the client's words:** «رنگ گلد ما گلد زرده چرا از اون گلد سبز
+برای آیکونا و دکمه ها استفاده میکنی». Said twice, a round apart, about two
+different screens — the first time as «دکمه ادامه هم نباید اون رنگی باشه باید
+همرنگ باقی دکمه های سایت باشه».
+
+**There is no green in this palette.** Every gold in `:root` is the same hue,
+within half a degree, at the same saturation:
+
+| token | hex | hue | sat | **lightness** |
+| --- | --- | --- | --- | --- |
+| `--vp-gold-lit` | `#EFC94F` | 45.8° | 83% | **62.4%** |
+| `--vp-gold-fill` | `#DAB226` | 46.7° | 71% | **50.2%** |
+| `--vp-gold-fill-ink` | `#BB9920` | 46.8° | 71% | **42.9%** |
+| `--theme-color` = `--vp-gold` | `#A08119` | 46.2° | 73% | **36.3%** |
+| `--vp-gold-ink` | `#8B7217` | 47.1° | 72% | **31.8%** |
+
+What reads as green is **lightness alone**: a dark yellow is olive to the eye.
+Nothing about the hue can be adjusted to fix a fill that is simply too dark.
+
+The one real hue in the file is the *previous* gold, `#A47F25` at **42.5°** —
+four degrees browner and eight points less saturated. It survives as
+`rgba(164,127,37,…)` literals in 30-odd tints that the 2026-08-16 sweep could
+not see, because a tint written as raw channels is invisible to a search for a
+token. Two of them were on the account page and are now the new gold; the rest
+are still there, and they are why some tints on this site look a shade muddier
+than others.
+
+**The rule.**
+
+- A **button** — anything filled that gets pressed — is
+  `linear-gradient(90deg, var(--vp-gold-fill), var(--vp-gold-lit))` with white
+  text and `filter: brightness(1.04)` on hover. That is what `.vp-pick-go`,
+  `.vp-cart-go`, `.vp-enter-go` and now `.vp-filter-apply` (nine views),
+  `.vp-shop-search button`, `.vp-empty-out`, `.vp-seller-add` and
+  `.vp-page.is-on` all carry.
+- An **icon glyph** is `var(--vp-gold-fill-ink)` flat, on a tint of
+  `rgba(218,178,38,…)` if it needs a chip. That is what the header's three icon
+  squares have always been, and it is now what `.vp-acct-door-mark` and
+  `.vp-empty-mark` are.
+- **The dark golds stay where they are: as text.** `--vp-gold-ink` and
+  `--vp-gold-ink-deep` had their lightness solved to hold a measured contrast
+  on white (the table in HANDOFF), so repainting a *heading* or a *price* to
+  the fill gold trades a legible page for a bright one. Text is not a fill.
+
+**Why this is a codename and not a one-line fix.** The first round fixed the
+one button that was complained about and wrote, in the comment above it, that
+the filter button «was not asked about». It was asked about the next time the
+client opened the site. When a colour is wrong it is wrong everywhere it is
+used that way — fix the class, not the screen.
+
+**Two are deliberately still on the dark gold**, both measured, both to be
+raised before changing: `.vp-pdp-cut` and `.vp-seller-tag` are white-on-gold
+*labels* (5.09:1; on the fill gold white would be 1.9:1, so they would have to
+flip to ink), and `.vp-pdp-dot.is-on` is a 3px indicator bar on white, where
+the fill gold reads 2.0:1 and disappears.
 
 ## «قالب قبلی» — the template comes back
 

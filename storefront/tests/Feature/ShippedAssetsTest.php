@@ -185,6 +185,31 @@ class ShippedAssetsTest extends TestCase
     }
 
     /**
+     * The card's basket icon ships with its licence too.
+     *
+     * It is not a category icon and the test below cannot see it: that one
+     * reads files off `storefront.category_icons`, and this drawing is inline
+     * SVG in a Blade — it sits inside a button and has to take the button's
+     * ink, which an `<img>` cannot do. Same obligation, different shape, so it
+     * gets its own check rather than being bent into that list.
+     */
+    public function test_the_cards_basket_icon_says_where_it_came_from(): void
+    {
+        $card = file_get_contents(resource_path('views/shop/card.blade.php'));
+
+        $this->assertStringContainsString('Tabler Icons', $card, 'Somebody else drew this; the card has to say so.');
+
+        $licence = base_path('../download-version/assets/img/icon/LICENSE-tabler.txt');
+
+        $this->assertFileExists($licence, 'The icon ships without Tabler\'s MIT notice.');
+
+        $text = file_get_contents($licence);
+
+        $this->assertStringContainsString('MIT License', $text);
+        $this->assertStringContainsString('Paweł Kuna', $text);
+    }
+
+    /**
      * The category icons are somebody else's artwork, and MIT's one condition
      * travels with them.
      *
@@ -237,5 +262,54 @@ class ShippedAssetsTest extends TestCase
             $this->assertStringContainsString('MIT License', $text);
             $this->assertStringContainsString($holder, $text);
         }
+    }
+
+    /**
+     * The stylesheet ships without its notes.
+     *
+     * `tweaks.css` is written to be edited a month later, so every rule in it
+     * carries the reasoning and the measurement above it: 776KB of file, 551KB
+     * of comment. None of that is a visitor's, and a visitor downloads all of
+     * it — on the one stylesheet the whole appearance depends on and the one
+     * that has to come over the network after every deploy, which is the
+     * failure the design gate exists for.
+     *
+     * theme/sync-storefront-assets.js takes the comments out on the way into
+     * public/, and Netlify's build does the same to its own checkout. Neither
+     * touches the file in git; the source keeps every word.
+     *
+     * Two things this holds, both of which are silent when broken: that the
+     * copy on the server actually went through the stripper, and that the
+     * stripper left the design signature where the gate looks for it — the
+     * last declaration in the file. A stylesheet that lost it shows every
+     * visitor «سایت در حال به‌روزرسانی است» instead of the shop.
+     */
+    public function test_the_stylesheet_ships_without_its_comments(): void
+    {
+        $shipped = (string) file_get_contents(public_path('assets/css/tweaks.css'));
+
+        $this->assertStringNotContainsString(
+            '/*',
+            $shipped,
+            'The stylesheet on the server still carries its comments. '
+            .'Run: node theme/sync-storefront-assets.js'
+        );
+
+        $this->assertMatchesRegularExpression(
+            '~--vp-design:\s*ok;?\s*\}\s*$~',
+            $shipped,
+            'The design signature is no longer the last thing in the shipped stylesheet. '
+            .'The gate reads it to know the whole file arrived, so without it the shop paints nothing.'
+        );
+
+        // The source is the other half of the promise: it keeps the notes.
+        $source = (string) file_get_contents(base_path('../download-version/assets/css/tweaks.css'));
+
+        $this->assertStringContainsString(
+            '/*',
+            $source,
+            'The comments were stripped from the source stylesheet rather than from the copy that ships. '
+            .'The reasoning above each rule is how this file stays editable — it belongs in git, not on the wire.'
+        );
     }
 }

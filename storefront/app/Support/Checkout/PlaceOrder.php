@@ -13,6 +13,7 @@ use App\Models\Order;
 use App\Models\Variant;
 use App\Models\VendorOffer;
 use App\Support\Marketplace\Sellers;
+use App\Support\Payments\Gateway;
 use App\Support\Tenancy\TenantContext;
 use Illuminate\Support\Facades\DB;
 
@@ -48,6 +49,7 @@ class PlaceOrder
         private CartManager $carts,
         private Sellers $sellers,
         private Discounts $discounts,
+        private Gateway $gateway,
     ) {}
 
     /**
@@ -105,7 +107,14 @@ class PlaceOrder
                 'discount_total' => $off,
                 'shipping_total' => $shipping,
                 'grand_total' => $subtotal - $off + $shipping,
-                'payment_method' => 'cash_on_delivery',
+                // How this one is going to be paid for, decided by the
+                // gateway the shop actually has rather than written flat. It
+                // is the line the panel prints to whoever packs the shoes, so
+                // a card shop that still said «پرداخت در محل» would be telling
+                // them to ask the courier for money already taken. Fixed at
+                // the moment of ordering on purpose: switching gateway
+                // tomorrow must not rewrite what happened today.
+                'payment_method' => $this->gateway->takesCardOnline() ? 'online' : 'cash_on_delivery',
                 'payment_status' => 'unpaid',
                 'contact_name' => $contact['name'],
                 'contact_phone' => Customer::normalisePhone($contact['phone']),

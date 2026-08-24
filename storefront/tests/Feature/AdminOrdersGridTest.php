@@ -305,6 +305,30 @@ class AdminOrdersGridTest extends TestCase
      * the gateway — no hour, no method, no reference. On a shop whose orders
      * are mostly paid at the door that is the record that matters.
      */
+    /**
+     * **Both options on the screen work.**
+     *
+     * The select on the order screen is built from `Order::methodLabels()` and
+     * the controller validates against the same list, so «پرداخت اینترنتی»
+     * looked available from every angle a reader checks — while the CHECK
+     * constraint on the column allowed `cash_on_delivery` alone and the post
+     * 500'd. Nothing caught it because every test posted the first option.
+     */
+    public function test_payment_may_be_taken_by_card_as_well_as_at_the_door(): void
+    {
+        $order = $this->order(['status' => Order::PLACED]);
+
+        $this->actingAs($this->admin(), 'web')
+            ->post(route('admin.order.pay', $order), ['method' => 'online', 'reference' => 'REF-2211'])
+            ->assertRedirect(route('admin.order', $order));
+
+        $order->refresh();
+
+        $this->assertSame('paid', $order->payment_status);
+        $this->assertSame('online', $order->payment_method);
+        $this->assertSame('پرداخت اینترنتی', $order->methodLabel());
+    }
+
     public function test_taking_payment_records_a_payment_and_sells_the_stock(): void
     {
         $order = $this->order(['status' => Order::PLACED]);

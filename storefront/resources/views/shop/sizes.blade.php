@@ -30,6 +30,16 @@
     $first = true;
 
     /*
+     * A product whose sizes are not numbers — a bag, which carries «تک‌سایز» —
+     * has nothing to draw here, and drawing the row anyway would be worse than
+     * empty: every chip would be a size it has not got, none of them would be
+     * a radio, and the form would post no variant at all, so «افزودن به سبد»
+     * would fail with nothing on the page to explain why. One size is not a
+     * choice, so it is a hidden field and the row goes.
+     */
+    $sized = $sizes->contains(fn ($variant) => (int) $variant->size_value > 0);
+
+    /*
      | Each chip carries all three units and the page shows one.
      |
      | The desktop reference has an EU/US/CM switch over the size grid. It is
@@ -52,6 +62,17 @@
     };
 @endphp
 
+@if (! $sized)
+    @php
+        // A full block rather than `@php(...)`: the one-line form does not
+        // survive the nested parentheses in this expression — it compiles to
+        // `<?php(` and takes the rest of the template with it.
+        $only = $simple->first() ?? $sizes->first();
+    @endphp
+    @if ($only)
+        <input type="hidden" name="variant" value="{{ $only->id }}">
+    @endif
+@else
 <div class="vp-pick-sizes">
     @foreach ($shopSizes as $value)
         @php
@@ -86,3 +107,4 @@
         <span class="vp-pick-note is-inline">{{ fa_number($simple->count()) }} سایز موجود</span>
     @endif
 </div>
+@endif
