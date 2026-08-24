@@ -11791,6 +11791,17 @@ body.vp-prize-open .vp-whatsapp {
   object-fit: contain;
 }
 
+.vp-filter-apply,
+.vp-cart-go,
+.vp-pdp-price strong,
+.vp-cart-money strong,
+.vp-cart-row.is-total,
+.vp-seller-price,
+.vp-acct-figs b,
+.vp-admin-figure-num {
+  font-family: 'Vazirmatn', var(--body-font);
+}
+
 :root {
   --vp-design: ok;
 }

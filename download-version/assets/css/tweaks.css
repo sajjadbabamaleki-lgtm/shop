@@ -20928,6 +20928,46 @@ body.vp-prize-open .vp-whatsapp {
   object-fit: contain;
 }
 
+/* --------------------------------------------------------------------------
+   FIGURES ARE SET IN THE BODY FACE, NOT THE DISPLAY ONE
+
+   «اون فونت قیمت تو دکمه هم باید فونت ساده بشه» — said about the pay button on
+   an order, where «پرداخت ۳٬۸۳۰٬۰۰۰ تومان» came out in a numeral style that is
+   not this site's.
+
+   **It is not a matter of taste and it is not only that button.** Cairo is the
+   display face here, and Cairo is an Arabic font: asked for the Persian digits
+   U+06F0–U+06F9 it draws them in the Arabic style. Rendered side by side at
+   44px, the difference is not decorative —
+
+     Vazirmatn   ۰۱۲۳۴۵۶۷۸۹     zero is a small ring, four is ۴
+     Cairo       ·۱۲۳۴۵۶۷۸۹     zero is a raised dot
+
+   — so «۳٬۸۳۰٬۰۰۰» ends in three dots instead of three zeros, which is what
+   the client photographed. Every element that shows a figure and names Cairo
+   has the same defect, so this is the class rather than the screen: the pay
+   button and its family, the price on a product page, the basket's lines and
+   its total, a vendor's price, the account's counts and the panel's figures.
+
+   Not touched: headings, names and titles keep Cairo — they carry no digits,
+   and the display face is the point of them. The discount bursts («٪۳۰» in the
+   hero and on the dice prize) also keep it: their digits are SVG `text` laid
+   out inside a drawn shape that was measured around them, so changing the face
+   there moves artwork rather than type. If those ever look wrong too, they are
+   a separate measurement.
+   -------------------------------------------------------------------------- */
+
+.vp-filter-apply,
+.vp-cart-go,
+.vp-pdp-price strong,
+.vp-cart-money strong,
+.vp-cart-row.is-total,
+.vp-seller-price,
+.vp-acct-figs b,
+.vp-admin-figure-num {
+  font-family: 'Vazirmatn', var(--body-font);
+}
+
 :root {
   --vp-design: ok;
 }
