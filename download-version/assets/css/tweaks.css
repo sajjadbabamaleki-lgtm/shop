@@ -8,6 +8,33 @@
    Loaded last.
    ========================================================================== */
 
+/* --------------------------------------------------------------------------
+   THE TWO WEIGHTS THE PAGE FALLS BACK TO, TEN PER CENT LIGHTER
+
+   «زخامت همه نوشته ها باید ده درصد نازکتر بشن». Every weight this file sets was
+   multiplied by 0.9 in place; these two are the ones it does not set — the
+   base layer's `b, strong { bolder }` and its 700 on every heading — mapped to
+   the same 0.9 so that «همه» really is all of it.
+
+   **At the top of the file, and that is the whole trick.** One class in front
+   of a `:where()` is exactly the weight of a single class, so every rule below
+   that names a class of its own — `.vp-mini-title`, `.vp-foot-m-name`,
+   `.vp-logo-text b` — wins on source order and keeps the weight it was tuned
+   to. Written at the end of the file instead, this same pair silently flattened
+   seven headings from 720 to 630, which is how it was found.
+
+   Still above the base layer, because this file is loaded last and a class
+   outweighs `b, strong` either way.
+   -------------------------------------------------------------------------- */
+
+.shoe-shop :where(b, strong, small) {
+  font-weight: 630;
+}
+
+.shoe-shop :where(h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6) {
+  font-weight: 630;
+}
+
 /* The hero cards sat flush against the header — measured gap was 0px. Space
    below the header, not above the section's own content, so the gap is there
    whatever the hero slide contains. 30px to start with, then 36, now 40.
@@ -1094,7 +1121,7 @@ option:hover {
   fill: #FFFFFF;
   text-anchor: middle;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 900;
+  font-weight: 810;
   /* In the burst's own units, so it scales with the shape. 28.7 against the
      101px the burst is drawn at puts the type 5% larger on the page than the
      26 did at 106 — the burst comes down and the writing goes up. */
@@ -1806,12 +1833,12 @@ option:hover {
 .heroSlide6 .hero-inner .hero-title,
 .heroSlide6 .hero-inner .hero-title a {
   font-family: 'Cairo', var(--title-font);
-  font-weight: 900;
+  font-weight: 810;
 }
 
 .heroSlide6 .hero-inner .sub-title {
   font-family: 'Cairo', var(--body-font);
-  font-weight: 700;
+  font-weight: 630;
 }
 
 /* «اون خط باید حذف بشه» — the dash beside the hero's eyebrow.
@@ -1835,7 +1862,7 @@ option:hover {
    is variable, so 800 is a real weight and not a synthesised one. */
 .heroSlide6 .hero-inner .th-btn {
   font-family: 'Cairo', var(--body-font);
-  font-weight: 800;
+  font-weight: 720;
 }
 
 /* --------------------------------------------------------------------------
@@ -2045,7 +2072,7 @@ option:hover {
 
 .vp-logo-text b {
   font-family: 'Cairo', var(--title-font);
-  font-weight: 800;
+  font-weight: 720;
   font-size: 19px;
   color: #101111;
   letter-spacing: -0.01em;
@@ -2058,7 +2085,7 @@ option:hover {
    the hero's own small label uses, so the page keeps one quiet tone. */
 .vp-logo-text small {
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 450;
   color: #6E7070;
   /* Cairo sets Persian with a deep descender: the tail of the پ in پلاس was
      reaching the line below, and at 1px of separation the two runs of ink were
@@ -2087,7 +2114,7 @@ option:hover {
      not a browser's synthetic bolding of 800. */
   .th-header .vp-logo-text b {
     font-size: 14.52px;
-    font-weight: 900;
+    font-weight: 810;
   }
 
   .th-header .vp-logo-text small {
@@ -2306,7 +2333,7 @@ option:hover {
     0 4px 14px -8px rgba(16, 17, 17, 0.35);
   color: #101111;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 14px;
   line-height: 1.5;
   text-align: center;
@@ -2585,7 +2612,7 @@ option:hover {
 .vp-ladder-title {
   margin: 0 0 4px;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 800;
+  font-weight: 720;
   font-size: 24px;
   line-height: 1.5;
   color: var(--theme-color);
@@ -2600,7 +2627,7 @@ option:hover {
 
 .vp-ladder-how {
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 630;
   color: var(--theme-color);
   border-block-end: 1px solid currentColor;
 }
@@ -2712,7 +2739,7 @@ option:hover {
 }
 
 .vp-step-name {
-  font-weight: 700;
+  font-weight: 630;
   color: var(--title-color);
 }
 
@@ -2749,7 +2776,7 @@ option:hover {
   flex: none;
   border-radius: 15px;
   font-family: 'Vazirmatn', var(--body-font);
-  font-weight: 800;
+  font-weight: 720;
   font-size: 27px;
   line-height: 1;
   color: var(--title-color);
@@ -3071,7 +3098,7 @@ option:hover {
   fill: #FFFFFF;
   text-anchor: middle;
   font-family: 'Vazirmatn', var(--body-font);
-  font-weight: 800;
+  font-weight: 720;
   /* In the burst's own 150-unit space, so it scales with the shape. */
   font-size: 42px;
 }
@@ -3159,7 +3186,7 @@ option:hover {
 .vp-deal-name {
   display: block;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 12px;
   line-height: 1.6;
   color: #101111;
@@ -3183,14 +3210,14 @@ option:hover {
 
 .vp-deal-price strong {
   font-family: 'Vazirmatn', var(--body-font);
-  font-weight: 800;
+  font-weight: 720;
   font-size: 13.5px;
   color: #101111;
 }
 
 .vp-deal-price strong span {
   font-size: 9.9px;
-  font-weight: 600;
+  font-weight: 540;
   color: rgba(16, 17, 17, 0.62);
 }
 
@@ -3444,7 +3471,7 @@ option:hover {
 .vp-best-name {
   display: block;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 13.5px;
   line-height: 1.6;
   color: #101111;
@@ -3467,14 +3494,14 @@ option:hover {
 
 .vp-best-cta strong {
   font-family: 'Vazirmatn', var(--body-font);
-  font-weight: 800;
+  font-weight: 720;
   font-size: 14px;
   color: #101111;
 }
 
 .vp-best-cta strong span {
   font-size: 10.5px;
-  font-weight: 600;
+  font-weight: 540;
   color: rgba(16, 17, 17, 0.62);
 }
 
@@ -3631,7 +3658,7 @@ option:hover {
 .vp-best-title {
   margin: 0;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 800;
+  font-weight: 720;
   font-size: 19.2px;
   line-height: 1.4;
   color: #101111;
@@ -3692,7 +3719,7 @@ option:hover {
   color: rgba(16, 17, 17, 0.62);
   font-family: 'Vazirmatn', var(--body-font);
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 540;
   line-height: 1.6;
   cursor: pointer;
   transition: background-color 0.2s ease, color 0.2s ease;
@@ -3721,7 +3748,7 @@ option:hover {
   margin-inline-start: 6px;
   font-family: 'Vazirmatn', var(--body-font);
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 630;
   line-height: 1.6;
   color: var(--vp-gold-ink);
   white-space: nowrap;
@@ -3830,7 +3857,7 @@ option:hover {
   display: block;
   margin-block-end: 10px;
   font-family: 'Vazirmatn', var(--body-font);
-  font-weight: 800;
+  font-weight: 720;
   font-size: 19.5px;
   letter-spacing: 0.02em;
   /* Text on a light ground takes the accent ramp's dark end — same pairing
@@ -3841,7 +3868,7 @@ option:hover {
 .vp-daily-deal-title {
   margin: 0 0 10px;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 800;
+  font-weight: 720;
   /* 35.1 — «عنوان هاشونم باید ۱۰ درصد کوچیکتر بشن», ten per cent off 39. */
   font-size: 35.1px;
   line-height: 1.3;
@@ -3863,7 +3890,7 @@ option:hover {
   border-radius: 48px;
   background: linear-gradient(180deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   font-family: 'Vazirmatn', var(--body-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 17px;
   /* Ink, not white — this ramp's own measured pairing (6.94:1–9.88:1),
      documented at the top of this file, same as every other button label
@@ -3927,7 +3954,7 @@ option:hover {
 .vp-daily-deal-name {
   margin: 0 0 10px;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 19.5px;
   line-height: 1.5;
   color: var(--title-color);
@@ -3937,21 +3964,21 @@ option:hover {
   display: block;
   margin-block-end: 16px;
   font-family: 'Vazirmatn', var(--body-font);
-  font-weight: 800;
+  font-weight: 720;
   font-size: 23px;
   color: var(--title-color);
 }
 
 .vp-daily-deal-price span {
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 540;
   color: rgba(16, 17, 17, 0.62);
 }
 
 .vp-daily-deal-stock {
   margin-block-end: 18px;
   font-size: 14.4px;
-  font-weight: 600;
+  font-weight: 540;
   color: var(--title-color);
 }
 
@@ -4029,7 +4056,7 @@ option:hover {
 
 .vp-daily-deal-timer .count-number {
   font-family: 'Vazirmatn', var(--body-font);
-  font-weight: 800;
+  font-weight: 720;
   font-size: 19.5px;
   line-height: 1.3;
   color: var(--title-color);
@@ -4128,7 +4155,7 @@ option:hover {
   border-radius: 12px;
   background: rgba(164, 127, 37, 0.10);
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 630;
   line-height: 1.7;
   /* Both needed for the basis above to actually bind. A flex item will not go
      below its content width while min-width is auto, and this label sets 274
@@ -4624,7 +4651,7 @@ option:hover {
 .vp-how-title {
   margin: 0 0 8px;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 800;
+  font-weight: 720;
   font-size: 30px;
   line-height: 1.4;
   color: var(--theme-color);
@@ -4677,7 +4704,7 @@ option:hover {
 
 .vp-how-aside b {
   display: block;
-  font-weight: 800;
+  font-weight: 720;
   color: var(--theme-color);
 }
 
@@ -4724,7 +4751,7 @@ option:hover {
 .vp-how-step-no {
   margin-block-end: 10px;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 800;
+  font-weight: 720;
   font-size: 15px;
   line-height: 1.5;
   color: var(--title-color);
@@ -4800,12 +4827,12 @@ option:hover {
 
 .vp-how-off b {
   font-family: 'Vazirmatn', var(--body-font);
-  font-weight: 800;
+  font-weight: 720;
   font-size: 20px;
   line-height: 1.15;
 }
 
-.vp-how-off small { font-size: 10.5px; font-weight: 700; line-height: 1.5; }
+.vp-how-off small { font-size: 10.5px; font-weight: 630; line-height: 1.5; }
 
 /* Under the podium, where it says when that step runs rather than reading as
    another fact on the card. */
@@ -4931,7 +4958,7 @@ option:hover {
   padding-block-end: 10px;
   border-block-end: 1px solid rgba(16, 17, 17, 0.10);
   font-family: 'Cairo', var(--title-font);
-  font-weight: 800;
+  font-weight: 720;
   font-size: 15px;
   line-height: 1.6;
   color: var(--title-color);
@@ -4974,7 +5001,7 @@ ol.vp-how-list li:before {
   background: rgba(164, 127, 37, 0.10);
   color: var(--theme-color);
   font-family: 'Vazirmatn', var(--body-font);
-  font-weight: 800;
+  font-weight: 720;
   font-size: 10.5px;
   line-height: 19px;
   text-align: center;
@@ -5000,7 +5027,7 @@ ul.vp-how-list.is-ticked li:before {
   border-radius: 16px;
   background: rgba(164, 127, 37, 0.09);
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 630;
   line-height: 1.9;
   color: var(--title-color);
   text-align: center;
@@ -5198,7 +5225,7 @@ ul.vp-how-list.is-ticked li:before {
 .vp-brands-title {
   margin: 0;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   /* 21.6 — ten per cent off 24, «عنوان هاشونم باید ۱۰ درصد کوچیکتر بشن». */
   font-size: 21.6px;
   line-height: 1.4;
@@ -5207,7 +5234,7 @@ ul.vp-how-list.is-ticked li:before {
 
 .vp-brands-all {
   font-family: 'Vazirmatn', var(--body-font);
-  font-weight: 600;
+  font-weight: 540;
   font-size: 13.5px;
   color: var(--vp-gold);
   text-decoration: none;
@@ -5420,7 +5447,7 @@ ul.vp-how-list.is-ticked li:before {
 .vp-brand-name {
   display: block;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 16.8px;
   line-height: 1.5;
   color: #101111;
@@ -5432,7 +5459,7 @@ ul.vp-how-list.is-ticked li:before {
 .vp-brand-stock {
   display: block;
   font-family: 'Vazirmatn', var(--body-font);
-  font-weight: 600;
+  font-weight: 540;
   font-size: 13.2px;
   line-height: 1.5;
   color: rgba(16, 17, 17, 0.62);
@@ -5743,7 +5770,7 @@ ul.vp-how-list.is-ticked li:before {
 .vp-shop-title {
   margin: 0;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 24px;
   line-height: 1.4;
 }
@@ -5860,7 +5887,7 @@ ul.vp-how-list.is-ticked li:before {
 .vp-filter-title {
   margin: 0 0 10px;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 15px;
 }
 
@@ -5979,7 +6006,7 @@ ul.vp-how-list.is-ticked li:before {
   background: linear-gradient(90deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   color: #FFFFFF;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 14px;
   transition: filter 0.2s ease;
 }
@@ -6292,7 +6319,7 @@ a.vp-pdp-thumb {
 .vp-pdp-title {
   margin: 0 0 14px;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 30px;
   line-height: 1.35;
 }
@@ -6307,14 +6334,14 @@ a.vp-pdp-thumb {
 
 .vp-pdp-price strong {
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 26px;
   color: var(--title-color);
 }
 
 .vp-pdp-price strong span {
   font-size: 15px;
-  font-weight: 400;
+  font-weight: 360;
 }
 
 .vp-pdp-price del {
@@ -6329,7 +6356,7 @@ a.vp-pdp-thumb {
   background: var(--theme-color);
   color: #FFFFFF;
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 630;
 }
 
 .vp-pdp-choice + .vp-pdp-choice {
@@ -6339,7 +6366,7 @@ a.vp-pdp-thumb {
 .vp-pdp-choice-title {
   margin: 0 0 8px;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 15px;
 }
 
@@ -6388,7 +6415,7 @@ a.vp-pdp-thumb {
   background: linear-gradient(90deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   color: #FFFFFF;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 16px;
   transition: filter 0.2s ease;
 }
@@ -6423,7 +6450,7 @@ a.vp-pdp-thumb {
 
 .vp-pdp-facts dt {
   min-width: 96px;
-  font-weight: 700;
+  font-weight: 630;
 }
 
 .vp-pdp-facts dd {
@@ -6810,7 +6837,7 @@ button.vp-cart-keep {
 
 .vp-cart-name {
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 15px;
   color: var(--title-color);
 }
@@ -6860,13 +6887,13 @@ button.vp-cart-keep {
 
 .vp-cart-money strong {
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 16px;
 }
 
 .vp-cart-money strong span {
   font-size: 12px;
-  font-weight: 400;
+  font-weight: 360;
 }
 
 .vp-cart-each {
@@ -6922,7 +6949,7 @@ button.vp-cart-keep {
   padding-top: 12px;
   box-shadow: inset 0 1px 0 rgba(16, 17, 17, 0.1);
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 16px;
 }
 
@@ -6986,7 +7013,7 @@ button.vp-cart-keep {
 .vp-field label,
 .vp-field-label {
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 630;
 }
 
 .vp-field input,
@@ -7200,7 +7227,7 @@ button.vp-cart-keep {
 
 .vp-admin-branch {
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 630;
 }
 
 .vp-admin-out {
@@ -7282,7 +7309,7 @@ button.vp-cart-keep {
 .vp-admin-figure-num {
   display: block;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 26px;
   line-height: 1.2;
   color: var(--title-color);
@@ -7335,7 +7362,7 @@ button.vp-cart-keep {
   padding: 10px 8px;
   box-shadow: inset 0 -1px 0 rgba(16, 17, 17, 0.12);
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 630;
   text-align: start;
   white-space: nowrap;
 }
@@ -7639,7 +7666,7 @@ button.vp-cart-keep {
     content: attr(data-label);
     flex: 0 0 auto;
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 630;
     color: rgba(16, 17, 17, 0.55);
   }
 
@@ -7740,7 +7767,7 @@ button.vp-cart-keep {
 .vp-sellers-title {
   margin: 0 0 10px;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 15px;
 }
 
@@ -7774,7 +7801,7 @@ button.vp-cart-keep {
 
 .vp-seller-name {
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 14px;
   color: var(--title-color);
 }
@@ -7793,7 +7820,7 @@ button.vp-cart-keep {
 
 .vp-seller-price {
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 16px;
   white-space: nowrap;
 }
@@ -7998,7 +8025,7 @@ button.vp-cart-keep {
 .vp-empty-say {
   margin: 0;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 17px;
   color: var(--title-color);
 }
@@ -8076,7 +8103,7 @@ button.vp-cart-keep {
 
 .vp-sellers-title span {
   font-size: 12px;
-  font-weight: 400;
+  font-weight: 360;
   color: var(--body-color);
   opacity: 0.7;
 }
@@ -8114,7 +8141,7 @@ button.vp-cart-keep {
   color: #FFFFFF;
   font-size: 11px;
   font-style: normal;
-  font-weight: 400;
+  font-weight: 360;
 }
 
 .vp-seller-stock.is-low {
@@ -8125,7 +8152,7 @@ button.vp-cart-keep {
 .vp-seller-price em {
   font-size: 12px;
   font-style: normal;
-  font-weight: 400;
+  font-weight: 360;
   opacity: 0.75;
 }
 
@@ -8666,7 +8693,7 @@ button.vp-cart-keep {
 
 .vp-logo-drawer .vp-logo-text b {
   font-size: 14.52px;
-  font-weight: 900;
+  font-weight: 810;
 }
 
 .vp-logo-drawer .vp-logo-text small {
@@ -8729,7 +8756,7 @@ button.vp-cart-keep {
 .vp-drawer-label {
   margin: 0 0 10px;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 12px;
   /* Gold, not ink. In the menu the client asked this to look like, the section
      names are the only coloured type on the panel and everything else is black
@@ -8758,7 +8785,7 @@ button.vp-cart-keep {
   border-radius: 10px;
   background: rgba(192, 151, 47, 0.10);
   font-family: 'Vazirmatn', var(--body-font);
-  font-weight: 600;
+  font-weight: 540;
   font-size: 11px;
   color: var(--vp-gold-ink);
   text-decoration: none;
@@ -8831,7 +8858,7 @@ button.vp-cart-keep {
 
 .vp-quick-name {
   font-family: 'Vazirmatn', var(--body-font);
-  font-weight: 600;
+  font-weight: 540;
   /* «پرفروش‌ترین‌ها» is thirteen characters into a third of the panel, and it is
      the one that decides this number. It was 10.5 while the panel was 270 wide;
      at 86vw it holds one line at 11.5, measured at 375 — the narrowest screen
@@ -8876,7 +8903,7 @@ button.vp-cart-keep {
   padding: 6px 10px;
   border-radius: 12px;
   font-family: 'Vazirmatn', var(--body-font);
-  font-weight: 400;
+  font-weight: 360;
   font-size: 15px;
   color: #101111;
   text-decoration: none;
@@ -9002,7 +9029,7 @@ button.vp-cart-keep {
   border-radius: 12px;
   box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.09);
   font-family: 'Vazirmatn', var(--body-font);
-  font-weight: 500;
+  font-weight: 450;
   font-size: 12px;
   color: #101111;
   text-decoration: none;
@@ -9049,7 +9076,7 @@ button.vp-cart-keep {
   border-radius: 13px;
   background: linear-gradient(180deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 13.5px;
   /* Ink on the gold, the page's settled answer everywhere gold is filled. */
   color: #101111;
@@ -9070,7 +9097,7 @@ button.vp-cart-keep {
   background: rgba(16, 17, 17, 0.12);
   font-family: 'Vazirmatn', var(--body-font);
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 540;
   line-height: 20px;
   text-align: center;
 }
@@ -9205,7 +9232,7 @@ button.vp-cart-keep {
   padding: 9px 0;
   border-radius: 12px;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 14px;
   color: #6E7070;
   text-align: center;
@@ -9267,7 +9294,7 @@ button.vp-cart-keep {
 
 .vp-signin-alt a {
   color: var(--vp-gold);
-  font-weight: 600;
+  font-weight: 540;
 }
 
 /* --------------------------------------------------------------------------
@@ -9322,7 +9349,7 @@ button.vp-cart-keep {
   background: linear-gradient(135deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   color: #FFFFFF;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 24px;
   line-height: 1;
 }
@@ -9337,7 +9364,7 @@ button.vp-cart-keep {
 .vp-acct-name {
   margin: 0;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 20px;
   line-height: 1.4;
   overflow-wrap: anywhere;
@@ -9368,7 +9395,7 @@ button.vp-cart-keep {
   background: rgba(16, 17, 17, 0.063);
   color: #4D4D4D;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 540;
   line-height: 1;
   cursor: pointer;
   transition: background-color 0.2s ease, color 0.2s ease;
@@ -9414,7 +9441,7 @@ button.vp-cart-keep {
 
 .vp-acct-figs b {
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 19px;
   line-height: 1.2;
   color: var(--title-color);
@@ -9490,7 +9517,7 @@ button.vp-cart-keep {
 
 .vp-acct-door-what b {
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 14px;
   line-height: 1.5;
 }
@@ -9517,7 +9544,7 @@ button.vp-cart-keep {
   background: #B3261E;
   color: #FFFFFF;
   font-size: 11.5px;
-  font-weight: 700;
+  font-weight: 630;
   font-style: normal;
   line-height: 1;
 }
@@ -9540,7 +9567,7 @@ button.vp-cart-keep {
 .vp-acct-sect-title {
   margin: 0;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 18px;
   line-height: 1.4;
 }
@@ -9594,7 +9621,7 @@ button.vp-cart-keep {
 .vp-acct-order-no {
   grid-area: no;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 14.5px;
 }
 
@@ -9608,7 +9635,7 @@ button.vp-cart-keep {
   border-radius: 999px;
   background: rgba(16, 17, 17, 0.063);
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 630;
   white-space: nowrap;
 }
 
@@ -9643,13 +9670,13 @@ button.vp-cart-keep {
   grid-area: sum;
   justify-self: end;
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 630;
   white-space: nowrap;
 }
 
 .vp-acct-order-sum small {
   font-size: 11.5px;
-  font-weight: 600;
+  font-weight: 540;
   color: #6E7070;
 }
 
@@ -9713,7 +9740,7 @@ button.vp-cart-keep {
 .vp-acct-label {
   margin: 0;
   font-size: 12.5px;
-  font-weight: 600;
+  font-weight: 540;
   color: #6E7070;
 }
 
@@ -9730,7 +9757,7 @@ button.vp-cart-keep {
 .vp-acct-err {
   margin: 0;
   font-size: 12.5px;
-  font-weight: 600;
+  font-weight: 540;
   color: #B3261E;
 }
 
@@ -9744,7 +9771,7 @@ button.vp-cart-keep {
   background: linear-gradient(90deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   color: #FFFFFF;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 14.5px;
   cursor: pointer;
   transition: filter 0.2s ease;
@@ -9774,7 +9801,7 @@ button.vp-cart-keep {
 .vp-acct-pass > summary {
   cursor: pointer;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 14px;
   color: var(--title-color);
   list-style: none;
@@ -9793,7 +9820,7 @@ button.vp-cart-keep {
   content: '\f078';
   float: left;
   font-family: 'Font Awesome 6 Pro';
-  font-weight: 900;
+  font-weight: 810;
   font-size: 11px;
   color: #9A9C9C;
   transition: transform 0.2s ease;
@@ -9946,7 +9973,7 @@ button.vp-cart-keep {
   .heroSlide6 .hero-inner .hero-title {
     font-size: 30.15px;
     line-height: 33.75px;
-    font-weight: 700;
+    font-weight: 630;
   }
 }
 
@@ -10475,7 +10502,7 @@ button.vp-cart-keep {
     inset-inline: 2px;
     padding: 5px 2px;
     font-size: 10.45px;
-    font-weight: 770;
+    font-weight: 693;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -10874,7 +10901,7 @@ button.vp-cart-keep {
 
   .vp-deal-name,
   .vp-best-name {
-    font-weight: 735;
+    font-weight: 662;
   }
 }
 
@@ -11070,7 +11097,7 @@ button.vp-cart-keep {
 
   .vp-foot-m-name {
     font-family: 'Cairo', var(--title-font);
-    font-weight: 800;
+    font-weight: 720;
     font-size: 22px;
     color: var(--vp-gold);
   }
@@ -11237,7 +11264,7 @@ button.vp-cart-keep {
     gap: 7px;
     margin: 0 0 14px;
     font-family: 'Cairo', var(--title-font);
-    font-weight: 800;
+    font-weight: 720;
     font-size: 13px;
     color: var(--vp-gold);
     white-space: nowrap;
@@ -11356,7 +11383,7 @@ button.vp-cart-keep {
 @media (max-width: 991.98px) {
   .vp-deal-name,
   .vp-best-name {
-    font-weight: 900;
+    font-weight: 810;
     -webkit-text-stroke-width: 0.3px;
     -webkit-text-stroke-color: currentColor;
     paint-order: stroke fill;
@@ -12240,7 +12267,7 @@ button.vp-cart-keep {
     direction: ltr;
     color: var(--vp-gold);
     font-size: 18px;
-    font-weight: 800;
+    font-weight: 720;
     line-height: 1;
     letter-spacing: -0.2px;
   }
@@ -12257,7 +12284,7 @@ button.vp-cart-keep {
   .vp-story-cut b,
   .vp-story-cut i {
     font-style: normal;
-    font-weight: 800;
+    font-weight: 720;
   }
 
   /* --- the movement ------------------------------------------------------
@@ -12797,7 +12824,7 @@ button.vp-cart-keep {
   border: 0;
   border-radius: 19px;
   font-size: 12.5px;
-  font-weight: 700;
+  font-weight: 630;
   white-space: nowrap;
   cursor: pointer;
 }
@@ -12854,7 +12881,7 @@ button.vp-cart-keep {
   background: none;
   color: rgba(16, 17, 17, 0.5);
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 630;
   text-align: center;
   cursor: pointer;
 }
@@ -13010,7 +13037,7 @@ button.vp-cart-keep {
 .vp-mini-title {
   margin: 0;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 800;
+  font-weight: 720;
   font-size: 18px;
   color: #101111;
 }
@@ -13178,7 +13205,7 @@ button.vp-cart-keep {
   gap: 10px;
   margin-block-end: 12px;
   font-family: 'Vazirmatn', var(--body-font);
-  font-weight: 800;
+  font-weight: 720;
   font-size: 14px;
   color: #101111;
 }
@@ -13195,7 +13222,7 @@ button.vp-cart-keep {
   height: 44px;
   border-radius: 14px;
   font-family: 'Vazirmatn', var(--body-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 13.5px;
   text-decoration: none;
   transition: background-color 0.2s ease, color 0.2s ease;
@@ -13248,7 +13275,7 @@ button.vp-cart-keep {
 .vp-mini-say {
   margin: 0;
   font-family: 'Vazirmatn', var(--body-font);
-  font-weight: 600;
+  font-weight: 540;
   font-size: 14px;
   color: #6E7070;
 }
@@ -13260,7 +13287,7 @@ button.vp-cart-keep {
   border-radius: 14px;
   background: linear-gradient(96deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   font-family: 'Vazirmatn', var(--body-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 13px;
   color: #FFFFFF;
   text-decoration: none;
@@ -13421,7 +13448,7 @@ button.vp-cart-keep {
      with the rest of the stepper's 20% pass; the type grew with it, 15 → 18. */
   min-width: 21.6px;
   font-family: 'Vazirmatn', var(--body-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 18px;
   font-feature-settings: 'tnum' 1;
   text-align: center;
@@ -13689,7 +13716,7 @@ button.vp-cart-keep {
   border-radius: 14px;
   background: rgba(16, 17, 17, 0.063);
   font-family: 'Vazirmatn', var(--body-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 15px;
   font-feature-settings: 'tnum' 1;
   color: #101111;
@@ -13718,7 +13745,7 @@ button.vp-cart-keep {
 
 .vp-pick-price {
   font-family: 'Vazirmatn', var(--body-font);
-  font-weight: 800;
+  font-weight: 720;
   font-size: 18px;
   font-feature-settings: 'tnum' 1;
   white-space: nowrap;
@@ -13726,7 +13753,7 @@ button.vp-cart-keep {
 
 .vp-pick-price em {
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 540;
   font-style: normal;
   color: #6E7070;
 }
@@ -13745,7 +13772,7 @@ button.vp-cart-keep {
   border-radius: 18px;
   background: linear-gradient(96deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   font-family: 'Vazirmatn', var(--body-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 15px;
   color: #FFFFFF;
   cursor: pointer;
@@ -14367,7 +14394,7 @@ button.vp-cart-keep {
     gap: 5px;
     padding-inline: 10px;
     font-family: var(--body-font);
-    font-weight: 700;
+    font-weight: 630;
     font-size: 13px;
     font-feature-settings: 'tnum' 1;
     color: #101111;
@@ -14906,7 +14933,7 @@ button.vp-cart-keep {
     border: 0;
     background: none;
     font-family: 'Vazirmatn', var(--body-font);
-    font-weight: 700;
+    font-weight: 630;
     font-size: 15px;
     font-feature-settings: 'tnum' 1;
     text-align: center;
@@ -16088,7 +16115,7 @@ button.vp-cart-keep {
       0 0 8px -2px rgba(16, 17, 17, 0.14);
     color: var(--vp-gold);
     font-size: 13px;
-    font-weight: 700;
+    font-weight: 630;
     cursor: pointer;
   }
 
@@ -16166,7 +16193,7 @@ button.vp-cart-keep {
     background: none;
     color: rgba(16, 17, 17, 0.55);
     font-size: 11.5px;
-    font-weight: 700;
+    font-weight: 630;
     text-decoration: none;
     white-space: nowrap;
   }
@@ -16454,7 +16481,7 @@ button.vp-cart-keep {
   background: #6C6C6C;
   color: #FFFFFF;
   font-size: 10.5px;
-  font-weight: 700;
+  font-weight: 630;
   line-height: 1.4;
 }
 
@@ -16529,7 +16556,7 @@ button.vp-cart-keep {
      Vazirmatn is loaded as a variable font at `font-weight: 100 900`, so 462
      is a real weight here and not a browser rounding it up to 500. */
   font-size: 13.86px;
-  font-weight: 462;
+  font-weight: 416;
   line-height: 1.65;
   text-decoration: none;
 }
@@ -16537,14 +16564,14 @@ button.vp-cart-keep {
 .vp-card-price {
   margin-block-start: 4px;
   font-family: 'Vazirmatn', var(--body-font);
-  font-weight: 800;
+  font-weight: 720;
   font-size: 14px;
   color: #101111;
 }
 
 .vp-card-price span {
   font-size: 10px;
-  font-weight: 600;
+  font-weight: 540;
   color: rgba(16, 17, 17, 0.62);
 }
 
@@ -16591,7 +16618,7 @@ button.vp-cart-keep {
   background: rgba(192, 151, 47, 0.14);
   color: var(--vp-gold);
   font-size: 10px;
-  font-weight: 700;
+  font-weight: 630;
 }
 
 .vp-card-was del {
@@ -16690,7 +16717,7 @@ button.vp-cart-keep {
      this card is ever drawn at. 13px there would be 149px and still fit, but
      with four pixels either side of it, which is not a margin. */
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 630;
   line-height: 1;
   white-space: nowrap;
   cursor: pointer;
@@ -16966,7 +16993,7 @@ button.vp-cart-keep {
     background: none;
     color: #101111;
     font-size: 10.2px;
-    font-weight: 700;
+    font-weight: 630;
     gap: 0;
   }
 
@@ -16999,7 +17026,7 @@ button.vp-cart-keep {
     box-shadow: none;
     color: inherit;
     font-size: 10.2px;
-    font-weight: 700;
+    font-weight: 630;
   }
 
   /* The price pair, the price sheet's: two boxes on one line, ltr so «از» is
@@ -17036,7 +17063,7 @@ button.vp-cart-keep {
     border-radius: 13.25px;
     background: linear-gradient(96deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
     font-family: 'Vazirmatn', var(--body-font);
-    font-weight: 700;
+    font-weight: 630;
     font-size: 14px;
     color: #FFFFFF;
   }
@@ -17044,7 +17071,7 @@ button.vp-cart-keep {
   .vp-shop-filter-panel .vp-filter-clear {
     flex: none;
     font-size: 12.5px;
-    font-weight: 700;
+    font-weight: 630;
     color: rgba(16, 17, 17, 0.55);
     text-decoration: none;
   }
@@ -17150,7 +17177,7 @@ button.vp-cart-keep {
   white-space: nowrap;
   text-overflow: ellipsis;
   font-size: 10px;
-  font-weight: 700;
+  font-weight: 630;
   color: rgba(16, 17, 17, 0.45);
 }
 
@@ -17162,7 +17189,7 @@ button.vp-cart-keep {
   background: rgba(192, 151, 47, 0.14);
   color: var(--vp-gold);
   font-size: 10px;
-  font-weight: 700;
+  font-weight: 630;
 }
 
 /* The name follows the row instead of opening the card, so its own top margin
@@ -17221,7 +17248,7 @@ button.vp-cart-keep {
     border-radius: 9px;
     color: rgba(16, 17, 17, 0.72);
     font-size: 12px;
-    font-weight: 600;
+    font-weight: 540;
     text-decoration: none;
     white-space: nowrap;
   }
@@ -17286,7 +17313,7 @@ button.vp-cart-keep {
     background: rgba(16, 17, 17, 0.045);
     color: rgba(16, 17, 17, 0.72);
     font-size: 11.5px;
-    font-weight: 700;
+    font-weight: 630;
     text-align: center;
     text-decoration: none;
   }
@@ -17602,7 +17629,7 @@ button.vp-cart-keep {
 
   .vp-sheet-title {
     font-family: 'Cairo', var(--title-font);
-    font-weight: 700;
+    font-weight: 630;
     font-size: 15px;
     color: #101111;
   }
@@ -17666,7 +17693,7 @@ button.vp-cart-keep {
     background: none;
     color: #101111;
     font-size: 10.2px;
-    font-weight: 700;
+    font-weight: 630;
     text-decoration: none;
   }
 
@@ -17764,7 +17791,7 @@ button.vp-cart-keep {
     padding: 0;
     border-radius: 13.25px;
     font-family: 'Vazirmatn', var(--body-font);
-    font-weight: 700;
+    font-weight: 630;
     font-size: 14px;
     text-decoration: none;
     cursor: pointer;
@@ -18070,7 +18097,7 @@ button.vp-cart-keep {
 .vp-doc h2 {
   margin: 32px 0 10px;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 18px;
   line-height: 1.6;
 }
@@ -18112,7 +18139,7 @@ button.vp-cart-keep {
 }
 
 .vp-doc-steps::marker {
-  font-weight: 700;
+  font-weight: 630;
 }
 
 /* The two quiet blocks: a tip somebody should read twice, and a caveat under
@@ -18159,7 +18186,7 @@ button.vp-cart-keep {
 
 .vp-doc-table thead th {
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 14px;
   box-shadow: inset 0 -1.4px 0 rgba(16, 17, 17, 0.12);
 }
@@ -18172,7 +18199,7 @@ button.vp-cart-keep {
 /* The EU column is the answer somebody came for, so it is the one that is
    set. */
 .vp-doc-table tbody th {
-  font-weight: 700;
+  font-weight: 630;
   font-size: 16px;
 }
 
@@ -18193,7 +18220,7 @@ button.vp-cart-keep {
   position: relative;
   padding: 16px 0 16px 34px;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 16px;
   line-height: 1.8;
   cursor: pointer;
@@ -18291,7 +18318,7 @@ button.vp-cart-keep {
   font-family: 'Cairo', var(--title-font);
   font-size: 14px;
   opacity: 0.65;
-  font-weight: 600;
+  font-weight: 540;
 }
 
 /* A telephone number is read left-to-right whatever the page's direction, and
@@ -18411,7 +18438,7 @@ button.vp-cart-keep {
 .vp-error-code {
   margin: 0;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 64px;
   line-height: 1;
   color: rgba(16, 17, 17, 0.1);
@@ -18420,7 +18447,7 @@ button.vp-cart-keep {
 .vp-error-title {
   margin: 6px 0 12px;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 22px;
   line-height: 1.6;
 }
@@ -18725,7 +18752,7 @@ html {
 }
 
 .vp-signin-alt a {
-  font-weight: 400;
+  font-weight: 360;
   text-decoration: underline;
   text-underline-offset: 4px;
   text-decoration-thickness: 1px;
@@ -18799,7 +18826,7 @@ html {
 .vp-enter-title {
   margin: 0 0 4px;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 19px;
   line-height: 1.45;
 }
@@ -18934,7 +18961,7 @@ html {
   background: linear-gradient(90deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   color: #FFFFFF;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 15.5px;
   cursor: pointer;
   transition: filter 0.2s ease;
@@ -19028,7 +19055,7 @@ html {
 .vp-enter-phone {
   direction: ltr;
   unicode-bidi: isolate;
-  font-weight: 700;
+  font-weight: 630;
   color: var(--title-color);
 }
 
@@ -19043,7 +19070,7 @@ html {
 .vp-inp-code input {
   padding: 0;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 22px;
   letter-spacing: 0.35em;
   /* The letter-spacing puts a gap after the last digit too, which reads as the
@@ -19080,12 +19107,12 @@ html {
 
 .vp-enter-resend {
   color: var(--vp-gold-ink-deep);
-  font-weight: 600;
+  font-weight: 540;
 }
 
 .vp-enter-resend:disabled {
   color: #9A9C9C;
-  font-weight: 400;
+  font-weight: 360;
   cursor: default;
 }
 
@@ -19156,7 +19183,7 @@ html {
     border-radius: 11.2px;
     background: linear-gradient(180deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
     font-family: 'Cairo', var(--body-font);
-    font-weight: 800;
+    font-weight: 720;
     font-size: 14.4px;
     line-height: 1;
     color: #FFFFFF;
@@ -19431,7 +19458,7 @@ html {
   .vp-home-faq-title {
     margin: 0 0 8px;
     font-family: 'Cairo', var(--title-font);
-    font-weight: 700;
+    font-weight: 630;
     font-size: 20px;
     line-height: 1.4;
     color: #101111;
@@ -19909,7 +19936,7 @@ body.vp-bare .vp-cart-shot {
   margin: 0 0 10px;
   font-size: 26px;
   line-height: 38px;
-  font-weight: 800;
+  font-weight: 720;
   /* The ladder's title colour, because the ladder's title sits on this same
      glass four hundred pixels further down and the two are the same voice. */
   color: var(--theme-color);
@@ -20067,7 +20094,7 @@ body.vp-bare .vp-cart-shot {
   color: #3A2708;
   font: inherit;
   font-size: 17px;
-  font-weight: 800;
+  font-weight: 720;
   cursor: pointer;
   box-shadow: 0 10px 30px rgba(233, 187, 74, 0.28);
 }
@@ -20177,7 +20204,7 @@ body.vp-prize-open .vp-whatsapp {
   fill: #FFFFFF;
   text-anchor: middle;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 900;
+  font-weight: 810;
   font-size: 28.7px;
   /* Latin, and this element is inside an RTL document — without it the `%`
      goes to the wrong side of the digits. */
@@ -20193,7 +20220,7 @@ body.vp-prize-open .vp-whatsapp {
 .vp-prize-title {
   margin: 0 0 10px;
   font-size: 26px;
-  font-weight: 800;
+  font-weight: 720;
 }
 
 .vp-prize-say {
@@ -20243,7 +20270,7 @@ body.vp-prize-open .vp-whatsapp {
   color: #FFFFFF;
   font: inherit;
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 630;
   cursor: pointer;
 }
 
@@ -20257,7 +20284,7 @@ body.vp-prize-open .vp-whatsapp {
   background: linear-gradient(90deg, var(--vp-gold-ramp-top) 0%, var(--vp-gold-ramp-foot) 100%);
   color: #101111;
   font-size: 17px;
-  font-weight: 800;
+  font-weight: 720;
   text-decoration: none;
 }
 
@@ -20461,7 +20488,7 @@ body.vp-prize-open .vp-whatsapp {
 
 .vp-thread-title {
   display: block;
-  font-weight: 700;
+  font-weight: 630;
 }
 
 .vp-thread-meta {
@@ -20480,7 +20507,7 @@ body.vp-prize-open .vp-whatsapp {
   background: linear-gradient(180deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   color: #101111;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 630;
   white-space: nowrap;
 }
 
@@ -20517,13 +20544,13 @@ body.vp-prize-open .vp-whatsapp {
 .vp-said-who {
   margin: 0 0 4px;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 630;
   color: rgba(16, 17, 17, 0.55);
 }
 
 .vp-said-when {
   margin-inline-start: 8px;
-  font-weight: 400;
+  font-weight: 360;
 }
 
 /* `pre-wrap` so the paragraphs somebody typed survive being read back. */
@@ -20660,7 +20687,7 @@ body.vp-prize-open .vp-whatsapp {
     margin-bottom: 10px;
     color: rgba(16, 17, 17, 0.7);
     font-size: 13px;
-    font-weight: 600;
+    font-weight: 540;
     text-decoration: none;
   }
 
@@ -20722,7 +20749,7 @@ body.vp-prize-open .vp-whatsapp {
     margin: 0 0 6px;
     font-family: 'Cairo', var(--title-font);
     font-size: 14px;
-    font-weight: 800;
+    font-weight: 720;
     color: #101111;
   }
 
@@ -20767,7 +20794,7 @@ body.vp-prize-open .vp-whatsapp {
     border-radius: 999px;
     color: rgba(16, 17, 17, 0.6);
     font-size: 11px;
-    font-weight: 700;
+    font-weight: 630;
     letter-spacing: 0.04em;
     cursor: pointer;
     transition: background-color 0.2s ease, color 0.2s ease;
@@ -20867,7 +20894,7 @@ body.vp-prize-open .vp-whatsapp {
     background: none;
     color: #101111;
     font-size: 14px;
-    font-weight: 700;
+    font-weight: 630;
     text-align: center;
   }
 
@@ -20884,7 +20911,7 @@ body.vp-prize-open .vp-whatsapp {
     color: #FFFFFF;
     font: inherit;
     font-size: 15px;
-    font-weight: 800;
+    font-weight: 720;
     cursor: pointer;
   }
 
@@ -21117,7 +21144,7 @@ body.vp-prize-open .vp-whatsapp {
 .vp-vpn-title {
   margin: 0 0 8px;
   font-family: 'Cairo', var(--title-font);
-  font-weight: 700;
+  font-weight: 630;
   font-size: 17px;
   color: #101111;
 }
@@ -21217,6 +21244,70 @@ body.vp-prize-open .vp-whatsapp {
     height: 48px;
     border-radius: 18px;
   }
+}
+
+/* --------------------------------------------------------------------------
+   TEN PER CENT OFF EVERY WEIGHT
+
+   «زخامت همه نوشته ها باید ده درصد نازکتر بشن».
+
+   Every numeric `font-weight` this file sets — 168 of them — was multiplied by
+   0.9 in place: 700 → 630, 800 → 720, 600 → 540, 900 → 810, 500 → 450,
+   400 → 360, and the four odd ones with them. Both faces are variable
+   (Vazirmatn 100–900, Cairo 200–1000), so 630 is a weight the font really
+   draws and not a browser's synthetic thinning of 700 — which is the only
+   reason a request like this can be answered honestly.
+
+   **This block is for the weights that are not ours.** Measured on the home
+   page afterwards, a few hundred elements still rendered at a round number,
+   because their weight comes from the layer underneath this file rather than
+   from it: the body's inherited 400, the browser's own 700 for `b`, and a
+   couple of the base layer's heading classes. They are mapped here at the same
+   0.9.
+
+   `:where()` on the element selectors, deliberately: it weighs nothing, so
+   every rule above that names a class still wins. Without it this block would
+   sit at the end of the file with the same specificity as `.vp-logo-text b`
+   and quietly flatten the lockup to 630.
+
+   Not scoped to a width. The instruction names none, and this file's habit is
+   one number at every width — the header's corner and the basket's tile were
+   both settled that way. If the phone is meant to keep the old weights, that
+   is a `@media` around the pass, not a different number.
+   -------------------------------------------------------------------------- */
+
+body.shoe-shop {
+  font-weight: 360;
+}
+
+.shoe-shop .box-title {
+  font-weight: 540;
+}
+
+/* Three classes deep because the base layer's own rule is
+   `.footer-layout5 .footer-widget .widget_title` and a shallower selector
+   loses to it. */
+.shoe-shop .footer-widget .widget_title {
+  font-weight: 450;
+}
+
+.shoe-shop .widget_title {
+  font-weight: 450;
+}
+
+.shoe-shop .badge {
+  font-weight: 360;
+}
+
+/* The two the base layer sets on links: the top menu's 500 and the footer
+   columns' 400. Both named the way it names them, so the specificity lands on
+   top rather than beside. */
+.shoe-shop .main-menu a {
+  font-weight: 450;
+}
+
+.shoe-shop .footer-widget a {
+  font-weight: 360;
 }
 
 :root {

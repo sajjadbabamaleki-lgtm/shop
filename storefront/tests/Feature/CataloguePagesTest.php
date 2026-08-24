@@ -637,16 +637,24 @@ class CataloguePagesTest extends TestCase
     /**
      * «اسم کفش باید سایزش ۱۰ درصد بزرگتر و ده درصد بولدتر بشه», and then «باز
      * جا داره ۵ درصد بزرگتر و بولدتر بشه» — ten percent of 12px and of 400,
-     * then five percent of that again. Vazirmatn is loaded as a variable font,
-     * so 462 is a weight the file can actually draw rather than one the
-     * browser rounds.
+     * then five percent of that again, which is 13.86px and 462.
+     *
+     * **The weight has since moved once more, and not for this card's sake:**
+     * «زخامت همه نوشته ها باید ده درصد نازکتر بشن» took every weight in the
+     * stylesheet down a tenth, so 462 is 416. The size is untouched — that
+     * instruction was about weight — so the two halves of this card's own
+     * history no longer move together, which is exactly why they are both
+     * written down here.
+     *
+     * Vazirmatn is loaded as a variable font, so 416 is a weight the file can
+     * actually draw rather than one the browser rounds.
      */
     public function test_the_card_name_is_a_tenth_and_then_a_twentieth_larger(): void
     {
         $css = file_get_contents(public_path('assets/css/tweaks.css'));
 
         $this->assertMatchesRegularExpression(
-            '/\.vp-card-name \{[^}]*font-size: 13\.86px;\s*font-weight: 462;/s',
+            '/\.vp-card-name \{[^}]*font-size: 13\.86px;\s*font-weight: 416;/s',
             $css,
         );
 
