@@ -11081,7 +11081,8 @@ button.vp-cart-keep {
     width: 42px;
     height: 42px;
     border-radius: 12.65px;
-    font-size: 19px;
+    font-size: 27px;
+    line-height: 1;
     color: #FFFFFF;
     /* Each on its own service's colour, which is what the screenshot shows and
        is the one place on this page where the palette is not the shop's. */
@@ -11095,6 +11096,26 @@ button.vp-cart-keep {
   .vp-foot-m-soc:hover {
     transform: translateY(-2px);
     color: #FFFFFF;
+  }
+
+  /* The glyph sits three quarters of a pixel low, and this puts it back.
+
+     «چرا لوگوی تلگرام اینستاگرام و واتسپ تو قابشون اونقد کوچیک هستن و وسط هم
+     نیستن» — both halves of that are real and both were measured. The size is
+     the `font-size` above, raised from 19; this is the centring.
+
+     `align-items: center` centres the icon's *line box*, and a line box is
+     type, so it carries the room a descender would need. The ink inside it
+     does not sit in the middle of that room. Measured at 390 with the tile
+     masked to its own rounded corners, the ink's centre was 0.75px below the
+     tile's at every one of the three, which is why the row read as slightly
+     low rather than as one icon being wrong.
+
+     A transform rather than a margin: the tile is a flex box and a margin here
+     would move the box the centring is computed from, which puts the number
+     back where it started. */
+  .vp-foot-m-soc i {
+    transform: translateY(-0.75px);
   }
 
   .vp-foot-m-soc.is-telegram { background: #2AABEE; }
