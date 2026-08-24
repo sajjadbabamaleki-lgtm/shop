@@ -2963,6 +2963,25 @@ html = html.replace(
 // next comment for why every attribute in here matters. One string, so the
 // day it is reissued there is one line to change.
 //
+// **It is pasted exactly as eNamad issued it, and «exactly» is their rule:**
+// «لوگو خود را کپی کرده بدون تغییر در سایت خود قرار دهید». Two consequences
+// that look like sloppiness and are not:
+//
+//   - `alt` is empty. It was filled in here once, to name the seal for a
+//     screen reader, and it has been put back: their check reads the markup,
+//     and a seal that does not verify is worth less than the alt text is worth.
+//   - **The link carries no `rel`, and none may be added.** eNamad say so
+//     outright — «عبارت rel="noopener noreferrer" باعث عدم نمایش لوگو در سایت
+//     شما میشود» — because their server refuses the picture to a request that
+//     arrives without a referrer. Every other `target="_blank"` on this site
+//     has `rel="noopener"` and that is right; adding it here, on the grounds
+//     that it is missing, breaks the seal silently. `TrustSealTest` fails if
+//     it ever appears.
+//
+// The same rule is why opening the image's address straight in a browser
+// answers `HTTP 400`: no referrer, no picture. That is not evidence of a wrong
+// code, and an afternoon went into learning it.
+//
 // **`onerror` hides the whole plate, and it is there because it happened.**
 // The first code we were given answered `HTTP 400 Bad Request` from
 // trustseal.enamad.ir for every visitor — the id and Code did not name a seal
@@ -2979,7 +2998,7 @@ html = html.replace(
 const ENAMAD =
   "<a referrerpolicy='origin' target='_blank' href='https://trustseal.enamad.ir/?id=696411&Code=oyQ6picRwm2lLEPobQWLuNSW37WIf7mV'>" +
   "<img referrerpolicy='origin' src='https://trustseal.enamad.ir/logo.aspx?id=696411&Code=oyQ6picRwm2lLEPobQWLuNSW37WIf7mV' " +
-  "alt='نماد اعتماد الکترونیکی' style='cursor:pointer' code='oyQ6picRwm2lLEPobQWLuNSW37WIf7mV' " +
+  "alt='' style='cursor:pointer' code='oyQ6picRwm2lLEPobQWLuNSW37WIf7mV' " +
   "onerror=\"var p=this.closest('.vp-enamad'); if (p) p.style.display='none';\"></a>";
 
 // --- the strip under the footer ----------------------------------------------

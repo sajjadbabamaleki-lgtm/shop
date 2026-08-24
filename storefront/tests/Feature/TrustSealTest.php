@@ -65,6 +65,41 @@ class TrustSealTest extends TestCase
         $this->assertStringContainsString("code='".self::CODE."'", $page);
     }
 
+    /**
+     * **No `rel` on the seal's link, ever.**
+     *
+     * eNamad say it outright — «عبارت rel="noopener noreferrer" باعث عدم نمایش
+     * لوگو در سایت شما میشود» — because their server refuses the picture to a
+     * request that arrives without a referrer. Every other `target="_blank"` on
+     * this site carries `rel="noopener"`, and that is right; a future reader
+     * tidying up this one would break the seal in a way nothing else notices,
+     * because the markup would still be there and the picture simply would not
+     * arrive.
+     *
+     * The empty `alt` is here for the same reason: «لوگو خود را کپی کرده بدون
+     * تغییر در سایت خود قرار دهید». It was filled in once, for a screen
+     * reader, and put back.
+     */
+    public function test_the_seal_is_pasted_exactly_as_issued(): void
+    {
+        $page = $this->get('/')->assertOk()->getContent();
+
+        $link = "<a referrerpolicy='origin' target='_blank' href='https://trustseal.enamad.ir/?"
+            .self::ID.'&Code='.self::CODE."'>";
+
+        $this->assertStringContainsString($link, $page, 'The seal\'s link is not what eNamad issued.');
+        $this->assertStringContainsString("alt=''", $page);
+        $this->assertStringNotContainsString('noreferrer', $page);
+
+        // The one that would be added in good faith: no `rel` between the
+        // seal's <a and its href.
+        $this->assertDoesNotMatchRegularExpression(
+            "/<a[^>]*rel=[^>]*trustseal\.enamad\.ir/",
+            $page,
+            'A rel attribute on the seal\'s link stops eNamad serving the picture.'
+        );
+    }
+
     public function test_the_seal_is_on_the_other_pages_too(): void
     {
         foreach (['/about', '/faq', '/products'] as $path) {
