@@ -2995,11 +2995,32 @@ html = html.replace(
 // Inline rather than in a script file on purpose: it has to be armed before
 // the image finishes failing, and the page's own scripts load at the foot of
 // the document, long after.
+//
+// **`loading="lazy"` because of the filter-breaker.** This is the only address
+// on the page that is not ours, and it is an Iranian host — which a visitor
+// reaching the shop through a VPN is coming at from a foreign IP. That does
+// not fail, it *hangs*: no response, no error, so `onerror` never fires and
+// the browser holds a connection open and keeps the tab spinning while
+// everything else has long since arrived. Lazy puts the request off until the
+// baseboard is nearly on screen, so a hang costs a seal nobody scrolled to
+// rather than the whole page's «finished loading». `decoding="async"` keeps it
+// off the main thread when it does come.
+//
+// **And a clock, because a hang is not an error.** `onerror` fires when the
+// server answers badly. It never fires when the server does not answer at all,
+// which is the filter-breaker case exactly — so without this the plate sits
+// there reserved and empty for as long as the request stays open, which is the
+// white square the paragraph above says is worse than no seal. Six seconds is
+// long enough for a slow but working connection to deliver a 3KB image and
+// short enough that nobody reads the baseboard before it resolves.
 const ENAMAD =
   "<a referrerpolicy='origin' target='_blank' href='https://trustseal.enamad.ir/?id=696411&Code=oyQ6picRwm2lLEPobQWLuNSW37WIf7mV'>" +
-  "<img referrerpolicy='origin' src='https://trustseal.enamad.ir/logo.aspx?id=696411&Code=oyQ6picRwm2lLEPobQWLuNSW37WIf7mV' " +
+  "<img referrerpolicy='origin' loading='lazy' decoding='async' " +
+  "src='https://trustseal.enamad.ir/logo.aspx?id=696411&Code=oyQ6picRwm2lLEPobQWLuNSW37WIf7mV' " +
   "alt='' style='cursor:pointer' code='oyQ6picRwm2lLEPobQWLuNSW37WIf7mV' " +
-  "onerror=\"var p=this.closest('.vp-enamad'); if (p) p.style.display='none';\"></a>";
+  "onerror=\"var p=this.closest('.vp-enamad'); if (p) p.style.display='none';\"></a>" +
+  "<script>(function(){var p=document.currentScript.parentNode,i=p.querySelector('img');" +
+  "setTimeout(function(){if(!i.complete||!i.naturalWidth)p.style.display='none';},6000);}());<\/script>";
 
 // --- the strip under the footer ----------------------------------------------
 //

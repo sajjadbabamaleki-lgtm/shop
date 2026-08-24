@@ -141,6 +141,23 @@ the client saw an old page and had no way to tell why. So, plainly:
   measurements in the comment above it.
 - `theme/make-category-photos.js` — the category tiles. The photographs go
   in exactly as supplied: resize only, no crop, no cut-out.
+- `theme/make-icon-fonts.js` — **the icon fonts, cut to the icons this shop
+  draws.** FontAwesome shipped 1,123KB across four woff2 files; the site paints
+  27 glyphs, and the largest file (`fa-light-300`, 379KB) was being downloaded
+  for exactly one of them — `--icon-font` is "Font Awesome 6 Pro", whose default
+  weight is 300, so every `::before` in the base layer that did not name a
+  weight pulled it. Subset to the 52 codepoints the templates and the two
+  stylesheets can ask for: **1,123KB → 16KB.** This matters more than any
+  stylesheet because **a woff2 is already compressed** — the CSS on this page
+  is 1,505KB that goes over the wire as 215KB, while 379KB of font goes over as
+  379KB. Originals kept beside them as `*.full.woff2`; the script always
+  re-subsets from those, so running it twice cannot narrow a font twice.
+  `IconFontTest` is the guard, and it is not optional: a subset font fails
+  **silently** — add an icon to a template without re-running this and the
+  class is styled, the element is there, and the glyph is a blank box, which
+  `check-parity.js` cannot see because both pages ship the same subset. Needs
+  `pip install fonttools brotlicffi` (plain `brotli` fails to decode these).
+  Re-run it, then `sync-storefront-assets.js`, after adding any icon.
 - `theme/make-favicons.js` — the whole icon set, `favicon.ico`, `manifest.json`
   and `browserconfig.xml`, all from **`assets/img/vikyplus-appicon-1024.png`**.
   Same rule as the category photographs: resize only. Re-run it if the mark ever

@@ -3081,5 +3081,98 @@ The «ارسال کردم» section prints what the shopper chose, and prints it
 tone when it is پس‌کرایه — hand a collect parcel to the carrier as prepaid and
 the shop pays the postage and finds out at the end of the month.
 
-627 tests, Pint clean, parity identical at 992/1200/1440/1920, no sideways
+630 tests, Pint clean, parity identical at 992/1200/1440/1920, no sideways
+scroll at 390/768/1200/1920.
+
+## The shop through a filter-breaker — «به سختی و کندی»
+
+«میخوام اپ با فیلتر شکن هم باز بشه / الان با فیلتر شکن باز میشه ولی به سختی و
+کندی». Measured before touching anything: the home page at 390 is **4.41MB over
+62 requests**.
+
+### The one number that decides where to look
+
+| | raw | over the wire |
+| --- | --- | --- |
+| stylesheets (4 files) | 1,505KB | **215KB** — they gzip 8:1 |
+| icon fonts (4 files) | 1,123KB | **1,123KB** — woff2 is already compressed |
+
+**So the icon fonts were both the largest thing on the wire and the only large
+thing compression cannot help.** Everything else on the page is either small,
+already compressed (the photographs), or shrinks eightfold on its own.
+
+### 1,123KB of icon font, for 27 icons
+
+`--icon-font` is `"Font Awesome 6 Pro"`, and **that family's default weight is
+300**. Every `::before` in the base layer that did not name a weight therefore
+pulled `fa-light-300.woff2` — 379KB, the largest single file on the page — and
+measured across nine pages at two widths the browser painted **one glyph** out
+of it: the ✕ at U+F00D, which the 900 weight also draws.
+
+`theme/make-icon-fonts.js` subsets all four to the 52 codepoints the templates
+and the two stylesheets can ask for. **1,123KB → 16KB.**
+
+The keep set is read from the *source*, never from a render. Measuring what a
+browser painted is how the waste was found and is the wrong thing to build
+from: an icon on a page nobody thought to load would be dropped and nothing
+would say so. So it is every `fa-*` class in every template plus the preview
+page, and every `content: "\f…"` in `style.rtl.css` and `tweaks.css` — which is
+how the base layer draws its carets and its radio dots without a class.
+
+**Verified by diffing renders against the full fonts, not by looking**: nine
+pages at 390 and 1200, animation frozen, `document.fonts.ready` awaited. Sixteen
+of the eighteen came out **pixel-identical**. The two that did not are the
+product page's quantity stepper: its `+` and `−` sit **one pixel lower**, 444
+bytes of subpixel difference across two full-page renders. That is not the
+options — the outlines, advance widths, units-per-em, vertical metrics and cmap
+coverage are all byte-identical, and the difference is the same 444 bytes with
+`--no-hinting`, with `--desubroutinize`, with `--layout-features=*` and with
+`head.flags` restored, so it is inherent to re-encoding. Side by side at true
+size the two steppers cannot be told apart. **1.1MB for that is a trade worth
+making, and the residue is written down here rather than smoothed over.**
+
+`check-parity.js` still prints zero and always would have — it compares two
+copies of the page that ship the same fonts, so **it cannot see a missing icon
+at all.** `IconFontTest` is what can: it reads the same class-to-codepoint table
+the subsetter reads and fails the suite naming the file and the fix. Tested by
+adding `fa-cart-plus` to a page and watching it fail with
+«fa-cart-plus (U+F217) in about.blade.php».
+
+`font-display` went from `block` to `swap` in the same pass. At 379KB a face,
+`block` — paint nothing where the icon goes until the font lands — was
+defensible; at 4KB there is nothing left to hide, and on a slow line `block` is
+three seconds of invisible icons, which is a good part of what «کند» looks
+like.
+
+### The eNamad seal was holding the page open
+
+It is the only address on the page that is not ours, and it is an **Iranian
+host** — which a visitor arriving through a VPN reaches from a foreign IP. That
+does not fail, it **hangs**: no response and no error, so the `onerror` that
+hides the plate never fires, the browser holds a connection open, and the tab
+keeps spinning long after everything else has arrived.
+
+Two changes, and it needs both. `loading="lazy"` puts the request off until the
+baseboard is nearly on screen, so a hang costs a seal nobody scrolled to rather
+than the page's own «finished loading». And a six-second timer, because
+**`onerror` cannot see a hang** — without it the plate stays reserved and empty,
+which is the white square the note in `make-rtl-page.js` says is worse than no
+seal at all.
+
+Measured with the seal's host stubbed to never answer: `load` fires at **812ms**
+with the request still open, and the plate removes itself at six seconds.
+
+### What is left, and what could not be checked from here
+
+The page is **4.41MB → 3.33MB**, and the part gzip cannot help went 1,123KB →
+16KB. What remains: 926KB of photographs (50 of the 72 already lazy, the hero
+deliberately not), 529KB of scripts, and 1,505KB of stylesheet that should be
+arriving as ~215KB.
+
+**Should be.** Whether Liara's nginx is actually gzipping could not be tested
+from this container — the proxy answers 403 for vikyplus.liara.run, which is the
+same wall `CLAUDE.md` records. If it is not, there is another ~1.3MB sitting
+there, and it is one nginx setting rather than any change to this repository.
+
+630 tests, Pint clean, parity identical at 992/1200/1440/1920, no sideways
 scroll at 390/768/1200/1920.

@@ -126,7 +126,7 @@
         <div class="copyright-wrap">
             <div class="container th-container5">
                 <div class="vp-enamad">
-                    <a referrerpolicy='origin' target='_blank' href='https://trustseal.enamad.ir/?id=696411&Code=oyQ6picRwm2lLEPobQWLuNSW37WIf7mV'><img referrerpolicy='origin' src='https://trustseal.enamad.ir/logo.aspx?id=696411&Code=oyQ6picRwm2lLEPobQWLuNSW37WIf7mV' alt='' style='cursor:pointer' code='oyQ6picRwm2lLEPobQWLuNSW37WIf7mV' onerror="var p=this.closest('.vp-enamad'); if (p) p.style.display='none';"></a>
+                    <a referrerpolicy='origin' target='_blank' href='https://trustseal.enamad.ir/?id=696411&Code=oyQ6picRwm2lLEPobQWLuNSW37WIf7mV'><img referrerpolicy='origin' loading='lazy' decoding='async' src='https://trustseal.enamad.ir/logo.aspx?id=696411&Code=oyQ6picRwm2lLEPobQWLuNSW37WIf7mV' alt='' style='cursor:pointer' code='oyQ6picRwm2lLEPobQWLuNSW37WIf7mV' onerror="var p=this.closest('.vp-enamad'); if (p) p.style.display='none';"></a><script>(function(){var p=document.currentScript.parentNode,i=p.querySelector('img');setTimeout(function(){if(!i.complete||!i.naturalWidth)p.style.display='none';},6000);}());</script>
                 </div>
                 <p class="copyright-text">تمامی حقوق این وب‌سایت متعلق به ویکی پلاس است.</p>
             </div>
