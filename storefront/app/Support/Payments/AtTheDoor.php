@@ -21,6 +21,12 @@ class AtTheDoor implements Gateway
         return 'at-the-door';
     }
 
+    /** No. That is the whole point of this driver. */
+    public function takesCardOnline(): bool
+    {
+        return false;
+    }
+
     public function start(Payment $payment, string $callbackUrl): string
     {
         throw new PaymentFailed('پرداخت اینترنتی برای این فروشگاه فعال نیست؛ پرداخت هنگام تحویل انجام می‌شود.');

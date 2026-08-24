@@ -6,7 +6,6 @@ use App\Models\Customer;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Support\Checkout\SettleOrder;
-use App\Support\Payments\AtTheDoor;
 use App\Support\Payments\Gateway;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -39,8 +38,9 @@ class OrderController extends Controller
             // that is configured rather than of a setting read in the view, so
             // a shop with no gateway shows «پرداخت هنگام تحویل» and one with a
             // gateway shows a button — and neither has to be kept in step by
-            // hand.
-            'canPayOnline' => ! $gateway instanceof AtTheDoor,
+            // hand. The same question `PlaceOrder` asks before writing the
+            // order's method, so the page and the panel cannot disagree.
+            'canPayOnline' => $gateway->takesCardOnline(),
 
             // The receipt, if the money arrived. Read here so the page does
             // not have to know that a payment is a row.

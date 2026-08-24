@@ -47,6 +47,11 @@ class ZarinPal implements Gateway
         return 'zarinpal';
     }
 
+    public function takesCardOnline(): bool
+    {
+        return true;
+    }
+
     public function start(Payment $payment, string $callbackUrl): string
     {
         $answer = $this->ask('/pg/v4/payment/request.json', [
