@@ -6,10 +6,18 @@
     «درباره ما».
 
     Every sentence here is either something the client has told us or something
-    this application demonstrably does. There is no founding year, no number of
-    customers and no number of pairs sold, because nobody has given us any of
-    those and a made-up one on an about page is the kind of thing that gets
-    quoted back at the shop.
+    this application demonstrably does. Nothing is invented — no number of
+    customers, no pairs sold — because a made-up figure on an about page is the
+    kind of thing that gets quoted back at the shop.
+
+    **The three paragraphs under «گروه ویکی» are the client's own words**, sent
+    verbatim, and they are the first facts anybody has given us about the
+    business behind the shop: the group has traded since 1382, it makes,
+    imports and wholesales, and ویکی پلاس is its online arm rather than a
+    separate company. The page used to say outright that there was no founding
+    year to print. Leave the wording alone — it is copy the client wrote about
+    their own company, not description of software, and rewriting it for tone
+    would be rewriting their claim about themselves.
 
     The strap line, the address and the telephone are the footer's own — the
     ones off the screenshot the client sent. They come from
@@ -24,8 +32,30 @@
             <h1 class="vp-shop-title">درباره ویکی پلاس</h1>
 
             <p class="vp-doc-lead">
-                ویکی پلاس فروشگاه کیف و کفش زنانه است: کتانی، مجلسی، بوت، صندل
-                و کیف، با تضمین کیفیت، ارسال سریع و امکان خرید تکی و عمده.
+                ویکی پلاس فروشگاه آنلاین گروه ویکی است: کیف و کفش زنانه —
+                کتانی، مجلسی، بوت، صندل و کیف — با تضمین کیفیت، ارسال سریع و
+                امکان خرید تکی و عمده.
+            </p>
+
+            <h2>گروه ویکی</h2>
+            <p>
+                گروه ویکی از سال ۱۳۸۲ با هدف تولید، واردات و پخش عمده‌ی کیف و
+                کفش زنانه فعالیت خود را آغاز کرد. از ابتدا، هدف ما ارائه‌ی
+                بهترین و باکیفیت‌ترین محصولات بود، چرا که باور داریم بانوی
+                ایرانی شایسته‌ی بالاترین سطح از سبک و کیفیت است.
+            </p>
+            <p>
+                در طول این سال‌ها، ما همواره بر شیک‌پوش بودن، به‌روز بودن
+                مدل‌ها و ارتقای کیفیت، کمیت و دوام محصولات تأکید داشته‌ایم.
+                اکنون، با افتخار، ویکی پلاس را معرفی می‌کنیم؛ بخشی از این
+                مجموعه‌ی بزرگ که در کنار فعالیت‌های تولید و پخش عمده، به‌صورت
+                تخصصی در فضای آنلاین به فروش محصولات گروه ویکی می‌پردازد.
+            </p>
+            <p>
+                در ویکی پلاس، تمامی محصولات با دقت و ظرافت و بر اساس نیاز
+                بانوان ایرانی تهیه شده و این اطمینان را به شما می‌دهیم که خرید
+                از ویکی پلاس یک تجربه‌ی بی‌نظیر و لذت‌بخش از خرید آنلاین کفش و
+                کیف خواهد بود.
             </p>
 
             <h2>ما کجاییم</h2>
