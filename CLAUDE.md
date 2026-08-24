@@ -279,6 +279,15 @@ the client saw an old page and had no way to tell why. So, plainly:
   sellable and `check-parity.js` prints zero the whole time. `--floor=0` there
   empties all eight sizes and collapses the home page. Never wire any of it
   into a seeder or into `liara_pre_start.sh`.
+- **`php artisan demo:product` puts one cheap buyable thing in the shop**, at
+  `--toman=100000` by default, so a card can go through the gateway without
+  putting a real one through a shoe that costs millions. It is a real product
+  all the way down — variant, offer, stock, movement — because a shortcut on
+  any of those exercises a path the shop does not have. **It is published and
+  customers can see it**, so `--remove` afterwards; that retires rather than
+  deletes, since an order that bought it keeps its line. It also prints which
+  payment driver is live, because on `at-the-door` there is no gateway to reach
+  and the test would look broken rather than absent.
 - **The panel's dates are Jalali on both sides.** `fa_date()` prints them, and
   `public/assets/js/admin-jalali.js` — loaded from `layouts/admin.blade.php`,
   fingerprinted like admin.css — puts a Persian calendar on the five fields
