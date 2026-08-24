@@ -11866,8 +11866,8 @@ body.vp-prize-open .vp-whatsapp {
 
 @media (min-width: 992px) {
 
-  .th-header .menu-area .row > .col-auto:last-child {
-    padding-inline-end: 14px;
+  .th-header .menu-area > .container {
+    padding-inline: 14px;
   }
 
   .th-header .menu-area .header-button {
@@ -11876,6 +11876,12 @@ body.vp-prize-open .vp-whatsapp {
 
   .th-header .menu-area .header-button > * {
     margin-inline: 0;
+  }
+
+  .th-header .vp-logo img {
+    width: 48px;
+    height: 48px;
+    border-radius: 18px;
   }
 }
 

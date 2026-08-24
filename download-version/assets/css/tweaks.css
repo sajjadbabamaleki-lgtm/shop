@@ -21172,10 +21172,16 @@ body.vp-prize-open .vp-whatsapp {
    -------------------------------------------------------------------------- */
 
 @media (min-width: 992px) {
-  /* The icons' column is the row's last child; in RTL its inline-end is the
-     island's left edge. */
-  .th-header .menu-area .row > .col-auto:last-child {
-    padding-inline-end: 14px;
+  /* Both ends of the island, not just the icons'.
+
+     This started as an override on the icons' column alone, because the logo
+     was 52 tall and 12 was its own correct air. «اندازه مربع لوگو هم باید همون
+     اندازه مربع سبد خرید باشه» ended that: the mark is 48 now, the same as the
+     three, so 14 is every cluster's number and the inset can be said once.
+
+     14 = this padding, less the row's own −12 margin, plus the columns' 12. */
+  .th-header .menu-area > .container {
+    padding-inline: 14px;
   }
 
   .th-header .menu-area .header-button {
@@ -21185,6 +21191,31 @@ body.vp-prize-open .vp-whatsapp {
   /* The template's own 8px, which stacked on the gap for the search box only. */
   .th-header .menu-area .header-button > * {
     margin-inline: 0;
+  }
+
+  /* --- the mark, at the basket's size and corner ------------------------- */
+
+  /* «گوشه های مربع لوگو باید کروشون اندازه مربع سبد خرید باشه و اندازه مربع
+     لوگو هم باید همون اندازه مربع سبد خرید باشه».
+
+     The desktop had two squares to two specifications: the basket 48 with an
+     18px corner, the mark 52 with a 12px one. Same island, adjacent, and the
+     eye reads them as one row of tiles — so they are one tile now.
+
+     **Below 992 nothing moves.** The phone has its own set at the end of this
+     file, where the mark and the buttons already share a size and a corner in
+     two steps (52/15.18, and 42/12.65 under 576), settled over two rounds of
+     «کروتر». This block is scoped to `.th-header`, so the footer's mark and the
+     drawer's keep their own 52 and 42 as well: one lockup, but each place sizes
+     it for the room it is in.
+
+     The lockup's height follows the mark — the text beside it is 46.3 — so it
+     is 48 tall now like everything else in the row, which is what lets the
+     inset above be one number. */
+  .th-header .vp-logo img {
+    width: 48px;
+    height: 48px;
+    border-radius: 18px;
   }
 }
 
