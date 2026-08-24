@@ -11113,9 +11113,25 @@ button.vp-cart-keep {
 
      A transform rather than a margin: the tile is a flex box and a margin here
      would move the box the centring is computed from, which puts the number
-     back where it started. */
+     back where it started.
+
+     **The number is 0.25 and not 0.75, because the two renderers disagree.**
+     0.75 was measured in Chromium, where it centred the ink exactly. The
+     client then photographed the live row on their phone and the same three
+     glyphs read 1.0–1.2px *high* — measured off that photograph, all three
+     agreeing. Which puts this font's glyph about a pixel higher in WebKit than
+     in Chromium for the same rule: the glyph sits on a baseline inside a line
+     box, `line-height: 1` makes that box shorter than the font's own metrics,
+     and how a shortened box's half-leading rounds is exactly the kind of thing
+     two engines do differently.
+
+     A constant cannot be right on both. 0.25 splits it: half a pixel out on
+     each, instead of nothing on one and over a pixel on the other. If it ever
+     has to be exact on both, the answer is not another number here — it is
+     making these three images like بله and روبیکا beside them, where the
+     geometry is the file's and no baseline is involved. */
   .vp-foot-m-soc i {
-    transform: translateY(-0.75px);
+    transform: translateY(-0.25px);
   }
 
   .vp-foot-m-soc.is-telegram { background: #2AABEE; }

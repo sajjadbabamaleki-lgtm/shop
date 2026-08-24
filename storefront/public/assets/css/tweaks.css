@@ -6831,7 +6831,7 @@ button.vp-cart-keep {
   }
 
   .vp-foot-m-soc i {
-    transform: translateY(-0.75px);
+    transform: translateY(-0.25px);
   }
 
   .vp-foot-m-soc.is-telegram { background: #2AABEE; }
