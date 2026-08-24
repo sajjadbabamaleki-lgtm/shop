@@ -256,6 +256,12 @@ the client saw an old page and had no way to tell why. So, plainly:
   unset still runs — but **the shop no longer offers paying at the door**
   («پرداخت در محل از وبسایت حذف بشه»), so that driver now means «no online
   payment configured» and the order page says so.
+  **ZarinPal checks the callback's domain, and every domain a shopper can
+  arrive on must be registered on the terminal.** `vikyplus.ir` and
+  `www.vikyplus.ir` are two domains to them; an unregistered one is refused
+  with `-14`, which is half the customers failing and nothing going red. The
+  callback a customer gets is built from the host they are on — not from
+  `APP_URL`, which only the console has to fall back on.
   **`php artisan payment:test` is how anybody finds out why a gateway refuses.**
   «درگاه پرداخت درخواست را نپذیرفت» is one sentence for a dozen causes, and the
   gateway's own reason lands on a `payments` row and in a log nobody reads from
