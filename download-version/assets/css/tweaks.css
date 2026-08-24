@@ -1274,16 +1274,24 @@ option:hover {
    the island the moment the page scrolls. */
 .th-header .menu-area,
 .th-header .sticky-wrapper.sticky .menu-area {
-  /* 40 above, 18 to both sides. Nothing below: the gap down to the hero is
+  /* 20 above, 18 to both sides. Nothing below: the gap down to the hero is
      the hero's own padding, and a bottom margin here would stack on top of it.
-     
-     The top was 18 and matched the sides, which is a sensible rule and the
-     wrong one here — «فاصله بالای هدر اندازه فاصله هدر با هیرو بشه». Measured
-     at 1200: the island sat 18 below the page's top edge and 40 above the hero
-     card, so the island looked pinned to the top of the window rather than
-     floating between two equal gaps. 40 is that measured gap, not a guess; if
-     the hero's padding ever moves, this moves with it. */
-  margin: 40px 18px 0;
+
+     **20 is 40 halved, at the client's word: «اون فاصله بالای هدر باید نصف
+     بشه», said about the desktop.** The 40 it replaces was itself measured
+     rather than chosen — «فاصله بالای هدر اندازه فاصله هدر با هیرو بشه» — the
+     island had sat 18 below the window's edge and 40 above the hero card, and
+     40 made those two gaps equal so it floated between them instead of looking
+     pinned to the top.
+
+     That symmetry is what this gives up, deliberately: the page now opens with
+     20 above the island and 40 below it, so the shop starts nearer the top of
+     the window. The hero's own padding is untouched — if the two are ever
+     meant to match again, this is the number that moves, not that one.
+
+     The phone keeps its own 13.5, in the block that halves these margins
+     below 992; nothing here reaches it. */
+  margin: 20px 18px 0;
   /* 22 — «دستاپ بشه ۲۲ موبایل هم بشه ۲۲», which ends the split this line used
      to carry («جزیره هدر ۲۰/۲۴», desktop first). The island was the one place
      on the page where the narrow screen was rounder than the wide one; it is
@@ -1606,6 +1614,39 @@ option:hover {
 .heroSlide6 .hero-inner {
   display: flex;
   align-items: center;
+}
+
+/* Ten per cent taller, on the desktop. «ارتفاع هیرو باید ده درصد بلندتر بشه».
+
+   **Padding rather than a height, because the card has never had one.** Its
+   height is whatever the tallest slide's contents come to: below about 1650
+   that is the writing column, a flat 450.4px at every width; above it the
+   photograph column overtakes and grows with the window — 510 at 1800, 551.6
+   at 1920. A `min-height` would lift the first regime and do nothing to the
+   second, so the wider the screen the less of the ten per cent would arrive.
+
+   So the padding is `max(22.5px, 1.44vw)`, which is the two regimes written as
+   one line: 22.5 is a tenth of 450.4 halved, and it holds wherever the writing
+   column is the tallest thing; 1.44vw is a twentieth of the photograph column's
+   own height, and it takes over exactly where the photograph does. Measured
+   after, against the heights before:
+
+     1200   450.4 → 495.4   (+10.0%)
+     1440   450.4 → 495.4   (+10.0%)
+     1600   450.4 → 496.5   (+10.2%)
+     1800   510.0 → 561.8   (+10.2%)
+     1920   551.6 → 606.9   (+10.0%)
+
+   No breakpoints, and it keeps its proportion on a screen nobody here has. The
+   contents stay centred — the rule above sees to that — so the ten per cent is
+   air around the shoe rather than a shoe pushed down.
+
+   Desktop only, as asked: below 992 the card is a different shape and the
+   phone was not part of the instruction. */
+@media (min-width: 992px) {
+  .heroSlide6 .hero-inner {
+    padding-block: max(22.5px, 1.44vw);
+  }
 }
 
 .heroSlide6 .hero-inner > .container {

@@ -865,7 +865,7 @@ option:hover {
 .th-header .menu-area,
 .th-header .sticky-wrapper.sticky .menu-area {
 
-  margin: 40px 18px 0;
+  margin: 20px 18px 0;
 
   border-radius: 22px;
   background: rgba(16, 17, 17, 0.063);
@@ -1002,6 +1002,12 @@ option:hover {
 .heroSlide6 .hero-inner {
   display: flex;
   align-items: center;
+}
+
+@media (min-width: 992px) {
+  .heroSlide6 .hero-inner {
+    padding-block: max(22.5px, 1.44vw);
+  }
 }
 
 .heroSlide6 .hero-inner > .container {
