@@ -11097,23 +11097,40 @@ button.vp-cart-keep {
     color: #FFFFFF;
   }
 
-  /* بله and روبیکا have no mark in Font Awesome and no artwork here, so both
-     are a tile in the service's colour with a glyph on it rather than a
-     trademark drawn from memory. **They are stand-ins.** When the client sends
-     the two logos, each becomes an `<img>` in make-rtl-page.js's FOOT_SOCIAL
-     and these two rules keep only the ground behind it. */
-  .vp-foot-m-soc.is-bale { background: linear-gradient(135deg, #2FC4B2, #1177C4); }
-  .vp-foot-m-soc.is-rubika { background: linear-gradient(135deg, #8A4FE0, #5B2BC4); }
   .vp-foot-m-soc.is-telegram { background: #2AABEE; }
   .vp-foot-m-soc.is-instagram { background: linear-gradient(135deg, #F9CE34, #EE2A7B 55%, #6228D7); }
 
-  /* روبیکا's stand-in is a letter rather than a second chat bubble: two
-     bubbles side by side in one row of five read as one service drawn twice. */
-  .vp-foot-m-soc-letter {
-    font-family: 'Cairo', var(--title-font);
-    font-weight: 800;
-    font-size: 19px;
-    line-height: 1;
+  /* بله and روبیکا: the marks themselves, on white.
+
+     They were stand-ins — a chat bubble and the letter R on a coloured tile,
+     because neither service is in Font Awesome and a trademark drawn from
+     memory is worse than an honest placeholder. The client has sent both
+     logos; `theme/make-social-marks.js` lifts each off its ground and writes
+     the file this points at.
+
+     **White, where the other three are on their service's colour.** Those
+     three are single-colour marks knocked out in white, so the colour *is*
+     the mark. These two carry their own colours — روبیکا's is six of them —
+     and on a coloured tile they read as a sticker somebody stuck on. White is
+     how both services present them.
+
+     Which leaves a white tile on a white footer, so it states its own edge the
+     way everything else on this page does: a hairline of ink inside the
+     corner, the same 10% the tile's own outer shadow carries. Measured at 390:
+     tile 255, hairline 231, card 255. */
+  .vp-foot-m-soc.is-bale,
+  .vp-foot-m-soc.is-rubika {
+    background: #FFFFFF;
+    box-shadow:
+      inset 0 0 0 1px rgba(16, 17, 17, 0.10),
+      0 0 8px -2px rgba(16, 17, 17, 0.14);
+  }
+
+  .vp-foot-m-soc-mark {
+    display: block;
+    width: 26px;
+    height: 26px;
+    object-fit: contain;
   }
 
   /* Three columns side by side, as narrow as they need to be. `1fr` each

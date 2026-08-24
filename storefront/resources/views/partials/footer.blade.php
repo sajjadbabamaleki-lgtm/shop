@@ -14,8 +14,8 @@
                     <a class="vp-foot-m-soc is-instagram" href="#" aria-label="Instagram"><i class="fa-brands fa-instagram" aria-hidden="true"></i></a>
                     <a class="vp-foot-m-soc is-telegram" href="#" aria-label="تلگرام"><i class="fa-brands fa-telegram" aria-hidden="true"></i></a>
                     <a class="vp-foot-m-soc is-whatsapp" href="https://wa.me/989918905993" aria-label="واتساپ"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i></a>
-                    <a class="vp-foot-m-soc is-bale" href="#" aria-label="بله"><i class="fa-solid fa-comment-dots" aria-hidden="true"></i></a>
-                    <a class="vp-foot-m-soc is-rubika" href="#" aria-label="روبیکا"><b class="vp-foot-m-soc-letter" aria-hidden="true">R</b></a>
+                    <a class="vp-foot-m-soc is-bale" href="#" aria-label="بله"><img class="vp-foot-m-soc-mark" src="{{ asset('assets/img/social/bale.png') }}" alt="" width="26" height="26"></a>
+                    <a class="vp-foot-m-soc is-rubika" href="#" aria-label="روبیکا"><img class="vp-foot-m-soc-mark" src="{{ asset('assets/img/social/rubika.png') }}" alt="" width="26" height="26"></a>
                 </div>
                 <div class="vp-foot-m-cols">
                     <div class="vp-foot-m-col">

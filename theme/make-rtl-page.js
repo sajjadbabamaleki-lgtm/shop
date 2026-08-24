@@ -3129,8 +3129,14 @@ const FOOT_SOCIAL = [
   ['instagram', 'Instagram', '#', '<i class="fa-brands fa-instagram" aria-hidden="true"></i>'],
   ['telegram', 'تلگرام', '#', '<i class="fa-brands fa-telegram" aria-hidden="true"></i>'],
   ['whatsapp', 'واتساپ', 'https://wa.me/989918905993', '<i class="fa-brands fa-whatsapp" aria-hidden="true"></i>'],
-  ['bale', 'بله', '#', '<i class="fa-solid fa-comment-dots" aria-hidden="true"></i>'],
-  ['rubika', 'روبیکا', '#', '<b class="vp-foot-m-soc-letter" aria-hidden="true">R</b>'],
+  // The client sent these two as photographs of the logos; `make-social-marks.js`
+  // lifts them off their grey ground and writes the two files below. They were
+  // a chat bubble and the letter R until then — see the note beside
+  // `.vp-foot-m-soc.is-bale` in tweaks.css, which said exactly this would
+  // happen. The mark carries its own colours, so its chip is white where the
+  // other three are on their service's colour.
+  ['bale', 'بله', '#', '<img class="vp-foot-m-soc-mark" src="assets/img/social/bale.png" alt="" width="26" height="26">'],
+  ['rubika', 'روبیکا', '#', '<img class="vp-foot-m-soc-mark" src="assets/img/social/rubika.png" alt="" width="26" height="26">'],
 ];
 
 const FOOT_PHONE_HTML =
