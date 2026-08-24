@@ -31,13 +31,15 @@
 
             {{-- What the shop is actually waiting for.
 
-                 Two different sentences, because they are two different
-                 arrangements and the customer has to know which one they are
-                 in: with a card gateway configured there is a button and the
-                 order is waiting for money; without one the courier takes it
-                 at the door and there is nothing to do. Printing «پرداخت هنگام
-                 تحویل» under a shop that has a gateway would be telling
-                 somebody not to pay. --}}
+                 **The shop no longer offers paying at the door**, at the
+                 client's instruction — «پرداخت در محل از وبسایت حذف بشه» — so
+                 the second sentence is not an alternative arrangement any
+                 more. It is what a shopper sees if the shop has no gateway
+                 configured, which on a card-only shop is a fault rather than a
+                 choice: it says so and points at the telephone, instead of
+                 inviting somebody to pay a courier the shop is not expecting.
+                 `Order::methodLabels()` keeps «پرداخت در محل» for the panel,
+                 because orders that really were paid that way still exist. --}}
             @if ($order->status === \App\Models\Order::PLACED)
                 @if ($canPayOnline)
                     <p class="vp-note">سفارشت ثبت شد و کالاها برایت کنار گذاشته شده. برای نهایی شدن، مبلغ را پرداخت کن.</p>
@@ -49,7 +51,7 @@
                         </button>
                     </form>
                 @else
-                    <p class="vp-note">سفارشت ثبت شد. کالاها برایت کنار گذاشته شده و پرداخت هنگام تحویل انجام می‌شود.</p>
+                    <p class="vp-note">سفارشت ثبت شد و کالاها برایت کنار گذاشته شده. پرداخت اینترنتی همین حالا در دسترس نیست؛ برای هماهنگی پرداخت با پشتیبانی تماس بگیر.</p>
                 @endif
             @endif
 

@@ -44,7 +44,7 @@ interface Gateway
      *
      * Asked rather than inferred, in one place, because three parts of the
      * application have to agree about it and they are far apart: the order
-     * page shows a pay button or the sentence «پرداخت هنگام تحویل», `PlaceOrder`
+     * page shows a pay button or says payment is not available, `PlaceOrder`
      * writes `online` or `cash_on_delivery` onto the order, and the panel
      * prints that word to whoever is packing the shoes. A driver that cannot
      * send a customer anywhere says so here; every one that can says true, and

@@ -369,18 +369,21 @@ class PaymentTest extends TestCase
     }
 
     /**
-     * The default is not a stub. «پرداخت در محل» is the arrangement this shop
-     * has always run on, so the provider must **not** refuse to boot on it the
-     * way the SMS provider refuses to boot on `log`.
+     * The provider must **not** refuse to boot on the default driver, the way
+     * the SMS provider refuses to boot on `log`. A shop with no gateway
+     * configured yet can still be browsed and ordered from while somebody sets
+     * two variables; refusing to boot takes the whole site down over a setting
+     * that is merely incomplete.
      */
-    public function test_the_default_gateway_is_pay_at_the_door_and_production_does_not_refuse_it(): void
+    public function test_the_default_driver_does_not_refuse_to_boot_in_production(): void
     {
         config()->set('services.payment.driver', 'at-the-door');
         $this->app->forgetInstance(Gateway::class);
 
         $this->assertInstanceOf(AtTheDoor::class, app(Gateway::class));
 
-        // Even in production, because the shop really does sell this way.
+        // In production too: the site staying up is worth more than the
+        // configuration being complete.
         $this->app['env'] = 'production';
         $this->app->forgetInstance(Gateway::class);
 
@@ -425,7 +428,15 @@ class PaymentTest extends TestCase
 
     // --- the page ----------------------------------------------------------
 
-    /** With a gateway the order page offers to pay; without one it does not. */
+    /**
+     * With a gateway the order page offers to pay; without one it says so.
+     *
+     * The second sentence used to be «پرداخت هنگام تحویل انجام می‌شود», which
+     * is no longer an arrangement this shop has — the client took paying at
+     * the door off the site. A card-only shop with no gateway configured is
+     * broken, not offering something else, and the page has to read that way
+     * or a customer waits at home for a courier nobody sent.
+     */
     public function test_the_order_page_offers_payment_only_when_a_gateway_can_take_it(): void
     {
         $order = $this->order();
@@ -433,14 +444,14 @@ class PaymentTest extends TestCase
         $this->holding($order)->get("/orders/{$order->number}")
             ->assertOk()
             ->assertSee('پرداخت')
-            ->assertDontSee('پرداخت هنگام تحویل انجام می‌شود');
+            ->assertDontSee('پرداخت اینترنتی همین حالا در دسترس نیست');
 
         config()->set('services.payment.driver', 'at-the-door');
         $this->app->forgetInstance(Gateway::class);
 
         $this->holding($order)->get("/orders/{$order->number}")
             ->assertOk()
-            ->assertSee('پرداخت هنگام تحویل انجام می‌شود');
+            ->assertSee('پرداخت اینترنتی همین حالا در دسترس نیست');
     }
 
     // --- the address they come back to -------------------------------------

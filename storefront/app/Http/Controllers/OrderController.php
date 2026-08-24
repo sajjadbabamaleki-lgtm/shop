@@ -36,10 +36,11 @@ class OrderController extends Controller
 
             // Whether this shop can take a card at all. Asked of the gateway
             // that is configured rather than of a setting read in the view, so
-            // a shop with no gateway shows «پرداخت هنگام تحویل» and one with a
-            // gateway shows a button — and neither has to be kept in step by
-            // hand. The same question `PlaceOrder` asks before writing the
-            // order's method, so the page and the panel cannot disagree.
+            // a shop with a gateway shows the button and one without says
+            // plainly that paying is not possible yet — neither has to be kept
+            // in step by hand. The same question `PlaceOrder` asks before
+            // writing the order's method, so the page and the panel cannot
+            // disagree.
             'canPayOnline' => $gateway->takesCardOnline(),
 
             // The receipt, if the money arrived. Read here so the page does
