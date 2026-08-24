@@ -11864,6 +11864,21 @@ body.vp-prize-open .vp-whatsapp {
   margin-top: 0;
 }
 
+@media (min-width: 992px) {
+
+  .th-header .menu-area .row > .col-auto:last-child {
+    padding-inline-end: 14px;
+  }
+
+  .th-header .menu-area .header-button {
+    gap: 14px;
+  }
+
+  .th-header .menu-area .header-button > * {
+    margin-inline: 0;
+  }
+}
+
 :root {
   --vp-design: ok;
 }

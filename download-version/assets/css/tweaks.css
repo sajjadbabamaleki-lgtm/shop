@@ -21136,6 +21136,58 @@ body.vp-prize-open .vp-whatsapp {
   margin-top: 0;
 }
 
+/* --------------------------------------------------------------------------
+   THE THREE AT THE LEFT OF THE HEADER SIT IN EQUAL AIR
+
+   «فاصله ۳ آیتم سمت چپ هدر باید از بالا پایین چپ و وسط یکی باشن» — the basket,
+   the account and the search box, and the four gaps around them.
+
+   Measured at 1440 before: 14 above, 14 below, **12** to the island's left
+   edge, **16** between the basket and the account, **24** between the account
+   and the search. Four different numbers around one cluster, and the two the
+   eye lands on first — the outer inset and the inner gaps — were the odd ones.
+
+   14 is the number they all become, and it is not a choice: the three are 48px
+   tall in a 76px island, so the air above and below them is (76 − 48) / 2 and
+   nothing here can move it without moving the island's height. The other three
+   gaps come to it.
+
+   Where each came from:
+     - 12 was the column's own gutter, set to the air around the *logo* —
+       (76 − 52) / 2, because the lockup is 52 tall. That is still right for
+       the logo and is left alone; this overrides it for the icons' column only.
+     - 16 was `.header-button`'s flex gap.
+     - 24 was that gap plus 8px of margin the template puts on `.icon-btn`,
+       which is why the two inner gaps were not even equal to each other.
+
+   **The logo keeps its 12 at the other end**, deliberately. Two clusters of
+   different heights cannot both sit in equal air inside one island unless each
+   takes the inset its own height gives it: the logo is 52 and gets 12, these
+   are 48 and get 14. Forcing one number on both would put one of them back out
+   of square, and the 2px between the island's two ends is a comparison across
+   1400px rather than one between neighbours.
+
+   Desktop only — below 992 the search is not in the row at all and the cluster
+   has its own spacing.
+   -------------------------------------------------------------------------- */
+
+@media (min-width: 992px) {
+  /* The icons' column is the row's last child; in RTL its inline-end is the
+     island's left edge. */
+  .th-header .menu-area .row > .col-auto:last-child {
+    padding-inline-end: 14px;
+  }
+
+  .th-header .menu-area .header-button {
+    gap: 14px;
+  }
+
+  /* The template's own 8px, which stacked on the gap for the search box only. */
+  .th-header .menu-area .header-button > * {
+    margin-inline: 0;
+  }
+}
+
 :root {
   --vp-design: ok;
 }
