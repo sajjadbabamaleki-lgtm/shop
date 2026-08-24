@@ -2962,10 +2962,25 @@ html = html.replace(
 // The seal, exactly as the eNamad panel issues it — see the note below the
 // next comment for why every attribute in here matters. One string, so the
 // day it is reissued there is one line to change.
+//
+// **`onerror` hides the whole plate, and it is there because it happened.**
+// The first code we were given answered `HTTP 400 Bad Request` from
+// trustseal.enamad.ir for every visitor — the id and Code did not name a seal
+// their server would serve — and what a failed image leaves behind is not
+// nothing: it is the reserved 90px box with its white plate, an empty white
+// square on the baseboard of every page, which is worse than no seal at all.
+// A trust mark that cannot load must take its frame with it. When the right
+// code arrives the picture loads, `onerror` never fires, and the plate is
+// there as designed.
+//
+// Inline rather than in a script file on purpose: it has to be armed before
+// the image finishes failing, and the page's own scripts load at the foot of
+// the document, long after.
 const ENAMAD =
   "<a referrerpolicy='origin' target='_blank' href='https://trustseal.enamad.ir/?id=696411&Code=oyQ6picRwm2lLEPobQWLuNSW37WIf7mV'>" +
   "<img referrerpolicy='origin' src='https://trustseal.enamad.ir/logo.aspx?id=696411&Code=oyQ6picRwm2lLEPobQWLuNSW37WIf7mV' " +
-  "alt='نماد اعتماد الکترونیکی' style='cursor:pointer' code='oyQ6picRwm2lLEPobQWLuNSW37WIf7mV'></a>";
+  "alt='نماد اعتماد الکترونیکی' style='cursor:pointer' code='oyQ6picRwm2lLEPobQWLuNSW37WIf7mV' " +
+  "onerror=\"var p=this.closest('.vp-enamad'); if (p) p.style.display='none';\"></a>";
 
 // --- the strip under the footer ----------------------------------------------
 //
