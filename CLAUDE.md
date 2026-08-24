@@ -248,6 +248,23 @@ the client saw an old page and had no way to tell why. So, plainly:
   of a shopper is worse than a message that did not arrive — so a wrong key and
   a message still in flight look identical from the outside, and without this
   command the only test is signing a real customer in and hoping.
+- **The card gateway is ZarinPal and connecting it is two variables, not code.**
+  `PAYMENT_DRIVER=zarinpal` and `ZARINPAL_MERCHANT_ID` on the Liara app;
+  `App\Support\Payments\ZarinPal` speaks v4, sends `currency: IRR` on every
+  call, and `verify()` server-to-server is the only thing that may declare a
+  payment good. `at-the-door` stays the default so a shop with the variables
+  unset still runs — but **the shop no longer offers paying at the door**
+  («پرداخت در محل از وبسایت حذف بشه»), so that driver now means «no online
+  payment configured» and the order page says so.
+  **`php artisan payment:test` is how anybody finds out why a gateway refuses.**
+  «درگاه پرداخت درخواست را نپذیرفت» is one sentence for a dozen causes, and the
+  gateway's own reason lands on a `payments` row and in a log nobody reads from
+  a telephone. The command asks ZarinPal the same question a real payment asks,
+  writes nothing, and prints the six things the next question needs: the host
+  (a live id on the sandbox is refused exactly like a wrong one), whether the
+  config is cached, the merchant id's shape and its two ends, the callback URL,
+  this server's outbound IP (an allow-list refuses everything as «Invalid
+  merchant_id»), and the answer verbatim.
 - **The content pages are `/about`, `/contact`, `/size-guide`, `/faq`, `/terms`
   and `/privacy`** — `PageController`, one view each under `resources/views/pages/`,
   copy and no database. They exist because the footer had been linking to them
