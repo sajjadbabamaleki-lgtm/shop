@@ -125,6 +125,9 @@
         </div>
         <div class="copyright-wrap">
             <div class="container th-container5">
+                <div class="vp-enamad">
+                    <a referrerpolicy='origin' target='_blank' href='https://trustseal.enamad.ir/?id=696411&Code=oyQ6picRwm2lLEPobQWLuNSW37WIf7mV'><img referrerpolicy='origin' src='https://trustseal.enamad.ir/logo.aspx?id=696411&Code=oyQ6picRwm2lLEPobQWLuNSW37WIf7mV' alt='نماد اعتماد الکترونیکی' style='cursor:pointer' code='oyQ6picRwm2lLEPobQWLuNSW37WIf7mV'></a>
+                </div>
                 <p class="copyright-text">تمامی حقوق این وب‌سایت متعلق به ویکی پلاس است.</p>
             </div>
         </div>

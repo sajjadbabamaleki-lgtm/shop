@@ -2959,6 +2959,14 @@ html = html.replace(
   '                        '
 );
 
+// The seal, exactly as the eNamad panel issues it — see the note below the
+// next comment for why every attribute in here matters. One string, so the
+// day it is reissued there is one line to change.
+const ENAMAD =
+  "<a referrerpolicy='origin' target='_blank' href='https://trustseal.enamad.ir/?id=696411&Code=oyQ6picRwm2lLEPobQWLuNSW37WIf7mV'>" +
+  "<img referrerpolicy='origin' src='https://trustseal.enamad.ir/logo.aspx?id=696411&Code=oyQ6picRwm2lLEPobQWLuNSW37WIf7mV' " +
+  "alt='نماد اعتماد الکترونیکی' style='cursor:pointer' code='oyQ6picRwm2lLEPobQWLuNSW37WIf7mV'></a>";
+
 // --- the strip under the footer ----------------------------------------------
 //
 // «پایین فوتر اون کارتها باید کامل حذف بشن و کپی رایت هم به فارسی نوشته بشه
@@ -2975,12 +2983,28 @@ html = html.replace(
 // the word Erna linked to the template's own demo page — the shop's own footer
 // crediting somebody else's product, in English, on a Persian site.
 //
-// What is left is one line in the shop's own language, centred because it is
-// now the only thing on the strip.
+// What is left is the shop's own line, and — since the shop has one — the
+// نماد اعتماد الکترونیکی above it.
+//
+// **The seal is eNamad's own markup, kept as they issue it.** The `code`
+// attribute on the image, both `referrerpolicy='origin'`s and the two query
+// strings are not decoration: eNamad's own script reads the code, and their
+// check requires the image to be fetched from *their* server, from a page
+// whose referrer is this domain. A copy of the picture served from our own
+// assets would look identical and count as not installed. So the one thing
+// changed is `alt`, which arrives empty and now names the seal for a screen
+// reader.
+//
+// It is the one image on this site that is not ours and cannot be made local.
+// `tweaks.css` therefore reserves its box, so the strip is the same height
+// whether or not enamad.ir answers — see the block by `.vp-enamad`.
 html = html.replace(
   /<div class="copyright-wrap">[\s\S]*?<\/footer>/,
   '<div class="copyright-wrap">\n' +
   '            <div class="container th-container5">\n' +
+  '                <div class="vp-enamad">\n' +
+  '                    ' + ENAMAD + '\n' +
+  '                </div>\n' +
   '                <p class="copyright-text">تمامی حقوق این وب‌سایت متعلق به ویکی پلاس است.</p>\n' +
   '            </div>\n' +
   '        </div>\n' +

@@ -11762,6 +11762,35 @@ body.vp-prize-open .vp-whatsapp {
   }
 }
 
+.vp-enamad {
+  display: flex;
+  justify-content: flex-start;
+  padding-bottom: 14px;
+}
+
+@media (max-width: 991.98px) {
+  .vp-enamad {
+    justify-content: center;
+  }
+}
+
+.vp-enamad a {
+  display: block;
+  box-sizing: border-box;
+  width: 90px;
+  height: 90px;
+  padding: 6px;
+  border-radius: 12px;
+  background: #FFFFFF;
+}
+
+.vp-enamad img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
 :root {
   --vp-design: ok;
 }

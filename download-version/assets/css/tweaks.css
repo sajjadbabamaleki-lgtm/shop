@@ -20866,6 +20866,68 @@ body.vp-prize-open .vp-whatsapp {
   }
 }
 
+/* --------------------------------------------------------------------------
+   THE نماد اعتماد الکترونیکی, ON THE BASEBOARD
+
+   The shop has an eNamad seal and now shows it, on the strip under the footer
+   — the same strip the copyright line sits on, which is on every page.
+
+   **This is the only image on the site that is not ours and cannot be made
+   local.** eNamad's check requires the picture to be fetched from their own
+   server, so `trustseal.enamad.ir` is a third party this page depends on for
+   one image, and third parties are sometimes down. The box is therefore
+   reserved in CSS: 90px square, `object-fit: contain` so a seal that is not
+   square is not stretched. The strip is the same height whether the image
+   arrives or not, and a failure costs a blank square rather than a footer that
+   jumps under somebody's thumb as they reach for a link.
+
+   90 rather than the seal's own size because nothing here can measure it — the
+   image cannot be fetched from this container. If it turns out to want more
+   room, this is the one number to change.
+
+   **It follows the copyright line rather than being placed on its own.** That
+   line is `text-align: start` from 992 up and `center` below it — measured,
+   not assumed — so the seal sits at the right edge on a desktop and centred on
+   a phone. Centring it at every width would have left the two things on this
+   strip disagreeing about where the strip's edge is.
+   -------------------------------------------------------------------------- */
+
+.vp-enamad {
+  display: flex;
+  justify-content: flex-start;
+  padding-bottom: 14px;
+}
+
+@media (max-width: 991.98px) {
+  .vp-enamad {
+    justify-content: center;
+  }
+}
+
+/* A white plate under it, and that is a decision rather than a default.
+
+   The strip is the gold baseboard, and eNamad's seal is issued with its own
+   pale ground — dropped straight onto the gold it would read as a stray white
+   rectangle somebody forgot to style. On a plate of its own, with the page's
+   own corner language, it reads as something the shop put there. 90px overall
+   either way: the padding is inside the reserved box, so nothing moves. */
+.vp-enamad a {
+  display: block;
+  box-sizing: border-box;
+  width: 90px;
+  height: 90px;
+  padding: 6px;
+  border-radius: 12px;
+  background: #FFFFFF;
+}
+
+.vp-enamad img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
 :root {
   --vp-design: ok;
 }
