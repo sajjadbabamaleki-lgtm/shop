@@ -21006,6 +21006,70 @@ body.vp-prize-open .vp-whatsapp {
   font-family: 'Vazirmatn', var(--body-font);
 }
 
+/* --------------------------------------------------------------------------
+   «قبل از پرداخت» — the word about the VPN, on the order page
+
+   «کاربر وقتی وارد آخرین صفحه قبل از رفتن به لینک پرداخت میشه باید تو یه پاپاپ
+   بهش بگی اگه فیلترشکنش روشنه خاموش کنه». The reason it is worth a modal
+   rather than a line of text: a shopper whose VPN is on does not get a message
+   from the bank, they get a page that will not open or a payment that dies in
+   the middle — and the middle one costs them money while leaving the order
+   unpaid.
+
+   **Its materials are the phone filter sheet's, quoted rather than re-chosen**
+   — scrim `rgba(16,17,17,0.45)` under a 6px blur, a white island 12px off the
+   sides, a 22px corner and `0 26px 60px -24px` under it, lifted 7vh off dead
+   centre because «پاپاپ ها خیلی بالان بهتره بیان پایینتر وسط قرار بگیرن» was
+   settled there. If those numbers ever move, they move here too.
+
+   **What is not the sheet's is the width and the media query.** The sheets are
+   phone-only and stretch to the screen; this arrives at every width, so it
+   takes a `max-width` and centres — a 22px island stretched across a desktop
+   reads as a bar, not as a card. And `::backdrop` does the scrim rather than a
+   div, because a `<dialog>` draws its own and a second one would sit under it.
+   -------------------------------------------------------------------------- */
+
+.vp-vpn {
+  width: calc(100% - 24px);
+  max-width: 420px;
+  margin: auto;
+  padding: 18px;
+  border: 0;
+  border-radius: 22px;
+  background: #FFFFFF;
+  box-shadow: 0 26px 60px -24px rgba(16, 17, 17, 0.55);
+  transform: translateY(-7vh);
+  color: var(--body-color);
+}
+
+.vp-vpn::backdrop {
+  background: rgba(16, 17, 17, 0.45);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+
+.vp-vpn-title {
+  margin: 0 0 8px;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 700;
+  font-size: 17px;
+  color: #101111;
+}
+
+.vp-vpn-say {
+  margin: 0 0 16px;
+  font-size: 14px;
+  line-height: 2;
+}
+
+/* The button is the page's own — the same gold ramp as «پرداخت» under it, so
+   the two read as one step rather than as two different kinds of action. It is
+   inside a `<form method="dialog">`, which closes the dialog with no script at
+   all; the script above the markup only has to open it. */
+.vp-vpn-ok {
+  margin-top: 0;
+}
+
 :root {
   --vp-design: ok;
 }

@@ -454,6 +454,34 @@ class PaymentTest extends TestCase
             ->assertSee('پرداخت اینترنتی همین حالا در دسترس نیست');
     }
 
+    /**
+     * **The word about the VPN, on the page that leaves the site.**
+     *
+     * «اگه فیلترشکنش روشنه خاموش کنه تا در مراحل ثبت سفارش و پرداخت اختلال
+     * ایجاد نشه». An Iranian card gateway is reached from inside Iran, and a
+     * shopper who arrives at it through a VPN meets either a page that will not
+     * open or a payment that dies half way — and the half-way one moves their
+     * money without settling the order.
+     *
+     * It belongs to the state rather than to the page: an order with nothing
+     * left to pay must not be interrupted by advice about paying.
+     */
+    public function test_an_unpaid_order_warns_about_a_vpn_and_a_paid_one_does_not(): void
+    {
+        $order = $this->order();
+
+        $this->holding($order)->get("/orders/{$order->number}")
+            ->assertOk()
+            ->assertSee('قبل از پرداخت')
+            ->assertSee('فیلترشکن (VPN)', false);
+
+        $order->update(['status' => Order::PAID, 'payment_status' => 'paid']);
+
+        $this->holding($order)->get("/orders/{$order->number}")
+            ->assertOk()
+            ->assertDontSee('فیلترشکن', false);
+    }
+
     // --- the address they come back to -------------------------------------
 
     /**

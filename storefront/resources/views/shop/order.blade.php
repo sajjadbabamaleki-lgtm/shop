@@ -50,6 +50,51 @@
                             پرداخت {{ toman($order->grand_total) }} تومان
                         </button>
                     </form>
+
+                    {{-- «اگه فیلترشکنش روشنه خاموش کنه تا در مراحل ثبت سفارش و
+                         پرداخت اختلال ایجاد نشه» — said about this page, which
+                         is the last one the shopper sees before the bank's.
+
+                         **Here rather than at checkout**, because this is the
+                         step that leaves the site: an Iranian card gateway is
+                         reached from inside Iran, and a shopper whose VPN is on
+                         meets either a page that will not open or a payment
+                         that dies half way — and the half-way one is the
+                         expensive kind, because their money has moved and the
+                         order has not.
+
+                         A `<dialog>` rather than the shop's own `<details>`
+                         sheets: those are phone-only and they are filters,
+                         which a person opens. This one has to arrive by itself,
+                         at every width, and take the keyboard with it — which
+                         `showModal()` does and nothing else here does. With no
+                         script it simply never opens: the page and its pay
+                         button behave exactly as they did before, which is the
+                         right way for an advisory to fail. --}}
+                    <dialog class="vp-vpn" id="vp-vpn" aria-labelledby="vp-vpn-title">
+                        <h2 class="vp-vpn-title" id="vp-vpn-title">قبل از پرداخت</h2>
+                        <p class="vp-vpn-say">
+                            اگر فیلترشکن (VPN) روشن است، خاموشش کن و بعد پرداخت را بزن.
+                            درگاه بانکی با فیلترشکن ممکن است باز نشود یا وسط کار قطع شود.
+                        </p>
+                        <form method="dialog">
+                            <button class="vp-filter-apply vp-cart-go vp-vpn-ok" autofocus>متوجه شدم</button>
+                        </form>
+                    </dialog>
+
+                    <script>
+                        // Next to the dialog rather than in the shared script
+                        // file: that one is generated from the static page and
+                        // runs at the foot of the document, and this has to be
+                        // armed the moment the element exists.
+                        (function () {
+                            var box = document.getElementById('vp-vpn');
+
+                            if (box && typeof box.showModal === 'function') {
+                                box.showModal();
+                            }
+                        }());
+                    </script>
                 @else
                     <p class="vp-note">سفارشت ثبت شد و کالاها برایت کنار گذاشته شده. پرداخت اینترنتی همین حالا در دسترس نیست؛ برای هماهنگی پرداخت با پشتیبانی تماس بگیر.</p>
                 @endif

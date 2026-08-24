@@ -11813,6 +11813,43 @@ body.vp-prize-open .vp-whatsapp {
   font-family: 'Vazirmatn', var(--body-font);
 }
 
+.vp-vpn {
+  width: calc(100% - 24px);
+  max-width: 420px;
+  margin: auto;
+  padding: 18px;
+  border: 0;
+  border-radius: 22px;
+  background: #FFFFFF;
+  box-shadow: 0 26px 60px -24px rgba(16, 17, 17, 0.55);
+  transform: translateY(-7vh);
+  color: var(--body-color);
+}
+
+.vp-vpn::backdrop {
+  background: rgba(16, 17, 17, 0.45);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+
+.vp-vpn-title {
+  margin: 0 0 8px;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 700;
+  font-size: 17px;
+  color: #101111;
+}
+
+.vp-vpn-say {
+  margin: 0 0 16px;
+  font-size: 14px;
+  line-height: 2;
+}
+
+.vp-vpn-ok {
+  margin-top: 0;
+}
+
 :root {
   --vp-design: ok;
 }
