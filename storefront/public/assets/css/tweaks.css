@@ -1006,7 +1006,7 @@ option:hover {
 
 @media (min-width: 992px) {
   .heroSlide6 .hero-inner {
-    padding-block: max(22.5px, 1.44vw);
+    padding-block: max(10.1px, 0.65vw);
   }
 }
 

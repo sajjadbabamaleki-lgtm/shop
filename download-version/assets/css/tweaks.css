@@ -1625,27 +1625,33 @@ option:hover {
    at 1920. A `min-height` would lift the first regime and do nothing to the
    second, so the wider the screen the less of the ten per cent would arrive.
 
-   So the padding is `max(22.5px, 1.44vw)`, which is the two regimes written as
-   one line: 22.5 is a tenth of 450.4 halved, and it holds wherever the writing
-   column is the tallest thing; 1.44vw is a twentieth of the photograph column's
-   own height, and it takes over exactly where the photograph does. Measured
-   after, against the heights before:
+   So the padding is written as two regimes in one line: a pixel figure that
+   holds wherever the writing column is the tallest thing, and a `vw` figure
+   that takes over exactly where the photograph does.
 
-     1200   450.4 → 495.4   (+10.0%)
-     1440   450.4 → 495.4   (+10.0%)
-     1600   450.4 → 496.5   (+10.2%)
-     1800   510.0 → 561.8   (+10.2%)
-     1920   551.6 → 606.9   (+10.0%)
+   **The ten per cent came back down by five.** «ارتفاع هیرو باید ده درصد
+   بلندتر بشه», then «باید ۵ درصد کوتاهتر بشه» once it was on the screen — five
+   per cent off what the first change produced, which leaves the card 4.5%
+   taller than it was before either. `max(22.5px, 1.44vw)` became
+   `max(10.1px, 0.65vw)`; the shape of the rule is unchanged, both numbers are
+   the same fraction of it. Measured, against the height this started at:
+
+     width   was      +10% was    now      net
+     1200    450.4    495.4       470.6    +4.5%
+     1440    450.4    495.4       470.6    +4.5%
+     1600    450.4    496.5       471.2    +4.6%
+     1800    510.0    561.8       533.4    +4.6%
+     1920    551.6    606.9       576.6    +4.5%
 
    No breakpoints, and it keeps its proportion on a screen nobody here has. The
-   contents stay centred — the rule above sees to that — so the ten per cent is
-   air around the shoe rather than a shoe pushed down.
+   contents stay centred — the rule above sees to that — so the change is air
+   around the shoe rather than a shoe pushed about.
 
    Desktop only, as asked: below 992 the card is a different shape and the
    phone was not part of the instruction. */
 @media (min-width: 992px) {
   .heroSlide6 .hero-inner {
-    padding-block: max(22.5px, 1.44vw);
+    padding-block: max(10.1px, 0.65vw);
   }
 }
 
