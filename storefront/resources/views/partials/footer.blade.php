@@ -11,9 +11,9 @@
                 <p class="vp-foot-m-line"><i class="fa-solid fa-location-dot" aria-hidden="true"></i><span>تهران، سعدی شمالی، روبه‌روی بانک ملی، پلاک ۵۶۵</span></p>
                 <p class="vp-foot-m-line"><i class="fa-solid fa-phone" aria-hidden="true"></i><a href="tel:02133983125">021-3398-3125</a></p>
                 <div class="vp-foot-m-social">
-                    <a class="vp-foot-m-soc is-instagram" href="#" aria-label="Instagram"><i class="fa-brands fa-instagram" aria-hidden="true"></i></a>
-                    <a class="vp-foot-m-soc is-telegram" href="#" aria-label="تلگرام"><i class="fa-brands fa-telegram" aria-hidden="true"></i></a>
-                    <a class="vp-foot-m-soc is-whatsapp" href="https://wa.me/989918905993" aria-label="واتساپ"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i></a>
+                    <a class="vp-foot-m-soc is-instagram" href="#" aria-label="Instagram"><img class="vp-foot-m-soc-mark" src="{{ asset('assets/img/social/instagram.svg') }}" alt="" width="24" height="24"></a>
+                    <a class="vp-foot-m-soc is-telegram" href="#" aria-label="تلگرام"><img class="vp-foot-m-soc-mark" src="{{ asset('assets/img/social/telegram.svg') }}" alt="" width="26" height="26"></a>
+                    <a class="vp-foot-m-soc is-whatsapp" href="https://wa.me/989918905993" aria-label="واتساپ"><img class="vp-foot-m-soc-mark" src="{{ asset('assets/img/social/whatsapp.svg') }}" alt="" width="24" height="24"></a>
                     <a class="vp-foot-m-soc is-bale" href="#" aria-label="بله"><img class="vp-foot-m-soc-mark" src="{{ asset('assets/img/social/bale.png') }}" alt="" width="26" height="26"></a>
                     <a class="vp-foot-m-soc is-rubika" href="#" aria-label="روبیکا"><img class="vp-foot-m-soc-mark" src="{{ asset('assets/img/social/rubika.png') }}" alt="" width="26" height="26"></a>
                 </div>

@@ -11081,6 +11081,9 @@ button.vp-cart-keep {
     width: 42px;
     height: 42px;
     border-radius: 12.65px;
+    /* Nothing in here is type any more — all five marks are images — but the
+       tile keeps a colour and a size for the day somebody puts a glyph back
+       into the row and expects it to look like its neighbours. */
     font-size: 27px;
     line-height: 1;
     color: #FFFFFF;
@@ -11098,41 +11101,25 @@ button.vp-cart-keep {
     color: #FFFFFF;
   }
 
-  /* The glyph sits three quarters of a pixel low, and this puts it back.
+  /* **The row is five images now, and that is what ended the centring.**
 
-     «چرا لوگوی تلگرام اینستاگرام و واتسپ تو قابشون اونقد کوچیک هستن و وسط هم
-     نیستن» — both halves of that are real and both were measured. The size is
-     the `font-size` above, raised from 19; this is the centring.
+     These three were Font Awesome glyphs and would not sit still: a glyph
+     rides a baseline inside a line box, `line-height: 1` makes that box
+     shorter than the font's own metrics, and where the ink then lands is the
+     engine's rounding. Measured on one build: Chromium put them exactly on the
+     tile's centre, WebKit put them 1.0–1.2px above it. A single `translateY`
+     could only be right on one of the two, which is what «وسط نیست» twice
+     looks like from the inside.
 
-     `align-items: center` centres the icon's *line box*, and a line box is
-     type, so it carries the room a descender would need. The ink inside it
-     does not sit in the middle of that room. Measured at 390 with the tile
-     masked to its own rounded corners, the ink's centre was 0.75px below the
-     tile's at every one of the three, which is why the row read as slightly
-     low rather than as one icon being wrong.
+     `theme/make-brand-marks.js` cuts the same three shapes out of the same
+     font file, with the ink's own bounding box as the viewBox — so the file's
+     edges are the mark's edges, `align-items: center` centres the mark itself,
+     and no baseline is involved anywhere. Measured after, at 390: every offset
+     0.00 or −0.13px, which is half a device pixel, the same as بله and روبیکا.
 
-     A transform rather than a margin: the tile is a flex box and a margin here
-     would move the box the centring is computed from, which puts the number
-     back where it started.
-
-     **The number is 0.25 and not 0.75, because the two renderers disagree.**
-     0.75 was measured in Chromium, where it centred the ink exactly. The
-     client then photographed the live row on their phone and the same three
-     glyphs read 1.0–1.2px *high* — measured off that photograph, all three
-     agreeing. Which puts this font's glyph about a pixel higher in WebKit than
-     in Chromium for the same rule: the glyph sits on a baseline inside a line
-     box, `line-height: 1` makes that box shorter than the font's own metrics,
-     and how a shortened box's half-leading rounds is exactly the kind of thing
-     two engines do differently.
-
-     A constant cannot be right on both. 0.25 splits it: half a pixel out on
-     each, instead of nothing on one and over a pixel on the other. If it ever
-     has to be exact on both, the answer is not another number here — it is
-     making these three images like بله and روبیکا beside them, where the
-     geometry is the file's and no baseline is involved. */
-  .vp-foot-m-soc i {
-    transform: translateY(-0.25px);
-  }
+     The sizes are the ones the font was drawing — 448 and 496 units of a
+     512-unit em at 27px — so the row's *size* is unchanged and only its
+     centring moved. */
 
   .vp-foot-m-soc.is-telegram { background: #2AABEE; }
   .vp-foot-m-soc.is-instagram { background: linear-gradient(135deg, #F9CE34, #EE2A7B 55%, #6228D7); }
@@ -11168,6 +11155,22 @@ button.vp-cart-keep {
     width: 26px;
     height: 26px;
     object-fit: contain;
+  }
+
+  /* واتساپ and اینستاگرام are 448 units of the font's 512-unit em where تلگرام
+     is 496, and at 27px that was 23.6 against 26.2. Kept, rather than levelled
+     to one number: that is the size the row has had since «اونقد کوچیک هستن»
+     was settled, and a circle and a rounded square do not read as one size
+     when they are drawn as one size. */
+  .vp-foot-m-soc.is-whatsapp .vp-foot-m-soc-mark,
+  .vp-foot-m-soc.is-instagram .vp-foot-m-soc-mark {
+    width: 23.6px;
+    height: 23.6px;
+  }
+
+  .vp-foot-m-soc.is-telegram .vp-foot-m-soc-mark {
+    width: 26.2px;
+    height: 26.2px;
   }
 
   /* Three columns side by side, as narrow as they need to be. `1fr` each

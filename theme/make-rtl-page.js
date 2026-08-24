@@ -3126,9 +3126,18 @@ const FOOT_SOCIAL = [
   // fails that test — which is the guard doing its job, not a false alarm, so
   // the label moves rather than the test. «Instagram» is how the service is
   // said in Persian anyway.
-  ['instagram', 'Instagram', '#', '<i class="fa-brands fa-instagram" aria-hidden="true"></i>'],
-  ['telegram', 'تلگرام', '#', '<i class="fa-brands fa-telegram" aria-hidden="true"></i>'],
-  ['whatsapp', 'واتساپ', 'https://wa.me/989918905993', '<i class="fa-brands fa-whatsapp" aria-hidden="true"></i>'],
+  // **Images, not glyphs, and that was a decision with a measurement behind
+  // it.** These three were `<i class="fa-brands …">` until the same complaint
+  // arrived twice: a glyph sits on a baseline, `line-height: 1` shortens the
+  // line box below the font's own metrics, and where the ink lands is then the
+  // engine's rounding — Chromium centred them exactly while WebKit drew them
+  // 1.0–1.2px high, on one build, measured both ways. `make-brand-marks.js`
+  // cuts the same shapes out of the same font file the browser was drawing
+  // them from, with the ink's bounding box as the viewBox, so the file's edges
+  // are the mark's edges and centring the image centres the mark everywhere.
+  ['instagram', 'Instagram', '#', '<img class="vp-foot-m-soc-mark" src="assets/img/social/instagram.svg" alt="" width="24" height="24">'],
+  ['telegram', 'تلگرام', '#', '<img class="vp-foot-m-soc-mark" src="assets/img/social/telegram.svg" alt="" width="26" height="26">'],
+  ['whatsapp', 'واتساپ', 'https://wa.me/989918905993', '<img class="vp-foot-m-soc-mark" src="assets/img/social/whatsapp.svg" alt="" width="24" height="24">'],
   // The client sent these two as photographs of the logos; `make-social-marks.js`
   // lifts them off their grey ground and writes the two files below. They were
   // a chat bubble and the letter R until then — see the note beside
