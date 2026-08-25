@@ -3340,3 +3340,77 @@ pushes something off the side.
 
 634 tests, Pint clean, parity identical at 992/1200/1440/1920, no sideways
 scroll at 390/768/1200/1920.
+
+## Two force-majeure jobs: an owner's account, and a phone that knows
+
+### «مالک شرکت» — `Role::OWNER`
+
+The shop already had `super-admin`, whose own comment calls it «the platform's
+owner» and which answers yes to every permission. «مالک شرکت» is that power
+under the name the client uses.
+
+**Two slugs and not one, because they are two titles.** Renaming `super-admin`
+would have relabelled everybody already holding it; granting the company's
+owner `super-admin` would have filed them under a word that describes an
+administrator. What is *not* duplicated is the mechanism: `Role::FULL_ACCESS`
+is the single list both are read from, by `Role::grants()` and by
+`User::isSuperAdmin()`. **Two lists of roles that can do anything is how one of
+them gets missed** the next time a permission is invented.
+
+It is in the seeder *and* in a migration. The seeder is for a fresh install and
+for the tests; the migration is what puts the row on the live database, because
+production is not a fresh install and a seeder edited there ships green and
+changes nothing (CLAUDE.md).
+
+**The migration grants it to nobody.** An account with power over other
+people's orders is granted deliberately, by name, with a password nothing
+stores:
+
+    php artisan staff:invite <email> "<name>" --role=owner
+
+### The sign-in alert
+
+«وقتی هرکسی با هر عنوانی وارد پنل ادمین میشه یه اس ام اس برای این شماره بره».
+
+`App\Listeners\TellTheOwnerSomebodySignedIn`, on `Illuminate\Auth\Events\Login`.
+
+**On the event, not in the controller.** `SessionController@store` is one way
+into the panel and not the only one — a remember-me cookie signs somebody in
+with no form posted at all — so a hook in the controller would miss precisely
+the arrival nobody watched happen. Registered by name in `AppServiceProvider`
+rather than left to event discovery, which this application does not switch on:
+a listener that runs because of where its file sits stops running when somebody
+moves it, and nothing goes red.
+
+**Filtered to the `web` guard.** Shoppers are `customer`, and there are meant to
+be thousands of them; without that line this feature is a text message for every
+sign-in the shop has.
+
+Three decisions worth keeping:
+
+- **It cannot break a sign-in.** The `Sender` contract already forbids throwing
+  for an ordinary refusal, but a DNS failure or a timeout is not an ordinary
+  refusal. It is wrapped, and the failure goes to the log. A panel nobody can
+  reach because a gateway is down is a far worse outage than a missing
+  notification, and `test_a_sender_that_throws_does_not_break_the_sign_in` is
+  what says so.
+- **The same person twice in two minutes is one message.** One act of signing
+  in is one event, so this is not normally reached; it is for a remember-me
+  cookie landing beside a form post. Short enough that a second person cannot
+  hide inside it — and `test_two_people_are_two_messages` pins that half.
+- **The number is config, not a constant.** `SMS_ALERT_TO`, defaulting to the
+  number the client gave so the feature works the moment it deploys. Setting it
+  to nothing switches the alert off from the Liara panel with no deploy.
+
+The message a phone receives:
+
+    مالک شرکت «علی امامی» وارد پنل مدیریت ویکی پلاس شد.
+    ۳ شهریور ۱۴۰۵، ۱۱:۰۳
+
+The role's Persian name is read off the role row, so «هر عنوانی» really is any
+title — a franchise manager arriving says so in their own words. The parts are
+passed to `send()` as `$args` beside the sentence, so the day this shop moves to
+a provider that sends approved patterns instead of free text, nothing here has
+to be rewritten.
+
+642 tests, Pint clean.

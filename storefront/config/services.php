@@ -98,6 +98,16 @@ return [
         // shared «۹۹۹۹» lines do, which is what SMS_PATTERN is for.
         'from' => env('SMS_FROM'),
         'pattern' => env('SMS_PATTERN'),
+        /*
+         | Where the «somebody signed in to the panel» message goes.
+         |
+         | Not a secret — it is the shop's own number — so it has a default
+         | and the feature works the moment it deploys. It is still `env()`
+         | so the owner can be changed, or the alert switched off entirely by
+         | setting SMS_ALERT_TO to nothing, from the Liara panel without a
+         | deploy. Empty means send nothing; see the listener.
+         */
+        'alert_to' => env('SMS_ALERT_TO', '09121161311'),
     ],
 
     /*

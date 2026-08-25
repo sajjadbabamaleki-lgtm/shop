@@ -29,6 +29,9 @@ class Role extends Model
     /** The roles code refers to by name. Seeded, and not renameable away. */
     public const SUPER_ADMIN = 'super-admin';
 
+    /** «مالک شرکت» — the person who owns the business, not its software. */
+    public const OWNER = 'owner';
+
     public const ADMIN = 'admin';
 
     public const MARKETPLACE_MANAGER = 'marketplace-manager';
@@ -71,13 +74,31 @@ class Role extends Model
     }
 
     /**
-     * Super admin is the one role that answers yes to everything, so a
-     * permission added tomorrow does not lock the platform's owner out of it
-     * until somebody remembers to grant it.
+     * The roles that answer yes to everything.
+     *
+     * **One list, because two mechanisms for «can do anything» is how one of
+     * them gets forgotten.** A permission added tomorrow must not lock the
+     * people who own the business out of it until somebody remembers to grant
+     * it — that was already true of `super-admin`, and «مالک شرکت» is the same
+     * claim in the client's own words rather than a second kind of power.
+     *
+     * They are two slugs and not one because they are two *titles*: renaming
+     * `super-admin` to «مالک شرکت» would have relabelled everybody already
+     * holding it, and giving the owner `super-admin` would have put the
+     * company's owner under a name that describes an administrator.
+     *
+     * @var list<string>
+     */
+    public const FULL_ACCESS = [self::SUPER_ADMIN, self::OWNER];
+
+    /**
+     * Super admin and the owner are the roles that answer yes to everything,
+     * so a permission added tomorrow does not lock them out of it until
+     * somebody remembers to grant it.
      */
     public function grants(string $permission): bool
     {
-        if ($this->slug === self::SUPER_ADMIN) {
+        if (in_array($this->slug, self::FULL_ACCESS, true)) {
             return true;
         }
 

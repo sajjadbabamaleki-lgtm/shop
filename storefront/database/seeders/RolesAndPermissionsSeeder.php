@@ -88,6 +88,16 @@ class RolesAndPermissionsSeeder extends Seeder
             'scope' => Role::SCOPE_PLATFORM,
             'permissions' => [],
         ],
+        // «مالک شرکت» — the person who owns the business. Same power as the
+        // super admin and a different word for it: see `Role::FULL_ACCESS`,
+        // which is the single list both are read from. No permissions listed
+        // for the same reason super admin has none — it is granted everything
+        // by that list, so a permission invented next month is already theirs.
+        Role::OWNER => [
+            'name' => 'مالک شرکت',
+            'scope' => Role::SCOPE_PLATFORM,
+            'permissions' => [],
+        ],
         Role::ADMIN => [
             'name' => 'مدیر',
             'scope' => Role::SCOPE_PLATFORM,

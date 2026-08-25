@@ -2,11 +2,14 @@
 
 namespace App\Providers;
 
+use App\Listeners\TellTheOwnerSomebodySignedIn;
 use App\Models\Category;
 use App\Models\Product;
 use App\Support\Checkout\CartManager;
 use App\Support\FrontPage;
 use App\Support\Tenancy\TenantContext;
+use Illuminate\Auth\Events\Login;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -28,6 +31,19 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        /*
+         * A text message to the owner every time somebody signs in to the
+         * panel.
+         *
+         * Registered by name rather than left to event discovery, which this
+         * application does not switch on: a listener that runs because of
+         * where its file happens to sit is a listener that stops running when
+         * somebody moves it, and nothing would go red. The same reason the SMS
+         * driver is named in a map instead of guessed from which credentials
+         * are filled in.
+         */
+        Event::listen(Login::class, TellTheOwnerSomebodySignedIn::class);
+
         /*
          * The header's basket badge.
          *

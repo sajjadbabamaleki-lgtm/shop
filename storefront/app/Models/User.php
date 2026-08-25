@@ -59,9 +59,16 @@ class User extends Authenticatable
         return $this->roles->contains('slug', $slug);
     }
 
+    /**
+     * Whether this account is one of the ones that can do anything.
+     *
+     * Reads `Role::FULL_ACCESS` rather than naming `super-admin`, so the owner
+     * role added beside it is covered here too. Two lists of god-roles is how
+     * one of them gets missed.
+     */
     public function isSuperAdmin(): bool
     {
-        return $this->hasRole(Role::SUPER_ADMIN);
+        return $this->roles->contains(fn (Role $role) => in_array($role->slug, Role::FULL_ACCESS, true));
     }
 
     /**

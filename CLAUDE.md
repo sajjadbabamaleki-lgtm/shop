@@ -225,6 +225,27 @@ the client saw an old page and had no way to tell why. So, plainly:
   that writes `branch_inventory` is a bug waiting to be an oversell. Every
   movement is also a row in `inventory_movements`, so a shelf can explain
   itself.
+- **Every sign-in to the panel puts a text message on the owner's phone.**
+  `TellTheOwnerSomebodySignedIn`, on Laravel's `Login` event rather than in
+  `SessionController` — a remember-me cookie signs somebody in with no form
+  posted, so a listener on the controller would miss exactly the arrival nobody
+  watched happen. **Filtered to the `web` guard**: shoppers are `customer` and
+  there are meant to be thousands of them. The number is
+  `services.sms.alert_to` (`SMS_ALERT_TO`), and setting it to nothing switches
+  the feature off from the Liara panel with no deploy. It is wrapped in
+  `try/catch` on purpose — the `Sender` contract forbids throwing for an
+  ordinary refusal, but a timeout is not one, and a panel nobody can reach
+  because an SMS gateway is down is a worse outage than a missing notification.
+  `SignInAlertTest` holds the cases that matter: a refused password sends
+  nothing, a shopper sends nothing, and a sender that throws still signs the
+  user in.
+- **«مالک شرکت» is `Role::OWNER`, and it answers yes to everything.**
+  `Role::FULL_ACCESS` is the one list of roles that do — `super-admin` and
+  `owner` — read by both `Role::grants()` and `User::isSuperAdmin()`. Two lists
+  of god-roles is how one of them gets missed when a permission is added. They
+  are two slugs and not one because they are two *titles*: renaming
+  `super-admin` would have relabelled everybody already holding it. Granted by
+  `php artisan staff:invite <email> "<name>" --role=owner`, never by a form.
 - **Two sign-ins, two guards.** Staff are `web` at `/admin/login`; shoppers are
   `customer` at `/account/enter`. Every staff route says `auth:web` explicitly —
   the bare `auth` means "whichever guard is default", which is a runtime value.
