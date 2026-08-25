@@ -2398,6 +2398,10 @@ a.vp-adm-mini {
      two classes, because they are not the only headings in the panel and the
      next one added would arrive invisible with nothing to say why. */
   --title-color: #F2EFE7;
+  /* The paragraph twin of the line above, and found the same way: a <p>
+     in the panel takes the shop's body colour, not the panel's ink, so
+     `.vp-adm-note` came out #6E7070 on black — 4.21:1. */
+  --body-color: #A39C8C;
 
   /* The gold ramp is the one thing that does not change: it is the shop's
      mark and it was chosen to sit on light *and* dark — see «گلد سبز», where
@@ -2412,7 +2416,14 @@ a.vp-adm-mini {
      on #1B1B18 the originals run 2.1–3.4:1. These are the same hues with the
      lightness taken up until each clears 4.5:1 against the card it sits on. */
   --adm-good: #4ECB8B;
-  --adm-save: #5FC945;
+  /* **Not lifted, and that is the point.** The other four here are used as
+     *text* on a wash, where a dark ground calls for a lighter hue. This one is
+     a fill with white on it — the client's own «از این سبز استفاده کن توشم با
+     سفید بنویس» — and lifting a fill makes the white on it worse, not better:
+     measured, #44AD2C is 2.89:1 and the lifted #5FC945 was 2.12. So it keeps
+     the colour that was chosen. «گلد سبز» is the same lesson in the other
+     direction: text is not a fill. */
+  --adm-save: #44AD2C;
   --adm-warn: #E0A44A;
   --adm-bad: #F2685E;
   --adm-info: #6BA6F0;
@@ -2453,12 +2464,23 @@ a.vp-adm-mini {
   --adm-sunk: #1C1C1C;
   --adm-sunk-2: #181818;
   --title-color: #F2EFE7;
+  /* The paragraph twin of the line above, and found the same way: a <p>
+     in the panel takes the shop's body colour, not the panel's ink, so
+     `.vp-adm-note` came out #6E7070 on black — 4.21:1. */
+  --body-color: #A39C8C;
 
   --adm-gold-ink: #EFC94F;
   --adm-gold-wash: #2A2410;
 
   --adm-good: #4ECB8B;
-  --adm-save: #5FC945;
+  /* **Not lifted, and that is the point.** The other four here are used as
+     *text* on a wash, where a dark ground calls for a lighter hue. This one is
+     a fill with white on it — the client's own «از این سبز استفاده کن توشم با
+     سفید بنویس» — and lifting a fill makes the white on it worse, not better:
+     measured, #44AD2C is 2.89:1 and the lifted #5FC945 was 2.12. So it keeps
+     the colour that was chosen. «گلد سبز» is the same lesson in the other
+     direction: text is not a fill. */
+  --adm-save: #44AD2C;
   --adm-warn: #E0A44A;
   --adm-bad: #F2685E;
   --adm-info: #6BA6F0;
