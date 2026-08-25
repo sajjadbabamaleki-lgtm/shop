@@ -13390,6 +13390,47 @@ button.vp-cart-keep {
   background: #FFFFFF;
 }
 
+/* --------------------------------------------------------------------------
+   AND THE DRAWER'S CARDS KEEP THE PHONE'S FORM AT EVERY WIDTH
+
+   «چرا دورشون اون شکلیه چرا به هم چسبیدن؟ باید مث نسخه موبایل باشه فرمشون».
+
+   Measured, phone against desktop, with two things in the basket:
+
+     390   radius 20px   no divider     card 103 tall
+     1440  radius 0      inset hairline card 132 tall
+
+   The soft card is written in the `max-width: 991.98px` block far below, whose
+   own note says why it stops there: «the desktop basket is a table-shaped
+   thing where ruled rows are right». That is true of the basket *page*, which
+   is a wide table of rows. It was never true of this drawer, which is a
+   narrow column of things — the same column the phone draws — and above 992 it
+   was falling back to the ruled rows meant for the page.
+
+   So the drawer takes the phone's form at every width. Scoped to
+   `.sidemenu-cart`, so the page keeps its rows.
+
+   **`--vp-cart-pad` moves with the padding, and has to.** The bin, the compare
+   mark and the stepper are placed against the card by arithmetic on that
+   variable; setting `padding` to 12 and leaving the variable at 18 would hang
+   the stepper 6px below the photograph it is meant to be level with. That is
+   the exact fault the variable was introduced to stop — see its own note.
+   -------------------------------------------------------------------------- */
+.sidemenu-cart .vp-cart-line {
+  --vp-cart-pad: 12px;
+
+  padding: 12px;
+  border-radius: 20px;
+  box-shadow: none;
+}
+
+/* A line the shop cannot supply keeps its mark. It is the one rule here that
+   carries meaning rather than dividing anything, so it survives the shadow
+   being taken away — the same exception the phone block makes. */
+.sidemenu-cart .vp-cart-line.is-short {
+  box-shadow: inset 3px 0 0 var(--theme-color);
+}
+
 /* Flat #EBEBEB, not a translucent white — the tile sits directly on
    `.vp-cart-line`, which this same block just made a full opaque #FFFFFF, so
    an *alpha* 92% white here composites straight back to 255 255 255 with
