@@ -20,13 +20,13 @@
                             <nav class="main-menu d-none d-lg-inline-block">
                                 <ul>
                                     <li><a href="{{ page_url('shop.html') }}">فروشگاه</a></li>
+                                    <li><a href="{{ page_url('wholesale.html') }}">فروش عمده</a></li>
+                                    <li><a href="{{ page_url('order-tracking.html') }}">پیگیری سفارش</a></li>
                                     <li><a href="{{ page_url('shop.html') }}?sale=1">تخفیف پله‌ای</a></li>
                                     <li><a href="{{ page_url('shop.html') }}?sort=bestselling">پرفروش‌ترین‌ها</a></li>
                                     <li class="vp-nav-drop-1"><a href="{{ page_url('shop.html') }}?sort=newest">جدیدترین‌ها</a></li>
                                     <li class="vp-nav-drop-3"><a href="{{ page_url('index.html') }}#brands">برندها</a></li>
                                     <li class="vp-nav-drop-2"><a href="{{ page_url('faq.html') }}">سوالات متداول</a></li>
-                                    <li><a href="{{ page_url('wholesale.html') }}">فروش عمده</a></li>
-                                    <li><a href="{{ page_url('order-tracking.html') }}">پیگیری سفارش</a></li>
                                 </ul>
                             </nav>
                         </div>

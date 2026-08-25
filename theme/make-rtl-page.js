@@ -3067,23 +3067,24 @@ html = html.replace(
   /<nav class="main-menu d-none d-lg-inline-block">[\s\S]*?<\/nav>/,
   '<nav class="main-menu d-none d-lg-inline-block">\n' +
   '                                <ul>\n' +
+  // «فروش عمده و پیگیری سفارش باید بیان بعد از فروشگاه» — the two errands sit
+  // together behind the shop, and the ways of browsing follow them.
+  //
+  // The three that drop as the row narrows are the last three, in the order
+  // the classes name. Counted rather than guessed, by hiding items until every
+  // control was back inside the island: 5 fit at 992, 6 at 1100, 7 at 1200 and
+  // all 8 from 1280 up. «فروشگاه», «فروش عمده» and «پیگیری سفارش» never drop —
+  // they are errands somebody came to do, where a section is a way of browsing
+  // that the listing offers again in its own sort control. «جدیدترین‌ها» goes
+  // first because it is the one the client did not name.
   '                                    <li><a href="shop.html">فروشگاه</a></li>\n' +
+  '                                    <li><a href="wholesale.html">فروش عمده</a></li>\n' +
+  '                                    <li><a href="order-tracking.html">پیگیری سفارش</a></li>\n' +
   '                                    <li><a href="shop.html?sale=1">تخفیف پله‌ای</a></li>\n' +
   '                                    <li><a href="shop.html?sort=bestselling">پرفروش‌ترین‌ها</a></li>\n' +
-  // The three the row gives up as it narrows, in the order it gives them up.
-  // Counted rather than guessed — hiding items one at a time until every
-  // control was back inside the island: 5 fit at 992, 6 at 1100, 7 at 1200 and
-  // all 8 from 1280 up, which covers the common laptop widths.
-  //
-  // «فروشگاه», «فروش عمده» and «پیگیری سفارش» are never dropped: they are
-  // errands somebody came to do. What goes is a way of *browsing*, and the
-  // listing offers every one of them again in its own sort control.
-  // «جدیدترین‌ها» goes first because it is the one the client did not name.
   '                                    <li class="vp-nav-drop-1"><a href="shop.html?sort=newest">جدیدترین‌ها</a></li>\n' +
   '                                    <li class="vp-nav-drop-3"><a href="index.html#brands">برندها</a></li>\n' +
   '                                    <li class="vp-nav-drop-2"><a href="faq.html">سوالات متداول</a></li>\n' +
-  '                                    <li><a href="wholesale.html">فروش عمده</a></li>\n' +
-  '                                    <li><a href="order-tracking.html">پیگیری سفارش</a></li>\n' +
   '                                </ul>\n' +
   '                            </nav>'
 );
