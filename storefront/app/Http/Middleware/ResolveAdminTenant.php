@@ -2,7 +2,7 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\Branch;
+use App\Support\Tenancy\AdminBranch;
 use App\Support\Tenancy\TenantContext;
 use Closure;
 use Illuminate\Http\Request;
@@ -20,13 +20,14 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
  * the thing that must never be possible: a Shiraz manager who edits the id in
  * an address must not reach Tehran.
  *
- * So a branch manager gets their own branch and has no way to ask for another.
- * A platform administrator, whose authority genuinely covers every branch, may
- * pick one — and that choice is kept in their session, never read from the
- * request, so a link cannot make the choice for them.
+ * Which branch that is, is `AdminBranch`'s answer rather than this file's — the
+ * panel's shell needs the same answer on the platform screens, where this
+ * middleware deliberately does not run and nothing is bound.
  */
 class ResolveAdminTenant
 {
+    public function __construct(private AdminBranch $branch) {}
+
     public function handle(Request $request, Closure $next): Response
     {
         $user = $request->user();
@@ -35,7 +36,7 @@ class ResolveAdminTenant
             throw new AccessDeniedHttpException('Not signed in.');
         }
 
-        $branch = $this->branchFor($request, $user);
+        $branch = $this->branch->for($user);
 
         if ($branch === null) {
             throw new AccessDeniedHttpException(
@@ -56,31 +57,5 @@ class ResolveAdminTenant
         View::share('branch', $branch);
 
         return $next($request);
-    }
-
-    private function branchFor(Request $request, $user): ?Branch
-    {
-        // Platform-wide authority: may work at any branch, and the one being
-        // looked at is a choice held in the session.
-        if ($user->hasPermissionTo('branch.view')) {
-            $chosen = $request->session()->get('admin.branch');
-
-            $branch = is_int($chosen) || is_string($chosen)
-                ? Branch::find($chosen)
-                : null;
-
-            return $branch ?? Branch::where('type', Branch::CENTRAL)->first() ?? Branch::first();
-        }
-
-        // Everybody else: the branch they actually work at. Two jobs at two
-        // branches means two rows, and the first is a starting point they can
-        // change from the switcher — which only ever offers branches they are
-        // already staff of.
-        $chosen = $request->session()->get('admin.branch');
-
-        $roles = $user->branchRoles;
-
-        return $roles->firstWhere('branch_id', $chosen)?->branch
-            ?? $roles->first()?->branch;
     }
 }

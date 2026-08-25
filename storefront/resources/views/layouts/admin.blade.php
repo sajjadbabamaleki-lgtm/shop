@@ -45,13 +45,23 @@
 </head>
 
 @php
-    // The marketplace screens have no branch — a vendor sells across the whole
-    // platform — so the shell has to hold that without falling over.
+    // The platform screens — the marketplace, the enquiries, the owner's
+    // password page — resolve no tenant, on purpose: a vendor sells across the
+    // whole platform and a staff account is not a branch's property. So
+    // `$branch` is null on them and the shell has to hold that.
+    //
+    // **The menu is not the page's, though.** Reading it off `$branch` meant
+    // the phone's bottom bar lost «خانه» and «سفارش‌ها» on those six screens
+    // and came out three items wide where every other screen has five, and the
+    // sidebar lost whole groups with it. Which branch this *person* works at is
+    // knowable on any screen without binding anything, so the furniture asks
+    // `AdminBranch` and the page keeps its own answer.
     $branch = $branch ?? null;
+    $navBranch = $branch ?? app(\App\Support\Tenancy\AdminBranch::class)->for(auth()->user());
     $nav = app(\App\Support\Admin\Navigation::class);
-    $sections = $nav->forUser(auth()->user(), $branch);
-    $flat = $nav->flatFor(auth()->user(), $branch);
-    $quickAdd = $nav->quickAdd(auth()->user(), $branch);
+    $sections = $nav->forUser(auth()->user(), $navBranch);
+    $flat = $nav->flatFor(auth()->user(), $navBranch);
+    $quickAdd = $nav->quickAdd(auth()->user(), $navBranch);
     $bottom = collect(\App\Support\Admin\Navigation::BOTTOM)
         ->map(fn (string $route) => collect($flat)->firstWhere('route', $route))
         ->filter()
@@ -67,7 +77,10 @@
     // §17. Computed here rather than in every controller, because the bell is
     // part of the shell and a screen that forgot to provide it would simply
     // show nothing — the silent failure this panel keeps being bitten by.
-    $waiting = app(\App\Support\Admin\Attention::class)->for(auth()->user(), $branch);
+    // `$navBranch` for the same reason as the menu, and it is safe to count
+    // through: `Attention` binds the branch itself with `forBranch()` rather
+    // than trusting whatever the container holds.
+    $waiting = app(\App\Support\Admin\Attention::class)->for(auth()->user(), $navBranch);
     $waitingCount = array_sum(array_column($waiting, 'count'));
 @endphp
 

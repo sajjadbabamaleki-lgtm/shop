@@ -52,6 +52,113 @@ class AdminResponsiveTest extends TestCase
         return $user;
     }
 
+    /** A member of staff holding one of the panel's platform titles. */
+    private function person(string $role): User
+    {
+        $this->seed([RolesAndPermissionsSeeder::class, BranchSeeder::class, CatalogueSeeder::class]);
+
+        $user = User::create([
+            'name' => 'کارمند',
+            'email' => str()->random(8).'@vikyplus.test',
+            'password' => 'secret',
+        ]);
+
+        $user->roles()->attach(Role::where('slug', $role)->firstOrFail());
+
+        return $user;
+    }
+
+    /**
+     * The destinations drawn in the phone's bottom bar, in order.
+     *
+     * @return list<string>
+     */
+    private function bottomBar(string $html): array
+    {
+        $this->assertSame(
+            1,
+            preg_match('~<nav class="vp-adm-bottom".*?</nav>~s', $html, $bar),
+            'The bottom bar is not on this screen at all.'
+        );
+
+        preg_match_all('~href="([^"]+)"~', $bar[0], $links);
+
+        return $links[1];
+    }
+
+    /**
+     * **The bottom bar is the same bar on every screen.**
+     *
+     * «در تمام صفحات منوی پایین باید یک شکل باشه و همه آیتم ها باشن — اما
+     * اینجا ۳ تاست»: photographed on `/admin/passwords`, where the bar had
+     * lost «خانه» and «سفارش‌ها» and was three items wide against every other
+     * screen's five.
+     *
+     * The cause was the panel's two branch questions being answered by one
+     * middleware. The platform screens resolve no tenant on purpose, so
+     * `$branch` is null on them — and the shell was reading the menu off it,
+     * which dropped every branch-scoped destination. The menu is furniture,
+     * not the page, so it asks `AdminBranch` instead.
+     *
+     * **The expected bar is built from `Navigation::BOTTOM`, and no branch
+     * screen is fetched first.** Asking for `/admin` and then comparing would
+     * pass with the bug still in: `ResolveAdminTenant` shares the branch with
+     * `View::share`, and a shared value outlives the request inside one test —
+     * so the second page would render with the first page's branch. That is
+     * the trap CLAUDE.md records, and it swallowed the first version of this
+     * test.
+     */
+    public function test_the_bottom_bar_is_the_same_on_a_screen_with_no_branch(): void
+    {
+        $owner = $this->person(Role::OWNER);
+
+        $expected = array_map(
+            fn (string $route): string => route($route),
+            Navigation::BOTTOM
+        );
+
+        // Every screen the panel serves without a branch bound. Each gets its
+        // own act, so nothing another request left behind can answer for it.
+        foreach (['/admin/passwords', '/admin/vendors', '/admin/enquiries', '/admin/reports/platform'] as $url) {
+            $page = $this->actingAs($owner, 'web')->get($url)->assertOk()->getContent();
+
+            $this->assertSame(
+                $expected,
+                $this->bottomBar($page),
+                "The bottom bar is a different bar on {$url}."
+            );
+
+            // The «+» is part of the row's shape; without it the bar is four
+            // wide where every other screen is five.
+            $this->assertStringContainsString('vp-adm-add', $page);
+        }
+    }
+
+    /**
+     * And so is the sidebar — the same fault, seen on the other shell.
+     *
+     * `flatFor` is what all three navigations read, so every destination it
+     * offers a branch has to be on a screen that has none.
+     */
+    public function test_the_sidebar_offers_the_same_screens_with_no_branch(): void
+    {
+        $owner = $this->person(Role::OWNER);
+
+        $wanted = (new Navigation)->flatFor($owner, Branch::central());
+        $this->assertNotEmpty($wanted);
+
+        $away = $this->actingAs($owner, 'web')->get('/admin/passwords')
+            ->assertOk()->getContent();
+
+        foreach ($wanted as $item) {
+            $this->assertStringContainsString(
+                'href="'.route($item['route']).'"',
+                $away,
+                "«{$item['label']}» is in the panel's navigation but missing from /admin/passwords."
+            );
+        }
+    }
+
     /**
      * The labelling script ships with the shell, so it is on every screen of
      * the panel rather than on the ones somebody remembered.
@@ -224,8 +331,13 @@ class AdminResponsiveTest extends TestCase
     }
 
     /**
-     * A marketplace screen has no branch, and the shell has to hold that: the
-     * branch-scoped entries drop out rather than throwing on a null branch.
+     * `Navigation` itself still holds a null branch without throwing — the
+     * branch-scoped entries drop out.
+     *
+     * This is the class's contract, not the shell's behaviour. The shell hands
+     * it `AdminBranch`'s answer now precisely so that it never asks with null
+     * and never draws a shorter menu; the two tests above are what watch that.
+     * A user genuinely attached to no branch still lands here.
      */
     public function test_the_navigation_survives_a_screen_with_no_branch(): void
     {
