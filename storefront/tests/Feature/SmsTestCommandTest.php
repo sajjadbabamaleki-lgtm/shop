@@ -84,6 +84,44 @@ class SmsTestCommandTest extends TestCase
             ->assertSuccessful();
     }
 
+    /**
+     * The panel host signs with a username as well as the key and the console
+     * host does not, so switching between them — which is the fix for «کلید
+     * کنسول معتبر نیست» — is exactly when a missing SMS_USER bites. It is
+     * reported before it is needed rather than as the next refusal.
+     *
+     * Whether, not what: this output gets photographed.
+     */
+    public function test_it_says_whether_the_panel_username_is_set(): void
+    {
+        config()->set('services.sms.driver', 'melipayamak.panel.simple');
+        config()->set('services.sms.user', 'a-real-username');
+
+        $sender = Mockery::mock(Sender::class);
+        $sender->shouldReceive('send')->once();
+        $this->app->instance(Sender::class, $sender);
+
+        $this->artisan('sms:test 09121234567')
+            ->expectsOutputToContain('نام کاربری پنل: ست شده')
+            ->doesntExpectOutputToContain('a-real-username')
+            ->assertSuccessful();
+    }
+
+    /** And says so when it is missing, which is the case that cannot send. */
+    public function test_it_says_when_the_panel_username_is_missing(): void
+    {
+        config()->set('services.sms.driver', 'melipayamak.panel.simple');
+        config()->set('services.sms.user', null);
+
+        $sender = Mockery::mock(Sender::class);
+        $sender->shouldReceive('send')->once();
+        $this->app->instance(Sender::class, $sender);
+
+        $this->artisan('sms:test 09121234567')
+            ->expectsOutputToContain('SMS_USER')
+            ->assertSuccessful();
+    }
+
     /** An alert with nowhere to go is the quietest failure of the three. */
     public function test_it_says_when_the_alert_is_switched_off(): void
     {

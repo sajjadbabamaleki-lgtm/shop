@@ -132,6 +132,16 @@ class TestSms extends Command
             $this->line('خط فرستنده: '.(config('services.sms.from') ?: '— ست نشده، SMS_FROM لازم است'));
         }
 
+        // The panel host signs with a username as well as the key; the console
+        // host does not. Switching between them is the fix for the refusal
+        // below, and arriving at the new door without the username is the next
+        // round trip — so whether it is there is said before it is needed.
+        // Whether, not what: a username is half a credential and this output
+        // gets photographed.
+        if (str_starts_with($driver, 'melipayamak.panel')) {
+            $this->line('نام کاربری پنل: '.(config('services.sms.user') ? 'ست شده' : '— ست نشده، SMS_USER لازم است'));
+        }
+
         // The one refusal that looks like a broken key and is not. Melipayamak
         // runs two hosts; the key from «تنظیمات وبسرویس» belongs to the older
         // one, and posting it to the console answers «کلید کنسول معتبر نیست».
