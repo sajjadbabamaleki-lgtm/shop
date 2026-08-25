@@ -21905,6 +21905,40 @@ body.shoe-shop {
   }
 }
 
+/* --------------------------------------------------------------------------
+   THE BASKET DRAWER IS WIDER ON A DESKTOP
+
+   «تو دستاپ فضا بازه میتونی طول هر کارتو تو همین سبد خرید کشویی که از بغل باز
+   میشه ۲۰ درصد بیشتر کنی تا موارد فضای نفس کشیدن بیشتری داشته باشن».
+
+   The card's width is the panel's width less what stands between them, and
+   both of those are fixed numbers:
+
+     card = content − 10×2 (`.sidemenu-content` padding)
+                    − 12×2 (`.vp-mini`, the pane added in the round before)
+          = content − 44
+
+   At the template's 450 that is 406. Twenty per cent more is 487.2, so the
+   panel is 531 and the arithmetic above is the whole reason for the number.
+
+   **The closed position moves with it.** The template parks the panel at
+   `left: -500px` and slides it to 0, which is 50px of slack behind a 450 panel
+   — at 531 that slack becomes a 31px sliver of white sitting against the edge
+   of every page. Kept at 50: −581. `.sidemenu-wrapper.show .sidemenu-content`
+   is a three-class selector and still wins the open state, which is why only
+   the closed one is written here.
+
+   **Above 992 only.** Below it the panel is not 450 at all — it is
+   `calc(100% - 20px)`, the phone's full-bleed sheet, and a fixed width there
+   would undo that.
+   -------------------------------------------------------------------------- */
+@media (min-width: 992px) {
+  .sidemenu-cart .sidemenu-content {
+    width: 531px;
+    left: -581px;
+  }
+}
+
 :root {
   --vp-design: ok;
 }

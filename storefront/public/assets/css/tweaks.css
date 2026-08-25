@@ -12220,6 +12220,13 @@ body.shoe-shop {
   }
 }
 
+@media (min-width: 992px) {
+  .sidemenu-cart .sidemenu-content {
+    width: 531px;
+    left: -581px;
+  }
+}
+
 :root {
   --vp-design: ok;
 }
