@@ -3509,3 +3509,43 @@ what would be answering «which screen is this» — checked at 1200 and 1920 af
 where the title and both buttons are exactly as they were.
 
 652 tests, Pint clean, no sideways scroll at 390/768/1200/1920.
+
+## The date filter reaching both edges, and a name said twice
+
+«اون ۲ ردیف زیر هدر باید از چپو راست کل طولو پوشش بدن … باید فاصلشون از چپو راست
+با بغل یکی باشه».
+
+**The containers were already right, which is why this needed measuring rather
+than guessing.** At 390 both rows *are* 16..374, exactly the card beneath them.
+Their contents were not: the five chips ran **51..374** and the date row
+**72..374**, so each line was pinned to the right edge and left 35 and 56 pixels
+of nothing on the left — two rows ending in mid-air over a card that reaches
+both sides.
+
+So nothing here touches the containers. The children share the line instead.
+`flex: 1 1 0` on the chips gives every one the same 67px rather than its own
+text's width, which also makes the row read as one control with five settings
+instead of five loose buttons. The date row is not five of a kind — two fields
+that want the room and a button that wants exactly its own word — so the fields
+stretch and «اعمال» is `flex: 0 0 auto`, or an equal split would squeeze it
+until it wrapped, and a wrapped button is taller than its row.
+
+Measured after: both rows 16..374, content 16..374.
+
+### The branch's name, twice
+
+«اون کادر ویکی پلاس هم اضافست بجاش فقط تو مربع لوگو میتونه بیاد». The topbar
+carried it in a bordered box while the drawer already says it beside the logo —
+`.vp-adm-mark`, which is the lockup the client means. On a 390px bar that box
+was 83px, a fifth of the row, spent on a word that never changes.
+
+**Only the plain `<span>` is hidden.** Where somebody works at more than one
+branch the same block holds the branch *switcher*, and that is the only way to
+change branch on a phone: hiding it would have taken the feature away rather
+than the repetition.
+
+Phone only, both changes. Checked at 1200 and 1920 after — the chips keep their
+own widths and the branch box is still there, because a five-chip row stretched
+across a desktop would look like a mistake in the other direction.
+
+652 tests, Pint clean, no sideways scroll at 390/768/1200/1920.

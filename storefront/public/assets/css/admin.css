@@ -2153,3 +2153,62 @@ a.vp-adm-mini {
     display: none;
   }
 }
+
+/* --- the date filter, edge to edge on a phone ----------------------------- */
+
+@media (max-width: 991.98px) {
+  /* **«باید فاصلشون از چپو راست با بغل یکی باشه».**
+     Measured at 390 before: both rows *are* 16..374, the same as the card
+     under them — but their contents were not. The five chips ran 51..374 and
+     the date row 72..374, so each line was pinned to the right edge and left
+     35 and 56 pixels of nothing on the left. Two rows ending in mid-air over a
+     card that reaches both edges.
+
+     Nothing was wrong with the containers, so nothing here touches them. The
+     children share the line instead: `flex: 1 1 0` gives every chip the same
+     width rather than its own text's, which is also why the row reads as one
+     control with five settings instead of five separate buttons. */
+  .vp-adm-range > .vp-adm-range-tab {
+    flex: 1 1 0;
+    min-width: 0;
+    justify-content: center;
+    padding-inline: 4px;
+  }
+
+  /* The date row is not five of a kind: two fields that want the room and a
+     button that wants exactly its own word. So the fields stretch and the
+     button does not — `flex: 0 0 auto` on it, or an equal split would squeeze
+     «اعمال» until it wrapped. */
+  .vp-adm-range-custom {
+    width: 100%;
+    margin-inline-start: 0;
+  }
+
+  .vp-adm-range-custom > .vp-adm-jwrap {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .vp-adm-range-custom > .vp-adm-jwrap input,
+  .vp-adm-range-custom > .vp-adm-jwrap > * {
+    width: 100%;
+  }
+
+  .vp-adm-range-custom > button {
+    flex: 0 0 auto;
+  }
+
+  /* **The branch's name, twice.** «اون کادر ویکی پلاس هم اضافست بجاش فقط تو
+     مربع لوگو میتونه بیاد» — the topbar carried it in a bordered box and the
+     drawer already says it beside the logo, which is the lockup the client
+     means. On a 390px bar that box was 83px, a fifth of the row, spent on a
+     word that does not change.
+
+     Only the plain span. Where a person works at more than one branch the
+     same block holds the *switcher*, and that is the only way to change branch
+     on a phone — hiding it would take the feature away rather than the
+     repetition. */
+  .vp-adm-branch {
+    display: none;
+  }
+}
