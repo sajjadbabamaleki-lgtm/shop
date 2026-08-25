@@ -13202,6 +13202,20 @@ button.vp-cart-keep {
 /* --- the lines ----------------------------------------------------------- */
 
 .vp-mini-lines {
+  /* «موارد نباید به هم چسبیده باشن از وسط» — the cards were rounded by the
+     rule above and still met edge to edge, so two of them read as one block
+     with a dent in its side rather than as two things.
+
+     10, which is the same gap `.vp-cart-lines` puts between the basket page's
+     cards on a phone, and the same 10 everything else on that screen stands
+     at. `flex` rather than a margin on the card: a margin between siblings is
+     also a margin before the first one and after the last, and this list has a
+     hairline above it and a foot below it that both want to stay where they
+     are. */
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
   flex: 1;
   min-height: 0;
   overflow-y: auto;
