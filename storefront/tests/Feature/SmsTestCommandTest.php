@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Listeners\TellTheOwnerSomebodySignedIn;
 use App\Support\Sms\Sender;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery;
@@ -55,6 +56,82 @@ class SmsTestCommandTest extends TestCase
         $this->assertSame('09121234567', $seen['phone']);
         $this->assertCount(1, $seen['args'], 'The pattern was given no values, so a real pattern would send a blank.');
         $this->assertStringContainsString($seen['args'][0], $seen['message'], 'The sentence and the pattern disagree.');
+    }
+
+    /**
+     * **The sign-in alert has three more ways to be silent than a test message
+     * does, and this command has to name all three.**
+     *
+     * «من وارد پنل ادمین شدم قرار بود برای شماره … اس ام اس بره ولی نرفته», and
+     * the command as it stood could not tell that story: it proved the provider
+     * answered and said nothing about the alert. The number can be blank, the
+     * listener can be unregistered, and the same person signing in twice inside
+     * two minutes is swallowed on purpose — none of which looks like anything
+     * from the outside.
+     */
+    public function test_it_reports_where_the_sign_in_alert_goes(): void
+    {
+        config()->set('services.sms.alert_to', '09121161311');
+
+        $sender = Mockery::mock(Sender::class);
+        $sender->shouldReceive('send')->once();
+        $this->app->instance(Sender::class, $sender);
+
+        $this->artisan('sms:test 09121234567')
+            ->expectsOutputToContain('09121161311')
+            ->expectsOutputToContain('شنوندهٔ رویداد ورود ثبت شده است.')
+            ->expectsOutputToContain((string) TellTheOwnerSomebodySignedIn::QUIET_SECONDS)
+            ->assertSuccessful();
+    }
+
+    /** An alert with nowhere to go is the quietest failure of the three. */
+    public function test_it_says_when_the_alert_is_switched_off(): void
+    {
+        config()->set('services.sms.alert_to', '');
+
+        $sender = Mockery::mock(Sender::class);
+        $sender->shouldReceive('send')->once();
+        $this->app->instance(Sender::class, $sender);
+
+        $this->artisan('sms:test 09121234567')
+            ->expectsOutputToContain('SMS_ALERT_TO')
+            ->assertSuccessful();
+    }
+
+    /**
+     * `--alert` sends the alert's own sentence to the alert's own number, so
+     * «the provider answers» and «the thing you asked for works» stop being the
+     * same test.
+     */
+    public function test_the_alert_flag_sends_the_sign_in_sentence_to_the_owner(): void
+    {
+        config()->set('services.sms.alert_to', '09121161311');
+
+        $seen = null;
+        $sender = Mockery::mock(Sender::class);
+        $sender->shouldReceive('send')->once()
+            ->andReturnUsing(function (string $phone, string $message, array $args) use (&$seen) {
+                $seen = compact('phone', 'message', 'args');
+            });
+        $this->app->instance(Sender::class, $sender);
+
+        $this->artisan('sms:test 09121234567 --alert')->assertSuccessful();
+
+        $this->assertSame('09121161311', $seen['phone'], 'The alert went to the number typed in, not the one it is set to.');
+        $this->assertStringContainsString('وارد پنل مدیریت ویکی پلاس شد', $seen['message']);
+        $this->assertCount(3, $seen['args'], 'A pattern-based provider needs the same three values the listener sends.');
+    }
+
+    /** With nowhere to send it, `--alert` refuses rather than sending nothing. */
+    public function test_the_alert_flag_refuses_when_no_number_is_set(): void
+    {
+        config()->set('services.sms.alert_to', '');
+
+        $sender = Mockery::mock(Sender::class);
+        $sender->shouldNotReceive('send');
+        $this->app->instance(Sender::class, $sender);
+
+        $this->artisan('sms:test 09121234567 --alert')->assertFailed();
     }
 
     /**

@@ -37,7 +37,9 @@ class TellTheOwnerSomebodySignedIn
      * post. Short on purpose — two minutes swallows a duplicate and cannot
      * hide a second person arriving.
      */
-    private const QUIET_SECONDS = 120;
+    // Public so `sms:test` can say the number out loud rather than printing a
+    // second copy of it that drifts.
+    public const QUIET_SECONDS = 120;
 
     public function __construct(private Sender $sms) {}
 

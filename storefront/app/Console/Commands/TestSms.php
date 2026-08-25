@@ -2,8 +2,11 @@
 
 namespace App\Console\Commands;
 
+use App\Listeners\TellTheOwnerSomebodySignedIn;
 use App\Support\Sms\Sender;
+use Illuminate\Auth\Events\Login;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
@@ -32,7 +35,8 @@ use Throwable;
 class TestSms extends Command
 {
     protected $signature = 'sms:test
-        {phone : the number to send to, as 09xxxxxxxxx}';
+        {phone : the number to send to, as 09xxxxxxxxx}
+        {--alert : send the sign-in alert itself, to the number the alert is set to}';
 
     protected $description = 'Send one test message through the configured SMS provider and report what happened';
 
@@ -88,6 +92,40 @@ class TestSms extends Command
             $this->line('بعدش: php artisan config:cache');
         }
 
+        // --- the sign-in alert's own chain ----------------------------------
+        //
+        // «من وارد پنل ادمین شدم قرار بود برای شماره … اس ام اس بره ولی نرفته»,
+        // and this command could not answer it: it proved the *provider* was
+        // reachable and said nothing about the alert. The alert has three more
+        // ways to be silent than a test message does, and none of them look
+        // like anything from the outside — the number can be blank, the
+        // listener can be unregistered, and the same person signing in twice
+        // inside two minutes is deliberately swallowed. So each is stated.
+        $this->newLine();
+        $this->line('— هشدار ورود به پنل —');
+
+        $alertTo = trim((string) config('services.sms.alert_to'));
+
+        if ($alertTo === '') {
+            $this->warn('SMS_ALERT_TO خالی است؛ هشدار ورود خاموش است و هیچ پیامکی نمی‌رود.');
+        } else {
+            $this->line('پیامک ورود به این شماره می‌رود: '.$alertTo);
+        }
+
+        // `Event::listen` in `AppServiceProvider` is what wires this up —
+        // discovery is off — so a provider that did not boot, or a listener
+        // dropped from that file, is a silence with no error anywhere.
+        $wired = collect(Event::getListeners(Login::class))->isNotEmpty();
+
+        $this->line($wired
+            ? 'شنوندهٔ رویداد ورود ثبت شده است.'
+            : 'شنوندهٔ رویداد ورود ثبت نشده — این یعنی هیچ ورودی پیامک نمی‌فرستد.');
+
+        $this->line('ورود دوبارهٔ همان نفر تا '
+            .TellTheOwnerSomebodySignedIn::QUIET_SECONDS
+            .' ثانیه عمداً پیامک نمی‌فرستد.');
+        $this->newLine();
+
         // Said out loud, because the two doors fail for opposite reasons and
         // the message that comes back does not say which door was used.
         if (str_ends_with($driver, 'simple')) {
@@ -109,8 +147,31 @@ class TestSms extends Command
         // pattern that will work for a real shopper.
         $stamp = (string) random_int(100000, 999999);
 
+        // `--alert` walks the alert's own path instead of the test string's:
+        // the same sentence, to the same number the listener would use. It is
+        // the difference between «the provider answers» and «the thing you
+        // asked for works», which is the question actually being asked.
+        $to = $phone;
+        $body = "پیام آزمایشی ویکی پلاس: {$stamp}";
+        $args = [$stamp];
+
+        if ($this->option('alert')) {
+            if ($alertTo === '') {
+                $this->error('SMS_ALERT_TO خالی است، پس --alert جایی برای فرستادن ندارد.');
+
+                return self::FAILURE;
+            }
+
+            $when = fa_date(now(), true);
+            $to = $alertTo;
+            $body = "مالک شرکت «آزمایشی» وارد پنل مدیریت ویکی پلاس شد.\n{$when}";
+            $args = ['مالک شرکت', 'آزمایشی', $when];
+
+            $this->line('حالت هشدار: همان جمله‌ای که هنگام ورود می‌رود، به '.$to);
+        }
+
         try {
-            app(Sender::class)->send($phone, "پیام آزمایشی ویکی پلاس: {$stamp}", [$stamp]);
+            app(Sender::class)->send($to, $body, $args);
         } catch (Throwable $e) {
             // A `Sender` is not supposed to throw for an ordinary refusal, so
             // anything arriving here is configuration: a missing key, a driver
@@ -121,14 +182,14 @@ class TestSms extends Command
             return self::FAILURE;
         }
 
-        $this->info("پیام با شناسه «{$stamp}» به {$phone} سپرده شد.");
+        $this->info("پیام با شناسه «{$stamp}» به {$to} سپرده شد.");
 
         // Said plainly, because «سپرده شد» is not «رسید» and the difference is
         // where every SMS integration goes wrong: the provider can accept a
         // message and still not deliver it — no credit, an unapproved pattern,
         // a number on a blacklist.
         $this->line('اگر تا یک دقیقه نرسید، علتش در لاگ نوشته شده:');
-        $this->line('  grep "SMS to '.$phone.'" storage/logs/laravel.log');
+        $this->line('  grep "SMS to '.$to.'" storage/logs/laravel.log');
         // The senders all begin their line with «SMS to {phone}» — the success
         // and every refusal — so one search finds whichever happened. Quoted
         // from `LogSender` and `Melipayamak` rather than remembered: a hint
@@ -136,7 +197,7 @@ class TestSms extends Command
         // than no hint.
         $this->line('  خط موفق «SMS to …» است و خط رد شده «… was not sent» یا «… did not reach Melipayamak».');
 
-        Log::info('sms:test dispatched', ['driver' => $driver, 'phone' => $phone, 'stamp' => $stamp]);
+        Log::info('sms:test dispatched', ['driver' => $driver, 'phone' => $to, 'stamp' => $stamp]);
 
         return self::SUCCESS;
     }
