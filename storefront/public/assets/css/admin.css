@@ -2211,4 +2211,25 @@ a.vp-adm-mini {
   .vp-adm-branch {
     display: none;
   }
+
+  /* **And the box it left behind, which is not nothing.** Hiding the span
+     alone left `.vp-adm-who` in the row as an empty flex child — zero wide,
+     but the header's `gap: 12px` still spends twelve pixels beside it. The
+     bell's left edge measured 32 against the hamburger's right edge at 370, so
+     the row was 20 on one side and 32 on the other, for a box holding nothing.
+     Only when it has no switcher in it: a person who works at more than one
+     branch still needs that control. */
+  .vp-adm-who:not(:has(form)) {
+    display: none;
+  }
+
+  /* **And the row lines up with the page, not with itself.**
+     «فاصله از چپو راست موارد تو هدر اندازه فاصله چپو راست آیتم های پایین
+     باشه» — the topbar was 20 and everything under it is 16, so the ☰ sat a
+     shade further out than the cards it sits above. 16 both sides, and the
+     header's items now begin and end exactly where the date rows and the cards
+     do. */
+  .vp-adm-top {
+    padding-inline: 16px;
+  }
 }

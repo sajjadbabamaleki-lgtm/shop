@@ -3548,4 +3548,22 @@ Phone only, both changes. Checked at 1200 and 1920 after — the chips keep thei
 own widths and the branch box is still there, because a five-chip row stretched
 across a desktop would look like a mistake in the other direction.
 
+### And the box that was left behind
+
+Hiding the span alone was not enough: `.vp-adm-who` stayed in the row as an
+**empty flex child**, and a flex row's `gap: 12px` is spent beside a zero-width
+child just as it is beside a real one. Measured, the bell's left edge was 32
+against the hamburger's right edge at 370 — the row was 20 on one side and 32 on
+the other, for a box holding nothing.
+
+«فاصله از چپو راست موارد تو هدر اندازه فاصله چپو راست آیتم های پایین باشه»
+finished the job: the topbar's own padding was 20 while everything under it is
+16, so even with the phantom gap gone the ☰ would have sat a shade further out
+than the cards beneath it. **16 both sides.** Measured after, at 390 and 768:
+header items, date rows and cards all 16..374 — the same three numbers.
+
+`:not(:has(form))` rather than a flat `display: none`, because that same block
+holds the branch *switcher* for anybody who works at more than one shop, and
+that is the only way to change branch on a phone.
+
 652 tests, Pint clean, no sideways scroll at 390/768/1200/1920.
