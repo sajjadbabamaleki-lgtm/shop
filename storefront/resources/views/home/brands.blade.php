@@ -19,7 +19,12 @@
 
     Hand-owned: theme/make-blade.js no longer regenerates this file.
 --}}
-<section class="vp-brands-section space">
+{{-- `id` for the section bar in the header: «برندها» is the one link in
+     it with no page of its own, because this band is the only place the
+     shop lists its brands. An id paints nothing, so `check-parity.js`
+     cannot see whether both copies of this page carry it — which is why it
+     is written on both rather than only on the one somebody remembered. --}}
+<section class="vp-brands-section space" id="brands">
         <div class="vp-brands-panel">
             <div class="vp-brands-head">
                 <h2 class="vp-brands-title">برندهای موجود</h2>

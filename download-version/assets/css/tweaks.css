@@ -21851,10 +21851,14 @@ body.shoe-shop {
    Two changes, both only where the room is actually short. Measured at
    992/1024/1060: 104 → 76 with both, and 104 → 76 only from 1024 with the
    margins alone, so the column's own padding is the half that buys 992.
-   Above 1100 the four-item spacing is untouched, because five fit there as
-   they are — measured 76 at 1100, 1199 and every width above.
+
+   **It used to stop at 1100, and the menu outgrew it.** With eight items the
+   band that needs tightening runs to 1600: counted by hiding items until the
+   row was sound, 992 and 1100 held all eight *because* of this rule while 1200
+   held six and 1440 held seven without it. Above 1600 the row is wide enough
+   at the base layer's own spacing.
    -------------------------------------------------------------------------- */
-@media (min-width: 992px) and (max-width: 1099.98px) {
+@media (min-width: 992px) and (max-width: 1599.98px) {
   /* The base layer's 12px, tightened. Not below 4: the items stop reading as
      separate destinations and start reading as one run of words. */
   .main-menu > ul > li {
@@ -21991,6 +21995,70 @@ body.shoe-shop {
   .sidemenu-cart .sidemenu-content {
     width: 531px;
     left: -581px;
+  }
+}
+
+/* «برندها» lands here, and the island is `position: fixed` by the time it
+   does — so the band has to keep clear of it or the anchor puts the heading
+   under the bar. The island is 76px at every width plus the 10 it stands off
+   the top, and 20 more so the heading is not touching it. */
+#brands {
+  scroll-margin-top: 106px;
+}
+
+/* --------------------------------------------------------------------------
+   EIGHT ITEMS IN THE TOP MENU
+
+   «باید خانه حذف بشه از تو هدر فروشنده شوید خذف بشه و این موارد بیان جاش» —
+   the shop's sections in the menu itself, and «خانه» and «فروشنده شوید» out to
+   make room. Neither is lost: the logo is the way home on every site there
+   has ever been, and «فروشنده شوید» is still in the footer and in the phone
+   drawer.
+
+   «میتونی اندازه فنت مواردو کوچیک کنی سرچ هم طولش میتونه ۱۰ درصد کمتر بشه» —
+   both, and both are here.
+
+   **What actually fits, measured rather than judged.** At 1100 the logo takes
+   220 and the search-account-basket group 314 of the 1060 the row has, so the
+   menu has about 420 to spend; the eight come to 592 even at 13.7px with 4px
+   margins. They fit from 1200 up and cannot be made to fit below it — shrinking
+   the type from 16 to 13.7 and the search by a tenth together bought 106px of
+   the 222 needed, and the rest is not there to find.
+
+   **How many fit is counted, not judged, and the height alone will not tell
+   you.** The first pass read the island's height, saw 76 at 1200 and 1440 and
+   called it good — while the search, the account and the basket had been
+   pushed to negative coordinates and off the page. A row that runs out of room
+   does not always wrap; sometimes it just leaves. The test that settles it is
+   whether every control is still inside the island, and by that test, with the
+   type at 14 and the search a tenth narrower:
+
+     992   5      1200  7
+     1100  6      1280  8, and every width above
+
+   So three items drop as the row narrows, in that order. «فروشگاه», «فروش
+   عمده» and «پیگیری سفارش» never do — they are errands somebody came to do,
+   where the three that go are ways of browsing that the listing offers again
+   in its own sort control. «جدیدترین‌ها» goes first because it is the one the
+   client did not name.
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 1279.98px) { .main-menu .vp-nav-drop-1 { display: none; } }
+@media (max-width: 1199.98px) { .main-menu .vp-nav-drop-2 { display: none; } }
+@media (max-width: 1099.98px) { .main-menu .vp-nav-drop-3 { display: none; } }
+.shoe-shop .main-menu a {
+  font-size: 14px;
+}
+
+/* A tenth off both of the search's widths — 320 and the 185 it drops to below
+   1400 — kept as the same two-band arrangement the rule further up sets. */
+.th-header .menu-area .top-search {
+  width: 288px;
+}
+
+@media (max-width: 1399px) {
+  .th-header .menu-area .top-search {
+    width: 166px;
   }
 }
 

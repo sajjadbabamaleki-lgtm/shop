@@ -12165,7 +12165,7 @@ body.shoe-shop {
   }
 }
 
-@media (min-width: 992px) and (max-width: 1099.98px) {
+@media (min-width: 992px) and (max-width: 1599.98px) {
 
   .main-menu > ul > li {
     margin: 0 4px;
@@ -12241,6 +12241,27 @@ body.shoe-shop {
   .sidemenu-cart .sidemenu-content {
     width: 531px;
     left: -581px;
+  }
+}
+
+#brands {
+  scroll-margin-top: 106px;
+}
+
+@media (max-width: 1279.98px) { .main-menu .vp-nav-drop-1 { display: none; } }
+@media (max-width: 1199.98px) { .main-menu .vp-nav-drop-2 { display: none; } }
+@media (max-width: 1099.98px) { .main-menu .vp-nav-drop-3 { display: none; } }
+.shoe-shop .main-menu a {
+  font-size: 14px;
+}
+
+.th-header .menu-area .top-search {
+  width: 288px;
+}
+
+@media (max-width: 1399px) {
+  .th-header .menu-area .top-search {
+    width: 166px;
   }
 }
 

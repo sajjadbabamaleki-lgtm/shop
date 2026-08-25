@@ -10,6 +10,7 @@
  *
  *   assets/...      →  {{ asset('assets/...') }}
  *   somepage.html   →  {{ page_url('somepage.html') }}
+ *   somepage.html?x=1#y  →  {{ page_url('somepage.html') }}?x=1#y
  *
  * so the markup that reaches the browser is the markup that was measured.
  *
@@ -126,8 +127,15 @@ function toBlade(text) {
     // The one <meta> that names a file rather than prose.
     .replace(/(msapplication-TileImage"\s+content=)"(assets\/[^"]*)"/g,
       (_, attr, file) => `${attr}"{{ asset('${file}') }}"`)
-    .replace(/(\shref=)"([A-Za-z0-9._-]+\.html)"/g,
-      (_, attr, page) => `${attr}"{{ page_url('${page}') }}"`);
+    // A query string or a fragment rides through: `page_url()` resolves the
+    // *page*, and «تخفیف پله‌ای» in the header's section bar is `shop.html`
+    // with `?sale=1` on it. Without this the whole href misses the pattern and
+    // is left as a filename — a link that works on the static page and 404s on
+    // the shop, which is the silent half of the dead-link problem
+    // `ContentPagesTest` exists for.
+    .replace(/(\shref=)"([A-Za-z0-9._-]+\.html)(\?[^"#]*)?(#[^"]*)?"/g,
+      (_, attr, page, query, hash) =>
+        `${attr}"{{ page_url('${page}') }}${query || ''}${hash || ''}"`);
 }
 
 /** Strip the banner comments and normalise the blank lines they leave behind. */
