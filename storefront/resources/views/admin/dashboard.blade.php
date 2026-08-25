@@ -1,7 +1,6 @@
 @extends('layouts.admin')
 
 @section('title', 'خانه')
-@section('theme', 'ink')
 
 {{--
     §3 of the specification: six figures each against the previous equivalent

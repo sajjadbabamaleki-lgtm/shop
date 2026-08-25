@@ -33,6 +33,26 @@
 <html class="no-js" lang="fa" dir="rtl">
 
 <head>
+{{-- **The theme is set before the first paint, and that is the whole reason
+     it is inline and here rather than in a file at the foot of the page.**
+     `data-theme` lives on `<html>`; put it on `<body>` and the browser paints
+     one light frame before the script runs, which is a white flash on every
+     navigation for somebody who chose dark.
+
+     It is also why this is not in `admin-jalali.js`: an external file is
+     fetched, and a fetch is exactly the thing that is not finished yet. --}}
+<script>
+    (function () {
+        try {
+            var t = localStorage.getItem('vp-adm-theme');
+            if (t === 'ink') document.documentElement.setAttribute('data-theme', 'ink');
+        } catch (e) {
+            /* A browser with storage switched off gets the light panel, which
+               is the one that needs no attribute. Nothing else here depends on
+               it, so there is nothing to fall back to. */
+        }
+    })();
+</script>
 @include('partials.head')
 {{-- Fingerprinted the same way tweaks.css is, and for the same reason: this
      file is the panel's whole appearance, so a cached copy of yesterday's is
@@ -113,10 +133,7 @@
     $icon = fn (string $name) => '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'.($icons[$name] ?? $icons['box']).'</svg>';
 @endphp
 
-{{-- `data-theme` is what the dark palette in admin.css hangs off. Only the
-     dashboard asks for it so far — «فعلا فقط صفحه هوم» — so a screen opts in
-     with @section('theme', 'dark') and every other one stays light. --}}
-<body class="vp-adm" data-side="wide"@if (trim($__env->yieldContent('theme')) !== '') data-theme="{{ trim($__env->yieldContent('theme')) }}"@endif>
+<body class="vp-adm" data-side="wide">
 
 <div class="vp-adm-shell">
 
@@ -219,6 +236,26 @@
                     @endif
                 </div>
             </details>
+
+            {{-- «مربع خورشید سویچ بین دارک و سفیدو بزار چپ نوتیفیکیشن» —
+                 the same square the bell and the search are, in the slot after
+                 it, which on an rtl row is the place to its left.
+
+                 One button, not two: it says what pressing it *does*, so the
+                 sun shows while the panel is dark. `aria-pressed` carries the
+                 state for anything that cannot see which glyph is drawn. --}}
+            <button type="button" class="vp-adm-icon-btn vp-adm-lamp" data-adm-lamp
+                    aria-pressed="false" aria-label="حالت روشن و تاریک">
+                <svg class="vp-adm-lamp-sun" viewBox="0 0 20 20" fill="none" stroke="currentColor"
+                     stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+                    <circle cx="10" cy="10" r="3.4"/>
+                    <path d="M10 2.6v1.8M10 15.6v1.8M2.6 10h1.8M15.6 10h1.8M4.8 4.8l1.3 1.3M13.9 13.9l1.3 1.3M15.2 4.8l-1.3 1.3M6.1 13.9l-1.3 1.3"/>
+                </svg>
+                <svg class="vp-adm-lamp-moon" viewBox="0 0 20 20" fill="none" stroke="currentColor"
+                     stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M16 11.6A6.4 6.4 0 0 1 8.4 4a6.4 6.4 0 1 0 7.6 7.6Z"/>
+                </svg>
+            </button>
 
             <div class="vp-adm-who">
                 @if ($branch && $branches->count() > 1)
@@ -323,6 +360,28 @@
 @endphp
 <script defer src="{{ asset('assets/js/admin-jalali.js').$jalaliJsV }}"></script>
 
+<script>
+    (function () {
+        var btn = document.querySelector('[data-adm-lamp]');
+        if (!btn) return;
+
+        var root = document.documentElement;
+
+        function paint() {
+            btn.setAttribute('aria-pressed', root.getAttribute('data-theme') === 'ink' ? 'true' : 'false');
+        }
+
+        btn.addEventListener('click', function () {
+            var dark = root.getAttribute('data-theme') === 'ink';
+            if (dark) root.removeAttribute('data-theme');
+            else root.setAttribute('data-theme', 'ink');
+            try { localStorage.setItem('vp-adm-theme', dark ? 'light' : 'ink'); } catch (e) {}
+            paint();
+        });
+
+        paint();
+    })();
+</script>
 </body>
 
 </html>

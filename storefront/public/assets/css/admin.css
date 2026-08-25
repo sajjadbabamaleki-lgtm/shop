@@ -2344,6 +2344,23 @@ a.vp-adm-mini {
 }
 
 /* ==========================================================================
+   A NOTE ON WHERE THESE BLOCKS HANG, BEFORE THE PALETTES THEMSELVES
+
+   **The tokens are declared on `.vp-adm`, which is the `<body>`, so a theme
+   has to redefine them on that same element.** The first attempt put them on
+   `:root[data-theme="ink"]` — the `<html>` — which loses to the body's own
+   block for everything inside the body, and the page came out light while the
+   attribute said otherwise.
+
+   What made it hard to see is that it was not *wholly* light: `--title-color`
+   is the shop's token and really does live on `:root`, so it alone took the
+   new value and painted every heading near-white on a near-white page. A
+   half-applied theme reads as a different bug than a theme that did not apply.
+
+   The attribute stays on `<html>` — an inline head script sets it before the
+   first paint, and `<body>` does not exist yet at that point.
+
+   ==========================================================================
    THE PANEL IN THE DARK
 
    «صفحه هوم دارک گلد کن ببینم چطور میشه» و «میخوام ۲ حالت دارک و سفید داشته
@@ -2351,7 +2368,7 @@ a.vp-adm-mini {
    colour above is already a token; what follows redefines the names and
    nothing else, which is why it is forty lines instead of two thousand.
 
-   `body[data-theme="dark"]`, set by the shell from a screen's own
+   `:root[data-theme="dark"]`, set by the shell from a screen's own
    `@section('theme')`. Only «خانه» asks for it so far — «فعلا فقط صفحه هوم» —
    so every other screen is untouched and the light panel is exactly what it
    was.
@@ -2362,7 +2379,7 @@ a.vp-adm-mini {
    opened up a little, so the greys carry the same trace of yellow the gold
    does and the two belong to one another.
    ========================================================================== */
-body[data-theme="dark"] {
+:root[data-theme="dark"] .vp-adm {
   --adm-bg: #131311;
   --adm-surface: #1B1B18;
   --adm-ink: #F2EFE7;
@@ -2419,17 +2436,22 @@ body[data-theme="dark"] {
    does this the other way round, cards lighter than the page, which is the
    ordinary arrangement and is what was being rejected.
 
-   0.9 of the way to black is 25.5, so #1A1A1A. The cards are #0D0D0D, thirteen
-   levels below it — enough to read as an edge without a line being drawn.
+   0.93 of the way to black is 17.85, so the ground is #121212 and the cards go
+   below it to black. Settled at 93, after 90, 96, 94 and 92.
+
+   **Eighteen levels is not enough for the step to draw the edge on its own**,
+   so the hairline carries it at #282828 against #000000 — the same job
+   #E7E7E7 does on white in the light panel. Take it away at this ground and
+   the cards stop having corners.
    -------------------------------------------------------------------------- */
-body[data-theme="ink"] {
-  --adm-bg: #1A1A1A;
-  --adm-surface: #0D0D0D;
+:root[data-theme="ink"] .vp-adm {
+  --adm-bg: #121212;
+  --adm-surface: #000000;
   --adm-ink: #F2EFE7;
   --adm-ink-2: #A39C8C;
-  --adm-line: #272727;
-  --adm-sunk: #151515;
-  --adm-sunk-2: #111111;
+  --adm-line: #282828;
+  --adm-sunk: #1C1C1C;
+  --adm-sunk-2: #181818;
   --title-color: #F2EFE7;
 
   --adm-gold-ink: #EFC94F;
@@ -2446,3 +2468,42 @@ body[data-theme="ink"] {
   --adm-bad-wash: #2C1715;
   --adm-info-wash: #16212F;
 }
+
+/* «اون خط دور دکمه ها زخامتش ۲ برابر بشه» — 1px to 2, on the controls and not
+   on the cards. Six kinds carry a border here, found by asking the page rather
+   than by reading the file: the sign-out, the two icon buttons, the search
+   field, the range tabs, the two Jalali date fields and «اعمال».
+
+   The panel is `border-box` throughout, so this costs no layout: a doubled
+   border eats its second pixel out of the padding instead of pushing the
+   control open. Measured before and after — every one of them is the same
+   height it was.
+
+   Only in this theme. On a black card a hairline the light panel can afford is
+   most of the way to invisible, which is what the doubling is for; on white it
+   would read as a drawn outline nobody asked for. */
+:root[data-theme="ink"] .vp-adm-out,
+:root[data-theme="ink"] .vp-adm-icon-btn,
+:root[data-theme="ink"] .vp-adm-range-tab,
+:root[data-theme="ink"] .vp-adm-jdate,
+:root[data-theme="ink"] .vp-adm-find input,
+:root[data-theme="ink"] .vp-adm-apply,
+:root[data-theme="ink"] .vp-adm-clear,
+:root[data-theme="ink"] .vp-adm-save,
+:root[data-theme="ink"] .vp-adm-wipe,
+:root[data-theme="ink"] .vp-adm-mini,
+/* «رو کارتها هم ۲ برابر بشه خط دور» — the cards too, and for the same reason:
+   against a black card a single pixel of #282828 is most of the way to
+   nothing. The bell's panel goes with them; the status pills do not, because a
+   2px ring around an 18px line reads as a box rather than as an edge. */
+:root[data-theme="ink"] .vp-adm-card,
+:root[data-theme="ink"] .vp-adm-kpi,
+:root[data-theme="ink"] .vp-adm-bell-panel {
+  border-width: 2px;
+}
+
+/* The switch's two glyphs, one shown at a time. It carries the *action*, so
+   the sun is what a dark panel offers and the moon is what a light one does. */
+.vp-adm-lamp-sun { display: none; }
+:root[data-theme="ink"] .vp-adm-lamp-sun { display: block; }
+:root[data-theme="ink"] .vp-adm-lamp-moon { display: none; }
