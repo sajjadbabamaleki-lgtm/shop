@@ -2409,28 +2409,27 @@ body[data-theme="dark"] {
 /* --------------------------------------------------------------------------
    THE OTHER WAY ROUND
 
-   «حالت برعکس بهتر نمیشه؟ یعنی بکگراند یکم روشن و دکمه ها و آیتم ها مشکی؟» —
-   a light ground with the cards, the sidebar and the topbar in near-black.
+   «بکگراند یکم روشن و دکمه ها و آیتم ها مشکی» — and, when the first attempt
+   read «روشن» as *light*: «منظورم این بود مثلا بکگراند مشکی ۹۰ درصد باشه».
 
-   **It works because of something measurable about this panel**: on a desktop
-   almost nothing sits directly on the page ground. Counted on the dashboard,
-   every piece of text is on a card, the sidebar or the topbar — the only
-   exceptions are the phone's bottom bar and its sheet, and those are given a
-   surface of their own below. So `--adm-ink` can stay light without needing to
-   be two colours at once, which is the thing that usually makes an inverted
-   panel fall apart.
+   So both are dark and the *ground* is the lighter of the two: the page at
+   90% black, which is the client's own way of saying a colour — «سفید ۹۰
+   درصد» settled the fade at the foot of the shop the same way — and the
+   cards, the sidebar and the topbar blacker than it. The dark palette above
+   does this the other way round, cards lighter than the page, which is the
+   ordinary arrangement and is what was being rejected.
 
-   The ground is warm and a little sunk (#EDEAE3, not white) so that a black
-   card reads as an object resting on it rather than a hole cut through it.
+   0.9 of the way to black is 25.5, so #1A1A1A. The cards are #0D0D0D, thirteen
+   levels below it — enough to read as an edge without a line being drawn.
    -------------------------------------------------------------------------- */
 body[data-theme="ink"] {
-  --adm-bg: #EDEAE3;
-  --adm-surface: #171714;
+  --adm-bg: #1A1A1A;
+  --adm-surface: #0D0D0D;
   --adm-ink: #F2EFE7;
   --adm-ink-2: #A39C8C;
-  --adm-line: #2C2A25;
-  --adm-sunk: #22211C;
-  --adm-sunk-2: #1E1D19;
+  --adm-line: #272727;
+  --adm-sunk: #151515;
+  --adm-sunk-2: #111111;
   --title-color: #F2EFE7;
 
   --adm-gold-ink: #EFC94F;
@@ -2446,13 +2445,4 @@ body[data-theme="ink"] {
   --adm-warn-wash: #2A2113;
   --adm-bad-wash: #2C1715;
   --adm-info-wash: #16212F;
-}
-
-/* The two things that *do* sit on the ground, and only on a phone: the bottom
-   bar and the sheet behind «بیشتر». They inherit the light ink from the
-   surfaces, so on a light ground they would be invisible — the one place this
-   arrangement needs told what it is standing on. */
-body[data-theme="ink"] .vp-adm-bottom,
-body[data-theme="ink"] .vp-adm-sheet {
-  background: var(--adm-surface);
 }
