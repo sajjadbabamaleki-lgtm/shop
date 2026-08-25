@@ -3578,3 +3578,42 @@ holds the branch *switcher* for anybody who works at more than one shop, and
 that is the only way to change branch on a phone.
 
 652 tests, Pint clean, no sideways scroll at 390/768/1200/1920.
+
+## The password form's labels were attached to the wrong fields
+
+«اینجا یه ایراد فاجعه وجود داره — عنوان هر کادر بجای اینکه به کادر پایینیش نزدیک
+باشه به کادر بالایی نزدیکه».
+
+Measured at 390, exactly so:
+
+| | gap |
+| --- | --- |
+| label → the field it names | **12px** |
+| field → the next label | **2px** |
+
+**Six times closer to the wrong box.** A label that is not touching its own
+field has to be read twice, and on a form where one of three boxes is «رمز
+خودت» that is not cosmetic — it is the difference between typing your own
+password into the confirmation and typing it into somebody else's new one.
+
+It came of borrowing `.vp-ship-edit`, which is a *wrapping row* built for the
+shipping card, where a label and its control sit side by side and the wrap
+decides everything else. This form is a column and now says so —
+`.vp-adm-pwform`, spacing written the way proximity wants it: **4 to its own
+field, 16 to the one before.**
+
+### The rest of that card
+
+- **The button row is 32 from the field above**, double the 16 between fields
+  — «دکمه ذخیره باید فاصلش با کادر بالایی ۲ برابر باشه». It reads as the end of
+  the form rather than as a fourth thing to fill in.
+- **Both buttons span the whole width**, `flex: 1 1 0` — equal halves whatever
+  their words are. Measured after: 46..192 and 200..344, together the form's
+  own 46..344.
+- **«پاک کردن» is `type="reset"`**, so it needs no script at all. These three
+  fields start empty, which makes the browser's own «back to what they were»
+  exactly «clear»; and reset belongs to its own form, so it empties this card
+  and cannot touch the card above it. Tested with text in two cards at once:
+  one cleared, the other untouched.
+
+652 tests, Pint clean, no sideways scroll at 390/768/1200/1920.

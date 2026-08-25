@@ -41,7 +41,7 @@
                         @endforeach
                     </p>
 
-                    <form class="vp-ship-edit" method="post"
+                    <form class="vp-adm-pwform" method="post"
                           action="{{ route('admin.passwords.update', $person) }}" autocomplete="off">
                         @csrf
 
@@ -57,7 +57,16 @@
                         <input id="pw-me-{{ $person->id }}" type="password" name="confirm"
                                autocomplete="current-password" required>
 
-                        <button type="submit" class="vp-adm-save">ذخیره</button>
+                        {{-- **`type="reset"` and not a script.** These three
+                             fields start empty, so the browser's own reset —
+                             «back to what they were» — is exactly «پاک کردن»,
+                             and it works with nothing loaded. It also empties
+                             only this card's fields, never the one above it,
+                             because reset belongs to its own form. --}}
+                        <div class="vp-adm-pwform-go">
+                            <button type="submit" class="vp-adm-save">ذخیره</button>
+                            <button type="reset" class="vp-adm-wipe">پاک کردن</button>
+                        </div>
                     </form>
                 </li>
             @endforeach

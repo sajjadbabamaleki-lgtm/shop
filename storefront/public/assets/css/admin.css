@@ -2239,3 +2239,88 @@ a.vp-adm-mini {
     padding-inline: 16px;
   }
 }
+
+/* --- the password card's form --------------------------------------------- */
+
+/* **Every label was nearer the field above it than its own.**
+   «عنوان هر کادر بجای اینکه به کادر پایینیش نزدیک باشه به کادر بالایی نزدیکه»,
+   and measured at 390 that was exactly right: a label sat **2px** under the
+   previous input and **12px** above the one it names. Six times closer to the
+   wrong field. A label that is not touching its own box is a label that has to
+   be read twice, and on a form where one of the three boxes is «رمز خودت» that
+   is not a cosmetic problem.
+
+   It came from borrowing `.vp-ship-edit`, which is a *wrapping row* built for
+   the shipping card, where labels and controls sit side by side and the wrap
+   decides the rest. This form is a column and now says so, with the spacing
+   written the way proximity wants it: 4 to its own field, 16 to the one
+   before. */
+.vp-adm-pwform {
+  display: flex;
+  flex-direction: column;
+}
+
+.vp-adm-pwform label {
+  margin-top: 16px;
+  margin-bottom: 4px;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--adm-ink-2);
+}
+
+.vp-adm-pwform label:first-of-type {
+  margin-top: 0;
+}
+
+.vp-adm-pwform input {
+  width: 100%;
+  height: 38px;
+  padding-inline: 10px;
+  border: 1px solid var(--adm-line);
+  border-radius: var(--adm-r-sm);
+  background: var(--adm-surface);
+  color: var(--adm-ink);
+  font: inherit;
+}
+
+/* **Twice the gap, because this row is not another field.**
+   «دکمه ذخیره باید فاصلش با کادر بالایی ۲ برابر باشه» — 32 against the 16 that
+   separates one field from the next, so the buttons read as the end of the
+   form rather than as a fourth thing to fill in. */
+.vp-adm-pwform-go {
+  display: flex;
+  gap: 8px;
+  margin-top: 32px;
+}
+
+/* **Both buttons, the whole width.** «این دوتا دکمه باید کل عرض پایین پوشش بدن
+   نه کوچیک در سمت راست» — `flex: 1 1 0` gives them equal halves of the line
+   whatever their words are, and `justify-content: center` puts each word in
+   the middle of its own half rather than at the reading edge of it. */
+.vp-adm-pwform-go > * {
+  flex: 1 1 0;
+  justify-content: center;
+  min-width: 0;
+}
+
+/* The other half of «ذخیره»: white, with the same height and radius, so the
+   two read as one control with two answers. Bordered rather than filled —
+   clearing is the undo, and §35 asks that it not compete with the action it
+   sits beside. */
+.vp-adm-wipe {
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  padding-inline: 14px;
+  border: 1px solid var(--adm-line);
+  border-radius: var(--adm-r-sm);
+  background: var(--adm-surface);
+  color: var(--adm-ink);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.vp-adm-wipe:hover {
+  background: #F2F3F5;
+}
