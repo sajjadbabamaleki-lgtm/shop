@@ -52,7 +52,7 @@
                 <div class="vp-adm-form">
                     <label for="p-brand">برند</label>
                     <select id="p-brand" name="brand_id">
-                        <option value="">—</option>
+                        <option value="">بدون برند</option>
                         @foreach ($brands as $brand)
                             <option value="{{ $brand->id }}" @selected(old('brand_id', $product->brand_id) == $brand->id)>{{ $brand->name }}</option>
                         @endforeach
@@ -173,7 +173,7 @@
                                     <span class="vp-adm-badge is-cancelled">فروخته نمی‌شود</span>
                                 @endif
                             </td>
-                            <td>{{ $variant->stock ? fa_number($variant->stock->stock_on_hand) : '—' }}</td>
+                            <td>{{ $variant->stock ? fa_number($variant->stock->stock_on_hand) : 'ندارد' }}</td>
                             <td>
                                 <span class="vp-adm-badge is-{{ $variant->status === 'active' ? 'delivered' : 'cancelled' }}">
                                     {{ $variant->status === 'active' ? 'فعال' : 'بازنشسته' }}

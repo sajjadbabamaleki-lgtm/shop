@@ -25,7 +25,7 @@
                             {{ $settlement->statusLabel() }}
                         </span>
                     </td>
-                    <td><bdi dir="ltr">{{ $settlement->vendor?->iban ?: '—' }}</bdi></td>
+                    <td><bdi dir="ltr">{{ $settlement->vendor?->iban ?: 'ندارد' }}</bdi></td>
                     <td>
                         @if ($settlement->status === \App\Models\Settlement::REQUESTED)
                             <div class="vp-adm-inline">
@@ -47,7 +47,7 @@
                                 <button type="submit" class="vp-adm-mini">ثبت پرداخت</button>
                             </form>
                         @else
-                            <bdi dir="ltr">{{ $settlement->payment_reference ?? '—' }}</bdi>
+                            <bdi dir="ltr">{{ $settlement->payment_reference ?? 'ندارد' }}</bdi>
                         @endif
                     </td>
                 </tr>

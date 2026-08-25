@@ -25,7 +25,7 @@
                 @foreach ($rules as $rule)
                     <tr>
                         <td>{{ ['global' => 'پیش‌فرض پلتفرم', 'vendor' => 'فروشنده', 'category' => 'دسته‌بندی', 'product' => 'محصول'][$rule->scope] }}</td>
-                        <td>{{ $rule->scope_id ? fa_number($rule->scope_id) : '—' }}</td>
+                        <td>{{ $rule->scope_id ? fa_number($rule->scope_id) : 'ندارد' }}</td>
                         <td>{{ $rule->describe() }}</td>
                         <td>{{ fa_number($rule->priority) }}</td>
                         <td>

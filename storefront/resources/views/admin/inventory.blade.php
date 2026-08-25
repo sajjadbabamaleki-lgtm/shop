@@ -21,7 +21,7 @@
 
 @section('content')
 <div class="vp-adm-head">
-    <p class="vp-adm-sub">{{ $branch->name }} — عدد «شمارش» یعنی الان چند تا روی قفسه هست</p>
+    <p class="vp-adm-sub">{{ $branch->name }}، عدد «شمارش» یعنی الان چند تا روی قفسه هست</p>
 
     <div class="vp-adm-head-side">
         <form class="vp-adm-filters" method="get" action="{{ route('admin.inventory') }}" role="search">

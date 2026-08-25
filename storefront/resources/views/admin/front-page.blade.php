@@ -43,7 +43,7 @@
             <h2 class="vp-shop-title">{{ $band['label'] }}</h2>
             <p class="vp-shop-count">
                 @if ($band['isDefault'])
-                    پیش‌فرض — {{ implode('، ', $band['defaults']) ?: 'خالی' }}
+                    پیش‌فرض: {{ implode('، ', $band['defaults']) ?: 'خالی' }}
                 @else
                     {{ fa_number(count($band['placements'])) }} از {{ fa_number($band['max']) }} جای موجود
                 @endif
@@ -58,7 +58,7 @@
             @foreach ($band['placements'] as $placement)
                 <tr>
                     <td>{{ fa_number($loop->iteration) }}</td>
-                    <td>{{ $placement->product?->title ?? '—' }}</td>
+                    <td>{{ $placement->product?->title ?? 'حذف شده' }}</td>
                     <td>
                         <div class="vp-admin-inline">
                             @if (! $loop->first)

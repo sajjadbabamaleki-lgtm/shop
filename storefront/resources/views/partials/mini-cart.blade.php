@@ -58,7 +58,7 @@
                                 @if ($line['offer'])
                                     <strong>{{ toman($line['line_total']) }} <span>تومان</span></strong>
                                 @else
-                                    <strong>—</strong>
+                                    <strong>ناموجود</strong>
                                 @endif
                             </div>
 

@@ -71,12 +71,12 @@ class TestSms extends Command
         // loud now, every run, because the symptom («SMS_DRIVER is log») looks
         // exactly like «you never set it».
         if (app()->configurationIsCached()) {
-            $this->warn('کانفیگ کش شده است — مقدار بالا از فایل کش خوانده شده، نه از پنل.');
+            $this->warn('کانفیگ کش شده است؛ مقدار بالا از فایل کش خوانده شده، نه از پنل.');
             $this->line('اگر تازه متغیری را عوض کرده‌اید، اول این را بزنید: php artisan config:cache');
         }
 
         if ($driver === 'log') {
-            $this->warn('این درایور هیچ پیامکی نمی‌فرستد — فقط در لاگ می‌نویسد.');
+            $this->warn('این درایور هیچ پیامکی نمی‌فرستد؛ فقط در لاگ می‌نویسد.');
             $this->newLine();
             $this->line('در پنل لیارا → برنامه → تنظیمات → متغیرهای محیطی این‌ها را بگذارید:');
             $this->line('  SMS_DRIVER=melipayamak.panel.simple   (خط اختصاصی، متن آزاد، بدون پترن)');
@@ -84,7 +84,7 @@ class TestSms extends Command
             $this->line('  SMS_KEY=<کلید همان صفحهٔ «تنظیمات وبسرویس»>');
             $this->line('  SMS_FROM=<شماره خط خودتان>');
             $this->newLine();
-            $this->line('کلید را در ملی‌پیامک «وارد» نمی‌کنید — از آنجا کپی می‌کنید و اینجا می‌گذارید.');
+            $this->line('کلید را در ملی‌پیامک «وارد» نمی‌کنید؛ از آنجا کپی می‌کنید و اینجا می‌گذارید.');
             $this->line('بعدش: php artisan config:cache');
         }
 

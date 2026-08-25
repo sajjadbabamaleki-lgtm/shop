@@ -24,7 +24,7 @@
              data-dice-token="{{ csrf_token() }}">
         <div class="container th-container">
             <div class="vp-dice-card">
-                <h2 class="vp-dice-title">تاس شانس — بنداز و ببر!</h2>
+                <h2 class="vp-dice-title">تاس شانس، بنداز و ببر!</h2>
                 <p class="vp-dice-say">روی دکمه شروع بزن تا تاس‌ها بچرخن؛<br>جفت شیش بیاد، جایزه‌ات فعال می‌شه</p>
                 <div class="vp-dice-pair" data-dice-pair>
                         <span class="vp-die" data-face="3" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>

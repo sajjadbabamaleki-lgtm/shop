@@ -11,7 +11,7 @@
 
 @section('content')
 <div class="vp-adm-head">
-    <p class="vp-adm-sub">{{ $branch->name }} — همه مبلغ‌ها به تومان</p>
+    <p class="vp-adm-sub">{{ $branch->name }}، همه مبلغ‌ها به تومان</p>
 
     <div class="vp-adm-head-side">
         <form class="vp-adm-filters" method="get" action="{{ route('admin.pricing') }}" role="search">

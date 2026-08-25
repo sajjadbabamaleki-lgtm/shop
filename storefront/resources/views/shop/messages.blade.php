@@ -48,7 +48,7 @@
                                     @if ($conversation->order)
                                         سفارش {{ $conversation->order->number }} ·
                                     @endif
-                                    {{ $conversation->last_message_at ? fa_date($conversation->last_message_at, true) : '—' }}
+                                    {{ $conversation->last_message_at ? fa_date($conversation->last_message_at, true) : 'ندارد' }}
                                     @unless ($conversation->isOpen())
                                         · بسته‌شده
                                     @endunless

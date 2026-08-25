@@ -103,7 +103,7 @@
                 <small>بقیه بهای تمام‌شده ندارند</small>
             </span>
         @else
-            <span class="vp-adm-kpi-num is-quiet">—</span>
+            <span class="vp-adm-kpi-num is-quiet">نامشخص</span>
             {{-- One line, like every other card's, and on its own: the
                  sentence that used to explain it — «تا وقتی در «قیمت‌ها» وارد
                  نشود…» — first made this tile taller than the five beside it,
@@ -195,7 +195,7 @@
                  aria-label="فروش روزانه در {{ $range->label() }}، بیشترین {{ toman($peak) }} تومان">
                 @foreach ($chart as $point)
                     <span class="vp-adm-bar" style="--h: {{ max(2, (int) round($point['total'] / $peak * 100)) }}%"
-                          title="{{ fa_date($point['day']) }} — {{ toman($point['total']) }} تومان"></span>
+                          title="{{ fa_date($point['day']) }}: {{ toman($point['total']) }} تومان"></span>
                 @endforeach
             </div>
         @endif

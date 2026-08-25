@@ -148,7 +148,7 @@
                             <input id="vp-o-{{ $order->id }}" type="checkbox" name="orders[]" value="{{ $order->id }}" data-adm-row>
                         </td>
                         <td><a href="{{ route('admin.order', $order) }}">{{ $order->number }}</a></td>
-                        <td>{{ $order->placed_at ? fa_date($order->placed_at) : '—' }}</td>
+                        <td>{{ $order->placed_at ? fa_date($order->placed_at) : 'ثبت نشده' }}</td>
                         <td>{{ $order->contact_name }}<br><small><bdi dir="ltr">{{ $order->contact_phone }}</bdi></small></td>
                         <td><span class="vp-adm-badge is-{{ $order->status }}">{{ $order->statusLabel() }}</span></td>
                         <td>

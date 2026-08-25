@@ -61,7 +61,7 @@
                         @endif
                     </td>
                     <td>
-                        {{ $conversation->customer?->name ?: '—' }}
+                        {{ $conversation->customer?->name ?: 'بی‌نام' }}
                         <span class="vp-adm-sub"><bdi dir="ltr">{{ $conversation->customer?->phone }}</bdi></span>
                     </td>
                     <td>
@@ -71,7 +71,7 @@
                             —
                         @endif
                     </td>
-                    <td>{{ $conversation->last_message_at ? fa_date($conversation->last_message_at, true) : '—' }}</td>
+                    <td>{{ $conversation->last_message_at ? fa_date($conversation->last_message_at, true) : 'ندارد' }}</td>
                     <td>
                         <span class="vp-adm-badge is-{{ $conversation->isOpen() ? 'placed' : 'delivered' }}">
                             {{ $conversation->statusLabel() }}

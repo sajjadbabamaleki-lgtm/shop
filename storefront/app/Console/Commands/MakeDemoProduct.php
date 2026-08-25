@@ -83,7 +83,7 @@ class MakeDemoProduct extends Command
         $rial = $toman * 10;
 
         $product = Product::updateOrCreate(['slug' => self::SLUG], [
-            'title' => 'کالای آزمایشی — لطفاً نخرید',
+            'title' => 'کالای آزمایشی، لطفاً نخرید',
             'short_title' => 'کالای آزمایشی',
             'status' => 'active',
             'description' => 'این کالا فقط برای آزمایش درگاه پرداخت ساخته شده و کالای واقعی نیست. '
@@ -178,7 +178,7 @@ class MakeDemoProduct extends Command
         $this->line('درگاه فعال: '.$driver);
 
         if ($driver === 'at-the-door') {
-            $this->warn('این یعنی «پرداخت در محل» — هیچ درگاه بانکی‌ای در کار نیست.');
+            $this->warn('این یعنی «پرداخت در محل»؛ هیچ درگاه بانکی‌ای در کار نیست.');
             $this->line('برای آزمایش کارت، در پنل لیارا این‌ها را بگذارید:');
             $this->line('  PAYMENT_DRIVER=zarinpal');
             $this->line('  ZARINPAL_MERCHANT_ID=<شناسه ۳۶ کاراکتری از پنل زرین‌پال>');
@@ -188,7 +188,7 @@ class MakeDemoProduct extends Command
         }
 
         if (config('services.payment.zarinpal.sandbox')) {
-            $this->error('ZARINPAL_SANDBOX روشن است — پرداخت‌ها واقعی نیستند و نباید در سایت زنده روشن باشد.');
+            $this->error('ZARINPAL_SANDBOX روشن است؛ پرداخت‌ها واقعی نیستند و نباید در سایت زنده روشن باشد.');
         }
     }
 

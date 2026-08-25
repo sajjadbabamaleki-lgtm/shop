@@ -38,7 +38,7 @@
     <section class="vp-adm-card vp-adm-span-2">
         <div class="vp-adm-card-head">
             <h2 class="vp-adm-card-title">اقلام</h2>
-            <span class="vp-adm-card-more">{{ $order->placed_at ? fa_date($order->placed_at, true) : '—' }}</span>
+            <span class="vp-adm-card-more">{{ $order->placed_at ? fa_date($order->placed_at, true) : 'ثبت نشده' }}</span>
         </div>
 
         <table class="vp-admin-table">
@@ -178,7 +178,7 @@
                 <li><span>تأیید</span><b>{{ fa_date($order->confirmed_at) }}</b></li>
                 <li>
                     <span>مهلت ارسال</span>
-                    <b>{{ $order->estimated_ship_by ? fa_date($order->estimated_ship_by) : '—' }}</b>
+                    <b>{{ $order->estimated_ship_by ? fa_date($order->estimated_ship_by) : 'ندارد' }}</b>
                 </li>
                 @if ($order->actual_shipped_at)
                     <li><span>ارسال واقعی</span><b>{{ fa_date($order->actual_shipped_at, true) }}</b></li>
@@ -386,7 +386,7 @@
                                 $after = $entry->new_values['status'] ?? null;
                             @endphp
                             @if ($after && $before !== $after)
-                                <br><small>{{ $labels[$before] ?? $before ?? '—' }} ← {{ $labels[$after] ?? $after }}</small>
+                                <br><small>{{ $labels[$before] ?? $before ?? 'خالی' }} ← {{ $labels[$after] ?? $after }}</small>
                             @endif
                         </span>
                     </li>

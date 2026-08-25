@@ -184,7 +184,7 @@ class MakeDemoOrders extends Command
         if (array_sum($left) < 1) {
             $this->error('موجودی این شعبه فقط به اندازه فروش واقعی است؛ برای ساختن نمونه چیزی نمی‌ماند.');
             $this->line('با --lend اجرا کنید: موجودی لازم را خودش قرض می‌گیرد و با --remove پس می‌دهد.');
-            $this->line('(--floor=0 این کار را نکنید — روی مغازه‌ای با یک دانه از هر سایز، سایت را خالی می‌کند.)');
+            $this->line('(--floor=0 این کار را نکنید؛ روی مغازه‌ای با یک دانه از هر سایز، سایت را خالی می‌کند.)');
 
             return self::FAILURE;
         }
@@ -216,12 +216,12 @@ class MakeDemoOrders extends Command
         // `ago` is what puts each one in its right place in the day book; this
         // order is only the order they are made in.
         $plan = [
-            ['state' => 'cancelled', 'ago' => 4,  'label' => 'لغو شد — پیش از پرداخت'],
-            ['state' => 'refunded',  'ago' => 17, 'label' => 'لغو شد — بعد از پرداخت، برگشت خورد'],
-            ['state' => 'placed',    'ago' => 0,  'label' => 'ثبت شد — تأیید نشده'],
-            ['state' => 'placed',    'ago' => 1,  'label' => 'ثبت شد — تأیید نشده'],
-            ['state' => 'confirmed', 'ago' => 2,  'label' => 'پرداخت شد — در حال آماده‌سازی'],
-            ['state' => 'late',      'ago' => 9,  'label' => 'پرداخت شد — از مهلت ارسال گذشته'],
+            ['state' => 'cancelled', 'ago' => 4,  'label' => 'لغو شد، پیش از پرداخت'],
+            ['state' => 'refunded',  'ago' => 17, 'label' => 'لغو شد، بعد از پرداخت برگشت خورد'],
+            ['state' => 'placed',    'ago' => 0,  'label' => 'ثبت شد، تأیید نشده'],
+            ['state' => 'placed',    'ago' => 1,  'label' => 'ثبت شد، تأیید نشده'],
+            ['state' => 'confirmed', 'ago' => 2,  'label' => 'پرداخت شد، در حال آماده‌سازی'],
+            ['state' => 'late',      'ago' => 9,  'label' => 'پرداخت شد، از مهلت ارسال گذشته'],
             ['state' => 'shipped',   'ago' => 6,  'label' => 'ارسال شد'],
             ['state' => 'delivered', 'ago' => 14, 'label' => 'تحویل شد'],
         ];

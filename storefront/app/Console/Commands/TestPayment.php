@@ -62,7 +62,7 @@ class TestPayment extends Command
         $this->line('درگاه فعال: '.$driver);
 
         if (app()->configurationIsCached()) {
-            $this->warn('کانفیگ کش شده است — مقدارها از فایل کش خوانده می‌شوند، نه از پنل لیارا.');
+            $this->warn('کانفیگ کش شده است؛ مقدارها از فایل کش خوانده می‌شوند، نه از پنل لیارا.');
             $this->line('اگر تازه متغیری را عوض کرده‌اید: php artisan config:cache');
         }
 

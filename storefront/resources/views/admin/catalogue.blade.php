@@ -14,7 +14,7 @@
 
 @section('content')
 <div class="vp-adm-head">
-    <p class="vp-adm-sub">محصول، سایز و عکس — مشترک بین همه شعبه‌ها</p>
+    <p class="vp-adm-sub">محصول، سایز و عکس؛ مشترک بین همه شعبه‌ها</p>
 
     <div class="vp-adm-head-side">
         <form class="vp-adm-filters" method="get" action="{{ route('admin.catalogue') }}" role="search">
@@ -51,7 +51,7 @@
                         <a href="{{ route('admin.product.edit', $product) }}">{{ $product->title }}</a>
                         <span class="vp-adm-sub">{{ $product->slug }}</span>
                     </td>
-                    <td>{{ $product->brand?->name ?? '—' }}</td>
+                    <td>{{ $product->brand?->name ?? 'ندارد' }}</td>
                     <td>{{ fa_number($product->variants_count) }}</td>
                     <td>
                         <span class="vp-adm-badge is-{{ $product->status === 'active' ? 'delivered' : 'cancelled' }}">

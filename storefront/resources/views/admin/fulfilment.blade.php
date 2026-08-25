@@ -26,7 +26,7 @@
 
         <p class="vp-adm-empty">
             مهلت ارسال و بازه تحویلِ هر سفارش از روی همین‌ها حساب می‌شود.
-            <b>تغییر این تنظیمات، سفارش‌هایی را که قبلاً تأیید شده‌اند جابه‌جا نمی‌کند</b> —
+            <b>تغییر این تنظیمات، سفارش‌هایی را که قبلاً تأیید شده‌اند جابه‌جا نمی‌کند</b>؛
             هر سفارش تقویمی را که با آن قول داده شده نگه می‌دارد.
         </p>
 
@@ -48,7 +48,7 @@
                 @endforeach
             </div>
 
-            <label for="fp-holidays">تعطیلات — هر تاریخ در یک خط</label>
+            <label for="fp-holidays">تعطیلات (هر تاریخ در یک خط)</label>
             <textarea id="fp-holidays" name="holidays" rows="4" dir="ltr"
                       placeholder="2026-09-01">{{ old('holidays', implode("\n", $settings['holidays'])) }}</textarea>
 

@@ -34,11 +34,11 @@
                         </td>
                         <td>{{ $code->describe() }}</td>
                         <td>{{ $code->branch_id === null ? 'همه شعبه‌ها' : ($code->branch_id === $branchId ? 'این شعبه' : 'شعبه دیگر') }}</td>
-                        <td>{{ $code->min_subtotal > 0 ? 'از '.toman($code->min_subtotal) : '—' }}</td>
+                        <td>{{ $code->min_subtotal > 0 ? 'از '.toman($code->min_subtotal) : 'ندارد' }}</td>
                         <td>
-                            {{ $code->starts_at ? fa_date($code->starts_at) : '—' }}
+                            {{ $code->starts_at ? fa_date($code->starts_at) : 'ندارد' }}
                             تا
-                            {{ $code->ends_at ? fa_date($code->ends_at) : '—' }}
+                            {{ $code->ends_at ? fa_date($code->ends_at) : 'ندارد' }}
                         </td>
                         <td>{{ fa_number($code->redemptions_count) }}@if ($code->usage_limit) / {{ fa_number($code->usage_limit) }}@endif</td>
                         <td>{{ toman((int) ($code->redemptions_sum_amount ?? 0)) }}</td>

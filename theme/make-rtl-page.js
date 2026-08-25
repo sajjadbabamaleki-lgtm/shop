@@ -900,7 +900,7 @@ const DICE_BAND =
   '\n    <section class="vp-dice-area" id="vp-dice">' +
   '\n        <div class="container th-container">' +
   '\n            <div class="vp-dice-card">' +
-  '\n                <h2 class="vp-dice-title">تاس شانس — بنداز و ببر!</h2>' +
+  '\n                <h2 class="vp-dice-title">تاس شانس، بنداز و ببر!</h2>' +
   '\n                <p class="vp-dice-say">روی دکمه شروع بزن تا تاس‌ها بچرخن؛<br>جفت شیش بیاد، جایزه‌ات فعال می‌شه</p>' +
   '\n                <div class="vp-dice-pair" data-dice-pair>' +
   DIE_FACE(3) +
@@ -2611,8 +2611,8 @@ const DICE_SCRIPT =
                 // here is what «۲ شانس» would look like as one.
                 if (answer.left > 0) {
                     excuse(answer.left === 1
-                        ? 'این بار جفت شیش نیامد — یک شانس دیگر داری.'
-                        : 'این بار جفت شیش نیامد — ' + fa(answer.left) + ' شانس دیگر داری.');
+                        ? 'این بار جفت شیش نیامد؛ یک شانس دیگر داری.'
+                        : 'این بار جفت شیش نیامد؛ ' + fa(answer.left) + ' شانس دیگر داری.');
                     return;
                 }
 

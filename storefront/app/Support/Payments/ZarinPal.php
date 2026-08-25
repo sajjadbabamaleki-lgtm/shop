@@ -114,7 +114,7 @@ class ZarinPal implements Gateway
         return $this->ask('/pg/v4/payment/request.json', $this->requestBody(
             amount: $amount,
             callbackUrl: $callbackUrl,
-            description: 'آزمایش اتصال درگاه — ویکی پلاس',
+            description: 'آزمایش اتصال درگاه ویکی پلاس',
             mobile: null,
         ));
     }
