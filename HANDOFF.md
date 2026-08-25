@@ -3604,9 +3604,11 @@ field, 16 to the one before.**
 
 ### The rest of that card
 
-- **The button row is 32 from the field above**, double the 16 between fields
-  — «دکمه ذخیره باید فاصلش با کادر بالایی ۲ برابر باشه». It reads as the end of
-  the form rather than as a fourth thing to fill in.
+- **The button row is 16 from the field above**, the same as the gap between
+  fields. It went 6 → 32 on «دکمه ذخیره باید فاصلش با کادر بالایی ۲ برابر باشه»
+  and 32 → 16 on «فاصله … زیاد شد نصفش کن». The row still reads as the end of
+  the form — two filled buttons look nothing like a label over a box — and 32
+  left a hole in a card only three fields tall.
 - **Both buttons span the whole width**, `flex: 1 1 0` — equal halves whatever
   their words are. Measured after: 46..192 and 200..344, together the form's
   own 46..344.

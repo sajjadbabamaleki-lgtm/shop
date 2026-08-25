@@ -2283,14 +2283,17 @@ a.vp-adm-mini {
   font: inherit;
 }
 
-/* **Twice the gap, because this row is not another field.**
-   «دکمه ذخیره باید فاصلش با کادر بالایی ۲ برابر باشه» — 32 against the 16 that
-   separates one field from the next, so the buttons read as the end of the
-   form rather than as a fourth thing to fill in. */
+/* The gap that separates this row from the last field.
+   «دکمه ذخیره باید فاصلش با کادر بالایی ۲ برابر باشه» took it from 6 to 32 —
+   double the 16 between one field and the next — and «فاصله … زیاد شد نصفش
+   کن» halved that again. 16, the same as the gap between fields: the row still
+   reads as the end of the form because two filled buttons look nothing like a
+   label over a box, and it no longer leaves a hole in a card that is only
+   three fields tall. */
 .vp-adm-pwform-go {
   display: flex;
   gap: 8px;
-  margin-top: 32px;
+  margin-top: 16px;
 }
 
 /* **Both buttons, the whole width.** «این دوتا دکمه باید کل عرض پایین پوشش بدن
