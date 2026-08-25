@@ -1,6 +1,7 @@
 @extends('layouts.admin')
 
 @section('title', 'خانه')
+@section('theme', 'dark')
 
 {{--
     §3 of the specification: six figures each against the previous equivalent

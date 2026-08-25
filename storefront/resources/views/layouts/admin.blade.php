@@ -113,7 +113,10 @@
     $icon = fn (string $name) => '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'.($icons[$name] ?? $icons['box']).'</svg>';
 @endphp
 
-<body class="vp-adm" data-side="wide">
+{{-- `data-theme` is what the dark palette in admin.css hangs off. Only the
+     dashboard asks for it so far — «فعلا فقط صفحه هوم» — so a screen opts in
+     with @section('theme', 'dark') and every other one stays light. --}}
+<body class="vp-adm" data-side="wide"@if (trim($__env->yieldContent('theme')) !== '') data-theme="{{ trim($__env->yieldContent('theme')) }}"@endif>
 
 <div class="vp-adm-shell">
 

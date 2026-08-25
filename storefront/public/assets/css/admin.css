@@ -33,6 +33,16 @@
   --adm-ink: #171717;
   --adm-ink-2: #737373;
   --adm-line: #E7E7E7;
+  /* The two sunk greys — a row's hover, a table head, a quiet button's ground
+     — and the five status washes. They were literals in fourteen places, which
+     is fourteen places a second theme would have had to find. A theme swaps
+     names; it cannot swap a number written down the file. */
+  --adm-sunk: #F2F3F5;
+  --adm-sunk-2: #FAFAFB;
+  --adm-warn-wash: #FFF6EC;
+  --adm-info-wash: #EEF4FC;
+  --adm-good-wash: #EDF7F1;
+  --adm-bad-wash: #FCEEED;
 
   /* The shop's button gold, not a second sample of it. */
   --adm-gold-fill: var(--vp-gold-fill, #DAB226);
@@ -158,7 +168,7 @@
 }
 
 .vp-adm-link:hover {
-  background: #F2F3F5;
+  background: var(--adm-sunk);
   color: var(--adm-ink);
 }
 
@@ -266,7 +276,7 @@
 }
 
 .vp-adm-icon-btn:hover {
-  background: #F2F3F5;
+  background: var(--adm-sunk);
 }
 
 .vp-adm-icon-btn svg {
@@ -628,7 +638,7 @@
 }
 
 .vp-adm-range-tab:hover {
-  background: #F2F3F5;
+  background: var(--adm-sunk);
   color: var(--adm-ink);
 }
 
@@ -850,12 +860,12 @@
   white-space: nowrap;
 }
 
-.vp-adm-badge.is-placed { border-color: rgba(168, 91, 0, 0.35); background: #FFF6EC; color: var(--adm-warn); }
-.vp-adm-badge.is-paid { border-color: rgba(29, 95, 173, 0.3); background: #EEF4FC; color: var(--adm-info); }
-.vp-adm-badge.is-shipped { border-color: rgba(29, 95, 173, 0.3); background: #EEF4FC; color: var(--adm-info); }
-.vp-adm-badge.is-delivered { border-color: rgba(27, 127, 75, 0.3); background: #EDF7F1; color: var(--adm-good); }
-.vp-adm-badge.is-cancelled { border-color: rgba(179, 38, 30, 0.3); background: #FCEEED; color: var(--adm-bad); }
-.vp-adm-badge.is-low { border-color: rgba(179, 38, 30, 0.35); background: #FCEEED; color: var(--adm-bad); }
+.vp-adm-badge.is-placed { border-color: rgba(168, 91, 0, 0.35); background: var(--adm-warn-wash); color: var(--adm-warn); }
+.vp-adm-badge.is-paid { border-color: rgba(29, 95, 173, 0.3); background: var(--adm-info-wash); color: var(--adm-info); }
+.vp-adm-badge.is-shipped { border-color: rgba(29, 95, 173, 0.3); background: var(--adm-info-wash); color: var(--adm-info); }
+.vp-adm-badge.is-delivered { border-color: rgba(27, 127, 75, 0.3); background: var(--adm-good-wash); color: var(--adm-good); }
+.vp-adm-badge.is-cancelled { border-color: rgba(179, 38, 30, 0.3); background: var(--adm-bad-wash); color: var(--adm-bad); }
+.vp-adm-badge.is-low { border-color: rgba(179, 38, 30, 0.35); background: var(--adm-bad-wash); color: var(--adm-bad); }
 
 /* --- the sales bars ------------------------------------------------------ */
 .vp-adm-bars {
@@ -999,7 +1009,7 @@
 }
 
 .vp-adm-clear:hover {
-  background: #F2F3F5;
+  background: var(--adm-sunk);
   color: var(--adm-ink);
 }
 
@@ -1012,7 +1022,7 @@
   padding: 10px 12px;
   border: 1px solid var(--adm-line);
   border-radius: var(--adm-r-sm);
-  background: #FAFAFB;
+  background: var(--adm-sunk-2);
 }
 
 .vp-adm-bulk-all {
@@ -1448,7 +1458,7 @@ a.vp-adm-mini {
   padding: 2px 8px;
   border: 1px solid var(--adm-line);
   border-radius: var(--adm-r-sm);
-  background: #F2F3F5;
+  background: var(--adm-sunk);
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 14px;
   letter-spacing: 0.04em;
@@ -1543,7 +1553,7 @@ a.vp-adm-mini {
   width: 100%;
   height: 110px;
   object-fit: cover;
-  background: #F2F3F5;
+  background: var(--adm-sunk);
 }
 
 .vp-adm-shot figcaption {
@@ -1731,7 +1741,7 @@ a.vp-adm-mini {
 }
 
 .vp-adm .vp-admin-table tbody tr:hover td {
-  background: #FAFAFB;
+  background: var(--adm-sunk-2);
 }
 
 .vp-adm .vp-admin-table a {
@@ -2325,5 +2335,68 @@ a.vp-adm-mini {
 }
 
 .vp-adm-wipe:hover {
-  background: #F2F3F5;
+  background: var(--adm-sunk);
+}
+
+/* ==========================================================================
+   THE PANEL IN THE DARK
+
+   «صفحه هوم دارک گلد کن ببینم چطور میشه» و «میخوام ۲ حالت دارک و سفید داشته
+   باشیم» — so this is a second palette rather than a second stylesheet. Every
+   colour above is already a token; what follows redefines the names and
+   nothing else, which is why it is forty lines instead of two thousand.
+
+   `body[data-theme="dark"]`, set by the shell from a screen's own
+   `@section('theme')`. Only «خانه» asks for it so far — «فعلا فقط صفحه هوم» —
+   so every other screen is untouched and the light panel is exactly what it
+   was.
+
+   **Warm, not neutral.** A dark panel built on pure greys puts the gold beside
+   a colour that has no relation to it, and the gold reads as the only thing on
+   the screen with an opinion. The ground here is the shop's own ink (#101111)
+   opened up a little, so the greys carry the same trace of yellow the gold
+   does and the two belong to one another.
+   ========================================================================== */
+body[data-theme="dark"] {
+  --adm-bg: #131311;
+  --adm-surface: #1B1B18;
+  --adm-ink: #F2EFE7;
+  --adm-ink-2: #A39C8C;
+  --adm-line: #302E28;
+  --adm-sunk: #232219;
+  --adm-sunk-2: #1F1F1C;
+
+  /* **The headings do not carry a colour of their own.** `.vp-adm-card-title`
+     and `.vp-adm-top-title` set a size and a weight and inherit the rest, and
+     what they inherit is the *shop's* `--title-color` — near-black, solved for
+     a white page. Measured on the dark dashboard before this line: 1.1:1, which
+     is a heading the same colour as the card under it.
+
+     Redefining the shop's token inside this scope rather than repainting the
+     two classes, because they are not the only headings in the panel and the
+     next one added would arrive invisible with nothing to say why. */
+  --title-color: #F2EFE7;
+
+  /* The gold ramp is the one thing that does not change: it is the shop's
+     mark and it was chosen to sit on light *and* dark — see «گلد سبز», where
+     the whole family is one hue at five lightnesses. What has to change is
+     the gold used as **type**: `--adm-gold-ink` is #8B7217, solved for black
+     text on white, and on #131311 it is 1.6:1 and unreadable. The lit gold is
+     11.4:1 on this ground. Text is not a fill, in both directions. */
+  --adm-gold-ink: #EFC94F;
+  --adm-gold-wash: #2A2410;
+
+  /* The five status colours, lifted. Each was solved for white behind it;
+     on #1B1B18 the originals run 2.1–3.4:1. These are the same hues with the
+     lightness taken up until each clears 4.5:1 against the card it sits on. */
+  --adm-good: #4ECB8B;
+  --adm-save: #5FC945;
+  --adm-warn: #E0A44A;
+  --adm-bad: #F2685E;
+  --adm-info: #6BA6F0;
+
+  --adm-good-wash: #14261C;
+  --adm-warn-wash: #2A2113;
+  --adm-bad-wash: #2C1715;
+  --adm-info-wash: #16212F;
 }
