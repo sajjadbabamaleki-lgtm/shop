@@ -3201,10 +3201,16 @@ always take everything they are given.
 Halving the grid gap, which is what the second instruction literally asks for,
 would have moved 18 of those 193 pixels.
 
-So the gallery column is the photograph's width — `520px minmax(0, 1fr)`, gap
-18, the body capped at 1180 and centred. The air has nowhere left to be.
-Measured after: **gap 18, thumbnails aligned to the photograph at both ends
-(0px and 0px), body 1180 of 1920.**
+So the gallery column is the photograph's width — `520px minmax(0, 1fr)`, the
+body capped at 1180 and centred. The air has nowhere left to be. Measured
+after: **thumbnails aligned to the photograph at both ends (0px and 0px), body
+1180 of 1920.**
+
+The gap went to 18 first and came straight back: «مواردو خیلی بردی به عکس
+چسبوندی فاصلشونو ۲ برابر کن». Taking 193px of accidental air out left the words
+against the frame — a column of text needs a margin of its own to read as a
+separate thing rather than as a caption. **36**, which is what the grid was set
+to all along, before the centring air made it look like 193.
 
 The thumbnails are `grid-auto-flow: column; grid-auto-columns: 1fr` rather than
 fixed 76px tiles, so they span the picture exactly whatever their number — five
@@ -3230,10 +3236,31 @@ today, and two or seven the day a supplier sends more.
   `#101111`. This is «گلد سبز» for the third time, on a third screen; the test
   asserts the class rather than the screen, which is what that codename says to
   do.
-- **The blurb is four lines and a way to the rest.** Eleven lines of supplier
-  copy at `line-height: 2` is 286px, and it alone was what pushed the column
-  past the picture. `-webkit-line-clamp: 4` with a checkbox and a label — no
-  script, opens with the keyboard.
+- **The blurb is three full-width lines and a way to the rest.** Eleven lines
+  of supplier copy at `line-height: 2` is 286px, and it alone was what pushed
+  the column past the picture. `-webkit-line-clamp` with a checkbox and a label
+  — no script, opens with the keyboard.
+  Four lines first, then «طول هر خطش طولانی تر بشه و بره تو فضای خالی جلوش و ۳
+  خطی بشن»: the paragraph carried `max-width: 52ch`, which measured **379px of
+  a 606px column**, so a third of every line was empty and the copy ran as a
+  ribbon down one side of the space it had. The cap is a sound measure for a
+  page of prose and wrong for a fixed column sharing its line with a
+  photograph. Wider lines carry more words, so **three of them now say more
+  than four narrow ones did** — 624px wide, and the column came down to 644
+  against the picture's 628.
+- **The discount badge is on the ramp, and its text is ink because of it.**
+  «اون ۳۰ درصد هم باید گلدش مث باقی گلدا بشه» — `.vp-pdp-cut` was
+  `--theme-color`, the darkest gold in the file, sitting beside a ramped
+  button: two golds in one row, which is what «گلد سبز» is about.
+  **CLAUDE.md had listed this one as deliberately left alone, and it was right
+  about why.** Measured on the ramp, white is **2.02:1** at the dark end and
+  **1.60:1** at the light one, on a 13px label. So the ramp arrives with
+  `#101111` instead — **9.35:1 and 11.83:1**, against the 3.72:1 the white on
+  dark gold managed. It is both the gold that was asked for and the most
+  legible this badge has been. The chosen size chip keeps its white: a 44px
+  chip with one large numeral is not a 13px word, and it was approved as it is.
+  `CataloguePagesTest` pins the pair, so putting the ramp back with white text
+  fails rather than shipping.
 
 ### The square that was not ours
 
@@ -3251,12 +3278,13 @@ and lost silently.
 ### Same height, near enough
 
 «که اطلاعت کنار کفش تقریبا هم ارتفاع عکس کفش بشن». With the blurb clamped the
-column came to 708 against the picture's 628, and the clamp cannot give back
-more without breaking the four lines. The remaining 40 came out of the margins
-*between* the rows rather than out of any row — none reduced by more than a
-third, so the gaps stay in proportion and nothing below reads as more crowded
-than what is above. **Measured: 670 against 628.** Not equal, and «تقریبا» is
-what was asked for.
+column came to 708 against the picture's 628, and the clamp could not give back
+more without breaking the lines that were asked for. The remaining 40 came out
+of the margins *between* the rows rather than out of any row — none reduced by
+more than a third, so the gaps stay in proportion and nothing below reads as
+more crowded than what is above. That reached 670; the wider three-line blurb
+took it to **644 against 628**, which is as near as these two columns have
+been.
 
 The quantity stepper still sits on its own row above the two buttons, which is
 where it was and where the client's own screenshot shows it. Putting it inline
@@ -3271,5 +3299,5 @@ chips are EU numbers, the colour row is the phone's, nothing moved.
 `CataloguePagesTest` carries the three facts that would otherwise regress
 invisibly: one number per chip, the clamp and its toggle, and the button's gold.
 
-633 tests, Pint clean, parity identical at 992/1200/1440/1920, no sideways
+634 tests, Pint clean, parity identical at 992/1200/1440/1920, no sideways
 scroll at 390/768/1200/1920.

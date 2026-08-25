@@ -3844,8 +3844,8 @@ a.vp-pdp-thumb {
 .vp-pdp-cut {
   padding: 3px 10px;
   border-radius: 999px;
-  background: var(--theme-color);
-  color: #FFFFFF;
+  background: linear-gradient(96deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
+  color: #101111;
   font-size: 13px;
   font-weight: 630;
 }
@@ -11971,7 +11971,8 @@ body.shoe-shop {
     margin-inline: auto;
 
     grid-template-columns: 520px minmax(0, 1fr);
-    gap: 18px;
+
+    gap: 36px;
   }
 
   .vp-pdp-gallery .vp-pdp-thumbs {
@@ -12004,9 +12005,14 @@ body.shoe-shop {
   .vp-pdp-desc-text {
     display: -webkit-box;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 4;
-    line-clamp: 4;
+
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
     overflow: hidden;
+  }
+
+  .vp-pdp-desc .vp-pdp-desc-text {
+    max-width: none;
   }
 
   .vp-pdp-more-in {

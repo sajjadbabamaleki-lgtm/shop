@@ -329,11 +329,16 @@ class CataloguePagesTest extends TestCase
     }
 
     /**
-     * The blurb shows four lines and offers the rest.
+     * The blurb shows three full-width lines and offers the rest.
      *
      * «توضیحات محصول باید ۴ خطش مشخص باشه و یه شو مور بزاری براش که اطلاعت
      * کنار کفش تقریبا هم ارتفاع عکس کفش بشن» — a supplier's eleven lines were
-     * what pushed the words past the photograph beside them.
+     * what pushed the words past the photograph beside them. Then «طول هر خطش
+     * طولانی تر بشه و بره تو فضای خالی جلوش و ۳ خطی بشن»: the paragraph had a
+     * `max-width: 52ch` on it, which came to 379px of a 606px column, so a
+     * third of every line was empty and the copy ran as a ribbon down one
+     * side. Wider lines carry more words, so three of them now say more than
+     * four narrow ones did.
      *
      * The toggle is a checkbox and a label, like every other control on this
      * page, so it works with no script. The `for`/`id` pair is the whole
@@ -350,7 +355,10 @@ class CataloguePagesTest extends TestCase
         $this->assertStringContainsString('vp-pdp-desc-text', $html);
         $this->assertStringContainsString('متن کامل', $html);
 
-        $this->assertStringContainsString('-webkit-line-clamp:4', preg_replace('/\s+/', '', $css));
+        $css = preg_replace('/\s+/', '', $css);
+
+        $this->assertStringContainsString('-webkit-line-clamp:3', $css);
+        $this->assertStringNotContainsString('-webkit-line-clamp:4', $css);
     }
 
     /**
@@ -370,6 +378,33 @@ class CataloguePagesTest extends TestCase
             '.vp-pick-now{background:linear-gradient(90deg,var(--vp-gold-fill),var(--vp-gold-lit));color:#FFFFFF;}',
             $css,
             'The buy button is back on a flat colour; «گلد سبز» says a button is the ramp.',
+        );
+    }
+
+    /**
+     * The discount badge is on the ramp, and its text is ink because of it.
+     *
+     * «اون ۳۰ درصد هم باید گلدش مث باقی گلدا بشه». It was `--theme-color`, the
+     * darkest gold in the file — the one every other filled thing on this page
+     * stopped using.
+     *
+     * **The two assertions belong together.** CLAUDE.md listed `.vp-pdp-cut`
+     * as deliberately left on the dark gold precisely because white on the
+     * fill gold cannot be read, and that was right: measured on this ramp,
+     * white is 2.02:1 at the dark end and 1.60:1 at the light one, on a 13px
+     * label. `#101111` is 9.35:1 and 11.83:1 across the same two ends. So a
+     * future change that puts the ramp back with white text would be
+     * reintroducing the exact fault the codename warned about, and this is
+     * what says so.
+     */
+    public function test_the_discount_badge_is_gold_with_ink_on_it(): void
+    {
+        $css = preg_replace('/\s+/', '', (string) file_get_contents(public_path('assets/css/tweaks.css')));
+
+        $this->assertStringContainsString(
+            '.vp-pdp-cut{padding:3px10px;border-radius:999px;background:linear-gradient(96deg,var(--vp-gold-fill)0%,var(--vp-gold-lit)100%);color:#101111;',
+            $css,
+            'The badge is either off the shop gold, or back on it with white text at 2.02:1.',
         );
     }
 

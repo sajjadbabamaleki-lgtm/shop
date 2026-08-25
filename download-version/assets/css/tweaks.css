@@ -6350,11 +6350,31 @@ a.vp-pdp-thumb {
   opacity: 0.65;
 }
 
+/* The discount badge, on the shop's gold rather than beside it.
+ *
+ * «اون ۳۰ درصد هم باید گلدش مث باقی گلدا بشه». It was `--theme-color`, the
+ * darkest gold in the file, which is the one every other filled thing on this
+ * page stopped using — the buy button and the chosen size chip are both the
+ * `--vp-gold-fill → --vp-gold-lit` ramp. See «گلد سبز» in CLAUDE.md: a dark
+ * gold reads as olive, and this badge sitting beside a ramped button was the
+ * two-golds-in-one-row the codename is about.
+ *
+ * **The text had to flip to ink, and this is the entry CLAUDE.md said to read
+ * first.** It listed `.vp-pdp-cut` as deliberately still on the dark gold
+ * because white-on-fill-gold is unreadable, and that is right — measured on
+ * this ramp, white is **2.02:1** at the dark end and **1.60:1** at the light
+ * one, on a 13px label. So the ramp comes with `#101111` instead: **9.35:1**
+ * and **11.83:1** across the same two ends, against the 3.72:1 the white on
+ * dark gold managed. It is both the gold that was asked for and the most
+ * legible this badge has ever been.
+ *
+ * The chosen size chip keeps its white — it is a 44px chip with one large
+ * numeral, not a 13px word, and it was approved as it is. */
 .vp-pdp-cut {
   padding: 3px 10px;
   border-radius: 999px;
-  background: var(--theme-color);
-  color: #FFFFFF;
+  background: linear-gradient(96deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
+  color: #101111;
   font-size: 13px;
   font-weight: 630;
 }
@@ -21419,7 +21439,13 @@ body.shoe-shop {
        holds. `minmax(0, 1fr)` on the words, or a long unbroken word would
        push the grid past its cap. */
     grid-template-columns: 520px minmax(0, 1fr);
-    gap: 18px;
+    /* 18 was too close — «مواردو خیلی بردی به عکس چسبوندی فاصلشونو ۲ برابر
+       کن». Taking 193px of accidental air out left the words against the
+       frame, and a column of text needs a margin of its own to read as a
+       separate thing rather than as a caption. Doubled, and no more: 36 is
+       what the grid was originally set to, before the centring air made it
+       look like 193. */
+    gap: 36px;
   }
 
   /* **Exactly under the big one.** A row of fixed 76px tiles left the last one
@@ -21478,9 +21504,22 @@ body.shoe-shop {
   .vp-pdp-desc-text {
     display: -webkit-box;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 4;
-    line-clamp: 4;
+    /* Three, not four. «توضیحات کفش میتونه طول هر خطش طولانی تر بشه و بره تو
+       فضای خالی جلوش و ۳ خطی بشن» — and the two halves of that go together:
+       the paragraph is wider now, so three of its lines carry more words than
+       four of the old ones did. Measured: 52ch was 379px of a 606px column,
+       so a third of every line was empty and the text was set in a narrow
+       ribbon down one side of the space it had. */
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
     overflow: hidden;
+  }
+
+  /* The cap that made the ribbon. 52ch is a sound measure for a page of prose
+     and wrong for this column, which is a fixed 606 and shares its line with a
+     photograph — the eye never has to travel back across a full page here. */
+  .vp-pdp-desc .vp-pdp-desc-text {
+    max-width: none;
   }
 
   /* The checkbox is the state and is never seen. Not `display: none`: a
