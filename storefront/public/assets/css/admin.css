@@ -1610,13 +1610,18 @@ a.vp-adm-mini {
   pointer-events: none;
 }
 
+/* `--adm-sunk`, not `--adm-bg`. A field is sunk into the *surface* it sits on,
+   which happens to be the same colour as the page in a theme where the page and
+   the cards are both light — and stops being so the moment they are not. On the
+   inverted palette this box came out the colour of the page, on a black topbar.
+   The four hover grounds below moved for the same reason. */
 .vp-adm-find input {
   width: 100%;
   height: 36px;
   padding-inline: 32px 10px;
   border: 1px solid var(--adm-line);
   border-radius: var(--adm-r-sm);
-  background: var(--adm-bg);
+  background: var(--adm-sunk);
   color: var(--adm-ink);
   font: inherit;
 }
@@ -1920,7 +1925,7 @@ a.vp-adm-mini {
 }
 
 .vp-adm-jhead button:hover {
-  background: var(--adm-bg);
+  background: var(--adm-sunk);
 }
 
 .vp-adm-jgrid {
@@ -1953,7 +1958,7 @@ a.vp-adm-mini {
 }
 
 .vp-adm-jcell:hover {
-  background: var(--adm-bg);
+  background: var(--adm-sunk);
 }
 
 /* Today is marked, not selected — the two are different states and a month
@@ -1991,7 +1996,7 @@ a.vp-adm-mini {
 }
 
 .vp-adm-jfoot button:hover {
-  background: var(--adm-bg);
+  background: var(--adm-sunk);
 }
 
 /* The shipping methods, a card each.
@@ -2017,7 +2022,7 @@ a.vp-adm-mini {
   padding: 10px 12px;
   border: 1px solid var(--adm-line);
   border-radius: var(--adm-r-sm);
-  background: var(--adm-bg);
+  background: var(--adm-sunk);
 }
 
 .vp-ship-admin-head {
@@ -2399,4 +2404,55 @@ body[data-theme="dark"] {
   --adm-warn-wash: #2A2113;
   --adm-bad-wash: #2C1715;
   --adm-info-wash: #16212F;
+}
+
+/* --------------------------------------------------------------------------
+   THE OTHER WAY ROUND
+
+   «حالت برعکس بهتر نمیشه؟ یعنی بکگراند یکم روشن و دکمه ها و آیتم ها مشکی؟» —
+   a light ground with the cards, the sidebar and the topbar in near-black.
+
+   **It works because of something measurable about this panel**: on a desktop
+   almost nothing sits directly on the page ground. Counted on the dashboard,
+   every piece of text is on a card, the sidebar or the topbar — the only
+   exceptions are the phone's bottom bar and its sheet, and those are given a
+   surface of their own below. So `--adm-ink` can stay light without needing to
+   be two colours at once, which is the thing that usually makes an inverted
+   panel fall apart.
+
+   The ground is warm and a little sunk (#EDEAE3, not white) so that a black
+   card reads as an object resting on it rather than a hole cut through it.
+   -------------------------------------------------------------------------- */
+body[data-theme="ink"] {
+  --adm-bg: #EDEAE3;
+  --adm-surface: #171714;
+  --adm-ink: #F2EFE7;
+  --adm-ink-2: #A39C8C;
+  --adm-line: #2C2A25;
+  --adm-sunk: #22211C;
+  --adm-sunk-2: #1E1D19;
+  --title-color: #F2EFE7;
+
+  --adm-gold-ink: #EFC94F;
+  --adm-gold-wash: #2A2410;
+
+  --adm-good: #4ECB8B;
+  --adm-save: #5FC945;
+  --adm-warn: #E0A44A;
+  --adm-bad: #F2685E;
+  --adm-info: #6BA6F0;
+
+  --adm-good-wash: #14261C;
+  --adm-warn-wash: #2A2113;
+  --adm-bad-wash: #2C1715;
+  --adm-info-wash: #16212F;
+}
+
+/* The two things that *do* sit on the ground, and only on a phone: the bottom
+   bar and the sheet behind «بیشتر». They inherit the light ink from the
+   surfaces, so on a light ground they would be invisible — the one place this
+   arrangement needs told what it is standing on. */
+body[data-theme="ink"] .vp-adm-bottom,
+body[data-theme="ink"] .vp-adm-sheet {
+  background: var(--adm-surface);
 }
