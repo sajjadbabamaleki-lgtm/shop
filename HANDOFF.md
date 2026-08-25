@@ -3479,10 +3479,20 @@ a control with no ground of its own gets the platform's, and the platform's
 idea of a button is not this shop's. `.vp-adm-clear` now paints
 `--adm-surface` so no `<button>` can inherit that again.
 
-The save buttons are `.vp-adm-save`, on `--adm-good` — the green the panel
-already paints «فعال» and a rising figure with, rather than a new green
-invented for two buttons. White on it measures **5.02:1**, past the 4.5:1 a
-12px label needs.
+The save buttons are `.vp-adm-save`. The first version used `--adm-good`, the
+panel's own green at 5.02:1 — «رنگ سبزی که استفاده کردی خیلی تخمیه از این سبز
+استفاده کن», with a swatch attached. It samples to **#44AD2C**, and that is
+`--adm-save`, **a token of its own**: `--adm-good` also paints the «فعال» badge
+and a rising figure, and repainting those was not what was asked for.
+
+**White on the chosen green measures 2.89:1**, short of the 4.5:1 a 13px label
+wants. That was said before it went in and the colour was chosen anyway, which
+is the client's call about their own shop; it is written down here so nobody
+later mistakes it for an oversight. `#38901F` is the same hue at 4.06:1 if it
+proves hard to read outdoors — one token, one line. The rejection of the more
+legible green is itself the lesson: **contrast is not the only thing a colour
+has to do**, and a number that passes is not the same as a colour somebody will
+accept.
 
 ### The whole search row on one line
 
@@ -3498,15 +3508,16 @@ three at y=94. The field keeps `min-width: 0` so it is the one that gives way as
 the screen narrows — a button squeezed below its own word wraps it, and a
 wrapped button is taller than the row it is in.
 
-### The screen named itself twice
+### The screen named itself twice, and then it didn't
 
 «نیاز نیست کنار منوی ۳ خط اسم صفحه ها نوشته بشه». The topbar heading sat beside
 the ☰ and every screen under it opens with its own title, so the row spent a
-third of a 390px bar repeating the card below it.
+third of a 390px bar repeating the card below it. Hidden on the phone only.
 
-Hidden on the phone only. The desktop has no ☰ at all, and there the sidebar is
-what would be answering «which screen is this» — checked at 1200 and 1920 after,
-where the title and both buttons are exactly as they were.
+**And then back**, by «بنظرم اسم هر صفحه برگرده کنار اون مربع منو در بالا
+راست». It sits more comfortably than it did: the branch's name left the same row
+in between, and that was 83px of it. Both states measured at 16..374, so
+whichever way this goes next, the row's edges do not move.
 
 652 tests, Pint clean, no sideways scroll at 390/768/1200/1920.
 

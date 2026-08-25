@@ -42,6 +42,10 @@
 
   /* Semantic, §22: «Never use gold as the color for every state.» */
   --adm-good: #1B7F4B;
+  /* The save button's green, which the client chose and sent a swatch of: it
+     is deliberately not `--adm-good`. That one also paints the «فعال» badge
+     and a rising figure, and repainting those was not what was asked for. */
+  --adm-save: #44AD2C;
   --adm-warn: #A85B00;
   --adm-bad: #B3261E;
   --adm-info: #1D5FAD;
@@ -2080,10 +2084,17 @@ a.vp-adm-mini {
    bright blue buttons on them that exist nowhere in the stylesheet.
 
    The fix is a background, and the client picked the colour:
-   «اون دکمه های آبی باید سبز بشن با نوشته سفید». It is `--adm-good`, the
-   green the panel already paints «فعال» and a rising figure with, rather than
-   a new green invented for two buttons — white on it measures 5.02:1, past
-   the 4.5:1 a 12px label needs. */
+   «اون دکمه های آبی باید سبز بشن با نوشته سفید», and then «رنگ سبزی که استفاده
+   کردی خیلی تخمیه از این سبز استفاده کن» with a swatch attached. It samples to
+   **#44AD2C**, which is `--adm-save`.
+
+   **White on it measures 2.89:1**, short of the 4.5:1 a 13px label wants. That
+   was said before it went in and the client chose the colour anyway, which is
+   their call about their own shop; `#38901F` is the same hue at 4.06:1 if it
+   ever proves hard to read outdoors, and it is one token on one line. The
+   first attempt used `--adm-good`, the panel's own green, at 5.02:1 — rejected
+   on sight, which is the reminder that legibility is not the only thing a
+   colour has to do. */
 .vp-adm-save {
   min-height: 38px;
   display: inline-flex;
@@ -2091,7 +2102,7 @@ a.vp-adm-mini {
   padding-inline: 14px;
   border: 0;
   border-radius: var(--adm-r-sm);
-  background: var(--adm-good);
+  background: var(--adm-save);
   color: #FFFFFF;
   font: inherit;
   font-weight: 700;
@@ -2143,15 +2154,10 @@ a.vp-adm-mini {
     white-space: nowrap;
   }
 
-  /* **The screen names itself twice on a phone.** «نیاز نیست کنار منوی ۳ خط
-     اسم صفحه ها نوشته بشه» — the topbar heading sits beside the ☰ and every
-     screen under it opens with its own title, so the row spent a third of a
-     390px bar repeating what the card below it says. Gone on the phone only:
-     the desktop has no ☰ and its sidebar is the thing that would be answering
-     «which screen is this». */
-  .vp-adm-top-title {
-    display: none;
-  }
+  /* The topbar heading was hidden here for a while — «نیاز نیست کنار منوی ۳ خط
+     اسم صفحه ها نوشته بشه» — and is back by «بنظرم اسم هر صفحه برگرده کنار اون
+     مربع منو در بالا راست». It sits more comfortably than it did: the branch's
+     name left the same row in between, and that was 83px of it. */
 }
 
 /* --- the date filter, edge to edge on a phone ----------------------------- */
