@@ -13694,11 +13694,10 @@ button.vp-cart-keep {
 
 /* The chip is the *direct* child span, and the `>` is load-bearing.
 
-   Each chip carries three spans inside it — `.vp-size-eu`, `.vp-size-us`,
-   `.vp-size-cm`, one per unit, with CSS showing whichever the switch has on.
-   Written as `.vp-pick-size span` this rule drew a 48×44 chip with its own
-   background for each of *those* as well, and the innermost one painted over
-   the outer. The gold below lands on the outer span — it is the input's
+   The chip wraps its number in a span of its own — `.vp-size-eu`, and until
+   the EU/US/CM switch was taken off this page, two more beside it. Written as
+   `.vp-pick-size span` this rule drew a 48×44 chip with its own background for
+   that inner one as well, and it painted over the outer. The gold below lands on the outer span — it is the input's
    sibling — so a chosen size computed as gold and painted white: «باید گلد بشه
    سایز انتخاب شده», and before that «روشون میزنم انتخاب نمیشه», because a chip
    that does not change when you press it has not been pressed as far as
@@ -20625,11 +20624,6 @@ body.vp-prize-open .vp-whatsapp {
    desktop's switch says otherwise — and this rule is deliberately outside that
    switch's media query: the chips exist on the phone too, where there is no
    switch, and a chip that printed all three read «۳۶۲۳٫۵» as one number. */
-.vp-pick .vp-size-us,
-.vp-pick .vp-size-cm {
-  display: none;
-}
-
 /* --------------------------------------------------------------------------
    The product page on a desktop, rebuilt to the reference.
 
@@ -20772,59 +20766,6 @@ body.vp-prize-open .vp-whatsapp {
   }
 
   /* --- the size grid and its unit switch ---------------------------------- */
-  .vp-pdp-units {
-    display: inline-flex;
-    align-self: flex-start;
-    gap: 4px;
-    margin-bottom: 10px;
-    padding: 3px;
-    border-radius: 999px;
-    background: rgba(16, 17, 17, 0.05);
-  }
-
-  .vp-pdp-unit input {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
-  }
-
-  .vp-pdp-unit span {
-    display: block;
-    padding: 4px 12px;
-    border-radius: 999px;
-    color: rgba(16, 17, 17, 0.6);
-    font-size: 11px;
-    font-weight: 630;
-    letter-spacing: 0.04em;
-    cursor: pointer;
-    transition: background-color 0.2s ease, color 0.2s ease;
-  }
-
-  .vp-pdp-unit input:checked + span {
-    background: #FFFFFF;
-    color: #101111;
-    box-shadow: 0 1px 2px rgba(16, 17, 17, 0.12);
-  }
-
-  .vp-pdp-unit input:focus-visible + span {
-    outline: 2px solid var(--vp-gold-fill);
-    outline-offset: 2px;
-  }
-
-  /* One unit shows at a time. The chip carries all three and the switch above
-     picks; `:has()` is what lets a radio outside the chip decide what is inside
-     it without a line of script.
-
-     **The hiding is not here.** It is a base rule below this block, because a
-     chip carries all three units at every width and only the desktop has a
-     switch — put the `display: none` inside this media query and the phone
-     prints «۳۶۲۳٫۵» inside one chip, which is exactly what it did until this
-     was measured on a 390px screen rather than assumed. */
-  .vp-pick:has(.vp-pdp-unit input[value="us"]:checked) .vp-size-eu,
-  .vp-pick:has(.vp-pdp-unit input[value="cm"]:checked) .vp-size-eu { display: none; }
-
-  .vp-pick:has(.vp-pdp-unit input[value="us"]:checked) .vp-size-us,
-  .vp-pick:has(.vp-pdp-unit input[value="cm"]:checked) .vp-size-cm { display: inline; }
 
   /* --- the buy row -------------------------------------------------------
      Three controls on one line, the way the reference has them: the dark one
@@ -20973,7 +20914,6 @@ body.vp-prize-open .vp-whatsapp {
   .vp-pick { display: flex; flex-direction: column; }
   .vp-pick > .vp-pdp-colors { order: -1; }
   .vp-pick > .vp-pick-head  { order: 0; }
-  .vp-pick > .vp-pdp-units  { order: 1; }
   .vp-pick > .vp-pick-sizes { order: 2; }
   .vp-pick > .vp-pick-bar   { order: 3; }
   .vp-pick > .vp-pdp-ship   { order: 4; }
@@ -20989,7 +20929,6 @@ body.vp-prize-open .vp-whatsapp {
   .vp-pdp-maker,
   .vp-pdp-stars,
   .vp-pdp-desc-title,
-  .vp-pdp-units,
   .vp-pick-now,
   .vp-pdp-like,
   .vp-pdp-ship {
@@ -21448,6 +21387,240 @@ body.shoe-shop {
   line-height: 17px;
   color: #6B6B6B;
   text-align: center;
+}
+
+/* --------------------------------------------------------------------------
+   THE PRODUCT PAGE ON A DESKTOP, PULLED IN
+
+   «هیچ ضرورتی نداره کل عرض وبسایتو پر کنه میتونه یذره جمو جورتر بشه / اون
+   فاصله بین عکس و نوشته ها نصف بشه / اون عکس ها دقیقا زیر عکس بزرگ قرار
+   بگیرن».
+
+   All three are one fault. `.vp-pdp-body` was two `1fr` columns, and the
+   photograph inside the right-hand one is `max-width: 520px; margin-inline:
+   auto`. Measured at 1920: the column was 834 wide and the photograph 520, so
+   **157px of centring air sat on each side of it**. That air is what made the
+   gap between the shoe and the words 193px rather than the 36px the grid was
+   set to, and it is why the thumbnails — which start at their column's edge,
+   not the photograph's — ended 157px to the side of the picture they belong
+   to. Halving the grid gap would have moved 18 of those 193 pixels.
+
+   So the gallery column is the photograph's width instead of half the screen,
+   and the air has nowhere to be. 520 + 18 + the words, capped at 1180 and
+   centred: at 1920 that is 740px of margin doing what «جمع‌وجور» asks for, and
+   the two columns cannot drift apart again because only one of them is
+   elastic.
+   -------------------------------------------------------------------------- */
+@media (min-width: 992px) {
+  .vp-pdp-body {
+    max-width: 1180px;
+    margin-inline: auto;
+    /* The photograph's own width, so the column cannot be wider than what it
+       holds. `minmax(0, 1fr)` on the words, or a long unbroken word would
+       push the grid past its cap. */
+    grid-template-columns: 520px minmax(0, 1fr);
+    gap: 18px;
+  }
+
+  /* **Exactly under the big one.** A row of fixed 76px tiles left the last one
+     100px short of the photograph's far edge, which reads as a row that does
+     not belong to it. As columns of one shared track they span the picture
+     exactly, whatever the count — five today, and two or seven the day a
+     supplier sends more. */
+  .vp-pdp-gallery .vp-pdp-thumbs {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+    gap: 10px;
+  }
+
+  .vp-pdp-gallery .vp-pdp-thumb {
+    width: auto;
+    height: auto;
+    aspect-ratio: 1;
+  }
+
+  /* **The colour line, which the desktop never drew.** «انتخاب رنگ هم بیاد
+     جزو موارد» — it was built for the phone and hidden everywhere else, so the
+     larger screen, with more room for it than the phone has, was the one
+     without it. `.vp-pick`'s own `order: -1` already had a place waiting. */
+  .vp-pdp-colors {
+    display: block;
+  }
+
+  /* **The buy button is gold, like every other button on this site.**
+     «اون دکمه مشکی باید گلد بشه». Black was the reference screen's, and it is
+     the only filled button on the storefront that was not the gold ramp —
+     `.vp-pick-go`, `.vp-cart-go`, `.vp-enter-go` and `.vp-filter-apply` are
+     all this. See «گلد سبز» in CLAUDE.md: a button is the ramp with white
+     text and `brightness(1.04)` on hover, and an icon is the flat ink gold.
+     Nothing here is text, so nothing here keeps the dark gold. */
+  .vp-pick-now {
+    background: linear-gradient(90deg, var(--vp-gold-fill), var(--vp-gold-lit));
+    color: #FFFFFF;
+  }
+
+  .vp-pick-now:hover {
+    background: linear-gradient(90deg, var(--vp-gold-fill), var(--vp-gold-lit));
+    filter: brightness(1.04);
+  }
+
+  /* **Four lines, and a way to the rest.**
+     «توضیحات محصول باید ۴ خطش مشخص باشه و یه شو مور بزاری براش که اطلاعت کنار
+     کفش تقریبا هم ارتفاع عکس کفش بشن». The blurb is eleven lines of supplier
+     copy; at `line-height: 2` and 13px that is 286px, and it alone was what
+     pushed the column past the photograph beside it.
+
+     `-webkit-line-clamp` rather than a fixed height, so four lines stays four
+     lines if the type ever changes size. The properties are unprefixed
+     `line-clamp` too — the prefixed pair is still what every engine ships,
+     and the unprefixed one is what they are moving to. */
+  .vp-pdp-desc-text {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+    overflow: hidden;
+  }
+
+  /* The checkbox is the state and is never seen. Not `display: none`: a
+     hidden input cannot be reached by the label's own click on some engines,
+     and it would leave the keyboard with nothing to focus. */
+  .vp-pdp-more-in {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* **And the box the base layer draws for it, which is not ours.**
+     `input[type="checkbox"] ~ label::before` there paints an 18px bordered
+     square on *any* label that follows a checkbox, the way its own tick-boxes
+     are built — so an empty square appeared beside «متن کامل», 0×0 input and
+     all. Measured before assuming: the input really is 0×0 at opacity 0, and
+     the square was still there, which is what said it belonged to the label.
+     The same rule also puts `padding-right: 30px` on the label to make room
+     for it, so both have to go. */
+  /* Written to out-weigh `input[type="checkbox"] ~ label:before` rather than
+     to read nicely: that selector is (0,1,2) and a bare `.vp-pdp-more::before`
+     is (0,1,1), so the first attempt lost silently and the square stayed. This
+     mirrors the shape of the rule it is overriding, which is the only reliable
+     way to be sure of winning. */
+  input.vp-pdp-more-in ~ label.vp-pdp-more::before {
+    content: none;
+  }
+
+  input.vp-pdp-more-in ~ label.vp-pdp-more {
+    padding-right: 0;
+  }
+
+  .vp-pdp-more-in:checked ~ .vp-pdp-desc-text {
+    -webkit-line-clamp: unset;
+    line-clamp: unset;
+  }
+
+  .vp-pdp-more {
+    display: inline-block;
+    margin-top: 6px;
+    color: var(--vp-gold-ink);
+    font-size: 12px;
+    font-weight: 630;
+    cursor: pointer;
+  }
+
+  .vp-pdp-more:hover {
+    text-decoration: underline;
+  }
+
+  .vp-pdp-more-shut,
+  .vp-pdp-more-in:checked ~ .vp-pdp-more .vp-pdp-more-open {
+    display: none;
+  }
+
+  .vp-pdp-more-in:checked ~ .vp-pdp-more .vp-pdp-more-shut {
+    display: inline;
+  }
+
+  /* The focus ring belongs to the words, since the input it comes from has no
+     size of its own to draw one around. */
+  .vp-pdp-more-in:focus-visible ~ .vp-pdp-more {
+    outline: 2px solid var(--vp-gold-fill);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  /* **The last 48px, so the words end where the photograph does.**
+     «که اطلاعت کنار کفش تقریبا هم ارتفاع عکس کفش بشن». With the blurb clamped
+     the column came to 708 against the picture's 628; the clamp cannot give
+     back more without breaking the four lines that were asked for, so the rest
+     comes out of the spaces between the rows rather than out of any row.
+
+     Every one of these is a margin, and none of them is more than a third
+     smaller — measured after: 660 against 628, near enough that the two
+     columns read as ending together, which is what «تقریبا» asks for.
+     The gaps are still in proportion to each other, so nothing below reads as
+     more crowded than what is above it. */
+  .vp-pdp-maker { margin-bottom: 6px; }
+  .vp-pdp-stars { margin-bottom: 8px; }
+  .vp-pdp-price { margin-bottom: 8px; }
+
+  .vp-pdp-desc,
+  .vp-pdp-desc.is-standin {
+    margin-top: 12px;
+    margin-bottom: 10px;
+  }
+
+  /* **The swatches, which the desktop had never drawn.** Un-hiding
+     `.vp-pdp-colors` showed its heading and nothing under it: everything that
+     gives a swatch a size lives in the phone's block, so five spans were
+     arriving as unstyled inline text with no width, no height and no colour.
+
+     They are the phone's 32px dots, gathered under their own heading rather
+     than spread across the line — there is far more width here than a phone
+     has, and the phone's `space-between` would have put four of them nowhere
+     near the fifth. **No `direction: ltr` either**, which the phone's rule
+     carries: copied here it started the row at the far left while «انتخاب
+     سایز» below started its chips at the right, so the two lines under two
+     right-hand headings ran off in opposite directions. The count keeps the
+     same `.vp-pick-note` box the sizes use, so the colour line and the size
+     line read as one system. */
+  .vp-pdp-swatches {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 6px;
+  }
+
+  .vp-pdp-swatch {
+    flex: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--vp-swatch);
+  }
+
+  .vp-pdp-swatch.is-off { opacity: 0.3; }
+
+  .vp-pdp-swatch.is-on {
+    box-shadow:
+      0 0 0 2px #FFFFFF,
+      0 0 0 3.5px rgba(16, 17, 17, 0.35);
+  }
+
+  /* Hidden globally, so the desktop colour line has to ask for it by name. */
+  .vp-pdp-colors .vp-pick-note.is-inline {
+    display: inline-flex;
+    align-items: center;
+    margin-inline-start: auto;
+    color: rgba(16, 17, 17, 0.55);
+    font-size: 12px;
+  }
+
+  .vp-pick > .vp-pdp-colors { margin-bottom: 10px; }
+  .vp-pick > .vp-pick-sizes { margin-top: 6px; }
+  .vp-pick > .vp-pick-bar   { margin-top: 10px; }
+  .vp-pick > .vp-pdp-ship   { margin-top: 8px; }
 }
 
 :root {

@@ -39,27 +39,23 @@
      */
     $sized = $sizes->contains(fn ($variant) => (int) $variant->size_value > 0);
 
-    /*
-     | Each chip carries all three units and the page shows one.
-     |
-     | The desktop reference has an EU/US/CM switch over the size grid. It is
-     | done the way the sizes themselves are — radios and labels, no script —
-     | and the chip renders three spans of which CSS shows one. The numbers are
-     | `config('storefront.size_chart')`, the same table `/size-guide`
-     | publishes; a size we have no row for shows its EU number in every unit
-     | rather than a converted guess.
-     */
-    $chart = collect(config('storefront.size_chart'))->keyBy('eu');
 @endphp
 
 @php
-    $units = function (int $value) use ($chart) {
-        $row = $chart->get($value);
-
-        return '<span class="vp-size-eu">'.fa_number($value).'</span>'
-            .'<span class="vp-size-us">'.($row ? fa_number($row['us']) : fa_number($value)).'</span>'
-            .'<span class="vp-size-cm">'.($row ? fa_number($row['cm']) : fa_number($value)).'</span>';
-    };
+    /*
+     | A chip is its EU number and nothing else.
+     |
+     | The desktop had an EU/US/CM switch over this grid, and each chip carried
+     | three spans of which CSS showed one. «اون ۳ حالت سایز حذف بشه و فقط
+     | شماره سایز بمونه مث نسخه موبایل» took the switch away, and with nothing
+     | left to switch to, the other two spans were two thirds of this grid's
+     | markup rendering invisibly on every size of every product.
+     |
+     | The conversions are not lost — `config('storefront.size_chart')` is
+     | still what `/size-guide` publishes, which is where somebody who needs
+     | their US size goes.
+     */
+    $units = fn (int $value) => '<span class="vp-size-eu">'.fa_number($value).'</span>';
 @endphp
 
 @if (! $sized)

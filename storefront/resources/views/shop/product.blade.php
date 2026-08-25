@@ -308,17 +308,13 @@
                                 <span class="vp-pick-note">{{ fa_number($simple->count()) }} سایز موجود</span>
                             </div>
 
-                            {{-- EU / US / CM, desktop only and script-free: three
-                                 radios, and the chips below render all three units
-                                 with CSS showing whichever is checked. They are
-                                 inside the form because `:has()` needs a common
-                                 ancestor, and they carry no name, so they never
-                                 reach the controller. --}}
-                            <div class="vp-pdp-units" role="group" aria-label="واحد سایز">
-                                <label class="vp-pdp-unit"><input type="radio" name="unit" value="eu" checked><span>EU</span></label>
-                                <label class="vp-pdp-unit"><input type="radio" name="unit" value="us"><span>US</span></label>
-                                <label class="vp-pdp-unit"><input type="radio" name="unit" value="cm"><span>CM</span></label>
-                            </div>
+                            {{-- The EU/US/CM switch was here. «اون ۳ حالت سایز
+                                 حذف بشه و فقط شماره سایز بمونه مث نسخه موبایل»
+                                 — the phone never had it, and one page showing
+                                 the same shoe in two numbering systems was a
+                                 choice nobody had asked to make. The chips are
+                                 EU now, everywhere, and `/size-guide` is where
+                                 the conversion table lives. --}}
 
                             @include('shop.sizes')
 
@@ -484,7 +480,27 @@
                                  `.vp-pdp-about` panel further down the page and
                                  does not need a second heading. --}}
                             <h2 class="vp-pdp-desc-title">توضیحات محصول</h2>
-                            <p>{{ $blurb }}</p>
+
+                            {{-- **Four lines, then a way to see the rest.**
+                                 «توضیحات محصول باید ۴ خطش مشخص باشه و یه شو مور
+                                 بزاری براش» — the blurb ran to eleven lines and
+                                 pushed the whole column past the photograph
+                                 beside it, which is what «هم ارتفاع» is about.
+
+                                 A checkbox and a label, not a script: the same
+                                 way every other control on this page works, so
+                                 it opens with the keyboard and cannot break.
+                                 The input is before the text because CSS can
+                                 only look forward from `:checked` to a sibling.
+                                 It is `aria-hidden` with the label carrying the
+                                 words, so a screen reader is told «متن کامل»
+                                 rather than «checkbox, unchecked». --}}
+                            <input class="vp-pdp-more-in" type="checkbox" id="vp-desc-{{ $product->id }}" aria-hidden="true" tabindex="-1">
+                            <p class="vp-pdp-desc-text">{{ $blurb }}</p>
+                            <label class="vp-pdp-more" for="vp-desc-{{ $product->id }}" role="button" tabindex="0">
+                                <span class="vp-pdp-more-open">متن کامل</span>
+                                <span class="vp-pdp-more-shut">بستن</span>
+                            </label>
                         </div>
                     @endif
 

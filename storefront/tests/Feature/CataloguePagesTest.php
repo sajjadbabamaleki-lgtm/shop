@@ -304,6 +304,75 @@ class CataloguePagesTest extends TestCase
         );
     }
 
+    // --- the desktop product page, pulled in ------------------------------
+
+    /**
+     * A size chip is its EU number and nothing else.
+     *
+     * «اون ۳ حالت سایز حذف بشه و فقط شماره سایز بمونه مث نسخه موبایل». Every
+     * chip used to carry three spans — EU, US and CM — with a switch above the
+     * grid choosing between them, and the phone showed only the first. Both
+     * the switch and the other two spans are gone.
+     *
+     * Worth a test rather than trusting the diff: the two extra spans were
+     * *invisible*, so putting them back would change nothing anybody could
+     * see, on a page `check-parity.js` never opens.
+     */
+    public function test_a_size_chip_carries_one_number_and_no_unit_switch(): void
+    {
+        $html = $this->get('/products/nike-v2k-run')->assertOk()->getContent();
+
+        $this->assertStringContainsString('vp-size-eu', $html);
+        $this->assertStringNotContainsString('vp-size-us', $html);
+        $this->assertStringNotContainsString('vp-size-cm', $html);
+        $this->assertStringNotContainsString('vp-pdp-units', $html);
+    }
+
+    /**
+     * The blurb shows four lines and offers the rest.
+     *
+     * «توضیحات محصول باید ۴ خطش مشخص باشه و یه شو مور بزاری براش که اطلاعت
+     * کنار کفش تقریبا هم ارتفاع عکس کفش بشن» — a supplier's eleven lines were
+     * what pushed the words past the photograph beside them.
+     *
+     * The toggle is a checkbox and a label, like every other control on this
+     * page, so it works with no script. The `for`/`id` pair is the whole
+     * mechanism: break it and the clamp becomes permanent with a dead word
+     * under it, which reads as a bug rather than as a missing feature.
+     */
+    public function test_the_description_clamps_to_four_lines_and_opens(): void
+    {
+        $html = $this->get('/products/nike-v2k-run')->assertOk()->getContent();
+        $css = (string) file_get_contents(public_path('assets/css/tweaks.css'));
+
+        $this->assertMatchesRegularExpression('/id="vp-desc-\d+"/', $html);
+        $this->assertMatchesRegularExpression('/for="vp-desc-\d+"/', $html);
+        $this->assertStringContainsString('vp-pdp-desc-text', $html);
+        $this->assertStringContainsString('متن کامل', $html);
+
+        $this->assertStringContainsString('-webkit-line-clamp:4', preg_replace('/\s+/', '', $css));
+    }
+
+    /**
+     * «اون دکمه مشکی باید گلد بشه» — and it stays gold.
+     *
+     * `.vp-pick-now` was the one filled button on the storefront still painted
+     * `#101111`. See «گلد سبز» in CLAUDE.md: this is the third round of that
+     * complaint across three different screens, and each earlier round fixed
+     * the one button that was pointed at. This asserts the class, which is
+     * what the codename says to do.
+     */
+    public function test_the_buy_button_wears_the_shops_gold(): void
+    {
+        $css = preg_replace('/\s+/', '', (string) file_get_contents(public_path('assets/css/tweaks.css')));
+
+        $this->assertStringContainsString(
+            '.vp-pick-now{background:linear-gradient(90deg,var(--vp-gold-fill),var(--vp-gold-lit));color:#FFFFFF;}',
+            $css,
+            'The buy button is back on a flat colour; «گلد سبز» says a button is the ramp.',
+        );
+    }
+
     /**
      * Sold out stays in the shop and says so.
      *

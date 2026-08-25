@@ -3176,3 +3176,100 @@ there, and it is one nginx setting rather than any change to this repository.
 
 630 tests, Pint clean, parity identical at 992/1200/1440/1920, no sideways
 scroll at 390/768/1200/1920.
+
+## The product page on a desktop, pulled in
+
+Eight instructions in one message, and the first three turned out to be one
+fault:
+
+> «هیچ ضرورتی نداره کل عرض وبسایتو پر کنه میتونه یذره جمو جورتر بشه / اون فاصله
+> بین عکس و نوشته ها نصف بشه / اون عکس ها دقیقا زیر عکس بزرگ قرار بگیرن»
+
+### 157 pixels of nothing, in three complaints
+
+`.vp-pdp-body` was two `1fr` columns, and the photograph inside the right-hand
+one is `max-width: 520px; margin-inline: auto`. **Measured at 1920: the column
+was 834 wide and the photograph 520 — 157px of centring air on each side.**
+
+That air is all three complaints. The gap between the shoe and the words
+measured **193px** against the 36px the grid was set to. The thumbnails start at
+their *column's* edge, not the photograph's, so they ended **157px** to the side
+of the picture they belong to — their right edge at 1812 against the shot's
+1655. And the whole thing spanned 1704 of 1920 because two elastic columns will
+always take everything they are given.
+
+Halving the grid gap, which is what the second instruction literally asks for,
+would have moved 18 of those 193 pixels.
+
+So the gallery column is the photograph's width — `520px minmax(0, 1fr)`, gap
+18, the body capped at 1180 and centred. The air has nowhere left to be.
+Measured after: **gap 18, thumbnails aligned to the photograph at both ends
+(0px and 0px), body 1180 of 1920.**
+
+The thumbnails are `grid-auto-flow: column; grid-auto-columns: 1fr` rather than
+fixed 76px tiles, so they span the picture exactly whatever their number — five
+today, and two or seven the day a supplier sends more.
+
+### The rest of the list
+
+- **The EU/US/CM switch is gone**, and with it two of the three spans every
+  chip carried. «فقط شماره سایز بمونه مث نسخه موبایل» — the phone never had the
+  switch, and one page numbering the same shoe three ways was a choice nobody
+  asked to make. `/size-guide` still publishes the conversion table.
+- **The colour line reaches the desktop.** «انتخاب رنگ هم بیاد جزو موارد» — it
+  was built for the phone and hidden everywhere else, so the screen with the
+  most room for it was the one without it. Un-hiding the container showed a
+  heading and nothing under it: every rule that gives a swatch a size lives in
+  the phone's block, so five spans arrived as unstyled inline text. **And not
+  the phone's `direction: ltr`** — copied across it started the row at the far
+  left while «انتخاب سایز» below started its chips at the right, two lines under
+  two right-hand headings running in opposite directions. Both rows now begin
+  at 1012.
+- **The buy button is the gold ramp.** «اون دکمه مشکی باید گلد بشه» —
+  `.vp-pick-now` was the last filled button on the storefront still painted
+  `#101111`. This is «گلد سبز» for the third time, on a third screen; the test
+  asserts the class rather than the screen, which is what that codename says to
+  do.
+- **The blurb is four lines and a way to the rest.** Eleven lines of supplier
+  copy at `line-height: 2` is 286px, and it alone was what pushed the column
+  past the picture. `-webkit-line-clamp: 4` with a checkbox and a label — no
+  script, opens with the keyboard.
+
+### The square that was not ours
+
+An empty 18px box appeared beside «متن کامل». The checkbox measured **0×0 at
+opacity 0** and the square was still there, which is what said it did not belong
+to the input: the base stylesheet has `input[type="checkbox"] ~ label:before`
+drawing its own tick-box on *any* label following a checkbox, plus a
+`padding-right: 30px` to make room for it. The same trap as the radio in
+«روش‌های ارسال» a few sections up — **that layer styles by relationship, not by
+class, so any bare input next to a label inherits a control it did not ask
+for.** The reset is written as `input.vp-pdp-more-in ~ label.vp-pdp-more::before`
+because a plain `.vp-pdp-more::before` is (0,1,1) against that rule's (0,1,2)
+and lost silently.
+
+### Same height, near enough
+
+«که اطلاعت کنار کفش تقریبا هم ارتفاع عکس کفش بشن». With the blurb clamped the
+column came to 708 against the picture's 628, and the clamp cannot give back
+more without breaking the four lines. The remaining 40 came out of the margins
+*between* the rows rather than out of any row — none reduced by more than a
+third, so the gaps stay in proportion and nothing below reads as more crowded
+than what is above. **Measured: 670 against 628.** Not equal, and «تقریبا» is
+what was asked for.
+
+The quantity stepper still sits on its own row above the two buttons, which is
+where it was and where the client's own screenshot shows it. Putting it inline
+would have saved another 60px and was not asked for.
+
+**None of this reaches the phone.** Every rule is inside `@media (min-width:
+992px)`, and the description block the toggle lives in is `display: none` below
+that — the phone has its own `.vp-pdp-about` panel. Checked at 390 after:
+chips are EU numbers, the colour row is the phone's, nothing moved.
+
+`check-parity.js` cannot see any of this — it renders the home page — so
+`CataloguePagesTest` carries the three facts that would otherwise regress
+invisibly: one number per chip, the clamp and its toggle, and the button's gold.
+
+633 tests, Pint clean, parity identical at 992/1200/1440/1920, no sideways
+scroll at 390/768/1200/1920.
