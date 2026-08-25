@@ -13057,6 +13057,25 @@ button.vp-cart-keep {
   height: 100%;
   min-height: 0;
   text-align: right;
+  /* **The pane the cards inside this panel never had.** «چرا اینقد داغونه این
+     قسمت تو دستاپ», with the basket open on a wide screen.
+
+     `.vp-cart-line` is the basket page's own card, deliberately — one card in
+     this file, not two. On that page it is edge-to-edge inside a pane that
+     supplies the breathing room, and `--vp-cart-edge: 0` puts the bin and the
+     compare mark on the card's own inline edge because the pane is further out
+     still. This panel had no pane, so "the card's edge" and "the panel's edge"
+     were the same pixel: measured at 1440, the compare mark occupied 0..32
+     from the boundary and the photograph's far side landed exactly on the
+     other one. The foot looked inset only because it is a white card with 16px
+     of its own padding.
+
+     So the panel becomes the pane. 12 here on top of the 10 `.sidemenu-content`
+     already holds is 22 from the drawer's outer edge — measured against the
+     foot card, whose ring now stands 22 in as well, and against the phone,
+     where the same panel opens at 390 and the card keeps its 84px photograph
+     with the text column at 246. */
+  padding-inline: 12px;
 }
 
 .vp-mini-head {
