@@ -59,6 +59,9 @@
                                             <small>فروشگاه کیف و کفش زنانه</small>
                                         </span>
                                     </a>
+                                    <p class="vp-foot-d-strap">ارائه‌دهنده انواع کیف و کفش زنانه با تضمین کیفیت، ارسال سریع و امکان خرید تکی و عمده.</p>
+                                    <p class="vp-foot-d-line"><i class="fa-solid fa-location-dot" aria-hidden="true"></i><span>تهران، سعدی شمالی، روبه‌روی بانک ملی، پلاک ۵۶۵</span></p>
+                                    <p class="vp-foot-d-line"><i class="fa-solid fa-phone" aria-hidden="true"></i><a href="tel:02133983125">021-3398-3125</a></p>
                                 </div>
                             </div>
                         </div>
@@ -83,11 +86,26 @@
                                 <div class="menu-all-pages-container">
                                     <ul class="menu">
                                         <li><a href="{{ page_url('faq.html') }}">راهنما</a></li>
+                                        <li><a href="{{ page_url('size-guide.html') }}">راهنمای سایز</a></li>
                                         <li><a href="{{ page_url('contact.html') }}">تماس با ما</a></li>
                                         <li><a href="{{ page_url('contact.html') }}">گزارش تخلف</a></li>
                                         <li><a href="{{ page_url('contact.html') }}">ثبت شکایت</a></li>
                                         <li><a href="{{ page_url('terms.html') }}">قوانین</a></li>
                                         <li><a href="{{ page_url('faq.html') }}">خرید اینترنتی</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-xl-auto">
+                            <div class="widget widget_nav_menu footer-widget">
+                                <h3 class="widget_title">دسته‌ها</h3>
+                                <div class="menu-all-pages-container">
+                                    <ul class="menu">
+                                        <li><a href="{{ page_url('shop.html') }}">کفش زنانه</a></li>
+                                        <li><a href="{{ page_url('shop.html') }}">کیف زنانه</a></li>
+                                        <li><a href="{{ page_url('shop.html') }}">پرفروش‌ترین‌ها</a></li>
+                                        <li><a href="{{ page_url('shop.html') }}">تخفیف‌دارها</a></li>
+                                        <li><a href="{{ page_url('shop.html') }}">حراج پله‌ای</a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -112,9 +130,12 @@
                                 <h3 class="widget_title">ویکی پلاس روی موبایل</h3>
                                 <div class="widget-content2">
                                     <p class="title mb-20">برای دسترسی سریع‌تر، ویکی پلاس را از منوی مرورگرتان به صفحه اصلی گوشی اضافه کنید.</p>
-                                    <div class="th-social style2 mt-40">
-                                        <a href="https://www.instagram.com/"><i class="fab fa-instagram"></i></a>
-                                        <a href="https://wa.me/989918905993" target="_blank" rel="noopener" aria-label="واتساپ"><i class="fab fa-whatsapp"></i></a>
+                                    <div class="vp-foot-d-social">
+                                        <a class="vp-foot-m-soc is-instagram" href="#" aria-label="Instagram"><img class="vp-foot-m-soc-mark" src="{{ asset('assets/img/social/instagram.svg') }}" alt="" width="24" height="24"></a>
+                                        <a class="vp-foot-m-soc is-telegram" href="#" aria-label="تلگرام"><img class="vp-foot-m-soc-mark" src="{{ asset('assets/img/social/telegram.svg') }}" alt="" width="26" height="26"></a>
+                                        <a class="vp-foot-m-soc is-whatsapp" href="https://wa.me/989918905993" aria-label="واتساپ"><img class="vp-foot-m-soc-mark" src="{{ asset('assets/img/social/whatsapp.svg') }}" alt="" width="24" height="24"></a>
+                                        <a class="vp-foot-m-soc is-bale" href="#" aria-label="بله"><img class="vp-foot-m-soc-mark" src="{{ asset('assets/img/social/bale.png') }}" alt="" width="26" height="26"></a>
+                                        <a class="vp-foot-m-soc is-rubika" href="#" aria-label="روبیکا"><img class="vp-foot-m-soc-mark" src="{{ asset('assets/img/social/rubika.png') }}" alt="" width="26" height="26"></a>
                                     </div>
                                 </div>
                             </div>

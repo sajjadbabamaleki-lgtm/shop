@@ -1938,6 +1938,215 @@ const BRANDS_HTML =
   '        </div>\n' +
   '    </section>';
 
+// «سوالات متداول», at the foot of this page too.
+//
+// «بخش سوالات متداول تو دستاپ هم بیاد پایین وبسایت». The band has existed in
+// the Laravel page since it was asked for on a phone, and was held off the
+// desktop by one line of CSS so that this page and that one stayed
+// pixel-identical. Lifting that line means this page needs the band as well,
+// and here it is.
+//
+// **A snapshot of eight answers, and that is on purpose.** The shop's copy
+// reads the live rows — the delivery answer lists whatever `shipping_methods`
+// the checkout will actually offer, so repricing one from the panel rewrites
+// it — and this page has no database to read. What matters is that it cannot
+// cost a pixel: every box renders **closed**, a shut `<details>` is its
+// `<summary>` and nothing else, and the eight questions are the same eight
+// words on both sides. The answers are never painted.
+//
+// The lead under the heading *is* painted, so it has to match: it carries the
+// shop's telephone number and its WhatsApp link, and if either moves in
+// `config/storefront.php` this line goes stale and `check-parity.js` is what
+// says so.
+const FAQ_HTML =
+`    <section class="vp-home-faq">
+        <div class="container th-container">
+            <div class="vp-home-faq-panel">
+                <h2 class="vp-home-faq-title">سوالات متداول</h2>
+
+                <p class="vp-doc-lead vp-faq-lead">
+        اگر جواب سؤالتان این‌جا نبود، با
+        <a href="tel:02133983125">021-3398-3125</a>
+        تماس بگیرید یا در
+        <a href="https://wa.me/989918905993" target="_blank" rel="noopener">واتساپ</a>
+        بپرسید.
+    </p>
+
+                <div class="vp-faq vp-faq-boxes">
+                    <details >
+                <summary>هزینه ارسال چقدر است؟</summary>
+                <div class="vp-faq-a">
+                <p>
+                    بستگی به روشی دارد که هنگام ثبت سفارش انتخاب می‌کنید.
+                                        گزینه‌ها اینها هستند:
+                        پست پیشتاز (پس‌کرایه)، تیپاکس (پس‌کرایه) و پست معمولی (۲۰۰٬۰۰۰ تومان).
+                        «پس‌کرایه» یعنی هزینهٔ ارسال را هنگام تحویل به شرکت حمل
+                        می‌پردازید و فروشگاه بابتش چیزی از شما نمی‌گیرد.
+                                    مبلغ دقیق، پیش از پرداخت در صفحهٔ ثبت سفارش نوشته
+                    می‌شود؛ چیزی بعداً به آن اضافه نمی‌شود.
+                </p>
+                </div>
+            </details>
+
+            <details>
+                <summary>چطور پرداخت کنم؟</summary>
+                <div class="vp-faq-a">
+                <p>
+                    پرداخت اینترنتی. بعد از ثبت سفارش، در صفحهٔ سفارش دکمهٔ
+                    پرداخت را می‌زنید و به درگاه بانکی می‌روید؛ شمارهٔ کارت و
+                    رمز را همان‌جا، روی صفحهٔ بانک، وارد می‌کنید، نه در این
+                    سایت. هیچ‌جای ویکی پلاس شمارهٔ کارت یا رمز از شما
+                    نمی‌خواهد، و ما هیچ‌کدام را نمی‌بینیم و ذخیره نمی‌کنیم. اگر
+                    صفحه‌ای به نام ویکی پلاس اطلاعات بانکی خواست، مال ما نیست.
+                </p>
+                </div>
+            </details>
+
+            <details>
+                <summary>سفارشم را چطور پیگیری کنم؟</summary>
+                <div class="vp-faq-a">
+                <p>
+                    از
+                    <a href="faq.html">صفحه پیگیری سفارش</a>،
+                    با شماره سفارش (که با VP- شروع می‌شود) و شماره موبایلی
+                    که سفارش با آن ثبت شده. اگر حساب کاربری دارید، همه
+                    سفارش‌هایتان در
+                    <a href="my-account.html">حساب کاربری</a>
+                    فهرست شده است.
+                </p>
+                </div>
+            </details>
+
+            <details>
+                <summary>می‌توانم سفارشم را لغو کنم؟</summary>
+                <div class="vp-faq-a">
+                <p>
+                    تا وقتی وضعیت سفارش «ثبت شد» است، بله؛ دکمه لغو در
+                    همان صفحه سفارش هست و کالاها بلافاصله به فروشگاه
+                    برمی‌گردند. بعد از این‌که سفارش ارسال شد دیگر از سایت
+                    قابل لغو نیست و باید تماس بگیرید.
+                </p>
+                </div>
+            </details>
+
+            <details>
+                <summary>سایز کفش اشتباه بود. تعویض می‌کنید؟</summary>
+                <div class="vp-faq-a">
+                <p>
+                    تا ۷ روز بعد از تحویل، برای
+                    تعویض سایز با ما تماس بگیرید. تعویض فعلاً تلفنی و
+                    دستی انجام می‌شود، نه از داخل سایت، پس لطفاً کالا را
+                    نپوشیده و با جعبه نگه دارید تا هماهنگ شود.
+                </p>
+                <p>
+                    بهتر از تعویض، این است که اول
+                    <a href="size-guide.html">راهنمای سایز</a>
+                    را ببینید یا طول پایتان را برای ما بفرستید.
+                </p>
+                </div>
+            </details>
+
+            <details>
+                <summary>کد تخفیف را کجا وارد کنم؟</summary>
+                <div class="vp-faq-a">
+                <p>
+                    در صفحه پرداخت، کنار جمع فاکتور. کد روی کالاهای خود
+                    ویکی پلاس اعمال می‌شود و رقم آن، پیش از ثبت سفارش، در
+                    همان جمع به شما نشان داده می‌شود.
+                </p>
+                </div>
+            </details>
+
+            <details>
+                <summary>حساب کاربری لازم است؟</summary>
+                <div class="vp-faq-a">
+                <p>
+                    نه. می‌توانید بدون ثبت‌نام سفارش دهید. اگر حساب بسازید،
+                    سفارش‌هایتان یک‌جا جمع می‌شود.
+                </p>
+                <p>
+                    نکته‌ای که ممکن است به آن بربخورید: اگر قبلاً با همین
+                    شماره موبایل سفارش داده‌اید، هنگام ثبت‌نام شماره یکی از
+                    سفارش‌های خودتان را می‌پرسیم. این تنها راهی است که
+                    مطمئن شویم شماره مال خودتان است؛ پیامک تأیید هنوز
+                    نداریم.
+                </p>
+                </div>
+            </details>
+
+            <details>
+                <summary>می‌خواهم کالاهایم را در ویکی پلاس بفروشم.</summary>
+                <div class="vp-faq-a">
+                <p>
+                    از
+                    <a href="faq.html">فرم فروشنده شوید</a>
+                    درخواست بدهید. ثبت‌نام رایگان است، کارمزد فقط روی فروش
+                    گرفته می‌شود، و کالاهایتان پس از تأیید روی سایت
+                    می‌آید.
+                </p>
+                </div>
+            </details>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        (function () {
+            var band = document.querySelector('.vp-faq-boxes');
+            if (!band) return;
+
+            var boxes = Array.prototype.slice.call(band.querySelectorAll('details'));
+            var calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            var MS = 260;
+
+            // The height of a closed <details> cannot be read, so it is opened
+            // first and then animated from nothing. Closing is the same in reverse,
+            // and \`open\` is only taken away once the drawer has finished shutting —
+            // take it away first and there is nothing left to animate.
+            function slide(box, open) {
+                var body = box.querySelector('.vp-faq-a');
+                if (!body || calm) { box.open = open; return; }
+
+                window.clearTimeout(box.vpTimer);
+
+                var from = box.open ? body.getBoundingClientRect().height : 0;
+                if (open) box.open = true;
+
+                body.style.overflow = 'hidden';
+                body.style.height = from + 'px';
+                void body.offsetHeight;
+
+                body.style.transition = 'height ' + MS + 'ms cubic-bezier(0.2, 0.7, 0.2, 1)';
+                body.style.height = (open ? body.scrollHeight : 0) + 'px';
+
+                box.vpTimer = window.setTimeout(function () {
+                    body.style.transition = '';
+                    body.style.height = '';
+                    body.style.overflow = '';
+                    if (!open) box.open = false;
+                }, MS);
+            }
+
+            boxes.forEach(function (box) {
+                box.querySelector('summary').addEventListener('click', function (event) {
+                    // The browser's own toggle would fight the animation, and it is
+                    // what the keyboard fires too, so this covers Enter and Space.
+                    event.preventDefault();
+
+                    var opening = !box.open;
+
+                    boxes.forEach(function (other) {
+                        if (other !== box && other.open) slide(other, false);
+                    });
+
+                    slide(box, opening);
+                });
+            });
+        }());
+    </script>
+`;
+
 // Keyed on the class rather than the heading: this block has a real one
 // (.brand-area6) and the heading is English the dictionary may yet catch.
 {
@@ -1951,7 +2160,7 @@ const BRANDS_HTML =
     if (depth === 0) { end = m.index + m[0].length; break; }
   }
   if (end < 0) throw new Error('brand strip: .brand-area6 never closes');
-  html = html.slice(0, start) + BRANDS_HTML + html.slice(end);
+  html = html.slice(0, start) + BRANDS_HTML + FAQ_HTML + html.slice(end);
 }
 
 
@@ -2842,17 +3051,25 @@ html = html.replace('</body>',
 // helper does not belong in a file that also has to render as a static
 // preview.
 //
-// **Four, not six.** The basket and the account are already buttons in this
+// **Five, not six.** The basket and the account are already buttons in this
 // same band, so listing them again is the same door twice — and measured, six
 // items of Persian ran the header row 22px past the page at 1200, which
 // `check-overflow.js` failed on. The template's six were shorter words with
 // dropdown arrows; ours are «پیگیری سفارش» and «فروشنده شوید».
+//
+// «فروش عمده» is the fifth, at the client's word: «فروش عمده باید بیاد تو
+// موارد بالای وبسایت». It sits after «فروشگاه» because the two are the same
+// errand at two scales, and it is the shortest of the five, which is what
+// makes room for it — remeasured at 992/1200/1440/1920 with
+// `check-overflow.js` after adding it, because 22px is all the slack this row
+// has ever had. A sixth still does not fit.
 html = html.replace(
   /<nav class="main-menu d-none d-lg-inline-block">[\s\S]*?<\/nav>/,
   '<nav class="main-menu d-none d-lg-inline-block">\n' +
   '                                <ul>\n' +
   '                                    <li><a href="index.html">خانه</a></li>\n' +
   '                                    <li><a href="shop.html">فروشگاه</a></li>\n' +
+  '                                    <li><a href="wholesale.html">فروش عمده</a></li>\n' +
   '                                    <li><a href="order-tracking.html">پیگیری سفارش</a></li>\n' +
   '                                    <li><a href="vendor-register.html">فروشنده شوید</a></li>\n' +
   '                                </ul>\n' +
@@ -3098,6 +3315,27 @@ html = html.replace(
 // Four of the twelve links below named `course.html` or `contact.html` — the
 // template's filenames for pages this shop did not have — and so resolved to
 // '#' through page_url(). The content pages exist now, and these name them.
+// The shop's own details, said once. They are printed in the phone's footer
+// and now in the desktop's, and a second copy of an address is how a shop ends
+// up with two.
+const FOOT_STRAP = 'ارائه\u200cدهنده انواع کیف و کفش زنانه با تضمین کیفیت، ارسال سریع و امکان خرید تکی و عمده.';
+const FOOT_ADDRESS = 'تهران، سعدی شمالی، روبه\u200cروی بانک ملی، پلاک ۵۶۵';
+const FOOT_PHONE = '021-3398-3125';
+const FOOT_TEL = '02133983125';
+
+// The desktop footer's «دسته‌ها» column: the phone's four, plus «حراج پله‌ای»,
+// which is the one other link the phone's footer carries and the desktop's
+// three columns have under no name. The phone keeps its own arrangement below
+// — it is a screenshot the client drew and approved, and the desktop is not
+// that screenshot.
+const FOOT_CATS = [
+  ['shop.html', 'کفش زنانه'],
+  ['shop.html', 'کیف زنانه'],
+  ['shop.html', 'پرفروش\u200cترین\u200cها'],
+  ['shop.html', 'تخفیف\u200cدارها'],
+  ['shop.html', 'حراج پله\u200cای'],
+];
+
 const FOOT_COLS = [
   ['لینک\u200cها', [
     ['shop.html', 'فروشگاه'],
@@ -3179,9 +3417,9 @@ const FOOT_PHONE_HTML =
   '                    <img class="vp-foot-m-mark" src="assets/img/vikyplus-appicon.png" alt="" width="56" height="56">\n' +
   '                    <b class="vp-foot-m-name">ویکی پلاس</b>\n' +
   '                </div>\n' +
-  '                <p class="vp-foot-m-strap">ارائه\u200cدهنده انواع کیف و کفش زنانه با تضمین کیفیت، ارسال سریع و امکان خرید تکی و عمده.</p>\n' +
-  '                <p class="vp-foot-m-line"><i class="fa-solid fa-location-dot" aria-hidden="true"></i><span>تهران، سعدی شمالی، روبه\u200cروی بانک ملی، پلاک ۵۶۵</span></p>\n' +
-  '                <p class="vp-foot-m-line"><i class="fa-solid fa-phone" aria-hidden="true"></i><a href="tel:02133983125">021-3398-3125</a></p>\n' +
+  '                <p class="vp-foot-m-strap">' + FOOT_STRAP + '</p>\n' +
+  '                <p class="vp-foot-m-line"><i class="fa-solid fa-location-dot" aria-hidden="true"></i><span>' + FOOT_ADDRESS + '</span></p>\n' +
+  '                <p class="vp-foot-m-line"><i class="fa-solid fa-phone" aria-hidden="true"></i><a href="tel:' + FOOT_TEL + '">' + FOOT_PHONE + '</a></p>\n' +
   '                <div class="vp-foot-m-social">' +
   FOOT_SOCIAL.map(([key, name, href, icon]) =>
     `\n                    <a class="vp-foot-m-soc is-${key}" href="${href}" aria-label="${name}">${icon}</a>`).join('') +
@@ -3205,6 +3443,70 @@ html = html.replace(
 );
 if (!html.includes('vp-foot-m-head')) {
   throw new Error('the phone footer did not land — the widget-area markup has moved');
+}
+
+// --- what the phone's footer has and the desktop's did not -------------------
+//
+// «چیزایی که تو فوتر نسخه موبایل اضافه کردیم هم بیان تو نسخه دستاپ».
+//
+// The two footers were built to be different on purpose: the phone's is one
+// centred column from a screenshot the client sent, the desktop's is the
+// template's four-column widget area, and the standing instruction while the
+// phone one was being written was that none of it should reach the desktop.
+// That instruction is now reversed, and this is the reversal — not by showing
+// `.vp-foot-m` at every width, which would put two whole footers on the page,
+// but by giving the desktop's own brand column the three things the phone's
+// has and it lacks.
+//
+// **The address and the telephone number are the ones that matter.** The
+// comment above says the template's contact block was removed rather than
+// translated, because it carried a German company and a Californian street,
+// and that it «comes back when the real details arrive». They arrived, in the
+// phone footer, and this is them: one shop, one address, said in both places
+// from `FOOT_ADDRESS` and `FOOT_PHONE` so it cannot be said two ways.
+//
+// The social row is not here: «شبکه های اجتماعیرو باید بیاری اینجا», pointing
+// at «ویکی پلاس روی موبایل» further along the same footer. It goes there,
+// below.
+//
+// Injected after the logo anchor rather than written into the block above,
+// because `FOOT_SOCIAL` is declared further down this file and a `const` read
+// before its own line is a crash rather than a mistake.
+{
+  const at = '                                    </a>\n                                </div>';
+  if (!html.includes(at)) {
+    throw new Error('the desktop footer brand column has moved');
+  }
+  html = html.replace(at,
+    '                                    </a>\n' +
+    '                                    <p class="vp-foot-d-strap">' + FOOT_STRAP + '</p>\n' +
+    '                                    <p class="vp-foot-d-line"><i class="fa-solid fa-location-dot" aria-hidden="true"></i><span>' + FOOT_ADDRESS + '</span></p>\n' +
+    '                                    <p class="vp-foot-d-line"><i class="fa-solid fa-phone" aria-hidden="true"></i><a href="tel:' + FOOT_TEL + '">' + FOOT_PHONE + '</a></p>\n' +
+    '                                </div>');
+}
+
+// And the phone's «دسته‌ها» column, which the desktop had no equivalent of at
+// all. A fifth column in a `justify-content-between` row — measured at
+// 992/1200/1440/1920 after adding it, because a row that wraps is a taller
+// footer rather than a wider page and `check-overflow.js` cannot see it.
+{
+  const account = '<div class="col-md-6 col-xl-auto">\n                            <div class="widget widget_nav_menu footer-widget">\n                                <h3 class="widget_title">حساب کاربری</h3>';
+  if (!html.includes(account)) {
+    throw new Error('the account column has moved — the categories column has nothing to sit beside');
+  }
+  html = html.replace(account,
+    '<div class="col-md-6 col-xl-auto">\n' +
+    '                            <div class="widget widget_nav_menu footer-widget">\n' +
+    '                                <h3 class="widget_title">دسته‌ها</h3>\n' +
+    '                                <div class="menu-all-pages-container">\n' +
+    '                                    <ul class="menu">\n' +
+    FOOT_CATS.map(([href, label]) =>
+      `                                        <li><a href="${href}">${label}</a></li>`).join('\n') + '\n' +
+    '                                    </ul>\n' +
+    '                                </div>\n' +
+    '                            </div>\n' +
+    '                        </div>\n' +
+    '                        ' + account);
 }
 
 // The four menu columns, replaced with their whole tag rather than by word:
@@ -3345,6 +3647,49 @@ if (!html.includes('vp-foot-m-head')) {
   }
   html = html.split(from).join(to);
 });
+
+// --- the five social links, in the column the client pointed at -------------
+//
+// «شبکه های اجتماعیرو باید بیاری اینجا», with a photograph of «ویکی پلاس روی
+// موبایل» and its two grey circles — the template's own `.th-social`, which
+// had been translated and left at Instagram and WhatsApp while the phone's
+// footer grew to «واتسپ تلگرام اینستا بله و روبیکا».
+//
+// So the two are replaced by the five, from the same `FOOT_SOCIAL` list the
+// phone reads, in the same order and wearing the same marks. `.vp-foot-m-soc`
+// is deliberately the class on both: the tile and its five service colours are
+// one rule now, shared out of the phone's media query, so the two rows cannot
+// come apart. Only the row around them differs — the phone centres it under a
+// centred column, this one starts at the column's own edge.
+{
+  const at = /<div class="th-social style2 mt-40">[\s\S]*?<\/div>/;
+  if (!at.test(html)) {
+    throw new Error('the mobile column no longer has the social row to replace');
+  }
+  html = html.replace(at,
+    '<div class="vp-foot-d-social">' +
+    FOOT_SOCIAL.map(([key, name, href, icon]) =>
+      `\n                                        <a class="vp-foot-m-soc is-${key}" href="${href}" aria-label="${name}">${icon}</a>`).join('') +
+    '\n                                    </div>');
+}
+
+// «راهنمای سایز» is the one link in the phone's three columns that the
+// desktop's three do not have under any name — «سوالات متداول» is «راهنما»
+// here, «ارتباط با ما» is «تماس با ما», «قوانین و مقررات» is «قوانین». It
+// joins «پشتیبانی», next to the other guide.
+//
+// **After the list above, not before it.** «راهنما» is what that list writes;
+// anchored any earlier this matches nothing, silently, and the link simply is
+// not on the page — which is exactly what happened the first time. Hence the
+// throw.
+{
+  const at = '<li><a href="faq.html">راهنما</a></li>';
+  if (!html.includes(at)) {
+    throw new Error('the support column has moved — «راهنمای سایز» has nothing to sit beside');
+  }
+  html = html.replace(at, at + '\n' +
+    '                                        <li><a href="size-guide.html">راهنمای سایز</a></li>');
+}
 
 /*
  * The hero's buy button says «خرید محصول».

@@ -6821,59 +6821,6 @@ button.vp-cart-keep {
     margin: 20px 0 28px;
   }
 
-  .vp-foot-m-soc {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 42px;
-    height: 42px;
-    border-radius: 12.65px;
-
-    font-size: 27px;
-    line-height: 1;
-    color: #FFFFFF;
-
-    background: #25D366;
-    box-shadow:
-      0 0 2px rgba(16, 17, 17, 0.10),
-      0 0 8px -2px rgba(16, 17, 17, 0.14);
-    transition: transform 0.2s ease;
-  }
-
-  .vp-foot-m-soc:hover {
-    transform: translateY(-2px);
-    color: #FFFFFF;
-  }
-
-  .vp-foot-m-soc.is-telegram { background: #2AABEE; }
-  .vp-foot-m-soc.is-instagram { background: linear-gradient(135deg, #F9CE34, #EE2A7B 55%, #6228D7); }
-
-  .vp-foot-m-soc.is-bale,
-  .vp-foot-m-soc.is-rubika {
-    background: #FFFFFF;
-    box-shadow:
-      inset 0 0 0 1px rgba(16, 17, 17, 0.10),
-      0 0 8px -2px rgba(16, 17, 17, 0.14);
-  }
-
-  .vp-foot-m-soc-mark {
-    display: block;
-    width: 26px;
-    height: 26px;
-    object-fit: contain;
-  }
-
-  .vp-foot-m-soc.is-whatsapp .vp-foot-m-soc-mark,
-  .vp-foot-m-soc.is-instagram .vp-foot-m-soc-mark {
-    width: 23.6px;
-    height: 23.6px;
-  }
-
-  .vp-foot-m-soc.is-telegram .vp-foot-m-soc-mark {
-    width: 26.2px;
-    height: 26.2px;
-  }
-
   .vp-foot-m-cols {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -6918,6 +6865,59 @@ button.vp-cart-keep {
   .vp-foot-m-col a:hover {
     color: var(--vp-gold);
   }
+}
+
+.vp-foot-m-soc {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 12.65px;
+
+  font-size: 27px;
+  line-height: 1;
+  color: #FFFFFF;
+
+  background: #25D366;
+  box-shadow:
+    0 0 2px rgba(16, 17, 17, 0.10),
+    0 0 8px -2px rgba(16, 17, 17, 0.14);
+  transition: transform 0.2s ease;
+}
+
+.vp-foot-m-soc:hover {
+  transform: translateY(-2px);
+  color: #FFFFFF;
+}
+
+.vp-foot-m-soc.is-telegram { background: #2AABEE; }
+.vp-foot-m-soc.is-instagram { background: linear-gradient(135deg, #F9CE34, #EE2A7B 55%, #6228D7); }
+
+.vp-foot-m-soc.is-bale,
+.vp-foot-m-soc.is-rubika {
+  background: #FFFFFF;
+  box-shadow:
+    inset 0 0 0 1px rgba(16, 17, 17, 0.10),
+    0 0 8px -2px rgba(16, 17, 17, 0.14);
+}
+
+.vp-foot-m-soc-mark {
+  display: block;
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+}
+
+.vp-foot-m-soc.is-whatsapp .vp-foot-m-soc-mark,
+.vp-foot-m-soc.is-instagram .vp-foot-m-soc-mark {
+  width: 23.6px;
+  height: 23.6px;
+}
+
+.vp-foot-m-soc.is-telegram .vp-foot-m-soc-mark {
+  width: 26.2px;
+  height: 26.2px;
 }
 
 @media (max-width: 991.98px) {
@@ -10765,89 +10765,117 @@ html {
 }
 
 .vp-home-faq {
-  display: none;
+  display: block;
+
+  padding-bottom: 60px;
 }
 
-@media (max-width: 991.98px) {
-  .vp-home-faq {
-    display: block;
+.vp-home-faq-title {
+  margin: 0 0 8px;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 630;
+  font-size: 20px;
+  line-height: 1.4;
+  color: #101111;
+}
 
-    padding-bottom: 60px;
+.vp-home-faq .vp-faq-lead {
+  margin: 0 0 14px;
+  font-size: 13.5px;
+  line-height: 2;
+  color: rgba(16, 17, 17, 0.62);
+}
+
+.vp-home-faq .vp-faq-lead a {
+  color: var(--vp-gold);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.vp-faq-boxes {
+  display: grid;
+  gap: 8px;
+}
+
+.vp-faq-boxes details {
+  padding: 0 14px;
+  border-radius: 18px;
+  background: #FFFFFF;
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.09);
+}
+
+.vp-faq-boxes details:last-child {
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.09);
+}
+
+.vp-faq-boxes summary {
+  padding: 13px 0 13px 28px;
+  font-size: 14.5px;
+  line-height: 1.7;
+}
+
+.vp-faq-boxes summary::after {
+  inset-inline-end: 2px;
+  inset-block-start: 18px;
+}
+
+.vp-faq-boxes details[open] summary::after {
+  inset-block-start: 21px;
+}
+
+.vp-faq-boxes summary:hover {
+  color: #101111;
+}
+
+.vp-faq-boxes details[open] summary,
+.vp-faq-boxes details[open] summary:hover {
+  color: var(--vp-gold-ink-deep);
+}
+
+.vp-faq-boxes .vp-faq-a {
+  overflow: hidden;
+}
+
+.vp-faq-boxes details p {
+  margin: 0 0 13px;
+  font-size: 13.5px;
+  line-height: 2;
+  color: rgba(16, 17, 17, 0.72);
+}
+
+@media (min-width: 992px) {
+
+  .vp-home-faq-panel {
+    max-width: 860px;
+    margin-inline: auto;
   }
 
   .vp-home-faq-title {
-    margin: 0 0 8px;
-    font-family: 'Cairo', var(--title-font);
-    font-weight: 630;
-    font-size: 20px;
-    line-height: 1.4;
-    color: #101111;
+    margin-bottom: 10px;
+    font-size: 30px;
   }
 
   .vp-home-faq .vp-faq-lead {
-    margin: 0 0 14px;
-    font-size: 13.5px;
-    line-height: 2;
-    color: rgba(16, 17, 17, 0.62);
-  }
-
-  .vp-home-faq .vp-faq-lead a {
-    color: var(--vp-gold);
-    text-decoration: underline;
-    text-underline-offset: 3px;
+    margin-bottom: 20px;
+    font-size: 15px;
   }
 
   .vp-faq-boxes {
-    display: grid;
-    gap: 8px;
-  }
-
-  .vp-faq-boxes details {
-    padding: 0 14px;
-    border-radius: 18px;
-    background: #FFFFFF;
-    box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.09);
-  }
-
-  .vp-faq-boxes details:last-child {
-    box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.09);
+    gap: 10px;
   }
 
   .vp-faq-boxes summary {
-    padding: 13px 0 13px 28px;
-    font-size: 14.5px;
-    line-height: 1.7;
-  }
-
-  .vp-faq-boxes summary::after {
-    inset-inline-end: 2px;
-    inset-block-start: 18px;
-  }
-
-  .vp-faq-boxes details[open] summary::after {
-    inset-block-start: 21px;
-  }
-
-  .vp-faq-boxes summary:hover {
-    color: #101111;
-  }
-
-  .vp-faq-boxes details[open] summary,
-  .vp-faq-boxes details[open] summary:hover {
-    color: var(--vp-gold-ink-deep);
+    padding: 16px 20px;
+    font-size: 15.5px;
   }
 
   .vp-faq-boxes .vp-faq-a {
-    overflow: hidden;
+    padding: 0 20px;
   }
 
   .vp-faq-boxes details p {
-    margin: 0 0 13px;
-    font-size: 13.5px;
-    line-height: 2;
-    color: rgba(16, 17, 17, 0.72);
+    font-size: 14.5px;
   }
-
 }
 
 @media (max-width: 991.98px) {
@@ -12115,6 +12143,78 @@ body.shoe-shop {
   .vp-shop-panel.is-narrow {
     max-width: 1100px;
     margin-inline: auto;
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1099.98px) {
+
+  .main-menu > ul > li {
+    margin: 0 4px;
+  }
+
+  .th-header .menu-area .row > .col-auto:has(.main-menu) {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
+@media (min-width: 992px) {
+
+  .footer-widget .th-widget-about {
+    display: block;
+  }
+
+  .vp-foot-d-strap {
+    margin: 18px 0 0;
+    font-size: 13.5px;
+    line-height: 2;
+    color: rgba(16, 17, 17, 0.62);
+  }
+
+  .vp-foot-d-line {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin: 10px 0 0;
+    font-size: 13.5px;
+    line-height: 1.9;
+    color: rgba(16, 17, 17, 0.72);
+  }
+
+  .vp-foot-d-line i {
+    margin-top: 6px;
+    font-size: 13px;
+    color: var(--vp-gold-fill-ink);
+  }
+
+  .vp-foot-d-line a {
+    color: inherit;
+    direction: ltr;
+    unicode-bidi: isolate;
+  }
+
+  .vp-foot-d-line a:hover {
+    color: var(--vp-gold);
+  }
+
+  .vp-foot-d-social {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .vp-foot-d-social .vp-foot-m-soc {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 11px;
+    flex: 0 0 auto;
+  }
+
+  .vp-foot-d-social .vp-foot-m-soc img {
+    width: 19px;
+    height: 19px;
   }
 }
 

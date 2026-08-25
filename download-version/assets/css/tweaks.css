@@ -11168,104 +11168,6 @@ button.vp-cart-keep {
     margin: 20px 0 28px;
   }
 
-  .vp-foot-m-soc {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 42px;
-    height: 42px;
-    border-radius: 12.65px;
-    /* Nothing in here is type any more — all five marks are images — but the
-       tile keeps a colour and a size for the day somebody puts a glyph back
-       into the row and expects it to look like its neighbours. */
-    font-size: 27px;
-    line-height: 1;
-    color: #FFFFFF;
-    /* Each on its own service's colour, which is what the screenshot shows and
-       is the one place on this page where the palette is not the shop's. */
-    background: #25D366;
-    box-shadow:
-      0 0 2px rgba(16, 17, 17, 0.10),
-      0 0 8px -2px rgba(16, 17, 17, 0.14);
-    transition: transform 0.2s ease;
-  }
-
-  .vp-foot-m-soc:hover {
-    transform: translateY(-2px);
-    color: #FFFFFF;
-  }
-
-  /* **The row is five images now, and that is what ended the centring.**
-
-     These three were Font Awesome glyphs and would not sit still: a glyph
-     rides a baseline inside a line box, `line-height: 1` makes that box
-     shorter than the font's own metrics, and where the ink then lands is the
-     engine's rounding. Measured on one build: Chromium put them exactly on the
-     tile's centre, WebKit put them 1.0–1.2px above it. A single `translateY`
-     could only be right on one of the two, which is what «وسط نیست» twice
-     looks like from the inside.
-
-     `theme/make-brand-marks.js` cuts the same three shapes out of the same
-     font file, with the ink's own bounding box as the viewBox — so the file's
-     edges are the mark's edges, `align-items: center` centres the mark itself,
-     and no baseline is involved anywhere. Measured after, at 390: every offset
-     0.00 or −0.13px, which is half a device pixel, the same as بله and روبیکا.
-
-     The sizes are the ones the font was drawing — 448 and 496 units of a
-     512-unit em at 27px — so the row's *size* is unchanged and only its
-     centring moved. */
-
-  .vp-foot-m-soc.is-telegram { background: #2AABEE; }
-  .vp-foot-m-soc.is-instagram { background: linear-gradient(135deg, #F9CE34, #EE2A7B 55%, #6228D7); }
-
-  /* بله and روبیکا: the marks themselves, on white.
-
-     They were stand-ins — a chat bubble and the letter R on a coloured tile,
-     because neither service is in Font Awesome and a trademark drawn from
-     memory is worse than an honest placeholder. The client has sent both
-     logos; `theme/make-social-marks.js` lifts each off its ground and writes
-     the file this points at.
-
-     **White, where the other three are on their service's colour.** Those
-     three are single-colour marks knocked out in white, so the colour *is*
-     the mark. These two carry their own colours — روبیکا's is six of them —
-     and on a coloured tile they read as a sticker somebody stuck on. White is
-     how both services present them.
-
-     Which leaves a white tile on a white footer, so it states its own edge the
-     way everything else on this page does: a hairline of ink inside the
-     corner, the same 10% the tile's own outer shadow carries. Measured at 390:
-     tile 255, hairline 231, card 255. */
-  .vp-foot-m-soc.is-bale,
-  .vp-foot-m-soc.is-rubika {
-    background: #FFFFFF;
-    box-shadow:
-      inset 0 0 0 1px rgba(16, 17, 17, 0.10),
-      0 0 8px -2px rgba(16, 17, 17, 0.14);
-  }
-
-  .vp-foot-m-soc-mark {
-    display: block;
-    width: 26px;
-    height: 26px;
-    object-fit: contain;
-  }
-
-  /* واتساپ and اینستاگرام are 448 units of the font's 512-unit em where تلگرام
-     is 496, and at 27px that was 23.6 against 26.2. Kept, rather than levelled
-     to one number: that is the size the row has had since «اونقد کوچیک هستن»
-     was settled, and a circle and a rounded square do not read as one size
-     when they are drawn as one size. */
-  .vp-foot-m-soc.is-whatsapp .vp-foot-m-soc-mark,
-  .vp-foot-m-soc.is-instagram .vp-foot-m-soc-mark {
-    width: 23.6px;
-    height: 23.6px;
-  }
-
-  .vp-foot-m-soc.is-telegram .vp-foot-m-soc-mark {
-    width: 26.2px;
-    height: 26.2px;
-  }
 
   /* Three columns side by side, as narrow as they need to be. `1fr` each
      rather than auto, so the three read as one grid and the middle one does
@@ -11316,6 +11218,119 @@ button.vp-cart-keep {
   .vp-foot-m-col a:hover {
     color: var(--vp-gold);
   }
+}
+
+/* --------------------------------------------------------------------------
+   THE FIVE SOCIAL TILES, AT EVERY WIDTH
+
+   These lived inside the phone block above, because until now the row only
+   existed there. «شبکه های اجتماعیرو باید بیاری اینجا» put the same five in
+   the desktop footer, under «ویکی پلاس روی موبایل», where the template had
+   two grey circles — so the tile, its shape and the five service colours are
+   shared rather than written twice. What stayed behind in the phone block is
+   the *row*: `.vp-foot-m-social` centres them under a centred column, which
+   is not what the desktop column wants.
+
+   Moved, not copied. Two copies of five brand colours is how one of them ends
+   up a shade off in one place and nobody can say which is right.
+   -------------------------------------------------------------------------- */
+.vp-foot-m-soc {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 12.65px;
+  /* Nothing in here is type any more — all five marks are images — but the
+     tile keeps a colour and a size for the day somebody puts a glyph back
+     into the row and expects it to look like its neighbours. */
+  font-size: 27px;
+  line-height: 1;
+  color: #FFFFFF;
+  /* Each on its own service's colour, which is what the screenshot shows and
+     is the one place on this page where the palette is not the shop's. */
+  background: #25D366;
+  box-shadow:
+    0 0 2px rgba(16, 17, 17, 0.10),
+    0 0 8px -2px rgba(16, 17, 17, 0.14);
+  transition: transform 0.2s ease;
+}
+
+.vp-foot-m-soc:hover {
+  transform: translateY(-2px);
+  color: #FFFFFF;
+}
+
+/* **The row is five images now, and that is what ended the centring.**
+
+   These three were Font Awesome glyphs and would not sit still: a glyph
+   rides a baseline inside a line box, `line-height: 1` makes that box
+   shorter than the font's own metrics, and where the ink then lands is the
+   engine's rounding. Measured on one build: Chromium put them exactly on the
+   tile's centre, WebKit put them 1.0–1.2px above it. A single `translateY`
+   could only be right on one of the two, which is what «وسط نیست» twice
+   looks like from the inside.
+
+   `theme/make-brand-marks.js` cuts the same three shapes out of the same
+   font file, with the ink's own bounding box as the viewBox — so the file's
+   edges are the mark's edges, `align-items: center` centres the mark itself,
+   and no baseline is involved anywhere. Measured after, at 390: every offset
+   0.00 or −0.13px, which is half a device pixel, the same as بله and روبیکا.
+
+   The sizes are the ones the font was drawing — 448 and 496 units of a
+   512-unit em at 27px — so the row's *size* is unchanged and only its
+   centring moved. */
+
+.vp-foot-m-soc.is-telegram { background: #2AABEE; }
+.vp-foot-m-soc.is-instagram { background: linear-gradient(135deg, #F9CE34, #EE2A7B 55%, #6228D7); }
+
+/* بله and روبیکا: the marks themselves, on white.
+
+   They were stand-ins — a chat bubble and the letter R on a coloured tile,
+   because neither service is in Font Awesome and a trademark drawn from
+   memory is worse than an honest placeholder. The client has sent both
+   logos; `theme/make-social-marks.js` lifts each off its ground and writes
+   the file this points at.
+
+   **White, where the other three are on their service's colour.** Those
+   three are single-colour marks knocked out in white, so the colour *is*
+   the mark. These two carry their own colours — روبیکا's is six of them —
+   and on a coloured tile they read as a sticker somebody stuck on. White is
+   how both services present them.
+
+   Which leaves a white tile on a white footer, so it states its own edge the
+   way everything else on this page does: a hairline of ink inside the
+   corner, the same 10% the tile's own outer shadow carries. Measured at 390:
+   tile 255, hairline 231, card 255. */
+.vp-foot-m-soc.is-bale,
+.vp-foot-m-soc.is-rubika {
+  background: #FFFFFF;
+  box-shadow:
+    inset 0 0 0 1px rgba(16, 17, 17, 0.10),
+    0 0 8px -2px rgba(16, 17, 17, 0.14);
+}
+
+.vp-foot-m-soc-mark {
+  display: block;
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+}
+
+/* واتساپ and اینستاگرام are 448 units of the font's 512-unit em where تلگرام
+   is 496, and at 27px that was 23.6 against 26.2. Kept, rather than levelled
+   to one number: that is the size the row has had since «اونقد کوچیک هستن»
+   was settled, and a circle and a rounded square do not read as one size
+   when they are drawn as one size. */
+.vp-foot-m-soc.is-whatsapp .vp-foot-m-soc-mark,
+.vp-foot-m-soc.is-instagram .vp-foot-m-soc-mark {
+  width: 23.6px;
+  height: 23.6px;
+}
+
+.vp-foot-m-soc.is-telegram .vp-foot-m-soc-mark {
+  width: 26.2px;
+  height: 26.2px;
 }
 
 /* Every side inset on the page is 10, the category strip included.
@@ -19454,122 +19469,166 @@ html {
    divided by hairlines, and here each one is a white box with a 18px corner,
    which is the tile's own radius on a phone.
 
-   Phone only, like the story strip — the desktop is not given a band it was
-   never designed with, and stays pixel-identical. The band is written to work
-   at any width; only the media query holds it back.
+   **At every width now.** It was phone-only, so that the desktop page would
+   not gain a band it was never designed with and would stay pixel-identical to
+   the preview. «بخش سوالات متداول تو دستاپ هم بیاد پایین وبسایت» reverses
+   that. The band always worked at any width — one media query held it back —
+   and the price of lifting it was giving the preview page the same eight
+   boxes, which is what `theme/make-rtl-page.js` now writes.
+
+   **Parity survives it because every box is closed.** A shut `<details>` is
+   its `<summary>` and nothing else, so the band's height is the eight
+   questions, which are the same eight words on both pages. The answers differ
+   — the shop's are read off `shipping_methods` and the preview has no database
+   — and they are not painted, so they cannot move a pixel.
    -------------------------------------------------------------------------- */
 .vp-home-faq {
-  display: none;
+  display: block;
+  /* The brands panel's own bottom gap on a phone, so the page ends on the
+     rhythm it has kept the whole way down. */
+  padding-bottom: 60px;
 }
 
-@media (max-width: 991.98px) {
-  .vp-home-faq {
-    display: block;
-    /* The brands panel's own bottom gap on a phone, so the page ends on the
-       rhythm it has kept the whole way down. */
-    padding-bottom: 60px;
+/* `.vp-brands-title` at the size the phone gives its band headings. The
+   link out beside it is gone — «کلمه همه سوالات باید برداشته بشه» — and with
+   it the flex row it needed; the band answers the questions here, so a way
+   to the page that answers them again was one line too many. */
+.vp-home-faq-title {
+  margin: 0 0 8px;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 630;
+  font-size: 20px;
+  line-height: 1.4;
+  color: #101111;
+}
+
+/* «اون متن هم باید با شماره تماس و لینک واتسپ بیاد زیر عنوان» — the same
+   line `/faq` opens with, and the same include, so the telephone number is
+   not written down in two places. It is set quieter than the page's copy of
+   it, because here it sits under a band heading rather than a page title. */
+.vp-home-faq .vp-faq-lead {
+  margin: 0 0 14px;
+  font-size: 13.5px;
+  line-height: 2;
+  color: rgba(16, 17, 17, 0.62);
+}
+
+.vp-home-faq .vp-faq-lead a {
+  color: var(--vp-gold);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.vp-faq-boxes {
+  display: grid;
+  gap: 8px;
+}
+
+/* The box. The hairline divider the page's own list draws between rows is
+   off — a box that ends in a line has two edges — and the ring is the one
+   the drawer's links wear, so the two read as the same material. */
+.vp-faq-boxes details {
+  padding: 0 14px;
+  border-radius: 18px;
+  background: #FFFFFF;
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.09);
+}
+
+.vp-faq-boxes details:last-child {
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.09);
+}
+
+.vp-faq-boxes summary {
+  padding: 13px 0 13px 28px;
+  font-size: 14.5px;
+  line-height: 1.7;
+}
+
+.vp-faq-boxes summary::after {
+  inset-inline-end: 2px;
+  inset-block-start: 18px;
+}
+
+.vp-faq-boxes details[open] summary::after {
+  inset-block-start: 21px;
+}
+
+/* The open box's question goes gold, and the closed ones stay ink.
+
+   `.vp-faq summary:hover` is what used to colour it, which on a phone is the
+   wrong trigger: a finger leaves :hover behind on whatever it last touched,
+   so a question the visitor closed again stayed gold and one they opened with
+   the keyboard did not. The mark now follows the state it is describing. */
+.vp-faq-boxes summary:hover {
+  color: #101111;
+}
+
+.vp-faq-boxes details[open] summary,
+.vp-faq-boxes details[open] summary:hover {
+  color: var(--vp-gold-ink-deep);
+}
+
+/* The script sets a height on this while the drawer moves and takes it off
+   again at the end, so nothing here fixes one. */
+.vp-faq-boxes .vp-faq-a {
+  overflow: hidden;
+}
+
+.vp-faq-boxes details p {
+  margin: 0 0 13px;
+  font-size: 13.5px;
+  line-height: 2;
+  color: rgba(16, 17, 17, 0.72);
+}
+
+/* The drawer's animation is `home/faq.blade.php`'s script, not this file.
+
+   It was `::details-content` with `interpolate-size`, which animates a
+   `<details>` with no script at all — and which the phone this was reported
+   from does not have: «کشو باید با یه انیمیشن نرم بازو بسته بشه», sent after
+   seeing the band open with a snap. Safari has had the pair only since 18.4.
+   What the stylesheet still owns is the box; the height belongs to whatever
+   can measure it. */
+
+@media (min-width: 992px) {
+  /* An accordion the width of a 1920 page is a line of text with a target at
+     each end. Capped at the width the questions themselves want — measured,
+     the longest of the eight sets on one line up to 812px — and centred, so
+     the band reads as one object under the bands above it rather than as the
+     page's full width suddenly used for eight rows. */
+  .vp-home-faq-panel {
+    max-width: 860px;
+    margin-inline: auto;
   }
 
-  /* `.vp-brands-title` at the size the phone gives its band headings. The
-     link out beside it is gone — «کلمه همه سوالات باید برداشته بشه» — and with
-     it the flex row it needed; the band answers the questions here, so a way
-     to the page that answers them again was one line too many. */
+  /* The desktop's own band heading, which is bigger than the phone's for the
+     same reason every other heading on this page is. */
   .vp-home-faq-title {
-    margin: 0 0 8px;
-    font-family: 'Cairo', var(--title-font);
-    font-weight: 630;
-    font-size: 20px;
-    line-height: 1.4;
-    color: #101111;
+    margin-bottom: 10px;
+    font-size: 30px;
   }
 
-  /* «اون متن هم باید با شماره تماس و لینک واتسپ بیاد زیر عنوان» — the same
-     line `/faq` opens with, and the same include, so the telephone number is
-     not written down in two places. It is set quieter than the page's copy of
-     it, because here it sits under a band heading rather than a page title. */
   .vp-home-faq .vp-faq-lead {
-    margin: 0 0 14px;
-    font-size: 13.5px;
-    line-height: 2;
-    color: rgba(16, 17, 17, 0.62);
-  }
-
-  .vp-home-faq .vp-faq-lead a {
-    color: var(--vp-gold);
-    text-decoration: underline;
-    text-underline-offset: 3px;
+    margin-bottom: 20px;
+    font-size: 15px;
   }
 
   .vp-faq-boxes {
-    display: grid;
-    gap: 8px;
-  }
-
-  /* The box. The hairline divider the page's own list draws between rows is
-     off — a box that ends in a line has two edges — and the ring is the one
-     the drawer's links wear, so the two read as the same material. */
-  .vp-faq-boxes details {
-    padding: 0 14px;
-    border-radius: 18px;
-    background: #FFFFFF;
-    box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.09);
-  }
-
-  .vp-faq-boxes details:last-child {
-    box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.09);
+    gap: 10px;
   }
 
   .vp-faq-boxes summary {
-    padding: 13px 0 13px 28px;
-    font-size: 14.5px;
-    line-height: 1.7;
+    padding: 16px 20px;
+    font-size: 15.5px;
   }
 
-  .vp-faq-boxes summary::after {
-    inset-inline-end: 2px;
-    inset-block-start: 18px;
-  }
-
-  .vp-faq-boxes details[open] summary::after {
-    inset-block-start: 21px;
-  }
-
-  /* The open box's question goes gold, and the closed ones stay ink.
-
-     `.vp-faq summary:hover` is what used to colour it, which on a phone is the
-     wrong trigger: a finger leaves :hover behind on whatever it last touched,
-     so a question the visitor closed again stayed gold and one they opened with
-     the keyboard did not. The mark now follows the state it is describing. */
-  .vp-faq-boxes summary:hover {
-    color: #101111;
-  }
-
-  .vp-faq-boxes details[open] summary,
-  .vp-faq-boxes details[open] summary:hover {
-    color: var(--vp-gold-ink-deep);
-  }
-
-  /* The script sets a height on this while the drawer moves and takes it off
-     again at the end, so nothing here fixes one. */
   .vp-faq-boxes .vp-faq-a {
-    overflow: hidden;
+    padding: 0 20px;
   }
 
   .vp-faq-boxes details p {
-    margin: 0 0 13px;
-    font-size: 13.5px;
-    line-height: 2;
-    color: rgba(16, 17, 17, 0.72);
+    font-size: 14.5px;
   }
-
-  /* The drawer's animation is `home/faq.blade.php`'s script, not this file.
-
-     It was `::details-content` with `interpolate-size`, which animates a
-     `<details>` with no script at all — and which the phone this was reported
-     from does not have: «کشو باید با یه انیمیشن نرم بازو بسته بشه», sent after
-     seeing the band open with a snap. Safari has had the pair only since 18.4.
-     What the stylesheet still owns is the box; the height belongs to whatever
-     can measure it. */
 }
 
 /* --------------------------------------------------------------------------
@@ -21700,6 +21759,130 @@ body.shoe-shop {
   .vp-shop-panel.is-narrow {
     max-width: 1100px;
     margin-inline: auto;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   ROOM FOR A FIFTH ITEM IN THE TOP MENU
+
+   «فروش عمده باید بیاد تو موارد بالای وبسایت» — and the header row had
+   7px of slack at 992 with four. Measured, the island's three columns are
+   220 + 484 + 333 = 1037 inside 952: the fifth item pushes the third column
+   (search, account, basket) onto a second line and the island grows 76 → 104.
+
+   `check-overflow.js` cannot see this. Nothing sticks out sideways — the row
+   *wraps*, which is a taller header rather than a wider page, and every check
+   we have says the page is fine. Reading the height is what caught it.
+
+   Two changes, both only where the room is actually short. Measured at
+   992/1024/1060: 104 → 76 with both, and 104 → 76 only from 1024 with the
+   margins alone, so the column's own padding is the half that buys 992.
+   Above 1100 the four-item spacing is untouched, because five fit there as
+   they are — measured 76 at 1100, 1199 and every width above.
+   -------------------------------------------------------------------------- */
+@media (min-width: 992px) and (max-width: 1099.98px) {
+  /* The base layer's 12px, tightened. Not below 4: the items stop reading as
+     separate destinations and start reading as one run of words. */
+  .main-menu > ul > li {
+    margin: 0 4px;
+  }
+
+  /* Bootstrap's gutter on the column the menu sits in. The row is
+     `justify-content-between`, so the space between the three groups is
+     already drawn by the layout and this padding is doubled up. */
+  .th-header .menu-area .row > .col-auto:has(.main-menu) {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   THE SHOP'S DETAILS IN THE DESKTOP FOOTER
+
+   «چیزایی که تو فوتر نسخه موبایل اضافه کردیم هم بیان تو نسخه دستاپ». The
+   phone's footer carried the strapline, the address, the telephone number and
+   five social links; the desktop's carried a logo and four columns of links,
+   and the template's own contact block had been *deleted* rather than
+   translated because it named a German company and a Californian street.
+
+   So this is the block that note said would come back «when the real details
+   arrive». It goes in the column that already holds the mark, under it, and it
+   is only ever seen above 992 — the whole widget area is off below that, where
+   `.vp-foot-m` is the footer instead.
+
+   The social row reuses `.vp-foot-m-soc` and its five brand colours, which are
+   written inside the phone's own media query and so do not reach here. Rather
+   than move rules the phone's layout was measured against, the three that are
+   pure appearance — the tile, its size, its radius — are restated at this
+   width. The colours are not: `.vp-foot-m-soc.is-instagram` and the four
+   beside it sit outside that query already.
+   -------------------------------------------------------------------------- */
+@media (min-width: 992px) {
+  /* The base layer makes this a `flex-direction: row`, which was invisible
+     while it held one child — the logo. Five children turned it into five
+     columns 55px wide with the social row hanging out of the left of them.
+     Measured before the fix: `.vp-logo 114x315`, `.vp-foot-d-strap 55x297`,
+     `.vp-foot-d-social 212x299 @931` in a column whose own left edge is 1080. */
+  .footer-widget .th-widget-about {
+    display: block;
+  }
+
+  .vp-foot-d-strap {
+    margin: 18px 0 0;
+    font-size: 13.5px;
+    line-height: 2;
+    color: rgba(16, 17, 17, 0.62);
+  }
+
+  /* The mark, the address and the number read as one block, so the lines are
+     tighter to each other than the strapline is to the logo above them. */
+  .vp-foot-d-line {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin: 10px 0 0;
+    font-size: 13.5px;
+    line-height: 1.9;
+    color: rgba(16, 17, 17, 0.72);
+  }
+
+  .vp-foot-d-line i {
+    margin-top: 6px;
+    font-size: 13px;
+    color: var(--vp-gold-fill-ink);
+  }
+
+  .vp-foot-d-line a {
+    color: inherit;
+    direction: ltr;
+    unicode-bidi: isolate;
+  }
+
+  .vp-foot-d-line a:hover {
+    color: var(--vp-gold);
+  }
+
+  .vp-foot-d-social {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  /* 36px against the phone's 44: this column is 300px wide at 1200 and five
+     tiles at the phone's size run it to 260 of them, which crowds the address
+     above. Measured at 992, 1200, 1440 and 1920. */
+  .vp-foot-d-social .vp-foot-m-soc {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 11px;
+    flex: 0 0 auto;
+  }
+
+  .vp-foot-d-social .vp-foot-m-soc img {
+    width: 19px;
+    height: 19px;
   }
 }
 

@@ -21,6 +21,7 @@
                                 <ul>
                                     <li><a href="{{ page_url('index.html') }}">خانه</a></li>
                                     <li><a href="{{ page_url('shop.html') }}">فروشگاه</a></li>
+                                    <li><a href="{{ page_url('wholesale.html') }}">فروش عمده</a></li>
                                     <li><a href="{{ page_url('order-tracking.html') }}">پیگیری سفارش</a></li>
                                     <li><a href="{{ page_url('vendor-register.html') }}">فروشنده شوید</a></li>
                                 </ul>
