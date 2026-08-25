@@ -57,7 +57,7 @@
                         <input id="pw-me-{{ $person->id }}" type="password" name="confirm"
                                autocomplete="current-password" required>
 
-                        <button type="submit" class="vp-adm-clear">ذخیره</button>
+                        <button type="submit" class="vp-adm-save">ذخیره</button>
                     </form>
                 </li>
             @endforeach

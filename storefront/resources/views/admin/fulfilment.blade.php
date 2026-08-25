@@ -127,7 +127,7 @@
                                        min="0" max="60" value="{{ $method->transit_max_days }}" required>
                             </span>
 
-                            <button type="submit" class="vp-adm-clear">ذخیره</button>
+                            <button type="submit" class="vp-adm-save">ذخیره</button>
                         </form>
                     </li>
                 @endforeach

@@ -3461,3 +3461,51 @@ Three things the screen does that a bare form would not:
   question lives.
 
 652 tests, Pint clean, no sideways scroll at 390/768/1200/1920.
+
+## Three corrections to the panel on a phone
+
+### The blue that exists nowhere in the stylesheet
+
+«اون دکمه های آبی باید سبز بشن با نوشته سفید».
+
+`.vp-adm-clear` sets a border and a colour and **no background**. It was written
+for an `<a>` — it still carries `text-decoration: none` — and reused on the
+`<button>`s that save a shipping method and a staff password. iOS Safari draws
+an unstyled button in its own system blue with white text, so two screens in
+this gold panel had bright blue buttons on them that appear nowhere in the CSS.
+
+**The lesson is the same one the radio and the checkbox already taught here:**
+a control with no ground of its own gets the platform's, and the platform's
+idea of a button is not this shop's. `.vp-adm-clear` now paints
+`--adm-surface` so no `<button>` can inherit that again.
+
+The save buttons are `.vp-adm-save`, on `--adm-good` — the green the panel
+already paints «فعال» and a rising figure with, rather than a new green
+invented for two buttons. White on it measures **5.02:1**, past the 4.5:1 a
+12px label needs.
+
+### The whole search row on one line
+
+«اون کادر نام محصول باید کوچیکتر بشه اون دوتاگلده هم باید کوچیکتر بشن که تو یک
+صفحه جا بشن».
+
+Measured at 390 before: the field was 215 wide and «محصول تازه» had been pushed
+onto a second row at y=140. The field was asking for a **260px basis on a screen
+with about 312 to give**, so the button after it had nowhere to go.
+
+A smaller basis on the field and less padding on the two gold buttons puts all
+three at y=94. The field keeps `min-width: 0` so it is the one that gives way as
+the screen narrows — a button squeezed below its own word wraps it, and a
+wrapped button is taller than the row it is in.
+
+### The screen named itself twice
+
+«نیاز نیست کنار منوی ۳ خط اسم صفحه ها نوشته بشه». The topbar heading sat beside
+the ☰ and every screen under it opens with its own title, so the row spent a
+third of a 390px bar repeating the card below it.
+
+Hidden on the phone only. The desktop has no ☰ at all, and there the sidebar is
+what would be answering «which screen is this» — checked at 1200 and 1920 after,
+where the title and both buttons are exactly as they were.
+
+652 tests, Pint clean, no sideways scroll at 390/768/1200/1920.

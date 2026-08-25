@@ -2069,3 +2069,87 @@ a.vp-adm-mini {
 .vp-ship-days input {
   width: 52px;
 }
+
+/* --- the save button, and the blue iOS never asked permission for ---------- */
+
+/* **`.vp-adm-clear` sets no background, and on iOS that is not «no
+   background».** It was written for an `<a>` — it still carries
+   `text-decoration: none` — and reused on the `<button>`s that save the
+   shipping methods and the staff passwords. Safari draws an unstyled button in
+   its own system blue with white text, so two screens in this gold panel had
+   bright blue buttons on them that exist nowhere in the stylesheet.
+
+   The fix is a background, and the client picked the colour:
+   «اون دکمه های آبی باید سبز بشن با نوشته سفید». It is `--adm-good`, the
+   green the panel already paints «فعال» and a rising figure with, rather than
+   a new green invented for two buttons — white on it measures 5.02:1, past
+   the 4.5:1 a 12px label needs. */
+.vp-adm-save {
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  padding-inline: 14px;
+  border: 0;
+  border-radius: var(--adm-r-sm);
+  background: var(--adm-good);
+  color: #FFFFFF;
+  font: inherit;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.vp-adm-save:hover {
+  filter: brightness(1.06);
+}
+
+/* And the secondary one it was borrowed from gets a ground of its own, so no
+   other `<button>` can ever inherit the system's idea of a button again. */
+.vp-adm-clear {
+  background: var(--adm-surface);
+}
+
+@media (max-width: 991.98px) {
+  /* **The whole search row on one line.** «اون کادر نام محصول باید کوچیکتر بشه
+     اون دوتاگلده هم باید کوچیکتر بشن که تو یک صفحه جا بشن» — measured at 390
+     before: the field was 215 wide and «محصول تازه» had been pushed onto a
+     second row at y=140. The field was asking for a 260px basis on a screen
+     with about 312 to give, so the button after it had nowhere to go.
+
+     A smaller basis on the field and less padding on the two gold buttons,
+     and the three sit together. The field keeps `min-width: 0` so it is the
+     one that gives way as the screen narrows — a button that shrinks below its
+     own word wraps it. */
+  .vp-adm-head-side {
+    flex-wrap: nowrap;
+    width: 100%;
+  }
+
+  .vp-adm-head .vp-adm-filters {
+    flex: 1 1 auto;
+    flex-wrap: nowrap;
+    min-width: 0;
+  }
+
+  .vp-adm-head .vp-adm-search,
+  .vp-adm-filters input.vp-adm-search {
+    flex: 1 1 80px;
+    min-width: 0;
+  }
+
+  .vp-adm-head .vp-adm-apply {
+    flex: 0 0 auto;
+    padding-inline: 10px;
+    white-space: nowrap;
+  }
+
+  /* **The screen names itself twice on a phone.** «نیاز نیست کنار منوی ۳ خط
+     اسم صفحه ها نوشته بشه» — the topbar heading sits beside the ☰ and every
+     screen under it opens with its own title, so the row spent a third of a
+     390px bar repeating what the card below it says. Gone on the phone only:
+     the desktop has no ☰ and its sidebar is the thing that would be answering
+     «which screen is this». */
+  .vp-adm-top-title {
+    display: none;
+  }
+}
