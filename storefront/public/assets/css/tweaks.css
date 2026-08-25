@@ -12111,6 +12111,13 @@ body.shoe-shop {
   .vp-pick > .vp-pdp-ship   { margin-top: 8px; }
 }
 
+@media (min-width: 992px) {
+  .vp-shop-panel.is-narrow {
+    max-width: 1100px;
+    margin-inline: auto;
+  }
+}
+
 :root {
   --vp-design: ok;
 }

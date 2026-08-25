@@ -16,7 +16,7 @@
 @section('content')
 <section class="vp-shop-section">
     <div class="container th-container">
-        <div class="vp-shop-panel">
+        <div class="vp-shop-panel is-narrow">
 
             <div class="vp-shop-head">
                 <div class="vp-shop-heading">

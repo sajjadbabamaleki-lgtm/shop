@@ -3301,3 +3301,42 @@ invisibly: one number per chip, the clamp and its toggle, and the button's gold.
 
 634 tests, Pint clean, parity identical at 992/1200/1440/1920, no sideways
 scroll at 390/768/1200/1920.
+
+## The basket and the checkout, brought to the middle
+
+«این چیه اینجوری پهن کردی که کل صفحرو پر کنه جم کن اینارو جموجور کن بیار وسط که
+استاندارد بشن».
+
+Measured at 1920 before: the panel was 1760, its `.vp-cart` grid 1704, and the
+form column inside that **1376**. A «کد پستی» box 1376 pixels wide is not a
+field, it is a horizon — the eye travels the width of the screen to get from a
+label to the end of the thing it labels, and all seven boxes did it.
+
+The grid was never wrong. `minmax(0, 1fr) 300px` is the right shape; nothing
+above it ever said how wide the page should be, so `1fr` took the viewport.
+**1100 on the panel, centred: the form lands at 716 and the summary keeps its
+300.** Same move the product page got, so one page does not fill a 1920 screen
+while its neighbour does not.
+
+**Both pages.** `.vp-cart` is the basket's grid too and the basket is the screen
+immediately before the checkout; capping one alone would have made the step
+between them jump by 660px. The listing and the search results keep the full
+width on purpose — they are grids of products, where more room is more shoes.
+
+### The hook was wrong the first time
+
+It hung off `:has(.vp-cart)`, which measured correct at 1920 and **silently did
+nothing on an empty basket** — no `.vp-cart` to find, so the «سبد خریدت خالی
+است» card went on spanning 1376. Caught by checking four widths on a session
+with nothing in the basket rather than only on the one that had a shoe in it.
+
+It is a class on the panel now. The page knows which page it is; the stylesheet
+should not have to infer that from what happens to be inside it.
+
+No test for this one, deliberately: unlike the icon subsetting or the four-line
+clamp, a page that goes full-width again is visible the moment anybody opens it.
+`check-overflow.js` already covers the failure that would not be — a cap that
+pushes something off the side.
+
+634 tests, Pint clean, parity identical at 992/1200/1440/1920, no sideways
+scroll at 390/768/1200/1920.

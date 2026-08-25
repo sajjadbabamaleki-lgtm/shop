@@ -21662,6 +21662,47 @@ body.shoe-shop {
   .vp-pick > .vp-pdp-ship   { margin-top: 8px; }
 }
 
+/* --------------------------------------------------------------------------
+   THE BASKET AND THE CHECKOUT, BROUGHT TO THE MIDDLE
+
+   «این چیه اینجوری پهن کردی که کل صفحرو پر کنه جم کن اینارو جموجور کن بیار وسط
+   که استاندارد بشن».
+
+   Measured at 1920 before: the panel was 1760, its `.vp-cart` grid 1704, and
+   the form column inside that **1376**. A «کد پستی» box 1376 pixels wide is
+   not a field, it is a horizon — the eye has to travel the width of the screen
+   to get from a label to the end of the thing it labels, and every one of the
+   seven boxes did it.
+
+   The grid was never the problem: `minmax(0, 1fr) 300px` is the right shape.
+   It was that nothing above it ever said how wide the page should be, so `1fr`
+   took whatever the viewport had.
+
+   1100 on the panel, centred, which puts the form at **716** and leaves the
+   summary its 300. That is the proportion a checkout is usually built to, and
+   it is the same move the product page got a few sections up — one page that
+   fills a 1920 screen and one that does not would be the worse answer.
+
+   **Both pages, not just the one that was complained about.** `.vp-cart` is
+   the basket's grid too, and the basket is the screen immediately before this
+   one; capping the checkout alone would have made the step between them jump
+   by 660px. The listing and the search results keep the full width on purpose:
+   they are grids of products, where more room is more shoes.
+
+   **A class on the panel, not `:has(.vp-cart)`.** The first version hung off
+   the grid and was measured working at 1920 — and silently did nothing on an
+   *empty* basket, where there is no `.vp-cart` to find and the «سبد خریدت
+   خالی است» card went on spanning 1376. Found by checking four widths on a
+   session with nothing in the basket. The page knows which page it is; the
+   stylesheet should not have to infer it from what happens to be inside.
+   -------------------------------------------------------------------------- */
+@media (min-width: 992px) {
+  .vp-shop-panel.is-narrow {
+    max-width: 1100px;
+    margin-inline: auto;
+  }
+}
+
 :root {
   --vp-design: ok;
 }
