@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\SearchController;
 use App\Http\Controllers\Admin\SessionController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\StaffController;
+use App\Http\Controllers\Admin\StaffPasswordController;
 use App\Http\Middleware\RequirePermission;
 use App\Http\Middleware\RequirePlatformPermission;
 use App\Http\Middleware\ResolveAdminTenant;
@@ -299,6 +300,28 @@ Route::middleware(['auth:web', ResolveAdminTenant::class])->group(function (): v
  * shown somebody else's company.
  */
 Route::middleware('auth:web')->group(function (): void {
+    /*
+     | Setting a member of staff's password — the owner's screen.
+     |
+     | `platform.password.manage`, which nothing but `Role::FULL_ACCESS` holds:
+     | «فقط مدیر شرکت باید بتونه رمز عوض کنه حتی رمز ادمینهارو». Deliberately
+     | *not* beside `/admin/staff`, which is `branch.staff.manage` — a branch
+     | manager saying who works at their shop must not also be able to set an
+     | administrator's password.
+     |
+     | **In the platform group, with no tenant resolved.** An account is not a
+     | branch's property: the owner has to be able to set the password of
+     | somebody who works at a shop they have never been to, and a platform
+     | role legitimately has no branch at all. Put in the branch group by
+     | mistake first, where `ResolveAdminTenant` refused the owner outright.
+     */
+    Route::get('/passwords', [StaffPasswordController::class, 'index'])
+        ->middleware(RequirePlatformPermission::class.':platform.password.manage')
+        ->name('passwords');
+    Route::post('/passwords/{person}', [StaffPasswordController::class, 'update'])
+        ->middleware(RequirePlatformPermission::class.':platform.password.manage')
+        ->name('passwords.update');
+
     Route::get('/reports/platform', [ReportController::class, 'platform'])
         ->middleware(RequirePlatformPermission::class.':report.view')
         ->name('reports.platform');

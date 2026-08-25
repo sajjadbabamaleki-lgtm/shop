@@ -70,6 +70,10 @@ class RolesAndPermissionsSeeder extends Seeder
             // a branch's, and lending it either would put somebody's telephone
             // number in front of whoever happened to hold that.
             'platform.enquiry.manage' => 'رسیدگی به درخواست‌های عمده و نمایندگی',
+            // «فقط مدیر شرکت باید بتونه رمز عوض کنه حتی رمز ادمینهارو». Not
+            // granted to `admin`, and not to any branch role: a manager who
+            // can set an administrator's password is an administrator.
+            'platform.password.manage' => 'تغییر رمز حساب‌های کارکنان',
         ],
     ];
 
@@ -96,6 +100,9 @@ class RolesAndPermissionsSeeder extends Seeder
         Role::OWNER => [
             'name' => 'مالک شرکت',
             'scope' => Role::SCOPE_PLATFORM,
+            // Empty for the same reason super admin's is: `Role::FULL_ACCESS`
+            // grants it everything, including `platform.password.manage` and
+            // whatever is invented next month.
             'permissions' => [],
         ],
         Role::ADMIN => [

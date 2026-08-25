@@ -3414,3 +3414,50 @@ a provider that sends approved patterns instead of free text, nothing here has
 to be rewritten.
 
 642 tests, Pint clean.
+
+## Only the owner sets a password
+
+«بنظرم فقط مدیر شرکت باید بتونه رمز عوض کنه حتی رمز ادمینهارو».
+
+Until this there was no change-password anywhere in the shop for staff — the
+only way was `php artisan staff:password` on the server's console. That is how
+an owner's password came to go out in a photograph of a terminal with nothing
+but the console to rotate it with.
+
+`/admin/passwords`, gated on `platform.password.manage`.
+
+**No role's permission list contains that slug, and that is the design.** The
+two titles in `Role::FULL_ACCESS` answer yes to every permission by their own
+rule, so the owner and the super admin hold it without a row; `admin` — which
+has the catalogue, the orders and the refunds — is refused because nothing says
+otherwise. Writing a row for `admin` is what the migration exists to *not* do.
+
+**Super admin has it too, and that is deliberate.** Gating on `owner` alone
+would have locked out whoever currently holds `super-admin` — plausibly the
+client — from the one screen that can rescue an account.
+
+Three things the screen does that a bare form would not:
+
+- **It asks for the actor's own password.** Nobody can know somebody else's, so
+  the only confirmation available is proof that the person at the keyboard is
+  still the person who signed in. Without it an owner's unlocked laptop is
+  every account in the shop.
+- **It rotates the target's remember-token.** A password changed because it got
+  out, that leaves the old browser signed in, has not taken the account back.
+- **It throttles on the actor, not the target**, six an hour — so walking down
+  the staff list does not reset the count.
+
+### Two faults the tests caught before the deploy did
+
+- **`permissions.group` is NOT NULL and the migration did not set it.** It
+  passed locally because the dev database already had the row from the seeder,
+  so `updateOrInsert` matched and never ran the insert. Only a fresh test
+  database took that branch. It would have failed at exactly one moment: the
+  production deploy.
+- **The routes went into the branch group.** `ResolveAdminTenant` there refused
+  the owner outright — a platform role legitimately has no branch, and an
+  account is not a branch's property anyway. They belong in the platform group,
+  which is where `RequirePlatformPermission`'s own docblock says this kind of
+  question lives.
+
+652 tests, Pint clean, no sideways scroll at 390/768/1200/1920.

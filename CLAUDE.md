@@ -246,6 +246,20 @@ the client saw an old page and had no way to tell why. So, plainly:
   are two slugs and not one because they are two *titles*: renaming
   `super-admin` would have relabelled everybody already holding it. Granted by
   `php artisan staff:invite <email> "<name>" --role=owner`, never by a form.
+- **Only the owner may set a password**, at `/admin/passwords`.
+  «فقط مدیر شرکت باید بتونه رمز عوض کنه حتی رمز ادمینهارو» — so the gate is
+  `platform.password.manage`, which **no role's permission list contains**.
+  That is the design, not an oversight: the two titles in `Role::FULL_ACCESS`
+  answer yes to every permission by their own rule, so they hold it without a
+  row, and `admin` — which has the catalogue, the orders and the refunds — is
+  refused because nothing says otherwise. It sits in the **platform** route
+  group with no tenant resolved: an account is not a branch's property, and the
+  owner must be able to set the password of somebody at a shop they have never
+  visited. Changing a password rotates the target's remember-token, so their
+  old browsers lose the account too. The form asks for the **actor's own**
+  password, because nobody can know somebody else's and an unlocked laptop
+  would otherwise be every account in the shop. `StaffPasswordTest` is mostly
+  refusals, which is the specification here.
 - **Two sign-ins, two guards.** Staff are `web` at `/admin/login`; shoppers are
   `customer` at `/account/enter`. Every staff route says `auth:web` explicitly —
   the bare `auth` means "whichever guard is default", which is a runtime value.

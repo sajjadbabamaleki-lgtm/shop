@@ -90,6 +90,13 @@ class Navigation
             'items' => [
                 ['route' => 'admin.fulfilment', 'label' => 'پردازش و ارسال', 'icon' => 'stack', 'match' => 'admin.fulfilment*', 'branch' => true, 'branchPermission' => 'branch.settings.manage'],
                 ['route' => 'admin.staff', 'label' => 'کارکنان', 'icon' => 'users', 'match' => 'admin.staff*', 'branch' => true, 'branchPermission' => 'branch.staff.manage'],
+                // A platform permission, not a branch one, and that is the
+                // point: «کارکنان» above is a branch manager saying who works
+                // at their shop, and this is the owner setting an
+                // administrator's password. `permission` rather than
+                // `branchPermission` is what keeps the item off a manager's
+                // sidebar entirely, rather than showing them a door that 403s.
+                ['route' => 'admin.passwords', 'label' => 'رمز کارکنان', 'icon' => 'gear', 'match' => 'admin.passwords*', 'permission' => 'platform.password.manage'],
                 ['route' => 'admin.settings', 'label' => 'تنظیمات', 'icon' => 'gear', 'match' => 'admin.settings*', 'branch' => true, 'branchPermission' => 'branch.settings.manage'],
             ],
         ],
