@@ -2529,3 +2529,63 @@ a.vp-adm-mini {
 .vp-adm-lamp-sun { display: none; }
 :root[data-theme="ink"] .vp-adm-lamp-sun { display: block; }
 :root[data-theme="ink"] .vp-adm-lamp-moon { display: none; }
+
+/* --- the phone's cards, in the dark ---------------------------------------
+   «چرا بعضی صفحات سفیدن 😐» — two photographs of the live dark panel with
+   white cards on them.
+
+   Below 992 every table in the panel stops being a table: tweaks.css turns
+   each row into a card, and it paints that card `#FFFFFF` with an
+   `rgba(16,17,17,.1)` ring and `rgba(16,17,17,.55)` labels — three literals,
+   written before there was a second theme to swap them for. The dark sweep
+   never saw them because it only ever ran at 1440, where the rows are still
+   rows. So the ink theme reached every screen the desktop shows and none of
+   the ones a telephone does, and the text on those cards was by then the light
+   theme's: measured on the phone at 390, the row's own values were 1.15:1 and
+   the links 1.60:1 — the cards were white and what was written on them was
+   very nearly invisible.
+
+   admin.css is loaded after tweaks.css, so this is the whole fix: the same
+   three decisions, said in tokens. The light values are unchanged to the
+   channel — `rgba(16,17,17,.1)` over white is #E7E7E7, which is `--adm-line`
+   exactly, and `.55` over white is #7B7B7B against `--adm-ink-2`'s #737373.
+
+   The ring doubles in the dark for the reason every other card's does: against
+   a black card one pixel of #282828 is most of the way to nothing. */
+.vp-adm {
+  --adm-stack-ring: 1px;
+  /* The rule between two lines of one card. Lighter than `--adm-line` on
+     purpose — it separates a label from the next label, not a card from the
+     page. */
+  --adm-hair: rgba(16, 17, 17, 0.06);
+  /* Both kept as their literals rather than folded into `--adm-line` and
+     `--adm-ink-2`, which they are within one level of. Folding them repainted
+     the light phone panel: 28,215 pixels for the label, 747 more along the
+     cards' rounded corners, where a solid #E7E7E7 and a 10% black over white
+     composite one level apart. A dark theme is not licence to move the light
+     one by a level. */
+  --adm-stack-label: rgba(16, 17, 17, 0.55);
+  --adm-stack-line: rgba(16, 17, 17, 0.1);
+}
+
+:root[data-theme="ink"] .vp-adm {
+  --adm-stack-ring: 2px;
+  --adm-hair: #242424;
+  --adm-stack-label: #A39C8C;
+  --adm-stack-line: var(--adm-line);
+}
+
+@media (max-width: 991.98px) {
+  .vp-adm .vp-admin-table[data-vp-stack] tbody tr {
+    background: var(--adm-surface);
+    box-shadow: inset 0 0 0 var(--adm-stack-ring) var(--adm-stack-line);
+  }
+
+  .vp-adm .vp-admin-table[data-vp-stack] td + td {
+    box-shadow: inset 0 1px 0 var(--adm-hair);
+  }
+
+  .vp-adm .vp-admin-table[data-vp-stack] td::before {
+    color: var(--adm-stack-label);
+  }
+}
