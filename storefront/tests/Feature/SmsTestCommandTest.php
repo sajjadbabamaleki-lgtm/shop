@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Listeners\TellTheOwnerSomebodySignedIn;
 use App\Support\Sms\Sender;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Log;
 use Mockery;
 use RuntimeException;
 use Tests\TestCase;
@@ -268,5 +269,73 @@ class SmsTestCommandTest extends TestCase
             ->expectsOutputToContain('SMS_DRIVER=melipayamak.panel.simple')
             ->expectsOutputToContain('config:cache')
             ->assertFailed();
+    }
+
+    /**
+     * **A refusal reaches the screen, not just the log.**
+     *
+     * This is the failure that cost a whole round. Melipayamak refused the
+     * message; `Sender::send()` logged it and returned — which is its contract,
+     * a shopper must never see a 500 because an SMS gateway is down — and the
+     * command then printed «سپرده شد» over the top of it. The client read that
+     * as «sent», waited for a message that was never coming, and the actual
+     * reason sat in a log they had no way to open from a telephone.
+     *
+     * A sender that logs a refusal here must make the command say so and fail.
+     */
+    public function test_a_provider_refusal_is_printed_and_fails_the_command(): void
+    {
+        $sender = Mockery::mock(Sender::class);
+        $sender->shouldReceive('send')->once()->andReturnUsing(function (string $phone) {
+            // The same shape `Melipayamak::send()` writes, quoted rather than
+            // remembered — the command filters on «SMS to» and «Melipayamak».
+            Log::error("Melipayamak refused the SMS to {$phone} (HTTP 200): {\"RetStatus\":5}");
+        });
+
+        $this->app->instance(Sender::class, $sender);
+
+        $this->artisan('sms:test 09121234567')
+            ->expectsOutputToContain('ملی‌پیامک این پیام را نفرستاد')
+            ->expectsOutputToContain('RetStatus')
+            ->doesntExpectOutputToContain('سپرده شد')
+            ->assertFailed();
+    }
+
+    /** And a send nothing complained about still reports success. */
+    public function test_a_quiet_send_is_reported_as_accepted(): void
+    {
+        $sender = Mockery::mock(Sender::class);
+        $sender->shouldReceive('send')->once();
+        $this->app->instance(Sender::class, $sender);
+
+        $this->artisan('sms:test 09121234567')
+            ->expectsOutputToContain('سپرده شد')
+            ->doesntExpectOutputToContain('نفرستاد')
+            ->assertSuccessful();
+    }
+
+    /**
+     * **The log hint names a file that exists.**
+     *
+     * In production the default channel is `liara`, which writes a *daily*
+     * file. The hint used to say `storage/logs/laravel.log`; the client ran it
+     * and got «No such file or directory», which reads as «nothing was logged»
+     * — the opposite of the truth, at the exact moment the log was the answer.
+     */
+    public function test_the_log_hint_points_at_the_daily_file(): void
+    {
+        $sender = Mockery::mock(Sender::class);
+        $sender->shouldReceive('send')->once();
+        $this->app->instance(Sender::class, $sender);
+
+        $this->artisan('sms:test 09121234567')
+            ->expectsOutputToContain('storage/logs/laravel-*.log')
+            ->assertSuccessful();
+
+        $this->assertStringNotContainsString(
+            'storage/logs/laravel.log',
+            file_get_contents(base_path('app/Console/Commands/TestSms.php')),
+            'The hint names a file production does not have.',
+        );
     }
 }

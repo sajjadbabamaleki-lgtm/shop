@@ -180,6 +180,27 @@ class TestSms extends Command
             $this->line('حالت هشدار: همان جمله‌ای که هنگام ورود می‌رود، به '.$to);
         }
 
+        // **What the provider answered, caught on its way past.**
+        //
+        // `Sender::send()` returns nothing and swallows a refusal into the log
+        // on purpose — a 500 in front of somebody trying to buy shoes is worse
+        // than a message that did not arrive. That is right for a shopper and
+        // useless here: this command's whole job is to say what happened, and
+        // for two rounds it said «سپرده شد» while Melipayamak was refusing the
+        // message, because the refusal went to a log the client could not
+        // reach and this screen never saw it.
+        //
+        // `Log::listen` is how it sees it without changing the contract: every
+        // record written during the send is captured, and whatever the sender
+        // decided to say is then said here too. Nothing captured means nothing
+        // went wrong, which is the only shape of «accepted» these doors have —
+        // they log a refusal and stay quiet about a success.
+        $said = [];
+
+        Log::listen(function ($record) use (&$said) {
+            $said[] = $record->message;
+        });
+
         try {
             app(Sender::class)->send($to, $body, $args);
         } catch (Throwable $e) {
@@ -192,22 +213,58 @@ class TestSms extends Command
             return self::FAILURE;
         }
 
-        $this->info("پیام با شناسه «{$stamp}» به {$to} سپرده شد.");
+        // **The refusal, if there was one.** This is the line the whole
+        // command exists to put on the screen.
+        $refusals = array_values(array_filter(
+            $said,
+            fn (string $line) => str_contains($line, 'SMS to ') || str_contains($line, 'Melipayamak'),
+        ));
+
+        if ($refusals !== []) {
+            $this->newLine();
+            $this->error('ملی‌پیامک این پیام را نفرستاد. جوابش:');
+
+            foreach ($refusals as $line) {
+                $this->line('  '.$line);
+            }
+
+            $this->newLine();
+            $this->line('عددی که در جواب آمده علت را می‌گوید. رایج‌ترین‌ها:');
+            $this->line('  ۰ نام کاربری یا رمز اشتباه   ۲ اعتبار کافی نیست   ۵ شماره فرستنده معتبر نیست');
+            $this->line('  ۹ ارسال از خط عمومی با وب‌سرویس ممکن نیست   ۱۰ کاربر فعال نیست   ۳۵ شماره در لیست سیاه');
+
+            return self::FAILURE;
+        }
+
+        $this->info("پیام به {$to} سپرده شد و ملی‌پیامک ردش نکرد.");
 
         // Said plainly, because «سپرده شد» is not «رسید» and the difference is
         // where every SMS integration goes wrong: the provider can accept a
-        // message and still not deliver it — no credit, an unapproved pattern,
-        // a number on a blacklist.
-        $this->line('اگر تا یک دقیقه نرسید، علتش در لاگ نوشته شده:');
-        $this->line('  grep "SMS to '.$to.'" storage/logs/laravel.log');
-        // The senders all begin their line with «SMS to {phone}» — the success
-        // and every refusal — so one search finds whichever happened. Quoted
-        // from `LogSender` and `Melipayamak` rather than remembered: a hint
-        // that sends somebody grepping for a string nothing writes is worse
-        // than no hint.
-        $this->line('  خط موفق «SMS to …» است و خط رد شده «… was not sent» یا «… did not reach Melipayamak».');
+        // message and still not deliver it — no credit on the line, a number
+        // the operator has blacklisted, a service line that carries nothing
+        // but approved text. None of those answer back at send time.
+        $this->line('«سپرده شد» یعنی ملی‌پیامک قبولش کرد، نه اینکه رسید.');
+        $this->line('اگر نرسید، در پنل ملی‌پیامک بخش «گزارش ارسال» وضعیت همین پیام را ببینید.');
 
-        Log::info('sms:test dispatched', ['driver' => $driver, 'phone' => $to, 'stamp' => $stamp]);
+        // **Not `laravel.log`.** In production the default channel is `liara`,
+        // which writes a *daily* file — `laravel-2026-08-26.log` — and copies
+        // everything to stderr for the Liara panel's own log viewer. A hint
+        // naming `laravel.log` sends somebody to a file that is not there, and
+        // «No such file or directory» reads as «nothing was logged», which is
+        // the opposite of the truth. That has already happened once.
+        $this->newLine();
+        $this->line('هرچه فرستنده نوشته اینجاست:');
+        $this->line('  grep "SMS to '.$to.'" storage/logs/laravel-*.log');
+        $this->line('یا در پنل لیارا → لاگ‌ها، جستجوی «SMS to '.$to.'».');
+
+        // No stamp under `--alert`: the alert's sentence does not carry one,
+        // and recording a number that is not in the message somebody received
+        // is how the last round went wrong.
+        Log::info('sms:test dispatched', array_filter([
+            'driver' => $driver,
+            'phone' => $to,
+            'stamp' => $this->option('alert') ? null : $stamp,
+        ]));
 
         return self::SUCCESS;
     }
