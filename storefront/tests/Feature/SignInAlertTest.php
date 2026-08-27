@@ -45,9 +45,9 @@ class SignInAlertTest extends TestCase
             public array $messages = [];
 
             /** @param  list<string>  $args */
-            public function send(string $phone, string $message, array $args = []): void
+            public function send(string $phone, string $message, array $args = [], string $purpose = self::CODE): void
             {
-                $this->messages[] = ['phone' => $phone, 'message' => $message, 'args' => $args];
+                $this->messages[] = ['phone' => $phone, 'message' => $message, 'args' => $args, 'purpose' => $purpose];
             }
         };
 
@@ -151,7 +151,7 @@ class SignInAlertTest extends TestCase
         $this->app->instance(Sender::class, new class implements Sender
         {
             /** @param  list<string>  $args */
-            public function send(string $phone, string $message, array $args = []): void
+            public function send(string $phone, string $message, array $args = [], string $purpose = self::CODE): void
             {
                 throw new RuntimeException('the gateway is on fire');
             }

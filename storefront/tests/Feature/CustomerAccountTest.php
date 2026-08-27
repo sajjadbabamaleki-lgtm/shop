@@ -93,9 +93,9 @@ class CustomerAccountTest extends TestCase
             public array $messages = [];
 
             /** @param list<string> $args */
-            public function send(string $phone, string $message, array $args = []): void
+            public function send(string $phone, string $message, array $args = [], string $purpose = self::CODE): void
             {
-                $this->messages[] = ['phone' => $phone, 'message' => $message, 'args' => $args];
+                $this->messages[] = ['phone' => $phone, 'message' => $message, 'args' => $args, 'purpose' => $purpose];
             }
         };
 

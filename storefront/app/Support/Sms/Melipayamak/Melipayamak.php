@@ -57,7 +57,7 @@ abstract class Melipayamak implements Sender
      *
      * @param  list<string>  $args
      */
-    abstract protected function dispatch(string $phone, string $message, array $args): Response;
+    abstract protected function dispatch(string $phone, string $message, array $args, string $purpose): Response;
 
     /**
      * Whether this door sends a registered pattern rather than a sentence.
@@ -83,7 +83,7 @@ abstract class Melipayamak implements Sender
     /**
      * @param  list<string>  $args
      */
-    public function send(string $phone, string $message, array $args = []): void
+    public function send(string $phone, string $message, array $args = [], string $purpose = self::CODE): void
     {
         if ($this->needsValues() && $args === []) {
             // A pattern cannot be filled from a sentence, so a caller with no
@@ -95,7 +95,7 @@ abstract class Melipayamak implements Sender
         }
 
         try {
-            $response = $this->dispatch($phone, $message, $args);
+            $response = $this->dispatch($phone, $message, $args, $purpose);
         } catch (ConnectionException $e) {
             // The provider being unreachable is an ordinary bad afternoon, not
             // a bug in the shop. Sign-in is on the other side of this call and
@@ -140,6 +140,29 @@ abstract class Melipayamak implements Sender
         }
 
         return (string) $value;
+    }
+
+    /**
+     * The registered pattern for one of the shop's two messages.
+     *
+     * `SMS_PATTERN` is the shopper's code, because that is the message this
+     * shop cannot run without and the one every deployment has had. The alert
+     * falls back to it when `SMS_PATTERN_ALERT` is unset — not to be clever,
+     * but so that a shop which has only got one pattern approved so far still
+     * sends *something* rather than throwing on a sign-in. The wrong-looking
+     * message that produces is visible; a panel nobody can sign in to is not.
+     */
+    protected function pattern(string $purpose): string
+    {
+        if ($purpose === self::ALERT) {
+            $alert = config('services.sms.pattern_alert');
+
+            if ($alert !== null && $alert !== '') {
+                return (string) $alert;
+            }
+        }
+
+        return $this->required('pattern');
     }
 
     protected function request(): PendingRequest

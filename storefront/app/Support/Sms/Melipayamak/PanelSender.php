@@ -31,7 +31,7 @@ class PanelSender extends Melipayamak
     /**
      * @param  list<string>  $args
      */
-    protected function dispatch(string $phone, string $message, array $args): Response
+    protected function dispatch(string $phone, string $message, array $args, string $purpose): Response
     {
         return $this->request()->asForm()->post(self::ENDPOINT, [
             'username' => $this->required('user'),
@@ -42,7 +42,7 @@ class PanelSender extends Melipayamak
             // six-digit code, so there is nothing here to escape.
             'text' => implode(';', array_values($args)),
             'to' => $phone,
-            'bodyId' => (int) $this->required('pattern'),
+            'bodyId' => (int) $this->pattern($purpose),
         ]);
     }
 

@@ -70,7 +70,7 @@ class TellTheOwnerSomebodySignedIn
             // The parts as well as the sentence, because a provider that sends
             // an approved pattern rather than free text needs them in order —
             // see the Sender contract. Today's driver sends the sentence.
-            $this->sms->send($to, $message, [$title, (string) $user->name, $when]);
+            $this->sms->send($to, $message, [$title, (string) $user->name, $when], Sender::ALERT);
         } catch (Throwable $e) {
             // **A sign-in must never fail because a text message did.** The
             // Sender contract already says an ordinary refusal must not throw,

@@ -164,6 +164,7 @@ class TestSms extends Command
         $to = $phone;
         $body = "پیام آزمایشی ویکی پلاس: {$stamp}";
         $args = [$stamp];
+        $purpose = Sender::CODE;
 
         if ($this->option('alert')) {
             if ($alertTo === '') {
@@ -176,6 +177,8 @@ class TestSms extends Command
             $to = $alertTo;
             $body = "مالک شرکت «آزمایشی» وارد پنل مدیریت ویکی پلاس شد.\n{$when}";
             $args = ['مالک شرکت', 'آزمایشی', $when];
+            // The alert's own pattern, not the code's — three values, not one.
+            $purpose = Sender::ALERT;
 
             $this->line('حالت هشدار: همان جمله‌ای که هنگام ورود می‌رود، به '.$to);
         }
@@ -202,7 +205,7 @@ class TestSms extends Command
         });
 
         try {
-            app(Sender::class)->send($to, $body, $args);
+            app(Sender::class)->send($to, $body, $args, $purpose);
         } catch (Throwable $e) {
             // A `Sender` is not supposed to throw for an ordinary refusal, so
             // anything arriving here is configuration: a missing key, a driver

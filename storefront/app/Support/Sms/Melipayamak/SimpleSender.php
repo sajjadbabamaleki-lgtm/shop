@@ -41,7 +41,7 @@ class SimpleSender extends Melipayamak
     /**
      * @param  list<string>  $args
      */
-    protected function dispatch(string $phone, string $message, array $args): Response
+    protected function dispatch(string $phone, string $message, array $args, string $purpose): Response
     {
         return $this->request()->asJson()->post(self::ENDPOINT.$this->required('key'), [
             // The shop's own number. Required rather than optional: this door

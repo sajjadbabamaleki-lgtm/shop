@@ -33,8 +33,31 @@ namespace App\Support\Sms;
 interface Sender
 {
     /**
+     * The shopper's one-time sign-in code. One value: the code.
+     */
+    public const CODE = 'code';
+
+    /**
+     * «somebody signed in to the panel», to the owner. Three values.
+     */
+    public const ALERT = 'alert';
+
+    /**
+     * **`$purpose` exists because a pattern is per-message, not per-shop.**
+     *
+     * A provider approves a *sentence* with numbered blanks in it, and this
+     * shop sends two sentences with different numbers of blanks — a code has
+     * one, the sign-in alert has three. One registered pattern cannot carry
+     * both: sent through the code's pattern, the alert's three values fill one
+     * blank and the message that arrives is wrong, with nothing going red. So
+     * each message says which of its shop's patterns it is, and a driver that
+     * sends patterns looks the id up per purpose. A driver that sends the
+     * sentence ignores this entirely.
+     *
      * @param  list<string>  $args  the message's own values, in the order the
      *                              provider's approved pattern expects them
+     * @param  self::CODE|self::ALERT  $purpose  which of the shop's messages
+     *                                           this is
      */
-    public function send(string $phone, string $message, array $args = []): void;
+    public function send(string $phone, string $message, array $args = [], string $purpose = self::CODE): void;
 }

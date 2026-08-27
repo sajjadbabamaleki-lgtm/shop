@@ -336,4 +336,70 @@ class SmsSenderTest extends TestCase
 
         $this->assertInstanceOf(PanelSimpleSender::class, app(Sender::class));
     }
+
+    /**
+     * **The sign-in alert sends its own pattern, not the code's.**
+     *
+     * A provider approves a sentence with numbered blanks, and this shop's two
+     * messages do not have the same number of them: a shopper's code has one,
+     * «somebody signed in to the panel» has three. Sent through the code's
+     * pattern, the alert's three values go into one blank and what lands on
+     * the owner's telephone is wrong — with nothing anywhere going red, which
+     * is the failure this shop keeps paying for.
+     */
+    public function test_the_alert_sends_its_own_pattern(): void
+    {
+        config([
+            'services.sms.key' => 'a-key',
+            'services.sms.pattern' => '100',
+            'services.sms.pattern_alert' => '200',
+        ]);
+
+        Http::fake([
+            '*' => Http::response(['recId' => 9, 'status' => 'ok']),
+        ]);
+
+        $sender = new ApiKeySender;
+        $sender->send('09121234567', 'یک جمله', ['الف', 'ب', 'ج'], Sender::ALERT);
+
+        Http::assertSent(fn ($request) => $request['bodyId'] === 200);
+    }
+
+    /** And the code keeps sending the one every deployment has had. */
+    public function test_a_code_sends_the_ordinary_pattern(): void
+    {
+        config([
+            'services.sms.key' => 'a-key',
+            'services.sms.pattern' => '100',
+            'services.sms.pattern_alert' => '200',
+        ]);
+
+        Http::fake(['*' => Http::response(['recId' => 9, 'status' => 'ok'])]);
+
+        (new ApiKeySender)->send('09121234567', 'کد', ['123456']);
+
+        Http::assertSent(fn ($request) => $request['bodyId'] === 100);
+    }
+
+    /**
+     * With no alert pattern approved yet it falls back to the code's.
+     *
+     * Not cleverness: a shop that has got one pattern through approval must
+     * still be able to sign somebody in. A wrong-looking message is visible
+     * and fixable; an exception on the sign-in path is an outage.
+     */
+    public function test_the_alert_falls_back_when_it_has_no_pattern_of_its_own(): void
+    {
+        config([
+            'services.sms.key' => 'a-key',
+            'services.sms.pattern' => '100',
+            'services.sms.pattern_alert' => null,
+        ]);
+
+        Http::fake(['*' => Http::response(['recId' => 9, 'status' => 'ok'])]);
+
+        (new ApiKeySender)->send('09121234567', 'یک جمله', ['الف', 'ب', 'ج'], Sender::ALERT);
+
+        Http::assertSent(fn ($request) => $request['bodyId'] === 100);
+    }
 }

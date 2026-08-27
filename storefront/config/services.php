@@ -99,6 +99,19 @@ return [
         'from' => env('SMS_FROM'),
         'pattern' => env('SMS_PATTERN'),
         /*
+         | The sign-in alert's own pattern.
+         |
+         | A provider approves a sentence with numbered blanks, and this shop's
+         | two messages have different numbers of them — the shopper's code has
+         | one, «somebody signed in to the panel» has three. Sending the alert
+         | through the code's pattern puts three values into one blank and the
+         | message that arrives is wrong, silently. So it gets its own id.
+         |
+         | Unset falls back to SMS_PATTERN, so a shop with one approved pattern
+         | still sends rather than throwing on a sign-in. See Melipayamak.
+         */
+        'pattern_alert' => env('SMS_PATTERN_ALERT'),
+        /*
          | Where the «somebody signed in to the panel» message goes.
          |
          | Not a secret — it is the shop's own number — so it has a default

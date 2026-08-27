@@ -27,10 +27,10 @@ class ApiKeySender extends Melipayamak
     /**
      * @param  list<string>  $args
      */
-    protected function dispatch(string $phone, string $message, array $args): Response
+    protected function dispatch(string $phone, string $message, array $args, string $purpose): Response
     {
         return $this->request()->asJson()->post(self::ENDPOINT.$this->required('key'), [
-            'bodyId' => (int) $this->required('pattern'),
+            'bodyId' => (int) $this->pattern($purpose),
             'to' => $phone,
             'args' => array_values($args),
         ]);
