@@ -829,8 +829,9 @@ class CataloguePagesTest extends TestCase
      * then «فاصله سایز ها با رنگها اندازه فاصله رنگها با ردیف آخر بشه». So
      * what is left is three rows — sizes, colours, buy — evenly spaced, and
      * the name sits above the first of them on the margin the heading used to
-     * carry. Then a fifth off all three: «حالا فاصله ها ۲۰ درصد کمتر بشه»,
-     * 18 → 14.4 and 32.4 → 25.92.
+     * carry. Then a fifth off all three, twice — «حالا فاصله ها ۲۰ درصد کمتر
+     * بشه» and «حالا فاصله ها ۲۰ درصد کمتر بشن»: 18 → 14.4 → 11.52, and
+     * 32.4 → 25.92 → 20.736.
      */
     public function test_the_pickers_gaps_are_the_ones_that_were_measured(): void
     {
@@ -851,7 +852,7 @@ class CataloguePagesTest extends TestCase
         // The name to the size chips: the margin the heading used to carry,
         // less the fifth the round after it took off — «حالا فاصله ها ۲۰ درصد
         // کمتر بشه». 18 → 14.4.
-        $this->assertMatchesRegularExpression('/\.vp-pick-sizes \{\s*margin-block-start: 14\.4px;\s*\}/s', $css);
+        $this->assertMatchesRegularExpression('/\.vp-pick-sizes \{\s*margin-block-start: 11\.52px;\s*\}/s', $css);
 
         // The sizes to the colours, and the colours to the buy row — read out
         // of the file rather than asserted twice, because «اندازه» is the
@@ -867,7 +868,7 @@ class CataloguePagesTest extends TestCase
 
         $this->assertNotEmpty($toColours, 'The gap above the colour row is not where it was.');
         $this->assertNotEmpty($toBar, 'The gap above the buy row is not where it was.');
-        $this->assertSame('25.92', $toBar[1]);
+        $this->assertSame('20.736', $toBar[1]);
         $this->assertSame(
             $toBar[1],
             $toColours[1],
@@ -877,24 +878,118 @@ class CataloguePagesTest extends TestCase
     }
 
     /**
-     * The photograph is as wide as the rows under it.
+     * The top of the phone's product page is one square photograph.
      *
-     * The frame was 80% of the line while the card above it carried two
-     * headings. They went — «عنوان هاش باید حذف بشن» — and the 48.9px they
-     * occupied was asked to go here: «که به فضای عکس در بالا اضافه بشه». 93.37%
-     * is 338 of the 362 line, which is the 12 inset the size chips and the buy
-     * row already stand on, so the photograph now lines up with them.
+     * «باید در ابعاد واقعی خود عکس ها و بصورت مربع در اون فضای بالایی قرار
+     * بگیرن که اون نقطه های شمارنده بیان رو عکس فاصلش با اون کارت زیری مشخصات
+     * ده پیکسل باشه گوشه های عکس هم کرو باشه» — said of the shop's real
+     * photographs, a shoe on a surface with its own background, which is what
+     * the live catalogue is made of. The 80% and the 5/4 that came before were
+     * measured on the seeded cut-outs.
      *
-     * The ratio is not part of that. 5/4 is the height argued down twice —
-     * «اندازه عکس محصول اون بالا ۲۰ درصد کوچیکتر بشه» and «خیلی ارتفاع فضایی
-     * که محصول توشه بلند شد ۲۰ درصد کم بشه» — and it stays the width's own 0.8.
+     * Four numbers, and they only work together: the square, the panel's own
+     * width so its edges are the card's, the card's own 24px corner, and 10
+     * from its foot to the card. The 10 is why the counter had to move onto
+     * the photograph — standing in the gap it needed 43 — so `.vp-pdp-dots`
+     * being out of the flow is part of this measurement, not a detail of it.
      */
-    public function test_the_phones_photograph_lines_up_with_the_card(): void
+    public function test_the_phones_photograph_is_a_square_ten_above_the_card(): void
     {
         $css = file_get_contents(public_path('assets/css/tweaks.css'));
 
         $this->assertMatchesRegularExpression(
-            '/\.vp-pdp-shot \{\s*aspect-ratio: 5 \/ 4;\s*width: 93\.37%;\s*margin-inline: auto;\s*\}/s',
+            '/\.vp-pdp-shot \{\s*aspect-ratio: 1;\s*width: 100%;\s*margin-inline: auto;\s*border-radius: 24px;\s*overflow: hidden;\s*\}/s',
+            $css,
+        );
+
+        // The gap, stated once: 10 as asked, doubled at «خب کارت مشخصات بیار
+        // پایینتر», and back to 10 with the difference spent above the
+        // photograph — «که بالای عکس نره زیر نوار بالا». Both halves are on
+        // this one padding, so the picture's position is one line to read.
+        $this->assertMatchesRegularExpression(
+            '/\.vp-pdp-gallery \{\s*padding-block: 14px 10px;\s*\}/s',
+            $css,
+        );
+        $this->assertMatchesRegularExpression(
+            '/\.vp-pdp-info \{[^}]*margin-block-start: 0;/s',
+            $css,
+        );
+
+        // The counter, on the photograph rather than under it.
+        $this->assertMatchesRegularExpression(
+            '/\.vp-pdp-dots \{\s*position: absolute;\s*inset-block-end: 22px;/s',
+            $css,
+        );
+    }
+
+    /**
+     * One square, four times over.
+     *
+     * «اندازه مربع های سایز ۱۰ درصد کوچیکتر بشن عدد سایز دقیقا وسط قرار بگیره
+     * رنگ ها هم بجای دایره مربع همون اندازه ای بشن / اون دوتا مستطیل پشتشون هم
+     * ارتفاعشون بشه اندازه مربعها» — so the size chip, the colour swatch and
+     * the two count boxes are one object at one size, and `--vp-chip` is where
+     * that size is written. 41.8 → 37.62, and the corner comes down with it at
+     * the header's own ratio, 37.62 × 0.30119 = 11.33, because a square that
+     * shrinks and keeps its corner reads as a different shape.
+     *
+     * Measured at 390 after: all four boxes 37.61 tall with an 11.33 corner,
+     * and the digits 13.75 of ground above and 13.75 below — the 4px of top
+     * padding is what put them there, and it is asserted because a rule that
+     * looks like a stray nudge is exactly what a later round deletes.
+     */
+    public function test_the_size_chip_the_swatch_and_the_count_boxes_are_one_square(): void
+    {
+        $css = file_get_contents(public_path('assets/css/tweaks.css'));
+
+        $this->assertMatchesRegularExpression('/--vp-chip: 37\.62px;/s', $css);
+
+        // The chip: the square, its corner, and the padding that centres the
+        // number's ink rather than its line box.
+        $this->assertMatchesRegularExpression(
+            '/\.vp-pick-size > span \{[^}]*width: var\(--vp-chip\);[^}]*padding-block: 4px 0;\s*border-radius: 11\.33px;/s',
+            $css,
+        );
+
+        // The colours: the same square, not the circle they were.
+        $this->assertMatchesRegularExpression(
+            '/\.vp-pdp-swatch \{\s*flex: none;\s*width: var\(--vp-chip\);\s*height: var\(--vp-chip\);\s*border-radius: 11\.33px;/s',
+            $css,
+        );
+
+        // The count boxes take the line's height, which is the square's, and
+        // the same corner.
+        $this->assertMatchesRegularExpression(
+            '/\.vp-pick-note\.is-inline \{[^}]*align-self: stretch;[^}]*border-radius: 11\.33px;/s',
+            $css,
+        );
+        $this->assertMatchesRegularExpression('/\.vp-pdp-swatches \{[^}]*min-height: var\(--vp-chip\);/s', $css);
+
+        // Both count boxes are one length as well as one height — «اون مستطیل
+        // ها باید طولشون اندازه هم باشه». 91 is «۱۰ سایز موجود» measured in
+        // the page, so the ceiling is what the box can ever say.
+        $this->assertMatchesRegularExpression('/\.vp-pick-note\.is-inline \{[^}]*width: 91px;/s', $css);
+
+        // And the buy row is measured off the same number — «ارتفاع اون
+        // انتخاب تعداد و دکمه افزودن به سبد هم باید اندازه مستطیل ها بشه», and
+        // then «۱۰ درصد بزرگتر بشن», which is the `* 1.1`. It is written as a
+        // calc and not as 41.38 so the row you press cannot drift away from
+        // the row you read.
+        $this->assertMatchesRegularExpression(
+            '/\.vp-pick-go \{\s*flex: 1;\s*height: calc\(var\(--vp-chip\) \* 1\.1\);\s*border-radius: 12\.46px;/s',
+            $css,
+        );
+        $this->assertMatchesRegularExpression(
+            '/\.vp-qty \{[^}]*height: calc\(var\(--vp-chip\) \* 1\.1\);[^}]*border-radius: 12\.46px;/s',
+            $css,
+        );
+
+        // **The chosen colour is the same square as the others.** «نباید …
+        // سایز اون مربع از باقی مربع ها بزرگتر بشه» — the ring is painted
+        // inward. An outer one measured 44.6 against its neighbours' 37.6, and
+        // `inset` is the whole of the difference, so it is what this asserts.
+        $this->assertMatchesRegularExpression(
+            '/\.vp-pdp-swatch\.is-on \{\s*box-shadow:\s*inset 0 0 0 2px #FFFFFF,\s*inset 0 0 0 3\.5px/s',
             $css,
         );
     }

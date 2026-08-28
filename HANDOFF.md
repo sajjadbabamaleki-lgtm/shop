@@ -3841,3 +3841,105 @@ width's own 0.8.
 
 703 tests, Pint clean, parity identical at 992/1200/1440/1920, no sideways
 scroll at 390/768/992/1200/1280/1920.
+
+## The phone's product page, rebuilt around one square and one number
+
+Six messages in one sitting, all of the phone — «من فقط نسخه موبایلو الان دارم
+میگم» — and they are one design, so they are one entry. Every number below was
+read off a 390-wide render, and the two that are about ink were read off a 4x
+one.
+
+### The photograph is a square card
+
+«باید در ابعاد واقعی خود عکس ها و بصورت مربع در اون فضای بالایی قرار بگیرن که
+اون نقطه های شمارنده بیان رو عکس فاصلش با اون کارت زیری مشخصات ده پیکسل باشه
+گوشه های عکس هم کرو باشه.»
+
+**Everything the phone did to that frame before this had been measured on the
+seeded cut-outs, and a cut-out is not what this shop shows anybody.** The live
+catalogue is supplied photography — a shoe on a surface, with its own
+background — and it arrives square: the client sent the file, 1280×1280.
+`.vp-pdp-shot.is-supplied` has covered rather than fitted since the first
+import; what was wrong was the frame around it.
+
+| | before | after |
+| --- | --- | --- |
+| the frame | 338 × 270.4, no corner | **362 × 362, 24px corner** |
+| its edges | 12 inside the card's | **the card's own** |
+| the counter | under it, in the flow | **on it** |
+| foot to the card | 43 | **10** |
+
+The 24 is the card's own radius, so the two read as one material. The counter
+had to move because 10 has nowhere to put it: `.vp-pdp-dots` is out of the flow
+now, on a white pill at 0.78 over a blur — **the dots themselves are the same
+6px greys and the same gold bar**, because a photograph can be any colour and
+`rgba(16,17,17,0.16)` on a dark one is invisible. Nothing about the dots had to
+be decided twice.
+
+Then «خب کارت مشخصات بیار پایینتر» took the 10 to 20, and «عکس محصول … باید
+بیاد در فاصله ده پیکسلی کارت قرار بگیره که بالای عکس نره زیر نوار بالا» brought
+it back to 10 with the difference spent above the picture instead: the gallery's
+padding is `14px 10px`, so the photograph starts 24 down the page and its foot
+keeps the 10 that has now been asked for twice.
+
+### One square, six times over
+
+`--vp-chip` on `.vp-pdp-info` was already the size chip and the two count
+boxes. It is now the whole card:
+
+- «اندازه مربع های سایز ۱۰ درصد کوچیکتر بشن» — 41.8 → **37.62**, and the corner
+  down with it at the header's ratio, 37.62 × 0.30119 = **11.33**. A square that
+  shrinks and keeps its corner reads as a different shape, not the same one
+  smaller.
+- «رنگ ها هم بجای دایره مربع همون اندازه ای بشن» — the swatches were 32px
+  circles centred in a 41.8 line, which made the colour row a different kind of
+  control from the size row above it. Same side, same corner: one object, in a
+  colour instead of a number.
+- «اون دوتا مستطیل پشتشون هم ارتفاعشون بشه اندازه مربعها» — they already
+  stretched to the line's height, so this came for free; then «اون مستطیل ها
+  باید طولشون اندازه هم باشه» did not. They were as wide as their words, 88.77
+  against 87.02. **91** is the widest sentence either can print — «۱۰ سایز
+  موجود» measured in the page — so the ceiling is the number rather than
+  today's text.
+- «ارتفاع اون انتخاب تعداد و دکمه افزودن به سبد هم باید اندازه مستطیل ها بشه»,
+  then «سبد خرید و شمارنده … ۱۰ درصد بزرگتر بشن». So the buy row is
+  `calc(var(--vp-chip) * 1.1)` = 41.38, corner 12.46, and the stepper's inner
+  squares are that less its 4 of padding, 33.38 at 10.05. Written as a calc and
+  not as 41.38, so the row you press cannot drift away from the row you read.
+
+### Two things that had to be measured rather than looked at
+
+**The number in the middle of its square.** «عدد سایز دقیقا وسط قرار بگیره» —
+and `align-items: center` was already there, doing exactly what it says: it
+centres the *line box*. Read off a 4x render of the four white chips, the ink
+had 11.75 of ground above it and 15.75 below, the same on every one — Persian
+digits have no descender, so Vazirmatn leaves the room for one and the number
+rides 2px high in it. 4px of padding at the top moves centred content down by
+half of itself. After: 13.75 and 13.75.
+
+**The chosen colour is not a bigger square.** «حالت انتخاب رنگ هم نباید وقتی
+سلکت میشه و نوار میاد دورش سایز اون مربع از باقی مربع ها بزرگتر بشه» — the ring
+was 3.5px of `box-shadow` *outside* the swatch, so the chosen colour measured
+44.6 against its neighbours' 37.6. The same ring drawn `inset` is paint rather
+than layout: five squares of one size, one of them ringed. Measured after: all
+five 37.61.
+
+### The rhythm, twice a fifth down
+
+The card's three rows — sizes, colours, buy — are evenly spaced, and the two
+gaps are one number that has been asked down twice more: 32.4 → 25.92 → 20.736,
+with the name-to-chips gap alongside it at 18 → 14.4 → 11.52. `CataloguePagesTest`
+reads both gaps out of the stylesheet and compares them **to each other**, so
+whatever the next round makes them, they move together.
+
+**A local-only trap worth knowing about.** Half of this round was judged against
+the client's real photograph, which meant pointing a seeded product at a file in
+`public/` and marking it supplied. Doing that by hand cost a round: a
+`DELETE … WHERE path LIKE 'assets/img/story/%'` took the product's *primary*
+media row with it, the home page drew the placeholder box, and
+`check-parity.js` reported 4% of the page as changed with nothing in the diff to
+explain it. The stylesheet was innocent. If you stand a photograph in like that,
+put the row back by hand and re-run parity before believing anything it says.
+
+704 tests, Pint clean, parity identical at 992/1200/1440/1920, no sideways
+scroll at 390/768/992/1200/1280/1920.

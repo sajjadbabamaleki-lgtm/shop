@@ -13952,11 +13952,38 @@ button.vp-cart-keep {
     height: 100%;
   }
 
+  /* **The counter rides on the photograph.** «اون نقطه های شمارنده بیان رو
+     عکس فاصلش با اون کارت زیری مشخصات ده پیکسل باشه» — and the two halves of
+     that are one thing: with the dots standing in the gap the photograph's
+     foot was 43 from the card, and 10 has nowhere to put them.
+
+     Taken out of the flow, so `.vp-pdp-gallery`'s bottom padding is the whole
+     distance from the photograph to the card. `inset-block-end` is that
+     padding plus 12 up inside the square, which is the margin they used to
+     stand off it by — 22 while the gap is 10, and it moves with it.
+
+     **The dots themselves do not change** — the same 6px greys and the same
+     gold bar, which is «گلد سبز»'s rule about not repainting a thing to suit a
+     screen. What they get is a ground: a photograph can be any colour, and
+     `rgba(16,17,17,0.16)` on a dark one is invisible. The pill is white at
+     0.78 over a blur, so the dots read on the client's beige studio floor and
+     on a black one, and nothing about the dots had to be decided twice. */
   .vp-pdp-dots {
+    position: absolute;
+    inset-block-end: 22px;
+    inset-inline: 0;
+    z-index: 2;
     display: flex;
     justify-content: center;
+    align-items: center;
     gap: 6px;
-    margin-block-start: 12px;
+    width: max-content;
+    margin: 0 auto;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.78);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
   }
 
   .vp-pdp-dot {
@@ -14212,12 +14239,51 @@ button.vp-cart-keep {
      231.67 → 338 × 270.4, the shoe 289.59 × 204.78 → 338 × 239.04, and the
      page comes out 10 shorter than it was rather than 49.
 
-     `aspect-ratio` is untouched at 5/4 — the height that was argued down twice
-     is still the width's own 0.8. */
+     **And then the frame became the photograph.** «باید در ابعاد واقعی خود
+     عکس ها و بصورت مربع در اون فضای بالایی قرار بگیرن که اون نقطه های شمارنده
+     بیان رو عکس فاصلش با اون کارت زیری مشخصات ده پیکسل باشه گوشه های عکس هم
+     کرو باشه» — said of the shop's **real** product photographs, the ones that
+     arrive as a shoe on a surface with its own background, which is what the
+     live catalogue is made of. Everything above about 80% and 5/4 was measured
+     on the seeded cut-outs, and a cut-out is not what this page shows anybody.
+
+     So the top of the page is one object now: a square of photograph, the
+     panel's full width, with the card's own 24px corner, and the card 10px
+     under it. The counter rides on the photograph — see `.vp-pdp-dots` below —
+     rather than standing in the gap, which is what makes the 10 possible.
+
+     Measured at 390: 362 × 362 where it was 338 × 270.4, its foot 10 above the
+     card instead of 43. `width` and `margin-inline` are the panel's own, so
+     the square and the card share both edges. */
   .vp-pdp-shot {
-    aspect-ratio: 5 / 4;
-    width: 93.37%;
+    aspect-ratio: 1;
+    width: 100%;
     margin-inline: auto;
+    border-radius: 24px;
+    /* The photograph is absolutely positioned inside this and the strip
+       inherits the corner; the clip is what keeps a `cover` photograph from
+       painting over it. */
+    overflow: hidden;
+  }
+
+  /* The gap to the card, and the whole of it: the counter no longer stands
+     between the two, so this padding is the distance.
+
+     10 was the number asked for — «فاصلش با اون کارت زیری مشخصات ده پیکسل
+     باشه» — and against a photograph that runs the full width of the panel it
+     read as the card resting on the picture. «خب کارت مشخصات بیار پایینتر», so
+     twice it, 20 — and then back to the 10 with the difference spent above the
+     photograph instead: «عکس محصول که اون بالاست باید بیاد در فاصله ده پیکسلی
+     کارت قرار بگیره که بالای عکس نره زیر نوار بالا». The picture comes down
+     rather than the card going up, so its top clears the browser's own bar and
+     its foot keeps the 10 that has now been asked for twice.
+
+     4 → 14 above, on top of the section's own 10, so the photograph starts 24
+     down the page. The 4 the card used to carry itself is folded in here,
+     because two numbers that add to a third is how the number above stopped
+     meaning anything. */
+  .vp-pdp-gallery {
+    padding-block: 14px 10px;
   }
 
   /* The brand's name used to be set across this tile, very faint, behind the
@@ -14348,9 +14414,18 @@ button.vp-cart-keep {
        41.8 is what the squares had settled at anyway once the card's 338 line
        had taken the count box and the five gaps out of it; stating it stops
        the two boxes drifting apart every time something else on the line
-       changes width, which is how they came apart the last time. */
-    --vp-chip: 41.8px;
-    margin-block-start: 4px;
+       changes width, which is how they came apart the last time.
+
+       Then a tenth off — «اندازه مربع های سایز ۱۰ درصد کوچیکتر بشن». 41.8 →
+       37.62, and because it is one number, the count box at the end of the
+       size line and the one at the end of the colour line come with it: «اون
+       دوتا مستطیل پشتشون هم ارتفاعشون بشه اندازه مربعها». The colour swatches
+       are this size too now, and square — see `.vp-pdp-swatch`. */
+    --vp-chip: 37.62px;
+    /* The gap to the photograph is stated once, on the gallery's own padding —
+       «فاصلش با اون کارت زیری مشخصات ده پیکسل باشه». It used to be 4 here and
+       16 there, which added to 20 and read as neither number. */
+    margin-block-start: 0;
     /* 12 either side, which is the number the size row's ends were asked to
        land on — so that row sits flush with the card's padding rather than
        breaking out of it.
@@ -14623,12 +14698,13 @@ button.vp-cart-keep {
      heading and the 8 under it — so the swatches now start where the heading
      did and this margin is the whole of the gap above them.
 
-     And then a fifth off both of them — «حالا فاصله ها ۲۰ درصد کمتر بشه».
-     32.4 → 25.92, here and on `.vp-pick-bar`, which is the one number the two
-     rules have to keep saying together. */
+     And then a fifth off both of them — «حالا فاصله ها ۲۰ درصد کمتر بشه» —
+     32.4 → 25.92, and a fifth off that again: **20.736**. Here and on
+     `.vp-pick-bar`, which is the one number the two rules have to keep saying
+     together. */
   .vp-pdp-colors {
     display: block;
-    margin-block-start: 25.92px;
+    margin-block-start: 20.736px;
   }
 
   .vp-pdp-colors > .vp-pdp-choice-title {
@@ -14646,15 +14722,21 @@ button.vp-cart-keep {
     gap: 8px;
     direction: ltr;
     /* The line is as tall as the size line, so the box that stretches to it is
-       as tall as the size line's box. The swatches stay 32 and centre in it. */
+       as tall as the size line's box — and the swatches are now that height
+       themselves, so the two lines are one grid rather than two. */
     min-height: var(--vp-chip);
   }
 
+  /* **Squares, the size chips' own square** — «رنگ ها هم بجای دایره مربع همون
+     اندازه ای بشن». They were 32px circles centred in a 41.8 line, which made
+     the colour row read as a different kind of control from the size row above
+     it; they are the same object now, in a colour instead of a number: the
+     same `--vp-chip` side and the same 11.33 corner. */
   .vp-pdp-swatch {
     flex: none;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
+    width: var(--vp-chip);
+    height: var(--vp-chip);
+    border-radius: 11.33px;
     background: var(--vp-swatch);
   }
 
@@ -14666,12 +14748,21 @@ button.vp-cart-keep {
     opacity: 0.3;
   }
 
-  /* The ring sits off the dot rather than on it, so the colour underneath is
-     the whole of the circle and not a rim of it. */
+  /* **The chosen colour is the same square as the others.** «حالت انتخاب رنگ
+     هم نباید وقتی سلکت میشه و نوار میاد دورش سایز اون مربع از باقی مربع ها
+     بزرگتر بشه» — the ring was drawn *outside* the swatch, 3.5px of it all
+     round, so the chosen colour measured 44.6 against its neighbours' 37.6 and
+     read as the one that had grown rather than the one that was chosen.
+
+     The same ring, drawn inward: 2px of white at the edge and 1.5 of ink
+     inside that, painted over the colour rather than around it. The box does
+     not move at all — an inset shadow is paint, not layout — so five squares
+     of one size, one of them ringed. Both follow the element's own corner, so
+     there is one radius on this control and not two to keep in step. */
   .vp-pdp-swatch.is-on {
     box-shadow:
-      0 0 0 2px #FFFFFF,
-      0 0 0 3.5px rgba(16, 17, 17, 0.35);
+      inset 0 0 0 2px #FFFFFF,
+      inset 0 0 0 3.5px rgba(16, 17, 17, 0.35);
   }
 
   .vp-pdp-desc p {
@@ -14708,13 +14799,14 @@ button.vp-cart-keep {
      would leave the count floating alone at the far end of an empty line.
 
      Then a fifth off it, with the other two — «حالا فاصله ها ۲۰ درصد کمتر
-     بشه». 18 → 14.4. */
+     بشه» — 18 → 14.4, and a fifth off that again at «حالا فاصله ها ۲۰ درصد
+     کمتر بشن»: 14.4 → 11.52. */
   .vp-pick-head {
     display: none;
   }
 
   .vp-pick-sizes {
-    margin-block-start: 14.4px;
+    margin-block-start: 11.52px;
   }
 
   /* ---- The size chips ----------------------------------------------------
@@ -14828,8 +14920,19 @@ button.vp-cart-keep {
        for itself. */
     align-self: stretch;
     height: auto;
+    /* **Both boxes the same length** — «اون مستطیل ها باید طولشون اندازه هم
+       باشه». They were as wide as their words: 88.77 for «۲ سایز موجود» and
+       87.02 for «۳ رنگ موجود», a pixel and three quarters of difference
+       between two boxes sitting one above the other, which the eye reads as a
+       mistake rather than as text.
+
+       91 is the widest sentence either line can print — «۱۰ سایز موجود» at
+       90.98, measured in the page with the box's own font — so the ceiling is
+       the number, not today's text, and a shop that grows to ten sizes does
+       not start ellipsing. */
+    width: 91px;
     padding-inline: 12px;
-    border-radius: 13.85px;
+    border-radius: 11.33px;
     background: rgba(16, 17, 17, 0.063);
     direction: rtl;
     font-size: 12px;
@@ -14880,7 +14983,30 @@ button.vp-cart-keep {
      Then 5% off again — «مربع ها ۵ درصد کوچیکتر بشن» — to make room for the
      count at the end of the line: 48.4 → 45.98, corner 45.98 × 0.30119 =
      13.85. The row now holds five squares, the box and five 8 gaps in 358.9 of
-     the 362 it has at 390. */
+     the 362 it has at 390.
+
+     And a tenth off that — «اندازه مربع های سایز ۱۰ درصد کوچیکتر بشن». The
+     size itself is `--vp-chip` on the card, 41.8 → 37.62; the corner follows
+     it down at the same ratio, 37.62 × 0.30119 = **11.33**, because a square
+     that shrinks and keeps its old corner reads as a different shape rather
+     than the same one smaller. The count box at the end of the line carries
+     the same number, so the row is one set of objects. */
+  /* **The number in the middle of the square, measured rather than assumed.**
+     «عدد سایز دقیقا وسط قرار بگیره». `align-items: center` was already on this
+     chip and it was already doing its job — what it centres is the *line box*,
+     and where the digits sit inside that line is the face's business. Read off
+     a 4x render of the four white chips: 11.75 of ground above the ink and
+     15.75 below it, the same three-quarters of a pixel out on every one of
+     them. Persian digits have no descender, so Vazirmatn's line leaves the
+     room for one and the number rides 2px high in it.
+
+     4px of padding at the top moves the centred content down by half of
+     itself, which is the 2. It is stated as padding rather than as a nudge on
+     the text because the text is the element's own content — there is nothing
+     else here to move — and because a padding cannot be undone by the next
+     rule that touches `transform`.
+
+     Measured after: 13.75 above, 13.75 below. */
   /* The direct child again — see the note on the rule above. */
   .vp-pick-size > span {
     width: var(--vp-chip);
@@ -14889,7 +15015,8 @@ button.vp-cart-keep {
     height: auto;
     aspect-ratio: 1;
     padding-inline: 0;
-    border-radius: 13.85px;
+    padding-block: 4px 0;
+    border-radius: 11.33px;
     background: #FFFFFF;
     box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.10);
   }
@@ -15009,9 +15136,10 @@ button.vp-cart-keep {
        کردن به سبد خرید باید ۲۰ درصد کمتر بشه» — for 36, and now a tenth more:
        «انتخاب رنگ با ردیف آخر … ده درصد کم بشه». 36 → 32.4. And a fifth off
        that with the two above it — «حالا فاصله ها ۲۰ درصد کمتر بشه» — for
-       25.92, which `.vp-pdp-colors` also carries: the card's three rows are
-       evenly spaced and the two gaps move together. */
-    margin-block-start: 25.92px;
+       25.92, and a fifth off that at «حالا فاصله ها ۲۰ درصد کمتر بشن» for
+       **20.736**, which `.vp-pdp-colors` also carries: the card's three rows
+       are evenly spaced and the two gaps move together. */
+    margin-block-start: 20.736px;
   }
 
   /* Gold again — «دکمه افزودن به سبد خرید هم باید طلایی بشه». It was white for
@@ -15020,10 +15148,27 @@ button.vp-cart-keep {
      shop's own ramp, which is what every other buy button on the site is, so
      the hairline and the ink it needed to read as a control both go with the
      white. */
+  /* **The button is the squares' height** — «ارتفاع اون انتخاب تعداد و دکمه
+     افزودن به سبد هم باید اندازه مستطیل ها بشه». 48 was its own number, set
+     when the row above it was 45.98; the squares have come down twice since
+     and the buy row was the last thing on the card still at its old size.
+     `--vp-chip` rather than a number written out, because this is the fourth
+     thing measured off that one number and the point of it is that they cannot
+     drift apart.
+
+     **A tenth over the squares, not level with them** — «سبد خرید و شمارنده
+     ارتفاع و سایزشون خیلی کم شد بنظرم ۱۰ درصد بزرگتر بشن». The round before
+     this brought them down to the chip's own 37.62 and it left the row you
+     press smaller than the row you read. `calc()` rather than 41.38, so the
+     two are still one number apart: whatever the chip becomes, this is a tenth
+     over it.
+
+     The corner follows the box at the header's ratio, as every square on this
+     card does: 41.382 × 0.30119 = 12.46. */
   .vp-pick-go {
     flex: 1;
-    height: 48px;
-    border-radius: 14.46px;
+    height: calc(var(--vp-chip) * 1.1);
+    border-radius: 12.46px;
     background: linear-gradient(96deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
     box-shadow: none;
     color: #FFFFFF;
@@ -15056,9 +15201,10 @@ button.vp-cart-keep {
        عدد وسطش باید نصف بشه». 8 → 4. */
     gap: 4px;
     /* Stated, not inherited from the tallest child: the number field's own
-       line box measured 50 against the two squares, and the row beside a 48
-       button reading 50 is a two-pixel step nobody meant. */
-    height: 48px;
+       line box measured 50 against the two squares, and the row beside the
+       button reading 50 is a two-pixel step nobody meant. The button's height
+       is a tenth over `--vp-chip` and so is this. */
+    height: calc(var(--vp-chip) * 1.1);
     /* 4 all round, so the squares are 40 and inset — the shape in the
        photograph the client sent.
 
@@ -15068,19 +15214,23 @@ button.vp-cart-keep {
        to the same top and bottom pixel, and the ask was about those two. The
        squares are back where they were drawn. */
     padding: 4px;
-    border-radius: 14.46px;
+    border-radius: 12.46px;
     background: rgba(16, 17, 17, 0.05);
   }
 
+  /* The squares inside the trough are what is left of it after its 4 of
+     padding — 41.382 − 8 = 33.382 — and their corner is that at the same
+     ratio: 33.382 × 0.30119 = 10.05. Both follow the trough, which follows
+     `--vp-chip`; neither is a number of its own. */
   .vp-qty .qty-btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
+    width: calc(var(--vp-chip) * 1.1 - 8px);
+    height: calc(var(--vp-chip) * 1.1 - 8px);
     padding: 0;
     border: 0;
-    border-radius: 12.05px;
+    border-radius: 10.05px;
     background: #FFFFFF;
     box-shadow:
       0 0 2px rgba(16, 17, 17, 0.10),

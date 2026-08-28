@@ -8071,10 +8071,21 @@ button.vp-cart-keep {
   }
 
   .vp-pdp-dots {
+    position: absolute;
+    inset-block-end: 22px;
+    inset-inline: 0;
+    z-index: 2;
     display: flex;
     justify-content: center;
+    align-items: center;
     gap: 6px;
-    margin-block-start: 12px;
+    width: max-content;
+    margin: 0 auto;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.78);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
   }
 
   .vp-pdp-dot {
@@ -8190,9 +8201,16 @@ button.vp-cart-keep {
   }
 
   .vp-pdp-shot {
-    aspect-ratio: 5 / 4;
-    width: 93.37%;
+    aspect-ratio: 1;
+    width: 100%;
     margin-inline: auto;
+    border-radius: 24px;
+
+    overflow: hidden;
+  }
+
+  .vp-pdp-gallery {
+    padding-block: 14px 10px;
   }
 
   .vp-pdp-shot img {
@@ -8204,8 +8222,9 @@ button.vp-cart-keep {
     display: flex;
     flex-direction: column;
 
-    --vp-chip: 41.8px;
-    margin-block-start: 4px;
+    --vp-chip: 37.62px;
+
+    margin-block-start: 0;
 
     padding: 18px 12px 12px;
     border-radius: 24px;
@@ -8346,7 +8365,7 @@ button.vp-cart-keep {
 
   .vp-pdp-colors {
     display: block;
-    margin-block-start: 25.92px;
+    margin-block-start: 20.736px;
   }
 
   .vp-pdp-colors > .vp-pdp-choice-title {
@@ -8366,9 +8385,9 @@ button.vp-cart-keep {
 
   .vp-pdp-swatch {
     flex: none;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
+    width: var(--vp-chip);
+    height: var(--vp-chip);
+    border-radius: 11.33px;
     background: var(--vp-swatch);
   }
 
@@ -8378,8 +8397,8 @@ button.vp-cart-keep {
 
   .vp-pdp-swatch.is-on {
     box-shadow:
-      0 0 0 2px #FFFFFF,
-      0 0 0 3.5px rgba(16, 17, 17, 0.35);
+      inset 0 0 0 2px #FFFFFF,
+      inset 0 0 0 3.5px rgba(16, 17, 17, 0.35);
   }
 
   .vp-pdp-desc p {
@@ -8394,7 +8413,7 @@ button.vp-cart-keep {
   }
 
   .vp-pick-sizes {
-    margin-block-start: 14.4px;
+    margin-block-start: 11.52px;
   }
 
   .vp-pick-sizes {
@@ -8424,8 +8443,10 @@ button.vp-cart-keep {
 
     align-self: stretch;
     height: auto;
+
+    width: 91px;
     padding-inline: 12px;
-    border-radius: 13.85px;
+    border-radius: 11.33px;
     background: rgba(16, 17, 17, 0.063);
     direction: rtl;
     font-size: 12px;
@@ -8454,7 +8475,8 @@ button.vp-cart-keep {
     height: auto;
     aspect-ratio: 1;
     padding-inline: 0;
-    border-radius: 13.85px;
+    padding-block: 4px 0;
+    border-radius: 11.33px;
     background: #FFFFFF;
     box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.10);
   }
@@ -8509,13 +8531,13 @@ button.vp-cart-keep {
     align-items: center;
     gap: 10px;
 
-    margin-block-start: 25.92px;
+    margin-block-start: 20.736px;
   }
 
   .vp-pick-go {
     flex: 1;
-    height: 48px;
-    border-radius: 14.46px;
+    height: calc(var(--vp-chip) * 1.1);
+    border-radius: 12.46px;
     background: linear-gradient(96deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
     box-shadow: none;
     color: #FFFFFF;
@@ -8530,10 +8552,10 @@ button.vp-cart-keep {
 
     gap: 4px;
 
-    height: 48px;
+    height: calc(var(--vp-chip) * 1.1);
 
     padding: 4px;
-    border-radius: 14.46px;
+    border-radius: 12.46px;
     background: rgba(16, 17, 17, 0.05);
   }
 
@@ -8541,11 +8563,11 @@ button.vp-cart-keep {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
+    width: calc(var(--vp-chip) * 1.1 - 8px);
+    height: calc(var(--vp-chip) * 1.1 - 8px);
     padding: 0;
     border: 0;
-    border-radius: 12.05px;
+    border-radius: 10.05px;
     background: #FFFFFF;
     box-shadow:
       0 0 2px rgba(16, 17, 17, 0.10),
