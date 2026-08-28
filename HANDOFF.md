@@ -3794,3 +3794,50 @@ spends another afternoon in here.
 
 699 tests, Pint clean, parity identical at 992/1200/1440/1920, no sideways
 scroll at 390/768/992/1200/1280/1920.
+
+## The phone's picker: two headings off, three rows evenly spaced
+
+«انتخاب سایز و انتخاب رنگ عنوان هاش باید حذف بشن چون اضافه هستن / بعد فاصله
+سایز ها با رنگها اندازه فاصله رنگها با ردیف آخر بشه که به فضای عکس در بالا
+اضافه بشه», then «حالا فاصله ها ۲۰ درصد کمتر بشه» — and, when it was asked
+which screen: «من فقط نسخه موبایلو الان دارم میگم».
+
+**Phone only, and that is not a shortcut.** The desktop sets each heading and
+its count on one line; taking the heading off there leaves «۲ سایز موجود»
+floating alone at the far end of an empty line. On the phone the count sits in
+its own rectangle at the end of the row it counts, so the heading over it is
+the third way of saying the same thing.
+
+The size heading goes as a whole block rather than as its `<h2>`: its only
+other child is the desktop's copy of the count, already hidden here, so what
+would be left is an empty box holding an 18px margin. That margin moves to the
+size row, which lands exactly where the heading began. The colour heading is
+hidden rather than cut from the Blade, because the desktop keeps it.
+
+Measured at 390, before and after:
+
+| | before | after |
+| --- | --- | --- |
+| name → sizes | 18 + 19.5 + 10 | **14.4** |
+| sizes → colours | 24.3 | **25.92** |
+| colours → buy row | 32.4 | **25.92** |
+| the card | 343.1 | **282.6** |
+| the photograph | 289.59 × 231.67 | **338 × 270.4** |
+| the page | 1510 | **1484** |
+
+The two gaps are one number now — «اندازه … بشه» — so `CataloguePagesTest`
+reads them both out of the stylesheet and compares them to each other rather
+than asserting the figure twice. Whatever the next round makes them, they move
+together.
+
+**The photograph is as wide as the rows under it**, which is where «به فضای عکس
+در بالا اضافه بشه» went. 93.37% is 338 of the 362 line — the same 12 inset the
+size chips and the buy row already stand on — so the frame lines up with the
+card instead of floating at 80% of it. Not the 96.88% that would have spent the
+freed 48.9px exactly: a frame that lines up with everything under it is a rule
+the next round can read off the page, and 96.88% lines up with nothing. The
+5/4 ratio is untouched — that height was argued down twice and is still the
+width's own 0.8.
+
+703 tests, Pint clean, parity identical at 992/1200/1440/1920, no sideways
+scroll at 390/768/992/1200/1280/1920.

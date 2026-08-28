@@ -8191,7 +8191,7 @@ button.vp-cart-keep {
 
   .vp-pdp-shot {
     aspect-ratio: 5 / 4;
-    width: 80%;
+    width: 93.37%;
     margin-inline: auto;
   }
 
@@ -8346,7 +8346,11 @@ button.vp-cart-keep {
 
   .vp-pdp-colors {
     display: block;
-    margin-block-start: 24.3px;
+    margin-block-start: 25.92px;
+  }
+
+  .vp-pdp-colors > .vp-pdp-choice-title {
+    display: none;
   }
 
   .vp-pdp-swatches {
@@ -8386,12 +8390,11 @@ button.vp-cart-keep {
   }
 
   .vp-pick-head {
-    display: block;
-    margin-block-start: 18px;
+    display: none;
   }
 
-  .vp-pick-head .vp-pick-note {
-    display: none;
+  .vp-pick-sizes {
+    margin-block-start: 14.4px;
   }
 
   .vp-pick-sizes {
@@ -8506,7 +8509,7 @@ button.vp-cart-keep {
     align-items: center;
     gap: 10px;
 
-    margin-block-start: 32.4px;
+    margin-block-start: 25.92px;
   }
 
   .vp-pick-go {

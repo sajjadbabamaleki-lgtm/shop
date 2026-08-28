@@ -14197,10 +14197,26 @@ button.vp-cart-keep {
      The shoe is untouched by either. `contain` fits it to the frame's width,
      so it paints 289.59 × 204.78 whatever the frame's height is, and what
      changes is the space above and below it — 42 a side in the square, 13 a
-     side now. */
+     side now.
+
+     **And then the width comes back out to the rows below it** — «که به فضای
+     عکس در بالا اضافه بشه», said of the 48.9px the two headings and the
+     evened-up gap took off the card. The photograph is where that space goes.
+
+     80% is not what it becomes: the frame is now **the width of the card's own
+     rows**, 338 of the 362 line, which is the 12 inset the size chips and the
+     buy row already stand on. 93.37% and not 96.88% — the number that would
+     have spent the 48.9 exactly — because a frame that lines up with
+     everything under it is a rule the next round can read off the page, and
+     96.88% lines up with nothing. Measured at 390: the frame goes 289.59 ×
+     231.67 → 338 × 270.4, the shoe 289.59 × 204.78 → 338 × 239.04, and the
+     page comes out 10 shorter than it was rather than 49.
+
+     `aspect-ratio` is untouched at 5/4 — the height that was argued down twice
+     is still the width's own 0.8. */
   .vp-pdp-shot {
     aspect-ratio: 5 / 4;
-    width: 80%;
+    width: 93.37%;
     margin-inline: auto;
   }
 
@@ -14591,10 +14607,32 @@ button.vp-cart-keep {
      block above is what the page draws the day a variant carries a colour. */
   /* Half again off the size line above it — «فاصله بین انتخاب سایز و انتخاب
      رنگ ... باید ۵۰ درصد بیشتر بشن» — 18 → 27, and now a tenth back off that:
-     «انتخاب سایز با انتخاب رنگ … ده درصد کم بشه». 27 → 24.3. */
+     «انتخاب سایز با انتخاب رنگ … ده درصد کم بشه». 27 → 24.3.
+
+     **And now the two gaps are one number** — «فاصله سایز ها با رنگها اندازه
+     فاصله رنگها با ردیف آخر بشه». The colour line's neighbours were 24.3 above
+     and 32.4 below it, which reads as a row belonging to the sizes rather than
+     as one of three things stacked on a card. 24.3 → 32.4, `.vp-pick-bar`'s
+     own margin: three rows, two equal gaps.
+
+     The heading over the swatches goes with the size heading — «عنوان هاش باید
+     حذف بشن چون اضافه هستن». Its rectangle already says «۳ رنگ موجود» and the
+     dots under it are colours; the word for them is not needed twice. Hidden
+     rather than cut from the Blade, because the desktop draws this heading
+     beside its count and keeps it. That takes 27.5 off the card — 19.5 of
+     heading and the 8 under it — so the swatches now start where the heading
+     did and this margin is the whole of the gap above them.
+
+     And then a fifth off both of them — «حالا فاصله ها ۲۰ درصد کمتر بشه».
+     32.4 → 25.92, here and on `.vp-pick-bar`, which is the one number the two
+     rules have to keep saying together. */
   .vp-pdp-colors {
     display: block;
-    margin-block-start: 24.3px;
+    margin-block-start: 25.92px;
+  }
+
+  .vp-pdp-colors > .vp-pdp-choice-title {
+    display: none;
   }
 
   /* The line is the size row's, so the two read as one system: left to right
@@ -14651,14 +14689,32 @@ button.vp-cart-keep {
      copy of the count — the one beside the heading, which is what the desktop
      draws — is not shown here at all. */
   /* A tenth off the gap to the name above it — «فاصله اسم کفش با انتخاب سایز
-     … ده درصد کم بشه». 20 → 18. */
+     … ده درصد کم بشه». 20 → 18.
+
+     **And now the heading itself is off** — «انتخاب سایز و انتخاب رنگ عنوان
+     هاش باید حذف بشن چون اضافه هستن». The rectangle at the end of the row
+     already says «۵ سایز موجود», the row under it is five size chips, and a
+     line of prose over the top of that says nothing the chips do not.
+
+     The whole block goes rather than the `<h2>` alone: its only other child,
+     the desktop's copy of the count, is already `display: none` here, so what
+     would be left is an empty box holding an 18px margin. The margin moves to
+     the size row instead, so the chips land exactly where the heading began
+     and the 29.5 the heading occupied — 18 above it, 19.5 of it, 10 under it
+     — comes off the card.
+
+     **Phone only** — «من فقط نسخه موبایلو الان دارم میگم». The desktop sets
+     the heading and the count on one line, and taking the heading off there
+     would leave the count floating alone at the far end of an empty line.
+
+     Then a fifth off it, with the other two — «حالا فاصله ها ۲۰ درصد کمتر
+     بشه». 18 → 14.4. */
   .vp-pick-head {
-    display: block;
-    margin-block-start: 18px;
+    display: none;
   }
 
-  .vp-pick-head .vp-pick-note {
-    display: none;
+  .vp-pick-sizes {
+    margin-block-start: 14.4px;
   }
 
   /* ---- The size chips ----------------------------------------------------
@@ -14951,8 +15007,11 @@ button.vp-cart-keep {
        درصد بیشتر بشه», 30 → 45 at «...و ردیف افزودن به سبد خرید باید ۵۰ درصد
        بیشتر بشن», then a fifth back off it — «فاصله بین رنگها و ردیف اضافه
        کردن به سبد خرید باید ۲۰ درصد کمتر بشه» — for 36, and now a tenth more:
-       «انتخاب رنگ با ردیف آخر … ده درصد کم بشه». 36 → 32.4. */
-    margin-block-start: 32.4px;
+       «انتخاب رنگ با ردیف آخر … ده درصد کم بشه». 36 → 32.4. And a fifth off
+       that with the two above it — «حالا فاصله ها ۲۰ درصد کمتر بشه» — for
+       25.92, which `.vp-pdp-colors` also carries: the card's three rows are
+       evenly spaced and the two gaps move together. */
+    margin-block-start: 25.92px;
   }
 
   /* Gold again — «دکمه افزودن به سبد خرید هم باید طلایی بشه». It was white for

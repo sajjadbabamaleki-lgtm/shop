@@ -812,37 +812,89 @@ class CataloguePagesTest extends TestCase
     }
 
     /**
-     * The picker's three gaps, on a phone.
+     * The picker's gaps, on a phone.
      *
      * «فاصله اسم کفش با انتخاب سایز و انتخاب سایز با انتخاب رنگ و انتخاب رنگ با
      * ردیف آخر هر کدوم ده درصد کم بشه» — 20 → 18, 27 → 24.3, 36 → 32.4.
      *
      * They are held together because they are one rhythm and have been moved
-     * as one four times now; a round that changes two of the three leaves the
-     * panel reading unevenly, and nothing renders differently enough to notice.
-     * The numbers are odd on purpose — each is a percentage of what the round
-     * before it settled, and rounding them to something tidy would quietly
-     * undo an earlier decision.
+     * as one five times now; a round that changes some of them leaves the
+     * panel reading unevenly, and nothing renders differently enough to
+     * notice. The numbers are odd on purpose — each is a percentage of what
+     * the round before it settled, and rounding them to something tidy would
+     * quietly undo an earlier decision.
+     *
+     * **The two headings are off and the last two gaps are one number.**
+     * «انتخاب سایز و انتخاب رنگ عنوان هاش باید حذف بشن چون اضافه هستن»,
+     * then «فاصله سایز ها با رنگها اندازه فاصله رنگها با ردیف آخر بشه». So
+     * what is left is three rows — sizes, colours, buy — evenly spaced, and
+     * the name sits above the first of them on the margin the heading used to
+     * carry. Then a fifth off all three: «حالا فاصله ها ۲۰ درصد کمتر بشه»,
+     * 18 → 14.4 and 32.4 → 25.92.
      */
     public function test_the_pickers_gaps_are_the_ones_that_were_measured(): void
     {
         $css = file_get_contents(public_path('assets/css/tweaks.css'));
 
-        // The name to «انتخاب سایز».
+        // «انتخاب سایز» — the whole block, not the heading alone: its other
+        // child is the desktop's copy of the count, already hidden here, so
+        // what would be left is an empty box holding a margin.
+        $this->assertMatchesRegularExpression('/\.vp-pick-head \{\s*display: none;\s*\}/s', $css);
+
+        // «انتخاب رنگ» — hidden, not cut from the Blade, because the desktop
+        // draws this one beside its count and keeps it.
         $this->assertMatchesRegularExpression(
-            '/\.vp-pick-head \{\s*display: block;\s*margin-block-start: 18px;/s',
+            '/\.vp-pdp-colors > \.vp-pdp-choice-title \{\s*display: none;\s*\}/s',
             $css,
         );
 
-        // The sizes to «انتخاب رنگ».
-        $this->assertMatchesRegularExpression(
-            '/\.vp-pdp-colors \{\s*display: block;\s*margin-block-start: 24\.3px;/s',
-            $css,
-        );
+        // The name to the size chips: the margin the heading used to carry,
+        // less the fifth the round after it took off — «حالا فاصله ها ۲۰ درصد
+        // کمتر بشه». 18 → 14.4.
+        $this->assertMatchesRegularExpression('/\.vp-pick-sizes \{\s*margin-block-start: 14\.4px;\s*\}/s', $css);
 
-        // The colours to the buy row.
+        // The sizes to the colours, and the colours to the buy row — read out
+        // of the file rather than asserted twice, because «اندازه» is the
+        // whole of the instruction: whatever the number becomes next, these
+        // two are it.
+        //
+        // `gap: 10px` is what tells the phone's buy row from the one in the
+        // base layer, which sets `gap: 12px` and a 16px margin of its own. A
+        // pattern without it reads the base rule and passes on a stylesheet
+        // where the phone's has been deleted.
+        preg_match('/\.vp-pdp-colors \{\s*display: block;\s*margin-block-start: ([\d.]+)px;/s', $css, $toColours);
+        preg_match('/\.vp-pick-bar \{[^}]*gap: 10px;[^}]*margin-block-start: ([\d.]+)px;/s', $css, $toBar);
+
+        $this->assertNotEmpty($toColours, 'The gap above the colour row is not where it was.');
+        $this->assertNotEmpty($toBar, 'The gap above the buy row is not where it was.');
+        $this->assertSame('25.92', $toBar[1]);
+        $this->assertSame(
+            $toBar[1],
+            $toColours[1],
+            'The sizes sit closer to the colours than the colours do to the buy row; '.
+            'on this card the three rows are evenly spaced.',
+        );
+    }
+
+    /**
+     * The photograph is as wide as the rows under it.
+     *
+     * The frame was 80% of the line while the card above it carried two
+     * headings. They went — «عنوان هاش باید حذف بشن» — and the 48.9px they
+     * occupied was asked to go here: «که به فضای عکس در بالا اضافه بشه». 93.37%
+     * is 338 of the 362 line, which is the 12 inset the size chips and the buy
+     * row already stand on, so the photograph now lines up with them.
+     *
+     * The ratio is not part of that. 5/4 is the height argued down twice —
+     * «اندازه عکس محصول اون بالا ۲۰ درصد کوچیکتر بشه» and «خیلی ارتفاع فضایی
+     * که محصول توشه بلند شد ۲۰ درصد کم بشه» — and it stays the width's own 0.8.
+     */
+    public function test_the_phones_photograph_lines_up_with_the_card(): void
+    {
+        $css = file_get_contents(public_path('assets/css/tweaks.css'));
+
         $this->assertMatchesRegularExpression(
-            '/\.vp-pick-bar \{[^}]*margin-block-start: 32\.4px;/s',
+            '/\.vp-pdp-shot \{\s*aspect-ratio: 5 \/ 4;\s*width: 93\.37%;\s*margin-inline: auto;\s*\}/s',
             $css,
         );
     }
