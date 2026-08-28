@@ -938,9 +938,11 @@ class CataloguePagesTest extends TestCase
         );
 
         // The name to the size chips: the margin the heading used to carry,
-        // less the fifth the round after it took off — «حالا فاصله ها ۲۰ درصد
-        // کمتر بشه». 18 → 14.4.
-        $this->assertMatchesRegularExpression('/\.vp-pick-sizes \{\s*margin-block-start: 11\.52px;\s*\}/s', $css);
+        // twice a fifth down with the others — 18 → 14.4 → 11.52 — and then
+        // back up on its own at «بکنش ۱۵ چون ۱۱٫۵۲ کمه». It is asserted apart
+        // from the two below because it is no longer one of them: a block of
+        // type meeting a row of objects is not two rows of objects meeting.
+        $this->assertMatchesRegularExpression('/\.vp-pick-sizes \{\s*margin-block-start: 15px;\s*\}/s', $css);
 
         // The sizes to the colours, and the colours to the buy row — read out
         // of the file rather than asserted twice, because «اندازه» is the

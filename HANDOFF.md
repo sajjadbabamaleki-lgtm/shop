@@ -4037,3 +4037,22 @@ rather than as a shop saying the basket is empty. `.vp-empty` takes
 
 707 tests, Pint clean, parity identical at 992/1200/1440/1920, no sideways
 scroll at 390/768/992/1200/1280/1920.
+
+## The name to the size chips, on its own number
+
+«بکنش ۱۵ چون ۱۱٫۵۲ کمه». That gap had been moving with the picker's other two
+since the headings came off — 18 → 14.4 → 11.52, a fifth at a time — and it
+stops moving with them here. **15**, said as a number rather than as a
+percentage of the last one.
+
+It is worth writing down why the three came apart rather than treating it as a
+number that drifted: the other two gaps are between *rows of objects* — size
+chips to colour squares, colour squares to the buy row — and those still share
+one figure, 20.736, which `CataloguePagesTest` reads out of the stylesheet and
+compares to itself. This one is between a block of **type** — the name with its
+price and the sale line — and the first row of objects under it. Two different
+kinds of edge meeting, so one number for each is right and a single rhythm over
+all three was the thing that was wrong.
+
+707 tests, Pint clean, parity identical at 992/1200/1440/1920, no sideways
+scroll at 390/768/992/1200/1280/1920.

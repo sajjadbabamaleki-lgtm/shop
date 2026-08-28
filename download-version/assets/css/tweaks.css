@@ -14900,13 +14900,20 @@ button.vp-cart-keep {
 
      Then a fifth off it, with the other two — «حالا فاصله ها ۲۰ درصد کمتر
      بشه» — 18 → 14.4, and a fifth off that again at «حالا فاصله ها ۲۰ درصد
-     کمتر بشن»: 14.4 → 11.52. */
+     کمتر بشن»: 14.4 → 11.52.
+
+     And back up on its own, which is why this one number no longer moves with
+     the other two: «بکنش ۱۵ چون ۱۱٫۵۲ کمه». **15**, said as a number rather
+     than as a percentage of the last one, so that is what it says. The name
+     and its price are a block of type and the chips are a row of objects; the
+     air between those two is not the air between two rows of objects, which is
+     the 20.736 the other two gaps carry. */
   .vp-pick-head {
     display: none;
   }
 
   .vp-pick-sizes {
-    margin-block-start: 11.52px;
+    margin-block-start: 15px;
   }
 
   /* ---- The size chips ----------------------------------------------------
