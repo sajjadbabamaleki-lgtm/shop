@@ -76,7 +76,7 @@
                 <div class="col{{ $card['phoneOnly'] ? ' d-lg-none' : '' }}">
                     <div class="vp-deal">
                         <a class="vp-deal-shot" href="{{ storefront_route('product', $deal) }}">
-                            <img src="{{ asset($deal->imagePath()) }}" alt="" loading="lazy">
+                            <img src="{{ asset($deal->imagePath()) }}"{!! photo_srcset($deal->imagePath()) !!} alt="" loading="lazy">
                             @include('partials.deal-burst', ['key' => $loop->index, 'percent' => $deal->offerHere()->discountPercent()])
                             <span class="vp-deal-label">
                                 <span class="vp-deal-lines">

@@ -43,7 +43,7 @@
                     <div class="vp-best">
                         @php($shot = $tile['product']->primaryMedia())
                         <a class="vp-best-shot" href="{{ storefront_route('product', $tile['product']) }}">
-                            @if ($shot)<img src="{{ asset($shot->path) }}" alt="{{ $tile['product']->title }}" loading="lazy">@endif
+                            @if ($shot)<img src="{{ asset($shot->path) }}"{!! photo_srcset($shot->path) !!} alt="{{ $tile['product']->title }}" loading="lazy">@endif
                             {{-- «بعضی از همون کارتها» — every other tile. Nothing in
                                  the catalogue says which of these six is discounted
                                  (none is, on this band: the price shown is the one

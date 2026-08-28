@@ -1,50 +1,22 @@
-/* ==========================================================================
-   Direction corrections shared by every theme variant.
-
-   rtlcss flips the stylesheets mechanically. What follows are the cases it
-   cannot infer, because the value is not directional in the CSS itself.
-   ========================================================================== */
-
-
-/* Persian digits render with Latin glyph widths unless the font is told to
-   use its own numeral set. */
 body { font-feature-settings: 'ss02'; }
 
-/* Arrow glyphs inside buttons and links point left-to-right in the artwork. */
 [dir="rtl"] .th-btn i.fa-arrow-right,
 [dir="rtl"] .th-btn i.fa-long-arrow-right,
 [dir="rtl"] .link-btn i,
 [dir="rtl"] .th-btn .btn-icon { transform: scaleX(-1); }
 
-/* Swiper positions slides with inline transforms; it needs its own direction
-   flag rather than a CSS flip, which is set in the markup via dir="rtl".
-   These rules only correct the navigation furniture around it. */
 [dir="rtl"] .swiper-button-next i,
 [dir="rtl"] .swiper-button-prev i { transform: scaleX(-1); }
 
-/* Prices and SKUs mix Persian text with Latin numerals; isolate them so the
-   bidi algorithm does not reorder currency and digits. */
 .price, .product-code, .sku, .order-code { unicode-bidi: isolate; }
 
-/* Latin brand names inside Persian sentences (Nike, New Balance) keep their
-   own direction. */
 .brand-name, .product-title .latin { unicode-bidi: isolate; direction: ltr; }
 
-/* Phone numbers and email addresses are Latin runs inside Persian chrome.
-   Without isolation the bidi algorithm moves the leading + to the far end,
-   turning +00 123 456 789 into 789 456 123 00+. */
 a[href^="tel:"], a[href^="mailto:"] {
   unicode-bidi: isolate;
   direction: ltr;
 }
 
-/* The circular discount badge sets each glyph with
-   rotate(calc(var(--rotate-letter) * N)) and an offset of left:18px. rtlcss
-   negates the rotation and flips the offset, which makes the ring read
-   backwards ("FFO %51"). Because the angle comes from a variable, negating
-   the variable cancels rtlcss's own negation and restores the original sweep.
-   (This badge is one of the theme's signature decorations and is a candidate
-   for removal; the fix keeps the preview honest until that call is made.) */
 .discount-tag, .discount-wrapp { direction: ltr; unicode-bidi: isolate; }
 [dir="rtl"] .discount-tag span {
   --rotate-letter: -13deg;

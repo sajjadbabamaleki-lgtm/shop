@@ -138,10 +138,16 @@ the client saw an old page and had no way to tell why. So, plainly:
   edit `theme/make-rtl-page.js` and re-run `node theme/make-rtl-page.js`.
 - `download-version/assets/css/tweaks.css` — every deliberate deviation from
   the template, loaded last. One block per decision, with the reasoning and the
-  measurements in the comment above it.
+  measurements in the comment above it. **None of that prose is downloaded:**
+  `sync-storefront-assets.js` and the Netlify build strip the comments out of
+  every stylesheet on the way to the browser, keeping `/*!` licence blocks, and
+  the source keeps every word. That is 650KB, and it is also what takes the
+  base sheet's bought-from header out of a file the site hands to anybody who
+  opens it.
 - `theme/make-category-photos.js` — the category tiles. The photographs go
   in exactly as supplied: resize only, no crop, no cut-out.
-- `theme/make-icon-fonts.js` — **the icon fonts, cut to the icons this shop
+- `theme/make-icon-fonts.js` — **the icon fonts *and their stylesheet*, cut to
+  the icons this shop
   draws.** FontAwesome shipped 1,123KB across four woff2 files; the site paints
   27 glyphs, and the largest file (`fa-light-300`, 379KB) was being downloaded
   for exactly one of them — `--icon-font` is "Font Awesome 6 Pro", whose default
@@ -158,6 +164,38 @@ the client saw an old page and had no way to tell why. So, plainly:
   `check-parity.js` cannot see because both pages ship the same subset. Needs
   `pip install fonttools brotlicffi` (plain `brotli` fails to decode these).
   Re-run it, then `sync-storefront-assets.js`, after adding any icon.
+  **The same script now cuts `fontawesome.min.css` too — 454KB → 12.5KB.** It
+  declared 3,312 icons for the 27 this shop draws, and 291KB of it was duotone,
+  an effect with no font behind it in this bundle: every one of those rules
+  draws an empty box by construction. The original is
+  `fontawesome.full.min.css`, and it is not only the re-subsetting source —
+  **it is the only copy of the class-to-codepoint table**, which is why
+  `IconFontTest` reads it from there. Verified by rendering five pages at two
+  widths against both stylesheets: ten pairs, all pixel-identical.
+- `theme/make-photo-sizes.js` — **a phone-sized copy of every product
+  photograph, and the manifest the site reads to offer both.** The shots are
+  1400 wide because a 2x desktop draws one at 583 CSS pixels; a phone draws the
+  same photograph at 267 and can show 534, so on the screen that complained
+  about the site being slow two thirds of every photograph was resolution the
+  device cannot render — and WebP is already compressed, so nothing downstream
+  helps it. Resize only, same rule as the category tiles. `photo_srcset()` in
+  `app/Support/pages.php` writes the `srcset`, and **its `sizes` string and the
+  one in `theme/make-rtl-page.js` have to stay identical** or the two copies of
+  the home page pick different files and `check-parity.js` reports every
+  photograph as changed. `PhotoSizesTest` holds that, holds that the files the
+  manifest names are on disk, and walks three pages failing on any photograph
+  offered at one size only — which is how the best-sellers band and the
+  gallery's thumbnails were caught still pulling the large one. The manifest is
+  copied to `public/` by name, because only `storefront/` is deployed.
+- **The page loads three libraries, not eleven.** Eight of the template's
+  scripts bind to markup that exists in none of the pages this shop serves —
+  187KB and eight round trips — and they come off in `DEAD_LIBRARIES` in
+  `theme/make-rtl-page.js`. The calls are still in `main.js` behind
+  `if ($.fn.…)`, so restoring one `<script>` there is the whole of restoring a
+  feature; **without those guards the first missing plugin throws and nothing
+  after it in `main.js` runs**. `DeadLibrariesTest` fails, naming the script to
+  put back, if any of their hooks (`.popup-video`, `.filter-active`,
+  `data-bs-*`, …) ever returns to a template. jQuery, Swiper and GSAP stay.
 - `theme/make-favicons.js` — the whole icon set, `favicon.ico`, `manifest.json`
   and `browserconfig.xml`, all from **`assets/img/vikyplus-appicon-1024.png`**.
   Same rule as the category photographs: resize only. Re-run it if the mark ever

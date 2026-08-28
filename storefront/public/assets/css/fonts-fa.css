@@ -1,17 +1,3 @@
-/* ==========================================================================
-   Persian typography.
-
-   This is the whole localisation layer: a self-hosted Persian face in place of
-   the template's Latin ones. No palette, no geometry, no component styling —
-   the site renders in the template's own colours and styles throughout.
-
-   The template's four Latin families are all mapped to one face. Jost, Inter
-   and DM Sans have no Persian glyphs, so keeping them would leave the browser
-   to substitute a system font per role and the page would run in four
-   different faces. Dancing Script is a decorative script with no Persian
-   equivalent at all.
-   ========================================================================== */
-
 @font-face {
   font-family: 'Vazirmatn';
   src: url('../fonts/vazirmatn/Vazirmatn[wght].woff2') format('woff2-variations');
@@ -20,9 +6,6 @@
   font-display: swap;
 }
 
-/* Declared on the per-demo body classes as well as :root, because the template
-   redeclares its own variables there and a :root-only override loses to them
-   for everything inside <body>. */
 :root,
 .shoe-shop, .fashion-shop, .electronics-shop, .grocery-shop,
 .coffee-shop, .furniture-shop, .home-electrician {

@@ -3619,3 +3619,178 @@ field, 16 to the one before.**
   one cleared, the other untouched.
 
 652 tests, Pint clean, no sideways scroll at 390/768/1200/1920.
+
+## «خیلی کند باز میشه» — the second pass, and where the weight actually was
+
+«سایت با فیلترشکن خیلی کند باز میشه حتی بدونه فیلترشکن هم گاهی کنده». The pass
+before this one took the page from 4.41MB to 3.33MB by subsetting the icon
+**fonts** and stopping the eNamad seal from holding the tab open. This is the
+round after it, and it starts where that one stopped: with a measurement.
+
+Home page at 390, Chromium, network held to 1.5Mbit down and 300ms of latency
+— roughly what a filter-breaker does to a phone. Every number below is off that
+same bench:
+
+| | requests | on the wire | first paint | load |
+| --- | --- | --- | --- | --- |
+| before | 51 | 3,154KB | 14.9s | 18.1s |
+| after | 42 | 2,191KB | **10.9s** | **12.9s** |
+
+Four seconds of the four-second wait was **three things, and none of them was
+the code anybody has been editing**.
+
+### 1. 444KB of stylesheet for 27 icons
+
+The fonts were cut to 52 glyphs last round. **The stylesheet that names them
+was not**: `fontawesome.min.css` is 454KB, it declares 3,312 icons, and it was
+the second heaviest file on the page after the base sheet.
+
+Where it goes: **291KB of it is duotone**, an effect this shop does not use and
+has no font for — the four faces we ship are light, regular, solid and brands,
+and duotone needs a file the template never included. Every one of those rules
+draws an empty box by construction. Another 153KB is the icon table, of which
+52 codepoints survive. The remaining 10KB is machinery — the `@font-face`
+blocks, the family and weight behind `.fas`/`.far`/`.fal`/`.fab`, the sizes and
+rotations and the spin keyframes — and it is kept **whole and unread**, because
+guessing which parts of it the page leans on is how a subset starts failing
+silently.
+
+**454KB → 12.5KB**, and 76KB → 2.4KB of that is after gzip, so it is a real
+saving on a compressed connection as well as an uncompressed one.
+
+`theme/make-icon-fonts.js` does it, from the same keep set it already cuts the
+fonts to. The original is kept beside it as `fontawesome.full.min.css` — the
+same rule as `*.full.woff2`, and for a second reason: **it is the only copy of
+the class-to-codepoint table**, the one thing that knows `fa-bag-shopping` is
+U+F290. Both the script and `IconFontTest` read it from there now.
+
+**Verified by rendering, not by looking**: five pages at 390 and 1200, the
+subset stylesheet swapped for the full one between runs, `document.fonts.ready`
+awaited. All ten pairs came out **pixel-identical**.
+
+`IconFontTest` gained a third case — every class the templates write has a
+`content` rule in the stylesheet that *ships*, not just a glyph in the font.
+The two are cut from one keep set but they are two files, and a class that lost
+its rule draws nothing while the font sitting behind it is perfectly correct.
+
+### 2. Eight libraries the shop never calls
+
+The template loads eleven scripts because it is eleven demos in one download.
+Measured against every page we serve — the preview page and every Blade —
+**eight of them bind to markup that appears nowhere**:
+
+| library | what it binds to | uses |
+| --- | --- | --- |
+| bootstrap.min.js | any `data-bs-*` attribute | 0 |
+| jquery.magnific-popup | `.popup-image` `.popup-video` `.popup-content` | 0 |
+| isotope + imagesloaded | `.filter-active` `.masonary-active` | 0 |
+| jquery-ui | `.price_slider` | 0 |
+| jquery.counterup | `.counter-number` | 0 |
+| tilt.jquery | `.tilt-active` | 0 |
+| nice-select | `.nice-select` | 0 |
+
+**187KB, and eight round trips before `load` can fire.** Magnific's stylesheet
+went with its script: it styles a lightbox that can no longer be opened, and it
+was a render-blocking request to say so. The shop's own sheets, dropdowns and
+modals are hand-written and owe nothing to any of these. GSAP stays —
+`.slider-drag-cursor` is on the page and `main.js` drives it with
+`gsap.ticker`.
+
+**Two things make that safe rather than a silent loss**, and it needs both.
+`main.js` still contains every call, now behind `if ($.fn.…)`, so restoring a
+`<script>` in `DEAD_LIBRARIES` (theme/make-rtl-page.js) is the whole of
+restoring a feature — and without the guard the first missing plugin throws and
+everything after it in that file, the sliders and the header and the menus,
+never runs. `DeadLibrariesTest` is the other half: it fails, naming the script
+to put back, if any of those hooks ever returns to a template. Write
+`class="popup-video"` into a page a year from now and the lightbox would
+otherwise simply never open — no error, no red, nothing to search for.
+
+### 3. Photographs at four times the resolution a phone can draw
+
+The product photographs are 1400x990. On a 390 screen the hero draws one into
+**267x242 CSS pixels**; a 2x phone can show 534 across. The other 866 are
+downloaded, decoded and thrown away — and they are WebP, so this is the part
+compression cannot help, exactly like the fonts last round.
+
+1400 is not a mistake. `make-hero-photos.js` chose it so the hero holds up on a
+2x *desktop*, where it draws 583 and wants 1166. **Both are true, which is what
+`srcset` is for.** `theme/make-photo-sizes.js` cuts a 700-wide copy of each —
+resize only, the same rule the category tiles are under, and the encoder
+settings `make-hero-photos.js` already argued for:
+
+```
+vikyplus-hero-nb530        253KB -> 78KB
+vikyplus-deal-cloudtilt    163KB -> 48KB
+vikyplus-hero-jordan       130KB -> 50KB
+vikyplus-hero-goldengoose  109KB -> 41KB
+vikyplus-deal-v2k          104KB -> 36KB
+```
+
+On the home page at 390 that is **655KB of photograph down to 217KB**, and
+nothing that was sharp becomes soft: at 1920, and on any 2x screen, the browser
+still takes the original.
+
+**`sizes` is one rule for the whole site — `(min-width: 992px) 40vw, 70vw` —
+and `photo_srcset()` and `theme/make-rtl-page.js` have to keep writing the same
+string.** It is deliberately not measured per image. The two copies of the home
+page must choose the *same file* at every width, or `check-parity.js` reports
+every photograph on the page as changed and the difference is really two
+encodings of one picture. `PhotoSizesTest` compares the two strings for exactly
+that reason.
+
+The manifest lives at `public/assets/img/photo-sizes.json`, not beside the
+design bundle: **only `storefront/` is deployed**, so a manifest read from
+`download-version/` would be present in every test and missing on the server —
+the shape of failure this repository has been bitten by before.
+
+**Two call sites were missed on the first pass and both were found by
+measuring, not by reading.** «پرفروش‌ترین‌ها» kept pulling four full-size
+photographs after the hero had been fixed — `check-parity.js` showed the band
+blank on one copy and full on the other — and the product page's gallery
+thumbnails were still on the large file, which `PhotoSizesTest` caught. That
+test now walks `/`, `/products` and a product page and fails on any `<img>`
+whose `src` is in the manifest and which carries no `srcset`.
+
+### 4. The comments in the *other* stylesheets
+
+`sync-storefront-assets.js` has stripped comments out of `tweaks.css` since the
+day it was written, and left every third-party sheet alone on the reasoning
+that their comments are not ours and some of them are licences. The licence
+half is real and is handled where it belongs — `strip()` keeps every `/*!`
+block, so FontAwesome's and Bootstrap's notices survive untouched. The rest was
+28KB of the base sheet's own table of contents on every visit.
+
+And its first paragraph is the header naming where the base layer was bought,
+in a file this site hands to anybody who opens it. That is the one thing the
+top of CLAUDE.md says may never appear in anything a person outside this
+repository reads, and it has been going out with every page load. It is gone
+from what ships; the source keeps every word. The Netlify preview strips the
+same two files now.
+
+### What is left, and the one thing that could not be settled from here
+
+The page is 2,191KB uncompressed. What remains, in order:
+
+- **620KB base stylesheet** (87KB gzipped). This is the template's own sheet
+  and removing it is the rebuild «قالب قبلی» describes, not a tidy-up.
+- **352KB of script** — jQuery 85, Swiper 148, GSAP 67, main.js 51. All four
+  are used. Swiper is the hero, the stories and the brand row; GSAP is one
+  cursor, and 67KB for a cursor is the next thing worth arguing about.
+- **190KB Bootstrap** (24KB gzipped), for its grid, which the ported markup
+  uses on every band.
+- **344KB of photograph**, now right-sized.
+- **187KB of font**: Vazirmatn 109, Cairo 68 (both used — Cairo sets every
+  heading), the four icon subsets 16.
+
+**Whether Liara compresses any of this still could not be tested from this
+container** — the proxy answers 403 for vikyplus.liara.run, the same wall
+CLAUDE.md records. Measured with `gzip -c9` on the files themselves, the seven
+stylesheets are 1,076KB that should arrive as about 150KB and the four scripts
+352KB that should arrive as 110KB. If compression is off, that is another
+1.2MB sitting there, it is one nginx setting rather than any change to this
+repository, and it is worth one question to Liara's support before anybody
+spends another afternoon in here.
+
+699 tests, Pint clean, parity identical at 992/1200/1440/1920, no sideways
+scroll at 390/768/992/1200/1280/1920.

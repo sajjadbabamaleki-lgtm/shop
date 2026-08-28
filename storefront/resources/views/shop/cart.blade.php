@@ -61,7 +61,7 @@
                             <div class="vp-cart-line{{ $short ? ' is-short' : '' }}">
                                 <a class="vp-cart-shot" href="{{ storefront_route('product', $variant->product) }}">
                                     @if ($variant->product?->primaryMedia())
-                                        <img src="{{ asset($variant->product->imagePath()) }}" alt="" loading="lazy">
+                                        <img src="{{ asset($variant->product->imagePath()) }}"{!! photo_srcset($variant->product->imagePath()) !!} alt="" loading="lazy">
                                     @endif
                                 </a>
 

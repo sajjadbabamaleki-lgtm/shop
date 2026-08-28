@@ -24,16 +24,24 @@ const path = require('path');
 const { strip, verifyGate } = require('./strip-css-comments');
 
 /**
- * The stylesheets whose comments do not go to the browser.
+ * Every stylesheet's comments are left in the source and kept out of the wire.
  *
- * Only ours. `tweaks.css` is 776KB of which 551KB is the reasoning above each
- * rule — written for whoever edits it next, downloaded by every visitor on the
- * one file the whole appearance depends on. The source keeps every word; this
- * is the copy the app serves. The third-party stylesheets are left exactly as
- * they came: their comments are not ours to remove, and some of them are
- * licences.
+ * `tweaks.css` is 776KB of which 551KB is the reasoning above each rule —
+ * written for whoever edits it next, downloaded by every visitor on the one
+ * file the whole appearance depends on. The source keeps every word; this is
+ * the copy the app serves.
+ *
+ * **This used to be ours only**, on the reasoning that a third party's
+ * comments are not ours to remove and some of them are licences. The licence
+ * half of that is real and is handled where it belongs: `strip()` keeps every
+ * `/*!` block, which is the convention for a notice, so FontAwesome's and
+ * Bootstrap's survive untouched. The rest was costing the visitor 28KB of the
+ * base sheet's own table of contents — and one of those paragraphs is the
+ * header naming where the base layer was bought, in a file this site hands to
+ * anybody who opens it. That is the one thing CLAUDE.md says may never appear
+ * in anything a person outside this repository reads.
  */
-const STRIP_COMMENTS = new Set(['assets/css/tweaks.css']);
+const STRIP_COMMENTS = (rel) => rel.endsWith('.css');
 
 const ROOT = path.resolve(__dirname, '..');
 const FROM = path.join(ROOT, 'download-version');
@@ -45,6 +53,10 @@ const PAGE = path.join(FROM, 'shoe-shop-rtl.html');
 // than by the browser. `content` is deliberately not here — most of it is meta
 // prose; the one meta that names a file is picked up separately below.
 const ATTRS = /(?:src|href|data-bg-src|data-mask-src|poster)\s*=\s*"([^"]+)"/g;
+// `srcset` names several files in one attribute, each followed by its width:
+// `a-700.webp 700w, a.webp 1400w`. Without this the small copies of the
+// photographs are the one thing on the page that never gets copied.
+const SRCSET = /srcset\s*=\s*"([^"]+)"/g;
 const TILE = /<meta[^>]+msapplication-TileImage[^>]+content\s*=\s*"([^"]+)"/gi;
 const URLS = /url\(\s*['"]?([^'")]+)['"]?\s*\)/g;
 const IMPORTS = /@import\s+(?:url\()?\s*['"]([^'"]+)['"]/g;
@@ -92,6 +104,9 @@ const missing = [];
 
 const page = fs.readFileSync(PAGE, 'utf8');
 for (const ref of refsIn(page, [ATTRS, URLS, TILE])) enqueue(ref, PAGE);
+for (const list of refsIn(page, [SRCSET])) {
+  for (const candidate of list.split(',')) enqueue(candidate.trim().split(/\s+/)[0], PAGE);
+}
 
 // The manifest names the icons it lists, and nothing in the markup does.
 /**
@@ -173,11 +188,11 @@ for (const file of collected) {
   let src = fs.readFileSync(file);
   bytes += src.length;
 
-  if (STRIP_COMMENTS.has(rel.split(path.sep).join('/'))) {
+  if (STRIP_COMMENTS(rel.split(path.sep).join('/'))) {
     const stripped = strip(src.toString('utf8'));
     // The gate's signature has to survive the trip, or the shop paints its
     // update notice instead of itself. Checked on the bytes that ship.
-    verifyGate(stripped, rel);
+    if (rel.endsWith('tweaks.css')) verifyGate(stripped, rel);
     saved += src.length - Buffer.byteLength(stripped);
     src = Buffer.from(stripped);
   }
@@ -203,6 +218,21 @@ if (saved) console.log(`  ${(saved / 1024).toFixed(0)}KB of comment left in the 
 // It goes to the public root, where the browser looks, and to the icon set it
 // belongs to, so the set on the server is the set on disk rather than the
 // twenty of it that happen to be linked.
+// The photograph manifest, for the same reason: nothing links to it. It is
+// what `photo_srcset()` reads to offer a phone the 700-wide copy of a picture,
+// and only `storefront/` is deployed — a manifest left in `download-version/`
+// would be present in every test and absent on the server.
+{
+  const rel = 'assets/img/photo-sizes.json';
+  const src = fs.readFileSync(path.join(FROM, rel));
+  const dest = path.join(TO, rel);
+  if (!fs.existsSync(dest) || !fs.readFileSync(dest).equals(src)) {
+    fs.mkdirSync(path.dirname(dest), { recursive: true });
+    fs.writeFileSync(dest, src);
+    console.log('  +', rel, ' (read by photo_srcset(), named by no page)');
+  }
+}
+
 const ico = fs.readFileSync(path.join(FROM, 'assets/img/favicons/favicon.ico'));
 for (const rel of ['favicon.ico', 'assets/img/favicons/favicon.ico']) {
   const dest = path.join(TO, rel);

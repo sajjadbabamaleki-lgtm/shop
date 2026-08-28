@@ -121,6 +121,41 @@ class IconFontTest extends TestCase
         }
     }
 
+    /**
+     * The stylesheet is a subset too, and it can lose an icon on its own.
+     *
+     * The font and the stylesheet are cut from the same keep set, but they are
+     * two files: a class whose rule was dropped draws nothing even when the
+     * glyph is in the font, and — like the font — it fails silently. So this
+     * asks the shipped stylesheet for a `content` rule for every class the
+     * templates write, which is the same question as the first test with the
+     * other half of the pair as the answer.
+     */
+    public function test_every_icon_the_templates_use_still_has_a_rule_in_the_stylesheet(): void
+    {
+        $css = file_get_contents(public_path('assets/css/fontawesome.min.css'));
+
+        // The subset is a few KB; the original is 444KB. Anything in between
+        // means somebody put the full file back by hand.
+        $this->assertLessThan(
+            40 * 1024,
+            strlen($css),
+            'fontawesome.min.css is '.round(strlen($css) / 1024).'KB — the full stylesheet is back. '.
+            'Run: node theme/make-icon-fonts.js && node theme/sync-storefront-assets.js',
+        );
+
+        $missing = [];
+
+        foreach ($this->classesInTemplates() as $class => $where) {
+            if (! preg_match('/\.fa-'.preg_quote($class, '/').':before[,{]/', $css)) {
+                $missing[] = "fa-{$class} in {$where}";
+            }
+        }
+
+        $this->assertSame([], $missing, "These icons have no rule in the stylesheet that ships:\n  ".
+            implode("\n  ", $missing)."\nRun: node theme/make-icon-fonts.js && node theme/sync-storefront-assets.js");
+    }
+
     /** @return array<string, string> class => the file it was found in */
     private function classesInTemplates(): array
     {
@@ -161,7 +196,11 @@ class IconFontTest extends TestCase
      */
     private function codepoints(): array
     {
-        $css = file_get_contents($this->repo('download-version/assets/css/fontawesome.min.css'));
+        // The *full* stylesheet. `fontawesome.min.css` is the subset that
+        // ships and no longer holds the table — it names 52 codepoints, not
+        // 3,312 — so reading it here would make every unused icon look like a
+        // misspelling.
+        $css = file_get_contents($this->repo('download-version/assets/css/fontawesome.full.min.css'));
 
         preg_match_all('/((?:\.fa-[a-z0-9-]+:before,?)+)\{content:"\\\\([0-9a-f]{1,6})"\}/', $css, $rules, PREG_SET_ORDER);
 

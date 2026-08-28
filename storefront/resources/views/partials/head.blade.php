@@ -43,8 +43,6 @@
     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.rtl.min.css') }}">
     <!-- Fontawesome Icon -->
     <link rel="stylesheet" href="{{ asset('assets/css/fontawesome.min.css') }}">
-    <!-- Magnific Popup -->
-    <link rel="stylesheet" href="{{ asset('assets/css/magnific-popup.rtl.min.css') }}">
     <!-- Swiper Js -->
     <link rel="stylesheet" href="{{ asset('assets/css/swiper-bundle.rtl.min.css') }}">
     <!-- Theme Custom CSS -->

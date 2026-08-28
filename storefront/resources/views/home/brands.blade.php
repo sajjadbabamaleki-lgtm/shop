@@ -35,7 +35,7 @@
                 <a class="vp-brand" href="{{ storefront_route('shop', ['brand' => $tile['brand']->slug]) }}">
                     <span class="vp-brand-mosaic" aria-hidden="true">
                         @foreach ($tile['mosaic'] as $photo)
-                        <span class="vp-brand-cell{{ $loop->first ? ' is-lead' : '' }}"><img src="{{ asset($photo) }}" alt="" loading="lazy"></span>
+                        <span class="vp-brand-cell{{ $loop->first ? ' is-lead' : '' }}"><img src="{{ asset($photo) }}"{!! photo_srcset($photo) !!} alt="" loading="lazy"></span>
                         @endforeach
                     </span>
                     <span class="vp-brand-plate">

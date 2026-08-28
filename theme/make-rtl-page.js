@@ -159,12 +159,74 @@ const WHATSAPP = [
 ].join('\n');
 html = html.replace(SCROLL_TOP, WHATSAPP);
 
+// --- the libraries this shop never calls come off ---------------------------
+//
+// «سایت با فیلترشکن خیلی کند باز میشه». The template loads eleven scripts
+// because it is eleven demos in one download; this page is one of them, and
+// eight of those libraries bind to markup that exists in none of the pages we
+// ship — measured, not assumed:
+//
+//   magnific-popup  .popup-image / .popup-video / .popup-content   0 uses
+//   counterup       .counter-number                                0
+//   tilt            .tilt-active                                   0
+//   imagesloaded    used only by isotope, below                    0
+//   isotope         .filter-active / .masonary-active              0
+//   jquery-ui       .price_slider (a demo shop's price filter)     0
+//   nice-select     .nice-select                                   0
+//   bootstrap       every data-bs-* attribute, anywhere            0
+//
+// That is 187KB the browser fetches, parses and throws away, over eight round
+// trips it makes before `load` can fire. The shop's own dropdowns, sheets and
+// modals are hand-written in `tweaks.css` and the partials; nothing here is
+// the site's behaviour.
+//
+// **Two things make this safe rather than a silent loss.** `main.js` still
+// contains the calls and now asks whether each plugin is present first — so
+// putting a `<script>` back here is the whole of putting a feature back. And
+// `DeadLibrariesTest` fails the suite if any of those hooks ever appears in a
+// template again, naming the library to restore. Without that test this is a
+// trap: add `class="popup-video"` to a page a year from now and the lightbox
+// simply does not open, with nothing red anywhere.
+//
+// GSAP stays — `.slider-drag-cursor` is on the page and main.js drives it with
+// `gsap.ticker`. Swiper, jQuery and main.js are the page.
+const DEAD_LIBRARIES = [
+  ['assets/js/bootstrap.min.js', '<!-- Bootstrap -->'],
+  ['assets/js/jquery.magnific-popup.min.js', '<!-- Magnific Popup -->'],
+  ['assets/js/jquery.counterup.min.js', '<!-- Counter Up -->'],
+  ['assets/js/tilt.jquery.min.js', '<!-- Tilt -->'],
+  ['assets/js/imagesloaded.pkgd.min.js', '<!-- Isotope Filter -->'],
+  ['assets/js/isotope.pkgd.min.js', null],
+  ['assets/js/jquery-ui.min.js', null],
+  ['assets/js/nice-select.min.js', '<!-- nice select -->'],
+];
+const quote = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+for (const [file, label] of DEAD_LIBRARIES) {
+  // The comment above a script is the template's label for it and means
+  // nothing without the script, so it comes off in the same bite.
+  const tag = new RegExp(
+    '[ \\t]*' + (label ? quote(label) + '\\s*\\n[ \\t]*' : '') +
+    '<script src="' + quote(file) + '"><\\/script>[ \\t]*\\n',
+  );
+  if (!tag.test(html)) {
+    throw new Error(`${file} is not where it was — check the page before assuming it is gone`);
+  }
+  html = html.replace(tag, '');
+}
+
+// Magnific's stylesheet goes with its script. It styles a lightbox that can no
+// longer be opened, and it is a render-blocking request to say so.
+const POPUP_CSS = /[ \t]*<!-- Magnific Popup -->\s*\n[ \t]*<link rel="stylesheet" href="assets\/css\/magnific-popup\.min\.css">\s*\n/;
+if (!POPUP_CSS.test(html)) {
+  throw new Error('the magnific-popup stylesheet is not where it was');
+}
+html = html.replace(POPUP_CSS, '');
+
 // --- swap in the flipped stylesheets ---------------------------------------
 const SHEETS = [
   ['assets/css/style.css', 'assets/css/style.rtl.css'],
   ['assets/css/bootstrap.min.css', 'assets/css/bootstrap.rtl.min.css'],
   ['assets/css/swiper-bundle.min.css', 'assets/css/swiper-bundle.rtl.min.css'],
-  ['assets/css/magnific-popup.min.css', 'assets/css/magnific-popup.rtl.min.css'],
 ];
 for (const [from, to] of SHEETS) {
   html = html.split(`href="${from}"`).join(`href="${to}"`);
@@ -3774,6 +3836,45 @@ html = html.replace('</body>',
   '            });\n' +
   '        }\n' +
   '    </script>\n</body>');
+
+// --- every photograph offered at the size the screen can show ----------------
+//
+// Last, so it sees every `<img>` on the finished page however it got there.
+//
+// The product photographs are 1400 wide because a 2x desktop draws one at 583
+// CSS pixels and wants 1166. A phone draws the same photograph at 267 and can
+// show 534 — so on the screen that complained about the site being slow, 655KB
+// of the page is resolution the device cannot render, and it is the part gzip
+// cannot help. `theme/make-photo-sizes.js` cuts a 700-wide copy of each and
+// writes the manifest this reads.
+//
+// **One `sizes` rule for every photograph on the site, here and in
+// `photo_srcset()`, and they have to stay the same string.** It is not a
+// per-image measurement because the two copies of this page must choose the
+// same file at every width or `check-parity.js` starts reporting differences
+// that are really just two encodings of one picture. Measured against the
+// layout: a phone at 390 asks for 273 CSS pixels, doubled is 546, so it takes
+// the 700; a 1200 desktop asks for 480 and takes the 700; 1920 asks for 768
+// and takes the original, as does any 2x screen. Nothing that was sharp
+// becomes soft.
+const PHOTOS = JSON.parse(
+  fs.readFileSync(path.join(ROOT, 'download-version/assets/img/photo-sizes.json'), 'utf8'),
+).photos;
+const PHOTO_SIZES = '(min-width: 992px) 40vw, 70vw';
+
+let dressed = 0;
+html = html.replace(/<img\b[^>]*>/g, (tag) => {
+  if (/\bsrcset=/.test(tag)) return tag;
+  const src = tag.match(/\bsrc="([^"]+)"/);
+  const photo = src && PHOTOS[src[1]];
+  if (!photo) return tag;
+  dressed++;
+  return tag.replace(
+    /\bsrc="[^"]+"/,
+    `$& srcset="${photo.small} ${photo.smallWidth}w, ${src[1]} ${photo.width}w" sizes="${PHOTO_SIZES}"`,
+  );
+});
+console.log(`  ${dressed} photographs offered at two sizes`);
 
 fs.writeFileSync(out, html);
 console.log(`wrote ${path.relative(ROOT, out)} (theme: ${theme || 'none — template colours'})`);

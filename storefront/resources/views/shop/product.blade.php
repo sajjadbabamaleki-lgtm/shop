@@ -84,13 +84,13 @@
                             <div class="vp-pdp-frames">
                                 @foreach ($gallery as $i => $shot)
                                     <img id="vp-shot-{{ $product->id }}-{{ $i }}"
-                                         src="{{ asset($shot->path) }}"
+                                         src="{{ asset($shot->path) }}"{!! photo_srcset($shot->path) !!}
                                          alt="{{ $product->title }}"
                                          @if ($i) loading="lazy" @endif>
                                 @endforeach
                             </div>
                         @elseif ($product->primaryMedia())
-                            <img src="{{ asset($product->imagePath()) }}" alt="{{ $product->title }}">
+                            <img src="{{ asset($product->imagePath()) }}"{!! photo_srcset($product->imagePath()) !!} alt="{{ $product->title }}">
                         @endif
 
                     </div>

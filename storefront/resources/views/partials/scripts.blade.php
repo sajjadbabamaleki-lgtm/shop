@@ -5,21 +5,6 @@
     <!-- Swiper Js -->
     <script src="{{ asset('assets/js/swiper-bundle.min.js') }}"></script>
 
-    <!-- Bootstrap -->
-    <script src="{{ asset('assets/js/bootstrap.min.js') }}"></script>
-    <!-- Magnific Popup -->
-    <script src="{{ asset('assets/js/jquery.magnific-popup.min.js') }}"></script>
-    <!-- Counter Up -->
-    <script src="{{ asset('assets/js/jquery.counterup.min.js') }}"></script>
-    <!-- Tilt -->
-    <script src="{{ asset('assets/js/tilt.jquery.min.js') }}"></script>
-    <!-- Isotope Filter -->
-    <script src="{{ asset('assets/js/imagesloaded.pkgd.min.js') }}"></script>
-    <script src="{{ asset('assets/js/isotope.pkgd.min.js') }}"></script>
-    <script src="{{ asset('assets/js/jquery-ui.min.js') }}"></script>
-    <!-- nice select -->
-    <script src="{{ asset('assets/js/nice-select.min.js') }}"></script>
-
     <!-- Gsap -->
     <script src="{{ asset('assets/js/gsap.min.js') }}"></script>
 

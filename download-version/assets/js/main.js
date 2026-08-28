@@ -771,8 +771,19 @@
     popupSideMenu('.sidemenu-info', '.sideMenuInfo', '.sideMenuCls', 'show');
 
     /*----------- 11. Magnific Popup ----------*/
+    /* The template loads eleven libraries because it is eleven demos; this
+       shop calls three of them, and the other eight are no longer in the page
+       (see DEAD_LIBRARIES in theme/make-rtl-page.js — 187KB and eight round
+       trips a visitor was paying for markup that exists nowhere here).
+
+       Every call to one of them is guarded from here down. The calls stay
+       exactly as the template wrote them, so putting a <script> back is the
+       whole of putting the feature back; without the guard, the first missing
+       plugin throws and everything after it in this file — the sliders, the
+       header, the menus — never runs. `DeadLibrariesTest` is the other half:
+       it fails if the markup these bind to ever comes back. */
     /* magnificPopup img view */
-    $(".popup-image").magnificPopup({
+    if ($.fn.magnificPopup) $(".popup-image").magnificPopup({
         type: "image",
         mainClass: 'mfp-zoom-in',
         removalDelay: 260,
@@ -782,12 +793,12 @@
     });
 
     /* magnificPopup video view */
-    $(".popup-video").magnificPopup({
+    if ($.fn.magnificPopup) $(".popup-video").magnificPopup({
         type: "iframe",
     });
 
     /* magnificPopup video view */
-    $(".popup-content").magnificPopup({
+    if ($.fn.magnificPopup) $(".popup-content").magnificPopup({
         type: "inline",
         midClick: true,
     });
@@ -916,14 +927,14 @@
     };
 
     var postionHandler = "[data-sec-pos]";
-    if ($(postionHandler).length) {
+    if ($(postionHandler).length && $.fn.imagesLoaded) {
         $(postionHandler).imagesLoaded(function () {
             $(postionHandler).sectionPosition("data-sec-pos", "data-pos-for");
         });
     }
 
     /*----------- 13. Filter ----------*/
-    $(".filter-active").imagesLoaded(function () {
+    if ($.fn.imagesLoaded && $.fn.isotope) $(".filter-active").imagesLoaded(function () {
         var $filter = ".filter-active",
             $filterItem = ".filter-item",
             $filterMenu = ".filter-menu-active";
@@ -975,7 +986,7 @@
         });
     });
 
-    $(".masonary-active, .woocommerce-Reviews .comment-list").imagesLoaded(function () {
+    if ($.fn.imagesLoaded && $.fn.isotope) $(".masonary-active, .woocommerce-Reviews .comment-list").imagesLoaded(function () {
         var $filter = ".masonary-active, .woocommerce-Reviews .comment-list",
             $filterItem = ".filter-item, .woocommerce-Reviews .comment-list li";
 
@@ -1054,7 +1065,7 @@
 
 
     /*----------- 14. Counter Up ----------*/
-    $(".counter-number").counterUp({
+    if ($.fn.counterUp) $(".counter-number").counterUp({
         delay: 10,
         time: 1000,
     });
@@ -1205,7 +1216,7 @@
     };
 
     /*----------- 20. Tilt Active ----------*/
-    $('.tilt-active').tilt({
+    if ($.fn.tilt) $('.tilt-active').tilt({
         maxTilt: 15,
         perspective: 1000,
     })
@@ -1355,7 +1366,7 @@
     });
 
     /*----------- 21. Price Slider ----------*/
-    $(".price_slider").slider({
+    if ($.fn.slider) $(".price_slider").slider({
         range: true,
         min: 0,
         max: 100,
@@ -1365,8 +1376,10 @@
             $(".to").text("$" + ui.values[1]);
         }
     });
-    $(".from").text("$" + $(".price_slider").slider("values", 0));
-    $(".to").text("$" + $(".price_slider").slider("values", 1));
+    if ($.fn.slider) {
+        $(".from").text("$" + $(".price_slider").slider("values", 0));
+        $(".to").text("$" + $(".price_slider").slider("values", 1));
+    }
 
 
     /*----------- 00. Woocommerce Toggle ----------*/

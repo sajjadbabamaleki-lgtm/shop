@@ -24,9 +24,9 @@
             <a @class(['vp-pdp-thumb', 'is-on' => $loop->first])
                data-vp-shot="{{ $loop->index }}"
                href="#vp-shot-{{ $product->id }}-{{ $loop->index }}"
-               aria-label="عکس {{ fa_number($loop->iteration) }}"><img src="{{ asset($shot->path) }}" alt="" loading="lazy"></a>
+               aria-label="عکس {{ fa_number($loop->iteration) }}"><img src="{{ asset($shot->path) }}"{!! photo_srcset($shot->path) !!} alt="" loading="lazy"></a>
         @else
-            <span @class(['vp-pdp-thumb', 'is-on' => $loop->first])><img src="{{ asset($shot->path) }}" alt="" loading="lazy"></span>
+            <span @class(['vp-pdp-thumb', 'is-on' => $loop->first])><img src="{{ asset($shot->path) }}"{!! photo_srcset($shot->path) !!} alt="" loading="lazy"></span>
         @endif
     @endforeach
 </div>
