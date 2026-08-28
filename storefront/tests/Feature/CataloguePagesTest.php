@@ -772,43 +772,77 @@ class CataloguePagesTest extends TestCase
     }
 
     /**
-     * The product page's two floating chips sit 12 from the screen on all
-     * three sides.
+     * The product page's two floating chips are a row above the photograph,
+     * ten off it.
      *
-     * «اون فاصله از بالا باید بشه اندازه فاصلشون از بغلا». The sides were
-     * already 12 — `calc(50% - 50vw + 12px)`, which lands on the screen's edge
-     * from inside a panel with a margin — and the top was 16 from the gallery,
-     * which is 26 from the screen on a phone and 56 above 575, because
-     * `.vp-shop-section` pads 10 at one and 40 at the other.
+     * «ضبدر و امتیاز ببر بالای عکس با یه فاصله ۱۰ پیکس». They have been three
+     * things: 12 from the *screen* while the photograph was 80% of the line
+     * and centred (measuring from a picture that far in left them floating in
+     * the middle of nothing — «چرا وسطن؟»), then 12 inside its corners once it
+     * ran the full width, and now their own row above it.
      *
-     * So the top is that padding subtracted from 12, and the padding is
-     * published as a variable rather than copied. A bare number would be right
-     * at one width and silently wrong at the other, which is exactly the shape
-     * of the bug this replaces.
+     * The 10 is not written on them. `--vp-shot-top` — the space above the
+     * picture — *is* their height plus that gap, so they sit at the top of the
+     * gallery and the picture starts exactly 10 under them. Assert the shape
+     * of that expression rather than a number, because the number is the one
+     * thing here that has moved every round.
      */
-    public function test_the_products_floating_chips_measure_from_the_screen(): void
+    public function test_the_products_floating_chips_are_a_row_above_the_photograph(): void
+    {
+        $css = file_get_contents(public_path('assets/css/tweaks.css'));
+
+        // They sit at the top of the gallery; the space under them is the
+        // gallery's padding, and that padding *is* their height plus the 10.
+        $this->assertMatchesRegularExpression(
+            '/\.vp-pdp-close,\s*\.vp-pdp-rate \{[^}]*top: env\(safe-area-inset-top, 0px\);/s',
+            $css,
+        );
+        $this->assertMatchesRegularExpression(
+            '/\.vp-pdp-gallery \{\s*--vp-corner: 34px;\s*'.
+            '--vp-shot-top: calc\(env\(safe-area-inset-top, 0px\) \+ var\(--vp-corner\) \+ 10px\);/s',
+            $css,
+        );
+
+        // Their own height is that same variable, or the 10 is not a 10.
+        $this->assertMatchesRegularExpression(
+            '/\.vp-pdp-close,\s*\.vp-pdp-rate \{[^}]*height: 34px;/s',
+            $css,
+        );
+
+        // Flush with the photograph's sides: above it they are a row in the
+        // same column as the picture and the card.
+        $this->assertMatchesRegularExpression('/\.vp-pdp-close \{\s*left: 0;/s', $css);
+        $this->assertMatchesRegularExpression('/\.vp-pdp-rate \{\s*right: 0;/s', $css);
+    }
+
+    /**
+     * A supplied photograph is not nudged down the frame.
+     *
+     * `.vp-pdp-shot img` carries `translateY(10%)` on a phone, and it is for a
+     * cut-out — a shoe floating on nothing, which sat too high in its tile.
+     * A photograph from the catalogue has its own background and fills the
+     * square edge to edge, so the same 10% pushes the whole picture down: an
+     * empty band across the top of the frame and the foot of the photograph
+     * cut off by the frame's own clip. That is what «بالای عکس بریدس» was.
+     *
+     * The listing's tile has carried this exception since the first import.
+     * The product page did not, and nothing could see it: every seeded product
+     * is a cut-out, so the bug only appears against catalogue photography.
+     */
+    public function test_a_supplied_photograph_fills_its_frame_undropped(): void
     {
         $css = file_get_contents(public_path('assets/css/tweaks.css'));
 
         $this->assertMatchesRegularExpression(
-            '/\.vp-pdp-close,\s*\.vp-pdp-rate \{[^}]*top: calc\(12px - var\(--vp-shop-top, 10px\)\);/s',
+            '/\.vp-pdp-shot\.is-supplied img \{\s*transform: none;\s*\}/s',
             $css,
         );
 
-        // The variable has to be set wherever the padding is, or the fallback
-        // quietly becomes the answer at the wrong width.
+        // The tile's own, which this one follows.
         $this->assertMatchesRegularExpression(
-            '/\.vp-shop-section \{[^}]*--vp-shop-top: 40px;\s*padding-block: 40px 150px;/s',
+            '/\.vp-card-shot\.is-supplied img \{[^}]*object-fit: cover;\s*transform: none;/s',
             $css,
         );
-        $this->assertMatchesRegularExpression(
-            '/\.vp-shop-section \{\s*--vp-shop-top: 10px;\s*padding-block: 10px;/s',
-            $css,
-        );
-
-        // And the sides are still measured the same way.
-        $this->assertStringContainsString('left: calc(50% - 50vw + 12px);', $css);
-        $this->assertStringContainsString('right: calc(50% - 50vw + 12px);', $css);
     }
 
     /**
@@ -911,7 +945,7 @@ class CataloguePagesTest extends TestCase
         // what makes the number right on a telephone whose bar overlays the
         // page, the way the footer's own bar already reads the bottom one.
         $this->assertMatchesRegularExpression(
-            '/\.vp-pdp-gallery \{\s*padding-block: calc\(34px \+ env\(safe-area-inset-top, 0px\)\) 10px;\s*\}/s',
+            '/\.vp-pdp-gallery \{[^}]*padding-block: var\(--vp-shot-top\) 10px;/s',
             $css,
         );
         $this->assertMatchesRegularExpression(

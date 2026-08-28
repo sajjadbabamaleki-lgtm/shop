@@ -8210,11 +8210,18 @@ button.vp-cart-keep {
   }
 
   .vp-pdp-gallery {
-    padding-block: calc(34px + env(safe-area-inset-top, 0px)) 10px;
+
+    --vp-corner: 34px;
+    --vp-shot-top: calc(env(safe-area-inset-top, 0px) + var(--vp-corner) + 10px);
+    padding-block: var(--vp-shot-top) 10px;
   }
 
   .vp-pdp-shot img {
     transform: translateY(10%);
+  }
+
+  .vp-pdp-shot.is-supplied img {
+    transform: none;
   }
 
   .vp-pdp-info {
@@ -8291,7 +8298,7 @@ button.vp-cart-keep {
     position: absolute;
     z-index: 2;
 
-    top: calc(12px - var(--vp-shop-top, 10px));
+    top: env(safe-area-inset-top, 0px);
     align-items: center;
     justify-content: center;
     height: 34px;
@@ -8305,7 +8312,7 @@ button.vp-cart-keep {
   }
 
   .vp-pdp-close {
-    left: calc(50% - 50vw + 12px);
+    left: 0;
     width: 34px;
     color: #101111;
     font-size: 14px;
@@ -8315,7 +8322,7 @@ button.vp-cart-keep {
   }
 
   .vp-pdp-rate {
-    right: calc(50% - 50vw + 12px);
+    right: 0;
     gap: 5px;
     padding-inline: 10px;
     font-family: var(--body-font);

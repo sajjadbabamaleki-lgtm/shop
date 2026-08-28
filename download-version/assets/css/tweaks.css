@@ -14298,7 +14298,15 @@ button.vp-cart-keep {
      fallback for everything that does not overlay anything, which is where the
      34 alone holds. */
   .vp-pdp-gallery {
-    padding-block: calc(34px + env(safe-area-inset-top, 0px)) 10px;
+    /* The close and the rating stand above the photograph now — «ضبدر و امتیاز
+       ببر بالای عکس با یه فاصله ۱۰ پیکس» — so the space above it is their own
+       height and that 10, and nothing here is a number picked to look right:
+       `--vp-corner` is the chips' height, stated once and used by both. The
+       safe-area inset sits under all of it, so the whole column moves down on
+       a telephone whose bar overlays the page. */
+    --vp-corner: 34px;
+    --vp-shot-top: calc(env(safe-area-inset-top, 0px) + var(--vp-corner) + 10px);
+    padding-block: var(--vp-shot-top) 10px;
   }
 
   /* The brand's name used to be set across this tile, very faint, behind the
@@ -14358,6 +14366,18 @@ button.vp-cart-keep {
      does, and holds at 320 as it does at 991. */
   .vp-pdp-shot img {
     transform: translateY(10%);
+  }
+
+  /* **Not a supplied photograph.** The drop above is for a cut-out: a shoe
+     floating on nothing, which sat too high in its tile. A photograph from the
+     catalogue has its own background and fills the square edge to edge, so the
+     same 10% pushes the whole picture down — an empty band across the top of
+     the frame and the foot of the photograph cut off by the frame's own clip.
+     The listing's tile has carried this exception since the first import
+     («عکس باید کل اون فضای اختصاص داده برای عکس کفشو پوشش بده»); the product
+     page needed it too and did not have it. */
+  .vp-pdp-shot.is-supplied img {
+    transform: none;
   }
 
   /* ---- The card ----------------------------------------------------------
@@ -14569,18 +14589,21 @@ button.vp-cart-keep {
     display: flex;
     position: absolute;
     z-index: 2;
-    /* 12 from the top of the screen, which is what the sides are — «اون فاصله
-       از بالا باید بشه اندازه فاصلشون از بغلا». It was 12 from the *photograph*
-       and that came to 26 from the screen, because `.vp-shop-section` pads 10
-       above the panel and the gallery pads 4 above the shot. These two hang
-       over the panel's white rather than over the photograph — the shot is 80%
-       and centred, so it is 50 in from each side while they are 12 — so the
-       edge they are read against is the screen's, on all three sides.
+    /* **Above the photograph, ten off it** — «ضبدر و امتیاز ببر بالای عکس با
+       یه فاصله ۱۰ پیکس».
 
-       Written as a subtraction from `--vp-shop-top` rather than as a number,
-       because that padding is 10 on a phone and 40 above 575, and a bare 2px
-       would be right at one of those widths and silently wrong at the other. */
-    top: calc(12px - var(--vp-shop-top, 10px));
+       They have been three things: 12 from the screen while the photograph was
+       80% of the line and centred (measuring from a picture that far in left
+       them floating in the middle of nothing — «چرا وسطن؟»), then 12 inside
+       its corners once it ran the full width, and now a row of their own above
+       it. The 10 is `--vp-shot-top`'s business: that variable is this height
+       plus the gap, so these two sit at the top of the gallery and the picture
+       starts exactly 10 under them. Neither number is written twice.
+
+       Flush with the photograph's sides rather than inset, because above it
+       they are a row in the same column as the picture and the card, and a
+       column reads by its edges. */
+    top: env(safe-area-inset-top, 0px);
     align-items: center;
     justify-content: center;
     height: 34px;
@@ -14594,7 +14617,7 @@ button.vp-cart-keep {
   }
 
   .vp-pdp-close {
-    left: calc(50% - 50vw + 12px);
+    left: 0;
     width: 34px;
     color: #101111;
     font-size: 14px;
@@ -14604,7 +14627,7 @@ button.vp-cart-keep {
   }
 
   .vp-pdp-rate {
-    right: calc(50% - 50vw + 12px);
+    right: 0;
     gap: 5px;
     padding-inline: 10px;
     font-family: var(--body-font);

@@ -3892,11 +3892,42 @@ shop's manifest says `display: standalone`, so the page is opened that way by
 anybody who took «نصب برنامه». The footer's bar has read the bottom inset since
 it was built; this is the same idiom at the other end.
 
-One thing that moved with it and may not want to have: **the × and the rating
-no longer sit on the photograph's corners.** They are 12 from the *screen* on
-all three sides, which is what «اون فاصله از بالا باید بشه اندازه فاصلشون از
-بغلا» asked for, so they stayed where that rule puts them and the picture moved
-out from under them. They read as two white cards above the photograph now.
+### Two defects that only catalogue photography could show
+
+**The top of the photograph was cut off.** «بالای عکس بریدس کوری؟؟؟» — and it
+was, by a rule written for the other kind of picture. `.vp-pdp-shot img` carries
+`translateY(10%)` on a phone: a cut-out is a shoe floating on nothing and it sat
+too high in its tile, so it is dropped a tenth. A supplied photograph has its
+own background and fills the square edge to edge, so the same 10% pushes the
+whole picture down — an empty band across the top of the frame and the foot of
+the photograph clipped away by the frame's own `overflow: hidden`. The listing's
+tile has carried `transform: none` for supplied photographs since the first
+import; the product page never did. **Nothing in this repository could see it:**
+every seeded product is a cut-out, so it only appears against the live
+catalogue, and `check-parity.js` compares two copies of the same page.
+`CataloguePagesTest` holds both halves of the exception now.
+
+**And the × and the rating.** They are 12 from the *screen* on all three sides —
+«اون فاصله از بالا باید بشه اندازه فاصلشون از بغلا» — which was written when the
+photograph was 80% of the line and centred: measuring from a picture that far in
+would have left them floating in the middle of nothing («چرا وسطن؟»). With the
+picture running the full width and 44 down the page, that same rule stranded
+them above it on white. They went onto its corners for one round and then to
+where they are now: **their own row above the photograph, ten off it** — «ضبدر و
+امتیاز ببر بالای عکس با یه فاصله ۱۰ پیکس» — flush with its sides, because above
+it they are a row in the same column as the picture and the card.
+
+The 10 is not written on them. `--vp-shot-top`, the space above the picture, *is*
+their height plus that gap:
+
+```
+--vp-corner: 34px;
+--vp-shot-top: calc(env(safe-area-inset-top, 0px) + var(--vp-corner) + 10px);
+```
+
+so they sit at the gallery's top and the photograph starts exactly 10 under
+them, at 54 down the page. Measured after: the chips 10..44, the photograph
+54..416, the card 426.
 
 ### One square, six times over
 
