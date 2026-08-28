@@ -793,14 +793,14 @@ class CataloguePagesTest extends TestCase
         $css = file_get_contents(public_path('assets/css/tweaks.css'));
 
         $this->assertMatchesRegularExpression(
-            '/\.vp-pdp-close,\s*\.vp-pdp-rate \{[^}]*top: calc\(var\(--vp-shot-top, 44px\) \+ 12px\);/s',
+            '/\.vp-pdp-close,\s*\.vp-pdp-rate \{[^}]*top: calc\(var\(--vp-shot-top, 4px\) \+ 12px\);/s',
             $css,
         );
 
         // The variable has to be set where the padding is, or the fallback
         // quietly becomes the answer.
         $this->assertMatchesRegularExpression(
-            '/\.vp-pdp-gallery \{\s*--vp-shot-top: calc\(44px \+ env\(safe-area-inset-top, 0px\)\);\s*'.
+            '/\.vp-pdp-gallery \{\s*--vp-shot-top: calc\(4px \+ env\(safe-area-inset-top, 0px\)\);\s*'.
             'padding-block: var\(--vp-shot-top\) 10px;/s',
             $css,
         );
@@ -808,6 +808,65 @@ class CataloguePagesTest extends TestCase
         // The sides, 12 in from the same box.
         $this->assertMatchesRegularExpression('/\.vp-pdp-close \{\s*left: 12px;/s', $css);
         $this->assertMatchesRegularExpression('/\.vp-pdp-rate \{\s*right: 12px;/s', $css);
+    }
+
+    /**
+     * A supplied photograph fills the basket's tile as well.
+     *
+     * «چرا عکسا تو سبد خرید اینجوری میفتن؟؟؟ باید عکس کل اون فضارو پر کنه» —
+     * the third place this distinction had to be made, after the listing's
+     * tile and the product page's frame. `.vp-cart-shot img` insets 14% and
+     * fits, which is the air a *cut-out* needs; a photograph arrives with its
+     * own margin in it, so fitting it inside 72% of the tile puts a margin
+     * inside a margin and paints a band on all four sides.
+     *
+     * The class has to be on the anchor in both baskets — the page's and the
+     * drawer's — or the rule has nothing to bind to, so both are read here.
+     */
+    public function test_a_supplied_photograph_fills_the_baskets_tile(): void
+    {
+        $css = file_get_contents(public_path('assets/css/tweaks.css'));
+
+        $this->assertMatchesRegularExpression(
+            '/\.vp-cart-shot\.is-supplied img \{\s*inset: 0;\s*width: 100%;\s*height: 100%;\s*object-fit: cover;/s',
+            $css,
+        );
+
+        // And it takes the tile's corner with it. A cut-out sits 14% inside
+        // the box and never reaches the corners; a photograph fills it to the
+        // edge and paints straight over them, which is a square picture in a
+        // rounded tile.
+        $this->assertMatchesRegularExpression(
+            '/\.vp-cart-shot\.is-supplied img \{[^}]*border-radius: inherit;/s',
+            $css,
+        );
+
+        foreach (['shop/cart.blade.php', 'partials/mini-cart.blade.php'] as $view) {
+            $this->assertStringContainsString(
+                "'is-supplied' => \$variant->product?->source",
+                file_get_contents(resource_path('views/'.$view)),
+                "{$view} does not mark a supplied photograph, so the rule above has nothing to bind to.",
+            );
+        }
+    }
+
+    /**
+     * An empty basket is twice the card it was.
+     *
+     * «ارتفاع سبد خرید خالی باید ۲ برابر بشه». It was 308 tall at 390 — a
+     * bucket, a sentence and a button in the top third of an otherwise empty
+     * page, which reads as something that failed to load rather than as a shop
+     * saying the basket is empty. 580 of content makes the panel 616 once its
+     * own 18 either side is counted, and the three things centre in it.
+     */
+    public function test_the_empty_basket_is_twice_the_card_it_was(): void
+    {
+        $css = file_get_contents(public_path('assets/css/tweaks.css'));
+
+        $this->assertMatchesRegularExpression(
+            '/\.vp-empty \{\s*align-content: center;\s*min-height: 580px;\s*\}/s',
+            $css,
+        );
     }
 
     /**

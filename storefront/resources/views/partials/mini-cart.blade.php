@@ -46,7 +46,7 @@
                          happen quietly. What stays `vp-mini-*` is the panel around
                          the cards — its head, its foot and its empty state. --}}
                     <li class="vp-cart-line{{ $line['offer'] === null || $line['available'] < $line['quantity'] ? ' is-short' : '' }}">
-                        <a class="vp-cart-shot" href="{{ storefront_route('product', $variant->product) }}">
+                        <a @class(['vp-cart-shot', 'is-supplied' => $variant->product?->source]) href="{{ storefront_route('product', $variant->product) }}">
                             @if ($variant->product?->primaryMedia())
                                 <img src="{{ asset($variant->product->imagePath()) }}"{!! photo_srcset($variant->product->imagePath()) !!} alt="" loading="lazy">
                             @endif

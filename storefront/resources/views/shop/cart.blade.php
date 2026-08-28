@@ -59,7 +59,7 @@
                                 $short = $line['offer'] === null || $line['available'] < $line['quantity'];
                             @endphp
                             <div class="vp-cart-line{{ $short ? ' is-short' : '' }}">
-                                <a class="vp-cart-shot" href="{{ storefront_route('product', $variant->product) }}">
+                                <a @class(['vp-cart-shot', 'is-supplied' => $variant->product?->source]) href="{{ storefront_route('product', $variant->product) }}">
                                     @if ($variant->product?->primaryMedia())
                                         <img src="{{ asset($variant->product->imagePath()) }}"{!! photo_srcset($variant->product->imagePath()) !!} alt="" loading="lazy">
                                     @endif

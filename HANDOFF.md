@@ -3997,3 +3997,43 @@ put the row back by hand and re-run parity before believing anything it says.
 
 704 tests, Pint clean, parity identical at 992/1200/1440/1920, no sideways
 scroll at 390/768/992/1200/1280/1920.
+
+## The basket's tile, and the page's top edge again
+
+Three corrections, all of the phone, all against the live catalogue rather than
+the seeded cut-outs.
+
+**A supplied photograph fills the basket's tile.** «چرا عکسا تو سبد خرید اینجوری
+میفتن؟؟؟ باید عکس کل اون فضارو پر کنه» — this is the third place the same
+distinction had to be made, after the listing's tile and the product page's
+frame, and the same one every time. `.vp-cart-shot img` insets 14% and fits,
+which is the air a *cut-out* needs; a photograph arrives with its own margin
+already in it, so fitting it inside 72% of the tile puts a margin inside a
+margin and paints a grey band on all four sides. The exception goes on the
+anchor in both baskets — the page's and the drawer's — because the rule has
+nothing to bind to otherwise.
+
+**And it takes the tile's corner with it.** The first pass covered without
+clipping, so the photograph painted straight over the rounded corners: a square
+picture in a rounded tile, «چرا عکسو با گوشه های تیز میزاری». `border-radius:
+inherit` rather than a number — the tile is 16.2 on a phone and its own size
+above 992. A cut-out never showed this: it sits 14% inside the box and never
+reaches a corner.
+
+**The page's top edge, a fourth time.** `--vp-shot-top` has now been 4, then 34
+to take the picture clear of the phone's bar, then 44 while the close and the
+rating stood in a row above it, and now **4 again** — «همچیو سلکت کن ببر بالا
+چون فاصله عکس از بالا باید ۱۴ پیکسل باشه». With the chips back on the
+photograph the band above it was empty, and 4 plus `.vp-shop-section`'s own 10
+is the 14. The chips read the same variable and add 12, so they came up with it
+without being touched.
+
+**An empty basket is twice the card it was** — «ارتفاع سبد خرید خالی باید ۲
+برابر بشه». It was 308 tall at 390: a bucket, a sentence and a button in the top
+third of an otherwise empty page, which reads as something that failed to load
+rather than as a shop saying the basket is empty. `.vp-empty` takes
+`min-height: 580px` and `align-content: center`, so the panel is 616 — twice
+308 — with the three things in the middle of it. Phone only.
+
+707 tests, Pint clean, parity identical at 992/1200/1440/1920, no sideways
+scroll at 390/768/992/1200/1280/1920.

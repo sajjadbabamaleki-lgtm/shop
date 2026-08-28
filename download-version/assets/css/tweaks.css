@@ -6709,6 +6709,30 @@ button.vp-cart-keep {
   object-fit: contain;
 }
 
+/* **A supplier's photograph fills the tile instead.** «چرا عکسا تو سبد خرید
+   اینجوری میفتن؟؟؟ باید عکس کل اون فضارو پر کنه» — the third place this
+   distinction had to be made, after the listing's tile and the product page's
+   frame, and the same one every time: this shop's own pictures are cut-outs, a
+   shoe on nothing, and the 14% inset above is the air a cut-out needs around
+   it. A supplier's is a photograph — a shoe on a surface, with its margin
+   already in it — so fitting it inside 72% of the tile puts a margin inside a
+   margin, which is the grey band on all four sides of the one in the basket.
+
+   Basalam serves square originals and this tile is square, so covering takes
+   all of the photograph rather than cropping it. */
+.vp-cart-shot.is-supplied img {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* The tile's corner, taken by the photograph itself. A cut-out sits 14%
+     inside this box and never reaches the corners, so nothing here had to be
+     clipped before; a photograph fills it to the edge and paints straight over
+     them. `inherit` rather than a number, because the tile is 16.2 on a phone
+     and its own size above 992. */
+  border-radius: inherit;
+}
+
 /* The plain stack, which is what the order pages get. The basket card's own
    arrangement is the scoped rule above `.vp-cart-shot`; this `gap` is the
    fallback it overrides, and the spacing those pages have always had. */
@@ -13723,6 +13747,25 @@ button.vp-cart-keep {
     box-shadow: none;
   }
 
+  /* **An empty basket is twice the card it was** — «ارتفاع سبد خرید خالی باید
+     ۲ برابر بشه». It was 308 tall on a 390 screen: a bucket, a sentence and a
+     button in 272 of content and padding, sitting in the top third of an
+     otherwise empty page and reading as something that had failed to load
+     rather than as a shop telling you the basket is empty.
+
+     580 here makes the panel 616 — twice 308 — once its own 18 either side is
+     counted, and `align-content: center` keeps the three things in the middle
+     of it rather than at the top of a tall box. Stated on the content rather
+     than on the panel, because the panel is the same class the basket's lines
+     and the summary sit on.
+
+     Phone only: the desktop card is wider and shows this in a page that has a
+     header and a footer around it. */
+  .vp-empty {
+    align-content: center;
+    min-height: 580px;
+  }
+
   /* The summary's title has no rule either. It sits at the top of a panel with
      its own edge; the rule was drawing a boundary that the panel already has. */
   .vp-cart-sum .vp-filter-title::after {
@@ -14298,17 +14341,21 @@ button.vp-cart-keep {
      fallback for everything that does not overlay anything, which is where the
      34 alone holds. */
   .vp-pdp-gallery {
-    /* The space above the photograph. It has carried two different meanings:
-       the room the close and the rating needed when they stood in their own
-       row above the picture, and — now that they are back on it, «اون ستاره و
-       ضبدر … بیان رو کفش» — the clearance the picture itself was asked for,
-       «تا جایی بیاری پایین که بالای عکس زیر نوار بالا نمونه». The 44 is the
-       number that answered the second and it stays; what it is *made of* is no
-       longer two things added up.
+    /* The space above the photograph, and the whole page's top edge with it —
+       everything under this comes down by whatever it says.
 
-       The safe-area inset sits under it, so the whole column moves down again
-       on a telephone whose bar overlays the page. */
-    --vp-shot-top: calc(44px + env(safe-area-inset-top, 0px));
+       It has been three numbers. 4, which put the picture 14 from the top of
+       the page once `.vp-shop-section`'s own 10 is counted. 34, to take the
+       picture clear of the phone's bar — «تا جایی بیاری پایین که بالای عکس زیر
+       نوار بالا نمونه» — and then 44 while the close and the rating stood in a
+       row above it. They are back on the photograph now, and with the band
+       above it empty the page was asked to come up again: «همچیو سلکت کن ببر
+       بالا چون فاصله عکس از بالا باید ۱۴ پیکسل باشه». So 4, and 4 + 10 is the
+       14.
+
+       The safe-area inset sits under it, so on a telephone whose own bar
+       overlays the page the whole column still moves down out from under it. */
+    --vp-shot-top: calc(4px + env(safe-area-inset-top, 0px));
     padding-block: var(--vp-shot-top) 10px;
   }
 
@@ -14609,7 +14656,7 @@ button.vp-cart-keep {
        gallery; 12 more puts these inside its top corners, and the sides are 12
        in from the same box. Three insets off one variable, so they cannot
        drift apart the next time the picture moves. */
-    top: calc(var(--vp-shot-top, 44px) + 12px);
+    top: calc(var(--vp-shot-top, 4px) + 12px);
     align-items: center;
     justify-content: center;
     height: 34px;
