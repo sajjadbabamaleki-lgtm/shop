@@ -904,10 +904,14 @@ class CataloguePagesTest extends TestCase
 
         // The gap, stated once: 10 as asked, doubled at «خب کارت مشخصات بیار
         // پایینتر», and back to 10 with the difference spent above the
-        // photograph — «که بالای عکس نره زیر نوار بالا». Both halves are on
-        // this one padding, so the picture's position is one line to read.
+        // photograph — «که بالای عکس نره زیر نوار بالا» — which then took the
+        // 14 to 34 at «تا جایی بیاری پایین که بالای عکس زیر نوار بالا نمونه».
+        // Both halves are on this one padding, so the picture's position is
+        // one line to read, and the safe-area inset is not decoration: it is
+        // what makes the number right on a telephone whose bar overlays the
+        // page, the way the footer's own bar already reads the bottom one.
         $this->assertMatchesRegularExpression(
-            '/\.vp-pdp-gallery \{\s*padding-block: 14px 10px;\s*\}/s',
+            '/\.vp-pdp-gallery \{\s*padding-block: calc\(34px \+ env\(safe-area-inset-top, 0px\)\) 10px;\s*\}/s',
             $css,
         );
         $this->assertMatchesRegularExpression(
@@ -984,12 +988,14 @@ class CataloguePagesTest extends TestCase
             $css,
         );
 
-        // **The chosen colour is the same square as the others.** «نباید …
-        // سایز اون مربع از باقی مربع ها بزرگتر بشه» — the ring is painted
-        // inward. An outer one measured 44.6 against its neighbours' 37.6, and
-        // `inset` is the whole of the difference, so it is what this asserts.
+        // **The ring and the colour together are the other squares' size.**
+        // «اون نوار دور و خود مربع رنگ باید اندازه سایر مربع ها باشه» — the
+        // ring stays, drawn inward, and the colour gives up the room: an outer
+        // one measured 44.6 against its neighbours' 37.6. Both `inset`s and
+        // their order are the whole of it — outermost first, because an
+        // earlier shadow paints over a later one — so both are asserted.
         $this->assertMatchesRegularExpression(
-            '/\.vp-pdp-swatch\.is-on \{\s*box-shadow:\s*inset 0 0 0 2px #FFFFFF,\s*inset 0 0 0 3\.5px/s',
+            '/\.vp-pdp-swatch\.is-on \{\s*box-shadow:\s*inset 0 0 0 1\.5px rgba\(16, 17, 17, 0\.35\),\s*inset 0 0 0 3\.5px #FFFFFF;/s',
             $css,
         );
     }

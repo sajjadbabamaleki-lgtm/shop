@@ -8210,7 +8210,7 @@ button.vp-cart-keep {
   }
 
   .vp-pdp-gallery {
-    padding-block: 14px 10px;
+    padding-block: calc(34px + env(safe-area-inset-top, 0px)) 10px;
   }
 
   .vp-pdp-shot img {
@@ -8397,8 +8397,8 @@ button.vp-cart-keep {
 
   .vp-pdp-swatch.is-on {
     box-shadow:
-      inset 0 0 0 2px #FFFFFF,
-      inset 0 0 0 3.5px rgba(16, 17, 17, 0.35);
+      inset 0 0 0 1.5px rgba(16, 17, 17, 0.35),
+      inset 0 0 0 3.5px #FFFFFF;
   }
 
   .vp-pdp-desc p {

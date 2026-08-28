@@ -14281,9 +14281,24 @@ button.vp-cart-keep {
      4 → 14 above, on top of the section's own 10, so the photograph starts 24
      down the page. The 4 the card used to carry itself is folded in here,
      because two numbers that add to a third is how the number above stopped
-     meaning anything. */
+     meaning anything.
+
+     **And then 24 was still not clear of the phone's top bar** — «باید کارت
+     مشخصاتو تا جایی بیاری پایین که بالای عکس زیر نوار بالا نمونه». 14 → 34, so
+     the picture starts 44 down and everything under it comes with it, which is
+     the card coming down.
+
+     `env(safe-area-inset-top)` on top of that, the same way the footer's own
+     bar already reads `env(safe-area-inset-bottom)`. A fixed number is a guess
+     about one telephone; the inset is the browser's own answer, and it is
+     exactly what a notch, a status bar or an installed app's chrome makes
+     non-zero. The shop's manifest says `display: standalone`, so this page is
+     opened that way by anybody who has taken «نصب برنامه», and there the top
+     bar is the operating system's rather than the browser's. `0px` is the
+     fallback for everything that does not overlay anything, which is where the
+     34 alone holds. */
   .vp-pdp-gallery {
-    padding-block: 14px 10px;
+    padding-block: calc(34px + env(safe-area-inset-top, 0px)) 10px;
   }
 
   /* The brand's name used to be set across this tile, very faint, behind the
@@ -14748,21 +14763,30 @@ button.vp-cart-keep {
     opacity: 0.3;
   }
 
-  /* **The chosen colour is the same square as the others.** «حالت انتخاب رنگ
-     هم نباید وقتی سلکت میشه و نوار میاد دورش سایز اون مربع از باقی مربع ها
-     بزرگتر بشه» — the ring was drawn *outside* the swatch, 3.5px of it all
-     round, so the chosen colour measured 44.6 against its neighbours' 37.6 and
-     read as the one that had grown rather than the one that was chosen.
+  /* **The ring and the colour together are the other squares' size.** «اون
+     نوار دور و خود مربع رنگ باید اندازه سایر مربع ها باشه» — said after the
+     ring had been taken off the outside, which was not the ask: «نگفتم نوار
+     دور انتخاب رنگ حذف بشه».
 
-     The same ring, drawn inward: 2px of white at the edge and 1.5 of ink
-     inside that, painted over the colour rather than around it. The box does
-     not move at all — an inset shadow is paint, not layout — so five squares
-     of one size, one of them ringed. Both follow the element's own corner, so
-     there is one radius on this control and not two to keep in step. */
+     It was 3.5px of `box-shadow` hanging *outside* the swatch — 2 of white and
+     1.5 of ink — so the chosen colour occupied 44.6 where its neighbours
+     occupied 37.6, and it read as the square that had grown rather than the
+     one that was chosen.
+
+     Same lockup, turned inward, and the colour gives up the room instead of
+     the row: the ring is at the square's own edge now and the colour patch is
+     37.61 − 7 = **30.61** inside it. Ordered outermost first, because an
+     earlier shadow paints over a later one — 1.5 of ink at the edge, then
+     white out to 3.5, and the element's own background from there in. The box
+     is untouched at `--vp-chip`, so the row does not move at all and the five
+     squares occupy one size, one of them ringed.
+
+     Each band follows the element's corner on its own, which is why there is
+     one radius on this control and not two to keep in step. */
   .vp-pdp-swatch.is-on {
     box-shadow:
-      inset 0 0 0 2px #FFFFFF,
-      inset 0 0 0 3.5px rgba(16, 17, 17, 0.35);
+      inset 0 0 0 1.5px rgba(16, 17, 17, 0.35),
+      inset 0 0 0 3.5px #FFFFFF;
   }
 
   .vp-pdp-desc p {

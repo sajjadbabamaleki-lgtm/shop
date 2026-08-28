@@ -3878,9 +3878,25 @@ be decided twice.
 
 Then «خب کارت مشخصات بیار پایینتر» took the 10 to 20, and «عکس محصول … باید
 بیاد در فاصله ده پیکسلی کارت قرار بگیره که بالای عکس نره زیر نوار بالا» brought
-it back to 10 with the difference spent above the picture instead: the gallery's
-padding is `14px 10px`, so the photograph starts 24 down the page and its foot
-keeps the 10 that has now been asked for twice.
+it back to 10 with the difference spent above the picture instead. 24 down the
+page was still not clear of the phone's own bar — «تا جایی بیاری پایین که بالای
+عکس زیر نوار بالا نمونه» — so the gallery's padding is
+`calc(34px + env(safe-area-inset-top, 0px)) 10px`: **44 above the photograph**,
+its foot keeping the 10 that has now been asked for twice, and everything under
+it coming down with it, which is the card coming down.
+
+**The inset is not decoration.** A fixed number is a guess about one telephone;
+`env(safe-area-inset-top)` is the browser's own answer and is exactly what a
+notch, a status bar or an installed app's chrome makes non-zero — and this
+shop's manifest says `display: standalone`, so the page is opened that way by
+anybody who took «نصب برنامه». The footer's bar has read the bottom inset since
+it was built; this is the same idiom at the other end.
+
+One thing that moved with it and may not want to have: **the × and the rating
+no longer sit on the photograph's corners.** They are 12 from the *screen* on
+all three sides, which is what «اون فاصله از بالا باید بشه اندازه فاصلشون از
+بغلا» asked for, so they stayed where that rule puts them and the picture moved
+out from under them. They read as two white cards above the photograph now.
 
 ### One square, six times over
 
