@@ -3917,17 +3917,24 @@ where they are now: **their own row above the photograph, ten off it** — «ض�
 امتیاز ببر بالای عکس با یه فاصله ۱۰ پیکس» — flush with its sides, because above
 it they are a row in the same column as the picture and the card.
 
-The 10 is not written on them. `--vp-shot-top`, the space above the picture, *is*
-their height plus that gap:
+That row lasted one deploy. Seeing it live, «اون ستاره و ضبدر هم مث همون سری
+قبل که اومده بودن رو کفش بیان رو کفش» — so they are back **12 inside the
+photograph's top corners**, which is where the round before the row had put
+them. The photograph did not move with them: 54 down the page is the clearance
+that was asked for against the phone's bar, and it is now a plain
+`calc(44px + env(safe-area-inset-top, 0px))` rather than something assembled
+out of the chips' height, because that is no longer what it is made of.
 
-```
---vp-corner: 34px;
---vp-shot-top: calc(env(safe-area-inset-top, 0px) + var(--vp-corner) + 10px);
-```
+**Three insets off one variable.** `--vp-shot-top` is the space above the
+picture, stated once on the gallery; the chips read it and add 12, and their
+sides are 12 in from the same box. Whatever moves that space next, the corners
+follow without anybody remembering to move them. Measured after: the photograph
+54..416, both chips 12 in from its top corners, the card 426.
 
-so they sit at the gallery's top and the photograph starts exactly 10 under
-them, at 54 down the page. Measured after: the chips 10..44, the photograph
-54..416, the card 426.
+And the card's first line came up: «عنوان کفش باید ده پیکسل بیاد بالاتر», so
+its top padding is 18 → **8** and the whole stack under the name comes with it,
+which is what moving a card's first line means. Measured: the name's box 8
+inside the card.
 
 ### One square, six times over
 

@@ -14298,14 +14298,17 @@ button.vp-cart-keep {
      fallback for everything that does not overlay anything, which is where the
      34 alone holds. */
   .vp-pdp-gallery {
-    /* The close and the rating stand above the photograph now — «ضبدر و امتیاز
-       ببر بالای عکس با یه فاصله ۱۰ پیکس» — so the space above it is their own
-       height and that 10, and nothing here is a number picked to look right:
-       `--vp-corner` is the chips' height, stated once and used by both. The
-       safe-area inset sits under all of it, so the whole column moves down on
-       a telephone whose bar overlays the page. */
-    --vp-corner: 34px;
-    --vp-shot-top: calc(env(safe-area-inset-top, 0px) + var(--vp-corner) + 10px);
+    /* The space above the photograph. It has carried two different meanings:
+       the room the close and the rating needed when they stood in their own
+       row above the picture, and — now that they are back on it, «اون ستاره و
+       ضبدر … بیان رو کفش» — the clearance the picture itself was asked for,
+       «تا جایی بیاری پایین که بالای عکس زیر نوار بالا نمونه». The 44 is the
+       number that answered the second and it stays; what it is *made of* is no
+       longer two things added up.
+
+       The safe-area inset sits under it, so the whole column moves down again
+       on a telephone whose bar overlays the page. */
+    --vp-shot-top: calc(44px + env(safe-area-inset-top, 0px));
     padding-block: var(--vp-shot-top) 10px;
   }
 
@@ -14468,8 +14471,12 @@ button.vp-cart-keep {
        And 12 at the foot: «فاصله لبه پایین کارت با اضافه کردن به سبد خرید باید
        هم اندازه فاصله همین دکمه از لبه ی چپ کارت باشه». The button's distance
        from the card's left edge *is* this padding, so the foot takes the same
-       number rather than one measured off it. 20 → 12. */
-    padding: 18px 12px 12px;
+       number rather than one measured off it. 20 → 12.
+
+       The top is 10 less than it was — «عنوان کفش باید ده پیکسل بیاد بالاتر».
+       18 → 8, and the whole stack under the name comes up with it, which is
+       what moving a card's first line means. */
+    padding: 8px 12px 12px;
     border-radius: 24px;
     background: #FFFFFF;
     box-shadow:
@@ -14589,21 +14596,20 @@ button.vp-cart-keep {
     display: flex;
     position: absolute;
     z-index: 2;
-    /* **Above the photograph, ten off it** — «ضبدر و امتیاز ببر بالای عکس با
-       یه فاصله ۱۰ پیکس».
+    /* **On the photograph, 12 inside its corners** — «اون ستاره و ضبدر هم مث
+       همون سری قبل که اومده بودن رو کفش بیان رو کفش».
 
-       They have been three things: 12 from the screen while the photograph was
-       80% of the line and centred (measuring from a picture that far in left
-       them floating in the middle of nothing — «چرا وسطن؟»), then 12 inside
-       its corners once it ran the full width, and now a row of their own above
-       it. The 10 is `--vp-shot-top`'s business: that variable is this height
-       plus the gap, so these two sit at the top of the gallery and the picture
-       starts exactly 10 under them. Neither number is written twice.
+       They have been three things and this is the second of them again: 12
+       from the *screen* while the picture was 80% of the line and centred
+       (measuring from something that far in left them floating in the middle
+       of nothing — «چرا وسطن؟»), then 12 inside the picture's own corners once
+       it ran the full width, then a row above it, and now back.
 
-       Flush with the photograph's sides rather than inset, because above it
-       they are a row in the same column as the picture and the card, and a
-       column reads by its edges. */
-    top: env(safe-area-inset-top, 0px);
+       `--vp-shot-top` is the space above the photograph, stated once on the
+       gallery; 12 more puts these inside its top corners, and the sides are 12
+       in from the same box. Three insets off one variable, so they cannot
+       drift apart the next time the picture moves. */
+    top: calc(var(--vp-shot-top, 44px) + 12px);
     align-items: center;
     justify-content: center;
     height: 34px;
@@ -14617,7 +14623,7 @@ button.vp-cart-keep {
   }
 
   .vp-pdp-close {
-    left: 0;
+    left: 12px;
     width: 34px;
     color: #101111;
     font-size: 14px;
@@ -14627,7 +14633,7 @@ button.vp-cart-keep {
   }
 
   .vp-pdp-rate {
-    right: 0;
+    right: 12px;
     gap: 5px;
     padding-inline: 10px;
     font-family: var(--body-font);

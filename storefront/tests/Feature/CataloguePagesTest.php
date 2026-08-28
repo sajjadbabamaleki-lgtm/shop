@@ -772,47 +772,42 @@ class CataloguePagesTest extends TestCase
     }
 
     /**
-     * The product page's two floating chips are a row above the photograph,
-     * ten off it.
+     * The product page's two floating chips sit 12 inside the photograph's top
+     * corners.
      *
-     * «ضبدر و امتیاز ببر بالای عکس با یه فاصله ۱۰ پیکس». They have been three
-     * things: 12 from the *screen* while the photograph was 80% of the line
-     * and centred (measuring from a picture that far in left them floating in
-     * the middle of nothing — «چرا وسطن؟»), then 12 inside its corners once it
-     * ran the full width, and now their own row above it.
+     * «اون ستاره و ضبدر هم مث همون سری قبل که اومده بودن رو کفش بیان رو کفش».
+     * They have been three things and this is the second of them again: 12
+     * from the *screen* while the photograph was 80% of the line and centred
+     * (measuring from a picture that far in left them floating in the middle
+     * of nothing — «چرا وسطن؟»), then 12 inside its corners once it ran the
+     * full width, then a row of their own above it, and now back.
      *
-     * The 10 is not written on them. `--vp-shot-top` — the space above the
-     * picture — *is* their height plus that gap, so they sit at the top of the
-     * gallery and the picture starts exactly 10 under them. Assert the shape
-     * of that expression rather than a number, because the number is the one
-     * thing here that has moved every round.
+     * `--vp-shot-top` is the space above the picture, stated once on the
+     * gallery and read here — three insets off one variable, so they cannot
+     * drift apart the next time that space moves. It is asserted as an
+     * expression rather than as a number, because the number is the one thing
+     * here that has moved every round.
      */
-    public function test_the_products_floating_chips_are_a_row_above_the_photograph(): void
+    public function test_the_products_floating_chips_sit_on_the_photograph(): void
     {
         $css = file_get_contents(public_path('assets/css/tweaks.css'));
 
-        // They sit at the top of the gallery; the space under them is the
-        // gallery's padding, and that padding *is* their height plus the 10.
         $this->assertMatchesRegularExpression(
-            '/\.vp-pdp-close,\s*\.vp-pdp-rate \{[^}]*top: env\(safe-area-inset-top, 0px\);/s',
-            $css,
-        );
-        $this->assertMatchesRegularExpression(
-            '/\.vp-pdp-gallery \{\s*--vp-corner: 34px;\s*'.
-            '--vp-shot-top: calc\(env\(safe-area-inset-top, 0px\) \+ var\(--vp-corner\) \+ 10px\);/s',
+            '/\.vp-pdp-close,\s*\.vp-pdp-rate \{[^}]*top: calc\(var\(--vp-shot-top, 44px\) \+ 12px\);/s',
             $css,
         );
 
-        // Their own height is that same variable, or the 10 is not a 10.
+        // The variable has to be set where the padding is, or the fallback
+        // quietly becomes the answer.
         $this->assertMatchesRegularExpression(
-            '/\.vp-pdp-close,\s*\.vp-pdp-rate \{[^}]*height: 34px;/s',
+            '/\.vp-pdp-gallery \{\s*--vp-shot-top: calc\(44px \+ env\(safe-area-inset-top, 0px\)\);\s*'.
+            'padding-block: var\(--vp-shot-top\) 10px;/s',
             $css,
         );
 
-        // Flush with the photograph's sides: above it they are a row in the
-        // same column as the picture and the card.
-        $this->assertMatchesRegularExpression('/\.vp-pdp-close \{\s*left: 0;/s', $css);
-        $this->assertMatchesRegularExpression('/\.vp-pdp-rate \{\s*right: 0;/s', $css);
+        // The sides, 12 in from the same box.
+        $this->assertMatchesRegularExpression('/\.vp-pdp-close \{\s*left: 12px;/s', $css);
+        $this->assertMatchesRegularExpression('/\.vp-pdp-rate \{\s*right: 12px;/s', $css);
     }
 
     /**
