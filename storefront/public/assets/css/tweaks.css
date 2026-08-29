@@ -8090,7 +8090,7 @@ button.vp-cart-keep {
 
   .vp-pdp-dots {
     position: absolute;
-    inset-block-end: calc(10px + var(--vp-plate-air) + 38.25px + var(--vp-plate-air));
+    inset-block-end: calc(var(--vp-shot-foot) + var(--vp-plate-air) + 38.25px + var(--vp-plate-air));
     inset-inline: 0;
     z-index: 2;
     display: flex;
@@ -8232,7 +8232,9 @@ button.vp-cart-keep {
     --vp-shot-top: calc(4px + env(safe-area-inset-top, 0px));
 
     --vp-plate-air: 8px;
-    padding-block: var(--vp-shot-top) 10px;
+
+    --vp-shot-foot: 14px;
+    padding-block: var(--vp-shot-top) var(--vp-shot-foot);
   }
 
   .vp-pdp-shot img {
@@ -8255,10 +8257,10 @@ button.vp-cart-keep {
     padding: 12px;
     border-radius: 24px;
     background: #FFFFFF;
+
     box-shadow:
-      0 3px 18px -4px rgba(16, 17, 17, 0.06),
-      0 10px 32px -8px rgba(16, 17, 17, 0.08),
-      0 22px 64px -20px rgba(16, 17, 17, 0.16);
+      0 0 2px rgba(16, 17, 17, 0.08),
+      0 0 16px -2px rgba(16, 17, 17, 0.18);
   }
 
   .vp-pdp-info > .vp-pdp-head { order: 1; }
@@ -8430,11 +8432,13 @@ button.vp-cart-keep {
 
   .vp-shop-panel.vp-pdp-about {
     display: block;
-    margin-block: 26px;
-    padding: 0;
-    border-radius: 0;
-    background: none;
-    box-shadow: none;
+    margin-block: 14px 26px;
+    padding: 12px;
+    border-radius: 24px;
+    background: #FFFFFF;
+    box-shadow:
+      0 0 2px rgba(16, 17, 17, 0.08),
+      0 0 16px -2px rgba(16, 17, 17, 0.18);
   }
 
   .vp-pdp-about p {

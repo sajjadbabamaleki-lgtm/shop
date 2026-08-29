@@ -801,7 +801,7 @@ class CataloguePagesTest extends TestCase
         // quietly becomes the answer.
         $this->assertMatchesRegularExpression(
             '/\.vp-pdp-gallery \{\s*--vp-shot-top: calc\(4px \+ env\(safe-area-inset-top, 0px\)\);'.
-            '[^}]*padding-block: var\(--vp-shot-top\) 10px;/s',
+            '[^}]*padding-block: var\(--vp-shot-top\) var\(--vp-shot-foot\);/s',
             $css,
         );
 
@@ -1001,7 +1001,7 @@ class CataloguePagesTest extends TestCase
         // what makes the number right on a telephone whose bar overlays the
         // page, the way the footer's own bar already reads the bottom one.
         $this->assertMatchesRegularExpression(
-            '/\.vp-pdp-gallery \{[^}]*padding-block: var\(--vp-shot-top\) 10px;/s',
+            '/\.vp-pdp-gallery \{[^}]*padding-block: var\(--vp-shot-top\) var\(--vp-shot-foot\);/s',
             $css,
         );
         $this->assertMatchesRegularExpression(
@@ -1016,7 +1016,7 @@ class CataloguePagesTest extends TestCase
         // it, and in the plate's own insets.
         $this->assertMatchesRegularExpression(
             '/\.vp-pdp-dots \{\s*position: absolute;\s*'.
-            'inset-block-end: calc\(10px \+ var\(--vp-plate-air\) \+ 38\.25px \+ var\(--vp-plate-air\)\);/s',
+            'inset-block-end: calc\(var\(--vp-shot-foot\) \+ var\(--vp-plate-air\) \+ 38\.25px \+ var\(--vp-plate-air\)\);/s',
             $css,
         );
         $this->assertMatchesRegularExpression(
@@ -1024,6 +1024,16 @@ class CataloguePagesTest extends TestCase
             $css,
         );
         $this->assertMatchesRegularExpression('/\.vp-pdp-gallery \{[^}]*--vp-plate-air: 8px;/s', $css);
+
+        // The column's own gap, one number for both of its joints: the
+        // photograph to the picker card, and the picker to the description —
+        // «فاصلش باید ۱۴ پیکسل باشه با کارت بالاییش فاصله عکس با کارت مشخصات
+        // هم باید ۱۴ باشه».
+        $this->assertMatchesRegularExpression('/\.vp-pdp-gallery \{[^}]*--vp-shot-foot: 14px;/s', $css);
+        $this->assertMatchesRegularExpression(
+            '/\.vp-shop-panel\.vp-pdp-about \{[^}]*margin-block: 14px 26px;/s',
+            $css,
+        );
     }
 
     /**

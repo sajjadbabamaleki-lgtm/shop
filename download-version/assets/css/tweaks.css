@@ -14011,8 +14011,8 @@ button.vp-cart-keep {
      Taken out of the flow, so `.vp-pdp-gallery`'s bottom padding is the whole
      distance from the photograph to the card. `inset-block-end` was that
      padding plus 12 up inside the square — 22 — until the name and the price
-     took the photograph's foot; now it stands above the plate instead: the
-     gallery's own 10, the plate's inset, the 38.25 the plate stands, and the
+     took the photograph's foot; now it stands above the plate instead:
+     `--vp-shot-foot`, the plate's inset, the 38.25 the plate stands, and the
      same air again over it. `--vp-plate-air` appears twice in that sum because
      it is the same distance twice — under the plate and above it — which is
      the whole of «اندازه فاصله با شمارنده». The 38.25 is the plate's own
@@ -14026,7 +14026,7 @@ button.vp-cart-keep {
      on a black one, and nothing about the dots had to be decided twice. */
   .vp-pdp-dots {
     position: absolute;
-    inset-block-end: calc(10px + var(--vp-plate-air) + 38.25px + var(--vp-plate-air));
+    inset-block-end: calc(var(--vp-shot-foot) + var(--vp-plate-air) + 38.25px + var(--vp-plate-air));
     inset-inline: 0;
     z-index: 2;
     display: flex;
@@ -14376,7 +14376,13 @@ button.vp-cart-keep {
        here because the plate is the shot's child and the counter is the
        gallery's. */
     --vp-plate-air: 8px;
-    padding-block: var(--vp-shot-top) 10px;
+    /* The photograph's foot to the card under it — «فاصله عکس با کارت مشخصات
+       هم باید ۱۴ باشه». It was 10, and it is the same 14 the description card
+       below now keeps from the picker, so the column has one gap in it rather
+       than three numbers. Named, because the counter's own offset is measured
+       up from this edge and the two must move together. */
+    --vp-shot-foot: 14px;
+    padding-block: var(--vp-shot-top) var(--vp-shot-foot);
   }
 
   /* The brand's name used to be set across this tile, very faint, behind the
@@ -14549,10 +14555,39 @@ button.vp-cart-keep {
     padding: 12px;
     border-radius: 24px;
     background: #FFFFFF;
+    /* **The same shadow the whole way round, and short** — «سایه پایین کارت
+       مشخصات خیلی زیادو پراکندس», then «سایه دو کارت توضیحات و مشخصات کفش باید
+       دور تا دور یه اندازه باشن».
+
+       What was there was three stops falling *downward*: 3, 10 and 22 of
+       y-offset with 64px of blur on the last. Read pixel by pixel around the
+       card, that came to **254 at the top, 245 and 241 at the sides, 214 at
+       the foot** — four different edges — and the foot took 27 pixels to climb
+       back to the page. That is the smear the first complaint names and the
+       unevenness the second one does.
+
+       So: no offset at all, and the blur brought in. A halo has no direction,
+       which is the whole of «دور تا دور یه اندازه». That read 228/228/223/222
+       around the four sides, and then «یذره باید حجمش کم بشه» took the two
+       alphas down a notch — 0.10 → 0.08 and 0.24 → 0.18. Measured after:
+       **235 top, 235 left, 231 right, 231 foot**, and back on the page's
+       ground by +4. (The foot reads further only because the description
+       card's own halo begins 14 below it.)
+
+       **Not softer, shorter.** «لبه پنهان» is about this exact edge, and its
+       finding was that a shadow which fades gently *dissolves* the boundary —
+       rejected three times in one afternoon. These two cards are white on a
+       ground that is white beside them, so this shadow is the only thing
+       drawing their edge: a 20-to-24 level step at the boundary is what makes
+       it a card, and it must not be traded for a wider, fainter one. That is
+       the same step the sides carried before any of this, which the client has
+       looked at and kept.
+
+       Read with a script that walks the pixel column out of each of the four
+       sides, not by looking. `.vp-pdp-about` carries the same two stops. */
     box-shadow:
-      0 3px 18px -4px rgba(16, 17, 17, 0.06),
-      0 10px 32px -8px rgba(16, 17, 17, 0.08),
-      0 22px 64px -20px rgba(16, 17, 17, 0.16);
+      0 0 2px rgba(16, 17, 17, 0.08),
+      0 0 16px -2px rgba(16, 17, 17, 0.18);
   }
 
   /* ---- The order inside the sheet ----------------------------------------
@@ -14863,14 +14898,31 @@ button.vp-cart-keep {
      card itself has it taken off on a phone.
 
      `.vp-shop-panel + .vp-shop-panel` sets a 40 top margin between panels and
-     is two classes deep, so this has to be two as well to say 26. */
+     is two classes deep, so this has to be two as well to say its own number.
+     **14 above** — «فاصلش باید ۱۴ پیکسل باشه با کارت بالاییش» — which is the
+     same 14 the picker keeps from the photograph, so the three cards down this
+     page are one gap apart. The foot stays 26: what is under it is the
+     «نمونه‌های مشابه» band, not another card in this column. */
+  /* **And now it is a card again** — «توضیحاتم ببر رو یه کارت سفید». The
+     stripping above was written when the description sat on the page's own
+     tint under a heading of its own; the page it sits on now is a column of
+     white cards — the photograph, then the picker — and prose on the bare
+     ground after two of those reads as something that fell out of one.
+
+     The same card as `.vp-pdp-info`, to the pixel: 12 all round, the 24
+     corner, white, and the three-stop shadow «لبه پنهان» settled on. Copied
+     rather than shared because the two are different elements in different
+     blocks of this file; if that shadow is ever re-measured, it is measured in
+     both places. */
   .vp-shop-panel.vp-pdp-about {
     display: block;
-    margin-block: 26px;
-    padding: 0;
-    border-radius: 0;
-    background: none;
-    box-shadow: none;
+    margin-block: 14px 26px;
+    padding: 12px;
+    border-radius: 24px;
+    background: #FFFFFF;
+    box-shadow:
+      0 0 2px rgba(16, 17, 17, 0.08),
+      0 0 16px -2px rgba(16, 17, 17, 0.18);
   }
 
   .vp-pdp-about p {
