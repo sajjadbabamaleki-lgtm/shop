@@ -92,6 +92,57 @@ class DeadLibrariesTest extends TestCase
         }
     }
 
+    /**
+     * Every call to a library the page dropped is guarded, in `main.js`.
+     *
+     * **This is the one that was learned the hard way.** `main.js` is a single
+     * closure, and a jQuery plugin that is not loaded throws whether or not its
+     * selector matches anything — so one unguarded call stops every line below
+     * it. `$('.progress-bar').waypoint(…)` was missed when the eight libraries
+     * came off, because Waypoints was riding inside `jquery.counterup.min.js`
+     * rather than being loaded by a `<script>` of its own. It threw on every
+     * page of the shop and took the countdown, both quantity steppers, the
+     * colour scheme and the woocommerce toggles with it. Nothing here saw it:
+     * the suite runs no browser, and `check-parity.js` compares two copies of
+     * the same page, so a script broken on both is a page that matches.
+     * `theme/check-scripts.js` is the browser half of this; this is the half
+     * that runs in CI.
+     *
+     * **The rule is about the closure's top level**, which is where a throw is
+     * fatal: a statement indented four spaces must carry its own `$.fn.…`
+     * guard on the same line. Deeper calls sit inside a callback that only
+     * runs if the guarded call above them ran.
+     */
+    public function test_every_call_to_a_dropped_library_is_guarded_in_main_js(): void
+    {
+        $main = file_get_contents(public_path('assets/js/main.js'));
+
+        /** The entry method each dropped library adds to jQuery. */
+        $methods = [
+            'magnificPopup', 'counterUp', 'tilt', 'imagesLoaded',
+            'isotope', 'slider', 'niceSelect', 'waypoint',
+        ];
+
+        $unguarded = [];
+
+        foreach (explode("\n", $main) as $i => $line) {
+            // The closure's own top level, and not a comment.
+            if (! preg_match('/^ {4}\S/', $line) || str_starts_with(trim($line), '//')) {
+                continue;
+            }
+
+            foreach ($methods as $method) {
+                if (str_contains($line, '.'.$method.'(') && ! str_contains($line, '$.fn.'.$method)) {
+                    $unguarded[] = ($i + 1).': '.trim($line);
+                }
+            }
+        }
+
+        $this->assertSame([], $unguarded, 'These calls run whether or not their plugin is loaded, and one throw '.
+            "stops the rest of main.js:\n  ".implode("\n  ", $unguarded)."\n".
+            'Write `if ($.fn.thePlugin) …` in front of each, or restore its <script> in theme/make-rtl-page.js.');
+    }
+
     /** @return list<string> */
     private function templates(): array
     {

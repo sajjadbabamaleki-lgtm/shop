@@ -1135,7 +1135,13 @@
     }
 
     /*----------- 17. Progress Bar Animation ----------*/
-    $('.progress-bar').waypoint(function () {
+    /* Waypoints came bundled inside jquery.counterup.min.js, which the page no
+       longer loads, and this call was missed when the rest were guarded. It
+       threw on every page — a plugin method that does not exist throws whether
+       or not its selector matches anything — and took the whole of main.js
+       below this line with it: the countdown, the quantity steppers, the
+       colour scheme, all of it. See DeadLibrariesTest. */
+    if ($.fn.waypoint) $('.progress-bar').waypoint(function () {
         $('.progress-bar').css({
             animation: "animate-positive 1.8s",
             opacity: "1"
