@@ -800,8 +800,8 @@ class CataloguePagesTest extends TestCase
         // The variable has to be set where the padding is, or the fallback
         // quietly becomes the answer.
         $this->assertMatchesRegularExpression(
-            '/\.vp-pdp-gallery \{\s*--vp-shot-top: calc\(4px \+ env\(safe-area-inset-top, 0px\)\);\s*'.
-            'padding-block: var\(--vp-shot-top\) 10px;/s',
+            '/\.vp-pdp-gallery \{\s*--vp-shot-top: calc\(4px \+ env\(safe-area-inset-top, 0px\)\);'.
+            '[^}]*padding-block: var\(--vp-shot-top\) 10px;/s',
             $css,
         );
 
@@ -1010,12 +1010,20 @@ class CataloguePagesTest extends TestCase
         );
 
         // The counter, on the photograph rather than under it — and above the
-        // plate that now takes its foot: 10 of gallery padding, 12 of the
-        // plate's own inset, 45 of plate and 8 between them.
+        // plate that now takes its foot. Four distances, one figure: «فاصله از
+        // بغلا و پایین باکس اسمو قیمت باید اندازه فاصله با شمارنده عکس باشه»,
+        // so `--vp-plate-air` is in this sum twice, under the plate and over
+        // it, and in the plate's own insets.
         $this->assertMatchesRegularExpression(
-            '/\.vp-pdp-dots \{\s*position: absolute;\s*inset-block-end: 75px;/s',
+            '/\.vp-pdp-dots \{\s*position: absolute;\s*'.
+            'inset-block-end: calc\(10px \+ var\(--vp-plate-air\) \+ 38\.25px \+ var\(--vp-plate-air\)\);/s',
             $css,
         );
+        $this->assertMatchesRegularExpression(
+            '/\.vp-pdp-plate \{[^}]*inset-inline: var\(--vp-plate-air\);\s*inset-block-end: var\(--vp-plate-air\);/s',
+            $css,
+        );
+        $this->assertMatchesRegularExpression('/\.vp-pdp-gallery \{[^}]*--vp-plate-air: 8px;/s', $css);
     }
 
     /**

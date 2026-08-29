@@ -8090,7 +8090,7 @@ button.vp-cart-keep {
 
   .vp-pdp-dots {
     position: absolute;
-    inset-block-end: 75px;
+    inset-block-end: calc(10px + var(--vp-plate-air) + 38.25px + var(--vp-plate-air));
     inset-inline: 0;
     z-index: 2;
     display: flex;
@@ -8230,6 +8230,8 @@ button.vp-cart-keep {
   .vp-pdp-gallery {
 
     --vp-shot-top: calc(4px + env(safe-area-inset-top, 0px));
+
+    --vp-plate-air: 8px;
     padding-block: var(--vp-shot-top) 10px;
   }
 
@@ -8250,7 +8252,7 @@ button.vp-cart-keep {
 
     margin-block-start: 0;
 
-    padding: 8px 12px 12px;
+    padding: 12px;
     border-radius: 24px;
     background: #FFFFFF;
     box-shadow:
@@ -8312,13 +8314,15 @@ button.vp-cart-keep {
   .vp-pdp-plate {
     position: absolute;
     z-index: 3;
-    inset-inline: 12px;
-    inset-block-end: 12px;
+    inset-inline: var(--vp-plate-air);
+    inset-block-end: var(--vp-plate-air);
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 10px;
-    padding: 9px 16px;
+
+    height: 38.25px;
+    padding: 0 16px;
     border-radius: 999px;
     background: rgba(255, 255, 255, 0.72);
     -webkit-backdrop-filter: blur(14px) saturate(1.3);
@@ -8357,6 +8361,10 @@ button.vp-cart-keep {
 
   .vp-pdp-head {
     display: none;
+  }
+
+  .vp-pick > .vp-pick-sizes {
+    margin-block-start: 0;
   }
 
   .vp-pdp-close,

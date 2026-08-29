@@ -14011,11 +14011,12 @@ button.vp-cart-keep {
      Taken out of the flow, so `.vp-pdp-gallery`'s bottom padding is the whole
      distance from the photograph to the card. `inset-block-end` was that
      padding plus 12 up inside the square — 22 — until the name and the price
-     took the photograph's foot; now they stand above the plate instead:
-     **10** of gallery padding, **12** of the plate's own inset, **45** of
-     plate, and **8** between the two, which is 75. The plate's height is a
-     line of 14px type in 9 either side and does not move on its own; if it
-     ever does, this is the number that follows it.
+     took the photograph's foot; now it stands above the plate instead: the
+     gallery's own 10, the plate's inset, the 38.25 the plate stands, and the
+     same air again over it. `--vp-plate-air` appears twice in that sum because
+     it is the same distance twice — under the plate and above it — which is
+     the whole of «اندازه فاصله با شمارنده». The 38.25 is the plate's own
+     stated height, and it is the one number here that has to follow it.
 
      **The dots themselves do not change** — the same 6px greys and the same
      gold bar, which is «گلد سبز»'s rule about not repainting a thing to suit a
@@ -14025,7 +14026,7 @@ button.vp-cart-keep {
      on a black one, and nothing about the dots had to be decided twice. */
   .vp-pdp-dots {
     position: absolute;
-    inset-block-end: 75px;
+    inset-block-end: calc(10px + var(--vp-plate-air) + 38.25px + var(--vp-plate-air));
     inset-inline: 0;
     z-index: 2;
     display: flex;
@@ -14368,6 +14369,13 @@ button.vp-cart-keep {
        The safe-area inset sits under it, so on a telephone whose own bar
        overlays the page the whole column still moves down out from under it. */
     --vp-shot-top: calc(4px + env(safe-area-inset-top, 0px));
+    /* **One number for the air around the plate** — «فاصله از بغلا و پایین
+       باکس اسمو قیمت باید اندازه فاصله با شمارنده عکس باشه». The plate stands
+       this far off the photograph's two sides and its foot, and the counter
+       stands this far above the plate: four distances, one figure, declared
+       here because the plate is the shot's child and the counter is the
+       gallery's. */
+    --vp-plate-air: 8px;
     padding-block: var(--vp-shot-top) 10px;
   }
 
@@ -14532,10 +14540,13 @@ button.vp-cart-keep {
        from the card's left edge *is* this padding, so the foot takes the same
        number rather than one measured off it. 20 → 12.
 
-       The top is 10 less than it was — «عنوان کفش باید ده پیکسل بیاد بالاتر».
-       18 → 8, and the whole stack under the name comes up with it, which is
-       what moving a card's first line means. */
-    padding: 8px 12px 12px;
+       The top was 18, then 10 less at «عنوان کفش باید ده پیکسل بیاد بالاتر»,
+       and the name it was measured for is not in this card any more — it is on
+       the photograph. What meets the top edge now is the size row, so the air
+       above it is the air under the buy row: «فاصله بالای لبه کارت مشخصات با
+       دکمه ها باید مث پایین کارت باشه». 8 → 12, and the card is one number on
+       all four sides. */
+    padding: 12px;
     border-radius: 24px;
     background: #FFFFFF;
     box-shadow:
@@ -14645,18 +14656,26 @@ button.vp-cart-keep {
      A pill, not a rectangle: `999px` is the same «بیضی» the counter is drawn
      as, so the two objects on the photograph read as one set.
 
-     12 in from the photograph's three edges — its own sides and its foot —
-     which is the inset the close and the rating take from the top. */
+     `--vp-plate-air` off the photograph's two sides and its foot, and the
+     counter stands the same distance above it — «فاصله از بغلا و پایین باکس
+     اسمو قیمت باید اندازه فاصله با شمارنده عکس باشه». It was 12 at the edges
+     against 8 to the counter, which is a box pinned to the picture on three
+     sides and floating on the fourth. */
   .vp-pdp-plate {
     position: absolute;
     z-index: 3;
-    inset-inline: 12px;
-    inset-block-end: 12px;
+    inset-inline: var(--vp-plate-air);
+    inset-block-end: var(--vp-plate-air);
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 10px;
-    padding: 9px 16px;
+    /* **A seventh off its height** — «ارتفاع باکس قیمت ۱۵ درصد کوتاهتر بشه».
+       45 × 0.85 = 38.25, stated as a height rather than taken out of the
+       padding, so the number that was asked for is the number in the file and
+       the type stays centred in whatever is left of it. */
+    height: 38.25px;
+    padding: 0 16px;
     border-radius: 999px;
     background: rgba(255, 255, 255, 0.72);
     -webkit-backdrop-filter: blur(14px) saturate(1.3);
@@ -14701,6 +14720,20 @@ button.vp-cart-keep {
      what left. */
   .vp-pdp-head {
     display: none;
+  }
+
+  /* The size row's own top margin was the air under the **name**, and the name
+     is on the photograph now. With the head hidden it lands on top of the
+     card's padding instead and makes the card's top 27 against its foot's 12 —
+     «فاصله بالای لبه کارت مشخصات با دکمه ها باید مث پایین کارت باشه». So the
+     row gives its margin up here and the card's own 12 is the whole of the
+     air, top and bottom.
+
+     It is in this block rather than beside the 15 it overrides, because both
+     belong to the trial: put the head back and the 15 is the right number
+     again. Two classes deep so it wins wherever it sits. */
+  .vp-pick > .vp-pick-sizes {
+    margin-block-start: 0;
   }
 
   /* ---- The photograph's two corners --------------------------------------
