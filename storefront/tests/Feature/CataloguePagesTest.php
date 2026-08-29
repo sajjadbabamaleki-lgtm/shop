@@ -1009,9 +1009,11 @@ class CataloguePagesTest extends TestCase
             $css,
         );
 
-        // The counter, on the photograph rather than under it.
+        // The counter, on the photograph rather than under it — and above the
+        // plate that now takes its foot: 10 of gallery padding, 12 of the
+        // plate's own inset, 45 of plate and 8 between them.
         $this->assertMatchesRegularExpression(
-            '/\.vp-pdp-dots \{\s*position: absolute;\s*inset-block-end: 22px;/s',
+            '/\.vp-pdp-dots \{\s*position: absolute;\s*inset-block-end: 75px;/s',
             $css,
         );
     }

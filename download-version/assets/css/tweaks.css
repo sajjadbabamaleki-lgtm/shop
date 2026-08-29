@@ -6241,6 +6241,14 @@ ul.vp-how-list.is-ticked li:before {
   scroll-snap-align: center;
 }
 
+/* The plate that carries the name and the price over the photograph is the
+   phone's alone; above 992 the card's own head draws them where it always has.
+   Hidden here rather than in the media query, so a width that matches neither
+   shows one of the two and never both. */
+.vp-pdp-plate {
+  display: none;
+}
+
 .vp-pdp-shot.is-supplied .vp-pdp-frames img,
 .vp-pdp-shot.is-supplied > img {
   inset: 0;
@@ -14001,9 +14009,13 @@ button.vp-cart-keep {
      foot was 43 from the card, and 10 has nowhere to put them.
 
      Taken out of the flow, so `.vp-pdp-gallery`'s bottom padding is the whole
-     distance from the photograph to the card. `inset-block-end` is that
-     padding plus 12 up inside the square, which is the margin they used to
-     stand off it by — 22 while the gap is 10, and it moves with it.
+     distance from the photograph to the card. `inset-block-end` was that
+     padding plus 12 up inside the square — 22 — until the name and the price
+     took the photograph's foot; now they stand above the plate instead:
+     **10** of gallery padding, **12** of the plate's own inset, **45** of
+     plate, and **8** between the two, which is 75. The plate's height is a
+     line of 14px type in 9 either side and does not move on its own; if it
+     ever does, this is the number that follows it.
 
      **The dots themselves do not change** — the same 6px greys and the same
      gold bar, which is «گلد سبز»'s rule about not repainting a thing to suit a
@@ -14013,7 +14025,7 @@ button.vp-cart-keep {
      on a black one, and nothing about the dots had to be decided twice. */
   .vp-pdp-dots {
     position: absolute;
-    inset-block-end: 22px;
+    inset-block-end: 75px;
     inset-inline: 0;
     z-index: 2;
     display: flex;
@@ -14614,6 +14626,81 @@ button.vp-cart-keep {
 
   .vp-pick-go {
     flex: 1;
+  }
+
+  /* ---- The name and the price, on the photograph ------------------------
+
+     «اسم کفش و قیمتو برام ببر رو یه بیضی شیشه ای مایل به سفید بزار قسمت پایین
+     کفش و از تو کارت حذفش کن ببینم چطور میشه» — a trial, so it is written to
+     be undone in one block: the plate here, and `.vp-pdp-head` off the card
+     below it.
+
+     **Glass, not white.** A flat white pill on a photograph is a sticker; the
+     material this shop already uses for something laid over a picture is the
+     dots' own — white at 0.72 over a blur, which takes its colour from the
+     photograph under it and stays legible on a dark one. The hairline is the
+     lit edge every other glass thing on this site carries, and the shadow is
+     only enough to lift it off the shoe.
+
+     A pill, not a rectangle: `999px` is the same «بیضی» the counter is drawn
+     as, so the two objects on the photograph read as one set.
+
+     12 in from the photograph's three edges — its own sides and its foot —
+     which is the inset the close and the rating take from the top. */
+  .vp-pdp-plate {
+    position: absolute;
+    z-index: 3;
+    inset-inline: 12px;
+    inset-block-end: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 9px 16px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.72);
+    -webkit-backdrop-filter: blur(14px) saturate(1.3);
+    backdrop-filter: blur(14px) saturate(1.3);
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 255, 255, 0.55),
+      0 6px 20px -12px rgba(16, 17, 17, 0.35);
+  }
+
+  /* The name gives way, not the price: a long name ellipses and the figure
+     stays whole, because a price that has lost a digit is worse than a name
+     that has lost a word. */
+  .vp-pdp-plate-name {
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-family: 'Vazirmatn', var(--title-font);
+    font-weight: 630;
+    font-size: 14px;
+    color: #101111;
+  }
+
+  .vp-pdp-plate-price {
+    flex: none;
+    font-family: 'Vazirmatn', var(--body-font);
+    font-weight: 720;
+    font-size: 14px;
+    font-feature-settings: 'tnum' 1;
+    color: var(--vp-gold-ink);
+    white-space: nowrap;
+  }
+
+  .vp-pdp-plate-price span {
+    font-size: 11px;
+    font-weight: 540;
+    color: rgba(16, 17, 17, 0.55);
+  }
+
+  /* And off the card, which is the other half of the instruction. Everything
+     under it — the sizes, the colours, the buy row — comes up by the height of
+     what left. */
+  .vp-pdp-head {
+    display: none;
   }
 
   /* ---- The photograph's two corners --------------------------------------

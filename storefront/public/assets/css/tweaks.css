@@ -3749,6 +3749,10 @@ ul.vp-how-list.is-ticked li:before {
   scroll-snap-align: center;
 }
 
+.vp-pdp-plate {
+  display: none;
+}
+
 .vp-pdp-shot.is-supplied .vp-pdp-frames img,
 .vp-pdp-shot.is-supplied > img {
   inset: 0;
@@ -8086,7 +8090,7 @@ button.vp-cart-keep {
 
   .vp-pdp-dots {
     position: absolute;
-    inset-block-end: 22px;
+    inset-block-end: 75px;
     inset-inline: 0;
     z-index: 2;
     display: flex;
@@ -8303,6 +8307,56 @@ button.vp-cart-keep {
 
   .vp-pick-go {
     flex: 1;
+  }
+
+  .vp-pdp-plate {
+    position: absolute;
+    z-index: 3;
+    inset-inline: 12px;
+    inset-block-end: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 9px 16px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.72);
+    -webkit-backdrop-filter: blur(14px) saturate(1.3);
+    backdrop-filter: blur(14px) saturate(1.3);
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 255, 255, 0.55),
+      0 6px 20px -12px rgba(16, 17, 17, 0.35);
+  }
+
+  .vp-pdp-plate-name {
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-family: 'Vazirmatn', var(--title-font);
+    font-weight: 630;
+    font-size: 14px;
+    color: #101111;
+  }
+
+  .vp-pdp-plate-price {
+    flex: none;
+    font-family: 'Vazirmatn', var(--body-font);
+    font-weight: 720;
+    font-size: 14px;
+    font-feature-settings: 'tnum' 1;
+    color: var(--vp-gold-ink);
+    white-space: nowrap;
+  }
+
+  .vp-pdp-plate-price span {
+    font-size: 11px;
+    font-weight: 540;
+    color: rgba(16, 17, 17, 0.55);
+  }
+
+  .vp-pdp-head {
+    display: none;
   }
 
   .vp-pdp-close,

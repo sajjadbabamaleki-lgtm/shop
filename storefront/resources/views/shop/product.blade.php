@@ -93,6 +93,25 @@
                             <img src="{{ asset($product->imagePath()) }}"{!! photo_srcset($product->imagePath()) !!} alt="{{ $product->title }}">
                         @endif
 
+                        {{-- The name and the price, on the photograph — «اسم
+                             کفش و قیمتو برام ببر رو یه بیضی شیشه ای مایل به
+                             سفید بزار قسمت پایین کفش و از تو کارت حذفش کن».
+
+                             Phone only: `.vp-pdp-head` above is `display: none`
+                             there and draws normally at every other width, so
+                             this plate is drawn only where that one is not.
+                             Both are in the markup at every width — the h1 and
+                             its price stay in the document for anything reading
+                             it rather than looking at it — and exactly one of
+                             them is ever visible.
+
+                             Inside the shot rather than over the gallery, so
+                             the frame's own `overflow: hidden` clips it to the
+                             photograph's corner if it ever grows. --}}
+                        <div class="vp-pdp-plate">
+                            <span class="vp-pdp-plate-name">{{ $product->title }}</span>
+                            <span class="vp-pdp-plate-price">{{ toman($offer->price) }} <span>تومان</span></span>
+                        </div>
                     </div>
 
                     {{-- The two top corners: the close on the left, the
