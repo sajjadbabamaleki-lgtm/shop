@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\ReportServerTiming;
 use App\Http\Middleware\ResolveAdminTenant;
 use App\Http\Middleware\ResolveTenant;
 use Illuminate\Foundation\Application;
@@ -23,6 +24,13 @@ return Application::configure(basePath: dirname(__DIR__))
         // own and is the only thing that can reach the container, so trusting
         // its headers is trusting the platform.
         $middleware->trustProxies(at: '*');
+
+        // Every response says how long the server took, in the standard
+        // `Server-Timing` header. Prepended so it wraps everything else and
+        // the figure is the whole request rather than part of it. See the
+        // middleware: the live site spends about 915ms of its own on the home
+        // page, and this is what says where that goes.
+        $middleware->prepend(ReportServerTiming::class);
 
         /*
          * The tenant has to be resolved before route model binding, not after.
