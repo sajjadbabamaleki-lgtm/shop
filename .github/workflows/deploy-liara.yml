@@ -124,6 +124,116 @@ jobs:
       - name: Check the code style
         run: ./vendor/bin/pint --test
 
+  probe:
+    name: What the live site sends
+    runs-on: ubuntu-latest
+    # Never blocks anything. It reports on the site that is already up; it has
+    # no opinion about the commit being pushed, and a site that is mid-deploy
+    # or briefly unreachable must not turn a green run red.
+    continue-on-error: true
+    if: github.event_name != 'pull_request'
+
+    steps:
+      # ────────────────────────────────────────────────────────────────────
+      # The second opinion this repository has never had.
+      #
+      # Every weight measurement here has been taken in a development
+      # container against `php artisan serve`, because the container's egress
+      # proxy answers 403 for both vikyplus.liara.run and vikyplus.ir. So the
+      # one number that decides whether any of it matters — **what the server
+      # actually puts on the wire** — has been an open question through three
+      # rounds of «سایت کنده».
+      #
+      # 1,047KB of CSS is about 150KB gzipped. If the server compresses, the
+      # remaining work is cutting bytes; if it does not, every byte cut here
+      # is worth a seventh of what one server setting is worth, and knowing
+      # which is the whole of knowing what to do next.
+      #
+      # A GitHub runner has ordinary internet. It can simply ask.
+      #
+      # Each file is fetched twice: once refusing compression, which gives the
+      # file's real size, and once accepting it, which gives the bytes that
+      # crossed. Their ratio is the answer. `time_starttransfer` on the HTML
+      # is the server's own thinking time, from a host with a fast line to
+      # Europe — so a large number there is the application, not the visitor's
+      # connection.
+      # ────────────────────────────────────────────────────────────────────
+      - name: Ask both hosts what they send
+        run: |
+          probe_host () {
+            host="$1"
+            echo "## $host" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+
+            # The reply's own description of itself: which server, which
+            # protocol, and whether anything is sitting in front of it.
+            if ! curl -sS -o /dev/null -D /tmp/head -m 60 "https://$host/"; then
+              echo "did not answer." >> "$GITHUB_STEP_SUMMARY"
+              echo "" >> "$GITHUB_STEP_SUMMARY"
+              return
+            fi
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            tr -d '\r' < /tmp/head | grep -Ei '^(HTTP/|server:|via:|x-powered|cf-|x-cache|x-arvan|alt-svc|cache-control|content-encoding|vary)' >> "$GITHUB_STEP_SUMMARY" || true
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+
+            printf '| file | real | on the wire | encoding | first byte | http |\n' >> "$GITHUB_STEP_SUMMARY"
+            printf '| --- | ---: | ---: | --- | ---: | --- |\n' >> "$GITHUB_STEP_SUMMARY"
+
+            for path in \
+              / \
+              /assets/css/style.rtl.css \
+              /assets/css/tweaks.css \
+              /assets/css/bootstrap.rtl.min.css \
+              /assets/css/swiper-bundle.rtl.min.css \
+              /assets/css/fontawesome.min.css \
+              /assets/js/vendor/jquery-3.7.1.min.js \
+              /assets/js/main.js \
+              /assets/js/swiper-bundle.min.js \
+              /assets/js/gsap.min.js \
+              /assets/fonts/vazirmatn/Vazirmatn%5Bwght%5D.woff2
+            do
+              url="https://$host$path"
+
+              # Refusing compression: the file's own size, and the server's
+              # thinking time.
+              plain="$(curl -sS -o /dev/null -m 60 \
+                        -H 'Accept-Encoding: identity' \
+                        -w '%{size_download} %{time_starttransfer} %{http_code} %{http_version}' \
+                        "$url" || echo '0 0 000 0')"
+              set -- $plain
+              real="$1"; ttfb="$2"; code="$3"; ver="$4"
+
+              # Accepting it: what a browser is actually sent.
+              comp="$(curl -sS -o /dev/null -m 60 -D /tmp/h2 \
+                        -H 'Accept-Encoding: gzip, deflate, br' \
+                        -w '%{size_download}' \
+                        "$url" || echo 0)"
+              enc="$(tr -d '\r' < /tmp/h2 | grep -i '^content-encoding:' | head -1 | cut -d' ' -f2- || true)"
+              [ -n "$enc" ] || enc='—'
+
+              printf '| `%s` | %s KB | %s KB | %s | %s s | %s (%s) |\n' \
+                "$path" \
+                "$(awk "BEGIN{printf \"%.0f\", $real/1024}")" \
+                "$(awk "BEGIN{printf \"%.0f\", $comp/1024}")" \
+                "$enc" "$ttfb" "$code" "$ver" >> "$GITHUB_STEP_SUMMARY"
+
+              # The console copy, so the answer is readable without opening
+              # the summary tab.
+              printf '%-52s real %8s  wire %8s  %-8s  ttfb %ss  %s h%s\n' \
+                "$path" "$real" "$comp" "$enc" "$ttfb" "$code" "$ver"
+            done
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+          }
+
+          echo "# What the live site sends" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Measured from a GitHub runner, so the timings are the server's, not a visitor's." >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+
+          probe_host "${{ vars.LIARA_APP || 'vikyplus' }}.liara.run"
+          probe_host "vikyplus.ir"
+
   deploy:
     name: Deploy to Liara
     runs-on: ubuntu-latest
