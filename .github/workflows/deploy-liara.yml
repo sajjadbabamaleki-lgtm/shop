@@ -224,25 +224,28 @@ jobs:
             echo '```' >> "$GITHUB_STEP_SUMMARY"
             echo "" >> "$GITHUB_STEP_SUMMARY"
 
-            fetch_all 'identity' '%{url_effective}\t%{size_download}\t%{time_pretransfer}\t%{time_starttransfer}\t%{http_code}\n' > /tmp/plain
+            fetch_all 'identity' '%{url_effective}\t%{size_download}\t%{time_pretransfer}\t%{time_starttransfer}\t%{http_code}\t%header{server-timing}\n' > /tmp/plain
             fetch_all 'gzip, deflate, br' '%{size_download}\n' > /tmp/comp
 
-            printf '| file | real | on the wire | wait | code |\n' >> "$GITHUB_STEP_SUMMARY"
-            printf '| --- | ---: | ---: | ---: | --- |\n' >> "$GITHUB_STEP_SUMMARY"
+            printf '| file | real | on the wire | wait | code | the server says |\n' >> "$GITHUB_STEP_SUMMARY"
+            printf '| --- | ---: | ---: | ---: | --- | --- |\n' >> "$GITHUB_STEP_SUMMARY"
 
-            paste /tmp/plain /tmp/comp | while IFS="$(printf '\t')" read -r url real pre start code comp; do
+            # The compressed size first, because `server-timing` is missing on a
+            # static file and an empty field at the end of the line is harmless
+            # where an empty field in the middle would shift every column.
+            paste /tmp/comp /tmp/plain | while IFS="$(printf '\t')" read -r comp url real pre start code timing; do
               wait_ms="$(awk "BEGIN{printf \"%.0f\", ($start - $pre) * 1000}")"
               short="$(printf '%s' "$url" | sed "s#https://${probe_host}##")"
               [ -n "$short" ] || short='/'
 
-              printf '| `%s` | %s KB | %s KB | %s ms | %s |\n' \
+              printf '| `%s` | %s KB | %s KB | %s ms | %s | %s |\n' \
                 "$short" \
                 "$(awk "BEGIN{printf \"%.0f\", $real/1024}")" \
                 "$(awk "BEGIN{printf \"%.0f\", $comp/1024}")" \
-                "$wait_ms" "$code" >> "$GITHUB_STEP_SUMMARY"
+                "$wait_ms" "$code" "${timing:-—}" >> "$GITHUB_STEP_SUMMARY"
 
-              printf '%-52s real %8s  wire %8s  wait %5sms  %s\n' \
-                "$short" "$real" "$comp" "$wait_ms" "$code"
+              printf '%-52s real %8s  wire %8s  wait %5sms  %s  %s\n' \
+                "$short" "$real" "$comp" "$wait_ms" "$code" "$timing"
             done
 
             echo "" >> "$GITHUB_STEP_SUMMARY"

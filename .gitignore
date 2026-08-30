@@ -1,0 +1,4 @@
+# What `check-css-subset.js` writes when a render differs: the two screenshots
+# it could not reconcile, so whoever runs it can look at them. Evidence of a
+# failure, not part of the repository.
+theme/.css-subset-diff/

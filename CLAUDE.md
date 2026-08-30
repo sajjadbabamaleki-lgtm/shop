@@ -108,9 +108,34 @@ the client saw an old page and had no way to tell why. So, plainly:
   bring `main` up and push `main`.
 - **After a push, say what happened.** The client asks «بیلد تغییراتو بفرست»
   after every change and means the Liara deploy specifically. Read the run's
-  two jobs (Tests, Deploy to Liara) and report the conclusion of both. Note
-  that this container's proxy returns 403 for vikyplus.liara.run, so the run's
-  own result is the check — curl is not available as a second opinion.
+  three jobs (Tests, What the live site sends, Deploy to Liara) and report the
+  conclusion of each. This container's proxy still answers 403 for
+  vikyplus.liara.run and vikyplus.ir, so nothing here can curl the site.
+- **The `probe` job is the second opinion this repository spent three rounds
+  without.** It runs on every push, cannot fail a run, and asks both hosts what
+  they actually send: sizes refused-and-accepted compressed, the reply's own
+  headers, and the timings. **Read it before optimising anything.** What it
+  found the first time it ran:
+  - **The server does compress** — gzip, HTTP/2, and vikyplus.ir and the Liara
+    address answer identically, so nothing is sitting in front of either.
+    1,047KB of stylesheet crossed as 154KB. Three rounds of cutting bytes had
+    been done without knowing this.
+  - **Measure the handshake apart from the server.** Its first version gave
+    each file its own `curl` and reported ~1.1s for every one, a 12KB
+    stylesheet included; that was DNS, TCP and TLS paid eleven times, because
+    `time_starttransfer` counts from the start of the command. A browser opens
+    one connection and keeps it. Everything is fetched down one reused
+    connection now, and `wait` is one round trip plus the server's own work.
+  - **The application takes about 915ms on the home page** — 1,080ms of wait
+    where a static file on the same connection took 165ms — and 790ms on
+    `/products`. That is on every load, cached assets or not, and it is the
+    other half of «سایت کنده». No amount of cutting bytes touches it.
+    `ReportServerTiming` puts `Server-Timing: app;dur=…, db;dur=…, dbq;…` on
+    every response so the split between PHP and the database is readable from
+    the probe, from a browser's network panel, and from `curl -I`. Locally the
+    same page is 67ms with 35 queries, so the suspicion is per-query latency to
+    a database that is not on the same machine — fit across three pages it comes
+    out near 17ms a query — but **read the header before acting on that.**
 - **`netlify.toml` is not the deploy.** It publishes `download-version/` — the
   static design preview, which is a *copy* of the home page and has no PHP, no
   database and none of the catalogue pages. It is kept because the design is
@@ -196,6 +221,43 @@ the client saw an old page and had no way to tell why. So, plainly:
   after it in `main.js` runs**. `DeadLibrariesTest` fails, naming the script to
   put back, if any of their hooks (`.popup-video`, `.filter-active`,
   `data-bs-*`, …) ever returns to a template. jQuery, Swiper and GSAP stay.
+- `theme/make-css-subset.js` — **the three bought stylesheets, cut to the
+  rules this shop can reach: 859KB → 108KB, and 116KB → 20KB on the wire.**
+  The bundle is eleven demos in one download and this shop is one of them: of
+  the base sheet's 4,757 rules 581 can ever match here, of Bootstrap's 2,337,
+  171. The rest styles a coffee shop, a grocer, an electrician. That matters
+  more than its size suggests, because **every byte of it is render-blocking**
+  and the design gate holds the paint besides — the stylesheets are the first
+  thing a visitor waits for. The untouched originals are in
+  `theme/base-stylesheets/` and every cut is made from those, so running the
+  script twice cannot narrow a sheet twice. **They are there and not beside the
+  files they came from because `download-version/` is what Netlify publishes
+  and the base sheet's first comment is the header naming where the base layer
+  was bought** — the published copy of `style.rtl.css` has always had its
+  comments taken out on the way, and an original sitting next to it would go up
+  whole until somebody remembered to add its name to `netlify.toml`. The keep rule is deliberately the conservative one: a
+  selector survives when every class and id it names appears **in markup or in
+  a script that writes markup** — never in a stylesheet, which says only what a
+  class *would* look like. Reading `tweaks.css` as a source kept 2,483 rules
+  instead of 581, and the ones it kept were the demo furniture whose names are
+  in `tweaks.css` precisely because that is where those sections are turned
+  *off*. `RUNTIME_PREFIXES` is the one concession: Swiper builds its state
+  classes by concatenation, so its bundle holds `backface-hidden` where the
+  element gets `swiper-backface-hidden`.
+  **`node theme/check-css-subset.js` is the guard and it is not optional** —
+  it renders every page at four widths, plus the phone drawer, the search and
+  the mini basket *opened*, against both the cut sheets and the full ones, and
+  fails on a pixel. Nothing else here can see this failure: `check-parity.js`
+  compares two copies of the same page, so a rule missing from both is a pair
+  that matches. It has already caught two real ones — a `@keyframes` reached
+  through `--animation-name` rather than `animation`, which left the hero's
+  photograph and its badge at `opacity: 0`, and Swiper's runtime classes. It
+  calibrates its own noise floor by rendering a third time, because the same
+  sheets twice differ by up to 51 pixels on the home page.
+  `CssSubsetTest` is the CI half: `subset.json` records the fingerprint of the
+  vocabulary the cut was made from, and the test rebuilds it in PHP. **A new
+  class in a template fails it; rewording a Persian sentence does not.** Re-run
+  the script, then `check-css-subset.js`, then `sync-storefront-assets.js`.
 - `theme/make-favicons.js` — the whole icon set, `favicon.ico`, `manifest.json`
   and `browserconfig.xml`, all from **`assets/img/vikyplus-appicon-1024.png`**.
   Same rule as the category photographs: resize only. Re-run it if the mark ever

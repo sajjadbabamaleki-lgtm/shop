@@ -4056,3 +4056,142 @@ all three was the thing that was wrong.
 
 707 tests, Pint clean, parity identical at 992/1200/1440/1920, no sideways
 scroll at 390/768/992/1200/1280/1920.
+
+## «همچنان وحشتناک کند» — the third pass, which began by measuring the server
+
+«همچنان سرعت بالا اومدن سایت با فیلترشکن و حای بدونه فیلترشکن وحشتناک کند
+هستش», after two rounds that had each taken a megabyte off the page. The reason
+neither round moved the complaint is in the first line of this file's own
+method: every figure the two earlier passes quote was measured **in this
+container, against `php artisan serve`, on the same machine as its database**.
+Nothing here had ever asked the live site anything, because the container's
+proxy answers 403 for both vikyplus.liara.run and vikyplus.ir.
+
+A GitHub runner has ordinary internet. The `probe` job in the deploy workflow
+runs on every push, cannot fail a run, and asks. Two things came back, and the
+second was not what anybody was looking for.
+
+### The server compresses. It always did.
+
+gzip, HTTP/2, and vikyplus.ir and the Liara address answer byte-identically, so
+nothing is sitting in front of either. 1,047KB of stylesheet crosses as 154KB.
+
+That closed the biggest open question in three rounds of this work — and it
+also means the raw sizes those rounds were counting were never what a visitor
+downloaded. **Read the probe before optimising anything.**
+
+One trap, worth the paragraph because the first version of the job fell in it:
+its first run reported ~1.1s to first byte for every file, a 12KB stylesheet
+included. nginx does not take a second to hand over 12KB. Each file had its own
+`curl`, and `time_starttransfer` counts from the start of the command — so that
+was DNS, TCP and TLS, paid eleven times. A browser opens one connection and
+keeps it. Everything is fetched down a single reused connection now.
+
+### The other half of «کنده» is the server, and it is bigger than the bytes
+
+Down that one connection, from a host with a fast line:
+
+| | wait | the application's own share |
+| --- | --- | --- |
+| any static file | 165 ms | — |
+| `/cart` | 483 ms | ~320 ms |
+| `/products` | 951 ms | ~790 ms |
+| `/` | **1,080 ms** | **~915 ms** |
+
+**Nearly a second of server on every load of the home page**, cached assets or
+not, first visit or hundredth. No amount of cutting stylesheets touches it, and
+it is almost certainly what «حتی بدونه فیلترشکن» is about.
+
+Here the same page answers in 67ms and runs 35 queries. Fitting the three rows
+above against their query counts (11, 38, 35) comes out near **17ms a query**,
+which would be a database that is not on the same machine and no persistent
+connection — but that is an inference, and this repository has just been shown
+what inference costs. So `ReportServerTiming` now puts
+
+    Server-Timing: app;dur=…, db;dur=…, dbq;dur=0;desc="… queries"
+
+on every response — `app` measured from `LARAVEL_START`, so a cold opcache
+shows up in it, and `db` from the driver, so `app` minus `db` is PHP's own
+work. The probe prints it. **Read that split before touching a query.**
+
+### What was fixed this round: the render-blocking stylesheets
+
+With compression on, the page's critical path is 154KB of CSS, and the browser
+paints nothing until all of it lands — this page holds the paint deliberately
+besides, which is the design gate in «قالب قبلی».
+
+Of the base sheet's 4,757 rules, **581 can ever match this shop**. Of
+Bootstrap's 2,337, 171. The rest styles the ten other demos the bundle ships.
+`tweaks.css`, written by hand for this shop, is 94% live — that is the control
+that says the method is reading the right thing rather than being clever.
+
+| | raw | on the wire |
+| --- | --- | --- |
+| `style.rtl.css` | 647KB → 86KB | 87.2KB → 13.8KB |
+| `bootstrap.rtl.min.css` | 190KB → 13KB | 24.0KB → 3.7KB |
+| `swiper-bundle.rtl.min.css` | 22KB → 14KB | 5.1KB → 3.1KB |
+| **the three together** | **859KB → 113KB** | **116.3KB → 20.6KB** |
+
+Render-blocking CSS for the whole page: **154KB → 58KB**.
+
+`theme/make-css-subset.js` does it; CLAUDE.md carries the keep rule. The two
+things that are not obvious and cost the afternoon:
+
+**A stylesheet is not a source of what exists.** Feeding `tweaks.css` to the
+vocabulary kept 2,483 rules instead of 581, and the ones it kept were
+`.process-box`, `.team-block`, `.cursor-follower` — demo furniture whose names
+are in `tweaks.css` *precisely because that is the file where those sections are
+turned off*. A stylesheet says what a class would look like if it existed. Only
+markup says that it does.
+
+**`check-css-subset.js` earned itself twice on the first run.** It renders every
+page at four widths, plus the phone drawer, the search and the mini basket
+opened, against the cut sheets and the full ones. It caught:
+
+- a `@keyframes` reached through `--animation-name` rather than `animation`.
+  Pruning keyframes by looking at `animation` declarations alone threw those
+  away, and the hero's photograph and its ٪۲۵ badge stayed at the `opacity: 0`
+  the template starts them on. **The hero was blank and nothing was red.**
+- Swiper's runtime classes. Its bundle holds the string `backface-hidden` and
+  glues `swiper-` on at runtime, so no file contains `swiper-backface-hidden`
+  and the rule for it was dropped. `RUNTIME_PREFIXES` is the concession.
+
+It also calibrates its own noise floor, because the honest answer to «are these
+two renders the same» is not always yes: the same stylesheets twice differ by up
+to **51 pixels** on the home page and **1,777** in the opened basket, which is a
+photograph painting late and a drawer mid-transition. So the opened states are
+shot with motion frozen — equally, in both runs — and any page that differs is
+rendered a third time against the sheets it already used, to ask what its own
+floor is. The full-page shots are deliberately *not* frozen: an animation that
+never runs is exactly the fault above.
+
+`CssSubsetTest` is the CI half. It does not re-decide in PHP what the cut should
+keep — two implementations of one rule is how a guard ends up guarding nothing.
+`theme/base-stylesheets/subset.json` records the fingerprint of the vocabulary
+the cut was made from, and the test rebuilds it. **A class added to a template
+fails it; rewording a Persian sentence does not.**
+
+The untouched originals live in `theme/base-stylesheets/` and not beside the
+files they came from, because `download-version/` is what Netlify publishes and
+the base sheet's first comment is the header naming where the base layer was
+bought. The published copy has always had its comments taken out on the way; an
+original sitting next to it would go up whole.
+
+### What is left, in the order it is worth doing
+
+1. **The ~915ms of server.** Read the `Server-Timing` split from the probe
+   first. If `db` is most of it, the 35 queries on the home page are the work —
+   and 11 of them are the same query run twice in one request (categories,
+   brands, the media and offers for products 1–5, the basket count). If `app`
+   minus `db` is most of it, it is PHP, and the question is opcache and the
+   container's size, which is a Liara setting rather than code.
+2. **The fonts, 175KB that gzip cannot touch.** Vazirmatn is 111KB with 811
+   codepoints, of which 213 are Arabic presentation forms nothing here types;
+   subsetting to what Persian and Latin actually need measures **111KB → 85KB**,
+   and splitting it by script measures 41.8KB Arabic + 44.4KB Latin — but the
+   home page prints exactly three Latin strings («VikyPlus», «OFF», «VP-»), so
+   the split would fetch both. Cairo is 64KB for the hero's title, sub-title and
+   button. A missing glyph falls back to the device's sans rather than a blank
+   box, so this is softer than the icon fonts — but it still needs a guard.
+3. **jQuery 30KB gz, Swiper 42KB gz, GSAP 27KB gz.** GSAP draws one drag
+   cursor. That is the cheapest of the three to question.
