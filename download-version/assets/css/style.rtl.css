@@ -3300,44 +3300,6 @@ blockquote p cite {
   margin-bottom: 0;
 }
 
-.discount-tag {
-  background: var(--smoke-color);
-  display: inline-block;
-  min-height: 150px;
-  min-width: 150px;
-  border-radius: 50%;
-  z-index: 1;
-  font-size: 14px;
-  font-family: var(--title-font);
-  font-weight: 500;
-  color: var(--title-color);
-  text-align: center;
-  background: rgba(255, 255, 255, 0.63);
-  border: 1px solid #FFFFFF;
-  -webkit-backdrop-filter: blur(8.1px);
-          backdrop-filter: blur(8.1px);
-  -webkit-transform: rotate(-30deg);
-      -ms-transform: rotate(-30deg);
-          transform: rotate(-30deg);
-  animation: spin 10s infinite alternate-reverse;
-}
-
-.discount-tag span {
-  --rotate-letter: 13deg;
-  min-height: 75px;
-  position: absolute;
-  min-width: 75px;
-  right: 18px;
-  top: -3px;
-  text-transform: uppercase;
-  -webkit-transform-origin: bottom center;
-      -ms-transform-origin: bottom center;
-          transform-origin: bottom center;
-  -webkit-transform: rotate(var(--rotate-letter));
-      -ms-transform: rotate(var(--rotate-letter));
-          transform: rotate(var(--rotate-letter));
-}
-
 .parallax-slider .swiper-slide {
   position: relative;
   overflow: hidden;

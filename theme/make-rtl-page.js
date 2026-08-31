@@ -1590,13 +1590,30 @@ const RING =
   '<text class="vp-burst-off" x="75" y="98">OFF</text>' +
   '</svg>';
 
+/*
+ * The badge comes off the deck entirely.
+ *
+ * «روی عکس‌های اسلایدر همشون ۲۵ درصد تخفیف خورده قسمت تخفیفات از روی اسلایدر
+ * برداشته بشه» — all six slides wore the same ٪۲۵, which is not a sale, it is
+ * a decoration that says one. The client's own next sentence is the option
+ * rather than the instruction — «فقط می‌تونیم در یک اسلاید حراج پله‌ای رو
+ * تبلیغ کنیم» — so nothing is put in its place here; a slide that advertises
+ * the stepped sale is a design decision to be made and looked at, not one to
+ * be invented in a build script.
+ *
+ * The whole `.discount-wrapp` goes, not just the mark inside it: the wrapper
+ * is positioned over the photograph and an empty one is an invisible box in
+ * the corner of every slide.
+ *
+ * **RING above is still used**, by the dice game's prize card — see
+ * `.vp-prize-badge` in the scripts, which builds the same burst around the
+ * percentage somebody actually won. That one is a real number about a real
+ * prize, which is the difference.
+ */
 html = html.replace(
-  /<span class="discount-anime">[^<]*<\/span>/g,
-  RING
+  /\s*<div class="discount-wrapp[^"]*">[\s\S]*?<\/div>\s*<\/div>/g,
+  ''
 );
-
-// The template's own number goes: the burst carries its own type.
-html = html.replace(/<h4 class="discount">[^<]*<\/h4>\s*/g, '');
 
 // Three pink marks behind the hero, drawn as real elements so both ends can be
 // rounded.

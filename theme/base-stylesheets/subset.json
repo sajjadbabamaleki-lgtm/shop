@@ -1,7 +1,7 @@
 {
   "note": "Written by theme/make-css-subset.js. Do not edit — re-run the script.",
-  "vocabulary": "506a565138b6cb2db14a7ecb16dfac8e903697947e609b278f296de56cf1b314",
-  "words": 7065,
+  "vocabulary": "036cda2f46fcfef2191773e14aa80104b1192d010ce7152cd4568d2ecffc78f3",
+  "words": 7066,
   "read": [
     "download-version/assets/js/gsap.min.js",
     "download-version/assets/js/main.js",
@@ -100,7 +100,7 @@
     "style.rtl.css": {
       "from": "style.rtl.full.css",
       "was": 662399,
-      "is": 88219
+      "is": 87179
     },
     "bootstrap.rtl.min.css": {
       "from": "bootstrap.rtl.full.min.css",
