@@ -46,16 +46,27 @@ class CatalogueSeeder extends Seeder
     private const UNKNOWN_COLOUR = ['display' => 'نامشخص', 'family' => 'unspecified'];
 
     /**
-     * Right to left, the order the category row reads in.
+     * Right to left, the order the category row reads in, and whether the
+     * section is open yet.
+     *
+     * The last four say «به‌زودی» wherever they are offered — «اکسسوری / ست
+     * کیف و کفش / ست ورزشی / بوت و نیم بوت … اینا باید هرجا روشون زده بشه باید
+     * بشن کامینگ سون». They are sections of the shop with nothing in them, and
+     * a tile that leads to an empty listing reads as a fault rather than as a
+     * shelf still being filled.
+     *
+     * `mark_the_four_unopened_sections_coming_soon` is what carries this to a
+     * database that already has rows; this describes a fresh install.
      */
     private const CATEGORIES = [
-        ['majlesi', 'مجلسی'],
-        ['sneaker', 'ونس و کتونی'],
-        ['college', 'کالج'],
-        ['sandal', 'صندل'],
-        ['boot', 'بوت و نیم‌بوت'],
-        ['bag-set', 'ست کیف و کفش'],
-        ['accessory', 'اکسسوری'],
+        ['majlesi', 'مجلسی', false],
+        ['sneaker', 'ونس و کتونی', false],
+        ['college', 'کالج', false],
+        ['sandal', 'صندل', false],
+        ['boot', 'بوت و نیم‌بوت', true],
+        ['bag-set', 'ست کیف و کفش', true],
+        ['accessory', 'اکسسوری', true],
+        ['sport-set', 'ست ورزشی', true],
     ];
 
     /**
@@ -172,13 +183,14 @@ class CatalogueSeeder extends Seeder
     {
         $categories = [];
 
-        foreach (self::CATEGORIES as $position => [$slug, $name]) {
+        foreach (self::CATEGORIES as $position => [$slug, $name, $soon]) {
             $categories[$slug] = Category::updateOrCreate(['slug' => $slug], [
                 'name' => $name,
                 'image_path' => "assets/img/category/{$slug}.jpg",
                 'position' => $position,
                 'is_active' => true,
                 'show_in_nav' => true,
+                'coming_soon' => $soon,
             ]);
         }
 

@@ -275,6 +275,7 @@ class ShopController extends Controller
         return [
             'categories' => Category::query()
                 ->where('is_active', true)
+                ->open()
                 ->whereHas('products', fn (Builder $p) => $p->purchasable())
                 ->orderBy('position')
                 ->get(),

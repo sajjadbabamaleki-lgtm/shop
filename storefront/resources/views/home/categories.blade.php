@@ -5,14 +5,29 @@
     carry. The badges are copy — nothing behind them to read — so they stay
     written out.
 
-    Hand-owned: theme/make-blade.js no longer regenerates this file.
+    **A section that is not open yet looks exactly like one that is.** These
+    tiles were given a gold «به‌زودی» band along the foot and the photograph
+    behind it came down in colour; the answer was «چرا رو کارتشون تو صفحه هوم
+    زدی؟؟؟» and then «آیکونشون غیره فعال نشه، فقط هرجا کلیک میشه پاپاپ کامینگ
+    سون بیاد». So the only thing `coming_soon` adds to this markup is
+    `data-vp-soon`, which is invisible: the script at the foot of the page
+    catches the click and says it in a card instead. Nothing here is greyed,
+    badged or disabled, and it must stay that way.
+
+    The `href` is left pointing at the section's own page, which says the same
+    sentence in full — that is what a middle-click and a visitor with no
+    JavaScript get.
+
+    Hand-owned: theme/make-blade.js no longer regenerates this file. The static
+    preview builds the same markup in theme/make-rtl-page.js — check-parity.js
+    compares the two and expects zero.
 --}}
 <section class="feature-area2 positive-relative overflow-hidden">
         <div class="container th-container">
             <div class="row vp-category-row">
                 @foreach ($categories as $category)
                 <div class="col">
-                    <a class="vp-category" href="{{ storefront_route('category', $category) }}">
+                    <a class="vp-category" href="{{ storefront_route('category', $category) }}"@if ($category->coming_soon) data-vp-soon="{{ $category->name }}"@endif>
                         <img src="{{ asset($category->image_path) }}" alt="" loading="lazy">
                         <span class="vp-category-label">{{ $category->name }}</span>
                     </a>

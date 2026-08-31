@@ -4228,3 +4228,92 @@ So there are two levers and only one of them is code:
    box, so this is softer than the icon fonts — but it still needs a guard.
 3. **jQuery 30KB gz, Swiper 42KB gz, GSAP 27KB gz.** GSAP draws one drag
    cursor. That is the cheapest of the three to question.
+
+## «به‌زودی» — four sections that are announced and not open
+
+«اکسسوری / ست کیف و کفش / ست ورزشی / بوت و نیم بوت — اینا باید هرجا روشون زده
+بشه باید بشن کامینگ سون».
+
+Four of the eight sections hold no products. Until this round a visitor tapping
+one of their tiles landed on a listing that said «چیزی با این مشخصات پیدا نشد»,
+which reads as a shop that is broken rather than one still filling its shelves.
+
+### It was built twice, and the first one is why this section exists
+
+The first version did what "mark them coming soon" reads like: a gold
+«به‌زودی» band along the foot of each tile on the front page, the photograph
+behind it down to a third of its colour, a gold chip beside the name in the
+phone drawer, and the listing's 34px mark greyed. Measured and fitted — the
+label was re-centred against the band so the two never collided, and the drawer
+still fitted 375×667 without scrolling.
+
+It was rejected on sight, in two messages:
+
+> چرا رو کارتشون تو صفحه هوم زدی؟؟؟
+
+> آیکونشون غیره فعال نشه، فقط هرجا کلیک میشه پاپاپ کامینگ سون بیاد
+
+Both instructions are one instruction: **a closed section is drawn exactly like
+an open one.** Nothing is badged, nothing is dimmed, nothing is disabled. The
+shop looks whole, and it says «به‌زودی» at the moment somebody asks for the
+section and not before.
+
+### What is actually there
+
+`categories.coming_soon`, a boolean, and three consequences:
+
+- **One invisible attribute.** `data-vp-soon="<the section's name>"` on the
+  tile under the hero, on the drawer's row, and on the listing's category
+  strip. Nothing else about those three elements changes at all.
+- **One script**, at the foot of every page of the shop, which catches the
+  click and builds the card: the mark, one sentence naming the section, and
+  «باشه». It reuses `.vp-empty-mark` and `.vp-empty-say` — the same three
+  things in the same order as the no-results panel — over its own
+  `.vp-soon-scrim` / `.vp-soon-card` / `.vp-soon-shut` / `.vp-soon-ok`.
+- **Out of the filter rail**, and nowhere else. A section with nothing in it
+  cannot narrow a listing, so it is not offered as a control that does nothing.
+  This is the only place a closed section is treated differently, and it is not
+  something a visitor can see.
+
+### The trap: the listener has to capture
+
+The template's mobile-menu plugin binds `stopPropagation` to the drawer **and
+to every `div` inside it**, so a tap in the panel never reaches the
+close-on-outside-click handler. A delegated listener on `document` in the
+bubble phase therefore never hears a drawer row either: the first working
+version put the card up correctly on the tiles and on the listing's strip, and
+in the drawer the row navigated straight past it. `addEventListener(…, true)`
+runs before any of that and cannot be stopped from below.
+
+The drawer is also closed explicitly, with its own `.th-menu-toggle`, before
+the card goes up — otherwise closing the card leaves the visitor back inside a
+menu they had finished with.
+
+### The `href` is left working on purpose
+
+The link still points at the section's own page, and that page renders the same
+sentence in a full panel. So a middle-click, a long-press "open in new tab" and
+a visitor with no JavaScript all land somewhere that answers them; the script
+only saves everybody else the round trip. Modified clicks are let through for
+the same reason.
+
+Measured on all four surfaces — the front page's tile at 1440, the drawer at
+390, the listing's strip at 390, and the static preview — the card opens, sits
+above everything including the WhatsApp button (`body.vp-soon-open` takes that
+off, the same way `body.vp-prize-open` does), and Escape, the ×, «باشه» and the
+scrim all close it.
+
+### «ست ورزشی» came back
+
+It was deactivated that morning on «ست ورزشی از روی سایت حذف بشه» and named
+among these four the same afternoon. `mark_the_four_unopened_sections_coming_soon`
+turns it on again rather than editing
+`take_the_sports_set_category_off_the_shop`, which has already run in
+production: rewriting a migration that has run means the two databases stop
+sharing a history.
+
+`ComingSoonTest` holds the flags, the attribute on all three surfaces, the
+absence of anything visible on the tiles, the section's own page, the filter
+rail, and that the static preview marks the same four — nothing else can see
+that last one, because `check-parity.js` compares a page where a closed section
+is identical to an open one by design.

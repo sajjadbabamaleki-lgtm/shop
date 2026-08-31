@@ -5088,6 +5088,67 @@ button.vp-cart-keep {
   color: #FFFFFF;
 }
 
+.vp-soon-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 1300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(16, 17, 17, 0.72);
+}
+
+.vp-soon-card {
+  position: relative;
+  width: 100%;
+  max-width: 380px;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  padding: 34px 24px 26px;
+  border-radius: 22px;
+  background: #FFFFFF;
+  text-align: center;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.42);
+}
+
+.vp-soon-shut {
+  position: absolute;
+  inset-block-start: 10px;
+  inset-inline-start: 10px;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(16, 17, 17, 0.06);
+  color: rgba(16, 17, 17, 0.6);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.vp-soon-ok {
+  height: 40px;
+  padding-inline: 26px;
+  display: inline-grid;
+  place-items: center;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
+  color: #FFFFFF;
+  font-family: 'Vazirmatn', var(--body-font);
+  font-size: 14px;
+  cursor: pointer;
+  transition: filter 0.2s ease;
+}
+
+.vp-soon-ok:hover {
+  filter: brightness(1.04);
+}
+
 .vp-pdp-price {
   align-items: center;
   gap: 12px;
@@ -11276,7 +11337,8 @@ body.vp-bare .vp-cart-shot {
   color: rgba(16, 17, 17, 0.62);
 }
 
-body.vp-prize-open .vp-whatsapp {
+body.vp-prize-open .vp-whatsapp,
+body.vp-soon-open .vp-whatsapp {
   display: none;
 }
 

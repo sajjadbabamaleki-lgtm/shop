@@ -60,7 +60,7 @@
                     <ul class="vp-drawer-cats">
                         @foreach ($drawerCategories as $category)
                         <li>
-                            <a href="{{ storefront_route('category', $category) }}">
+                            <a href="{{ storefront_route('category', $category) }}"@if ($category->coming_soon) data-vp-soon="{{ $category->name }}"@endif>
                                 <img class="vp-cat-icon" src="{{ asset(config('storefront.category_icons.'.$category->slug, config('storefront.category_icons.default'))) }}" alt="" loading="lazy">
                                 <span class="vp-cat-name">{{ $category->name }}</span>
                                 <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>

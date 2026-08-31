@@ -543,6 +543,29 @@ the client saw an old page and had no way to tell why. So, plainly:
   into the basket, and applies to the branch's own lines only — never to a
   vendor's price. Whether it applies is recomputed on every page and again
   inside the order transaction; nothing about it is stored on the basket.
+- **A section that is «به‌زودی» looks exactly like one that is open.** Four of
+  the eight — «بوت و نیم‌بوت», «ست کیف و کفش», «اکسسوری», «ست ورزشی» — hold no
+  products, and `categories.coming_soon` is the flag. **It changes nothing that
+  can be seen.** The first version badged the front page's tiles with a gold
+  band and greyed the listing's marks; both were rejected outright — «چرا رو
+  کارتشون تو صفحه هوم زدی؟؟؟» then «آیکونشون غیره فعال نشه، فقط هرجا کلیک میشه
+  پاپاپ کامینگ سون بیاد». So the whole feature is the *click*: one invisible
+  `data-vp-soon="<name>"` on the tile, the drawer row and the listing's strip,
+  and one script at the foot of every page that catches it and puts up a card.
+  **The listener is on `document` in the capture phase and must stay there** —
+  the template's mobile-menu plugin binds `stopPropagation` to the drawer and to
+  every div in it, so a bubbling listener works everywhere *except* the drawer,
+  where the row navigates straight past the card. The `href` is deliberately
+  left working: the section's own page says the same sentence in full, which is
+  what a middle-click and a visitor with no JavaScript get. The one thing a
+  closed section is kept out of is the listing's **filter rail**, where a
+  section that cannot narrow anything is a control that does nothing.
+  `ComingSoonTest` holds all of it, including that nothing visible ever comes
+  back to the tiles. **Do not re-badge anything.**
+  «ست ورزشی» was taken off the shop that morning
+  (`take_the_sports_set_category_off_the_shop`) and named among these four the
+  same afternoon; `mark_the_four_unopened_sections_coming_soon` turns it back
+  on rather than editing a migration that has already run in production.
 - **`ResolveTenant` and `ResolveAdminTenant` must run before `SubstituteBindings`** — set in
   `bootstrap/app.php`'s priority list. Branch-scoped models fail closed, so a
   binding resolved before the tenant finds nothing and the page 404s for

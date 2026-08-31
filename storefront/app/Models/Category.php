@@ -15,12 +15,16 @@ class Category extends Model
 
     protected $fillable = [
         'parent_id', 'slug', 'name', 'description', 'image_path', 'position',
-        'is_active', 'show_in_nav', 'seo_title', 'seo_description',
+        'is_active', 'show_in_nav', 'coming_soon', 'seo_title', 'seo_description',
     ];
 
     protected function casts(): array
     {
-        return ['is_active' => 'boolean', 'show_in_nav' => 'boolean'];
+        return [
+            'is_active' => 'boolean',
+            'show_in_nav' => 'boolean',
+            'coming_soon' => 'boolean',
+        ];
     }
 
     public function parent(): BelongsTo
@@ -42,6 +46,20 @@ class Category extends Model
     public function getRouteKeyName(): string
     {
         return 'slug';
+    }
+
+    /**
+     * A section that is announced but not open yet.
+     *
+     * It is still shown everywhere the others are — the tiles under the hero,
+     * the phone drawer, the listing's strip and a page of its own — wearing
+     * «به‌زودی», because that is the whole point of announcing it. What it is
+     * kept out of is the listing's filter rail, where a section that cannot
+     * narrow anything is a control that does nothing.
+     */
+    public function scopeOpen(Builder $query): Builder
+    {
+        return $query->where('coming_soon', false);
     }
 
     /**

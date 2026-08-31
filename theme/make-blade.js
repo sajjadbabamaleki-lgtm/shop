@@ -205,16 +205,17 @@ ladder.text += '\n' + modal + '\n';
 
 // --- the inline scripts ------------------------------------------------------
 //
-// Seven of them run after main.js. Five are page-wide and stay with the script
+// Eight of them run after main.js. Six are page-wide and stay with the script
 // tags; two drive one section each and move to that section's partial, pushed
 // onto a stack the layout empties in the same place the tags used to sit. All
-// seven are independent IIFEs, so their order relative to each other does not
+// eight are independent IIFEs, so their order relative to each other does not
 // matter — only that they still run after main.js, which the stack preserves.
 //
-// The count is asserted rather than assumed, and it earns its keep: adding the
-// service-worker registration — the last of the seven, and what makes the shop
-// installable on Android — stopped this script dead instead of silently
-// dropping a script from the Laravel page while the preview kept it.
+// The count is asserted rather than assumed, and it earns its keep twice over:
+// adding the service-worker registration — what makes the shop installable on
+// Android — stopped this script dead instead of silently dropping a script from
+// the Laravel page while the preview kept it, and the «به‌زودی» card, which is
+// the whole of what a closed section does when it is tapped, did the same.
 //
 // Two of the page-wide four belong to a section and stay here anyway: the
 // category strip's auto-scroll and the dice game's throw. Not by preference —
@@ -229,8 +230,8 @@ const SECTION_SCRIPTS = [
 
 const INLINE = /[ \t]*<script>\n[\s\S]*?<\/script>\n?/g;
 const inlineScripts = pageEnd.text.match(INLINE) || [];
-if (inlineScripts.length !== 7) {
-  throw new Error(`expected 7 inline scripts after main.js, found ${inlineScripts.length}`);
+if (inlineScripts.length !== 8) {
+  throw new Error(`expected 8 inline scripts after main.js, found ${inlineScripts.length}`);
 }
 
 for (const { owns, region } of SECTION_SCRIPTS) {

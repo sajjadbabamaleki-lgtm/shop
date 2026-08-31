@@ -637,14 +637,25 @@ html = html.replace(
 // col-2), so the tiles use the bare "col" auto-layout class instead — equal
 // flex division with no 12-unit quantization — to stay one row at every
 // width, same as before.
+// The third field is whether the section is open yet. The last four are not —
+// «اکسسوری / ست کیف و کفش / ست ورزشی / بوت و نیم بوت … اینا باید هرجا روشون زده
+// بشه باید بشن کامینگ سون» — so they keep their tile and wear «به‌زودی» on it.
+// The Laravel page reads the same fact off `categories.coming_soon`; this list
+// and that column have to agree, and check-parity.js is what notices when they
+// do not.
+//
+// «ست ورزشی» is back after being taken off the shop this morning: the
+// instruction above names it among the four to announce, which is a different
+// answer to the same question and the client's to give.
 const CATEGORIES = [
-  ['majlesi', 'مجلسی'],
-  ['sneaker', 'ونس و کتونی'],
-  ['college', 'کالج'],
-  ['sandal', 'صندل'],
-  ['boot', 'بوت و نیم‌بوت'],
-  ['bag-set', 'ست کیف و کفش'],
-  ['accessory', 'اکسسوری'],
+  ['majlesi', 'مجلسی', false],
+  ['sneaker', 'ونس و کتونی', false],
+  ['college', 'کالج', false],
+  ['sandal', 'صندل', false],
+  ['boot', 'بوت و نیم‌بوت', true],
+  ['bag-set', 'ست کیف و کفش', true],
+  ['accessory', 'اکسسوری', true],
+  ['sport-set', 'ست ورزشی', true],
 ];
 
 // The mark beside a category in the phone drawer. The same map as
@@ -664,15 +675,16 @@ const CATEGORY_ICONS = {
   'boot': 'vp-cat-boot.svg',
   'bag-set': 'vp-cat-bagset.svg',
   'accessory': 'vp-cat-watch.svg',
+  'sport-set': 'vp-cat-sport.svg',
 };
 
 // The name is real text on the tile, so it is also the link's own name and
 // needs no aria-label.
 const CATEGORY_ROW =
   '<div class="row vp-category-row">' +
-  CATEGORIES.map(([file, name]) =>
+  CATEGORIES.map(([file, name, soon]) =>
     '\n                <div class="col">' +
-    '\n                    <a class="vp-category" href="shop.html">' +
+    `\n                    <a class="vp-category" href="shop.html"${soon ? ` data-vp-soon="${name}"` : ''}>` +
     `\n                        <img src="assets/img/category/${file}.jpg" alt="" loading="lazy">` +
     `\n                        <span class="vp-category-label">${name}</span>` +
     '\n                    </a>' +
@@ -766,9 +778,9 @@ const DRAWER =
   '                        <a class="vp-drawer-all" href="shop.html">همه محصولات</a>\n' +
   '                    </div>\n' +
   '                    <ul class="vp-drawer-cats">\n' +
-  CATEGORIES.map(([slug, name]) =>
+  CATEGORIES.map(([slug, name, soon]) =>
     '                        <li>\n' +
-    '                            <a href="shop.html">\n' +
+    `                            <a href="shop.html"${soon ? ` data-vp-soon="${name}"` : ''}>\n` +
     `                                <img class="vp-cat-icon" src="assets/img/icon/${CATEGORY_ICONS[slug]}" alt="" loading="lazy">\n` +
     `                                <span class="vp-cat-name">${name}</span>\n` +
     '                                <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>\n' +
@@ -2971,6 +2983,133 @@ const DICE_SCRIPT =
 </body>`;
 
 html = html.replace('</body>', DICE_SCRIPT);
+
+// «به‌زودی» — the four sections that are not open yet.
+//
+// «اکسسوری / ست کیف و کفش / ست ورزشی / بوت و نیم بوت … اینا باید هرجا روشون
+// زده بشه باید بشن کامینگ سون», and then, after a first attempt that badged the
+// front page's tiles and greyed the listing's marks: «چرا رو کارتشون تو صفحه
+// هوم زدی؟؟؟ … آیکونشون غیره فعال نشه، فقط هرجا کلیک میشه پاپاپ کامینگ سون
+// بیاد». So nothing anywhere looks different, and the *click* is the whole
+// feature.
+//
+// **Delegated on the document, not bound to eight links.** The rows this has to
+// answer are on three surfaces — the tiles under the hero, the phone drawer and
+// the listing's category strip — and the drawer is rebuilt by the template's
+// own script on some pages. One listener on the document catches all of them
+// and cannot go stale.
+//
+// **The link is left working.** `data-vp-soon` carries the section's name and
+// nothing else; the `href` still points at the section's own page, which says
+// the same sentence in a full page. So a visitor with no JavaScript, a
+// middle-click, or a long-press "open in new tab" all land somewhere that
+// answers them, and this only saves them the round trip.
+//
+// Plain DOM, no jQuery: this is on every page of the shop and the two catalogue
+// pages do not carry the home page's libraries.
+html = html.replace('</body>',
+  '    <script>\n' +
+  '        (function () {\n' +
+  '            var scrim = null;\n' +
+  '            var camefrom = null;\n' +
+  '\n' +
+  '            function shut() {\n' +
+  '                if (!scrim) { return; }\n' +
+  '                if (scrim.parentNode) { scrim.parentNode.removeChild(scrim); }\n' +
+  '                scrim = null;\n' +
+  '                document.body.classList.remove("vp-soon-open");\n' +
+  '                document.removeEventListener("keydown", onKey);\n' +
+  '                if (camefrom && camefrom.focus) { camefrom.focus(); }\n' +
+  '            }\n' +
+  '\n' +
+  '            function onKey(event) {\n' +
+  '                if (event.key === "Escape") { shut(); }\n' +
+  '            }\n' +
+  '\n' +
+  '            function show(name) {\n' +
+  '                shut();\n' +
+  '\n' +
+  '                scrim = document.createElement("div");\n' +
+  '                scrim.className = "vp-soon-scrim";\n' +
+  '                scrim.setAttribute("role", "dialog");\n' +
+  '                scrim.setAttribute("aria-modal", "true");\n' +
+  '                scrim.setAttribute("aria-label", "به‌زودی");\n' +
+  '\n' +
+  '                var card = document.createElement("div");\n' +
+  '                card.className = "vp-soon-card";\n' +
+  '                scrim.appendChild(card);\n' +
+  '\n' +
+  '                var x = document.createElement("button");\n' +
+  '                x.type = "button";\n' +
+  '                x.className = "vp-soon-shut";\n' +
+  '                x.setAttribute("aria-label", "بستن");\n' +
+  '                x.textContent = "×";\n' +
+  '                card.appendChild(x);\n' +
+  '\n' +
+  '                var mark = document.createElement("span");\n' +
+  '                mark.className = "vp-empty-mark";\n' +
+  '                mark.setAttribute("aria-hidden", "true");\n' +
+  '                mark.innerHTML = \'<svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="17" fill="none" stroke="currentColor" stroke-width="3"></circle><path d="M24 14 V25 L31 29" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg>\';\n' +
+  '                card.appendChild(mark);\n' +
+  '\n' +
+  '                var say = document.createElement("p");\n' +
+  '                say.className = "vp-empty-say";\n' +
+  '                say.textContent = "«" + name + "» به‌زودی باز می‌شود.";\n' +
+  '                card.appendChild(say);\n' +
+  '\n' +
+  '                var ok = document.createElement("button");\n' +
+  '                ok.type = "button";\n' +
+  '                ok.className = "vp-soon-ok";\n' +
+  '                ok.textContent = "باشه";\n' +
+  '                card.appendChild(ok);\n' +
+  '\n' +
+  '                x.addEventListener("click", shut);\n' +
+  '                ok.addEventListener("click", shut);\n' +
+  '                scrim.addEventListener("click", function (event) {\n' +
+  '                    if (event.target === scrim) { shut(); }\n' +
+  '                });\n' +
+  '                document.addEventListener("keydown", onKey);\n' +
+  '\n' +
+  '                document.body.classList.add("vp-soon-open");\n' +
+  '                document.body.appendChild(scrim);\n' +
+  '                ok.focus();\n' +
+  '            }\n' +
+  '\n' +
+  '            // **Capture, not bubble.** The template\'s mobile-menu plugin\n' +
+  '            // binds `stopPropagation` to the drawer and to every div inside\n' +
+  '            // it, to keep a tap in the panel from reaching its\n' +
+  '            // close-on-outside-click handler. A listener on the document\n' +
+  '            // therefore never hears a tap on a drawer row: the first version\n' +
+  '            // of this bubbled, worked on the tiles and the listing strip, and\n' +
+  '            // navigated straight past the card in the drawer. Capture runs\n' +
+  '            // before any of that and cannot be stopped from below.\n' +
+  '            document.addEventListener("click", function (event) {\n' +
+  '                var target = event.target;\n' +
+  '                if (!target || !target.closest) { return; }\n' +
+  '\n' +
+  '                var link = target.closest("[data-vp-soon]");\n' +
+  '                if (!link) { return; }\n' +
+  '\n' +
+  '                // A modified click is somebody asking for the page in a tab\n' +
+  '                // of their own, and the page exists and says the same thing.\n' +
+  '                if (event.metaKey || event.ctrlKey || event.shiftKey || event.button) { return; }\n' +
+  '\n' +
+  '                event.preventDefault();\n' +
+  '                camefrom = link;\n' +
+  '\n' +
+  '                // Tapped inside the phone drawer, which is a full-screen\n' +
+  '                // panel: shut it with its own button rather than laying the\n' +
+  '                // card over it, so closing the card does not leave the\n' +
+  '                // visitor back in a menu they had finished with.\n' +
+  '                var drawer = link.closest(".th-menu-wrapper");\n' +
+  '                var close = drawer && drawer.querySelector(".th-menu-toggle");\n' +
+  '                if (close) { close.click(); }\n' +
+  '\n' +
+  '                show(link.getAttribute("data-vp-soon"));\n' +
+  '            }, true);\n' +
+  '        })();\n' +
+  '    </script>\n' +
+  '</body>');
 
 html = html.replace('</body>',
   '    <script>\n' +

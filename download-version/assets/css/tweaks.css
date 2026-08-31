@@ -8099,6 +8099,94 @@ button.vp-cart-keep {
   color: #FFFFFF;
 }
 
+/* --- «به‌زودی» ------------------------------------------------------------
+   Four of the eight sections hold nothing yet — «اکسسوری / ست کیف و کفش / ست
+   ورزشی / بوت و نیم بوت». They are offered everywhere the open four are and
+   they look exactly like them: «آیکونشون غیره فعال نشه». Nothing is greyed,
+   nothing is badged, and the tiles on the front page were tried with a band
+   across them and rejected outright — «چرا رو کارتشون تو صفحه هوم زدی؟؟؟».
+
+   «فقط هرجا کلیک میشه پاپاپ کامینگ سون بیاد» is the whole of the feature: the
+   click is caught and answered here instead of navigating. So this card is the
+   only place on the site that says it, which is why it says it plainly — the
+   section's own name, one sentence, one button.
+
+   The mark and the sentence are `.vp-empty`'s, unchanged: it is the same three
+   things in the same order, and a second set of names for them would be two
+   places to fix one type size. The scrim, the card and the close button follow
+   the prize card's pattern (see `.vp-prize-scrim` below) and are its own
+   because a prize and a closed door are not the same card.
+
+   Above the prize's 1200, because both can be on screen at once: the dice band
+   is on the front page and so is the tile row. `body.vp-soon-open` takes the
+   WhatsApp button off, which is `z-index: 10000` and would otherwise sit on
+   the card as a green square — the same reason `body.vp-prize-open` exists. */
+.vp-soon-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 1300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(16, 17, 17, 0.72);
+}
+
+.vp-soon-card {
+  position: relative;
+  width: 100%;
+  max-width: 380px;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  padding: 34px 24px 26px;
+  border-radius: 22px;
+  background: #FFFFFF;
+  text-align: center;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.42);
+}
+
+.vp-soon-shut {
+  position: absolute;
+  inset-block-start: 10px;
+  inset-inline-start: 10px;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(16, 17, 17, 0.06);
+  color: rgba(16, 17, 17, 0.6);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+/* The site's button: the gold gradient with white on it, `brightness` on
+   hover. Its own class rather than `.vp-empty-out` because that one is an
+   anchor to the listing and this one is a button that closes a card — see
+   «گلد سبز» for why every filled thing that gets pressed carries this exact
+   recipe. */
+.vp-soon-ok {
+  height: 40px;
+  padding-inline: 26px;
+  display: inline-grid;
+  place-items: center;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
+  color: #FFFFFF;
+  font-family: 'Vazirmatn', var(--body-font);
+  font-size: 14px;
+  cursor: pointer;
+  transition: filter 0.2s ease;
+}
+
+.vp-soon-ok:hover {
+  filter: brightness(1.04);
+}
+
 /* --- 2. the product page -------------------------------------------------- */
 
 /* The price leads at 34, the old price follows at 15 struck through, and the
@@ -20838,7 +20926,8 @@ body.vp-bare .vp-cart-shot {
    on top of the prize card's scrim — a green square over the celebration.
    «اون دکمه واتسپ هم نباید وقتی این تبریک باز میشه باشدش». The script puts
    this class on <body> while the card is open and takes it off again. */
-body.vp-prize-open .vp-whatsapp {
+body.vp-prize-open .vp-whatsapp,
+body.vp-soon-open .vp-whatsapp {
   display: none;
 }
 

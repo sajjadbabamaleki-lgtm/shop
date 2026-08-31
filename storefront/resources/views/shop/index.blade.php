@@ -406,7 +406,11 @@
                  carries for them. --}}
             <nav class="vp-shop-strip" aria-label="دسته‌بندی‌ها">
                 @foreach ($strip as $cat)
-                    <a class="vp-shop-cat{{ $filters['category']?->is($cat) ? ' is-on' : '' }}" href="{{ storefront_route('category', $cat) }}">
+                    {{-- A section that is not open yet is drawn exactly like
+                         the rest — «آیکونشون غیره فعال نشه» — and answers with
+                         a card when it is tapped. `data-vp-soon` is what the
+                         script at the foot of the page looks for. --}}
+                    <a class="vp-shop-cat{{ $filters['category']?->is($cat) ? ' is-on' : '' }}" href="{{ storefront_route('category', $cat) }}"@if ($cat->coming_soon) data-vp-soon="{{ $cat->name }}"@endif>
                         <img src="{{ asset(config('storefront.category_icons.'.$cat->slug, config('storefront.category_icons.default'))) }}" alt="" aria-hidden="true">
                         <span>{{ $cat->name }}</span>
                     </a>
@@ -437,6 +441,31 @@
                 <div class="vp-shop-rail-desktop">@include('shop.filters')</div>
 
                 <div class="vp-shop-main">
+
+                    {{-- A section that is announced but not open yet.
+
+                         It is the same `.vp-empty` panel the no-results state
+                         uses, deliberately: this *is* a shop with nothing to
+                         show, and inventing a second empty state would be two
+                         answers to one question. What changes is the sentence
+                         and the mark — «چیزی با این مشخصات پیدا نشد» would be
+                         the wrong thing to tell somebody who tapped a tile the
+                         shop itself offered.
+
+                         The bar above it goes with the grid. «۰ کالا» and a
+                         sort control for nothing are furniture that contradicts
+                         the sentence underneath them. --}}
+                    @if ($filters['category']?->coming_soon)
+                        <div class="vp-empty">
+                            <span class="vp-empty-mark" aria-hidden="true">
+                                <svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="17" fill="none" stroke="currentColor" stroke-width="3"></circle><path d="M24 14 V25 L31 29" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                            </span>
+                            <p class="vp-empty-say">
+                                «{{ $filters['category']->name }}» به‌زودی باز می‌شود.
+                            </p>
+                            <a class="vp-empty-out" href="{{ storefront_route('shop') }}">دیدن بقیه محصولات</a>
+                        </div>
+                    @else
 
                     <div class="vp-shop-bar">
                         {{-- The count sits with the control that changes the order,
@@ -484,6 +513,8 @@
                         </div>
 
                         <div class="vp-shop-pages">{{ $products->links('pagination.vikyplus') }}</div>
+                    @endif
+
                     @endif
 
                 </div>

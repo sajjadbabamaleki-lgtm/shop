@@ -419,6 +419,107 @@
     </script>
     <script>
         (function () {
+            var scrim = null;
+            var camefrom = null;
+
+            function shut() {
+                if (!scrim) { return; }
+                if (scrim.parentNode) { scrim.parentNode.removeChild(scrim); }
+                scrim = null;
+                document.body.classList.remove("vp-soon-open");
+                document.removeEventListener("keydown", onKey);
+                if (camefrom && camefrom.focus) { camefrom.focus(); }
+            }
+
+            function onKey(event) {
+                if (event.key === "Escape") { shut(); }
+            }
+
+            function show(name) {
+                shut();
+
+                scrim = document.createElement("div");
+                scrim.className = "vp-soon-scrim";
+                scrim.setAttribute("role", "dialog");
+                scrim.setAttribute("aria-modal", "true");
+                scrim.setAttribute("aria-label", "به‌زودی");
+
+                var card = document.createElement("div");
+                card.className = "vp-soon-card";
+                scrim.appendChild(card);
+
+                var x = document.createElement("button");
+                x.type = "button";
+                x.className = "vp-soon-shut";
+                x.setAttribute("aria-label", "بستن");
+                x.textContent = "×";
+                card.appendChild(x);
+
+                var mark = document.createElement("span");
+                mark.className = "vp-empty-mark";
+                mark.setAttribute("aria-hidden", "true");
+                mark.innerHTML = '<svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="17" fill="none" stroke="currentColor" stroke-width="3"></circle><path d="M24 14 V25 L31 29" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg>';
+                card.appendChild(mark);
+
+                var say = document.createElement("p");
+                say.className = "vp-empty-say";
+                say.textContent = "«" + name + "» به‌زودی باز می‌شود.";
+                card.appendChild(say);
+
+                var ok = document.createElement("button");
+                ok.type = "button";
+                ok.className = "vp-soon-ok";
+                ok.textContent = "باشه";
+                card.appendChild(ok);
+
+                x.addEventListener("click", shut);
+                ok.addEventListener("click", shut);
+                scrim.addEventListener("click", function (event) {
+                    if (event.target === scrim) { shut(); }
+                });
+                document.addEventListener("keydown", onKey);
+
+                document.body.classList.add("vp-soon-open");
+                document.body.appendChild(scrim);
+                ok.focus();
+            }
+
+            // **Capture, not bubble.** The template's mobile-menu plugin
+            // binds `stopPropagation` to the drawer and to every div inside
+            // it, to keep a tap in the panel from reaching its
+            // close-on-outside-click handler. A listener on the document
+            // therefore never hears a tap on a drawer row: the first version
+            // of this bubbled, worked on the tiles and the listing strip, and
+            // navigated straight past the card in the drawer. Capture runs
+            // before any of that and cannot be stopped from below.
+            document.addEventListener("click", function (event) {
+                var target = event.target;
+                if (!target || !target.closest) { return; }
+
+                var link = target.closest("[data-vp-soon]");
+                if (!link) { return; }
+
+                // A modified click is somebody asking for the page in a tab
+                // of their own, and the page exists and says the same thing.
+                if (event.metaKey || event.ctrlKey || event.shiftKey || event.button) { return; }
+
+                event.preventDefault();
+                camefrom = link;
+
+                // Tapped inside the phone drawer, which is a full-screen
+                // panel: shut it with its own button rather than laying the
+                // card over it, so closing the card does not leave the
+                // visitor back in a menu they had finished with.
+                var drawer = link.closest(".th-menu-wrapper");
+                var close = drawer && drawer.querySelector(".th-menu-toggle");
+                if (close) { close.click(); }
+
+                show(link.getAttribute("data-vp-soon"));
+            }, true);
+        })();
+    </script>
+    <script>
+        (function () {
             var $ = window.jQuery;
             var wrap = document.querySelector(".sticky-wrapper");
             var header = wrap && wrap.closest(".th-header");
