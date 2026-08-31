@@ -5,11 +5,14 @@
 {{--
     «تماس با ما».
 
-    **No form.** There is no mail provider configured in this application and
-    no table to put a message in, so a contact form here would take what
-    somebody typed and drop it — which is worse than not offering one, and is
-    exactly the failure the footer's twenty-one dead links already were. When a
-    mail provider arrives, the form goes in this panel and this comment goes.
+    **No form here, and now there is one next door.** This page carried a note
+    saying a contact form would take what somebody typed and drop it, because
+    there was no mail provider and no table to put a message in. Half of that
+    is still true — there is no mail provider — but the table arrived with the
+    wholesale and franchise enquiries, and `/support` writes into it. So the
+    reason for having no form is gone; what is left is that this page is the
+    list of channels, and a form belongs on a page of its own rather than
+    underneath one. The link to it is the first thing under the list.
 
     Every channel listed is one that actually answers: the telephone and the
     address are the client's own, and the WhatsApp number is the one behind the
@@ -53,6 +56,12 @@
                     </span>
                 </li>
             </ul>
+
+            <p class="vp-doc-note">
+                ترجیح می‌دهید بنویسید؟ سؤال یا مشکلتان را در
+                <a href="{{ storefront_route('support') }}">صفحهٔ پشتیبانی</a>
+                ثبت کنید تا همکاران ما با شما تماس بگیرند.
+            </p>
 
             <h2>پیگیری سفارشی که ثبت کرده‌اید</h2>
             <p>

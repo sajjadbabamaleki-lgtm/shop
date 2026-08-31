@@ -3673,7 +3673,17 @@ if (!html.includes('vp-foot-m-head')) {
    * config/storefront.php can be given in one line.
    */
   ['<a href="course.html">Compare</a>', '<a href="faq.html">تعویض و مرجوعی</a>'],
-  ['<a href="contact.html">Help Ticket</a>', '<a href="contact.html">پشتیبانی</a>'],
+  /*
+   * «پشتیبانی» goes to the support page, not to «تماس با ما».
+   *
+   * «یه قسمتی به عنوان پشتیبانی ۲۴ ساعته تو سایت داریم ولی هیچ جای دیگه راجع
+   * به پشتیبانی … کجا باید این سوال رو مطرح بکنه … نیست» — and this link,
+   * which is the one place the footer says the word, landed on a page that
+   * printed a telephone number and said in its own comment that it had no
+   * form. `/support` is a form into the same inbox the other two enquiry
+   * pages write to.
+   */
+  ['<a href="contact.html">Help Ticket</a>', '<a href="support.html">پشتیبانی</a>'],
   /*
    * These two are matched in Persian, not English: DICT (line ~1362) has
    * already translated «My Account» and «Wishlist» by the time this list runs,

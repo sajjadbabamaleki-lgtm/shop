@@ -119,7 +119,7 @@
                                         <li><a href="{{ page_url('order-tracking.html') }}">سفارش‌های من</a></li>
                                         <li><a href="{{ page_url('cart.html') }}">سبد خرید</a></li>
                                         <li><a href="{{ page_url('faq.html') }}">تعویض و مرجوعی</a></li>
-                                        <li><a href="{{ page_url('contact.html') }}">پشتیبانی</a></li>
+                                        <li><a href="{{ page_url('support.html') }}">پشتیبانی</a></li>
                                         <li><a href="{{ page_url('wishlist.html') }}">علاقه‌مندی‌ها</a></li>
                                     </ul>
                                 </div>

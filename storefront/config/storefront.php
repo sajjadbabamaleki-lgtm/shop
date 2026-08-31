@@ -135,6 +135,14 @@ return [
          | like one.
          */
         'stepped-sale.html' => 'stepped-sale',
+
+        /*
+         | «پشتیبانی». The footer has said the word since the template arrived
+         | and pointed it at «تماس با ما», which had no way to say anything to
+         | anybody. It is a form now, into the same inbox as the other two
+         | enquiry pages.
+         */
+        'support.html' => 'support',
         'terms.html' => 'terms',
         'privacy.html' => 'privacy',
 

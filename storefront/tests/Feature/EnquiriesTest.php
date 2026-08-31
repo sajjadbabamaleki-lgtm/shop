@@ -39,17 +39,67 @@ class EnquiriesTest extends TestCase
         $this->seed([RolesAndPermissionsSeeder::class, BranchSeeder::class, CatalogueSeeder::class]);
     }
 
-    public function test_both_pages_render_with_their_form(): void
+    /**
+     * Every kind has a page and a form, read off `kinds()` rather than listed.
+     *
+     * The routes are generated from that list, so a kind added to it and not
+     * given a view is a 500 on a public URL, and a kind given a view but no
+     * form is a page that invites somebody to write and cannot take it. Both
+     * were possible while this test named its two pages by hand.
+     */
+    public function test_every_kind_has_a_page_with_its_own_form(): void
     {
-        $this->get('/wholesale')
-            ->assertOk()
-            ->assertSee('فروش عمده', false)
-            ->assertSee('/wholesale/enquiry', false);
+        foreach (array_keys(Enquiry::kinds()) as $kind) {
+            // The form's own action is what identifies the page: it is unique
+            // per kind and it is the thing that breaks silently. The label is
+            // deliberately not asserted — it is what the *panel* calls the
+            // kind, and a page is free to head itself in the customer's words
+            // («پشتیبانی» rather than «پشتیبانی و سؤال»).
+            $this->get("/{$kind}")
+                ->assertOk()
+                ->assertSee("/{$kind}/enquiry", false);
+        }
+    }
 
-        $this->get('/franchise')
+    /**
+     * A question is filed the same way an offer of business is.
+     *
+     * «کسی موردی داره و سوالی داره کجا باید این سوال رو مطرح بکنه … نیست». The
+     * `kind` column is a CHECK constraint, so this also covers the migration
+     * that widened it: without that, this insert throws rather than failing an
+     * assertion.
+     */
+    public function test_a_support_question_is_filed(): void
+    {
+        $this->post('/support/enquiry', [
+            'name' => 'مریم',
+            'phone' => '۰۹۱۲۳۴۵۶۷۸۹',
+            'city' => 'تهران',
+            'organisation' => 'VP-1234',
+            'message' => 'سفارشم نرسیده',
+        ])->assertRedirect(route('support'));
+
+        $enquiry = Enquiry::sole();
+
+        $this->assertSame(Enquiry::SUPPORT, $enquiry->kind);
+        $this->assertSame('پشتیبانی و سؤال', $enquiry->kindLabel());
+        $this->assertSame('سفارشم نرسیده', $enquiry->message);
+    }
+
+    /**
+     * The two places that promised support now lead to it.
+     *
+     * The footer said the word and pointed at «تماس با ما», which printed a
+     * telephone number and said in its own comment that it had no form.
+     */
+    public function test_the_footer_and_the_contact_page_lead_to_support(): void
+    {
+        $this->get('/contact')
             ->assertOk()
-            ->assertSee('اخذ نمایندگی', false)
-            ->assertSee('/franchise/enquiry', false);
+            ->assertSee(storefront_route('support'), false);
+
+        // The footer is on every page; the home page is the cheapest to read.
+        $this->get('/')->assertOk()->assertSee(storefront_route('support'), false);
     }
 
     public function test_a_wholesale_enquiry_is_filed_with_a_folded_phone_number(): void
