@@ -18682,12 +18682,54 @@ button.vp-cart-keep {
   margin-bottom: 18px;
 }
 
+/* --------------------------------------------------------------------------
+   The leading on these pages, measured rather than felt.
+
+   «دیزاین این صفحه چرا اینقد تخمیه», photographed on `/wholesale` on a phone.
+   The text is not misaligned — every line's right edge measures flush on 372
+   of a 390 screen — and that is worth writing down, because "it looks
+   centred" is what loose leading does to right-aligned Persian: the lines
+   stop reading as a block and the ragged left edge becomes the only shape the
+   eye can find.
+
+   What it actually was: **15px type on 33px of line box, a ratio of 2.2** —
+   the loosest setting anywhere on this site by a distance. For comparison, on
+   surfaces the client has already approved:
+
+     the product page's description card   13px / 26px   2.0
+     the home page's card names            12px / 19.2   1.6
+     the trust row's second line           11.5 / 18.7   1.63
+     these pages                           15px / 33px   2.2
+
+   1.9 is the number here. Persian needs more leading than Latin — the
+   descenders and the ی are why the approved card sits at 2.0 rather than 1.5
+   — but 2.2 is a display setting being used for body copy, and 18px of air
+   between two lines of a paragraph is more than the space between two
+   paragraphs used to be.
+
+   Measured after, on `/wholesale` at 390: the opening paragraph 99px tall
+   where it was 115, and the whole page 2,847 -> 2,522.
+   -------------------------------------------------------------------------- */
+
 /* The opening paragraph, a step up from the body and a step down from the
-   title — the same relationship `.vp-shop-count` has to its heading. */
-.vp-doc-lead {
+   title — the same relationship `.vp-shop-count` has to its heading.
+
+   **Selected as `.vp-doc p.vp-doc-lead`, and that is not decoration.** It was
+   `.vp-doc-lead`, one class, specificity (0,1,0) — and `.vp-doc p` below is
+   (0,1,1), so the *generic* paragraph rule won and the lead has been rendering
+   at the body's 15px since it was written, at every width. There was a
+   `font-size: 15px` for it in the phone's media query as well, which lost to
+   the same rule and so never did anything either.
+
+   Nothing was ever going to notice this. The declaration is present, the class
+   is on the element, the page renders, and the only symptom is that the first
+   paragraph of all seven content pages looks exactly like the rest — which is
+   what «دیزاین این صفحه چرا اینقد تخمیه» was about as much as the leading was.
+   Measured after: 16px against the body's 15. */
+.vp-doc p.vp-doc-lead {
   margin: 0 0 28px;
   font-size: 16px;
-  line-height: 2.1;
+  line-height: 1.9;
 }
 
 .vp-doc h2 {
@@ -18701,7 +18743,7 @@ button.vp-cart-keep {
 .vp-doc p {
   margin: 0 0 14px;
   font-size: 15px;
-  line-height: 2.2;
+  line-height: 1.9;
 }
 
 .vp-doc a:not(.vp-doc-link):not(.vp-logo) {
@@ -18720,7 +18762,7 @@ button.vp-cart-keep {
   margin: 0 0 16px;
   padding-inline-start: 22px;
   font-size: 15px;
-  line-height: 2.2;
+  line-height: 1.9;
 }
 
 .vp-doc-list li,
@@ -18729,9 +18771,18 @@ button.vp-cart-keep {
 }
 
 /* A step of the measuring instructions, numbered by the list itself so the
-   numbers cannot fall out of step with the steps. */
+   numbers cannot fall out of step with the steps.
+
+   **The numerals are Persian.** They were the browser's default — `1. 2. 3.`
+   — on a shop where every other number on every page goes through
+   `fa_number()`, so a numbered list was the one place Latin digits appeared
+   in Persian prose. `list-style-type: persian` is the CSS counter style for
+   ۱ ۲ ۳; verified rendering in Chromium, and an engine that does not know it
+   falls back to `decimal`, which is exactly what was there before, so this
+   cannot be worse anywhere. */
 .vp-doc-steps {
   padding-inline-start: 20px;
+  list-style-type: persian;
 }
 
 .vp-doc-steps::marker {
@@ -18748,7 +18799,7 @@ button.vp-cart-keep {
   border-radius: 18px;
   background: rgba(16, 17, 17, 0.04);
   font-size: 14px;
-  line-height: 2.1;
+  line-height: 1.85;
 }
 
 .vp-doc-note {
@@ -19089,11 +19140,26 @@ button.vp-cart-keep {
   .vp-doc {
     padding: 22px 18px;
     border-radius: 32px;
+
+    /* **Give the panel its side margins back.** «نباید حاشیه کارت به بغل
+       چسبیده باشه» — the card ran the full 390 of the screen, corners and
+       all, while every other card on the site stands off the edge: the
+       header island by 10, the product page's two cards by 14, the basket's
+       panel by 14. And the basket's panel is *this same class* —
+       `.vp-shop-panel` sets `margin-inline: 14px` on a phone.
+
+       What cancelled it is one declaration above: `.vp-doc` sets
+       `margin-inline: auto`, which centres its 820px column on a desktop and
+       is right there. Same specificity, later in the file, so it won here too
+       — and `auto` inside a container whose padding is zeroed on the phone
+       resolves to nothing. The content pages have been the only full-bleed
+       cards in the shop ever since.
+
+       14 rather than a new number: it is what the panel already asks for and
+       what the product page was measured to. */
+    margin-inline: 14px;
   }
 
-  .vp-doc-lead {
-    font-size: 15px;
-  }
 
   .vp-doc-links .vp-doc-link {
     flex: 1 1 100%;

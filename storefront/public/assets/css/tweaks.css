@@ -10071,10 +10071,10 @@ button.vp-cart-keep {
   margin-bottom: 18px;
 }
 
-.vp-doc-lead {
+.vp-doc p.vp-doc-lead {
   margin: 0 0 28px;
   font-size: 16px;
-  line-height: 2.1;
+  line-height: 1.9;
 }
 
 .vp-doc h2 {
@@ -10088,7 +10088,7 @@ button.vp-cart-keep {
 .vp-doc p {
   margin: 0 0 14px;
   font-size: 15px;
-  line-height: 2.2;
+  line-height: 1.9;
 }
 
 .vp-doc a:not(.vp-doc-link):not(.vp-logo) {
@@ -10107,7 +10107,7 @@ button.vp-cart-keep {
   margin: 0 0 16px;
   padding-inline-start: 22px;
   font-size: 15px;
-  line-height: 2.2;
+  line-height: 1.9;
 }
 
 .vp-doc-list li,
@@ -10117,6 +10117,7 @@ button.vp-cart-keep {
 
 .vp-doc-steps {
   padding-inline-start: 20px;
+  list-style-type: persian;
 }
 
 .vp-doc-steps::marker {
@@ -10130,7 +10131,7 @@ button.vp-cart-keep {
   border-radius: 18px;
   background: rgba(16, 17, 17, 0.04);
   font-size: 14px;
-  line-height: 2.1;
+  line-height: 1.85;
 }
 
 .vp-doc-note {
@@ -10421,10 +10422,8 @@ button.vp-cart-keep {
   .vp-doc {
     padding: 22px 18px;
     border-radius: 32px;
-  }
 
-  .vp-doc-lead {
-    font-size: 15px;
+    margin-inline: 14px;
   }
 
   .vp-doc-links .vp-doc-link {

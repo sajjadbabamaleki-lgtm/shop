@@ -45,17 +45,44 @@ async function shoot(browser, url, width, file) {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto(url, { waitUntil: 'networkidle' });
   await page.evaluate(() => {
-    // The hero deck autoplays: two loads land on different slides unless it
-    // is pinned.
-    const deck = document.querySelector('#heroSlide6');
-    if (deck && deck.swiper) {
-      if (deck.swiper.autoplay) deck.swiper.autoplay.stop();
-      deck.swiper.slideTo(1, 0);
-    }
+    // **Every swiper, not only the hero.** The hero deck autoplays, so it was
+    // pinned from the start; the stories, the brand row and the best-sellers
+    // band are sliders too, and they settle where they settle. That was worth
+    // about 6,800 pixels — 0.09% — on the 1440 shot roughly one run in four,
+    // always in the best-sellers band at row ~1970, and it was indistinguish-
+    // able from a real regression except by re-running until it went away.
+    // A check whose answer is "zero, usually" is not a check.
+    //
+    // `initialSlide` rather than 1, because that is each deck's own opening
+    // slide; the hero's is the one carrying the real photograph.
+    document.querySelectorAll('.swiper').forEach((el) => {
+      if (!el.swiper) return;
+      if (el.swiper.autoplay) el.swiper.autoplay.stop();
+      el.swiper.slideTo(el.swiper.params.initialSlide || 0, 0);
+    });
     // Only what has been scrolled past is revealed; show everything so the
     // whole page is in its settled state.
     document.querySelectorAll('.vp-enter').forEach((el) => el.classList.add('vp-entered'));
   });
+
+  // The pictures themselves, bounded: a photograph that has not decoded is
+  // the other half of the same flake. The one address on this page that is
+  // not ours is the eNamad seal, which this container cannot reach and whose
+  // request hangs rather than failing, so every wait here has a ceiling.
+  await page.evaluate(() => {
+    const capped = (p) => Promise.race([p, new Promise((done) => setTimeout(done, 4000))]);
+
+    return Promise.all([
+      capped(document.fonts ? document.fonts.ready : Promise.resolve()),
+      ...[...document.images].map((img) => (img.complete
+        ? Promise.resolve()
+        : capped(new Promise((done) => {
+          img.addEventListener('load', done);
+          img.addEventListener('error', done);
+        })))),
+    ]);
+  });
+
   await page.waitForTimeout(1500);
   await page.screenshot({ path: file, fullPage: true, animations: 'disabled' });
   await page.close();

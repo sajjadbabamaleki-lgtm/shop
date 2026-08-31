@@ -199,8 +199,28 @@ return [
         'address' => 'تهران، سعدی شمالی، روبه‌روی بانک ملی، پلاک ۵۶۵',
         'phone' => '021-3398-3125',
         'phone_href' => 'tel:02133983125',
-        'whatsapp' => '۰۹۹۱۸۹۰۵۹۹۳',
-        'whatsapp_href' => 'https://wa.me/989918905993',
+        /*
+         | WhatsApp, which is the shop's support channel — the floating button
+         | on every page dials it. The client gave this number for it by name:
+         | «۰۹۳۶۶۶۵۹۲۲۴ این شماره هم در پشتیبانی واتسپ». It replaces
+         | ۰۹۹۱۸۹۰۵۹۹۳, which was the number before; if both were meant to
+         | answer, the second one comes back here as its own pair.
+         */
+        'whatsapp' => '۰۹۳۶۶۶۵۹۲۲۴',
+        'whatsapp_href' => 'https://wa.me/989366659224',
+
+        /*
+         | Wholesale is a person, not the shop's switchboard.
+         |
+         | «در قسمت فروش عمده حتماً شماره تلفن آقا محمدرضا ذکر بشه», and the
+         | number and surname came separately: «۰۹۱۲۳۵۴۴۴۳۵ میرهاشمی». Only
+         | the surname was given with the number, so only the surname is
+         | printed — a first name guessed onto a real person's page is worse
+         | than a short one.
+         */
+        'wholesale_name' => 'آقای میرهاشمی',
+        'wholesale_phone' => '۰۹۱۲۳۵۴۴۴۳۵',
+        'wholesale_phone_href' => 'tel:09123544435',
 
         /*
          | When somebody answers.

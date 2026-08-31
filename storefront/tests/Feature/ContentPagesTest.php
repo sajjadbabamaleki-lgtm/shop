@@ -189,6 +189,22 @@ class ContentPagesTest extends TestCase
     }
 
     /**
+     * The wholesale page names the person to ring.
+     *
+     * «در قسمت فروش عمده حتماً شماره تلفن آقا محمدرضا ذکر بشه». Somebody
+     * buying in bulk wants a person, and the page offered a form and the
+     * shop's switchboard. Read from config so it cannot drift from the other
+     * places the shop prints a number.
+     */
+    public function test_the_wholesale_page_names_who_to_ring(): void
+    {
+        $this->get('/wholesale')->assertOk()
+            ->assertSee((string) config('storefront.contact.wholesale_name'), false)
+            ->assertSee((string) config('storefront.contact.wholesale_phone'), false)
+            ->assertSee((string) config('storefront.contact.wholesale_phone_href'), false);
+    }
+
+    /**
      * The six commitments are on «درباره ما», in the client's own words.
      *
      * «تعهدات ما در جایی در صفحه باشه … قسمتی به عنوان تعهدات ما در نظر گرفته

@@ -21,11 +21,22 @@ use Tests\TestCase;
  * `check-parity.js` cannot catch it either. It compares pixels, and two
  * buttons with different `href`s are the same picture.
  *
- * The number lives in `theme/make-rtl-page.js`, which writes it into the
- * generated preview page; `theme/make-blade.js` then ports that page into
- * `partials/whatsapp.blade.php`. One line, two files downstream — so what
- * these assert is that the number is right and that the two copies still say
- * the same thing.
+ * The number lives in `WHATSAPP_NUMBER` in `theme/make-rtl-page.js`, which
+ * writes it into the generated preview page; `theme/make-blade.js` then ports
+ * that page into `partials/whatsapp.blade.php` and the footer. One line,
+ * several files downstream — so what these assert is that the number is right
+ * and that every copy still says the same thing.
+ *
+ * **There is a second copy that the generator cannot reach.** `/contact` and
+ * `/support` are PHP and read `storefront.contact.whatsapp_href`; the preview
+ * page is static HTML and cannot read config at all. So the number is written
+ * twice by necessity, and the last two tests here are what keep the two
+ * halves in step.
+ *
+ * It has already gone wrong once in the other direction: the generator's own
+ * comment claimed the number lived in one place while it was in fact typed out
+ * in five separate literals in that file, so changing the one you found left
+ * the other four dialling the old number.
  */
 class WhatsAppButtonTest extends TestCase
 {
@@ -48,7 +59,7 @@ class WhatsAppButtonTest extends TestCase
      * here alone. Editing only the test makes it agree with whatever the page
      * says, which is the one thing it exists not to do.
      */
-    private const NUMBER = '989918905993';
+    private const NUMBER = '989366659224';
 
     public function test_the_button_is_on_the_page_and_points_at_the_shops_number(): void
     {
@@ -164,5 +175,57 @@ class WhatsAppButtonTest extends TestCase
         if (is_file($preview)) {
             $this->assertStringNotContainsString('class="scroll-top"', file_get_contents($preview));
         }
+    }
+
+    /**
+     * The copy the PHP pages read says the same thing as the generated one.
+     *
+     * `/contact` and `/support` print `storefront.contact.whatsapp_href`, and
+     * nothing else compares it to the button's. Two numbers that disagree is a
+     * shop whose support button and support page ring different telephones.
+     */
+    public function test_the_config_copy_dials_the_same_number(): void
+    {
+        $this->assertSame(
+            'https://wa.me/'.self::NUMBER,
+            (string) config('storefront.contact.whatsapp_href'),
+            'storefront.contact.whatsapp_href and the generated button disagree. '.
+            'Both are meant to be the shop\'s one WhatsApp number.'
+        );
+    }
+
+    /**
+     * And no page anywhere carries a third number.
+     *
+     * Read off what renders rather than the source: a hardcoded link in a
+     * hand-owned partial is exactly the failure this is for, and grepping the
+     * files would miss one built in a Blade expression.
+     */
+    public function test_no_page_dials_any_other_number(): void
+    {
+        $wrong = [];
+        $seen = 0;
+
+        foreach (['/', '/products', '/faq', '/contact', '/support', '/wholesale', '/cart'] as $path) {
+            preg_match_all(
+                '~https://wa\.me/[0-9]+~',
+                $this->get($path)->assertOk()->getContent(),
+                $found
+            );
+
+            foreach ($found[0] as $link) {
+                $seen++;
+
+                if ($link !== 'https://wa.me/'.self::NUMBER) {
+                    $wrong[] = "{$path} dials {$link}";
+                }
+            }
+        }
+
+        $this->assertGreaterThan(0, $seen, 'No WhatsApp link on any page — the button has gone.');
+
+        $this->assertSame([], $wrong, "These dial something other than the shop's number:\n  ".
+            implode("\n  ", $wrong)."\nRe-run:\n".
+            '  node theme/make-rtl-page.js && node theme/make-blade.js && node theme/sync-storefront-assets.js');
     }
 }

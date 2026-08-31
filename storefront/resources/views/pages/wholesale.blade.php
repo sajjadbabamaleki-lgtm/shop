@@ -54,10 +54,33 @@
                 که فاکتور می‌شود.
             </p>
 
-            <p class="vp-doc-note">
+            {{-- A plain paragraph and not a second `.vp-doc-note`.
+
+                 It was one, and the page then had two gold slabs back to
+                 back — «دیزاین این صفحه چرا اینقد تخمیه» was photographed
+                 with both of them filling the middle of the screen. The tint
+                 is the page's way of saying "this one is an aside"; two of
+                 them in a row says it about nothing. The emphasis the client
+                 asked for — «تاکید بشه» — is the <strong>, which survives. --}}
+            <p>
                 <strong>مراجعهٔ حضوری تنها برای خرید عمده انجام می‌شود</strong>
                 و برای خرید تکی امکان مراجعهٔ حضوری وجود ندارد. زمان مراجعه در
                 همان تماس هماهنگ می‌شود.
+            </p>
+
+            {{-- «در قسمت فروش عمده حتماً شماره تلفن آقا محمدرضا ذکر بشه».
+
+                 Before the form and not after it: somebody buying in bulk
+                 wants to talk to a person, and making them fill in a form to
+                 find that out is the long way round. Both come from
+                 `storefront.contact` so the number cannot drift from the one
+                 the footer and «تماس با ما» print. --}}
+            <h2>تماس مستقیم برای خرید عمده</h2>
+            <p>
+                برای هماهنگی خرید عمده می‌توانید مستقیماً با
+                <strong>{{ config('storefront.contact.wholesale_name') }}</strong>
+                تماس بگیرید:
+                <a href="{{ config('storefront.contact.wholesale_phone_href') }}">{{ config('storefront.contact.wholesale_phone') }}</a>
             </p>
 
             <h2>درخواست قیمت عمده</h2>

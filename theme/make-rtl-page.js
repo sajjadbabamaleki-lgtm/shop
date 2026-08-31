@@ -125,13 +125,24 @@ html = html.replace(PRELOADER, '');
 // button takes its corner — «بجای این», not beside it, which was asked and
 // answered before this was written.
 //
-// **The number lives here and nowhere else.** It is written into the generated
-// page, which `theme/make-blade.js` then ports into the Blade partial, so both
-// copies of the site carry one number from one line. The alternative — reading
-// it from `config/storefront.php` — would make the Blade hand-owned and let
-// the two pages drift, and the footer's landline is already hardcoded the same
-// way. `wa.me` wants the international form with no plus and no leading zero:
-// 09918905993 becomes 989918905993.
+// **The number lives in `WHATSAPP_NUMBER` below and nowhere else in this
+// file.** It is written into the generated page, which `theme/make-blade.js`
+// then ports into the Blade partials, so both copies of the site carry one
+// number from one line. Reading it from `config/storefront.php` instead is not
+// open to us: the preview page is static HTML with no PHP in it.
+//
+// That comment used to be here and was not true — the number was typed out in
+// five separate literals in this file, and a sixth lives in
+// `config/storefront.php` for the pages that *are* PHP. When the client
+// changed it («۰۹۳۶۶۶۵۹۲۲۴ این شماره هم در پشتیبانی واتسپ») five of the six
+// would have been missed by anybody searching for the one they had found.
+// `WhatsAppNumberTest` is what makes the two remaining copies agree: it reads
+// every wa.me link off the rendered pages and fails if any of them is not the
+// config's.
+//
+// `wa.me` wants the international form with no plus and no leading zero:
+// 09366659224 becomes 989366659224.
+const WHATSAPP_NUMBER = '989366659224';
 //
 // The arrow's SVG goes with the ring. It was a scroll *progress* indicator —
 // the path's dash offset was written every frame from the page's scroll — so
@@ -151,7 +162,7 @@ if (!SCROLL_TOP.test(html)) {
 }
 const WHATSAPP = [
   '    <!-- WhatsApp -->',
-  '    <a class="vp-whatsapp" href="https://wa.me/989918905993" target="_blank" rel="noopener"',
+  `    <a class="vp-whatsapp" href="https://wa.me/${WHATSAPP_NUMBER}" target="_blank" rel="noopener"`,
   '       aria-label="گفتگو در واتساپ">',
   '        <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>',
   '    </a>',
@@ -2045,7 +2056,7 @@ const FAQ_HTML =
         اگر جواب سؤالتان این‌جا نبود، با
         <a href="tel:02133983125">021-3398-3125</a>
         تماس بگیرید یا در
-        <a href="https://wa.me/989918905993" target="_blank" rel="noopener">واتساپ</a>
+        <a href="https://wa.me/${WHATSAPP_NUMBER}" target="_blank" rel="noopener">واتساپ</a>
         بپرسید.
     </p>
 
@@ -3504,7 +3515,7 @@ const FOOT_SOCIAL = [
   // are the mark's edges and centring the image centres the mark everywhere.
   ['instagram', 'Instagram', '#', '<img class="vp-foot-m-soc-mark" src="assets/img/social/instagram.svg" alt="" width="24" height="24">'],
   ['telegram', 'تلگرام', '#', '<img class="vp-foot-m-soc-mark" src="assets/img/social/telegram.svg" alt="" width="26" height="26">'],
-  ['whatsapp', 'واتساپ', 'https://wa.me/989918905993', '<img class="vp-foot-m-soc-mark" src="assets/img/social/whatsapp.svg" alt="" width="24" height="24">'],
+  ['whatsapp', 'واتساپ', `https://wa.me/${WHATSAPP_NUMBER}`, '<img class="vp-foot-m-soc-mark" src="assets/img/social/whatsapp.svg" alt="" width="24" height="24">'],
   // The client sent these two as photographs of the logos; `make-social-marks.js`
   // lifts them off their grey ground and writes the two files below. They were
   // a chat bubble and the letter R until then — see the note beside
@@ -3758,7 +3769,7 @@ if (!html.includes('vp-foot-m-head')) {
   ['<a href="https://www.facebook.com/"><i class="fab fa-facebook-f"></i></a>\n                                        ', ''],
   ['<a href="https://www.twitter.com/"><i class="fab fa-twitter"></i></a>\n                                        ', ''],
   ['<a href="https://www.linkedin.com/"><i class="fab fa-linkedin-in"></i></a>\n                                        ', ''],
-  ['<a href="https://www.whatsapp.com/">', '<a href="https://wa.me/989918905993" target="_blank" rel="noopener" aria-label="واتساپ">'],
+  ['<a href="https://www.whatsapp.com/">', `<a href="https://wa.me/${WHATSAPP_NUMBER}" target="_blank" rel="noopener" aria-label="واتساپ">`],
 ].forEach(([from, to]) => {
   if (!html.includes(from)) {
     throw new Error(`the footer no longer contains ${from.slice(0, 40)} — check before assuming it is gone`);
