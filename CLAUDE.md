@@ -543,6 +543,33 @@ the client saw an old page and had no way to tell why. So, plainly:
   into the basket, and applies to the branch's own lines only — never to a
   vendor's price. Whether it applies is recomputed on every page and again
   inside the order transaction; nothing about it is stored on the basket.
+- **The stepped sale has no end date, and it must not get one by default.**
+  «بازه حراج پله ای نباید اوتومات بسته بشه باید همچیزش دستی باشه». `CatalogueSeeder`
+  used to open the window `now()->subWeek()` to `now()->addWeeks(3)`; four weeks
+  after the shop went up it closed on its own, and since `hasActivePromotion()`
+  counts a discount only inside its window, **every offer stopped being a
+  promotion in the same minute**. The front page reads «everything discounted»
+  for its sale bands, so three of them emptied together and the client
+  photographed a home page that went header → category tiles → trust badges:
+  «چرا هیروهای سایت حذف شدن؟؟؟!!!». **Nothing had been deleted, no deploy caused
+  it, and nothing could go red** — every test seeds its catalogue seconds before
+  it renders, so the window is always open in a test. It is a clock, not a code
+  path. Both window columns are null now (`scopePromoted()` and
+  `hasActivePromotion()` read a column only when it is set, so null is "no
+  bound"), the seeder builds none, and
+  `stop_the_stepped_sale_closing_itself` cleared the ones already in
+  production. A timed campaign is still possible — a date set by hand is still
+  obeyed — it is simply not what the shop gets without asking.
+  `SteppedSaleIsManualTest` moves the clock a year forward, which is the one
+  thing the rest of the suite cannot do.
+- **A band that does not print a discount must not be built from one.** The same
+  incident: the hero was handed the discounted subset and vanished with it,
+  though it prints no price at all — it is three products the shop chose. It
+  reads `catalogue()` now; `onSale()` is the subset, and only the two bands that
+  write `compare_at_price` into the page may read it (the stepped sale's cards
+  and the daily deal — `compare_at_price` is null when nothing is on offer, so
+  handing them everything would print a zero in large type rather than fill the
+  page). `HeroOutlivesTheSaleTest` holds the line.
 - **A section that is «به‌زودی» looks exactly like one that is open.** Four of
   the eight — «بوت و نیم‌بوت», «ست کیف و کفش», «اکسسوری», «ست ورزشی» — hold no
   products, and `categories.coming_soon` is the flag. **It changes nothing that

@@ -4317,3 +4317,79 @@ absence of anything visible on the tiles, the section's own page, the filter
 rail, and that the static preview marks the same four — nothing else can see
 that last one, because `check-parity.js` compares a page where a closed section
 is identical to an open one by design.
+
+## The day the front page emptied itself
+
+«چرا هیروهای سایت حذف شدن؟؟؟!!!» — a photograph of vikyplus.ir on a phone
+showing the header, the row of category tiles, and then the trust badges. Where
+the hero card had been there was nothing at all.
+
+### It was a clock
+
+`CatalogueSeeder` opened the stepped sale's window at `now()->subWeek()` and
+closed it at `now()->addWeeks(3)` — four weeks from whenever the catalogue was
+seeded. Production was seeded weeks ago. The window ran out.
+
+`BranchOffer::hasActivePromotion()` counts a discount only inside its window, so
+at that moment every offer in the shop stopped being a promotion. And the front
+page was built from one collection — «every purchasable product that is
+currently discounted» — handed to four of its bands. Three of them emptied in
+the same request:
+
+| band | before | after |
+| --- | --- | --- |
+| hero | 6 slides, 450px at 390 | 0 slides, **14px** |
+| stepped sale's cards | 6 | 0 |
+| best sellers | 6 | 0 |
+| daily deal | present | gone |
+
+Reproduced exactly, by expiring the window on a local copy and rendering at 390:
+the screenshot matches the client's photograph band for band.
+
+**Nothing had been deleted. No deploy caused it.** The run that happened to be
+closest in time only changed category flags. And nothing anywhere could have
+gone red: every test in this suite seeds its own catalogue seconds before it
+renders a page, so the window is always open in a test. The failure lived
+entirely in the gap between when a database was seeded and when somebody looked
+at the site — the one interval no test spans.
+
+### Two fixes, and they are different fixes
+
+**The sale no longer ends by itself.** «بازه حراج پله ای نباید اوتومات بسته بشه
+باید همچیزش دستی باشه». Both window columns are null now. Null is already read
+as "no bound in that direction" by `scopePromoted()` and `hasActivePromotion()`,
+which test a column only when it is set — so the campaign runs until a person
+ends it, which is what was asked. The columns stay and a date set by hand is
+still obeyed; a timed campaign is simply no longer what the shop gets by
+default. `stop_the_stepped_sale_closing_itself` clears the dates on every
+discounted offer **in every branch** — `BranchOpener` copies the window to a
+franchise when it opens, so clearing only the central one would have left the
+franchises going dark on their own schedule. No price is touched: `price` is
+what a customer is charged and `compare_at_price` is the struck-through figure,
+and neither is in the statement. What comes back is the sale's visibility.
+
+**And a band that prints no discount is no longer built from one.** That is the
+deeper half. The hero is three products the shop chose, with a line of copy over
+each and no price anywhere on it — there was never a reason for it to know
+whether they were discounted. `HomeController::catalogue()` is the whole
+catalogue now and `onSale()` is the subset; only the two bands that write
+`compare_at_price` into the page read the subset, because that column is null
+when nothing is on offer and handing them everything would print a zero in large
+type rather than fill the page.
+
+So even if every campaign in the shop ends tonight, the page keeps its hero, its
+category tiles, its trust row, its brands and its footer, and the sale bands go
+quiet — which is the difference between a shop between campaigns and a shop that
+looks broken.
+
+### What holds it
+
+- `HeroOutlivesTheSaleTest` closes every campaign and asserts the hero is still
+  six slides, that the three price-printing bands go quiet rather than print a
+  zero, and that a running campaign still fills all of them.
+- `SteppedSaleIsManualTest` asserts a seeded sale carries no window, moves the
+  clock a **year** forward and asserts the front page is still whole, and
+  asserts that a window set by hand is still obeyed.
+
+The second of those is the test this incident was missing. If a future change
+puts a countdown back into the seeder, it fails.

@@ -29,15 +29,21 @@ class HomeController extends Controller
     public function __invoke(): View
     {
         $categories = $this->categories();
-        $products = $this->saleProducts();
+        $catalogue = $this->catalogue();
+        $onSale = $this->onSale($catalogue);
 
         return view('home', [
             'categories' => $categories,
-            'heroSlides' => $this->heroSlides($products),
+            // The hero is the shop's own choice of three products and prints no
+            // price at all, so it reads the catalogue. It used to read the
+            // discounted subset, and vanished the day the campaign's window
+            // closed — see catalogue() for what that looked like.
+            'heroSlides' => $this->heroSlides($catalogue),
             'ladder' => $this->ladder(),
-            'ladderDeals' => $this->ladderDeals($products),
-            'bestSellers' => $this->bestSellers($categories, $products),
-            'dailyDeal' => $this->dailyDeal($products),
+            // These two draw a struck-through price, so they need a real one.
+            'ladderDeals' => $this->ladderDeals($onSale),
+            'bestSellers' => $this->bestSellers($categories, $onSale),
+            'dailyDeal' => $this->dailyDeal($onSale),
             'brands' => $this->brands($categories),
         ]);
     }
@@ -82,12 +88,28 @@ class HomeController extends Controller
     }
 
     /**
-     * Everything in the stepped sale, newest first — which is the order the
-     * row of deal cards reads in.
+     * Everything this branch can sell, newest first.
+     *
+     * **This used to return only what was discounted, and that emptied the
+     * front page.** The stepped sale is seeded with a four-week window; four
+     * weeks after the shop went up the window closed, and because the hero,
+     * the best-sellers band and the sale's own cards were all handed this one
+     * collection, all three went at once. The client's phone showed a header,
+     * the category tiles and then nothing — «چرا هیروهای سایت حذف شدن؟؟؟!!!».
+     *
+     * Nothing had been deleted and nothing went red: every test seeds its own
+     * catalogue moments before it runs, so the window is always open in a test
+     * and this failure cannot happen there. It is a clock, not a code path.
+     *
+     * So the split is here now. The whole catalogue is what the page is built
+     * from, and `$onSale` below is the subset that may draw a struck-through
+     * price. A band that advertises a discount asks for the subset; a band
+     * that is simply the shop's own choice of product does not, and can no
+     * longer be emptied by a campaign ending.
      *
      * @return Collection<string, Product>
      */
-    private function saleProducts(): Collection
+    private function catalogue(): Collection
     {
         /*
          | **Nothing on this page is cached, and that is what the measurements
@@ -128,8 +150,24 @@ class HomeController extends Controller
             ])
             ->orderByDesc('published_at')
             ->get()
-            ->filter(fn (Product $product) => $product->offerHere()?->hasActivePromotion())
             ->keyBy('slug');
+    }
+
+    /**
+     * The subset of the catalogue that is actually discounted right now.
+     *
+     * Only the bands that print a struck-through price may read this, and both
+     * of them do print one: the stepped sale's cards and the daily deal both
+     * write `compare_at_price`, which is null when nothing is on offer. Handing
+     * them the whole catalogue would not fill the page, it would put a zero in
+     * large type on it.
+     *
+     * @param  Collection<string, Product>  $catalogue
+     * @return Collection<string, Product>
+     */
+    private function onSale(Collection $catalogue): Collection
+    {
+        return $catalogue->filter(fn (Product $product) => $product->offerHere()?->hasActivePromotion());
     }
 
     /**

@@ -227,11 +227,25 @@ class CatalogueSeeder extends Seeder
         $ladder = config('storefront.ladder');
         $cut = $ladder['steps'][$ladder['live'] - 1]['cut'];
 
-        // The sale is running: a week in, three to go. Variant::hasActivePromotion()
-        // only counts a discount inside its window, so without this the cards
-        // would show no cut at all.
-        $startedAt = now()->subWeek();
-        $endsAt = now()->addWeeks(3);
+        // **The sale has no window, and that is the instruction.**
+        //
+        // «بازه حراج پله ای نباید اوتومات بسته بشه باید همچیزش دستی باشه».
+        //
+        // These two were `now()->subWeek()` and `now()->addWeeks(3)` — a
+        // four-week countdown starting whenever the catalogue happened to be
+        // seeded. Four weeks after the shop went up it ran out, every offer
+        // stopped counting as a promotion in the same minute, and the three
+        // front-page bands built from «everything discounted» emptied together.
+        // Nothing went red, and nothing could: a test seeds its catalogue
+        // seconds before it renders, so the window is always open in one.
+        //
+        // Null means "no bound in that direction" to both `scopePromoted()` and
+        // `hasActivePromotion()`, which read a column only when it is set. So
+        // the sale runs until a person ends it. See
+        // `stop_the_stepped_sale_closing_itself` for the databases that already
+        // exist — this only describes a fresh install.
+        $startedAt = null;
+        $endsAt = null;
 
         foreach (self::PRODUCTS as $i => $spec) {
             $was = $spec['was'] * 10;              // the page writes Toman, the column holds Rial
