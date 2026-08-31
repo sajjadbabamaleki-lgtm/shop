@@ -56,7 +56,6 @@ class CatalogueSeeder extends Seeder
         ['boot', 'بوت و نیم‌بوت'],
         ['bag-set', 'ست کیف و کفش'],
         ['accessory', 'اکسسوری'],
-        ['sport-set', 'ست ورزشی'],
     ];
 
     /**

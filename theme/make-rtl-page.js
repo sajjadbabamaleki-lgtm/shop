@@ -634,7 +634,6 @@ const CATEGORIES = [
   ['boot', 'بوت و نیم‌بوت'],
   ['bag-set', 'ست کیف و کفش'],
   ['accessory', 'اکسسوری'],
-  ['sport-set', 'ست ورزشی'],
 ];
 
 // The mark beside a category in the phone drawer. The same map as
@@ -654,7 +653,6 @@ const CATEGORY_ICONS = {
   'boot': 'vp-cat-boot.svg',
   'bag-set': 'vp-cat-bagset.svg',
   'accessory': 'vp-cat-watch.svg',
-  'sport-set': 'vp-cat-sport.svg',
 };
 
 // The name is real text on the tile, so it is also the link's own name and
