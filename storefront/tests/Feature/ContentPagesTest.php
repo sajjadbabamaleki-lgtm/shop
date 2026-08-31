@@ -150,6 +150,60 @@ class ContentPagesTest extends TestCase
     }
 
     /**
+     * The rules the client stated are on the page, and they come from config.
+     *
+     * These are the shop's own promises about delivery, returns and who may
+     * walk in — «مرجوعی فقط در مورد تعویض سایز داریم … هزینه مرجوعی است با
+     * مشتری … ظرف مدت ۳ روز», «کالا بعد از سفارش ظرف مدت سه روز ارسال می‌شه»
+     * and «فروش حضوری فقط بابت فروش عمده هست». A promise the page stops making
+     * is a promise the shop is quietly no longer keeping, and a number typed
+     * into the prose instead of read from config is one that drifts away from
+     * the other page printing it.
+     */
+    public function test_the_delivery_and_returns_rules_are_stated_and_come_from_config(): void
+    {
+        $terms = $this->get('/terms')->assertOk();
+
+        foreach ([
+            'content.dispatch_days' => 'the days before an order is sent',
+            'content.delivery_days_min' => 'the shortest the carrier takes',
+            'content.delivery_days_max' => 'the longest the carrier takes',
+            'content.exchange_days' => 'the window for asking to exchange a size',
+        ] as $key => $what) {
+            $terms->assertSee(fa_number((int) config('storefront.'.$key)), false);
+        }
+
+        // Returns are an exchange and nothing else, and the customer pays to
+        // send it back. Both were asked for in those words.
+        $terms->assertSee('تنها برای تعویض سایز', false);
+        $terms->assertSee('بر عهدهٔ مشتری', false);
+
+        // And the money goes back where it came from.
+        $terms->assertSee('همان کارتی', false);
+
+        // The FAQ answers the exchange question the same way the terms do.
+        $this->get('/faq')->assertOk()
+            ->assertSee('تنها برای تعویض سایز', false)
+            ->assertSee(fa_number((int) config('storefront.content.exchange_days')), false);
+    }
+
+    /**
+     * Nowhere invites a retail customer to walk in.
+     *
+     * «در فروش تکی اصلاً مورد حضوری نداریم» — and «درباره ما» used to say the
+     * opposite in as many words, inviting people to come and try shoes on.
+     */
+    public function test_in_person_shopping_is_offered_to_wholesale_and_to_nobody_else(): void
+    {
+        $this->get('/about')->assertOk()
+            ->assertSee('تنها برای خرید عمده', false)
+            ->assertDontSee('پرو کنید', false);
+
+        $this->get('/wholesale')->assertOk()
+            ->assertSee('تنها برای خرید عمده', false);
+    }
+
+    /**
      * A franchise's visitor stays in their franchise.
      *
      * The content pages are registered inside the storefront's route closure

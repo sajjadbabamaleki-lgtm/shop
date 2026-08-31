@@ -220,14 +220,42 @@ return [
         /*
          | How long somebody has to ask for an exchange, in days.
          |
-         | A PLACEHOLDER, and a consequential one. There is no returns flow in
-         | this application at all — no route, no table, no order status — so
-         | this number is not enforced anywhere; it is what the FAQ tells
-         | somebody to phone about. Seven days is the usual Iranian retail
-         | answer. When returns get built, this becomes the window the code
-         | checks and this comment goes.
+         | **Three, and no longer a placeholder** — «ظرف مدت ۳ روز بعد از
+         | تحویل کالا مشتری باید کالا رو مرجوع کنه». It was seven, which was
+         | the usual Iranian retail answer chosen because nobody had said.
+         |
+         | Still not *enforced* anywhere: there is no returns flow in this
+         | application — no route, no table, no order status — so this is what
+         | the pages tell somebody to telephone about. When returns get built,
+         | this becomes the window the code checks.
          */
-        'exchange_days' => 7,
+        'exchange_days' => 3,
+
+        /*
+         | The two halves of «کی می‌رسد», which are different questions and
+         | were being answered as one.
+         |
+         | `dispatch_days` is what the shop controls: how long after an order
+         | before it leaves. `delivery_days_*` is the carrier's part, and it
+         | depends on how far the address is from Tehran — «بستگی به فاصله آن
+         | شهر تا تهران داره و از ۳ تا ۵ روز متناوب هست. کالا بعد از سفارش
+         | ظرف مدت سه روز ارسال می‌شه».
+         |
+         | Said as a range and never as one number, because the shop cannot
+         | promise the second half and a single figure would read as a promise.
+         */
+        'dispatch_days' => 3,
+        'delivery_days_min' => 3,
+        'delivery_days_max' => 5,
+
+        /*
+         | Whether anybody may buy in person, and on what terms.
+         |
+         | «تاکید بشه که فروش حضوری فقط بابت فروش عمده هست و در فروش تکی اصلاً
+         | مورد حضوری نداریم». The «درباره ما» page used to invite people to
+         | come and try shoes on, which is the opposite of this.
+         */
+        'in_person_is_wholesale_only' => true,
 
         /*
          | The date on the foot of the two legal pages, ISO in, Jalali out
