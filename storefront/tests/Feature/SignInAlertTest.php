@@ -164,6 +164,49 @@ class SignInAlertTest extends TestCase
         $this->assertAuthenticatedAs($user, 'web');
     }
 
+    /**
+     * **A sender that cannot be built must not break the sign-in either.**
+     *
+     * The test above covers a sender that throws when asked to *send*. This is
+     * the other half, and it is the one that was actually broken:
+     * `SmsServiceProvider` refuses to build a sender at all when the driver is
+     * «log» in production, and this listener took one in its constructor — so
+     * the throw happened while the listener was being constructed, before the
+     * `try` inside it could catch anything, and a staff sign-in 500d on a shop
+     * whose only fault was not having an SMS account yet.
+     */
+    public function test_a_sender_that_cannot_be_built_does_not_break_the_sign_in(): void
+    {
+        $this->app->bind(Sender::class, function (): Sender {
+            throw new RuntimeException('SMS_DRIVER is «log», which delivers nothing.');
+        });
+
+        $user = $this->staff();
+
+        $this->signIn($user);
+
+        $this->assertAuthenticatedAs($user, 'web');
+    }
+
+    /**
+     * And with the feature switched off — no number to alert — a shop with no
+     * SMS account signs its staff in without ever asking for a sender.
+     */
+    public function test_no_number_means_no_sender_is_even_asked_for(): void
+    {
+        config(['services.sms.alert_to' => '']);
+
+        $this->app->bind(Sender::class, function (): Sender {
+            throw new RuntimeException('SMS_DRIVER is «log», which delivers nothing.');
+        });
+
+        $user = $this->staff();
+
+        $this->signIn($user);
+
+        $this->assertAuthenticatedAs($user, 'web');
+    }
+
     /** With no number set, the shop simply does not send. */
     public function test_no_number_means_no_message(): void
     {

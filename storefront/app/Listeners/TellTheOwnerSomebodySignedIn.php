@@ -41,7 +41,22 @@ class TellTheOwnerSomebodySignedIn
     // second copy of it that drifts.
     public const QUIET_SECONDS = 120;
 
-    public function __construct(private Sender $sms) {}
+    /**
+     * **Nothing is injected, and that is the point.**
+     *
+     * This took `Sender` in its constructor, which defeated the whole of the
+     * `try` below: `SmsServiceProvider` refuses to build a sender at all when
+     * the driver is «log» in production, so the listener could not be
+     * constructed, so the throw happened *before* anything could catch it —
+     * and a staff sign-in 500d on a shop whose only fault was not having an
+     * SMS account yet. Worse, it did so even with `SMS_ALERT_TO` empty, which
+     * is meant to switch this feature off entirely.
+     *
+     * The sender is asked for inside the `try`, where a refusal to build one
+     * is the same kind of event as a gateway timing out, and is handled the
+     * same way.
+     */
+    public function __construct() {}
 
     public function handle(Login $event): void
     {
@@ -70,7 +85,7 @@ class TellTheOwnerSomebodySignedIn
             // The parts as well as the sentence, because a provider that sends
             // an approved pattern rather than free text needs them in order —
             // see the Sender contract. Today's driver sends the sentence.
-            $this->sms->send($to, $message, [$title, (string) $user->name, $when], Sender::ALERT);
+            app(Sender::class)->send($to, $message, [$title, (string) $user->name, $when], Sender::ALERT);
         } catch (Throwable $e) {
             // **A sign-in must never fail because a text message did.** The
             // Sender contract already says an ordinary refusal must not throw,

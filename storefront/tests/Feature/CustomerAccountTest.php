@@ -129,6 +129,80 @@ class CustomerAccountTest extends TestCase
         return $found[1];
     }
 
+    /**
+     * Bind a `Sender` that refuses to be built, which is what production does.
+     *
+     * `SmsServiceProvider` throws out of the singleton's factory when the
+     * driver is «log» in production, so nothing that resolves `Sender` gets an
+     * object — it gets an exception. The tests run in the `testing`
+     * environment, where that guard is deliberately asleep, so this stands in
+     * for it.
+     */
+    private function withNoSmsSenderAtAll(): void
+    {
+        $this->app->bind(Sender::class, function (): Sender {
+            throw new RuntimeException('SMS_DRIVER is «log», which delivers nothing.');
+        });
+    }
+
+    // --- signing in when the shop has no SMS account yet -------------------
+
+    /**
+     * **A password is a way in that needs no telephone, and it must work when
+     * the shop cannot send a text at all.**
+     *
+     * «در حال حاضر وقتی می‌خواهیم وارد حساب کاربری شویم ارور ۵۰۰ میده و اصلاً
+     * وارد نمی‌شه». The cause was not the password path: `start()` took the
+     * `Sender` as a parameter, so the container built one on every attempt,
+     * and a shop with no SMS account answered 500 to all of them — including
+     * the one that sends nothing.
+     */
+    public function test_a_password_still_signs_somebody_in_when_there_is_no_sms_sender(): void
+    {
+        $this->withNoSmsSenderAtAll();
+
+        $customer = Customer::create(['name' => 'مریم', 'phone' => '09123456789', 'password' => 'گل']);
+
+        $this->post('/account/start', ['phone' => '09123456789'])->assertRedirect(route('account.enter'));
+        $this->post('/account/password', ['password' => 'گل'])->assertRedirect(route('account'));
+
+        $this->assertAuthenticatedAs($customer, 'customer');
+    }
+
+    /**
+     * A number that genuinely needs a code is told so, in words, rather than
+     * being shown a stack trace.
+     */
+    public function test_a_number_with_no_password_is_told_why_no_code_arrived(): void
+    {
+        $this->withNoSmsSenderAtAll();
+
+        $this->post('/account/start', ['phone' => '09123456789'])
+            ->assertRedirect()
+            ->assertSessionHasErrors('phone');
+
+        $this->assertStringContainsString(
+            'در دسترس نیست',
+            (string) session('errors')->first('phone'),
+        );
+    }
+
+    /**
+     * **No code is written and no timer is started** when there was never a
+     * way to send it. Otherwise the shopper is told to wait sixty seconds for
+     * a message that was never going anywhere, and the wait resets every time
+     * they try.
+     */
+    public function test_a_failed_send_burns_neither_a_code_nor_the_resend_timer(): void
+    {
+        $this->withNoSmsSenderAtAll();
+
+        $this->post('/account/start', ['phone' => '09123456789']);
+
+        $this->assertSame(0, LoginCode::where('phone', '09123456789')->count());
+        $this->assertNull(LoginCode::nextSendAllowedAt('09123456789'));
+    }
+
     // --- step one: the number ---------------------------------------------
 
     /**

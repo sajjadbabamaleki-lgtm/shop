@@ -14,7 +14,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use Throwable;
 
 /**
  * «ورود / ثبت‌نام» — the number first, then either a password or a code.
@@ -95,7 +97,7 @@ class AccountController extends Controller
      * gets a code sent immediately, because for that number a code is the only
      * way in and making them ask for it twice is a screen that says nothing.
      */
-    public function start(Request $request, Sender $sms): RedirectResponse
+    public function start(Request $request): RedirectResponse
     {
         $phone = $this->readPhone($request);
 
@@ -108,7 +110,7 @@ class AccountController extends Controller
             return redirect()->to(storefront_route('account.enter'));
         }
 
-        return $this->sendCode($request, $sms, $phone);
+        return $this->sendCode($request, $phone);
     }
 
     /**
@@ -154,7 +156,7 @@ class AccountController extends Controller
      * The number is always the session's, so none of them can aim a code at
      * somebody else's telephone.
      */
-    public function code(Request $request, Sender $sms): RedirectResponse
+    public function code(Request $request): RedirectResponse
     {
         $phone = $this->numberInPlay($request);
 
@@ -162,7 +164,7 @@ class AccountController extends Controller
             return redirect()->to(storefront_route('account.enter'));
         }
 
-        return $this->sendCode($request, $sms, $phone);
+        return $this->sendCode($request, $phone);
     }
 
     /**
@@ -419,8 +421,38 @@ class AccountController extends Controller
      * «this number is not registered» would turn the form into a way of asking
      * the shop which of its customers a number belongs to.
      */
-    private function sendCode(Request $request, Sender $sms, string $phone): RedirectResponse
+    private function sendCode(Request $request, string $phone): RedirectResponse
     {
+        // **The sender is asked for first, and it is asked for here rather
+        // than in the signatures above.**
+        //
+        // `start()` and `code()` used to take it as a parameter, so the
+        // container built one on every sign-in attempt — including the
+        // password step, which sends nothing. `SmsServiceProvider` refuses to
+        // build a sender at all when the driver is «log» in production, so a
+        // shop with no SMS account answered 500 to *every* attempt to sign in,
+        // password or not: «وقتی می‌خواهیم وارد حساب کاربری شویم ارور ۵۰۰
+        // میده و اصلاً وارد نمی‌شه». A password is a way in that needs no
+        // telephone, and it works again now.
+        //
+        // And it is asked for **before** the code is written, so a shop that
+        // cannot send does not burn a code and start a resend timer for a
+        // message that was never going anywhere.
+        try {
+            $sms = app(Sender::class);
+        } catch (Throwable $e) {
+            // Loud, because this is a shop that cannot sign anybody new in.
+            Log::error('A sign-in code could not be sent: there is no SMS sender.', [
+                'driver' => config('services.sms.driver'),
+                'error' => $e->getMessage(),
+            ]);
+
+            throw ValidationException::withMessages([
+                'phone' => 'ارسال کد یکبار مصرف موقتاً در دسترس نیست. '
+                    .'اگر روی این شماره رمز عبور داری با رمز وارد شو؛ در غیر این صورت با پشتیبانی تماس بگیر.',
+            ]);
+        }
+
         // One code out at a time per number. Without this, asking twice leaves
         // two live codes and the older SMS still works — a second door for as
         // long as it lives.
