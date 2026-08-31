@@ -73,12 +73,55 @@ class ReportServerTiming
         $app = $start ? (microtime(true) - $start) * 1000 : 0.0;
 
         $response->headers->set('Server-Timing', sprintf(
-            'app;dur=%.1f, db;dur=%.1f, dbq;dur=0;desc="%d queries"',
+            'app;dur=%.1f, db;dur=%.1f, dbq;dur=0;desc="%d queries", php;dur=%.1f;desc="%s"',
             $app,
             $sql,
             $queries,
+            max($app - $sql, 0),
+            $this->whatTheRuntimeIsDoing(),
         ));
 
         return $response;
+    }
+
+    /**
+     * The three things that decide how much of a request is PHP rather than
+     * work.
+     *
+     * The first reading of this header, from the live site, put `app` at 955ms
+     * on the home page against `db` at 367ms — so **PHP's own share was 588ms
+     * where the same code takes 37ms here**. Sixteen times is not a query
+     * count and it is not the code; it is the runtime. There are only a few
+     * things it can be, none of them visible from outside, and all four are
+     * one function call away from inside:
+     *
+     *  - **opcache.** Without it every request re-parses and re-compiles
+     *    several thousand PHP files. On a framework this size that is
+     *    hundreds of milliseconds, every request, for ever. It is the first
+     *    suspect and it is a platform setting rather than code.
+     *  - **the config and route caches.** `liara_pre_start.sh` writes both on
+     *    every deploy, and a run where one of them failed leaves no mark
+     *    anywhere: the app works, it is just slower for ever after. So the
+     *    header says whether the files are actually there rather than whether
+     *    the script meant to write them.
+     *
+     * The view cache is deliberately **not** reported. Asking would mean
+     * reading a directory of several hundred compiled templates on every
+     * request, and a diagnostic that costs what it is measuring is worse than
+     * no diagnostic — besides which Blade compiles lazily, so a cold view
+     * cache costs the first request for a page and nothing after it.
+     *
+     * Three short words on a header nobody has to remember to switch on. It
+     * names no path, no credential and no version.
+     */
+    private function whatTheRuntimeIsDoing(): string
+    {
+        $said = [
+            'opcache '.(function_exists('opcache_get_status') && ini_get('opcache.enable') ? 'on' : 'off'),
+            'config '.(app()->configurationIsCached() ? 'cached' : 'uncached'),
+            'routes '.(app()->routesAreCached() ? 'cached' : 'uncached'),
+        ];
+
+        return implode(', ', $said);
     }
 }
