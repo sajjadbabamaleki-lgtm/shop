@@ -7495,6 +7495,31 @@ button.vp-cart-keep {
   background: #8F1E18;
 }
 
+/* A button that cannot be pressed has to look like one.
+
+   The sale's switch draws both «روشن کن» and «خاموش کن» at all times — the one
+   that would do nothing is the one that is already true, and hiding it would
+   turn a switch into a status line. But `@disabled` alone is invisible: two
+   full-strength pills side by side, one of which silently ignores the tap. The
+   `is-off` red keeps its own hue at the same weight, so the pair still reads as
+   a switch rather than as two greyed-out buttons.
+
+   `!important` on neither: this comes after both rules above and matches on one
+   more thing than they do, so source order and specificity both carry it. */
+.vp-admin-save:disabled,
+.vp-admin-save.is-off:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.vp-admin-save:disabled:hover {
+  background: linear-gradient(180deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
+}
+
+.vp-admin-save.is-off:disabled:hover {
+  background: #B3261E;
+}
+
 .vp-admin-tabs {
   display: flex;
   gap: 4px;
@@ -17080,6 +17105,21 @@ button.vp-cart-keep {
      them has been measured narrow. */
   .vp-shop-head {
     display: none;
+  }
+
+  /* …except on the panel's «صفحه اصلی» screen, which is nothing but headings.
+     That screen is seven panels — the sale's switch and six bands — and each
+     one's title and state line live in a `.vp-shop-head`. Hidden, a phone got a
+     stack of unlabelled selects and a pair of buttons reading «روشن کن» /
+     «خاموش کن» with nothing anywhere saying what they switch. Measured at 390
+     before and after: seven heads `display: none`, and seven titles drawn.
+
+     Scoped to `.vp-adm-band`, which only that screen's sections carry, rather
+     than widened to `.vp-adm` — the paragraph above is right that the other
+     panel screens were laid out for a desktop and have not been measured
+     narrow, and this is not the round to find out. */
+  .vp-adm-band .vp-shop-head {
+    display: block;
   }
 }
 

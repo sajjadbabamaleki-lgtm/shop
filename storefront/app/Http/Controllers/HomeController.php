@@ -190,16 +190,17 @@ class HomeController extends Controller
     private function heroSlides(Collection $products): array
     {
         /*
-         * The hero stays in the config file while the others moved to the
-         * panel, and the reason is in the shape of this list: a hero slide is
-         * a slug *and* the eyebrow printed above the name, so choosing one is
-         * two decisions and the panel's screen collects one. Giving it a
-         * half-filled slide would have been worse than leaving it here.
+         * The deck is the panel's now — `/admin/front-page`, the same screen
+         * the other four bands are chosen on. It used to be config only, on
+         * the grounds that a slide is a slug *and* the line above the name and
+         * that screen collected one; the cost of that was a deploy to change
+         * the largest thing on the front page. `FrontPage::heroSlides()` is
+         * where the two readings meet, and the file is still the default.
          */
-        $chosen = collect(config('storefront.hero.products'))
-            ->mapWithKeys(fn (string $eyebrow, string $slug) => [$slug => [
-                'product' => $products->get($slug),
-                'eyebrow' => $eyebrow,
+        $chosen = collect(app(FrontPage::class)->heroSlides())
+            ->mapWithKeys(fn (array $slide) => [$slide['slug'] => [
+                'product' => $products->get($slide['slug']),
+                'eyebrow' => $slide['eyebrow'],
             ]])
             ->filter(fn (array $slide) => $slide['product'] !== null)
             ->map(function (array $slide) {

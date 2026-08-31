@@ -33,14 +33,28 @@ class FrontPage
      * whatever they are given across six photographs, and a daily deal is one
      * shoe.
      *
-     * **The hero deck is not here**, and that is a decision rather than an
-     * omission: a hero slide is a slug *and* the eyebrow printed above the
-     * name, so choosing one is two decisions and this screen collects one.
-     * Giving it half a slide would be worse than leaving it in the file.
+     * **The hero used to be excluded**, on the grounds that a slide is a slug
+     * *and* the eyebrow above the name — two decisions where this screen
+     * collected one. That was true and it was the wrong answer: it meant the
+     * largest thing on the front page could only be changed by a deploy. The
+     * screen collects both now (`caption` on the placement, `captioned` here),
+     * and `hero()` below is what the page reads.
      *
-     * @var array<string, array{label: string, max: int, config: string}>
+     * `captioned` is the flag rather than a check for `$key === 'hero'`, so the
+     * next band that wants a line of copy over its cards is one entry here and
+     * nothing else.
+     *
+     * @var array<string, array{label: string, max: int, config: string, captioned?: bool, caption_label?: string, note?: string}>
      */
     public const BANDS = [
+        'hero' => [
+            'label' => 'اسلایدر بالای صفحه',
+            'max' => 3,
+            'config' => 'storefront.hero.products',
+            'captioned' => true,
+            'caption_label' => 'جمله بالای نام',
+            'note' => 'هر اسلاید یک محصول است و یک جمله که بالای نامش نوشته می‌شود.',
+        ],
         'ladder' => ['label' => 'حراج پله‌ای', 'max' => 5, 'config' => 'storefront.front_page.ladder_products'],
         'stories' => ['label' => 'استوری‌ها', 'max' => 5, 'config' => 'storefront.front_page.story_products'],
         'best_sellers' => ['label' => 'پرفروش‌ترین‌ها', 'max' => 6, 'config' => 'storefront.placeholders.best_sellers.priced_from'],
@@ -62,8 +76,57 @@ class FrontPage
 
         $default = config(self::BANDS[$band]['config'] ?? '', []);
 
+        // A captioned band's default is a map of slug => the line above it, so
+        // its slugs are the keys. Reading the values here would have returned
+        // three eyebrows where three slugs were asked for, and the hero would
+        // have quietly gone empty — every slug would have failed to match a
+        // product. The two shapes are in the file, so the difference is read
+        // off the band rather than guessed at from the array.
+        if (self::BANDS[$band]['captioned'] ?? false) {
+            return array_keys(array_filter((array) $default));
+        }
+
         // The daily deal's config key is a single slug rather than a list.
         return array_values(array_filter((array) $default));
+    }
+
+    /**
+     * The hero's slides: a product and the line printed above its name.
+     *
+     * The panel's choice when there is one, the file's when there is not —
+     * the same rule every other band follows, and the reason a fresh install
+     * and every test that seeds one still opens on the deck the design was
+     * drawn around.
+     *
+     * A placement saved with no caption falls back to the file's line for that
+     * same product, and then to the product's own name. Neither is a guess: the
+     * eyebrow says *why* the slide is in the deck, and a slide with an empty
+     * line above the title reads as a rendering fault rather than as a choice.
+     *
+     * @return list<array{slug: string, eyebrow: string}>
+     */
+    public function heroSlides(): array
+    {
+        $fromFile = (array) config(self::BANDS['hero']['config'], []);
+
+        $chosen = $this->placements('hero');
+
+        if ($chosen->isNotEmpty()) {
+            return $chosen
+                ->filter(fn (FrontPagePlacement $placement) => $placement->product !== null)
+                ->map(fn (FrontPagePlacement $placement) => [
+                    'slug' => $placement->product->slug,
+                    'eyebrow' => $placement->caption
+                        ?: ($fromFile[$placement->product->slug] ?? $placement->product->title),
+                ])
+                ->values()
+                ->all();
+        }
+
+        return collect($fromFile)
+            ->map(fn (string $eyebrow, string $slug) => ['slug' => $slug, 'eyebrow' => $eyebrow])
+            ->values()
+            ->all();
     }
 
     /**

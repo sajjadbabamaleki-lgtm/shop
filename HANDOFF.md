@@ -4393,3 +4393,68 @@ looks broken.
 
 The second of those is the test this incident was missing. If a future change
 puts a countdown back into the seeder, it fails.
+
+## «مدیریت هوم» — the panel screen grows the two decisions it was missing
+
+«تو پنل مدیریت برای مدیریت کردن صفحه هوم موارد مورد نیازو گذاشتی؟ … بنظرم تو
+بخش بیشتر باید یه موردی که واجب نیست حذف بشه و مدیریت هوم بیاد».
+
+`/admin/front-page` already existed and already chose four bands. What it could
+not do was the two things that had just cost a round:
+
+**The hero.** It was excluded deliberately, and the reason was written down: a
+slide is a product *and* the eyebrow above its name — «پر فروش این هفته» — so
+choosing one is two decisions where that screen collected one. True, and the
+wrong trade: it meant the largest thing on the front page could only be changed
+by a deploy. `front_page_placements` has a nullable `caption` now, `BANDS`
+carries a `captioned` flag, and the screen draws a second field for the bands
+that set it. Left empty the slide falls back to the file's line for that same
+product and then to the product's own name — a blank space over a title reads as
+a rendering fault, not as a choice.
+
+**The trap inside it**, which is worth more than the feature: the hero's default
+in `config/storefront.php` is a **map of slug ⇒ line**, where every other band's
+default is a plain list. `FrontPage::slugs()` read `array_values()`. For the
+hero that returns three eyebrows, not one of which matches a product — the deck
+would have gone empty with nothing anywhere saying why. `slugs()` takes the keys
+for a captioned band, and `test_the_heros_default_slugs_are_slugs_and_not_the_lines_above_them`
+is there because that failure looks exactly like the one this whole day was
+about.
+
+**The sale's switch.** Nothing anywhere could turn the stepped sale on or off.
+Now one panel does, at the top of the screen because it decides whether three of
+the bands under it have anything to show. On clears both window columns; off
+sets `promotion_ends_at` to now. It writes nothing else — no price a customer
+pays, no struck-through figure — and it acts on **every branch**, because
+`BranchOpener` copies the window to a franchise and a switch that touched only
+the central shop would leave the chain half on.
+
+Two details that would otherwise be re-derived:
+
+- The state is read off the offers (`promoted()->exists()`), never off a setting.
+  A setting would be a second answer to «is there a sale on?» and the front page
+  does not consult it, so the badge could say «روشن» over a shop showing no cut.
+- `acrossAllBranches()` is not optional here. This screen resolves no tenant —
+  the front page is the chain's — and an offer is branch-scoped, so a bare query
+  would have reported «خاموش» over a running sale and then updated no rows at
+  all.
+
+### The bottom bar, and a heading that was hidden
+
+«صفحه اصلی» replaced «محصولات» among the phone's three tabs, at the client's
+instruction. Both screens are still in the sidebar and in «بیشتر»; the bar is
+only about which three are one tap away, and the «+» beside it still offers
+«محصول تازه». `AdminResponsiveTest` builds its expectation from
+`Navigation::BOTTOM`, so it followed the change without being edited.
+
+And a real fault this turned up: **every `.vp-shop-head` in the panel is hidden
+below 992**, by the rule whose own comment warns that it has cost a round
+already. On this screen that is seven headings — the sale's state line included
+— so a phone got a stack of unlabelled selects and two buttons reading «روشن
+کن» / «خاموش کن» with nothing saying what they switched. `.vp-adm-band
+.vp-shop-head` puts them back. Measured at 390: seven heads `display: none`
+before, seven drawn after, no sideways scroll.
+
+**Scoped to this screen and not widened to `.vp-adm`** — the rest of the panel's
+heads really were laid out for a desktop and really have not been measured
+narrow, which is what that comment says and it is still true of them.

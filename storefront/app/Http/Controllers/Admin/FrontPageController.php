@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\BranchOffer;
 use App\Models\FrontPagePlacement;
 use App\Models\Product;
 use App\Support\FrontPage;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -38,7 +40,14 @@ class FrontPageController extends Controller
                 // rather than looking empty when the page is full.
                 'isDefault' => $frontPage->chosen($key) === [],
                 'defaults' => $frontPage->slugs($key),
+                'captioned' => $band['captioned'] ?? false,
+                'captionLabel' => $band['caption_label'] ?? null,
+                'note' => $band['note'] ?? null,
             ])->values(),
+
+            // The stepped sale's own switch — see `sale()` below for why this
+            // is a count of rows rather than a setting.
+            'saleIsOn' => $this->saleIsOn(),
 
             /*
              * Everything sellable, by name. Drafts are left out: a band filters
@@ -58,7 +67,13 @@ class FrontPageController extends Controller
 
         $input = $request->validate([
             'product' => ['required', 'integer', 'exists:products,id'],
-        ], [], ['product' => 'محصول']);
+            // Only a captioned band offers the field, and only it stores one.
+            // 120 is the column; anything near it is already far longer than
+            // the three words this line is drawn for.
+            'caption' => ['nullable', 'string', 'max:120'],
+        ], [], ['product' => 'محصول', 'caption' => 'جمله بالای نام']);
+
+        $captioned = FrontPage::BANDS[$band]['captioned'] ?? false;
 
         $max = FrontPage::BANDS[$band]['max'];
         $current = FrontPagePlacement::where('band', $band)->count();
@@ -81,10 +96,83 @@ class FrontPageController extends Controller
 
         FrontPagePlacement::updateOrCreate(
             ['band' => $band, 'product_id' => $input['product']],
-            ['position' => (int) FrontPagePlacement::where('band', $band)->max('position') + 1],
+            [
+                'position' => (int) FrontPagePlacement::where('band', $band)->max('position') + 1,
+                'caption' => $captioned ? ($input['caption'] ?? null) : null,
+            ],
         );
 
         return back()->with('status', 'اضافه شد.');
+    }
+
+    /**
+     * The stepped sale, on or off.
+     *
+     * **This is the control that did not exist**, and its absence is what the
+     * client photographed: the sale was seeded with a four-week window, the
+     * window closed on its own, and the only way to reopen it was a deploy.
+     * «بازه حراج پله ای نباید اوتومات بسته بشه باید همچیزش دستی باشه» — so
+     * here is the hand.
+     *
+     * On clears both window columns, which the two rules that read them treat
+     * as "no bound in that direction", so the sale runs until somebody comes
+     * back here. Off closes it now. Nothing else changes: `price` is what a
+     * customer is charged and `compare_at_price` is the struck-through figure,
+     * and neither is in either statement — what moves is whether the shop is
+     * *advertising* a cut.
+     *
+     * **Every branch.** `BranchOpener` copies the window to a franchise when it
+     * opens, so a switch that touched only the central branch would leave the
+     * chain half on. The campaign is the chain's, like the front page this
+     * screen edits, which is also why neither is branch-scoped.
+     *
+     * Only rows that carry a real discount are touched. On any other row the
+     * window is already ignored — no `compare_at_price` above `price` and there
+     * is nothing to advertise — so writing to it would change nothing and would
+     * overwrite a date somebody set on purpose.
+     */
+    public function sale(Request $request): RedirectResponse
+    {
+        $on = $request->input('state') === 'on';
+
+        $this->discountedOffers()->update([
+            'promotion_starts_at' => null,
+            'promotion_ends_at' => $on ? null : now(),
+        ]);
+
+        return back()->with('status', $on ? 'حراج پله‌ای روشن شد.' : 'حراج پله‌ای خاموش شد.');
+    }
+
+    /**
+     * Whether anything is actually being advertised as discounted right now.
+     *
+     * Read off the offers rather than kept as a setting, on purpose: a setting
+     * would be a second answer to «is there a sale on?», and the page does not
+     * read it — it reads the offers. Two answers is how a screen comes to say
+     * «روشن» over a shop that is showing no cut at all.
+     */
+    private function saleIsOn(): bool
+    {
+        return BranchOffer::query()->acrossAllBranches()->promoted()->exists();
+    }
+
+    /**
+     * Every branch's discounted offers.
+     *
+     * `acrossAllBranches()` and not a bare query: an offer is branch-scoped, no
+     * branch is bound on this screen — it is the chain's front page, not a
+     * shop's — and a scoped query with nothing bound correctly returns nothing.
+     * Without this the switch would have reported «خاموش» over a running sale
+     * and then silently updated no rows at all.
+     *
+     * @return Builder<BranchOffer>
+     */
+    private function discountedOffers(): Builder
+    {
+        return BranchOffer::query()
+            ->acrossAllBranches()
+            ->whereNotNull('compare_at_price')
+            ->whereColumn('compare_at_price', '>', 'price');
     }
 
     public function remove(FrontPagePlacement $placement): RedirectResponse

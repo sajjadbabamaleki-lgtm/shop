@@ -235,6 +235,11 @@ Route::middleware(['auth:web', ResolveAdminTenant::class])->group(function (): v
     Route::post('/front-page/{band}/add', [FrontPageController::class, 'add'])
         ->middleware(RequirePlatformPermission::class.':catalogue.manage')
         ->name('front-page.add');
+    // The stepped sale's switch. Same permission and the same reasoning as the
+    // bands above: the campaign is the chain's, not one branch's.
+    Route::post('/front-page/sale', [FrontPageController::class, 'sale'])
+        ->middleware(RequirePlatformPermission::class.':catalogue.manage')
+        ->name('front-page.sale');
     Route::post('/front-page/{band}/reset', [FrontPageController::class, 'reset'])
         ->middleware(RequirePlatformPermission::class.':catalogue.manage')
         ->name('front-page.reset');

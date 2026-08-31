@@ -4633,6 +4633,20 @@ button.vp-cart-keep {
   background: #8F1E18;
 }
 
+.vp-admin-save:disabled,
+.vp-admin-save.is-off:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.vp-admin-save:disabled:hover {
+  background: linear-gradient(180deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
+}
+
+.vp-admin-save.is-off:disabled:hover {
+  background: #B3261E;
+}
+
 .vp-admin-tabs {
   display: flex;
   gap: 4px;
@@ -9224,6 +9238,10 @@ button.vp-cart-keep {
 
   .vp-shop-head {
     display: none;
+  }
+
+  .vp-adm-band .vp-shop-head {
+    display: block;
   }
 }
 

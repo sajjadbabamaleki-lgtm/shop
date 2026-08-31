@@ -22,7 +22,7 @@
 --}}
 
 @section('content')
-<section class="vp-shop-panel">
+<section class="vp-shop-panel vp-adm-band">
     <div class="vp-shop-head">
         <div class="vp-shop-heading">
             <h1 class="vp-shop-title">صفحه اصلی</h1>
@@ -36,8 +36,55 @@
     </p>
 </section>
 
+{{-- The stepped sale's switch.
+
+     It is the first panel because it is the one that decides whether three of
+     the bands below have anything to show at all — and because its absence is
+     what put the shop's front page in a photograph: the sale was seeded with a
+     four-week window, the window closed on its own, and nothing short of a
+     deploy could reopen it.
+
+     The state is read off the offers rather than off a setting, so this badge
+     cannot say «روشن» over a shop that is showing no cut. Both buttons are
+     always drawn — the one that would do nothing is the one that is already
+     true, and hiding it would make the switch look like a status line. --}}
+<section class="vp-shop-panel vp-adm-band">
+    <div class="vp-shop-head">
+        <div class="vp-shop-heading">
+            <h2 class="vp-shop-title">حراج پله‌ای</h2>
+            <p class="vp-shop-count">
+                @if ($saleIsOn)
+                    روشن است. قیمت‌های خط‌خورده و نشان تخفیف روی سایت دیده می‌شوند.
+                @else
+                    خاموش است. سایت هیچ تخفیفی را تبلیغ نمی‌کند و سه بخش پایین خالی می‌مانند.
+                @endif
+            </p>
+        </div>
+    </div>
+
+    <p class="vp-shop-count">
+        این کلید هیچ قیمتی را عوض نمی‌کند؛ نه قیمتی که مشتری می‌پردازد و نه قیمت
+        خط‌خورده. فقط تعیین می‌کند فروشگاه تخفیف را تبلیغ بکند یا نه، و تا وقتی
+        خودت عوضش نکنی همان‌طور می‌ماند. روی همه شعبه‌ها اعمال می‌شود.
+    </p>
+
+    <div class="vp-admin-inline">
+        <form method="post" action="{{ route('admin.front-page.sale') }}">
+            @csrf
+            <input type="hidden" name="state" value="on">
+            <button type="submit" class="vp-admin-save" @disabled($saleIsOn)>روشن کن</button>
+        </form>
+
+        <form method="post" action="{{ route('admin.front-page.sale') }}">
+            @csrf
+            <input type="hidden" name="state" value="off">
+            <button type="submit" class="vp-admin-save is-off" @disabled(! $saleIsOn)>خاموش کن</button>
+        </form>
+    </div>
+</section>
+
 @foreach ($bands as $band)
-<section class="vp-shop-panel">
+<section class="vp-shop-panel vp-adm-band">
     <div class="vp-shop-head">
         <div class="vp-shop-heading">
             <h2 class="vp-shop-title">{{ $band['label'] }}</h2>
@@ -48,17 +95,23 @@
                     {{ fa_number(count($band['placements'])) }} از {{ fa_number($band['max']) }} جای موجود
                 @endif
             </p>
+            @if ($band['note'])
+                <p class="vp-shop-count">{{ $band['note'] }}</p>
+            @endif
         </div>
     </div>
 
     @unless ($band['isDefault'])
         <table class="vp-admin-table">
-            <thead><tr><th>ترتیب</th><th>محصول</th><th></th></tr></thead>
+            <thead><tr><th>ترتیب</th><th>محصول</th>@if ($band['captioned'])<th>{{ $band['captionLabel'] }}</th>@endif<th></th></tr></thead>
             <tbody>
             @foreach ($band['placements'] as $placement)
                 <tr>
                     <td>{{ fa_number($loop->iteration) }}</td>
                     <td>{{ $placement->product?->title ?? 'حذف شده' }}</td>
+                    @if ($band['captioned'])
+                        <td>{{ $placement->caption ?: 'ندارد' }}</td>
+                    @endif
                     <td>
                         <div class="vp-admin-inline">
                             @if (! $loop->first)
@@ -97,6 +150,13 @@
                     <option value="{{ $product->id }}">{{ $product->title }}</option>
                 @endforeach
             </select>
+            @if ($band['captioned'])
+                {{-- Optional on purpose: left empty the slide falls back to the
+                     file's line for that product, and then to its name, rather
+                     than opening the shop with a blank space over the title. --}}
+                <input type="text" name="caption" class="vp-admin-pick" maxlength="120"
+                       placeholder="{{ $band['captionLabel'] }}" aria-label="{{ $band['captionLabel'] }}">
+            @endif
             <button type="submit" class="vp-admin-save">افزودن</button>
         </form>
 

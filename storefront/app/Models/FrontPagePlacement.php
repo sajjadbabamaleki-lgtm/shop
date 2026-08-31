@@ -15,7 +15,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class FrontPagePlacement extends Model
 {
-    protected $fillable = ['band', 'product_id', 'position'];
+    /**
+     * `caption` is the line printed above the product where a band draws one.
+     * Only the hero does today — it is that slide's eyebrow — and every other
+     * band leaves it null.
+     */
+    protected $fillable = ['band', 'product_id', 'position', 'caption'];
 
     public function product(): BelongsTo
     {

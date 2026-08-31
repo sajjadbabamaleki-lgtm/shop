@@ -543,6 +543,25 @@ the client saw an old page and had no way to tell why. So, plainly:
   into the basket, and applies to the branch's own lines only — never to a
   vendor's price. Whether it applies is recomputed on every page and again
   inside the order transaction; nothing about it is stored on the basket.
+- **`/admin/front-page` is «مدیریت هوم», and it now owns the hero and the
+  sale's switch.** Six bands plus one control, all on `FrontPage::BANDS` and one
+  screen. A band with no rows falls back to `config/storefront.php`, which is
+  what «پیش‌فرض» means there and what keeps a fresh install looking like the
+  design. Two things to know before touching it: **the hero's default is a map
+  of slug ⇒ the line above it** where every other band's is a plain list, so
+  `slugs()` takes the *keys* for a `captioned` band — read the values and you
+  get three eyebrows, none of which is a product, and the deck goes silently
+  empty. And **the sale's switch reads its state off the offers, not off a
+  setting** — a setting would be a second answer to "is there a sale on?" that
+  the front page does not consult. It writes `promotion_*` only, across all
+  branches (`acrossAllBranches()`, because no branch is bound on this screen and
+  a scoped query with nothing bound correctly returns nothing), and never a
+  price. `FrontPageHeroAndSaleTest` holds all of it.
+  On a phone this screen is the one place `.vp-shop-head` is *not* hidden:
+  `.vp-adm-band .vp-shop-head` puts it back, because seven panels of unlabelled
+  selects and a pair of «روشن کن»/«خاموش کن» buttons is what hiding it gave.
+  The exemption is scoped to that class on purpose — the other panel screens
+  have still never been measured narrow.
 - **The stepped sale has no end date, and it must not get one by default.**
   «بازه حراج پله ای نباید اوتومات بسته بشه باید همچیزش دستی باشه». `CatalogueSeeder`
   used to open the window `now()->subWeek()` to `now()->addWeeks(3)`; four weeks

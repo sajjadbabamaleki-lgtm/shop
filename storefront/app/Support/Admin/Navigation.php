@@ -109,9 +109,16 @@ class Navigation
      * one is not a destination, so it is not here — the shell draws it between
      * the second and third.
      *
+     * **«صفحه اصلی» took «محصولات»'s place here at the client's instruction.**
+     * Both screens are still in the sidebar and in «بیشتر»; this list is only
+     * about which three are one tap away on a phone. The front page is what
+     * they change often and what they had to go looking for — «بنظرم تو بخش
+     * بیشتر باید یه موردی که واجب نیست حذف بشه و مدیریت هوم بیاد» — and the
+     * catalogue is reachable from the «+» beside it, which offers «محصول تازه».
+     *
      * @var list<string>
      */
-    public const BOTTOM = ['admin.dashboard', 'admin.orders', 'admin.catalogue'];
+    public const BOTTOM = ['admin.dashboard', 'admin.orders', 'admin.front-page'];
 
     /**
      * What «افزودن» offers.
