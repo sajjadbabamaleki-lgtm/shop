@@ -463,7 +463,7 @@
 
                 var say = document.createElement("p");
                 say.className = "vp-empty-say";
-                say.textContent = "«" + name + "» به‌زودی باز می‌شود.";
+                say.textContent = "«" + name + "» به‌زودی راه‌اندازی می‌شود.";
                 card.appendChild(say);
 
                 var ok = document.createElement("button");

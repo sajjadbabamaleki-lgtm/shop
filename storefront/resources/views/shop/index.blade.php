@@ -461,7 +461,7 @@
                                 <svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="17" fill="none" stroke="currentColor" stroke-width="3"></circle><path d="M24 14 V25 L31 29" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                             </span>
                             <p class="vp-empty-say">
-                                «{{ $filters['category']->name }}» به‌زودی باز می‌شود.
+                                «{{ $filters['category']->name }}» به‌زودی راه‌اندازی می‌شود.
                             </p>
                             <a class="vp-empty-out" href="{{ storefront_route('shop') }}">دیدن بقیه محصولات</a>
                         </div>

@@ -123,7 +123,7 @@ class ComingSoonTest extends TestCase
 
             $page = $this->get('/categories/'.$slug)->assertOk()->getContent();
 
-            $this->assertStringContainsString('«'.$category->name.'» به‌زودی باز می‌شود.', $page);
+            $this->assertStringContainsString('«'.$category->name.'» به‌زودی راه‌اندازی می‌شود.', $page);
             $this->assertStringNotContainsString('vp-shop-grid', $page);
 
             // The sort control and «۰ کالا» would be furniture contradicting

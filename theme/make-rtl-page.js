@@ -3054,7 +3054,7 @@ html = html.replace('</body>',
   '\n' +
   '                var say = document.createElement("p");\n' +
   '                say.className = "vp-empty-say";\n' +
-  '                say.textContent = "«" + name + "» به‌زودی باز می‌شود.";\n' +
+  '                say.textContent = "«" + name + "» به‌زودی راه‌اندازی می‌شود.";\n' +
   '                card.appendChild(say);\n' +
   '\n' +
   '                var ok = document.createElement("button");\n' +

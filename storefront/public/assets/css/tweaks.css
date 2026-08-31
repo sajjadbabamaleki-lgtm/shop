@@ -5115,6 +5115,10 @@ button.vp-cart-keep {
   box-shadow: 0 30px 70px rgba(0, 0, 0, 0.42);
 }
 
+.vp-soon-card .vp-empty-say {
+  text-wrap: balance;
+}
+
 .vp-soon-shut {
   position: absolute;
   inset-block-start: 10px;

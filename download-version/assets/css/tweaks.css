@@ -8148,6 +8148,15 @@ button.vp-cart-keep {
   box-shadow: 0 30px 70px rgba(0, 0, 0, 0.42);
 }
 
+/* The sentence carries a name that can be four words long, so on a phone it
+   wraps. Left to itself it broke «… به‌زودی راه‌اندازی / می‌شود.» — a full line
+   and then one word. Balanced, the two lines come out even. Scoped to this
+   card: the listing's own empty state is one short line and has nothing to
+   balance. */
+.vp-soon-card .vp-empty-say {
+  text-wrap: balance;
+}
+
 .vp-soon-shut {
   position: absolute;
   inset-block-start: 10px;
