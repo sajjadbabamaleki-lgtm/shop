@@ -58,6 +58,55 @@
                 کیف خواهد بود.
             </p>
 
+            {{--
+                «تعهدات ما».
+
+                Six commitments, and **every word of them is the client's**,
+                sent verbatim in their requirements — «تعهدات ما در جایی در
+                صفحه باشه مثلاً در درباره ما قسمتی به عنوان تعهدات ما در نظر
+                گرفته بشه». Same rule as the three paragraphs above: this is
+                copy the shop wrote about itself, not description of software,
+                so tidying its tone would be rewriting their claim about
+                themselves. Leave the wording alone.
+
+                No new class. `.vp-doc-list` is what the privacy page's lists
+                use and it is the page's own idiom for exactly this shape; a
+                new one would mean a new vocabulary, a re-cut of the
+                stylesheets, and a name to collide with something in the
+                15,000 lines of `tweaks.css`.
+            --}}
+            <h2>تعهدات ما</h2>
+            <ul class="vp-doc-list">
+                <li>
+                    <strong>کیفیت بی‌نظیر</strong>: هر محصول، نتیجه‌ی تعهد ما
+                    به بهترین‌هاست.
+                </li>
+                <li>
+                    <strong>رضایت بی حد و مرز</strong>: تجربه‌ی خریدی که در آن
+                    شما همیشه در مرکز توجه هستید. ما به دنبال شگفت‌زدگی شما
+                    هستیم.
+                </li>
+                <li>
+                    <strong>اصالت قابل اعتماد</strong>: محصولات ما با
+                    پشتوانه‌ی اصالت و اعتماد عرضه می‌شوند. هر محصول، داستانی از
+                    اصالت و کیفیت پشت خود دارد، که با دقت و وسواس انتخاب شده
+                    است.
+                </li>
+                <li>
+                    <strong>نوآوری پویا</strong>: هر روز ایده‌ای نو، هر لحظه
+                    پیشرو.
+                </li>
+                <li>
+                    <strong>تیم متخصص</strong>: تیمی که با شور و اشتیاق،
+                    بهترین‌ها را به شما ارائه می‌دهد.
+                </li>
+                <li>
+                    <strong>تجربه‌ی لوکس و منحصر به فرد</strong>: هر خرید، یک
+                    داستان منحصر به فرد از لوکس بودن. با ویکی پلاس هر خرید یک
+                    سفر لوکس و خاطره‌انگیز است.
+                </li>
+            </ul>
+
             <h2>ما کجاییم</h2>
             <p>
                 نشانی ویکی پلاس {{ config('storefront.contact.address') }} است.

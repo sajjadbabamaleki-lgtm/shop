@@ -125,6 +125,16 @@ return [
         'faq.html' => 'faq',
         'size-guide.html' => 'size-guide',
         'course.html' => 'size-guide',
+
+        /*
+         | «حراج پله‌ای» — the shop's own way of selling, which had no page
+         | explaining it and whose links landed on the plain shop listing.
+         | «توجه داشته باشید که تخفیف‌دارها با حراج پله‌ای فرق می‌کنه»: a
+         | discounted item and a stepped-sale item are two different things,
+         | and sending one link to the other's page is what made them look
+         | like one.
+         */
+        'stepped-sale.html' => 'stepped-sale',
         'terms.html' => 'terms',
         'privacy.html' => 'privacy',
 

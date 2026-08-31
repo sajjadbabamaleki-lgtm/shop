@@ -3426,7 +3426,7 @@ const FOOT_CATS = [
   ['shop.html', 'کیف زنانه'],
   ['shop.html', 'پرفروش\u200cترین\u200cها'],
   ['shop.html', 'تخفیف\u200cدارها'],
-  ['shop.html', 'حراج پله\u200cای'],
+  ['stepped-sale.html', 'حراج پله\u200cای'],
 ];
 
 const FOOT_COLS = [
@@ -3440,7 +3440,7 @@ const FOOT_COLS = [
     ['privacy.html', 'حریم خصوصی'],
     ['terms.html', 'قوانین و مقررات'],
     ['faq.html', 'سوالات متداول'],
-    ['shop.html', 'حراج پله\u200cای'],
+    ['stepped-sale.html', 'حراج پله\u200cای'],
   ]],
   ['دسته\u200cها', [
     ['shop.html', 'کفش زنانه'],

@@ -77,8 +77,8 @@ class HouseTypographyTest extends TestCase
     public static function shopPages(): array
     {
         return [['/'], ['/products'], ['/cart'], ['/account/enter'],
-            ['/about'], ['/contact'], ['/size-guide'], ['/faq'], ['/terms'],
-            ['/privacy'], ['/wholesale'], ['/franchise']];
+            ['/about'], ['/contact'], ['/size-guide'], ['/stepped-sale'],
+            ['/faq'], ['/terms'], ['/privacy'], ['/wholesale'], ['/franchise']];
     }
 
     #[DataProvider('shopPages')]

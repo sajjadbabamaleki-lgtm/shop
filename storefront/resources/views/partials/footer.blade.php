@@ -33,7 +33,7 @@
                             <li><a href="{{ page_url('privacy.html') }}">حریم خصوصی</a></li>
                             <li><a href="{{ page_url('terms.html') }}">قوانین و مقررات</a></li>
                             <li><a href="{{ page_url('faq.html') }}">سوالات متداول</a></li>
-                            <li><a href="{{ page_url('shop.html') }}">حراج پله‌ای</a></li>
+                            <li><a href="{{ page_url('stepped-sale.html') }}">حراج پله‌ای</a></li>
                         </ul>
                     </div>
                     <div class="vp-foot-m-col">
@@ -105,7 +105,7 @@
                                         <li><a href="{{ page_url('shop.html') }}">کیف زنانه</a></li>
                                         <li><a href="{{ page_url('shop.html') }}">پرفروش‌ترین‌ها</a></li>
                                         <li><a href="{{ page_url('shop.html') }}">تخفیف‌دارها</a></li>
-                                        <li><a href="{{ page_url('shop.html') }}">حراج پله‌ای</a></li>
+                                        <li><a href="{{ page_url('stepped-sale.html') }}">حراج پله‌ای</a></li>
                                     </ul>
                                 </div>
                             </div>

@@ -5,10 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Contracts\View\View;
 
 /**
- * The content pages: «درباره ما», «تماس با ما», «راهنمای سایز», «سوالات
- * متداول», «قوانین و مقررات» and «حریم خصوصی».
+ * The content pages: «درباره ما», «تماس با ما», «راهنمای سایز», «حراج پله‌ای»,
+ * «سوالات متداول», «قوانین و مقررات» and «حریم خصوصی».
  *
- * Six pages of copy and no database. They exist because the footer has been
+ * Seven pages of copy and no database. They exist because the footer has been
  * linking to them since the template arrived — 21 of its 47 links went to '#'
  * — and because §2 of the specification asks for content pages and customer
  * support features in the same breath as the cart and the checkout.
@@ -37,6 +37,7 @@ class PageController extends Controller
         'about' => 'about',
         'contact' => 'contact',
         'size-guide' => 'size-guide',
+        'stepped-sale' => 'stepped-sale',
         'faq' => 'faq',
         'terms' => 'terms',
         'privacy' => 'privacy',

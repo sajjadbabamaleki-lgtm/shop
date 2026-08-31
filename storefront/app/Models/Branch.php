@@ -41,8 +41,8 @@ class Branch extends Model
         'customer', 'dashboard', 'faq', 'health', 'home', 'livewire', 'login',
         'franchise', 'logout', 'orders', 'pages', 'panel', 'password',
         'payment', 'privacy', 'product', 'products', 'profile', 'register',
-        'search', 'shop', 'size-guide', 'sitemap', 'storage', 'store', 'terms',
-        'up', 'vendor', 'vendors', 'wholesale', 'wishlist',
+        'search', 'shop', 'size-guide', 'sitemap', 'stepped-sale', 'storage',
+        'store', 'terms', 'up', 'vendor', 'vendors', 'wholesale', 'wishlist',
     ];
 
     protected $fillable = [

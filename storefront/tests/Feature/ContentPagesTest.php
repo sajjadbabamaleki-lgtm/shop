@@ -45,6 +45,7 @@ class ContentPagesTest extends TestCase
             ['/about', 'درباره ویکی پلاس'],
             ['/contact', 'تماس با ما'],
             ['/size-guide', 'راهنمای سایز'],
+            ['/stepped-sale', 'حراج پله‌ای ویکی پلاس'],
             ['/faq', 'سوالات متداول'],
             ['/terms', 'قوانین و مقررات'],
             ['/privacy', 'حریم خصوصی'],
@@ -185,6 +186,30 @@ class ContentPagesTest extends TestCase
         $this->get('/faq')->assertOk()
             ->assertSee('تنها برای تعویض سایز', false)
             ->assertSee(fa_number((int) config('storefront.content.exchange_days')), false);
+    }
+
+    /**
+     * The six commitments are on «درباره ما», in the client's own words.
+     *
+     * «تعهدات ما در جایی در صفحه باشه … قسمتی به عنوان تعهدات ما در نظر گرفته
+     * بشه». They are copy the shop wrote about itself, so this asserts the
+     * headings rather than paraphrases: a commitment quietly dropped from the
+     * page is a promise the shop stopped making.
+     */
+    public function test_the_about_page_carries_the_six_commitments(): void
+    {
+        $page = $this->get('/about')->assertOk()->assertSee('تعهدات ما', false);
+
+        foreach ([
+            'کیفیت بی‌نظیر',
+            'رضایت بی حد و مرز',
+            'اصالت قابل اعتماد',
+            'نوآوری پویا',
+            'تیم متخصص',
+            'تجربه‌ی لوکس و منحصر به فرد',
+        ] as $commitment) {
+            $page->assertSee($commitment, false);
+        }
     }
 
     /**
