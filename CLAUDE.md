@@ -130,12 +130,27 @@ the client saw an old page and had no way to tell why. So, plainly:
     where a static file on the same connection took 165ms — and 790ms on
     `/products`. That is on every load, cached assets or not, and it is the
     other half of «سایت کنده». No amount of cutting bytes touches it.
-    `ReportServerTiming` puts `Server-Timing: app;dur=…, db;dur=…, dbq;…` on
-    every response so the split between PHP and the database is readable from
-    the probe, from a browser's network panel, and from `curl -I`. Locally the
-    same page is 67ms with 35 queries, so the suspicion is per-query latency to
-    a database that is not on the same machine — fit across three pages it comes
-    out near 17ms a query — but **read the header before acting on that.**
+    `ReportServerTiming` puts `Server-Timing: app;dur=…, db;dur=…, dbq;…,
+    php;dur=…;desc="opcache …"` on every response, and it has now been read.
+    **The answer is that nothing is misconfigured and the machine is slow:**
+
+    | | here | live | ratio |
+    | --- | --- | --- | --- |
+    | PHP on `/` | 35ms | 448–550ms | ~13–16× |
+    | PHP on `/products` | 28ms | 328–436ms | ~12–15× |
+    | PHP on `/cart` | 14ms | 200–268ms | ~15–19× |
+    | one database query | 0.9ms | 9–11ms | ~11× |
+
+    `opcache on, config cached, routes cached` — all three, so the cheap fix
+    does not exist. **The ratio being the same on three pages of very
+    different weight is the finding**: a slow code path would show a different
+    ratio on each. It is the container's CPU, and the database's round trip.
+
+    So the two levers are the **Liara plan** (the client's decision, and the
+    only one that can halve this at a stroke — nothing in this repository can)
+    and **doing less**: on this machine every query removed is worth 10ms and
+    every millisecond of local PHP work is worth thirteen. The home page runs
+    35 queries. **Do not re-derive any of this — re-run the probe.**
 - **`netlify.toml` is not the deploy.** It publishes `download-version/` — the
   static design preview, which is a *copy* of the home page and has no PHP, no
   database and none of the catalogue pages. It is kept because the design is

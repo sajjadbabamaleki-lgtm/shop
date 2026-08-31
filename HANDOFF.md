@@ -4177,14 +4177,47 @@ the base sheet's first comment is the header naming where the base layer was
 bought. The published copy has always had its comments taken out on the way; an
 original sitting next to it would go up whole.
 
-### What is left, in the order it is worth doing
+### The server, once the header was read — it is the machine
 
-1. **The ~915ms of server.** Read the `Server-Timing` split from the probe
-   first. If `db` is most of it, the 35 queries on the home page are the work —
-   and 11 of them are the same query run twice in one request (categories,
-   brands, the media and offers for products 1–5, the basket count). If `app`
-   minus `db` is most of it, it is PHP, and the question is opcache and the
-   container's size, which is a Liara setting rather than code.
+Both halves of `Server-Timing` are now in, off the live site, and they close
+the question the last section left open.
+
+`php;dur=549.5;desc="opcache on, config cached, routes cached"`. All three are
+already right, so the cheap fix does not exist — nothing on this platform is
+misconfigured.
+
+| | here | live | ratio |
+| --- | --- | --- | --- |
+| PHP on `/` | 35ms | 448–550ms | ~13–16× |
+| PHP on `/products` | 28ms | 328–436ms | ~12–15× |
+| PHP on `/cart` | 14ms | 200–268ms | ~15–19× |
+| one database query | 0.9ms | 9–11ms | ~11× |
+
+**The finding is that the ratio is the same on all three.** Those pages differ
+by a factor of three in size and by 35 against 11 queries; a slow code path
+would show up as a different ratio on each, and a heavy band on the home page
+would show up on the home page alone. A flat multiple across all of them is the
+signature of a slower processor, not of anything in this repository. The
+database's ~10ms per round trip says the same about the link to it.
+
+So there are two levers and only one of them is code:
+
+1. **The Liara plan.** More CPU for the app, and the database's own plan and
+   region if it is a managed one — the round trip is a network fact. This is
+   the only thing that can halve the server's time at a stroke, it needs no
+   deploy, and it is the client's decision because it costs money. **It was
+   asked and the client chose it on 2026-08-31.** After it changes, the probe
+   re-measures on the next push; nothing here has to be edited.
+2. **Doing less.** On this machine every query removed is worth ~10ms and every
+   millisecond of local PHP work is worth thirteen, so work that would be
+   pointless locally pays here. The home page runs 35 queries and 11 of them
+   are the same query twice in one request — the categories (the home row and
+   the phone drawer), and the eager loads of two bands that both reach the same
+   five products because the whole catalogue is five products. The categories,
+   the brand strip and `front_page_placements` can all be cached without
+   touching a price or a stock figure. **Not done: the client chose the plan
+   instead, and doing both at once would have made it impossible to tell which
+   one worked.**
 2. **The fonts, 175KB that gzip cannot touch.** Vazirmatn is 111KB with 811
    codepoints, of which 213 are Arabic presentation forms nothing here types;
    subsetting to what Persian and Latin actually need measures **111KB → 85KB**,
