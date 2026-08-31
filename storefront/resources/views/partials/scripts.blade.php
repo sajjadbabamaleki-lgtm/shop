@@ -107,7 +107,14 @@
             // be looked at. «وقتی جفت شیش میشه باید ۲ ثانیه رو جفت شیش بمونه
             // بعد این پاپاپ باز بشه» — the card covers the dice, and opening
             // it the instant they stop means nobody ever sees what they threw.
-            var GLOAT = 2000;
+            //
+            // Then «اون مکث نصف بشه»: two seconds was long enough to read as
+            // the page having stalled rather than as a pause for effect, which
+            // is the failure this number can have in either direction. One
+            // second still clears the landing animation (LAND + 60 = 320ms) by
+            // a wide margin, so the dice are settled and still for two thirds
+            // of the wait before the card arrives.
+            var GLOAT = 1000;
 
             function fa(text) {
                 return String(text).replace(/[0-9]/g, function (d) {
