@@ -84,6 +84,26 @@ class ArticleController extends Controller
             'slug' => ['nullable', 'string', 'max:200'],
             'excerpt' => ['nullable', 'string', 'max:400'],
             'body' => ['required', 'string', 'max:40000'],
+            // The pull-quote and whoever said it. Both optional, and separate:
+            // a quote with no name is a line the article is emphasising, one
+            // with a name is somebody being quoted, and the panel has to be
+            // able to make either claim.
+            'quote' => ['nullable', 'string', 'max:600'],
+            'quote_by' => ['nullable', 'string', 'max:120'],
+            // One line of comma-separated words. Cleaned in the model rather
+            // than here, so an article saved before tags existed still reads.
+            'tags' => ['nullable', 'string', 'max:200'],
+            // The photographs that go inside the article. `gallery.*` because
+            // the field is `multiple`; the rules are the hero image's.
+            'gallery' => ['nullable', 'array', 'max:6'],
+            'gallery.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+            // What to keep of what is already there. The form posts the paths
+            // it still wants, so removing one is unticking a box rather than a
+            // second screen — and a path that was never on this article cannot
+            // be smuggled in, because the list is intersected with what is
+            // stored below.
+            'keep' => ['nullable', 'array'],
+            'keep.*' => ['string'],
             'status' => ['required', Rule::in(array_keys(Article::LABELS))],
             // Stored on the `public` disk, the same as a product photograph.
             // **On a container that is not permanent** — a redeploy starts
@@ -96,6 +116,8 @@ class ArticleController extends Controller
         ], [], [
             'title' => 'عنوان', 'slug' => 'نشانی', 'excerpt' => 'خلاصه',
             'body' => 'متن', 'status' => 'وضعیت', 'image' => 'عکس',
+            'quote' => 'نقل‌قول', 'quote_by' => 'گویندهٔ نقل‌قول',
+            'tags' => 'برچسب‌ها', 'gallery' => 'عکس‌های داخل مقاله',
         ]);
 
         $slug = trim((string) ($input['slug'] ?? ''));
@@ -107,6 +129,12 @@ class ArticleController extends Controller
                 : ($article?->slug ?? Article::slugFor($input['title'])),
             'excerpt' => $input['excerpt'] ?? null,
             'body' => $input['body'],
+            'quote' => $input['quote'] ?? null,
+            // A name with no quote under it would print nothing and look like
+            // a lost field; it is dropped rather than stored.
+            'quote_by' => ($input['quote'] ?? null) === null ? null : ($input['quote_by'] ?? null),
+            'tags' => $this->tags($input['tags'] ?? null),
+            'gallery' => $this->gallery($request, $article, $input['keep'] ?? null),
             'status' => $input['status'],
         ];
 
@@ -121,5 +149,58 @@ class ArticleController extends Controller
         }
 
         return $fields;
+    }
+
+    /**
+     * One line of comma-separated words into a list.
+     *
+     * Persian commas as well as Latin ones: «کفش، چرم» is what a Persian
+     * keyboard types, and a shop whose tags all had a «،» stuck to them would
+     * be a bug nobody could see the cause of. Null rather than an empty list
+     * when there are none, so the column reads as «no tags» and not as «a list
+     * with nothing in it».
+     *
+     * @return list<string>|null
+     */
+    private function tags(?string $line): ?array
+    {
+        $tags = array_values(array_unique(array_filter(
+            array_map(
+                static fn (string $tag): string => trim($tag),
+                preg_split('/[,،]+/u', (string) $line) ?: []
+            ),
+            static fn (string $tag): bool => $tag !== '',
+        )));
+
+        return $tags === [] ? null : $tags;
+    }
+
+    /**
+     * What the article's gallery should hold after this save.
+     *
+     * The kept paths first, in the order the form posted them, then whatever
+     * was uploaded this time. **Intersected with what is actually stored**, so
+     * a path typed into the form by hand cannot put an arbitrary file on a
+     * public page — the field is a checkbox list, and a checkbox list is a
+     * request rather than a fact.
+     *
+     * @param  list<string>|null  $keep
+     * @return list<string>|null
+     */
+    private function gallery(Request $request, ?Article $article, ?array $keep): ?array
+    {
+        $had = $article?->galleryList() ?? [];
+
+        // `array_values` because `array_intersect` keeps the original keys and
+        // a json column with holes in its keys is an object, not a list.
+        $paths = $keep === null
+            ? $had
+            : array_values(array_intersect($keep, $had));
+
+        foreach ($request->file('gallery') ?? [] as $photo) {
+            $paths[] = 'storage/'.$photo->store('articles', 'public');
+        }
+
+        return $paths === [] ? null : $paths;
     }
 }

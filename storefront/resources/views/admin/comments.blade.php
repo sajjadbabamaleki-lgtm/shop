@@ -20,7 +20,8 @@
 @section('content')
 <div class="vp-adm-head">
     <p class="vp-adm-sub">
-        {{ $waiting > 0 ? fa_number($waiting).' نظر در انتظار بررسی' : 'نظری در انتظار بررسی نیست' }}
+        @php($all = $waiting + $articlesWaiting)
+        {{ $all > 0 ? fa_number($all).' نظر در انتظار بررسی' : 'نظری در انتظار بررسی نیست' }}
     </p>
 
     <div class="vp-adm-head-side">
@@ -33,6 +34,10 @@
 </div>
 
 <section class="vp-adm-card">
+    <div class="vp-adm-card-head">
+        <h2 class="vp-adm-card-title">نظرهای زیر محصول‌ها</h2>
+    </div>
+
     @if ($comments->isEmpty())
         <p class="vp-adm-empty">
             @if ($status === null)
@@ -94,6 +99,73 @@
         </table>
 
         <div class="vp-adm-pager">{{ $comments->links('pagination.vikyplus') }}</div>
+    @endif
+</section>
+
+{{-- The article side of the same queue.
+
+     One screen and not two, because it is one job — somebody reading what the
+     public wrote before the shop prints it — and two screens would be two
+     places to forget to look.
+
+     A different gate produced these: a shoe's comment is open to «فقط کسی که
+     خریده», and an article has no purchase behind it, so this box is open to
+     any signed-in customer. Same three decisions either way. --}}
+<section class="vp-adm-card">
+    <div class="vp-adm-card-head">
+        <h2 class="vp-adm-card-title">نظرهای زیر مقاله‌ها</h2>
+    </div>
+
+    @if ($articleComments->isEmpty())
+        <p class="vp-adm-empty">
+            @if ($status === null)
+                هنوز کسی زیر مقاله‌ای چیزی ننوشته.
+            @else
+                نظری با این وضعیت نیست.
+            @endif
+        </p>
+    @else
+        <table class="vp-admin-table">
+            <thead>
+                <tr><th>مقاله</th><th>مشتری</th><th>نظر</th><th>تاریخ</th><th>وضعیت</th><th></th></tr>
+            </thead>
+            <tbody>
+            @foreach ($articleComments as $comment)
+                <tr>
+                    <td>
+                        <a href="{{ storefront_route('article', $comment->article) }}">
+                            {{ $comment->article->title }}
+                        </a>
+                    </td>
+                    <td>
+                        {{ $comment->customer?->name ?: '—' }}
+                        @if ($comment->customer)
+                            <span class="vp-adm-sub"><bdi dir="ltr">{{ $comment->customer->phone }}</bdi></span>
+                        @endif
+                    </td>
+                    <td class="vp-admin-said">{{ $comment->body }}</td>
+                    <td>{{ fa_date($comment->created_at) }}</td>
+                    <td>
+                        <span class="vp-adm-badge is-{{ $comment->status === \App\Models\ArticleComment::PENDING ? 'placed' : ($comment->status === \App\Models\ArticleComment::PUBLISHED ? 'delivered' : 'cancelled') }}">
+                            {{ \App\Models\ArticleComment::LABELS[$comment->status] }}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="vp-adm-inline">
+                            @foreach (\App\Models\ArticleComment::LABELS as $to => $label)
+                                @continue($comment->status === $to)
+                                <form method="post" action="{{ route('admin.comment.article.status', $comment) }}">
+                                    @csrf
+                                    <input type="hidden" name="status" value="{{ $to }}">
+                                    <button type="submit" class="vp-adm-mini is-quiet">{{ $label }}</button>
+                                </form>
+                            @endforeach
+                        </div>
+                    </td>
+                </tr>
+            @endforeach
+            </tbody>
+        </table>
     @endif
 </section>
 @endsection

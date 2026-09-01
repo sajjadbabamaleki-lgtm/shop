@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ArticleComment;
 use App\Models\ProductComment;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -37,6 +38,20 @@ class CommentController extends Controller
         }
 
         return view('admin.comments', [
+            /*
+             * Two queues on one screen, because they are one job: somebody
+             * reading what the public wrote before the shop prints it. Two
+             * screens would be two places to forget to look, and the pending
+             * count in the sub-line would have to pick one of them to be about.
+             */
+            'articleComments' => ArticleComment::query()
+                ->when($status !== null, fn ($query) => $query->where('status', $status))
+                ->orderByRaw('(status = ?) desc', [ArticleComment::PENDING])
+                ->orderBy('created_at')
+                ->with(['customer', 'article'])
+                ->limit(50)
+                ->get(),
+            'articlesWaiting' => ArticleComment::query()->waiting()->count(),
             'comments' => ProductComment::query()
                 ->when($status !== null, fn ($query) => $query->where('status', $status))
                 /*
@@ -53,6 +68,20 @@ class CommentController extends Controller
             'status' => $status,
             'waiting' => ProductComment::query()->waiting()->count(),
         ]);
+    }
+
+    public function updateArticleComment(Request $request, ArticleComment $comment): RedirectResponse
+    {
+        $input = $request->validate([
+            'status' => ['required', Rule::in(array_keys(ArticleComment::LABELS))],
+        ]);
+
+        $comment->update([
+            'status' => $input['status'],
+            'approved_at' => $input['status'] === ArticleComment::PUBLISHED ? now() : null,
+        ]);
+
+        return back()->with('status', 'وضعیت نظر به‌روز شد.');
     }
 
     public function update(Request $request, ProductComment $comment): RedirectResponse

@@ -44,6 +44,45 @@
 
             <p class="vp-art-text">{{ $article->body }}</p>
 
+            @if ($article->quote)
+                {{-- The pull-quote, and whoever said it. The name is a chip
+                     under the panel rather than a line inside it, so a quote
+                     with nobody's name attached simply has no chip — which is
+                     a line the article is emphasising rather than somebody
+                     being quoted. --}}
+                <figure class="vp-art-quote">
+                    <span class="vp-art-quote-mark" aria-hidden="true">”</span>
+                    <blockquote>{{ $article->quote }}</blockquote>
+                    @if ($article->quote_by)
+                        <figcaption>{{ $article->quote_by }}</figcaption>
+                    @endif
+                </figure>
+            @endif
+
+            @if ($article->galleryList())
+                {{-- The photographs inside the article. `figure` because they
+                     are the article's own illustrations rather than a gallery
+                     anybody browses — there is no lightbox, and a picture that
+                     opens into one is a control this page does not have. --}}
+                <div class="vp-art-gallery">
+                    @foreach ($article->galleryList() as $photo)
+                        <img src="{{ asset($photo) }}" alt="" loading="lazy" decoding="async">
+                    @endforeach
+                </div>
+            @endif
+
+            @if ($article->tagList())
+                <div class="vp-art-tags">
+                    <span class="vp-art-tags-label">برچسب‌ها</span>
+                    @foreach ($article->tagList() as $tag)
+                        {{-- Every chip leads somewhere: the listing, filtered.
+                             A row of chips that filter nothing is decoration
+                             wearing a control's clothes. --}}
+                        <a class="vp-art-tag" href="{{ storefront_route('articles', ['tag' => $tag]) }}">{{ $tag }}</a>
+                    @endforeach
+                </div>
+            @endif
+
             {{-- Sharing, and only where a link can carry the whole thing: the
                  two the shop's own footer already lists. No counter, no
                  third-party script — every one of those is a request to
@@ -95,6 +134,76 @@
                 @endif
             </nav>
         @endif
+
+        {{-- «نظر خواننده‌ها».
+
+             The gate is not the product page's. A shoe's comment is open to
+             «فقط کسی که خریده», and that purchase is what makes it worth
+             reading; an article has no purchase behind it, so the rule here is
+             a signed-in customer and the shop reading it first.
+
+             No name or email box, deliberately. The reference's form asks for
+             both, which is the shape of a form open to strangers — and a name
+             typed into a box is not a name anybody checked. The account already
+             holds one. --}}
+        <div class="vp-art-talk" id="vp-art-talk">
+            <h2 class="vp-home-arts-title">
+                نظرها
+                @if ($comments->isNotEmpty())
+                    <span class="vp-art-talk-count">{{ fa_number($comments->count()) }}</span>
+                @endif
+            </h2>
+
+            @if ($comments->isEmpty())
+                <p class="vp-art-talk-none">هنوز کسی دربارهٔ این مقاله چیزی ننوشته است.</p>
+            @else
+                <ul class="vp-art-talk-list">
+                    @foreach ($comments as $comment)
+                        <li class="vp-art-talk-one">
+                            <span class="vp-art-talk-mark" aria-hidden="true">{{ $comment->authorInitial() }}</span>
+                            <div>
+                                <span class="vp-art-talk-name">
+                                    @if ($comment->authorIsNumber())
+                                        <bdi dir="ltr">{{ $comment->authorName() }}</bdi>
+                                    @else
+                                        {{ $comment->authorName() }}
+                                    @endif
+                                </span>
+                                <span class="vp-art-talk-when">{{ fa_date($comment->approved_at) }}</span>
+                                <p class="vp-art-talk-said">{{ $comment->body }}</p>
+                            </div>
+                        </li>
+                    @endforeach
+                </ul>
+            @endif
+
+            @if (session('comment_status'))
+                <p class="vp-note is-good">{{ session('comment_status') }}</p>
+            @endif
+
+            @error('body')
+                <p class="vp-note is-bad">{{ $message }}</p>
+            @enderror
+
+            @auth('customer')
+                <form class="vp-art-talk-write" method="post"
+                      action="{{ storefront_route('article.comment', $article) }}">
+                    @csrf
+                    <label class="vp-art-talk-ask" for="vp-art-body">نظرتان را بنویسید</label>
+                    <textarea id="vp-art-body" name="body" rows="4" minlength="10" maxlength="1500"
+                              required>{{ old('body') }}</textarea>
+                    <div class="vp-art-talk-send">
+                        <span>نظر شما پس از بررسی منتشر می‌شود.</span>
+                        <button type="submit" class="vp-filter-apply vp-cart-go">ثبت نظر</button>
+                    </div>
+                </form>
+            @else
+                <div class="vp-art-talk-door">
+                    <p>برای نوشتن نظر وارد حساب خود شوید.</p>
+                    <a class="vp-filter-apply vp-cart-go" href="{{ storefront_route('account.enter') }}">ورود به حساب</a>
+                </div>
+            @endauth
+        </div>
 
         @if ($more->isNotEmpty())
             <div class="vp-art-more">

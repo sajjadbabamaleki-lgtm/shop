@@ -1,7 +1,7 @@
 {
   "note": "Written by theme/make-css-subset.js. Do not edit — re-run the script.",
-  "vocabulary": "96321a44cdecc2087856b7b726cdd1bed6f4199c604bd107bb455ea4d4a23384",
-  "words": 7295,
+  "vocabulary": "06be40d2c12f7b6e1758882c45f29f187b27e45ac2b2dfef5dfc777922e11b10",
+  "words": 7344,
   "read": [
     "download-version/assets/js/gsap.min.js",
     "download-version/assets/js/main.js",
@@ -113,7 +113,7 @@
     "bootstrap.rtl.min.css": {
       "from": "bootstrap.rtl.full.min.css",
       "was": 194383,
-      "is": 13853
+      "is": 13942
     },
     "swiper-bundle.rtl.min.css": {
       "from": "swiper-bundle.rtl.full.min.css",

@@ -411,6 +411,12 @@ Route::middleware('auth:web')->group(function (): void {
     Route::post('/comments/{comment}', [CommentController::class, 'update'])
         ->middleware(RequirePlatformPermission::class.':platform.comment.manage')
         ->name('comment.status');
+    // The article side of the same queue. A path of its own rather than a kind
+    // in the body: the two are different tables, and a `kind` that arrived in
+    // a form post is one typo away from moving the wrong row.
+    Route::post('/comments/article/{comment}', [CommentController::class, 'updateArticleComment'])
+        ->middleware(RequirePlatformPermission::class.':platform.comment.manage')
+        ->name('comment.article.status');
 
     Route::get('/settlements', [MarketplaceController::class, 'settlements'])
         ->middleware(RequirePlatformPermission::class.':marketplace.settlement.view')

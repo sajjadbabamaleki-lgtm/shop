@@ -3,7 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Article;
+use App\Models\ArticleComment;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
@@ -17,10 +21,25 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  */
 class ArticleController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
+        /*
+         * «برچسب‌ها» — the chips under an article, which have to lead
+         * somewhere or they are decoration. A tag that matches nothing is
+         * treated as no filter at all rather than as an empty page: the
+         * address is typed by hand as often as it is clicked.
+         */
+        $tag = trim((string) $request->query('tag'));
+
+        $articles = Article::published()
+            ->when($tag !== '', fn ($query) => $query->tagged($tag))
+            ->latest('published_at')
+            ->paginate(9)
+            ->withQueryString();
+
         return view('pages.articles', [
-            'articles' => Article::published()->latest('published_at')->paginate(9),
+            'articles' => $articles,
+            'tag' => $tag === '' ? null : $tag,
         ]);
     }
 
@@ -68,6 +87,44 @@ class ArticleController extends Controller
                 ->where('published_at', '<', $article->published_at)
                 ->latest('published_at')
                 ->first(),
+            // Approved only, oldest first — a thread reads the way it was
+            // written. The scope is on the relation, so a view cannot print an
+            // unread sentence by reaching for `$article->comments`.
+            'comments' => $article->publishedComments()->with('customer')->get(),
         ]);
+    }
+
+    /**
+     * A reader's comment under an article.
+     *
+     * **Signed in, and nothing more.** A shoe's comment is open to «فقط کسی که
+     * خریده» and that purchase is what makes it worth reading; an article has
+     * no purchase behind it, so the same rule would close the box to everybody.
+     * The account is a verified telephone number, and that is what stands
+     * between this and a form anybody on the internet can post into.
+     *
+     * Stored `PENDING` like everything else this shop takes from the public.
+     * Nothing on the storefront publishes on submission.
+     */
+    public function comment(Request $request, Article $article): RedirectResponse
+    {
+        if (! $article->isPublished()) {
+            throw new NotFoundHttpException('That article is not published.');
+        }
+
+        $input = $request->validate([
+            'body' => ['required', 'string', 'min:10', 'max:1500'],
+        ], [], ['body' => 'نظر']);
+
+        ArticleComment::create([
+            'article_id' => $article->id,
+            'customer_id' => Auth::guard('customer')->id(),
+            'body' => $input['body'],
+            'status' => ArticleComment::PENDING,
+        ]);
+
+        return back()
+            ->with('comment_status', 'نظر شما ثبت شد و پس از بررسی منتشر می‌شود.')
+            ->withFragment('vp-art-talk');
     }
 }

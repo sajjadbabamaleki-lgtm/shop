@@ -5,14 +5,23 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
 /**
- * Something the shop wrote — «متن ساده با عکس و تیتر».
+ * Something the shop wrote.
  *
- * A title, a photograph and plain text. No categories, no tags, no author
- * table: every one of those is a screen somebody has to fill in before an
- * article can be published, and what was asked for is somewhere to write.
+ * It began as «متن ساده با عکس و تیتر» and grew to the client's fuller
+ * reference: a pull-quote, a row of photographs inside the piece, tags, and
+ * comments underneath.
+ *
+ * **Still plain text, though.** The body is stored and printed as text, with
+ * the writer's own line breaks kept; what was added is *fields*, each with one
+ * job. Nothing here stores markup, because nothing here sanitises it.
+ *
+ * **No author, at the client's word** — «فقط تاریخ، بدون نویسنده». An article
+ * is the shop's, and a byline nobody typed would be a name on words the person
+ * did not write.
  *
  * **Not branch-scoped.** An article is the shop's, and the shop is one shop
  * with several counters.
@@ -30,11 +39,23 @@ class Article extends Model
         self::PUBLISHED => 'منتشر شده',
     ];
 
-    protected $fillable = ['slug', 'title', 'excerpt', 'image', 'body', 'status', 'published_at'];
+    protected $fillable = [
+        'slug', 'title', 'excerpt', 'image', 'body',
+        'quote', 'quote_by', 'gallery', 'tags',
+        'status', 'published_at',
+    ];
 
     protected function casts(): array
     {
-        return ['published_at' => 'datetime'];
+        return [
+            'published_at' => 'datetime',
+            // Both are lists the panel edits as text and the page walks.
+            // Cast rather than decoded at every call site: a `json_decode`
+            // in a Blade is how one view ends up handling null differently
+            // from the next.
+            'gallery' => 'array',
+            'tags' => 'array',
+        ];
     }
 
     public function getRouteKeyName(): string
@@ -77,6 +98,61 @@ class Article extends Model
         return $excerpt !== ''
             ? $excerpt
             : Str::limit(trim(preg_replace('/\s+/u', ' ', $this->body) ?? ''), $characters, '…');
+    }
+
+    /** Every comment on it, whatever its state — the panel's queue. */
+    public function comments(): HasMany
+    {
+        return $this->hasMany(ArticleComment::class);
+    }
+
+    /** The ones the page prints: approved, oldest first, the way a thread reads. */
+    public function publishedComments(): HasMany
+    {
+        return $this->comments()->published()->oldest('approved_at');
+    }
+
+    /**
+     * The tags, cleaned.
+     *
+     * The panel takes them as one line of comma-separated words, so the list
+     * that comes back can carry empty entries and repeats. Both are cleaned
+     * here rather than on the way in, so an article saved before this existed
+     * still reads correctly.
+     *
+     * @return list<string>
+     */
+    public function tagList(): array
+    {
+        return array_values(array_unique(array_filter(
+            array_map(static fn ($tag): string => trim((string) $tag), $this->tags ?? []),
+            static fn (string $tag): bool => $tag !== '',
+        )));
+    }
+
+    /**
+     * The photographs inside the article, in the order they were added.
+     *
+     * @return list<string>
+     */
+    public function galleryList(): array
+    {
+        return array_values(array_filter(
+            array_map(static fn ($path): string => trim((string) $path), $this->gallery ?? []),
+            static fn (string $path): bool => $path !== '',
+        ));
+    }
+
+    /**
+     * Articles carrying a tag.
+     *
+     * `whereJsonContains` and not a `like`: «کفش» must not match «کفش چرم», and
+     * a substring search on a json blob would also match a tag that happened to
+     * appear inside a title if the column ever grew one.
+     */
+    public function scopeTagged(Builder $query, string $tag): Builder
+    {
+        return $query->whereJsonContains('tags', $tag);
     }
 
     /**

@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Models\Article;
+use App\Models\ArticleComment;
+use App\Models\Customer;
 use App\Models\Role;
 use App\Models\User;
 use Database\Seeders\BranchSeeder;
@@ -152,6 +154,181 @@ class ArticlesTest extends TestCase
             ->assertOk()
             ->assertSee('مقالات', false)
             ->assertSee(route('articles'), false);
+    }
+
+    // --- the quote, the gallery and the tags ------------------------------
+
+    /**
+     * A pull-quote with nobody's name on it is a line the article is
+     * emphasising; one with a name is somebody being quoted. The panel has to
+     * be able to make either claim, and a name with no quote under it is
+     * neither — it prints nothing, so it is not stored.
+     */
+    public function test_a_name_with_no_quote_under_it_is_not_stored(): void
+    {
+        $this->actingAs($this->panel())->post('/admin/articles', [
+            'title' => 'بدون نقل‌قول',
+            'body' => 'متن آزمایشی برای این مقاله.',
+            'quote_by' => 'کسی که چیزی نگفته',
+            'status' => Article::DRAFT,
+        ])->assertRedirect();
+
+        $article = Article::sole();
+        $this->assertNull($article->quote);
+        $this->assertNull($article->quote_by);
+    }
+
+    public function test_the_quote_and_its_speaker_reach_the_page(): void
+    {
+        $article = $this->write([
+            'quote' => 'چرم زنده است و کار شما نگه داشتن آن در میانه است.',
+            'quote_by' => 'کارگاه ویکی پلاس',
+        ]);
+
+        $this->get('/articles/'.$article->slug)
+            ->assertOk()
+            ->assertSee('چرم زنده است و کار شما نگه داشتن آن در میانه است.', false)
+            ->assertSee('کارگاه ویکی پلاس', false);
+    }
+
+    /**
+     * Tags are typed as one line and split on either comma.
+     *
+     * «کفش، چرم» is what a Persian keyboard produces, and a shop whose tags all
+     * had a «،» stuck to them would be a bug nobody could see the cause of.
+     */
+    public function test_tags_split_on_the_persian_comma_as_well_as_the_latin_one(): void
+    {
+        $this->actingAs($this->panel())->post('/admin/articles', [
+            'title' => 'برچسب‌دار',
+            'body' => 'متن آزمایشی برای این مقاله.',
+            'tags' => 'کفش چرم، نگهداری, زمستان',
+            'status' => Article::DRAFT,
+        ])->assertRedirect();
+
+        $this->assertSame(['کفش چرم', 'نگهداری', 'زمستان'], Article::sole()->tagList());
+    }
+
+    /** Every chip leads somewhere: the listing, filtered to that tag. */
+    public function test_a_tag_filters_the_listing(): void
+    {
+        $leather = $this->write(['title' => 'نگهداری از چرم', 'tags' => ['کفش چرم']]);
+        $walking = $this->write(['title' => 'کفش پیاده‌روی', 'slug' => 'کفش-پیاده-روی', 'tags' => ['پیاده‌روی']]);
+
+        $this->get('/articles?tag='.rawurlencode('کفش چرم'))
+            ->assertOk()
+            ->assertSee($leather->title, false)
+            ->assertDontSee($walking->title, false);
+
+        // And a way back out, or a filtered list is a dead end reached by
+        // clicking.
+        $this->get('/articles?tag='.rawurlencode('کفش چرم'))
+            ->assertSee(route('articles'), false);
+    }
+
+    /**
+     * «کفش» must not match «کفش چرم».
+     *
+     * A substring search on the json column would, which is why this uses
+     * `whereJsonContains`.
+     */
+    public function test_a_tag_matches_whole_and_not_by_substring(): void
+    {
+        $this->write(['tags' => ['کفش چرم']]);
+
+        $this->get('/articles?tag='.rawurlencode('کفش'))
+            ->assertOk()
+            ->assertSee('مقاله‌ای با این برچسب نیست.', false);
+    }
+
+    // --- what readers say -------------------------------------------------
+
+    /**
+     * The gate here is not the product page's, and it must not be.
+     *
+     * A shoe's comment is open to «فقط کسی که خریده», and that purchase is what
+     * makes it worth reading; an article has no purchase behind it, so the rule
+     * is a signed-in customer — and a guest is sent to the shopper's sign-in,
+     * not the staff one.
+     */
+    public function test_a_guest_cannot_comment_and_is_sent_to_the_shoppers_sign_in(): void
+    {
+        $article = $this->write();
+
+        $this->get('/articles/'.$article->slug)
+            ->assertOk()
+            ->assertSee('برای نوشتن نظر وارد حساب خود شوید.', false)
+            ->assertDontSee('name="body"', false);
+
+        $this->post('/articles/'.$article->slug.'/comments', ['body' => 'حرف من دربارهٔ این مقاله.'])
+            ->assertRedirect(route('account.enter'));
+
+        $this->assertSame(0, ArticleComment::count());
+    }
+
+    /** A signed-in customer writes, and it waits. */
+    public function test_a_comment_waits_for_the_shop_before_it_is_printed(): void
+    {
+        $article = $this->write();
+        $customer = Customer::create(['name' => 'سارا', 'phone' => '09121112233', 'password' => 'password-1234']);
+
+        $this->actingAs($customer, 'customer')
+            ->post('/articles/'.$article->slug.'/comments', ['body' => 'واکس بی‌رنگ را امتحان کردم و فرق کرد.'])
+            ->assertSessionHasNoErrors();
+
+        $comment = ArticleComment::sole();
+        $this->assertSame(ArticleComment::PENDING, $comment->status);
+        $this->assertNull($comment->approved_at);
+
+        $this->app['auth']->guard('customer')->logout();
+        $this->get('/articles/'.$article->slug)
+            ->assertOk()
+            ->assertDontSee('واکس بی‌رنگ را امتحان کردم و فرق کرد.', false);
+    }
+
+    /** And the panel's queue publishes it, on the same screen as the shoes'. */
+    public function test_the_panel_publishes_an_article_comment(): void
+    {
+        $article = $this->write();
+        $customer = Customer::create(['name' => 'سارا', 'phone' => '09121112233', 'password' => 'password-1234']);
+
+        $comment = ArticleComment::create([
+            'article_id' => $article->id,
+            'customer_id' => $customer->id,
+            'body' => 'این نظر منتظر بررسی است.',
+        ]);
+
+        $panel = $this->panel();
+
+        $this->actingAs($panel)
+            ->get('/admin/comments')
+            ->assertOk()
+            ->assertSee('نظرهای زیر مقاله‌ها', false)
+            ->assertSee('این نظر منتظر بررسی است.', false);
+
+        $this->actingAs($panel)
+            ->post('/admin/comments/article/'.$comment->id, ['status' => ArticleComment::PUBLISHED])
+            ->assertRedirect();
+
+        $this->assertNotNull($comment->refresh()->approved_at);
+
+        $this->app['auth']->guard('web')->logout();
+        $this->get('/articles/'.$article->slug)
+            ->assertOk()
+            ->assertSee('این نظر منتظر بررسی است.', false);
+    }
+
+    /** A draft takes no comments, however its address is reached. */
+    public function test_a_draft_takes_no_comments(): void
+    {
+        $draft = $this->write(['status' => Article::DRAFT, 'published_at' => null]);
+        $customer = Customer::create(['name' => 'سارا', 'phone' => '09121112233', 'password' => 'password-1234']);
+
+        $this->actingAs($customer, 'customer')
+            ->post('/articles/'.$draft->slug.'/comments', ['body' => 'حرف من دربارهٔ این مقاله.'])
+            ->assertNotFound();
+
+        $this->assertSame(0, ArticleComment::count());
     }
 
     // --- the panel's side -------------------------------------------------

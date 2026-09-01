@@ -2715,3 +2715,32 @@ a.vp-adm-mini {
   margin-bottom: 4px;
   border-radius: 12px;
 }
+
+/* The article's gallery on the panel's form: the photographs it already holds,
+   each a checkbox. Unticking one and saving is how it is removed — the
+   controller intersects what comes back with what is stored, so nothing typed
+   into the form can put an arbitrary file on a public page.
+
+   The tick is the native control, deliberately: it is the thing being acted on,
+   and a drawn one would be a second state to keep in step. */
+.vp-adm-art-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.vp-adm-art-keep {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  cursor: pointer;
+}
+
+.vp-adm-art-keep img {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  border-radius: 10px;
+}

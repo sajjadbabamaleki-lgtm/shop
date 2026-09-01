@@ -72,13 +72,51 @@
         <label for="a-body">متن</label>
         <textarea id="a-body" name="body" rows="16" maxlength="40000" required>{{ old('body', $article->body) }}</textarea>
 
+        <div class="vp-adm-form-row">
+            <div class="vp-adm-form">
+                <label for="a-quote">نقل‌قول (وسط مقاله)</label>
+                <textarea id="a-quote" name="quote" rows="3" maxlength="600">{{ old('quote', $article->quote) }}</textarea>
+            </div>
+            <div class="vp-adm-form">
+                {{-- A name with no quote under it prints nothing, so the
+                     controller drops it rather than storing a lost field. --}}
+                <label for="a-quote-by">گویندهٔ نقل‌قول</label>
+                <input id="a-quote-by" name="quote_by" value="{{ old('quote_by', $article->quote_by) }}" maxlength="120">
+            </div>
+        </div>
+
+        {{-- One line, comma-separated. The Persian «،» works as well as the
+             Latin one — see `ArticleController::tags()`. --}}
+        <label for="a-tags">برچسب‌ها (با ویرگول جدا کنید)</label>
+        <input id="a-tags" name="tags" value="{{ old('tags', implode('، ', $article->tagList())) }}"
+               maxlength="200" placeholder="کفش چرم، نگهداری">
+
         @if ($article->image)
-            <span class="vp-adm-form-label">عکس فعلی</span>
+            <span class="vp-adm-form-label">عکس اصلی</span>
             <img class="vp-adm-art-shot" src="{{ asset($article->image) }}" alt="">
         @endif
 
-        <label for="a-image">{{ $article->image ? 'جایگزینی عکس' : 'عکس' }}</label>
+        <label for="a-image">{{ $article->image ? 'جایگزینی عکس اصلی' : 'عکس اصلی' }}</label>
         <input id="a-image" type="file" name="image" accept="image/*">
+
+        @if ($article->galleryList())
+            {{-- Unticking one and saving is how a photograph is removed. The
+                 controller intersects what comes back with what is stored, so
+                 a path typed in by hand cannot put an arbitrary file on a
+                 public page. --}}
+            <span class="vp-adm-form-label">عکس‌های داخل مقاله — تیک را بردارید تا حذف شود</span>
+            <div class="vp-adm-art-gallery">
+                @foreach ($article->galleryList() as $photo)
+                    <label class="vp-adm-art-keep">
+                        <input type="checkbox" name="keep[]" value="{{ $photo }}" checked>
+                        <img src="{{ asset($photo) }}" alt="">
+                    </label>
+                @endforeach
+            </div>
+        @endif
+
+        <label for="a-gallery">افزودن عکس داخل مقاله (تا ۶ تا)</label>
+        <input id="a-gallery" type="file" name="gallery[]" accept="image/*" multiple>
 
         <button type="submit" class="vp-adm-apply">{{ $article->exists ? 'ثبت' : 'ساختن مقاله' }}</button>
     </form>

@@ -185,6 +185,22 @@ $storefront = function (): void {
     Route::get('/articles/{article}', [ArticleController::class, 'show'])->name('article');
 
     /*
+     * A reader's comment under an article.
+     *
+     * `auth:customer` and nothing more: a shoe's comment is open to «فقط کسی که
+     * خریده», and that purchase is what makes it worth reading — an article has
+     * no purchase behind it, so the same rule would close the box to everybody.
+     *
+     * Named `article.comment` and listed in `redirectGuestsTo` beside
+     * `product.comment`, for the reason written there: the address is an
+     * article's, and renaming it `account.*` to win a redirect would misname a
+     * URL in the one file a reader looks it up in.
+     */
+    Route::post('/articles/{article}/comments', [ArticleController::class, 'comment'])
+        ->middleware(['auth:customer', 'throttle:20,60'])
+        ->name('article.comment');
+
+    /*
      * «فروش عمده» and «اخذ نمایندگی». A page and a form each, one controller,
      * the kind fixed by the route rather than posted — a `kind` that arrived
      * in the request body is a franchise application filed as a wholesale

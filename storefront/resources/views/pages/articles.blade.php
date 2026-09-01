@@ -21,15 +21,25 @@
         <div class="vp-shop-panel vp-doc">
             <h1 class="vp-shop-title">مقالات</h1>
 
-            <p class="vp-doc-lead">
-                هرچه دربارهٔ کفش و کیف نوشته‌ایم اینجاست؛ از انتخاب سایز و جنس
-                چرم تا نگهداری از کفشی که دوستش دارید.
-            </p>
+            @if ($tag)
+                {{-- Arrived from a chip under an article. The way back out is
+                     the point: a filtered list with no way to clear it is a
+                     dead end somebody reaches by clicking. --}}
+                <p class="vp-doc-lead">
+                    مقاله‌های برچسب «{{ $tag }}» —
+                    <a href="{{ storefront_route('articles') }}">دیدن همهٔ مقاله‌ها</a>
+                </p>
+            @else
+                <p class="vp-doc-lead">
+                    هرچه دربارهٔ کفش و کیف نوشته‌ایم اینجاست؛ از انتخاب سایز و جنس
+                    چرم تا نگهداری از کفشی که دوستش دارید.
+                </p>
+            @endif
         </div>
 
         @if ($articles->isEmpty())
             <div class="vp-shop-panel vp-doc">
-                <p>هنوز مقاله‌ای منتشر نشده است.</p>
+                <p>{{ $tag ? 'مقاله‌ای با این برچسب نیست.' : 'هنوز مقاله‌ای منتشر نشده است.' }}</p>
             </div>
         @else
             {{-- The grid sits in `.vp-doc`'s own 820px reading column, because
