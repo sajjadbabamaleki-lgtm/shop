@@ -2589,3 +2589,56 @@ a.vp-adm-mini {
     color: var(--adm-stack-label);
   }
 }
+
+/* --- «صفحه اصلی»'s panels, in the dark ------------------------------------
+   «چرا باز این صفحات سفید افتادن» — a photograph of the live dark panel with
+   white cards on it, and pale type on the white.
+
+   **The same fault as the block above, one class along.** That one was the
+   phone's table-cards; this is `.vp-shop-panel`, `.vp-admin-pick` and the
+   table's own rules — storefront classes the panel borrows, each carrying a
+   literal white or a black-alpha hairline written before there was a second
+   theme to swap it for. The screen is the only one in `/admin` built on the
+   shop's panel rather than on `.vp-adm-card`, which is why it is the only one
+   that stayed white, and why the desktop sweep never caught it: it is not a
+   width, it is a class.
+
+   Measured on the live screen before this: the card `#FFFFFF` with
+   `#F2EFE7` on it — **1.06:1**, which is text you cannot read at all.
+
+   Only under `[data-theme="ink"]`. The light values are left exactly as they
+   are: the block above says a dark theme is not licence to move the light one
+   by a level, and `rgba(16,17,17,.12)` over white is not `--adm-line` — it is
+   #E0E0E0 against #E7E7E7, one level apart, which is precisely the kind of
+   silent repaint that warning is about.
+
+   The ring doubles here like every other card's in this theme: against a black
+   card one pixel of #282828 is most of the way to nothing. The drop shadow
+   goes rather than being kept — a shadow under a black card on a black page
+   draws nothing and only softens the corner the ring is there to define. */
+:root[data-theme="ink"] .vp-adm .vp-shop-panel {
+  background: var(--adm-surface);
+  box-shadow: inset 0 0 0 2px var(--adm-line);
+}
+
+/* The selects and the caption field. `--adm-sunk` rather than the surface, so
+   a control reads as set into the card the way every other input in this panel
+   does. */
+:root[data-theme="ink"] .vp-adm .vp-admin-pick {
+  background: var(--adm-sunk);
+  box-shadow: inset 0 0 0 2px var(--adm-line);
+  color: var(--adm-ink);
+}
+
+/* The table's two rules and its hover, which are black alphas over white. */
+:root[data-theme="ink"] .vp-adm .vp-admin-table th {
+  box-shadow: inset 0 -1px 0 var(--adm-line);
+}
+
+:root[data-theme="ink"] .vp-adm .vp-admin-table td {
+  box-shadow: inset 0 -1px 0 var(--adm-hair);
+}
+
+:root[data-theme="ink"] .vp-adm .vp-admin-table tbody tr:hover td {
+  background: var(--adm-sunk-2);
+}

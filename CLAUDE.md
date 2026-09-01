@@ -557,6 +557,19 @@ the client saw an old page and had no way to tell why. So, plainly:
   branches (`acrossAllBranches()`, because no branch is bound on this screen and
   a scoped query with nothing bound correctly returns nothing), and never a
   price. `FrontPageHeroAndSaleTest` holds all of it.
+  **It is also the only `/admin` screen built on the shop's `.vp-shop-panel`
+  rather than on `.vp-adm-card`, and that is what made it white in the dark
+  theme** — «چرا باز این صفحات سفید افتادن». A storefront class carries a
+  literal `#FFFFFF` and black-alpha hairlines written before the panel had a
+  second theme, so the card stayed white while the ink theme's type went pale
+  on it: measured 1.06:1, text nobody can read. `admin.css` (loaded after
+  tweaks.css) now redefines `.vp-shop-panel`, `.vp-admin-pick` and the table's
+  rules under `[data-theme="ink"]` only — 18.28:1 after, with the light theme
+  unchanged to the channel. **The rule to carry forward: an admin screen built
+  out of storefront classes is white in the dark panel until somebody says
+  otherwise**, and nothing automated notices — there is no dark-theme sweep,
+  and this is the second time it has been found by a photograph (see the
+  phone's table-cards block in `admin.css` for the first).
   On a phone this screen is the one place `.vp-shop-head` is *not* hidden:
   `.vp-adm-band .vp-shop-head` puts it back, because seven panels of unlabelled
   selects and a pair of «روشن کن»/«خاموش کن» buttons is what hiding it gave.
