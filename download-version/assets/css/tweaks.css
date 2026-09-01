@@ -16357,6 +16357,38 @@ button.vp-cart-keep {
   padding-right: 16px;
 }
 
+/* **A ring every few seconds** — «یه تکون ریز هم هر چند ثانیه یبار بخوره».
+ *
+ * The whole cycle is 5s and the movement is the last 0.55s of it, so what the
+ * page mostly shows is a still button; a mark that shook constantly would be a
+ * fault rather than an invitation. Four keyframes, ±11° and falling, which is
+ * the shape of something that was knocked rather than something that is being
+ * animated.
+ *
+ * It is on the icon and not the button: the icon holds its own 50px box, so a
+ * rotation there cannot move the pill, the label, or anything under it. And it
+ * waits for `.show` and stands down while `.is-wide` is on — a button that is
+ * still introducing itself in words does not also need to wave. */
+@keyframes vp-fab-nudge {
+  0%, 89%, 100% { transform: rotate(0deg); }
+  91% { transform: rotate(-11deg); }
+  93.5% { transform: rotate(9deg); }
+  96% { transform: rotate(-5deg); }
+  98% { transform: rotate(2deg); }
+}
+
+.vp-support-fab.show:not(.is-wide) > i {
+  animation: vp-fab-nudge 5s ease-in-out infinite;
+}
+
+/* Somebody who has asked their device for less movement gets the button and
+   none of this. */
+@media (prefers-reduced-motion: reduce) {
+  .vp-support-fab.show:not(.is-wide) > i {
+    animation: none;
+  }
+}
+
 .vp-support-fab-label {
   display: block;
   max-width: 0;

@@ -178,7 +178,13 @@ if (!SCROLL_TOP.test(html)) {
 const WHATSAPP = [
   '    <!-- WhatsApp -->',
   '    <a class="vp-support-fab" href="support.html" aria-label="پشتیبانی ۲۴ ساعته">',
-  '        <i class="fa-solid fa-headset" aria-hidden="true"></i>',
+  // Two speech bubbles: this is «پشتیبانی آنلاین», so the mark has to be a
+  // conversation. A telephone was tried and rejected — it reads as «زنگ
+  // بزنید», which is a different thing and a different hour of the day.
+  // `fa-comments` rather than a single bubble because the WhatsApp mark
+  // below it is one, and two identical bubbles stacked in a corner read as
+  // one control drawn twice.
+  '        <i class="fa-solid fa-comments" aria-hidden="true"></i>',
   // The label is always in the markup; what changes is how much room it is
   // given. See `.vp-support-fab-label` in tweaks.css — a label that came and
   // went would be a control whose accessible name changed three seconds in.

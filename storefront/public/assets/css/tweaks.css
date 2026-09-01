@@ -8960,6 +8960,24 @@ button.vp-cart-keep {
   padding-right: 16px;
 }
 
+@keyframes vp-fab-nudge {
+  0%, 89%, 100% { transform: rotate(0deg); }
+  91% { transform: rotate(-11deg); }
+  93.5% { transform: rotate(9deg); }
+  96% { transform: rotate(-5deg); }
+  98% { transform: rotate(2deg); }
+}
+
+.vp-support-fab.show:not(.is-wide) > i {
+  animation: vp-fab-nudge 5s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vp-support-fab.show:not(.is-wide) > i {
+    animation: none;
+  }
+}
+
 .vp-support-fab-label {
   display: block;
   max-width: 0;
