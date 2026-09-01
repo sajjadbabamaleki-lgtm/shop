@@ -14386,6 +14386,14 @@ button.vp-cart-keep {
     margin-block-end: 20px;
   }
 
+  /* «نظر خریداران» is a heading on the same page and takes the same size. The
+     10 rather than the shelf's 20: this heading is followed by prose or by a
+     list, neither of which pulls itself up the way a Bootstrap row does. */
+  .vp-pdp-talk .vp-shop-title {
+    font-size: 15px;
+    margin-block-end: 10px;
+  }
+
   /* «فاصله بین اون ۴ تا محصول باید ۱۰ بشه». The shelf under the product is a
      Bootstrap row with `gy-4` on it — 24 down and 24 across, which is the air
      the desktop grid wants and twice what everything else on this phone stands
@@ -16183,10 +16191,14 @@ button.vp-cart-keep {
    `.scroll-top svg` and `.scroll-top:after`. They are dead selectors now.
    Left in place rather than picked out of a shared list of forty, where a
    slip costs something real and the gain is nothing. */
+/* «بنظرم این دوتا آیکون میتونن ۴۰ درصد بیشتر به چپ و پایین برن» — so the inset
+   is 40% smaller on both axes, not the button: 30 × 0.6 = 18. Both corners of
+   both buttons move by the same number, because the two are one control in two
+   buttons and have to stay in step. */
 .vp-whatsapp {
   position: fixed;
-  left: 30px;
-  bottom: 30px;
+  left: 18px;
+  bottom: 18px;
   z-index: 10000;
   display: flex;
   align-items: center;
@@ -16237,12 +16249,12 @@ button.vp-cart-keep {
    could not find it.
 
    Every measurement is the WhatsApp button's, quoted rather than chosen: the
-   same 50px square, the same 16px radius, the same 30px from the left edge,
+   same 50px square, the same 16px radius, the same 18px from the left edge,
    the same shadow, the same hidden-until-scrolled state and the same
    transition. The two are one control in two buttons and must move as one.
 
-   **92 is 30 + 50 + 12**: the neighbour's own inset, its height, and twelve
-   between them. Written as the sum rather than as `92px` so that changing the
+   **80 is 18 + 50 + 12**: the neighbour's own inset, its height, and twelve
+   between them. Written as the sum rather than as `80px` so that changing the
    button's size below moves this with it instead of leaving a gap nobody can
    explain — and so the next reader can see it is not an arbitrary number.
 
@@ -16252,8 +16264,8 @@ button.vp-cart-keep {
    is what every filled control here is (see «گلد سبز»). */
 .vp-support-fab {
   position: fixed;
-  left: 30px;
-  bottom: calc(30px + 50px + 12px);
+  left: 18px;
+  bottom: calc(18px + 50px + 12px);
   z-index: 10000;
   display: flex;
   align-items: center;
@@ -16270,7 +16282,11 @@ button.vp-cart-keep {
   opacity: 0;
   visibility: hidden;
   transform: translateY(12px);
-  transition: transform 0.3s ease, opacity 0.3s ease, visibility 0.3s ease, box-shadow 0.2s ease;
+  /* `width` and `padding-inline` are in here for the pill below: the button
+     closes from a rectangle to a square, and a change nobody animated is a
+     jump. */
+  transition: transform 0.3s ease, opacity 0.3s ease, visibility 0.3s ease,
+              box-shadow 0.2s ease, width 0.35s ease, padding-inline 0.35s ease;
 }
 
 .vp-support-fab.show {
@@ -16283,6 +16299,54 @@ button.vp-cart-keep {
 .vp-support-fab.show:focus {
   color: #FFFFFF;
   transform: translateY(-2px);
+}
+
+/* --- the support button says what it is, once ----------------------------- */
+
+/* «اولش باید اون پشتیبانی یه مستطیل باشه که روش نوشته پشتیبانی ۲۴ ساعته چند
+   ثانیه باشه بعد جمع بشه تبدیل بشه به این چیزی که الان هست».
+ *
+ * A gold square with a headset on it is a guess until somebody taps it. So it
+ * arrives as a rectangle carrying its own name, holds that for a few seconds,
+ * and closes to the square — which is the icon-with-a-label pattern, spent
+ * once instead of costing the corner of every screen for ever.
+ *
+ * **Width, not `display`.** The label is always in the markup and always
+ * readable to a screen reader; what changes is how much room it is given. A
+ * label that came and went would be a control whose accessible name changes
+ * three seconds in.
+ *
+ * `max-width` rather than `width: auto` on the label: `auto` is not a value CSS
+ * can transition from, so the pill would snap shut rather than close. 190px is
+ * comfortably past the sentence's own width at every size this shop draws it,
+ * and the transition ends on the text's real width because the anchor is
+ * `width: auto` and shrink-wraps it.
+ *
+ * The script that adds and drops `is-wide` is in `theme/make-rtl-page.js`, in
+ * the same block as the scroll handler that shows both buttons — it starts the
+ * clock when the button first appears, not when the page loads, or the whole
+ * three seconds would be spent while the button is still invisible. */
+.vp-support-fab.is-wide {
+  width: auto;
+  padding-inline: 14px;
+}
+
+.vp-support-fab-label {
+  display: block;
+  max-width: 0;
+  overflow: hidden;
+  opacity: 0;
+  white-space: nowrap;
+  font-family: 'Vazirmatn', var(--body-font);
+  font-size: 14px;
+  font-weight: 500;
+  transition: max-width 0.35s ease, opacity 0.25s ease, margin-inline-start 0.35s ease;
+}
+
+.vp-support-fab.is-wide .vp-support-fab-label {
+  max-width: 190px;
+  margin-inline-start: 8px;
+  opacity: 1;
 }
 
 /* Off the celebration, with its neighbour and for the same reason: both are
@@ -22956,6 +23020,528 @@ body.shoe-shop {
 @media (max-width: 1399px) {
   .th-header .menu-area .top-search {
     width: 166px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   «نظر خریداران» — built to the client's own reference.
+
+   A round mark carrying the writer's initial, the name beside it, the stars
+   and the score under that, and the sentence below. Right-aligned throughout,
+   and **side by side rather than stacked once there is room** —
+   «تو نسخه دستاپ هم بجای اینکه رو هم باشن کنار هم قرار بگیرن».
+
+   The reference has a photograph in the round mark. This shop has none — a
+   `customers` row is a telephone number and, if somebody filled it in, a name
+   — and stock faces on real customers' comments would be a fabrication on the
+   one part of the page whose whole value is that it is not the shop talking.
+   So it is the initial on the shop's own gold tint, which does the job the
+   mark is there for: telling one comment from the next at a glance.
+
+   The card is `.vp-acct-order`'s material — white, a 1.5px inset ring at 0.1,
+   a 20px corner — because this shop has already decided what a card holding a
+   row of facts looks like.
+   -------------------------------------------------------------------------- */
+/* **The section is not in a card, at any width** — «اصلا نباید خود این بخش تو
+   کادر باشه», then «چرا تو نسخه دستاپ هنوز این بخش رو یه کارت بزرگه؟».
+ *
+ * It still carries `.vp-shop-panel` in the markup because everything on this
+ * page does and the class is what the phone's own rules key off; what it does
+ * not carry is any of that class's chrome. The heading, the comments and the
+ * form sit on the page.
+ *
+ * Written here rather than added to the phone's flatten list further up,
+ * because that list is inside `@media (max-width: 991.98px)` and this applies
+ * everywhere. The inset below is the phone half — «نباید به دو طرف موبایل
+ * چسبیده باشه نظر کاربران» — and it follows this rule so its `padding-inline`
+ * is not undone by the `padding` shorthand here. */
+.vp-shop-panel.vp-pdp-talk {
+  padding: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+
+@media (max-width: 991.98px) {
+  /* Ten in from the page's own 14, so the cards stand clear of both screen
+     edges. Padding on the band and not a margin on the cards, so the heading
+     moves in with them. */
+  .vp-shop-panel.vp-pdp-talk {
+    padding-inline: 10px;
+  }
+}
+
+.vp-pdp-talk-head {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  margin-bottom: 16px;
+}
+
+.vp-pdp-talk-head .vp-shop-title {
+  margin: 0;
+}
+
+.vp-pdp-talk-avg {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--body-color);
+}
+
+.vp-pdp-talk-avg b {
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 630;
+  font-size: 14.5px;
+  color: var(--title-color);
+}
+
+/* A row of five, printed and not drawn: the empty star is the same solid glyph
+   at a low alpha rather than the outline face, because the outline lives in
+   `fa-regular-400` and this shop's subset carries the solid one. One glyph,
+   two colours — and nothing to re-run `make-icon-fonts.js` for. */
+.vp-stars {
+  display: inline-flex;
+  gap: 2px;
+  font-size: 12.5px;
+  line-height: 1;
+  color: var(--vp-gold-fill);
+}
+
+.vp-stars .is-off {
+  color: rgba(16, 17, 17, 0.18);
+}
+
+/* Side by side from 992 up, one under the other below it. Two and not three:
+   a comment is a sentence or two of Persian, and a third column at this page's
+   width cuts every one of them to four words a line. */
+.vp-pdp-talk-list {
+  margin: 0 0 20px;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 12px;
+}
+
+@media (min-width: 992px) {
+  .vp-pdp-talk-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* The mark's column, then everything else. `grid` rather than a float so the
+   sentence starts under the name and not under the mark — the reference has
+   the text running the full width of the card, which is what the second row
+   spanning both columns gives. */
+/* **White, and no line around it** — «اون خط دور کارت نظر هم حذف بشه» and
+   «رنگ هردو باید سفید باشه». The card and the write panel below it are the
+   same white as the page; what separates them is the space between them and
+   nothing else. A tint was tried here and rejected. */
+.vp-pdp-talk-one {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: 4px 12px;
+  padding: 16px;
+  border-radius: 20px;
+  background: #FFFFFF;
+}
+
+.vp-pdp-talk-mark {
+  grid-row: span 2;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  background: rgba(218, 178, 38, 0.16);
+  color: var(--vp-gold-fill-ink);
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 630;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.vp-pdp-talk-who {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.vp-pdp-talk-name {
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 630;
+  font-size: 14.5px;
+  color: var(--title-color);
+}
+
+.vp-pdp-talk-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--body-color);
+  opacity: 0.8;
+}
+
+.vp-pdp-talk-dot {
+  opacity: 0.6;
+}
+
+.vp-pdp-talk-said {
+  grid-column: 2;
+  margin: 8px 0 0;
+  font-size: 14px;
+  line-height: 1.95;
+  color: var(--body-color);
+  /* A comment arrives with the writer's own line breaks in it. Printed as one
+     run it becomes a wall; `pre-line` keeps the breaks and collapses the runs
+     of spaces a phone keyboard leaves behind. */
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.vp-pdp-talk-none,
+.vp-pdp-talk-mine {
+  margin: 0 0 16px;
+  font-size: 14px;
+  line-height: 1.9;
+  color: var(--body-color);
+}
+
+/* --- writing one --------------------------------------------------------- */
+
+/* The same white, for the same instruction. */
+.vp-pdp-talk-write,
+.vp-pdp-talk-door {
+  padding: 16px;
+  border-radius: 20px;
+  background: #FFFFFF;
+}
+
+.vp-pdp-talk-write-title {
+  margin: 0 0 12px;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 630;
+  font-size: 15px;
+}
+
+.vp-pdp-talk-ask {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
+  color: var(--body-color);
+}
+
+/* The textarea keeps an edge, deliberately. The instruction was about the
+   comment card; a field a visitor is meant to type into and cannot find the
+   bounds of is a different problem. It is white on the panel's grey, which is
+   most of what marks it out. */
+.vp-pdp-talk-write textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 0;
+  border-radius: 14px;
+  background: #FFFFFF;
+  box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.1);
+  font-family: 'Vazirmatn', var(--body-font);
+  font-size: 14px;
+  line-height: 1.9;
+  color: var(--title-color);
+  resize: vertical;
+}
+
+.vp-pdp-talk-write textarea:focus {
+  outline: none;
+  box-shadow: inset 0 0 0 1.5px rgba(218, 178, 38, 0.75);
+}
+
+.vp-pdp-talk-send {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 12px;
+  font-size: 12px;
+  color: var(--body-color);
+}
+
+.vp-pdp-talk-door {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.vp-pdp-talk-door p {
+  margin: 0;
+  flex: 1 1 240px;
+  font-size: 14px;
+  line-height: 1.9;
+  color: var(--body-color);
+}
+
+/* `.vp-filter-apply` is the button at the foot of a filter sheet, and it
+   carries `flex: 1` so it fills that sheet's row. In both of these it sits
+   beside a sentence, so it shrink-wraps instead.
+ *
+ * **`flex: none` and not `width: auto`.** Width was the first thing tried and
+ * it did nothing, because `flex-grow: 1` grows a box past its width — the
+ * button measured 801px with `width: auto` on it. Read off the element, not
+ * off the rule.
+ *
+ * Full width again on a phone, where it is the only thing on its row. */
+.vp-pdp-talk-door .vp-filter-apply,
+.vp-pdp-talk-send .vp-filter-apply {
+  flex: none;
+  width: auto;
+  padding-inline: 28px;
+}
+
+@media (max-width: 575.98px) {
+  .vp-pdp-talk-door .vp-filter-apply,
+  .vp-pdp-talk-send .vp-filter-apply {
+    flex: 1;
+    width: 100%;
+  }
+}
+
+/* --- the star picker, with no JavaScript in it --------------------------- */
+
+/* Five radios written 5→1 in the markup and laid out `row-reverse`, so they
+   read 1→5 from the right. That order is the whole trick: `:checked ~ label`
+   reaches the siblings *after* the chosen one, which in this order are the
+   lower scores, so picking three lights three.
+ *
+ * The radio itself is taken out of the layout rather than hidden with
+ * `display: none` — a `display: none` radio is unreachable by keyboard, and
+ * this is the one control on the page somebody might tab to. */
+.vp-stars-pick {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+  gap: 4px;
+  margin-bottom: 14px;
+}
+
+.vp-stars-pick input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* **The base layer draws its own control on a `<label>` that follows a radio**,
+   as a pseudo-element — which put an empty circle beside every one of these
+   stars and made the row read as ten controls, and reserved 30px of padding to
+   stand it in. Found by measuring the label: 57px wide where a 22px star needs
+   26, with `::before` computing to `"\f111"`, which is FontAwesome's filled
+   circle.
+ *
+ * **The selector names the radio, and it has to.** `.vp-stars-pick label` is
+ * (0,1,1) and the base layer's is `input[type="radio"] + label::before`, which
+ * is (0,1,2) — so the first version of this rule lost and changed nothing.
+ * Naming the input here makes it (0,2,3).
+ *
+ * Both pseudo-elements are cancelled, not just the one that showed, because
+ * the other is the tick that would appear on the chosen one. */
+.vp-stars-pick input[type="radio"] + label::before,
+.vp-stars-pick input[type="radio"] + label::after {
+  content: none;
+}
+
+.vp-stars-pick input[type="radio"] + label {
+  display: inline-flex;
+  margin: 0;
+  padding: 2px;
+  cursor: pointer;
+  font-size: 22px;
+  line-height: 1;
+  color: rgba(16, 17, 17, 0.18);
+  transition: color 0.15s ease;
+}
+
+.vp-stars-pick input:checked ~ label,
+.vp-stars-pick label:hover,
+.vp-stars-pick label:hover ~ label {
+  color: var(--vp-gold-fill);
+}
+
+/* The focus ring goes on the star, because the radio it belongs to has no box
+   of its own to draw one around. */
+.vp-stars-pick input:focus-visible + label {
+  outline: 2px solid var(--vp-gold-fill-ink);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Said to a screen reader and to nothing else. The stars are `aria-hidden`
+   decoration; this is the score in words. */
+.vp-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* --------------------------------------------------------------------------
+   «مقالات» — the shop's own writing.
+
+   «هیچ جایی برای مقالات در سایت نداریم», and «متن ساده با عکس و تیتر». So a
+   card is a photograph, a title and a line, and the article is a photograph, a
+   title and text. There is deliberately no author, no category chip and no
+   reading time: each of those is a field somebody has to fill in before a
+   piece can go up.
+
+   The card is `.vp-acct-order`'s material again — white, a 1.5px inset ring at
+   0.1, a 20px corner — because this shop has already decided what a card that
+   is a link looks like.
+   -------------------------------------------------------------------------- */
+/* The same 820px column `.vp-doc` uses, so the cards line up under the panel
+   that introduces them. A wrapper rather than a max-width on the row itself:
+   a Bootstrap row carries negative inline margins, and constraining it
+   directly makes those margins fight the centring. */
+.vp-art-list {
+  max-width: 820px;
+  margin-inline: auto;
+}
+
+.vp-art-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border-radius: 20px;
+  background: #FFFFFF;
+  box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.1);
+  overflow: hidden;
+  color: var(--title-color);
+  transition: box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.vp-art-card:hover,
+.vp-art-card:focus-visible {
+  background: rgba(16, 17, 17, 0.028);
+  box-shadow: inset 0 0 0 1.5px rgba(218, 178, 38, 0.65);
+  color: var(--title-color);
+}
+
+/* 16:9 and `cover`, so a card is the same height whatever shape the
+   photograph arrived in. The rule everywhere else on this site is resize only,
+   never crop — that is about the *product* photographs, which are the goods
+   and may not be recomposed. An article's picture is decoration. */
+.vp-art-shot {
+  display: block;
+  aspect-ratio: 16 / 9;
+  background: rgba(16, 17, 17, 0.045);
+}
+
+.vp-art-shot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.vp-art-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+}
+
+.vp-art-title {
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 630;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.vp-art-sum {
+  font-size: 13.5px;
+  line-height: 1.9;
+  color: var(--body-color);
+}
+
+.vp-art-when {
+  margin-top: auto;
+  padding-top: 4px;
+  font-size: 12px;
+  color: var(--body-color);
+  opacity: 0.7;
+}
+
+.vp-art-pager {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.vp-art-doc-when {
+  margin: -6px 0 16px;
+  font-size: 13px;
+  color: var(--body-color);
+  opacity: 0.75;
+}
+
+.vp-art-doc-shot {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-bottom: 20px;
+  border-radius: 16px;
+}
+
+/* The body is stored and printed as plain text — that is what «متن ساده» was
+   asked for and it is also the safe reading of it, since an editor that stored
+   markup would put whatever was pasted into it on a public page. So the
+   writer's own line breaks are the only structure there is, and this is what
+   keeps them: `pre-line` holds the breaks and collapses the runs of spaces a
+   phone keyboard leaves behind. */
+.vp-art-text {
+  margin: 0;
+  font-size: 15px;
+  line-height: 2.1;
+  color: var(--body-color);
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.vp-art-more-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+
+.vp-art-more-list a {
+  font-size: 14.5px;
+  line-height: 1.8;
+  color: var(--title-color);
+}
+
+.vp-art-more-list a:hover {
+  color: var(--vp-gold-ink);
+}
+
+@media (max-width: 991.98px) {
+  /* The same flattening the product page's panels get on a phone: the card of
+     cards comes off and the photographs sit on the page. */
+  .vp-art-title {
+    font-size: 15px;
+  }
+
+  .vp-art-doc-shot {
+    border-radius: 12px;
   }
 }
 

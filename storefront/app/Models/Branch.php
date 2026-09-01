@@ -36,7 +36,7 @@ class Branch extends Model
      * of naming is cheaper than explaining it later.
      */
     public const RESERVED_SLUGS = [
-        'about', 'admin', 'api', 'assets', 'account', 'auth', 'blog', 'branch',
+        'about', 'admin', 'api', 'articles', 'assets', 'account', 'auth', 'blog', 'branch',
         'branches', 'cart', 'categories', 'category', 'checkout', 'contact',
         'customer', 'dashboard', 'faq', 'health', 'home', 'livewire', 'login',
         'franchise', 'logout', 'orders', 'pages', 'panel', 'password',

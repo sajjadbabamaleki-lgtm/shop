@@ -1283,6 +1283,7 @@ Brand Area
                         <ul>
                             <li><a href="shop.html">فروشگاه</a></li>
                             <li><a href="about.html">درباره ما</a></li>
+                            <li><a href="blog.html">مقالات</a></li>
                             <li><a href="contact.html">ارتباط با ما</a></li>
                             <li><a href="size-guide.html">راهنمای سایز</a></li>
                         </ul>
@@ -1293,6 +1294,7 @@ Brand Area
                             <li><a href="privacy.html">حریم خصوصی</a></li>
                             <li><a href="terms.html">قوانین و مقررات</a></li>
                             <li><a href="faq.html">سوالات متداول</a></li>
+                            <li><a href="support.html">پشتیبانی</a></li>
                             <li><a href="stepped-sale.html">حراج پله‌ای</a></li>
                         </ul>
                     </div>
@@ -1302,6 +1304,7 @@ Brand Area
                             <li><a href="shop.html">کفش زنانه</a></li>
                             <li><a href="shop.html">کیف زنانه</a></li>
                             <li><a href="shop.html">پرفروش‌ترین‌ها</a></li>
+                            <li><a href="shop.html?sort=newest">جدیدترین‌ها</a></li>
                             <li><a href="shop.html">تخفیف‌دارها</a></li>
                         </ul>
                     </div>
@@ -1336,6 +1339,7 @@ Brand Area
                                         <li><a href="franchise.html">اخذ نمایندگی</a></li>
                                         <li><a href="faq.html">خدمات پس از فروش</a></li>
                                         <li><a href="about.html">درباره ما</a></li>
+                                        <li><a href="blog.html">مقالات</a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -1419,8 +1423,9 @@ Brand Area
 	******************************** -->
 
     <!-- WhatsApp -->
-    <a class="vp-support-fab" href="support.html" aria-label="پشتیبانی">
+    <a class="vp-support-fab" href="support.html" aria-label="پشتیبانی ۲۴ ساعته">
         <i class="fa-solid fa-headset" aria-hidden="true"></i>
+        <span class="vp-support-fab-label">پشتیبانی ۲۴ ساعته</span>
     </a>
     <a class="vp-whatsapp" href="https://wa.me/989366659224" target="_blank" rel="noopener"
        aria-label="گفتگو در واتساپ">
@@ -2160,6 +2165,9 @@ Brand Area
             // link. They show together — one appearing without the other
             // reads as a fault rather than as two controls.
             var corner = document.querySelectorAll(".vp-whatsapp, .vp-support-fab");
+            // The support one on its own, for the pill below.
+            var fab = document.querySelector(".vp-support-fab");
+            var saidIt = false;
             var ring = null;
             var screenEl = document.querySelector(".th-screen");
             if (!$ || !wrap || !header) return;
@@ -2225,8 +2233,26 @@ Brand Area
                 // viewport; screenTop is already measured for the band
                 // below, so this costs no layout read.
                 var atFoot = screenEl ? (y + winH > screenTop) : false;
+                var on = y > 0 && !atFoot;
                 for (var c = 0; c < corner.length; c++) {
-                    corner[c].classList.toggle("show", y > 0 && !atFoot);
+                    corner[c].classList.toggle("show", on);
+                }
+                // «اولش باید اون پشتیبانی یه مستطیل باشه که روش نوشته
+                // پشتیبانی ۲۴ ساعته چند ثانیه باشه بعد جمع بشه».
+                //
+                // The clock starts the first time the button is actually on
+                // screen, not on load: these two appear on the first scroll,
+                // so a timer armed at load would spend its whole three
+                // seconds while the button is still invisible and the pill
+                // would never be seen. `saidIt` makes it once a page — it is
+                // an introduction, and a button that reintroduces itself
+                // every time you scroll back up is a fidget.
+                if (on && fab && !saidIt) {
+                    saidIt = true;
+                    fab.classList.add("is-wide");
+                    setTimeout(function () {
+                        fab.classList.remove("is-wide");
+                    }, 3200);
                 }
                 if (screenEl) {
                     // The original test, unchanged: the footer is left

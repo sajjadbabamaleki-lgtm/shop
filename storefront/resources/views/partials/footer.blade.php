@@ -23,6 +23,7 @@
                         <ul>
                             <li><a href="{{ page_url('shop.html') }}">فروشگاه</a></li>
                             <li><a href="{{ page_url('about.html') }}">درباره ما</a></li>
+                            <li><a href="{{ page_url('blog.html') }}">مقالات</a></li>
                             <li><a href="{{ page_url('contact.html') }}">ارتباط با ما</a></li>
                             <li><a href="{{ page_url('size-guide.html') }}">راهنمای سایز</a></li>
                         </ul>
@@ -33,6 +34,7 @@
                             <li><a href="{{ page_url('privacy.html') }}">حریم خصوصی</a></li>
                             <li><a href="{{ page_url('terms.html') }}">قوانین و مقررات</a></li>
                             <li><a href="{{ page_url('faq.html') }}">سوالات متداول</a></li>
+                            <li><a href="{{ page_url('support.html') }}">پشتیبانی</a></li>
                             <li><a href="{{ page_url('stepped-sale.html') }}">حراج پله‌ای</a></li>
                         </ul>
                     </div>
@@ -42,6 +44,7 @@
                             <li><a href="{{ page_url('shop.html') }}">کفش زنانه</a></li>
                             <li><a href="{{ page_url('shop.html') }}">کیف زنانه</a></li>
                             <li><a href="{{ page_url('shop.html') }}">پرفروش‌ترین‌ها</a></li>
+                            <li><a href="{{ page_url('shop.html') }}?sort=newest">جدیدترین‌ها</a></li>
                             <li><a href="{{ page_url('shop.html') }}">تخفیف‌دارها</a></li>
                         </ul>
                     </div>
@@ -76,6 +79,7 @@
                                         <li><a href="{{ page_url('franchise.html') }}">اخذ نمایندگی</a></li>
                                         <li><a href="{{ page_url('faq.html') }}">خدمات پس از فروش</a></li>
                                         <li><a href="{{ page_url('about.html') }}">درباره ما</a></li>
+                                        <li><a href="{{ page_url('blog.html') }}">مقالات</a></li>
                                     </ul>
                                 </div>
                             </div>

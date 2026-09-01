@@ -74,6 +74,16 @@ class RolesAndPermissionsSeeder extends Seeder
             // granted to `admin`, and not to any branch role: a manager who
             // can set an administrator's password is an administrator.
             'platform.password.manage' => 'تغییر رمز حساب‌های کارکنان',
+            // What a customer wrote about a shoe, before the shop prints it.
+            // Platform-wide, like the catalogue it is attached to: a comment
+            // is about the shoe, and the shoe is the same shoe at every
+            // branch. Its own permission rather than `catalogue.manage`,
+            // because deciding what a shoe costs and deciding whether a
+            // stranger's sentence about it goes on the site are two jobs.
+            'platform.comment.manage' => 'تأیید و رد نظرهای مشتریان',
+            // «مقالات». Its own permission for the same reason: what the shop
+            // sells and what the shop says are two jobs.
+            'platform.article.manage' => 'نوشتن و انتشار مقاله‌ها',
         ],
     ];
 
@@ -116,6 +126,7 @@ class RolesAndPermissionsSeeder extends Seeder
                 'vendor.view', 'vendor.manage',
                 'order.view', 'order.manage', 'order.refund',
                 'report.view', 'platform.audit.view', 'platform.enquiry.manage',
+                'platform.comment.manage', 'platform.article.manage',
             ],
         ],
         Role::MARKETPLACE_MANAGER => [

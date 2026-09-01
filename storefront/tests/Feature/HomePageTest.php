@@ -115,10 +115,13 @@ class HomePageTest extends TestCase
         // sign-in; `redirectGuestsTo` picks by matching `*account*`.
         $this->assertSame(route('account.wishlist'), page_url('wishlist.html'));
 
-        // Still unbuilt, so still '#'. «مقایسه» is the one left of the two
-        // that named features this shop does not have: its slot still carries
-        // an honest label rather than a wrong destination.
-        $this->assertSame('#', page_url('blog.html'));
+        // «مقالات», which was '#' until the shop had somewhere to write —
+        // «هیچ جایی برای مقالات در سایت نداریم». Both footers name it now.
+        $this->assertSame(route('articles'), page_url('blog.html'));
+
+        // Still unbuilt, so still '#'. «مقایسه» is the last of the slots that
+        // named a feature this shop does not have: it still carries an honest
+        // label rather than a wrong destination.
         $this->assertSame('#', page_url('compare.html'));
     }
 

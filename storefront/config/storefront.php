@@ -160,6 +160,16 @@ return [
         'franchise.html' => 'franchise',
 
         /*
+         | «مقالات» — «هیچ جایی برای مقالات در سایت نداریم».
+         |
+         | A filename of its own so that only the two footer slots that name it
+         | point there. `blog.html` rather than `articles.html` because that is
+         | what the base markup calls a page of writing, and a name a reader
+         | recognises is worth more here than one that matches the route.
+         */
+        'blog.html' => 'articles',
+
+        /*
          | «علاقه‌مندی‌ها», which now exists.
          |
          | The footer item was given a different label for a while — the slot

@@ -532,6 +532,9 @@
             // link. They show together — one appearing without the other
             // reads as a fault rather than as two controls.
             var corner = document.querySelectorAll(".vp-whatsapp, .vp-support-fab");
+            // The support one on its own, for the pill below.
+            var fab = document.querySelector(".vp-support-fab");
+            var saidIt = false;
             var ring = null;
             var screenEl = document.querySelector(".th-screen");
             if (!$ || !wrap || !header) return;
@@ -597,8 +600,26 @@
                 // viewport; screenTop is already measured for the band
                 // below, so this costs no layout read.
                 var atFoot = screenEl ? (y + winH > screenTop) : false;
+                var on = y > 0 && !atFoot;
                 for (var c = 0; c < corner.length; c++) {
-                    corner[c].classList.toggle("show", y > 0 && !atFoot);
+                    corner[c].classList.toggle("show", on);
+                }
+                // «اولش باید اون پشتیبانی یه مستطیل باشه که روش نوشته
+                // پشتیبانی ۲۴ ساعته چند ثانیه باشه بعد جمع بشه».
+                //
+                // The clock starts the first time the button is actually on
+                // screen, not on load: these two appear on the first scroll,
+                // so a timer armed at load would spend its whole three
+                // seconds while the button is still invisible and the pill
+                // would never be seen. `saidIt` makes it once a page — it is
+                // an introduction, and a button that reintroduces itself
+                // every time you scroll back up is a fidget.
+                if (on && fab && !saidIt) {
+                    saidIt = true;
+                    fab.classList.add("is-wide");
+                    setTimeout(function () {
+                        fab.classList.remove("is-wide");
+                    }, 3200);
                 }
                 if (screenEl) {
                     // The original test, unchanged: the footer is left

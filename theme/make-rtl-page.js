@@ -177,8 +177,12 @@ if (!SCROLL_TOP.test(html)) {
 // WhatsApp one was still hidden would read as a fault, not as a feature.
 const WHATSAPP = [
   '    <!-- WhatsApp -->',
-  '    <a class="vp-support-fab" href="support.html" aria-label="پشتیبانی">',
+  '    <a class="vp-support-fab" href="support.html" aria-label="پشتیبانی ۲۴ ساعته">',
   '        <i class="fa-solid fa-headset" aria-hidden="true"></i>',
+  // The label is always in the markup; what changes is how much room it is
+  // given. See `.vp-support-fab-label` in tweaks.css — a label that came and
+  // went would be a control whose accessible name changed three seconds in.
+  '        <span class="vp-support-fab-label">پشتیبانی ۲۴ ساعته</span>',
   '    </a>',
   `    <a class="vp-whatsapp" href="https://wa.me/${WHATSAPP_NUMBER}" target="_blank" rel="noopener"`,
   '       aria-label="گفتگو در واتساپ">',
@@ -3180,6 +3184,9 @@ html = html.replace('</body>',
   '            // link. They show together — one appearing without the other\n' +
   '            // reads as a fault rather than as two controls.\n' +
   '            var corner = document.querySelectorAll(".vp-whatsapp, .vp-support-fab");\n' +
+  '            // The support one on its own, for the pill below.\n' +
+  '            var fab = document.querySelector(".vp-support-fab");\n' +
+  '            var saidIt = false;\n' +
   '            var ring = null;\n' +
   '            var screenEl = document.querySelector(".th-screen");\n' +
   '            if (!$ || !wrap || !header) return;\n' +
@@ -3245,8 +3252,26 @@ html = html.replace('</body>',
   '                // viewport; screenTop is already measured for the band\n' +
   '                // below, so this costs no layout read.\n' +
   '                var atFoot = screenEl ? (y + winH > screenTop) : false;\n' +
+  '                var on = y > 0 && !atFoot;\n' +
   '                for (var c = 0; c < corner.length; c++) {\n' +
-  '                    corner[c].classList.toggle("show", y > 0 && !atFoot);\n' +
+  '                    corner[c].classList.toggle("show", on);\n' +
+  '                }\n' +
+  '                // «اولش باید اون پشتیبانی یه مستطیل باشه که روش نوشته\n' +
+  '                // پشتیبانی ۲۴ ساعته چند ثانیه باشه بعد جمع بشه».\n' +
+  '                //\n' +
+  '                // The clock starts the first time the button is actually on\n' +
+  '                // screen, not on load: these two appear on the first scroll,\n' +
+  '                // so a timer armed at load would spend its whole three\n' +
+  '                // seconds while the button is still invisible and the pill\n' +
+  '                // would never be seen. `saidIt` makes it once a page — it is\n' +
+  '                // an introduction, and a button that reintroduces itself\n' +
+  '                // every time you scroll back up is a fidget.\n' +
+  '                if (on && fab && !saidIt) {\n' +
+  '                    saidIt = true;\n' +
+  '                    fab.classList.add("is-wide");\n' +
+  '                    setTimeout(function () {\n' +
+  '                        fab.classList.remove("is-wide");\n' +
+  '                    }, 3200);\n' +
   '                }\n' +
   '                if (screenEl) {\n' +
   '                    // The original test, unchanged: the footer is left\n' +
@@ -3653,10 +3678,25 @@ const FOOT_CATS = [
   ['stepped-sale.html', 'حراج پله\u200cای'],
 ];
 
+/*
+ * Five each now, and five for the same reason it was four: «تعداد با بغلی ها
+ * برابر بشه» is a rule about the counts matching, not about the number being
+ * four.
+ *
+ * «مقالات» is the page the shop had nowhere for — «هیچ جایی برای مقالات در
+ * سایت نداریم» — and this footer is the one the phone actually reaches, so it
+ * goes in here and the two columns beside it come up to meet it.
+ *
+ * The two that join it are pages that already exist and were not linked from
+ * this footer: `/support`, which is where the desktop footer's own
+ * «پشتیبانی» goes, and «جدیدترین‌ها», which came off the third column only to
+ * make the counts match and is exactly what a fifth row is for.
+ */
 const FOOT_COLS = [
   ['لینک\u200cها', [
     ['shop.html', 'فروشگاه'],
     ['about.html', 'درباره ما'],
+    ['blog.html', 'مقالات'],
     ['contact.html', 'ارتباط با ما'],
     ['size-guide.html', 'راهنمای سایز'],
   ]],
@@ -3664,14 +3704,16 @@ const FOOT_COLS = [
     ['privacy.html', 'حریم خصوصی'],
     ['terms.html', 'قوانین و مقررات'],
     ['faq.html', 'سوالات متداول'],
+    ['support.html', 'پشتیبانی'],
     ['stepped-sale.html', 'حراج پله\u200cای'],
   ]],
   ['دسته\u200cها', [
     ['shop.html', 'کفش زنانه'],
     ['shop.html', 'کیف زنانه'],
     ['shop.html', 'پرفروش\u200cترین\u200cها'],
-    // «جدیدترین‌ها» came off so this column is four items like the two beside
-    // it — «تعداد با بغلی ها برابر بشه».
+    // «جدیدترین‌ها» is back: it came off only to make this column four like the
+    // two beside it, and they are five now.
+    ['shop.html?sort=newest', 'جدیدترین\u200cها'],
     ['shop.html', 'تخفیف\u200cدارها'],
   ]],
 ];
@@ -3860,6 +3902,28 @@ if (!html.includes('vp-foot-m-head')) {
   // contact.html because until now there was nowhere else for them to go.
   ['<a href="contact.html">Extended Plan</a>', '<a href="faq.html">خدمات پس از فروش</a>'],
   ['<a href="contact.html">Community</a>', '<a href="about.html">درباره ما</a>'],
+  /*
+   * «مقالات», which the shop had nowhere for at all — «هیچ جایی برای مقالات در
+   * سایت نداریم». Added rather than swapped in: no item in this column names
+   * something the shop does not do, so there was nothing to take out.
+   *
+   * The `<li>` is written out because this list replaces anchors, and an
+   * anchor cannot add a row on its own. `blog.html` is the filename
+   * config/storefront.php maps to `/articles` — its own, so that only this
+   * slot points there.
+   *
+   * **The indentation is part of the match, and it has to be.** The phone's
+   * footer names «درباره ما» too, out of `FOOT_COLS`, and every entry in this
+   * list is applied with `split().join()` — so the bare `<li>` matched both
+   * and «مقالات» came out twice in one column. The desktop's list is indented
+   * forty spaces and the phone's twenty-eight, which is the whole of the
+   * difference between them.
+   */
+  [
+    '                                        <li><a href="about.html">درباره ما</a></li>',
+    '                                        <li><a href="about.html">درباره ما</a></li>\n' +
+    '                                        <li><a href="blog.html">مقالات</a></li>',
+  ],
   ['<a href="contact.html">Help Center</a>', '<a href="faq.html">راهنما</a>'],
   ['<a href="contact.html">Report Abuse</a>', '<a href="contact.html">گزارش تخلف</a>'],
   ['<a href="contact.html">Submit and Dispute</a>', '<a href="contact.html">ثبت شکایت</a>'],

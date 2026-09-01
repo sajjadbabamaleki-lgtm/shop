@@ -581,6 +581,156 @@
                 </div>
             </div>
         @endif
+
+        {{-- «نظر خریداران» — built to the client's own reference: a round mark
+             with the writer's initial, the name beside it, the stars and the
+             score under that, and the sentence below. Right-aligned, and side
+             by side rather than stacked once there is room —
+             «تو نسخه دستاپ هم بجای اینکه رو هم باشن کنار هم قرار بگیرن».
+
+             Always drawn, even empty. A shop that hides the heading until
+             somebody has written can never get the first comment: the person
+             who bought the shoe has no way of knowing the page would take
+             one. --}}
+        <div class="vp-shop-panel vp-pdp-talk" id="vp-pdp-talk">
+            <div class="vp-pdp-talk-head">
+                <h2 class="vp-shop-title">نظر خریداران</h2>
+
+                @if ($rating)
+                    {{-- The average, printed only when somebody has actually
+                         scored it. A shop that draws five empty stars over
+                         «۰ از ۵» has invented a bad review out of nothing. --}}
+                    <div class="vp-pdp-talk-avg">
+                        <span class="vp-stars" aria-hidden="true">
+                            @for ($i = 1; $i <= 5; $i++)
+                                <i class="fa-solid fa-star{{ $i <= round($rating) ? '' : ' is-off' }}"></i>
+                            @endfor
+                        </span>
+                        {{-- Three spans and not one sentence: «۴٫۵ از ۵» and
+                             «۲ نظر» are two facts, and run together in one
+                             text node the bidi algorithm puts the 5 and the 2
+                             next to each other and the line reads «از ۲۰۵».
+                             Seen at 1200, not reasoned about. --}}
+                        <b>{{ fa_number(number_format($rating, 1)) }}</b>
+                        <span>از ۵</span>
+                        <span class="vp-pdp-talk-dot" aria-hidden="true">·</span>
+                        <span>{{ fa_number($comments->count()) }} نظر</span>
+                    </div>
+                @endif
+            </div>
+
+            @if ($comments->isEmpty())
+                <p class="vp-pdp-talk-none">هنوز کسی دربارهٔ این کفش ننوشته است.</p>
+            @else
+                <ul class="vp-pdp-talk-list">
+                    @foreach ($comments as $comment)
+                        <li class="vp-pdp-talk-one">
+                            <span class="vp-pdp-talk-mark" aria-hidden="true">{{ $comment->authorInitial() }}</span>
+
+                            <div class="vp-pdp-talk-who">
+                                {{-- A masked number is neutral characters end to
+                                     end, so an RTL paragraph reorders its runs and
+                                     «0912****566» is drawn as «566****0912». A name
+                                     needs no such thing and must not get one. --}}
+                                <span class="vp-pdp-talk-name">
+                                    @if ($comment->authorIsNumber())
+                                        <bdi dir="ltr">{{ $comment->authorName() }}</bdi>
+                                    @else
+                                        {{ $comment->authorName() }}
+                                    @endif
+                                </span>
+
+                                <span class="vp-pdp-talk-meta">
+                                    @if ($comment->rating)
+                                        <span class="vp-stars" aria-hidden="true">
+                                            @for ($i = 1; $i <= 5; $i++)
+                                                <i class="fa-solid fa-star{{ $i <= $comment->rating ? '' : ' is-off' }}"></i>
+                                            @endfor
+                                        </span>
+                                        <span>{{ fa_number($comment->rating) }} از ۵</span>
+                                        <span class="vp-pdp-talk-dot" aria-hidden="true">·</span>
+                                    @endif
+                                    <span>{{ fa_date($comment->approved_at) }}</span>
+                                </span>
+                            </div>
+
+                            <p class="vp-pdp-talk-said">{{ $comment->body }}</p>
+                        </li>
+                    @endforeach
+                </ul>
+            @endif
+
+            {{-- `comment_status` and not `status`: the heart on this page
+                 flashes the latter, and it would print here. --}}
+            @if (session('comment_status'))
+                <p class="vp-note is-good">{{ session('comment_status') }}</p>
+            @endif
+
+            @error('body')
+                <p class="vp-note is-bad">{{ $message }}</p>
+            @enderror
+
+            @error('rating')
+                <p class="vp-note is-bad">{{ $message }}</p>
+            @enderror
+
+            @if ($canComment)
+                <div class="vp-pdp-talk-write">
+                    <h3 class="vp-pdp-talk-write-title">
+                        {{ $mine ? 'بازنویسی نظر شما' : 'نظرتان را بنویسید' }}
+                    </h3>
+
+                    @if ($mine && ! $mine->isPublished())
+                        <p class="vp-pdp-talk-mine">
+                            نظر شما ثبت شده و پس از بررسی منتشر می‌شود. تا آن زمان می‌توانید بازنویسی‌اش کنید.
+                        </p>
+                    @elseif ($mine)
+                        <p class="vp-pdp-talk-mine">نظر شما منتشر شده است. اگر بازنویسی کنید، دوباره بررسی می‌شود.</p>
+                    @endif
+
+                    <form method="post" action="{{ storefront_route('product.comment', $product) }}">
+                        @csrf
+
+                        {{-- Five radios, written 5→1 in the markup and drawn
+                             right to left by `row-reverse`. That order is what
+                             makes the whole control work without a line of
+                             JavaScript: `:checked ~ label` reaches the siblings
+                             *after* the chosen one, which in this order are the
+                             lower scores — so picking three lights three. --}}
+                        <span class="vp-pdp-talk-ask">امتیاز شما</span>
+                        <div class="vp-stars-pick">
+                            @for ($i = 5; $i >= 1; $i--)
+                                <input type="radio" id="vp-star-{{ $i }}" name="rating" value="{{ $i }}"
+                                       @checked((int) old('rating', $mine?->rating) === $i)>
+                                <label for="vp-star-{{ $i }}" title="{{ fa_number($i) }} از ۵">
+                                    <i class="fa-solid fa-star" aria-hidden="true"></i>
+                                    <span class="vp-sr">{{ fa_number($i) }} از ۵</span>
+                                </label>
+                            @endfor
+                        </div>
+
+                        <label class="vp-pdp-talk-ask" for="vp-talk-body">نظر شما دربارهٔ این کفش</label>
+                        <textarea id="vp-talk-body" name="body" rows="4" minlength="10" maxlength="1500"
+                                  placeholder="سایزش اندازه بود؟ راحت است؟ هرچه خودتان دوست داشتید بدانید."
+                                  required>{{ old('body', $mine?->body) }}</textarea>
+
+                        <div class="vp-pdp-talk-send">
+                            <span>نظر شما پس از بررسی منتشر می‌شود.</span>
+                            <button type="submit" class="vp-filter-apply vp-cart-go">
+                                {{ $mine ? 'ثبت بازنویسی' : 'ثبت نظر' }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            @elseif (auth('customer')->check())
+                <p class="vp-pdp-talk-none">نوشتن نظر برای کسانی است که این کفش را خریده‌اند.</p>
+            @else
+                <div class="vp-pdp-talk-door">
+                    <p>اگر این کفش را خریده‌اید، وارد حساب خود شوید تا بتوانید نظرتان را بنویسید.</p>
+                    <a class="vp-filter-apply vp-cart-go" href="{{ storefront_route('account.enter') }}">ورود به حساب</a>
+                </div>
+            @endif
+        </div>
     </div>
 </section>
 @endsection

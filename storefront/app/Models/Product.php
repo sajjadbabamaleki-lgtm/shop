@@ -58,6 +58,24 @@ class Product extends Model
     }
 
     /**
+     * What the buyers said about it — every comment, whatever its state.
+     *
+     * The panel's queue reads this; the shop must not. `publishedComments()`
+     * below is the storefront's way in, and it exists so that a view cannot
+     * print somebody's unread sentence by writing `$product->comments`.
+     */
+    public function comments(): HasMany
+    {
+        return $this->hasMany(ProductComment::class);
+    }
+
+    /** The comments the shop prints: approved, newest first. */
+    public function publishedComments(): HasMany
+    {
+        return $this->comments()->published()->latest('approved_at');
+    }
+
+    /**
      * The pivot is named product_category. Eloquent would infer
      * category_product from the two model names in alphabetical order, so the
      * table has to be named here or the relation queries one that was never

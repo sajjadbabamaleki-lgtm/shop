@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\Admin\ArticleController;
 use App\Http\Controllers\Admin\CatalogueController;
+use App\Http\Controllers\Admin\CommentController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DiscountController;
 use App\Http\Controllers\Admin\EnquiryController;
@@ -363,6 +365,52 @@ Route::middleware('auth:web')->group(function (): void {
     Route::post('/enquiries/{enquiry}', [EnquiryController::class, 'update'])
         ->middleware(RequirePlatformPermission::class.':platform.enquiry.manage')
         ->name('enquiry.status');
+
+    /*
+     * The comment queue. Platform-scoped for the same reason the table has no
+     * branch column: a comment is about the shoe, and the shoe is the same
+     * shoe at every branch.
+     *
+     * `platform.comment.manage` and not `catalogue.manage` — deciding what a
+     * shoe costs and deciding whether a stranger's sentence about it goes on
+     * the site are two jobs, and a shop may want the second in other hands.
+     */
+    /*
+     * «مقالات». Platform-scoped: an article is the shop's, and the shop is one
+     * shop with several counters.
+     *
+     * `platform.article.manage` and not `catalogue.manage` — what the shop
+     * sells and what the shop says are two jobs, and a shop may well want the
+     * second in hands that have no business repricing a shoe.
+     */
+    Route::get('/articles', [ArticleController::class, 'index'])
+        ->middleware(RequirePlatformPermission::class.':platform.article.manage')
+        ->name('articles');
+    Route::get('/articles/new', [ArticleController::class, 'create'])
+        ->middleware(RequirePlatformPermission::class.':platform.article.manage')
+        ->name('article.create');
+    Route::post('/articles', [ArticleController::class, 'store'])
+        ->middleware(RequirePlatformPermission::class.':platform.article.manage')
+        ->name('article.store');
+    // `/articles/new` is registered above this, so the fixed path wins — Laravel
+    // matches in registration order, and «new» would otherwise be looked up as
+    // an article's slug and 404.
+    Route::get('/articles/{article}', [ArticleController::class, 'edit'])
+        ->middleware(RequirePlatformPermission::class.':platform.article.manage')
+        ->name('article.edit');
+    Route::post('/articles/{article}', [ArticleController::class, 'update'])
+        ->middleware(RequirePlatformPermission::class.':platform.article.manage')
+        ->name('article.update');
+    Route::post('/articles/{article}/delete', [ArticleController::class, 'destroy'])
+        ->middleware(RequirePlatformPermission::class.':platform.article.manage')
+        ->name('article.destroy');
+
+    Route::get('/comments', [CommentController::class, 'index'])
+        ->middleware(RequirePlatformPermission::class.':platform.comment.manage')
+        ->name('comments');
+    Route::post('/comments/{comment}', [CommentController::class, 'update'])
+        ->middleware(RequirePlatformPermission::class.':platform.comment.manage')
+        ->name('comment.status');
 
     Route::get('/settlements', [MarketplaceController::class, 'settlements'])
         ->middleware(RequirePlatformPermission::class.':marketplace.settlement.view')

@@ -188,6 +188,34 @@ class WhatsAppButtonTest extends TestCase
     }
 
     /**
+     * The support button introduces itself, once, and then closes.
+     *
+     * «اولش باید اون پشتیبانی یه مستطیل باشه که روش نوشته پشتیبانی ۲۴ ساعته چند
+     * ثانیه باشه بعد جمع بشه تبدیل بشه به این چیزی که الان هست».
+     *
+     * Three things have to hold together and none of them shows on a
+     * screenshot: the label is in the markup at all times (so the control's
+     * accessible name never changes), the script names the class the
+     * stylesheet opens the pill with, and it drops that class again. A rewrite
+     * that removed any one of them would leave either a permanent rectangle in
+     * the corner of every screen or a button that never says what it is — and
+     * the pixel checks cannot see either, because both run with the page at
+     * the top, where these buttons are hidden.
+     */
+    public function test_the_support_button_says_what_it_is_and_then_closes(): void
+    {
+        foreach ([$this->get('/')->assertOk()->getContent(),
+            file_get_contents(base_path('../download-version/shoe-shop-rtl.html'))] as $page) {
+            $this->assertStringContainsString('class="vp-support-fab-label"', $page);
+            $this->assertStringContainsString('پشتیبانی ۲۴ ساعته', $page);
+
+            // Opened by the scroll handler, and closed again by its own timer.
+            $this->assertStringContainsString('classList.add("is-wide")', $page);
+            $this->assertStringContainsString('classList.remove("is-wide")', $page);
+        }
+    }
+
+    /**
      * The ring it replaced is gone, on both copies.
      *
      * «بجای این» — instead of, not beside. A leftover `.scroll-top` would sit

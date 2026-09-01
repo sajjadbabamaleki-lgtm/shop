@@ -62,7 +62,15 @@ return Application::configure(basePath: dirname(__DIR__))
          * `storefront_route` rather than `route`, so a franchise's customer
          * lands on that franchise's sign-in and not the main store's.
          */
-        $middleware->redirectGuestsTo(fn (Request $request) => $request->routeIs('*account*')
+        /*
+         * `product.comment` is named beside the pattern rather than renamed to
+         * match it. It is a shopper's route — «فقط کسی که خریده» — but its
+         * address is a product's, `/products/{slug}/comments`, and calling it
+         * `account.*` to win this redirect would misname a URL in the one file
+         * a reader looks it up in. A storefront route behind `auth:customer`
+         * belongs here; there is no third kind.
+         */
+        $middleware->redirectGuestsTo(fn (Request $request) => $request->routeIs('*account*', 'product.comment')
             ? storefront_route('account.enter')
             : route('admin.login'));
 

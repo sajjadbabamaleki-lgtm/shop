@@ -2702,3 +2702,16 @@ a.vp-adm-mini {
 .vp-adm-band > .vp-admin-inline {
   margin-top: 16px;
 }
+
+/* The article's current photograph, on the form above the replace field.
+   Capped rather than shown at its own size: an article's picture is 1400
+   across and the form is one column, and without this the panel scrolls past
+   the button that saves it. */
+.vp-adm-art-shot {
+  display: block;
+  width: 100%;
+  max-width: 420px;
+  height: auto;
+  margin-bottom: 4px;
+  border-radius: 12px;
+}

@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\ProductComment;
 use App\Models\Variant;
 use App\Support\Marketplace\Sellers;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -22,6 +24,8 @@ class ProductController extends Controller
 {
     public function __invoke(Product $product, Sellers $sellers): View
     {
+        $customer = Auth::guard('customer')->user();
+
         $product->load([
             'brand', 'categories', 'media',
             'variants.offer', 'variants.stock',
@@ -101,6 +105,39 @@ class ProductController extends Controller
             'sellers' => $bySize,
             'gallery' => $product->media,
             'related' => $this->related($product),
+            /*
+             * What the buyers said. Three things, because the band has three
+             * states and the view must not work any of them out for itself.
+             *
+             * `comments` is the published ones and only those — the scope is on
+             * the relation, so a view cannot print an unread sentence by
+             * reaching for `$product->comments`.
+             *
+             * `canComment` is «this account has owned this shoe», asked once
+             * here rather than inside a Blade condition, and `mine` is what
+             * they already wrote — the form is an edit when there is one, which
+             * is what makes one comment per person per shoe possible at all.
+             * `mine` is deliberately fetched whatever its state: somebody whose
+             * comment is waiting must see that it is waiting, or they write it
+             * again and wonder why nothing appears.
+             */
+            'comments' => $comments = $product->publishedComments()->with('customer')->get(),
+            /*
+             * The average, over the comments that actually carry a score.
+             *
+             * Null when nobody has scored it, and the band draws no stars at
+             * all in that case — five empty stars over «۰ از ۵» is a bad
+             * review the shop invented out of an empty table. `rating` is
+             * nullable for the same reason: a comment written before stars
+             * existed has no score, and giving it one would be making a
+             * number up.
+             */
+            'rating' => $comments->whereNotNull('rating')->avg('rating'),
+            'canComment' => ProductCommentController::boughtIt($customer, $product),
+            'mine' => $customer === null ? null : ProductComment::query()
+                ->where('product_id', $product->id)
+                ->where('customer_id', $customer->id)
+                ->first(),
         ]);
     }
 

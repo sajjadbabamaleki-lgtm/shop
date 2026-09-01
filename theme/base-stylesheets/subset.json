@@ -1,14 +1,17 @@
 {
   "note": "Written by theme/make-css-subset.js. Do not edit — re-run the script.",
-  "vocabulary": "d3e7d1819a059b34666fa5d9916252a70ef764dedfc9b160bc51ae8d44c0865a",
-  "words": 7123,
+  "vocabulary": "b59289f76743b36f3428a1322017d2a93ffc3d9513fcbb474bb54467410be103",
+  "words": 7231,
   "read": [
     "download-version/assets/js/gsap.min.js",
     "download-version/assets/js/main.js",
     "download-version/assets/js/swiper-bundle.min.js",
     "download-version/assets/js/vendor/jquery-3.7.1.min.js",
     "download-version/shoe-shop-rtl.html",
+    "storefront/resources/views/admin/article.blade.php",
+    "storefront/resources/views/admin/articles.blade.php",
     "storefront/resources/views/admin/catalogue.blade.php",
+    "storefront/resources/views/admin/comments.blade.php",
     "storefront/resources/views/admin/commissions.blade.php",
     "storefront/resources/views/admin/conversation.blade.php",
     "storefront/resources/views/admin/dashboard.blade.php",
@@ -53,6 +56,8 @@
     "storefront/resources/views/layouts/storefront.blade.php",
     "storefront/resources/views/layouts/vendor.blade.php",
     "storefront/resources/views/pages/about.blade.php",
+    "storefront/resources/views/pages/article.blade.php",
+    "storefront/resources/views/pages/articles.blade.php",
     "storefront/resources/views/pages/contact.blade.php",
     "storefront/resources/views/pages/enquiry-form.blade.php",
     "storefront/resources/views/pages/faq.blade.php",
@@ -106,7 +111,7 @@
     "bootstrap.rtl.min.css": {
       "from": "bootstrap.rtl.full.min.css",
       "was": 194383,
-      "is": 13697
+      "is": 13853
     },
     "swiper-bundle.rtl.min.css": {
       "from": "swiper-bundle.rtl.full.min.css",

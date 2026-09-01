@@ -73,6 +73,14 @@ class Navigation
             ],
         ],
         [
+            // The specification's «Content» section, which had no screens in
+            // it until the shop had somewhere to write.
+            'group' => 'محتوا',
+            'items' => [
+                ['route' => 'admin.articles', 'label' => 'مقاله‌ها', 'icon' => 'panel', 'match' => 'admin.article*', 'permission' => 'platform.article.manage'],
+            ],
+        ],
+        [
             'group' => 'گزارش',
             'items' => [
                 ['route' => 'admin.reports', 'label' => 'گزارش شعبه', 'icon' => 'chart', 'match' => 'admin.reports', 'branch' => true, 'branchPermission' => 'report.view'],
@@ -83,6 +91,10 @@ class Navigation
             'group' => 'پشتیبانی',
             'items' => [
                 ['route' => 'admin.enquiries', 'label' => 'درخواست‌ها', 'icon' => 'inbox', 'match' => 'admin.enquir*', 'permission' => 'platform.enquiry.manage'],
+                // The comment queue. Platform-wide like the enquiries above it
+                // and for the same reason: a comment is about the shoe, and
+                // the shoe is the same shoe at every branch.
+                ['route' => 'admin.comments', 'label' => 'نظرها', 'icon' => 'chat', 'match' => 'admin.comment*', 'permission' => 'platform.comment.manage'],
             ],
         ],
         [

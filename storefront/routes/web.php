@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\DiceGameController;
@@ -10,6 +11,7 @@ use App\Http\Controllers\MessageController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\ProductCommentController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\VendorApplicationController;
@@ -56,6 +58,30 @@ $storefront = function (): void {
     Route::get('/categories/{category}', ShopController::class)->name('category');
 
     Route::get('/products/{product}', ProductController::class)->name('product');
+
+    /*
+     * What a buyer thought of the shoe — «فقط کسی که خریده».
+     *
+     * `auth:customer` says somebody is signed in; the controller's `boughtIt()`
+     * says this account has owned this shoe, and it is the second that the
+     * client asked for. Both, because neither implies the other.
+     *
+     * Named `product.comment` and *not* `account.*`, unlike the wishlist and
+     * the messages above: this address is a product's, and calling it an
+     * account route to win a redirect would be a lie in the one place a
+     * reader looks up what a URL is. The redirect is handled where it belongs
+     * instead — `redirectGuestsTo` in `bootstrap/app.php` names this route
+     * beside its `*account*` rule, so a signed-out shopper still lands on the
+     * shopper's sign-in and not the staff one.
+     *
+     * Throttled: it is a form that writes a row, like the enquiries below.
+     * Generously, because an edit is a second post and somebody rewriting a
+     * sentence they are not happy with must not be locked out of their own
+     * comment.
+     */
+    Route::post('/products/{product}/comments', [ProductCommentController::class, 'store'])
+        ->middleware(['auth:customer', 'throttle:20,60'])
+        ->name('product.comment');
 
     // The basket. Everything that changes it is a POST, so a refresh cannot
     // add a second pair of shoes.
@@ -146,6 +172,17 @@ $storefront = function (): void {
     foreach (PageController::PAGES as $path => $name) {
         Route::get("/{$path}", PageController::class)->defaults('page', $path)->name($name);
     }
+
+    /*
+     * «مقالات» — the shop's own writing, which it had nowhere for.
+     *
+     * Two pages and no form. Not branch-scoped: an article is the shop's and
+     * reads the same at every counter, so a franchise's visitor gets the same
+     * list. `articles` is in `Branch::RESERVED_SLUGS`, so no branch can ever
+     * be opened at an address that would swallow it.
+     */
+    Route::get('/articles', [ArticleController::class, 'index'])->name('articles');
+    Route::get('/articles/{article}', [ArticleController::class, 'show'])->name('article');
 
     /*
      * «فروش عمده» and «اخذ نمایندگی». A page and a form each, one controller,
