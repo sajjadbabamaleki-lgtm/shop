@@ -157,21 +157,31 @@
             @if ($comments->isEmpty())
                 <p class="vp-art-talk-none">هنوز کسی دربارهٔ این مقاله چیزی ننوشته است.</p>
             @else
+                {{-- The reference stacks a large rounded-square portrait above
+                     the name, with a hairline between one comment and the next.
+                     The stack and the rule are copied; the portrait is not —
+                     this shop holds no photograph of any customer, and putting
+                     stock faces on real people's words would be a fabrication
+                     on the one part of the page whose value is that it is not
+                     the shop talking. It is the initial on the shop's gold, at
+                     the reference's size and corner. --}}
                 <ul class="vp-art-talk-list">
                     @foreach ($comments as $comment)
                         <li class="vp-art-talk-one">
                             <span class="vp-art-talk-mark" aria-hidden="true">{{ $comment->authorInitial() }}</span>
-                            <div>
-                                <span class="vp-art-talk-name">
-                                    @if ($comment->authorIsNumber())
-                                        <bdi dir="ltr">{{ $comment->authorName() }}</bdi>
-                                    @else
-                                        {{ $comment->authorName() }}
-                                    @endif
-                                </span>
-                                <span class="vp-art-talk-when">{{ fa_date($comment->approved_at) }}</span>
-                                <p class="vp-art-talk-said">{{ $comment->body }}</p>
-                            </div>
+
+                            <span class="vp-art-talk-name">
+                                @if ($comment->authorIsNumber())
+                                    <bdi dir="ltr">{{ $comment->authorName() }}</bdi>
+                                @else
+                                    {{ $comment->authorName() }}
+                                @endif
+                            </span>
+
+                            {{-- With the hour, the way the reference has it. --}}
+                            <span class="vp-art-talk-when">{{ fa_date($comment->approved_at, true) }}</span>
+
+                            <p class="vp-art-talk-said">{{ $comment->body }}</p>
                         </li>
                     @endforeach
                 </ul>
@@ -186,17 +196,30 @@
             @enderror
 
             @auth('customer')
-                <form class="vp-art-talk-write" method="post"
-                      action="{{ storefront_route('article.comment', $article) }}">
-                    @csrf
-                    <label class="vp-art-talk-ask" for="vp-art-body">نظرتان را بنویسید</label>
-                    <textarea id="vp-art-body" name="body" rows="4" minlength="10" maxlength="1500"
-                              required>{{ old('body') }}</textarea>
-                    <div class="vp-art-talk-send">
-                        <span>نظر شما پس از بررسی منتشر می‌شود.</span>
-                        <button type="submit" class="vp-filter-apply vp-cart-go">ثبت نظر</button>
-                    </div>
-                </form>
+                {{-- The reference's panel: a heading, a line under it, the
+                     fields, and a full-width button.
+
+                     **No name box and no email box.** Those belong to a form
+                     open to strangers, and a name typed into a box is not a
+                     name anybody checked — this one is behind the account,
+                     which already holds a verified telephone number and a name
+                     if the person gave one. That is the whole difference
+                     between a comment worth printing and a comment box. --}}
+                <div class="vp-art-talk-write">
+                    <h3 class="vp-art-talk-write-title">نظرتان را بنویسید</h3>
+                    <p class="vp-art-talk-write-lead">
+                        نظر شما پس از بررسی منتشر می‌شود. شمارهٔ شما هیچ‌جا کامل نمایش داده نمی‌شود.
+                    </p>
+
+                    <form method="post" action="{{ storefront_route('article.comment', $article) }}">
+                        @csrf
+                        <label class="vp-sr" for="vp-art-body">نظر شما</label>
+                        <textarea id="vp-art-body" name="body" rows="5" minlength="10" maxlength="1500"
+                                  placeholder="هرچه دربارهٔ این مقاله فکر می‌کنید بنویسید…"
+                                  required>{{ old('body') }}</textarea>
+                        <button type="submit" class="vp-art-talk-go">ثبت نظر</button>
+                    </form>
+                </div>
             @else
                 <div class="vp-art-talk-door">
                     <p>برای نوشتن نظر وارد حساب خود شوید.</p>

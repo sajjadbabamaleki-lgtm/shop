@@ -23661,31 +23661,42 @@ body.shoe-shop {
   color: var(--vp-gold-ink);
 }
 
+/* The client's reference: the mark large and square-cornered above the name,
+   the name bold, the date and hour under it, then the sentence — and a hairline
+   between one comment and the next rather than a card around each.
+
+   The reference's mark is a photograph. This one is the writer's initial: the
+   shop holds no portrait of any customer, and stock faces on real people's
+   words would be a fabrication on the one part of the page whose whole value is
+   that it is not the shop talking. Same size, same corner, the shop's gold. */
 .vp-art-talk-list {
-  margin: 20px 0;
+  margin: 22px 0 0;
   padding: 0;
   list-style: none;
-  display: grid;
-  gap: 20px;
 }
 
 .vp-art-talk-one {
-  display: grid;
-  grid-template-columns: 44px minmax(0, 1fr);
-  gap: 14px;
+  padding-bottom: 26px;
+  border-bottom: 1px solid rgba(16, 17, 17, 0.1);
+}
+
+.vp-art-talk-one + .vp-art-talk-one {
+  padding-top: 26px;
 }
 
 .vp-art-talk-mark {
   display: grid;
   place-items: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 999px;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 14px;
+  /* The reference's rounded square, not a circle. */
+  border-radius: 18px;
   background: rgba(218, 178, 38, 0.16);
   color: var(--vp-gold-fill-ink);
   font-family: 'Cairo', var(--title-font);
   font-weight: 630;
-  font-size: 18px;
+  font-size: 24px;
   line-height: 1;
 }
 
@@ -23693,22 +23704,23 @@ body.shoe-shop {
   display: block;
   font-family: 'Cairo', var(--title-font);
   font-weight: 630;
-  font-size: 15px;
+  font-size: 18px;
+  line-height: 1.6;
   color: var(--title-color);
 }
 
 .vp-art-talk-when {
   display: block;
-  margin-top: 2px;
-  font-size: 12px;
+  margin-top: 4px;
+  font-size: 13px;
   color: var(--body-color);
   opacity: 0.75;
 }
 
 .vp-art-talk-said {
-  margin: 10px 0 0;
+  margin: 14px 0 0;
   font-size: 14.5px;
-  line-height: 2;
+  line-height: 2.05;
   color: var(--body-color);
   white-space: pre-line;
   overflow-wrap: anywhere;
@@ -23721,7 +23733,52 @@ body.shoe-shop {
   color: var(--body-color);
 }
 
-.vp-art-talk-write,
+/* The reference's «Leave a Reply»: a soft grey panel with a heading, a line
+   under it, the field, and a full-width button. */
+.vp-art-talk-write {
+  margin-top: 32px;
+  padding: 26px 24px;
+  border-radius: 24px;
+  background: rgba(16, 17, 17, 0.034);
+}
+
+.vp-art-talk-write-title {
+  margin: 0 0 8px;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 630;
+  font-size: 20px;
+  color: var(--title-color);
+}
+
+.vp-art-talk-write-lead {
+  margin: 0 0 18px;
+  font-size: 13.5px;
+  line-height: 1.9;
+  color: var(--body-color);
+}
+
+/* The reference's button runs the panel's whole width. Its own class rather
+   than `.vp-filter-apply`, which carries `flex: 1` for a row it is not in. */
+.vp-art-talk-go {
+  display: block;
+  width: 100%;
+  margin-top: 14px;
+  padding: 14px 20px;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--vp-gold-fill), var(--vp-gold-lit));
+  color: #FFFFFF;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 630;
+  font-size: 15px;
+  cursor: pointer;
+  transition: filter 0.2s ease;
+}
+
+.vp-art-talk-go:hover {
+  filter: brightness(1.04);
+}
+
 .vp-art-talk-door {
   margin-top: 20px;
 }
@@ -23767,21 +23824,9 @@ body.shoe-shop {
   box-shadow: inset 0 0 0 1.5px rgba(218, 178, 38, 0.75);
 }
 
-.vp-art-talk-send {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 10px;
-  margin-top: 12px;
-  font-size: 12px;
-  color: var(--body-color);
-}
-
 /* `.vp-filter-apply` carries `flex: 1` — it is the button at the foot of a
    filter sheet. Beside a sentence it shrink-wraps; full width on a phone,
    where it is the only thing on its row. */
-.vp-art-talk-send .vp-filter-apply,
 .vp-art-talk-door .vp-filter-apply {
   flex: none;
   width: auto;
@@ -23792,13 +23837,11 @@ body.shoe-shop {
    sentence's own `flex-basis: 220px` left the button 90px and «ورود به حساب»
    came out as «ورود». Measured, not eyeballed. */
 @media (max-width: 575.98px) {
-  .vp-art-talk-door,
-  .vp-art-talk-send {
+  .vp-art-talk-door {
     flex-direction: column;
     align-items: stretch;
   }
 
-  .vp-art-talk-send .vp-filter-apply,
   .vp-art-talk-door .vp-filter-apply {
     flex: none;
     width: 100%;
