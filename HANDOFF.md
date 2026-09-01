@@ -4458,3 +4458,92 @@ before, seven drawn after, no sideways scroll.
 **Scoped to this screen and not widened to `.vp-adm`** — the rest of the panel's
 heads really were laid out for a desktop and really have not been measured
 narrow, which is what that comment says and it is still true of them.
+
+## «من پیدا نکردم تو نسخه موبایل» — the pages nobody could reach
+
+The client asked which items from their requirements list had been done, and
+then said they could not find them on a phone. They were right, and the reason
+was precise: **the pages existed and the phone had no way to them.**
+
+Checked, at 390, before anything changed:
+
+| where | what it offered |
+| --- | --- |
+| the ☰ drawer | 4 sort chips, 8 categories, 4 tiles, sign-in — **18 links** |
+| the footer | 50 links, including every page below |
+
+`/about` (with «تعهدات ما»), `/stepped-sale`, `/support` and `/terms` were in
+the footer and nowhere else. The footer on the home page is about **seven
+thousand pixels** down. On a desktop the top menu carries some of them; on a
+phone that menu does not exist at all.
+
+Every page itself was fine — all four answered 200 with their content on them.
+Nothing had been half-built. It was purely a question of doors.
+
+### What was done
+
+- **«اکسسوری» left the drawer**, and only the drawer. `show_in_nav` is the
+  column that has meant exactly this since the first migration and had never
+  been read; the composer reads it now. The section keeps its tile under the
+  hero, its mark on the listing's strip and its own page.
+- **The tile grid went from four to six**, carrying «تعهدات ما» and «شرایط
+  ارسال و مرجوعی». The client asked for them as tiles, not as more full-width
+  rows — the first attempt put them in the category list and was corrected.
+- **A support square joined the WhatsApp button** in the corner, above it, gold
+  against the green so the two do not promise the same thing. Both are revealed
+  by the same scroll handler; one appearing without the other would read as a
+  fault.
+- **The drawer panel is 5% wider** — 86vw/400 → 90.3vw/420 — at the client's own
+  reading of the room left. 310 → 325 at 360.
+
+### Three measurements worth keeping
+
+**The tiles fit because the tile gave up its padding, not its type.** «شرایط
+ارسال و مرجوعی» needs 108px on one line; the tile offered 102 at 360 and exactly
+108 at 375, so it wrapped on both and made the bottom row half again as tall as
+the two above it. Ten pixels came back from `padding-inline` 10 → 6 and the mark's
+gap 8 → 6. Shrinking the type would have traded five legible labels for one.
+
+**That rule has to be written after the two `max-height` blocks.** Both set
+`.vp-drawer-links a { padding: 7px 9px }` — a shorthand — so the first version,
+placed earlier in the file, was overruled on every screen shorter than 730px.
+Measured: fixed at 375 and still wrapping at 360 and 320, which is exactly the
+set of screens those height rules reach.
+
+**And the anchor fills its cell.** The `<li>` stretches on its own, being a grid
+item; the anchor is the thing with the tint and the corner and was sizing to its
+own text — 66 against its neighbour's 40 at 320. `height: 100%`, and a row that
+still wraps at least wraps evenly.
+
+Measured after, at 320/360/375/390/430: the drawer never scrolls, and the six
+tiles are the same height at every width except 320, where all six are 66.
+
+### The dialog that opened under the address bar
+
+«حراج پله ای چرا وقتی باز میشه اون بالاش میره زیر نوار؟» — a photograph of the
+ladder's «نحوه کار» dialog with its first line and its close button hidden.
+
+Two faults, one symptom, and both are worth knowing:
+
+- **`vh` on iOS is the large viewport.** It measures the page as if the address
+  bar had already scrolled away, so `max-height: 94vh` is taller than what the
+  visitor can see whenever that bar is showing — which it is on the first tap.
+  `dvh` is the height the viewport has right now. Stated *after* the `vh` line,
+  never instead of it.
+- **A flex row centring an item taller than itself pushes the overflow out of
+  both ends**, and there is no way to scroll to the top because the centring is
+  done by the container and the container does not scroll. `overflow-y: auto` on
+  the modal gives it one, and costs nothing when the panel fits.
+
+Measured after: `max-height` resolves to 793.36 at 844 and 394.8 at 420, and the
+close button is on screen at both.
+
+### A note on `check-parity.js`
+
+It reports a difference at 992 and 1200 in this state — the Jordan photograph has
+not painted on the Laravel side when the shot is taken. **It is not this round's
+and not a difference in the pages**: the numbers reproduce to the pixel on a
+clean tree with everything stashed, the markup and `srcset` are identical on both
+sides, both files are on disk, and neither page has a failed request. It is the
+checker's 4000ms image wait against a slower container. Worth fixing in the
+checker rather than the page.

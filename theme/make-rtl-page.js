@@ -160,8 +160,26 @@ const SCROLL_TOP = /[ \t]*<!-- Scroll To Top -->\s*\n[ \t]*<div class="scroll-to
 if (!SCROLL_TOP.test(html)) {
   throw new Error('the scroll-to-top ring is not where it was — check before replacing it');
 }
+// Two buttons in that corner now, stacked.
+//
+// «پشتیبانی هم بالای واتسپ شناور یه مربع پشتیبانی بزار با آیکون مناسب». The
+// support page had been reachable from the footer and nowhere else, which on a
+// phone is seven thousand pixels down the home page; this is the answer to
+// «چرا پیدا نمی‌کنم».
+//
+// The support square is written **before** the WhatsApp link and drawn above
+// it. Source order is the stacking order the page was measured with, and it is
+// also the reading order: the two are one control that happens to be two
+// buttons, and a screen reader should meet them the way the eye does.
+//
+// Both carry `.show`, and the scroll handler toggles both — see the corner
+// block near the foot of this file. A support button that appeared while the
+// WhatsApp one was still hidden would read as a fault, not as a feature.
 const WHATSAPP = [
   '    <!-- WhatsApp -->',
+  '    <a class="vp-support-fab" href="support.html" aria-label="پشتیبانی">',
+  '        <i class="fa-solid fa-headset" aria-hidden="true"></i>',
+  '    </a>',
   `    <a class="vp-whatsapp" href="https://wa.me/${WHATSAPP_NUMBER}" target="_blank" rel="noopener"`,
   '       aria-label="گفتگو در واتساپ">',
   '        <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>',
@@ -736,11 +754,47 @@ const QUICK_LINKS = [
 // `overflow-y: auto` already, so the extra 48px scrolls on a 375×667 screen
 // rather than pushing the sign-in button off it; at 390×844 the drawer is
 // 695 of 824 and nothing scrolls at all. Both measured.
+// The one section the drawer does not offer.
+//
+// «اکسسوری از منو حذف بشه» — the tile row under the hero still has it and so
+// does the listing's strip; this is the menu alone. The Laravel drawer reads
+// `categories.show_in_nav`, which is the column that has always meant exactly
+// this and had never been used; here the list is hand-written, so the slug is.
+const DRAWER_HIDES = 'accessory';
+
+// Two rows that are not sections, in the sections' own shape.
+//
+// «۲ تا از اون مستطیل درازها اضافه بشه روش تعهدات ما و شرایط ارسال و مرجوعی
+// بیاد». They are full-width rows like the categories rather than tiles like
+// the four below, because that is what was asked for and because a promise and
+// a rule are things you read, not errands you run.
+//
+// **They are the reason those two pages are reachable on a telephone at all.**
+// Both were in the footer only, and the footer on the home page is seven
+// thousand pixels down: «من پیدا نکردم تو نسخه موبایل مواردی که انجام دادیرو».
+//
+// The mark is an `<i>` carrying `.vp-cat-icon`, so it takes the same 28px gold
+// tile the categories' `<img>` marks take. `fa-truck-fast` is already the
+// drawer's own «پیگیری سفارش» glyph and is the one the shop already uses for
+// anything that travels; `fa-handshake` is new and comes with this round —
+// see theme/make-icon-fonts.js, which has to be re-run when it does.
 const DRAWER_LINKS = [
   ['fa-boxes-stacked', 'فروش عمده', 'wholesale.html'],
   ['fa-store', 'فروشنده شوید', 'vendor-register.html'],
   ['fa-truck-fast', 'پیگیری سفارش', 'order-tracking.html'],
   ['fa-ruler', 'راهنمای سایز', 'size-guide.html'],
+  // «دوتا از اون مستطیل درازا بزار که مستطیل های پایین بجای ۴ تا بشه ۶ تا».
+  //
+  // **These two are the reason either page is reachable on a telephone.** Both
+  // were in the footer alone, and the footer on the home page is seven thousand
+  // pixels down: «من پیدا نکردم تو نسخه موبایل مواردی که انجام دادیرو». The
+  // room for a third row came from «اکسسوری» leaving the list above it.
+  //
+  // `fa-handshake` is new and arrives with this round — theme/make-icon-fonts.js
+  // has to be re-run when an icon does, or the class is styled, the element is
+  // there and the glyph is a blank box.
+  ['fa-handshake', 'تعهدات ما', 'about.html'],
+  ['fa-file-contract', 'شرایط ارسال و مرجوعی', 'terms.html'],
 ];
 
 const DRAWER =
@@ -778,7 +832,7 @@ const DRAWER =
   '                        <a class="vp-drawer-all" href="shop.html">همه محصولات</a>\n' +
   '                    </div>\n' +
   '                    <ul class="vp-drawer-cats">\n' +
-  CATEGORIES.map(([slug, name, soon]) =>
+  CATEGORIES.filter(([slug]) => slug !== DRAWER_HIDES).map(([slug, name, soon]) =>
     '                        <li>\n' +
     `                            <a href="shop.html"${soon ? ` data-vp-soon="${name}"` : ''}>\n` +
     `                                <img class="vp-cat-icon" src="assets/img/icon/${CATEGORY_ICONS[slug]}" alt="" loading="lazy">\n` +
@@ -3122,7 +3176,10 @@ html = html.replace('</body>',
   '            // The corner button. It was a scroll-to-top ring once\n' +
   '            // and is the WhatsApp link now; the name says which, because a\n' +
   '            // variable called toTop that shows a chat button is a trap.\n' +
-  '            var corner = document.querySelector(".vp-whatsapp");\n' +
+  '            // Both corner buttons: the support square and the WhatsApp\n' +
+  '            // link. They show together — one appearing without the other\n' +
+  '            // reads as a fault rather than as two controls.\n' +
+  '            var corner = document.querySelectorAll(".vp-whatsapp, .vp-support-fab");\n' +
   '            var ring = null;\n' +
   '            var screenEl = document.querySelector(".th-screen");\n' +
   '            if (!$ || !wrap || !header) return;\n' +
@@ -3188,7 +3245,9 @@ html = html.replace('</body>',
   '                // viewport; screenTop is already measured for the band\n' +
   '                // below, so this costs no layout read.\n' +
   '                var atFoot = screenEl ? (y + winH > screenTop) : false;\n' +
-  '                if (corner) corner.classList.toggle("show", y > 0 && !atFoot);\n' +
+  '                for (var c = 0; c < corner.length; c++) {\n' +
+  '                    corner[c].classList.toggle("show", y > 0 && !atFoot);\n' +
+  '                }\n' +
   '                if (screenEl) {\n' +
   '                    // The original test, unchanged: the footer is left\n' +
   '                    // alone while it sits whole in the viewport, allowing 200.\n' +

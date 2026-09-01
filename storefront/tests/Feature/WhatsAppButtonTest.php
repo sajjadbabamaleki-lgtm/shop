@@ -145,19 +145,46 @@ class WhatsAppButtonTest extends TestCase
     {
         $page = $this->get('/')->assertOk()->getContent();
 
+        // **Two buttons share the handler**, since «پشتیبانی هم بالای واتسپ
+        // شناور یه مربع پشتیبانی بزار» put a support square above this one.
+        // They are revealed together — one appearing without the other reads
+        // as a fault — so the selector names both and this asserts the whole
+        // of it rather than the half that happens to be first.
         $this->assertStringContainsString(
-            'querySelector(".vp-whatsapp")',
+            'querySelectorAll(".vp-whatsapp, .vp-support-fab")',
             $page,
-            'Nothing on the page looks for the WhatsApp button, so the class that reveals it is never set '
-            .'and the button is hidden for good. The handler is in theme/make-rtl-page.js.'
+            'Nothing on the page looks for the corner buttons, so the class that reveals them is never '
+            .'set and both are hidden for good. The handler is in theme/make-rtl-page.js.'
         );
 
-        $css = public_path('assets/css/tweaks.css');
-        $this->assertStringContainsString(
-            '.vp-whatsapp.show',
-            file_get_contents($css),
-            'The stylesheet has no rule for the revealed state, so setting the class does nothing.'
-        );
+        $css = file_get_contents(public_path('assets/css/tweaks.css'));
+
+        foreach (['.vp-whatsapp.show', '.vp-support-fab.show'] as $rule) {
+            $this->assertStringContainsString(
+                $rule,
+                $css,
+                "The stylesheet has no `{$rule}` rule, so setting the class does nothing."
+            );
+        }
+    }
+
+    /**
+     * The support square goes to the support page, on both copies of the home
+     * page — and that page is the reason it exists: `/support` was reachable
+     * from the footer and nowhere else, seven thousand pixels down.
+     */
+    public function test_the_support_square_reaches_the_support_page(): void
+    {
+        $page = $this->get('/')->assertOk()->getContent();
+
+        $this->assertStringContainsString('class="vp-support-fab"', $page);
+        $this->assertStringContainsString(route('support'), $page);
+
+        $this->get(route('support'))->assertOk();
+
+        $preview = file_get_contents(base_path('../download-version/shoe-shop-rtl.html'));
+        $this->assertStringContainsString('class="vp-support-fab"', $preview);
+        $this->assertStringContainsString('href="support.html"', $preview);
     }
 
     /**

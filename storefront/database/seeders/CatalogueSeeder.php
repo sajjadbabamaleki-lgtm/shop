@@ -189,7 +189,12 @@ class CatalogueSeeder extends Seeder
                 'image_path' => "assets/img/category/{$slug}.jpg",
                 'position' => $position,
                 'is_active' => true,
-                'show_in_nav' => true,
+                // «اکسسوری از منو حذف بشه» — the drawer's own query is the
+                // only thing that reads this, so the section keeps its tile
+                // and its page and leaves the menu.
+                // `take_accessory_out_of_the_phone_menu` is what carries it to
+                // a database that already has rows; this is a fresh install.
+                'show_in_nav' => $slug !== 'accessory',
                 'coming_soon' => $soon,
             ]);
         }

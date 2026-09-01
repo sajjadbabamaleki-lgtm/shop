@@ -72,8 +72,16 @@
                          sections of the shop, and reading as though they were
                          made the drawer a page and a half long.
 
-                         Four tiles, in the client's order read RTL: «فروش عمده»,
-                         «فروشنده شوید», «پیگیری سفارش», «راهنمای سایز».
+                         **Six tiles now, not four** — «دوتا از اون مستطیل درازا
+                         بزار که مستطیل های پایین بجای ۴ تا بشه ۶ تا». The two
+                         added are «تعهدات ما» and «شرایط ارسال و مرجوعی», and
+                         they are the only way to either page on a telephone:
+                         both were in the footer alone, seven thousand pixels
+                         down the home page. The room for the third row came
+                         from «اکسسوری» leaving the list above.
+
+                         The first four, in the client's order read RTL: «فروش
+                         عمده», «فروشنده شوید», «پیگیری سفارش», «راهنمای سایز».
 
                          «سوالات متداول» left this row — «از اون ۴ مستطیل پایین منو
                          سوالات متداول باید حذف بشه پیگیری سفارش بره جاش و اولین مورد
@@ -106,6 +114,18 @@
                             <a href="{{ page_url('size-guide.html') }}">
                                 <i class="fa-solid fa-ruler" aria-hidden="true"></i>
                                 <span>راهنمای سایز</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ storefront_route('about') }}">
+                                <i class="fa-solid fa-handshake" aria-hidden="true"></i>
+                                <span>تعهدات ما</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ storefront_route('terms') }}">
+                                <i class="fa-solid fa-file-contract" aria-hidden="true"></i>
+                                <span>شرایط ارسال و مرجوعی</span>
                             </a>
                         </li>
                     </ul>

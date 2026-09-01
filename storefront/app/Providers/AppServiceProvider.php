@@ -98,8 +98,24 @@ class AppServiceProvider extends ServiceProvider
 
         View::composer('partials.mobile-menu', function ($view): void {
             $view->with([
+                /*
+                 * `show_in_nav` is the one thing this query asks that the home
+                 * page's does not, and it is the column's whole purpose — it
+                 * had existed since the first migration and had never been
+                 * read. «اکسسوری از منو حذف بشه»: the section keeps its tile
+                 * under the hero and its place in the listing's strip, and
+                 * leaves the menu.
+                 *
+                 * So the note above is now half true and worth restating: the
+                 * two lists are still built to the same rule about what a
+                 * *section* is, and the drawer alone may drop one the
+                 * shopkeeper does not want in a menu. That is a decision with a
+                 * column behind it rather than a divergence, and
+                 * `PhoneDrawerTest` asserts exactly which slug is out.
+                 */
                 'drawerCategories' => Category::query()
                     ->where('is_active', true)
+                    ->where('show_in_nav', true)
                     ->orderBy('position')
                     ->get(),
                 'basketCount' => app(CartManager::class)->count(),

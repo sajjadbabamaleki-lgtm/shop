@@ -228,13 +228,6 @@ Product Lightbox
                             </a>
                         </li>
                         <li>
-                            <a href="shop.html" data-vp-soon="اکسسوری">
-                                <img class="vp-cat-icon" src="assets/img/icon/vp-cat-watch.svg" alt="" loading="lazy">
-                                <span class="vp-cat-name">اکسسوری</span>
-                                <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
-                            </a>
-                        </li>
-                        <li>
                             <a href="shop.html" data-vp-soon="ست ورزشی">
                                 <img class="vp-cat-icon" src="assets/img/icon/vp-cat-sport.svg" alt="" loading="lazy">
                                 <span class="vp-cat-name">ست ورزشی</span>
@@ -265,6 +258,18 @@ Product Lightbox
                             <a href="size-guide.html">
                                 <i class="fa-solid fa-ruler" aria-hidden="true"></i>
                                 <span>راهنمای سایز</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="about.html">
+                                <i class="fa-solid fa-handshake" aria-hidden="true"></i>
+                                <span>تعهدات ما</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="terms.html">
+                                <i class="fa-solid fa-file-contract" aria-hidden="true"></i>
+                                <span>شرایط ارسال و مرجوعی</span>
                             </a>
                         </li>
                     </ul>
@@ -1414,6 +1419,9 @@ Brand Area
 	******************************** -->
 
     <!-- WhatsApp -->
+    <a class="vp-support-fab" href="support.html" aria-label="پشتیبانی">
+        <i class="fa-solid fa-headset" aria-hidden="true"></i>
+    </a>
     <a class="vp-whatsapp" href="https://wa.me/989366659224" target="_blank" rel="noopener"
        aria-label="گفتگو در واتساپ">
         <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
@@ -2148,7 +2156,10 @@ Brand Area
             // The corner button. It was a scroll-to-top ring once
             // and is the WhatsApp link now; the name says which, because a
             // variable called toTop that shows a chat button is a trap.
-            var corner = document.querySelector(".vp-whatsapp");
+            // Both corner buttons: the support square and the WhatsApp
+            // link. They show together — one appearing without the other
+            // reads as a fault rather than as two controls.
+            var corner = document.querySelectorAll(".vp-whatsapp, .vp-support-fab");
             var ring = null;
             var screenEl = document.querySelector(".th-screen");
             if (!$ || !wrap || !header) return;
@@ -2214,7 +2225,9 @@ Brand Area
                 // viewport; screenTop is already measured for the band
                 // below, so this costs no layout read.
                 var atFoot = screenEl ? (y + winH > screenTop) : false;
-                if (corner) corner.classList.toggle("show", y > 0 && !atFoot);
+                for (var c = 0; c < corner.length; c++) {
+                    corner[c].classList.toggle("show", y > 0 && !atFoot);
+                }
                 if (screenEl) {
                     // The original test, unchanged: the footer is left
                     // alone while it sits whole in the viewport, allowing 200.

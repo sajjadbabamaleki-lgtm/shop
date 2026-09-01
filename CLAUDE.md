@@ -630,6 +630,25 @@ the client saw an old page and had no way to tell why. So, plainly:
   binding resolved before the tenant finds nothing and the page 404s for
   everybody. Tests can hide this by leaving a branch bound in the container;
   forget it before the request when testing a page that binds one.
+- **The phone drawer's six tiles are how `/about` and `/terms` are reached on a
+  telephone at all.** Both pages were in the footer and nowhere else, and the
+  footer on the home page is seven thousand pixels down — «من پیدا نکردم تو
+  نسخه موبایل مواردی که انجام دادیرو». «اکسسوری» left the drawer to make room
+  (`show_in_nav`, the column that had existed since the first migration and had
+  never been read — the section keeps its tile, its strip mark and its page),
+  and the tile grid went from four to six. Taking either new tile off puts a
+  page back out of reach, which is why `PhoneDrawerTest` pins all six by name
+  and in order. The long label buys its single line out of the tile's own
+  padding below 390, in a rule written **after** the two `max-height` blocks —
+  they set `padding` as a shorthand and would otherwise put it back on every
+  screen shorter than 730px. Measured: even at 360/375/390/430, two lines and
+  still even at 320.
+- **There are two floating buttons in that corner, not one**, and they show
+  together: `.vp-support-fab` above `.vp-whatsapp`, both toggled by the same
+  scroll handler through `querySelectorAll(".vp-whatsapp, .vp-support-fab")`.
+  `WhatsAppButtonTest` asserts that selector verbatim, because a hidden default
+  plus a JS selector is the one pair nothing else here can see — parity compares
+  the two pages against each other, so it stays at zero if both go blank.
 - **The phone drawer is invisible to every check we have.** It is parked
   off-screen, so `check-parity.js` cannot see it and `check-overflow.js` cannot
   either — which is how the template's demo menu («About Style 1», ten

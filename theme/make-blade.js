@@ -257,11 +257,19 @@ pageEnd.text = pageEnd.text.replace(
 // closing tag to slice on is an anchor's rather than a div's, and the partial
 // is named for what it is. `theme/make-rtl-page.js` is where the swap happens
 // and where the number lives.
+// **Two anchors now**, not one: «پشتیبانی هم بالای واتسپ شناور یه مربع
+// پشتیبانی بزار». So the slice runs to the end of the *second* `</a>`, and the
+// guard names both — with one index this silently took the support square
+// alone and left the WhatsApp link in the script tags, which is the kind of
+// half-move that renders fine and is wrong.
 const CORNER_END = '</a>\n';
-const cornerEnd = pageEnd.text.indexOf(CORNER_END) + CORNER_END.length;
+const firstEnd = pageEnd.text.indexOf(CORNER_END) + CORNER_END.length;
+const cornerEnd = pageEnd.text.indexOf(CORNER_END, firstEnd) + CORNER_END.length;
 const corner = pageEnd.text.slice(0, cornerEnd);
-if (!corner.includes('class="vp-whatsapp"')) {
-  throw new Error('the WhatsApp button is not at the head of the tail region');
+for (const button of ['class="vp-support-fab"', 'class="vp-whatsapp"']) {
+  if (!corner.includes(button)) {
+    throw new Error(`${button} is not at the head of the tail region`);
+  }
 }
 pageEnd.text = pageEnd.text.slice(cornerEnd);
 marks.push({ name: 'whatsapp', into: 'partials/whatsapp.blade.php', text: corner });

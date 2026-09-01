@@ -103,10 +103,22 @@ class PhoneDrawerTest extends TestCase
     {
         $drawer = $this->drawer();
 
+        // `show_in_nav` is the one thing the drawer's query asks that the front
+        // page's does not — «اکسسوری از منو حذف بشه». The section is still on
+        // the shop and still has a page; it is not in this menu.
         foreach (Category::orderBy('position')->get() as $category) {
+            if (! $category->show_in_nav) {
+                $this->assertStringNotContainsString('/categories/'.$category->slug, $drawer);
+
+                continue;
+            }
+
             $this->assertStringContainsString($category->name, $drawer);
             $this->assertStringContainsString('/categories/'.$category->slug, $drawer);
         }
+
+        // And exactly one is out, so this is not passing on an empty menu.
+        $this->assertSame(1, Category::where('show_in_nav', false)->count());
     }
 
     /**
@@ -121,6 +133,14 @@ class PhoneDrawerTest extends TestCase
      *
      * If that rule ever does change, it has to change in both places, and this
      * says so rather than letting one drift.
+     *
+     * **It has changed once, in one direction only.** «اکسسوری از منو حذف بشه»:
+     * the drawer may drop a section the shopkeeper does not want in a menu, and
+     * `show_in_nav` is the column that says which. So what is asserted is no
+     * longer "the same list" but "the same list, minus exactly the ones marked
+     * out of the nav, in the same order" — the drawer may not gain a section
+     * the front page does not have, may not reorder them, and may not quietly
+     * lose one that nobody marked.
      */
     public function test_the_drawer_and_the_front_page_name_the_same_sections(): void
     {
@@ -132,8 +152,13 @@ class PhoneDrawerTest extends TestCase
         $rows = [];
         preg_match_all('~<span class="vp-cat-name">([^<]+)</span>~', $this->drawer(), $rows);
 
+        $hidden = Category::where('show_in_nav', false)->pluck('name')->all();
+
+        $expected = array_values(array_diff($tiles[1], $hidden));
+
         $this->assertNotEmpty($tiles[1]);
-        $this->assertSame($tiles[1], array_values(array_intersect($rows[1], $tiles[1])));
+        $this->assertNotEmpty($expected);
+        $this->assertSame($expected, $rows[1]);
     }
 
     /**
@@ -221,22 +246,40 @@ class PhoneDrawerTest extends TestCase
     }
 
     /**
-     * The four tiles at the foot of the drawer, in the order they were asked
-     * for — «از اون ۴ مستطیل پایین منو سوالات متداول باید حذف بشه پیگیری سفارش
-     * بره جاش و اولین مورد بشه فروش عمده».
+     * The tiles at the foot of the drawer, in the order they were asked for —
+     * «از اون ۴ مستطیل پایین منو سوالات متداول باید حذف بشه پیگیری سفارش بره
+     * جاش و اولین مورد بشه فروش عمده», and then «دوتا از اون مستطیل درازا بزار
+     * که مستطیل های پایین بجای ۴ تا بشه ۶ تا».
      *
      * The order is the request, not a detail: the row is read right-to-left and
-     * «فروش عمده» was asked to be first, so a list that holds the same four in
-     * a different sequence is not what was asked for. Pinned as a sequence for
-     * that reason, and because these four live in two files — this one and
+     * «فروش عمده» was asked to be first, so a list that holds the same six in a
+     * different sequence is not what was asked for. Pinned as a sequence for
+     * that reason, and because these live in two files — this one and
      * theme/make-rtl-page.js — that nothing else keeps in step.
+     *
+     * **The last two are the whole reason `/about` and `/terms` can be reached
+     * on a telephone at all.** Both were in the footer and nowhere else, and the
+     * footer on the home page is seven thousand pixels down: «من پیدا نکردم تو
+     * نسخه موبایل مواردی که انجام دادیرو». Taking either off this row puts the
+     * page back out of reach, which is why they are pinned here by name.
      */
-    public function test_the_four_tiles_are_the_ones_asked_for_in_the_order_asked_for(): void
+    public function test_the_six_tiles_are_the_ones_asked_for_in_the_order_asked_for(): void
     {
         $this->assertSame(
-            ['فروش عمده', 'فروشنده شوید', 'پیگیری سفارش', 'راهنمای سایز'],
+            ['فروش عمده', 'فروشنده شوید', 'پیگیری سفارش', 'راهنمای سایز', 'تعهدات ما', 'شرایط ارسال و مرجوعی'],
             $this->tiles($this->drawer())
         );
+    }
+
+    /** And the two new ones go where they say they go. */
+    public function test_the_two_new_tiles_reach_the_pages_the_footer_was_hiding(): void
+    {
+        $drawer = $this->drawer();
+
+        foreach ([route('about'), route('terms')] as $url) {
+            $this->assertStringContainsString($url, $drawer);
+            $this->get($url)->assertOk();
+        }
     }
 
     /**

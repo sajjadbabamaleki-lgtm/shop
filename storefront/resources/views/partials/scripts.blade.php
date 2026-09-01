@@ -528,7 +528,10 @@
             // The corner button. It was a scroll-to-top ring once
             // and is the WhatsApp link now; the name says which, because a
             // variable called toTop that shows a chat button is a trap.
-            var corner = document.querySelector(".vp-whatsapp");
+            // Both corner buttons: the support square and the WhatsApp
+            // link. They show together — one appearing without the other
+            // reads as a fault rather than as two controls.
+            var corner = document.querySelectorAll(".vp-whatsapp, .vp-support-fab");
             var ring = null;
             var screenEl = document.querySelector(".th-screen");
             if (!$ || !wrap || !header) return;
@@ -594,7 +597,9 @@
                 // viewport; screenTop is already measured for the band
                 // below, so this costs no layout read.
                 var atFoot = screenEl ? (y + winH > screenTop) : false;
-                if (corner) corner.classList.toggle("show", y > 0 && !atFoot);
+                for (var c = 0; c < corner.length; c++) {
+                    corner[c].classList.toggle("show", y > 0 && !atFoot);
+                }
                 if (screenEl) {
                     // The original test, unchanged: the footer is left
                     // alone while it sits whole in the viewport, allowing 200.

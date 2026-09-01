@@ -90,11 +90,20 @@ class ComingSoonTest extends TestCase
         $drawer = $this->band($page, 'vp-drawer-cats');
 
         foreach (self::SOON as $slug) {
-            $name = Category::where('slug', $slug)->value('name');
-            $this->assertStringContainsString('data-vp-soon="'.$name.'"', $drawer);
+            $category = Category::where('slug', $slug)->first();
+
+            if (! $category->show_in_nav) {
+                continue;
+            }
+
+            $this->assertStringContainsString('data-vp-soon="'.$category->name.'"', $drawer);
         }
 
-        $this->assertSame(count(self::SOON), substr_count($drawer, 'data-vp-soon='));
+        // One fewer than the four: «اکسسوری از منو حذف بشه» took that section
+        // out of the drawer and out of nothing else, so it is still flagged and
+        // still says «به‌زودی» on its tile, its strip mark and its own page.
+        $this->assertSame(count(self::SOON) - 1, substr_count($drawer, 'data-vp-soon='));
+        $this->assertStringNotContainsString('data-vp-soon="اکسسوری"', $drawer);
         $this->assertStringNotContainsString('به‌زودی', $drawer);
     }
 
@@ -200,8 +209,9 @@ class ComingSoonTest extends TestCase
             );
         }
 
-        // Twice each: the tile row and the drawer.
-        $this->assertSame(2 * count(self::SOON), substr_count($preview, 'data-vp-soon='));
+        // Twice each in the tile row and the drawer, less the one section the
+        // drawer does not offer — «اکسسوری از منو حذف بشه».
+        $this->assertSame(2 * count(self::SOON) - 1, substr_count($preview, 'data-vp-soon='));
     }
 
     /** The markup of one band of the page, by the class that opens it. */
