@@ -13355,12 +13355,18 @@ body.shoe-shop {
 }
 
 .vp-art-text {
-  margin: 0;
   font-size: 15px;
-  line-height: 2.1;
+  line-height: 1.95;
   color: var(--body-color);
-  white-space: pre-line;
   overflow-wrap: anywhere;
+}
+
+.vp-art-text p {
+  margin: 0 0 14px;
+}
+
+.vp-art-text p:last-child {
+  margin-bottom: 0;
 }
 
 .vp-art-more-list {

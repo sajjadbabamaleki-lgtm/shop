@@ -42,7 +42,23 @@
                 <p class="vp-art-doc-lead">{{ $article->excerpt }}</p>
             @endif
 
-            <p class="vp-art-text">{{ $article->body }}</p>
+            {{-- **Real paragraphs, not one block with blank lines inside it.**
+                 The body used to be a single `<p>` drawn with
+                 `white-space: pre-line`, so the empty line between two
+                 paragraphs became a whole empty line box — 2.1 × 15px of
+                 nothing, with the leading of both neighbours either side of it
+                 — and the article read as a column of loose sentences:
+                 «خیلی فاصله اضافه بیخود بین پاراگراف ها هست».
+
+                 Splitting on the blank line is lossless here: no body holds a
+                 single newline (they are written as paragraphs), so nothing is
+                 being reflowed — the gap simply moves from a line of text
+                 nobody typed to a margin we can set. --}}
+            <div class="vp-art-text">
+                @foreach (preg_split('/\R\s*\R/u', trim($article->body)) as $paragraph)
+                    <p>{{ trim($paragraph) }}</p>
+                @endforeach
+            </div>
 
             @if ($article->quote)
                 {{-- The pull-quote, and whoever said it. The name is a chip

@@ -24007,13 +24007,32 @@ body.shoe-shop {
    writer's own line breaks are the only structure there is, and this is what
    keeps them: `pre-line` holds the breaks and collapses the runs of spaces a
    phone keyboard leaves behind. */
+/* The article's own text.
+ *
+ * **The paragraphs are elements now, and the gap between them is a margin.**
+ * It was one `<p>` with `white-space: pre-line`, and the blank line in the
+ * stored text drew an entire empty line box: at 2.1 that is 31.5px of nothing,
+ * plus the half-leading of the lines either side, so two paragraphs sat 43px
+ * apart on a page whose own lines are 31.5px apart. It read as loose sentences
+ * rather than prose — «خیلی فاصله اضافه بیخود بین پاراگراف ها هست».
+ *
+ * 1.95 inside a paragraph and 14px between them is still clearly a break and
+ * no longer a hole. Measured on «نگهداری و انبار کردن کیف چرم» at 390: the
+ * body was 1,260px tall and is 861 — a third of the article's length was the
+ * gaps. */
 .vp-art-text {
-  margin: 0;
   font-size: 15px;
-  line-height: 2.1;
+  line-height: 1.95;
   color: var(--body-color);
-  white-space: pre-line;
   overflow-wrap: anywhere;
+}
+
+.vp-art-text p {
+  margin: 0 0 14px;
+}
+
+.vp-art-text p:last-child {
+  margin-bottom: 0;
 }
 
 .vp-art-more-list {
