@@ -12809,6 +12809,10 @@ body.shoe-shop {
     align-items: stretch;
   }
 
+  .vp-pdp-talk-door p {
+    flex: 0 0 auto;
+  }
+
   .vp-pdp-talk-door .vp-filter-apply,
   .vp-pdp-talk-send .vp-filter-apply {
     flex: none;
@@ -13213,6 +13217,10 @@ body.shoe-shop {
   .vp-art-talk-door {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .vp-art-talk-door p {
+    flex: 0 0 auto;
   }
 
   .vp-art-talk-door .vp-filter-apply {

@@ -23367,6 +23367,18 @@ body.shoe-shop {
     align-items: stretch;
   }
 
+  /* **The sentence is as tall as the sentence.** «اون باکس نظر باید به اندازه
+     متن کش بیاد الان خیلی ارتفاعش زیاده».
+
+     `flex: 1 1 240px` above is what lets the line sit beside the button on a
+     wide screen — 240px is its *width* there. Turning the container to a
+     column turns the main axis on its side, and that 240 became a **height**:
+     measured, a two-line sentence in a 240px-tall box, and a panel 340px tall
+     for 94px of content. The basis has to go with the axis. */
+  .vp-pdp-talk-door p {
+    flex: 0 0 auto;
+  }
+
   .vp-pdp-talk-door .vp-filter-apply,
   .vp-pdp-talk-send .vp-filter-apply {
     flex: none;
@@ -23871,6 +23883,12 @@ body.shoe-shop {
   .vp-art-talk-door {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  /* The same axis flip as `.vp-pdp-talk-door` above, and for the same reason:
+     `flex-basis: 220px` is a width beside the button and a height under it. */
+  .vp-art-talk-door p {
+    flex: 0 0 auto;
   }
 
   .vp-art-talk-door .vp-filter-apply {
