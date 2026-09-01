@@ -16268,10 +16268,18 @@ button.vp-cart-keep {
   bottom: calc(18px + 50px + 12px);
   z-index: 10000;
   display: flex;
+  /* The page is RTL, so `row-reverse` is what puts the first child — the
+     headset — at the **left** end, which is the end the button is pinned to.
+     With the icon there and the label growing to its right, opening and
+     closing the pill moves only the label. See the block below. */
+  flex-direction: row-reverse;
   align-items: center;
-  justify-content: center;
-  width: 50px;
+  justify-content: flex-start;
+  /* Shrink-to-fit, so the width is whatever the icon's box plus the label's
+     own `max-width` comes to. It is 50px while the label is closed. */
+  width: auto;
   height: 50px;
+  padding-right: 0;
   border-radius: 16px;
   background: linear-gradient(180deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   color: #FFFFFF;
@@ -16282,11 +16290,20 @@ button.vp-cart-keep {
   opacity: 0;
   visibility: hidden;
   transform: translateY(12px);
-  /* `width` and `padding-inline` are in here for the pill below: the button
-     closes from a rectangle to a square, and a change nobody animated is a
-     jump. */
   transition: transform 0.3s ease, opacity 0.3s ease, visibility 0.3s ease,
-              box-shadow 0.2s ease, width 0.35s ease, padding-inline 0.35s ease;
+              box-shadow 0.2s ease, padding-right 0.35s ease;
+}
+
+/* The icon owns the square, at every width. That is what keeps it still: its
+   box is the first 50px after the button's own `left`, whether the label
+   beside it is 190px wide or nothing at all. */
+.vp-support-fab > i {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
 }
 
 .vp-support-fab.show {
@@ -16316,19 +16333,28 @@ button.vp-cart-keep {
  * label that came and went would be a control whose accessible name changes
  * three seconds in.
  *
- * `max-width` rather than `width: auto` on the label: `auto` is not a value CSS
- * can transition from, so the pill would snap shut rather than close. 190px is
- * comfortably past the sentence's own width at every size this shop draws it,
- * and the transition ends on the text's real width because the anchor is
- * `width: auto` and shrink-wraps it.
+ * **The label closes; the icon does not move.** «آیکون باید از اول تا آخر
+ * انیمیشن سرجاش باشه». The first version animated the *button's* width and
+ * centred the icon in it, which was wrong twice over: the icon sat at the right
+ * end of the pill and travelled 114px across the screen on the way in, and
+ * `width: auto → 50px` is not a pair CSS can interpolate, so it did not travel
+ * — it teleported. Measured: centre at x=157 open, x=43 closed, and the width
+ * was already 50 at 120ms into a 350ms transition.
+ *
+ * So nothing here animates the button. The icon holds a fixed 50px square at
+ * the pinned end, the *label's* `max-width` is the only thing that moves, and
+ * the button — `width: auto` — is dragged along by it. `max-width` rather than
+ * `width: auto` on the label for the same reason: `auto` cannot be transitioned
+ * from. 190px is comfortably past the sentence's own width at every size this
+ * shop draws it, and the pill still ends on the text's real width because the
+ * anchor shrink-wraps.
  *
  * The script that adds and drops `is-wide` is in `theme/make-rtl-page.js`, in
  * the same block as the scroll handler that shows both buttons — it starts the
  * clock when the button first appears, not when the page loads, or the whole
  * three seconds would be spent while the button is still invisible. */
 .vp-support-fab.is-wide {
-  width: auto;
-  padding-inline: 14px;
+  padding-right: 16px;
 }
 
 .vp-support-fab-label {
@@ -16340,12 +16366,11 @@ button.vp-cart-keep {
   font-family: 'Vazirmatn', var(--body-font);
   font-size: 14px;
   font-weight: 500;
-  transition: max-width 0.35s ease, opacity 0.25s ease, margin-inline-start 0.35s ease;
+  transition: max-width 0.35s ease, opacity 0.25s ease;
 }
 
 .vp-support-fab.is-wide .vp-support-fab-label {
   max-width: 190px;
-  margin-inline-start: 8px;
   opacity: 1;
 }
 

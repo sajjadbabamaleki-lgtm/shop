@@ -8913,10 +8913,14 @@ button.vp-cart-keep {
   bottom: calc(18px + 50px + 12px);
   z-index: 10000;
   display: flex;
+
+  flex-direction: row-reverse;
   align-items: center;
-  justify-content: center;
-  width: 50px;
+  justify-content: flex-start;
+
+  width: auto;
   height: 50px;
+  padding-right: 0;
   border-radius: 16px;
   background: linear-gradient(180deg, var(--vp-gold-fill) 0%, var(--vp-gold-lit) 100%);
   color: #FFFFFF;
@@ -8927,9 +8931,17 @@ button.vp-cart-keep {
   opacity: 0;
   visibility: hidden;
   transform: translateY(12px);
-
   transition: transform 0.3s ease, opacity 0.3s ease, visibility 0.3s ease,
-              box-shadow 0.2s ease, width 0.35s ease, padding-inline 0.35s ease;
+              box-shadow 0.2s ease, padding-right 0.35s ease;
+}
+
+.vp-support-fab > i {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
 }
 
 .vp-support-fab.show {
@@ -8945,8 +8957,7 @@ button.vp-cart-keep {
 }
 
 .vp-support-fab.is-wide {
-  width: auto;
-  padding-inline: 14px;
+  padding-right: 16px;
 }
 
 .vp-support-fab-label {
@@ -8958,12 +8969,11 @@ button.vp-cart-keep {
   font-family: 'Vazirmatn', var(--body-font);
   font-size: 14px;
   font-weight: 500;
-  transition: max-width 0.35s ease, opacity 0.25s ease, margin-inline-start 0.35s ease;
+  transition: max-width 0.35s ease, opacity 0.25s ease;
 }
 
 .vp-support-fab.is-wide .vp-support-fab-label {
   max-width: 190px;
-  margin-inline-start: 8px;
   opacity: 1;
 }
 
