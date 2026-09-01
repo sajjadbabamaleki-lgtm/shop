@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Article;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\ProductComment;
 use App\Support\FrontPage;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
@@ -45,7 +47,53 @@ class HomeController extends Controller
             'bestSellers' => $this->bestSellers($categories, $onSale),
             'dailyDeal' => $this->dailyDeal($onSale),
             'brands' => $this->brands($categories),
+            /*
+             * The two bands the client asked for on the front page: the
+             * reviews, before the brand strip, and the articles, last before
+             * the FAQ.
+             *
+             * **Both draw nothing at all when they are empty**, and that is
+             * the whole of how they stay honest. A shop with no approved
+             * review has no review to show, and a band of invented ones on the
+             * front page is the one lie a storefront must not tell. Same for
+             * the articles: the shop writes them in the panel, and until it
+             * has, there is no band.
+             *
+             * That is also why neither is in `download-version/` — see the
+             * note in `theme/make-rtl-page.js`. `check-parity.js` hides both
+             * before it shoots, for the same reason.
+             */
+            'reviews' => $this->reviews(),
+            'articles' => Article::published()->latest('published_at')->limit(3)->get(),
         ]);
+    }
+
+    /**
+     * The newest approved reviews, for the band before the brand strip.
+     *
+     * Across the whole catalogue rather than one shoe's, because this is the
+     * front page: what it is showing is that people buy here and say so.
+     *
+     * Only the ones carrying a score — the card is built around five stars,
+     * and a card with no stars in a row of cards with stars reads as nought
+     * out of five. A comment written before stars existed is still on its own
+     * product page; it is simply not what this band is for.
+     *
+     * `with('product')` because every card links to the shoe it is about, and
+     * `with('customer')` because the name and the initial come off it. Without
+     * both, six cards are thirteen queries.
+     *
+     * @return Collection<int, ProductComment>
+     */
+    private function reviews(): Collection
+    {
+        return ProductComment::query()
+            ->published()
+            ->whereNotNull('rating')
+            ->with(['customer', 'product.media'])
+            ->latest('approved_at')
+            ->limit(9)
+            ->get();
     }
 
     /**

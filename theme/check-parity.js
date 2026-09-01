@@ -63,6 +63,23 @@ async function shoot(browser, url, width, file) {
     // Only what has been scrolled past is revealed; show everything so the
     // whole page is in its settled state.
     document.querySelectorAll('.vp-enter').forEach((el) => el.classList.add('vp-entered'));
+
+    // **The two bands that have no static counterpart, hidden on both pages.**
+    //
+    // «نظر مشتریان» and «مقالات» draw approved customer reviews and articles
+    // the shop has written. Neither exists in `download-version/`, and neither
+    // may: that directory is published, and a published page carrying
+    // testimonials nobody wrote or articles nobody published would be a
+    // fabrication rather than a design preview. The Blade side draws nothing
+    // when there is nothing, so on the freshly seeded database this check is
+    // meant to run against, both pages already agree — this line is what keeps
+    // that true on a developer's own database, which is full of whatever they
+    // were last looking at.
+    //
+    // Hidden on *both* pages, so the check still notices if one of them ever
+    // grows a band the other has not.
+    document.querySelectorAll('.vp-home-reviews, .vp-home-arts')
+        .forEach((el) => { el.style.display = 'none'; });
   });
 
   // The pictures themselves, bounded: a photograph that has not decoded is

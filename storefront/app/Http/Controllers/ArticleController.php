@@ -47,6 +47,27 @@ class ArticleController extends Controller
                 ->latest('published_at')
                 ->limit(3)
                 ->get(),
+            /*
+             * «قبلی» and «بعدی», in the order the list is read.
+             *
+             * The list is newest first, so «بعدی» — the next one along — is the
+             * *older* article and «قبلی» is the newer. Written out because the
+             * two are easy to swap and the mistake reads as working links that
+             * walk the wrong way.
+             *
+             * Compared on `published_at` and not on the id: an article can be
+             * given the date it was written rather than the date somebody
+             * remembered to publish it, and the pager has to follow what the
+             * reader sees.
+             */
+            'newer' => Article::published()
+                ->where('published_at', '>', $article->published_at)
+                ->oldest('published_at')
+                ->first(),
+            'older' => Article::published()
+                ->where('published_at', '<', $article->published_at)
+                ->latest('published_at')
+                ->first(),
         ]);
     }
 }

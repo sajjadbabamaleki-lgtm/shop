@@ -23485,19 +23485,182 @@ body.shoe-shop {
   margin-top: 24px;
 }
 
-.vp-art-doc-when {
-  margin: -6px 0 16px;
-  font-size: 13px;
-  color: var(--body-color);
-  opacity: 0.75;
+/* --- one article, opened -------------------------------------------------- */
+
+/* Built to the client's reference: the photograph across the top of the reading
+   column, the date under it, the title large and bold, then the text.
+ *
+ * The column is 820 like every other document on this site — `.vp-doc`'s own
+ * width, quoted rather than chosen. A measure much wider than that is a line
+ * the eye loses its place on, which is the one thing a page of prose has to get
+ * right. The article does not wear `.vp-doc` itself because that class carries
+ * the panel's padding and a card, and this page is the page. */
+.vp-art-doc {
+  max-width: 820px;
+  margin-inline: auto;
 }
 
 .vp-art-doc-shot {
   display: block;
   width: 100%;
   height: auto;
+  margin-bottom: 24px;
+  border-radius: 20px;
+}
+
+.vp-art-doc-when {
+  margin: 0 0 10px;
+  font-size: 13px;
+  color: var(--body-color);
+  opacity: 0.75;
+}
+
+.vp-art-doc-title {
+  margin: 0 0 18px;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 630;
+  font-size: 32px;
+  line-height: 1.5;
+  color: var(--title-color);
+}
+
+.vp-art-doc-lead {
+  margin: 0 0 20px;
+  font-size: 16px;
+  line-height: 2.05;
+  color: var(--title-color);
+}
+
+/* --- sharing, the pager, and the shelf ----------------------------------- */
+
+.vp-art-share {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 28px;
+  padding-top: 22px;
+  border-top: 1px solid rgba(16, 17, 17, 0.1);
+}
+
+.vp-art-share-label {
+  margin-inline-end: 4px;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 630;
+  font-size: 14px;
+  color: var(--title-color);
+}
+
+.vp-art-share-go {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: rgba(16, 17, 17, 0.045);
+  transition: background-color 0.2s ease;
+}
+
+.vp-art-share-go:hover {
+  background: rgba(218, 178, 38, 0.22);
+}
+
+/* Two links, one at each end, and an empty span holding the first end open
+   when the newest article has nothing before it. */
+.vp-art-pager {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  max-width: 820px;
+  margin: 32px auto 0;
+  padding-top: 24px;
+  border-top: 1px solid rgba(16, 17, 17, 0.1);
+}
+
+.vp-art-pager-go {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 46%;
+  color: var(--title-color);
+}
+
+.vp-art-pager-go.is-next {
+  text-align: end;
+}
+
+.vp-art-pager-go i {
+  flex: none;
+  font-size: 13px;
+  transition: transform 0.25s ease;
+}
+
+.vp-art-pager-go:hover {
+  color: var(--vp-gold-ink);
+}
+
+.vp-art-pager-go:hover i {
+  transform: translateX(4px);
+}
+
+.vp-art-pager-go.is-next:hover i {
+  transform: translateX(-4px);
+}
+
+.vp-art-pager-go b {
+  display: block;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 630;
+  font-size: 13px;
+}
+
+/* One line: an article's title is a sentence, and two of them at the foot of a
+   page would be a bigger block than the pager they belong to. */
+.vp-art-pager-go em {
+  display: block;
+  overflow: hidden;
+  font-size: 12.5px;
+  font-style: normal;
+  line-height: 1.8;
+  color: var(--body-color);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vp-art-more {
+  max-width: 820px;
+  margin: 44px auto 0;
+}
+
+.vp-art-more .vp-home-arts-title {
   margin-bottom: 20px;
-  border-radius: 16px;
+}
+
+/* Two across in the reading column rather than the home page's three: 820 into
+   three is a 250px card, and the third would be the one nobody reads. The
+   third article is still offered — it is the row that wraps, not the list that
+   is cut. */
+.vp-art-more .vp-home-arts-row {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+
+@media (max-width: 991.98px) {
+  .vp-art-doc-title {
+    font-size: 24px;
+  }
+
+  .vp-art-doc-shot {
+    border-radius: 14px;
+  }
+
+  .vp-art-doc-lead {
+    font-size: 15px;
+  }
+
+  .vp-art-more .vp-home-arts-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 /* The body is stored and printed as plain text — that is what «متن ساده» was
@@ -23542,6 +23705,329 @@ body.shoe-shop {
 
   .vp-art-doc-shot {
     border-radius: 12px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   «نظر مشتریان» — the band before the brand strip.
+
+   «نظرات باید قبل از برندها باشه و بصورت اسلایدی از چپ برن راست», to the
+   client's reference: a quote mark and five stars across the top, the
+   sentence, then the writer at the foot.
+
+   The heading is `.vp-brands-title`'s size, quoted rather than chosen — this
+   band sits directly above the brand strip and two headings of different sizes
+   one after the other is what makes a page look assembled rather than
+   designed.
+
+   **A scroll-snap strip, not a slider library.** In an RTL page a horizontal
+   scroller already runs the way the client asked for, the phone's own gesture
+   turns it with nothing loaded, and it stays still for `check-parity.js` —
+   every Swiper on this page has to be pinned by hand before a shot can be
+   trusted, and this needed to be one fewer.
+   -------------------------------------------------------------------------- */
+.vp-home-reviews-head {
+  margin-bottom: 20px;
+}
+
+.vp-home-reviews-title {
+  margin: 0;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 630;
+  font-size: 21.6px;
+  line-height: 1.4;
+  color: #101111;
+}
+
+/* Three across at this page's width, and the fourth showing at its edge so it
+   is obvious the row goes on. `overflow-x` on a flex row with `scroll-snap` —
+   the columns are sized in `flex-basis`, so the count changes with the width
+   and nothing has to know how many cards there are. */
+.vp-home-reviews-row {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  /* Room for the cards' shadow, and for the focus ring on a keyboard tab.
+     Negative margins put the strip back on the container's own edges so the
+     first card starts where the heading does. */
+  padding: 4px 4px 12px;
+  margin: -4px -4px -12px;
+  scrollbar-width: none;
+  /* **This line is why `check-overflow.js` passes**, and it is not decoration.
+   *
+   * In an RTL document a horizontal scroll container's content runs *leftward*,
+   * and Chromium adds that run to `documentElement.scrollWidth` — the page
+   * measured 669 at a 390 viewport with three cards in the strip, and reported
+   * the parked phone drawer as the culprit because that is the widest box once
+   * the document has grown. Nothing clipped it: `overflow: hidden` on the
+   * section, on the container, on `html`, and `overflow-x: scroll` on the strip
+   * itself were all measured and all left it at 669.
+   *
+   * `contain: paint` is what stops it, by making the strip its own containing
+   * block so its overflow is no longer the document's — 390 at once. The
+   * product gallery gets the same isolation a different way, by being
+   * `position: absolute`, which is not available here because a card of text
+   * has no height to give.
+   *
+   * Measured, not reasoned about. Take it off and the home page scrolls
+   * sideways on a telephone. */
+  contain: paint;
+}
+
+.vp-home-reviews-row::-webkit-scrollbar {
+  display: none;
+}
+
+.vp-review {
+  flex: 0 0 clamp(260px, 32%, 380px);
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  padding: 22px;
+  border-radius: 24px;
+  background: #FFFFFF;
+  box-shadow: 0 10px 30px -22px rgba(16, 17, 17, 0.55);
+}
+
+.vp-review-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+/* The reference's quote glyph, set as type rather than drawn: it is a
+   right-double-quote at three times the body size, in the page's own ink at a
+   low alpha, so it reads as a mark on the card rather than as punctuation
+   somebody left in. `line-height: 0` and the nudge keep its own huge box from
+   setting the row's height. */
+.vp-review-quote {
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 630;
+  font-size: 44px;
+  line-height: 0;
+  transform: translateY(14px);
+  color: rgba(16, 17, 17, 0.16);
+}
+
+.vp-home-reviews .vp-stars {
+  font-size: 15px;
+}
+
+.vp-review-said {
+  margin: 0 0 20px;
+  font-size: 14.5px;
+  line-height: 2;
+  color: var(--body-color);
+  /* A review arrives with the writer's own line breaks in it. */
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+/* The writer sits at the foot of the card whatever the sentence's length, so a
+   row of cards has its names on one line. */
+.vp-review-who {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: auto;
+}
+
+.vp-review-mark {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  background: rgba(218, 178, 38, 0.16);
+  color: var(--vp-gold-fill-ink);
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 630;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.vp-review-name {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 630;
+  font-size: 15px;
+  color: var(--title-color);
+}
+
+/* The shoe, where the reference has a job title. One line, ellipsized: a
+   supplier's product name is a sentence and would otherwise take the card's
+   foot to three lines. */
+.vp-review-bought {
+  overflow: hidden;
+  font-family: 'Vazirmatn', var(--body-font);
+  font-weight: 400;
+  font-size: 12.5px;
+  line-height: 1.7;
+  color: var(--body-color);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vp-review-bought:hover {
+  color: var(--vp-gold-ink);
+}
+
+@media (max-width: 991.98px) {
+  .vp-home-reviews-title {
+    font-size: 18px;
+  }
+
+  /* One card at a time, with the next one's edge showing so the strip says it
+     scrolls. 84% rather than 100 is that edge. */
+  .vp-review {
+    flex-basis: 84%;
+    padding: 18px;
+  }
+
+  .vp-home-reviews-row {
+    gap: 12px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   «مقالات» — the last band before the FAQ.
+
+   «یه عکس بعلاوه موارد زیرش و معمولا ۳ تا مقاله همیشه تو هوم باشه», to the
+   client's reference: the photograph, the date, the title, and «ادامه مطلب ←».
+
+   Three columns above 992 and one under it. Not a scroller: there are three,
+   the client said three, and a strip that scrolls when everything already fits
+   is a control that does nothing.
+   -------------------------------------------------------------------------- */
+.vp-home-arts-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.vp-home-arts-title {
+  margin: 0;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 630;
+  font-size: 21.6px;
+  line-height: 1.4;
+  color: #101111;
+}
+
+.vp-home-arts-all {
+  font-size: 13.5px;
+  color: var(--vp-gold-ink);
+}
+
+.vp-home-arts-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 28px;
+}
+
+.vp-home-art {
+  display: flex;
+  flex-direction: column;
+}
+
+/* 16:9 and `cover`, so a row of three is one row whatever shape the
+   photographs arrived in. The rule everywhere else on this site is resize
+   only, never crop — that is about the *product* photographs, which are the
+   goods and may not be recomposed. An article's picture is decoration.
+
+   The grey ground is what an article with no photograph shows: a card that is
+   a hole in the row is worse than a card that is quiet. */
+.vp-home-art-shot {
+  display: block;
+  aspect-ratio: 16 / 9;
+  margin-bottom: 16px;
+  border-radius: 20px;
+  background: rgba(16, 17, 17, 0.045);
+  overflow: hidden;
+}
+
+.vp-home-art-shot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.vp-home-art-shot:hover img {
+  transform: scale(1.03);
+}
+
+.vp-home-art-when {
+  margin: 0 0 8px;
+  font-size: 12.5px;
+  color: var(--body-color);
+  opacity: 0.75;
+}
+
+.vp-home-art-title {
+  margin: 0 0 14px;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 630;
+  font-size: 18px;
+  line-height: 1.65;
+}
+
+.vp-home-art-title a {
+  color: var(--title-color);
+}
+
+.vp-home-art-title a:hover {
+  color: var(--vp-gold-ink);
+}
+
+/* Last in the card whatever the title's length, so three cards put their links
+   on one line. */
+.vp-home-art-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: auto;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 630;
+  font-size: 14px;
+  color: var(--title-color);
+}
+
+.vp-home-art-more i {
+  font-size: 12px;
+  transition: transform 0.25s ease;
+}
+
+.vp-home-art-more:hover {
+  color: var(--vp-gold-ink);
+}
+
+/* The arrow leads the way the page reads, so it moves further left. */
+.vp-home-art-more:hover i {
+  transform: translateX(-4px);
+}
+
+@media (max-width: 991.98px) {
+  .vp-home-arts-title {
+    font-size: 18px;
+  }
+
+  .vp-home-arts-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 26px;
+  }
+
+  .vp-home-art-title {
+    font-size: 16px;
   }
 }
 

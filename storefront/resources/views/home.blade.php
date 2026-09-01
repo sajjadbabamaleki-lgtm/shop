@@ -17,6 +17,10 @@
     @include('home.best-sellers')
     @include('home.offer-banner')
     @include('home.daily-deal')
+    {{-- «نظرات باید قبل از برندها باشه» --}}
+    @include('home.reviews')
     @include('home.brands')
+    {{-- «مقالات آخرین بخش قبل از سوالات متداول باشه» --}}
+    @include('home.articles')
     @include('home.faq')
 @endsection

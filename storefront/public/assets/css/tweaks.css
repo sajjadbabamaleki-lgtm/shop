@@ -12907,19 +12907,162 @@ body.shoe-shop {
   margin-top: 24px;
 }
 
-.vp-art-doc-when {
-  margin: -6px 0 16px;
-  font-size: 13px;
-  color: var(--body-color);
-  opacity: 0.75;
+.vp-art-doc {
+  max-width: 820px;
+  margin-inline: auto;
 }
 
 .vp-art-doc-shot {
   display: block;
   width: 100%;
   height: auto;
+  margin-bottom: 24px;
+  border-radius: 20px;
+}
+
+.vp-art-doc-when {
+  margin: 0 0 10px;
+  font-size: 13px;
+  color: var(--body-color);
+  opacity: 0.75;
+}
+
+.vp-art-doc-title {
+  margin: 0 0 18px;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 630;
+  font-size: 32px;
+  line-height: 1.5;
+  color: var(--title-color);
+}
+
+.vp-art-doc-lead {
+  margin: 0 0 20px;
+  font-size: 16px;
+  line-height: 2.05;
+  color: var(--title-color);
+}
+
+.vp-art-share {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 28px;
+  padding-top: 22px;
+  border-top: 1px solid rgba(16, 17, 17, 0.1);
+}
+
+.vp-art-share-label {
+  margin-inline-end: 4px;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 630;
+  font-size: 14px;
+  color: var(--title-color);
+}
+
+.vp-art-share-go {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: rgba(16, 17, 17, 0.045);
+  transition: background-color 0.2s ease;
+}
+
+.vp-art-share-go:hover {
+  background: rgba(218, 178, 38, 0.22);
+}
+
+.vp-art-pager {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  max-width: 820px;
+  margin: 32px auto 0;
+  padding-top: 24px;
+  border-top: 1px solid rgba(16, 17, 17, 0.1);
+}
+
+.vp-art-pager-go {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 46%;
+  color: var(--title-color);
+}
+
+.vp-art-pager-go.is-next {
+  text-align: end;
+}
+
+.vp-art-pager-go i {
+  flex: none;
+  font-size: 13px;
+  transition: transform 0.25s ease;
+}
+
+.vp-art-pager-go:hover {
+  color: var(--vp-gold-ink);
+}
+
+.vp-art-pager-go:hover i {
+  transform: translateX(4px);
+}
+
+.vp-art-pager-go.is-next:hover i {
+  transform: translateX(-4px);
+}
+
+.vp-art-pager-go b {
+  display: block;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 630;
+  font-size: 13px;
+}
+
+.vp-art-pager-go em {
+  display: block;
+  overflow: hidden;
+  font-size: 12.5px;
+  font-style: normal;
+  line-height: 1.8;
+  color: var(--body-color);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vp-art-more {
+  max-width: 820px;
+  margin: 44px auto 0;
+}
+
+.vp-art-more .vp-home-arts-title {
   margin-bottom: 20px;
-  border-radius: 16px;
+}
+
+.vp-art-more .vp-home-arts-row {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+
+@media (max-width: 991.98px) {
+  .vp-art-doc-title {
+    font-size: 24px;
+  }
+
+  .vp-art-doc-shot {
+    border-radius: 14px;
+  }
+
+  .vp-art-doc-lead {
+    font-size: 15px;
+  }
+
+  .vp-art-more .vp-home-arts-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 .vp-art-text {
@@ -12957,6 +13100,256 @@ body.shoe-shop {
 
   .vp-art-doc-shot {
     border-radius: 12px;
+  }
+}
+
+.vp-home-reviews-head {
+  margin-bottom: 20px;
+}
+
+.vp-home-reviews-title {
+  margin: 0;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 630;
+  font-size: 21.6px;
+  line-height: 1.4;
+  color: #101111;
+}
+
+.vp-home-reviews-row {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+
+  padding: 4px 4px 12px;
+  margin: -4px -4px -12px;
+  scrollbar-width: none;
+
+  contain: paint;
+}
+
+.vp-home-reviews-row::-webkit-scrollbar {
+  display: none;
+}
+
+.vp-review {
+  flex: 0 0 clamp(260px, 32%, 380px);
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  padding: 22px;
+  border-radius: 24px;
+  background: #FFFFFF;
+  box-shadow: 0 10px 30px -22px rgba(16, 17, 17, 0.55);
+}
+
+.vp-review-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.vp-review-quote {
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 630;
+  font-size: 44px;
+  line-height: 0;
+  transform: translateY(14px);
+  color: rgba(16, 17, 17, 0.16);
+}
+
+.vp-home-reviews .vp-stars {
+  font-size: 15px;
+}
+
+.vp-review-said {
+  margin: 0 0 20px;
+  font-size: 14.5px;
+  line-height: 2;
+  color: var(--body-color);
+
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.vp-review-who {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: auto;
+}
+
+.vp-review-mark {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  background: rgba(218, 178, 38, 0.16);
+  color: var(--vp-gold-fill-ink);
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 630;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.vp-review-name {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 630;
+  font-size: 15px;
+  color: var(--title-color);
+}
+
+.vp-review-bought {
+  overflow: hidden;
+  font-family: 'Vazirmatn', var(--body-font);
+  font-weight: 400;
+  font-size: 12.5px;
+  line-height: 1.7;
+  color: var(--body-color);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vp-review-bought:hover {
+  color: var(--vp-gold-ink);
+}
+
+@media (max-width: 991.98px) {
+  .vp-home-reviews-title {
+    font-size: 18px;
+  }
+
+  .vp-review {
+    flex-basis: 84%;
+    padding: 18px;
+  }
+
+  .vp-home-reviews-row {
+    gap: 12px;
+  }
+}
+
+.vp-home-arts-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.vp-home-arts-title {
+  margin: 0;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 630;
+  font-size: 21.6px;
+  line-height: 1.4;
+  color: #101111;
+}
+
+.vp-home-arts-all {
+  font-size: 13.5px;
+  color: var(--vp-gold-ink);
+}
+
+.vp-home-arts-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 28px;
+}
+
+.vp-home-art {
+  display: flex;
+  flex-direction: column;
+}
+
+.vp-home-art-shot {
+  display: block;
+  aspect-ratio: 16 / 9;
+  margin-bottom: 16px;
+  border-radius: 20px;
+  background: rgba(16, 17, 17, 0.045);
+  overflow: hidden;
+}
+
+.vp-home-art-shot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.vp-home-art-shot:hover img {
+  transform: scale(1.03);
+}
+
+.vp-home-art-when {
+  margin: 0 0 8px;
+  font-size: 12.5px;
+  color: var(--body-color);
+  opacity: 0.75;
+}
+
+.vp-home-art-title {
+  margin: 0 0 14px;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 630;
+  font-size: 18px;
+  line-height: 1.65;
+}
+
+.vp-home-art-title a {
+  color: var(--title-color);
+}
+
+.vp-home-art-title a:hover {
+  color: var(--vp-gold-ink);
+}
+
+.vp-home-art-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: auto;
+  font-family: 'Cairo', var(--title-font);
+  font-weight: 630;
+  font-size: 14px;
+  color: var(--title-color);
+}
+
+.vp-home-art-more i {
+  font-size: 12px;
+  transition: transform 0.25s ease;
+}
+
+.vp-home-art-more:hover {
+  color: var(--vp-gold-ink);
+}
+
+.vp-home-art-more:hover i {
+  transform: translateX(-4px);
+}
+
+@media (max-width: 991.98px) {
+  .vp-home-arts-title {
+    font-size: 18px;
+  }
+
+  .vp-home-arts-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 26px;
+  }
+
+  .vp-home-art-title {
+    font-size: 16px;
   }
 }
 
