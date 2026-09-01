@@ -12872,7 +12872,7 @@ body.shoe-shop {
 }
 
 .vp-arts-sum {
-  margin: -4px 0 14px;
+  margin: -4px 4px 14px;
   font-size: 13.5px;
   line-height: 1.95;
   color: var(--body-color);
@@ -13558,13 +13558,18 @@ body.shoe-shop {
 .vp-home-art {
   display: flex;
   flex-direction: column;
+  padding: 14px 14px 18px;
+  border: 1px solid rgba(16, 17, 17, 0.1);
+  border-radius: 24px;
+  background: #FFFFFF;
 }
 
 .vp-home-art-shot {
   display: block;
   aspect-ratio: 16 / 9;
   margin-bottom: 16px;
-  border-radius: 20px;
+
+  border-radius: 12px;
   background: rgba(16, 17, 17, 0.045);
   overflow: hidden;
 }
@@ -13580,15 +13585,22 @@ body.shoe-shop {
   transform: scale(1.03);
 }
 
+.vp-home-art-when,
+.vp-home-art-title,
+.vp-arts-sum,
+.vp-home-art-more {
+  margin-inline: 4px;
+}
+
 .vp-home-art-when {
-  margin: 0 0 8px;
+  margin: 0 4px 8px;
   font-size: 12.5px;
   color: var(--body-color);
   opacity: 0.75;
 }
 
 .vp-home-art-title {
-  margin: 0 0 14px;
+  margin: 0 4px 14px;
   font-family: 'Cairo', var(--title-font);
   font-weight: 630;
   font-size: 18px;
