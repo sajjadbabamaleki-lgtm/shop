@@ -8,6 +8,7 @@ use App\Support\Marketplace\Sellers;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
@@ -104,27 +105,79 @@ class ProductController extends Controller
     }
 
     /**
-     * Four more from the same categories, priced here like everything else.
+     * How far either side of this shoe's price still counts as «همین بودجه».
      *
-     * From the categories rather than the brand: somebody looking at a boot
-     * wants another boot more than they want another shoe by the same maker.
+     * «پایین توضیحات کفش باید کفش های مشابه با اون بودجه بیان». A third is wide
+     * enough that a shop of five shoes has something to show and narrow enough
+     * that the band means something: on a 5,000,000 pair it offers 3,350,000 to
+     * 6,650,000, which is the same shelf. It is a number to tune, not a law —
+     * if the catalogue grows, narrow it.
+     */
+    private const BUDGET_BAND = 0.33;
+
+    /**
+     * Four more shoes in the same budget, priced here like everything else.
+     *
+     * **The band is the rule and the category is the tiebreak**, which is the
+     * way round the client asked for and the opposite of what this used to do.
+     * It was four from the same categories in publication order, so a shoe at
+     * eight million sat under one at three: same kind of thing, not the same
+     * decision. Somebody reading a price is choosing within a budget.
+     *
+     * The band is asked of the *offer*, not of `branch_price`: that column is a
+     * select subquery, and Postgres will not have an output alias in a `where`.
+     * «has a sellable variant this branch prices inside the band» is the same
+     * question and is one the database can answer where it stands.
+     *
+     * Then two orderings: how many categories it shares with the shoe being
+     * looked at, and newest first.
+     *
+     * **Not "closest in price", and that is worth saying because it was tried.**
+     * `order by abs(branch_price - ?)` looks obvious and 500s: Postgres takes an
+     * output name in an `order by` only as a bare column, and inside an
+     * expression it resolves `branch_price` against the table, where no such
+     * column exists. Ordering by closeness would mean repeating the whole
+     * correlated subquery in the `order by`, and it would buy very little —
+     * everything here is already inside the band, which is what «همین بودجه»
+     * means.
+     *
+     * A product with no price here returns nothing rather than everything: with
+     * no branch bound `offerHere()` is null, and a budget with no number in it
+     * is not a budget.
      *
      * @return Collection<int, Product>
      */
     private function related(Product $product): Collection
     {
-        $categories = $product->categories->pluck('id');
+        $price = $product->offerHere()?->price;
 
-        if ($categories->isEmpty()) {
+        if ($price === null) {
             return collect();
         }
 
-        return Product::query()
+        $low = (int) round($price * (1 - self::BUDGET_BAND));
+        $high = (int) round($price * (1 + self::BUDGET_BAND));
+
+        $categories = $product->categories->pluck('id');
+
+        $query = Product::query()
             ->purchasable()
             ->pricedHere()
             ->whereKeyNot($product->id)
-            ->whereHas('categories', fn (Builder $c) => $c->whereIn('categories.id', $categories))
-            ->with(['brand', 'media', 'variants.offer', 'variants.stock', 'defaultVariant.offer'])
+            ->whereHas('variants', fn (Builder $v) => $v->sellable()
+                ->whereHas('offer', fn (Builder $o) => $o->active()->whereBetween('price', [$low, $high])))
+            ->with(['brand', 'media', 'variants.offer', 'variants.stock', 'defaultVariant.offer']);
+
+        if ($categories->isNotEmpty()) {
+            $query->orderByDesc(
+                DB::table('product_category')
+                    ->selectRaw('count(*)')
+                    ->whereColumn('product_category.product_id', 'products.id')
+                    ->whereIn('product_category.category_id', $categories)
+            );
+        }
+
+        return $query
             ->orderByDesc('published_at')
             ->limit(4)
             ->get();

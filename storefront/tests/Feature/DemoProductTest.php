@@ -110,6 +110,49 @@ class DemoProductTest extends TestCase
         });
     }
 
+    /**
+     * The migration that does the same thing on the live shop.
+     *
+     * «کالای آزمایشی که قبلا تو سایت گذاشته بودیم هنوز هست باید حذف بشه» — and
+     * nobody runs a command on the live site: the deploy runs
+     * `php artisan migrate --force` and nothing else. So
+     * `take_the_test_product_off_the_live_shop` is `remove()` written again as
+     * a migration, and **two copies of one rule is exactly the thing that
+     * drifts**. This asserts the migration reaches the same state the command
+     * does, against a shop the command has just stocked.
+     */
+    public function test_the_migration_takes_it_off_the_shop_the_same_way(): void
+    {
+        $this->artisan('demo:product')->assertSuccessful();
+        $this->get('/products/'.MakeDemoProduct::SLUG)->assertOk();
+
+        $this->migration()->up();
+
+        $this->get('/products/'.MakeDemoProduct::SLUG)->assertNotFound();
+
+        app(TenantContext::class)->forBranch($this->branch, function () {
+            $variant = $this->variant();
+
+            $this->assertNotNull($variant, 'The row was deleted, so any order that bought it lost its line.');
+            $this->assertFalse($variant->fresh()->isSellable());
+        });
+    }
+
+    /** And it is safe on a shop that never had one — production may not. */
+    public function test_the_migration_does_nothing_when_there_is_no_test_product(): void
+    {
+        $this->assertNull(Product::where('slug', MakeDemoProduct::SLUG)->first());
+
+        $this->migration()->up();
+
+        $this->assertNull(Product::where('slug', MakeDemoProduct::SLUG)->first());
+    }
+
+    private function migration(): object
+    {
+        return require database_path('migrations/2026_08_31_170000_take_the_test_product_off_the_live_shop.php');
+    }
+
     /** And it can be put back, which is how a second test run happens. */
     public function test_it_comes_back_after_being_removed(): void
     {
