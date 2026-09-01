@@ -225,7 +225,7 @@ class CatalogueAndStaffTest extends TestCase
         $manager = $this->manager($shiraz, Role::FRANCHISE_OWNER);
 
         $this->actingAs($manager)->post('/admin/staff', [
-            'name' => 'سارا',
+            'name' => 'بهاره',
             'email' => 'sara@vikyplus.ir',
             'role' => Role::FRANCHISE_STAFF,
         ])->assertRedirect(route('admin.staff'))->assertSessionHas('password');

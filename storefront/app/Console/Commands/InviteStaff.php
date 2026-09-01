@@ -19,7 +19,7 @@ use Illuminate\Support\Str;
  * panel exists this command is how the first one is made.
  *
  *   php artisan staff:invite ali@vikyplus.ir "علی" --role=admin
- *   php artisan staff:invite sara@vikyplus.ir "سارا" --role=franchise-manager --branch=shiraz
+ *   php artisan staff:invite bahareh@vikyplus.ir "بهاره" --role=franchise-manager --branch=shiraz
  *
  * A platform role goes on the user; a branch role goes on branch_users with
  * the branch beside it, which is what stops a franchise manager from being

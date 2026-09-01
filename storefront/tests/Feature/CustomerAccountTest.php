@@ -795,7 +795,7 @@ class CustomerAccountTest extends TestCase
     public function test_one_customer_never_sees_anothers_orders(): void
     {
         $mine = Customer::create(['name' => 'مریم', 'phone' => '09123456789', 'password' => 'password-1234']);
-        $theirs = Customer::create(['name' => 'سارا', 'phone' => '09120000000', 'password' => 'password-1234']);
+        $theirs = Customer::create(['name' => 'بهاره', 'phone' => '09120000000', 'password' => 'password-1234']);
 
         $order = $this->orderFor($theirs);
 

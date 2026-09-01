@@ -43,6 +43,19 @@ class ArticlesTest extends TestCase
         parent::setUp();
 
         $this->seed([RolesAndPermissionsSeeder::class, BranchSeeder::class, CatalogueSeeder::class]);
+
+        /*
+         * The shop opens with three articles, written by a migration —
+         * `write_the_shops_first_three_articles`. Every case here is about a
+         * catalogue of articles it controls, so it starts from none: a test
+         * that says «an empty shop draws no band» has to be able to make the
+         * shop empty, and one that counts what it wrote cannot count three
+         * more it did not.
+         *
+         * Deleting rather than working around them is the honest version. The
+         * migration is real content and is covered by `ArticleSeedTest`.
+         */
+        Article::query()->delete();
     }
 
     private function panel(): User
@@ -270,7 +283,7 @@ class ArticlesTest extends TestCase
     public function test_a_comment_waits_for_the_shop_before_it_is_printed(): void
     {
         $article = $this->write();
-        $customer = Customer::create(['name' => 'سارا', 'phone' => '09121112233', 'password' => 'password-1234']);
+        $customer = Customer::create(['name' => 'بهاره', 'phone' => '09121112233', 'password' => 'password-1234']);
 
         $this->actingAs($customer, 'customer')
             ->post('/articles/'.$article->slug.'/comments', ['body' => 'واکس بی‌رنگ را امتحان کردم و فرق کرد.'])
@@ -290,7 +303,7 @@ class ArticlesTest extends TestCase
     public function test_the_panel_publishes_an_article_comment(): void
     {
         $article = $this->write();
-        $customer = Customer::create(['name' => 'سارا', 'phone' => '09121112233', 'password' => 'password-1234']);
+        $customer = Customer::create(['name' => 'بهاره', 'phone' => '09121112233', 'password' => 'password-1234']);
 
         $comment = ArticleComment::create([
             'article_id' => $article->id,
@@ -322,7 +335,7 @@ class ArticlesTest extends TestCase
     public function test_a_draft_takes_no_comments(): void
     {
         $draft = $this->write(['status' => Article::DRAFT, 'published_at' => null]);
-        $customer = Customer::create(['name' => 'سارا', 'phone' => '09121112233', 'password' => 'password-1234']);
+        $customer = Customer::create(['name' => 'بهاره', 'phone' => '09121112233', 'password' => 'password-1234']);
 
         $this->actingAs($customer, 'customer')
             ->post('/articles/'.$draft->slug.'/comments', ['body' => 'حرف من دربارهٔ این مقاله.'])

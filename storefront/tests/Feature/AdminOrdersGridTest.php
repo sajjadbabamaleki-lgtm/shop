@@ -72,12 +72,12 @@ class AdminOrdersGridTest extends TestCase
 
     public function test_search_finds_an_order_by_number_name_phone_or_tracking(): void
     {
-        $this->order(['number' => 'VP-555111', 'contact_name' => 'سارا احمدی', 'contact_phone' => '09355554444', 'tracking_number' => 'TRK9090']);
+        $this->order(['number' => 'VP-555111', 'contact_name' => 'بهاره احمدی', 'contact_phone' => '09355554444', 'tracking_number' => 'TRK9090']);
         $this->order(['number' => 'VP-999222', 'contact_name' => 'نگار موسوی', 'contact_phone' => '09121110000']);
 
         $admin = $this->admin();
 
-        foreach (['VP-555111', 'سارا', '09355554444', 'TRK9090'] as $needle) {
+        foreach (['VP-555111', 'بهاره', '09355554444', 'TRK9090'] as $needle) {
             $found = $this->actingAs($admin, 'web')->get('/admin/orders?q='.urlencode($needle))
                 ->assertOk()->viewData('orders');
 

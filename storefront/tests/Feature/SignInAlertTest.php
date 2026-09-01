@@ -94,9 +94,9 @@ class SignInAlertTest extends TestCase
     {
         $box = $this->catchSms();
 
-        $this->signIn($this->staff(Role::ADMIN, 'سارا'));
+        $this->signIn($this->staff(Role::ADMIN, 'بهاره'));
 
-        $this->assertStringContainsString('سارا', $box->messages[0]['message']);
+        $this->assertStringContainsString('بهاره', $box->messages[0]['message']);
         $this->assertStringContainsString(
             Role::where('slug', Role::ADMIN)->value('name'),
             $box->messages[0]['message'],
@@ -245,7 +245,7 @@ class SignInAlertTest extends TestCase
 
         $this->signIn($this->staff(Role::OWNER, 'علی'));
         $this->post('/admin/logout');
-        $this->signIn($this->staff(Role::ADMIN, 'سارا'));
+        $this->signIn($this->staff(Role::ADMIN, 'بهاره'));
 
         $this->assertCount(2, $box->messages);
     }

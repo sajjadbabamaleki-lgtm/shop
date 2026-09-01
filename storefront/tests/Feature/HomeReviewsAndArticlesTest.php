@@ -35,6 +35,12 @@ class HomeReviewsAndArticlesTest extends TestCase
 
         $this->seed([BranchSeeder::class, CatalogueSeeder::class]);
         app(TenantContext::class)->set(Branch::central());
+
+        // The shop opens with three articles, written by a migration. These
+        // cases are about a front page whose bands they control — including
+        // the one that says an empty shop draws neither — so they start from
+        // none. `ArticleSeedTest` is what covers the migration's own three.
+        Article::query()->delete();
     }
 
     private function review(int $rating = 5, string $body = 'کفش راحتی است و سایزش درست بود.', ?string $status = null): ProductComment

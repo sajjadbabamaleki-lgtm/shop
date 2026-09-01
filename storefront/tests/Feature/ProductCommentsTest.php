@@ -291,7 +291,7 @@ class ProductCommentsTest extends TestCase
 
         ProductComment::create([
             'product_id' => $shoe->id,
-            'customer_id' => $this->customer('09120000002', 'سارا')->id,
+            'customer_id' => $this->customer('09120000002', 'بهاره')->id,
             'body' => 'این یکی نباید روی سایت بیاید.',
             'status' => ProductComment::REJECTED,
         ]);
@@ -461,7 +461,7 @@ class ProductCommentsTest extends TestCase
         // Scored 4, so the average of the two is 4.5.
         ProductComment::create([
             'product_id' => $shoe->id,
-            'customer_id' => $this->customer('09120000002', 'سارا')->id,
+            'customer_id' => $this->customer('09120000002', 'بهاره')->id,
             'body' => 'خوب بود ولی کمی تنگ است و یک سایز بالاتر بگیرید.',
             'rating' => 4,
             'status' => ProductComment::PUBLISHED,
