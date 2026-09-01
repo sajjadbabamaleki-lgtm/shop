@@ -236,6 +236,35 @@ the client saw an old page and had no way to tell why. So, plainly:
   after it in `main.js` runs**. `DeadLibrariesTest` fails, naming the script to
   put back, if any of their hooks (`.popup-video`, `.filter-active`,
   `data-bs-*`, …) ever returns to a template. jQuery, Swiper and GSAP stay.
+- **A supplier's photograph that looks cut was cut before it arrived, and the
+  only way to know is to ask the browser.** «چرا بعضی عکسا ناقص افتادن … جلوشون
+  رفته بیرون» — the Samba and a wedding sandal, toe and heel flat against the
+  tile's edges. The tile was the obvious suspect: `.vp-card-shot.is-supplied
+  img` is `object-fit: cover`, which crops by definition. **It was not.**
+  Chromium, pointed at the live listing, reported for every card: box 177×177,
+  file 1280×1280 or 1500×1500, **100.0% of the file's width and 100.0% of its
+  height on screen**. The site shows those photographs whole. The shoe leaves
+  the frame in the supplier's own file, and no `object-fit` puts back pixels
+  that are not there — the remedy is a new photograph, uploaded in
+  `/admin/catalogue`.
+  **Four measurements went wrong first, and each was wrong in a way worth
+  knowing**, because nothing here can reach the live site (the proxy refuses
+  vikyplus.ir, and WebFetch too) and every instrument was therefore indirect:
+  (1) `file -b | grep -oE '[0-9]+x[0-9]+' | head -1` reads a JPEG's
+  `density 1x1`, not its geometry — 33 of 40 files "measured" 1×1;
+  (2) a crop of the client's own screenshot, taken too narrow, cut the shoe
+  itself and looked like proof;
+  (3) "is any border pixel far from the corner colour?" answers *yes, all four
+  edges* for every studio shot, because the ground is a gradient;
+  (4) a 40-file sample said "40 of 40 square" — and neither shoe being
+  complained about was in it (one is 1918×1921).
+  A runner **can** reach the site, which is what settled it: a temporary
+  workflow on the working branch, running the same Playwright the rest of this
+  repository measures with. Only the deploy job is gated on `main`, so a push
+  to a working branch runs everything and ships nothing — that is the tool for
+  any question whose answer is only on the live site. Delete the workflow
+  afterwards; the ones used here are in this session's history and are not in
+  `main`.
 - `theme/make-css-subset.js` — **the three bought stylesheets, cut to the
   rules this shop can reach: 859KB → 108KB, and 116KB → 20KB on the wire.**
   The bundle is eleven demos in one download and this shop is one of them: of

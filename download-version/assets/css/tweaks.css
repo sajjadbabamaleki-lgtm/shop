@@ -17508,9 +17508,19 @@ body.vp-soon-open .vp-support-fab {
    shop's own tiles changes — they never carry this class.
 
    The crop this risks is the one the rule above refuses, and it is a different
-   risk here: Basalam serves square originals, so a square tile takes all of a
-   square photograph. Where a seller uploaded a tall one it loses the top and
-   foot of the *frame*, not of the shoe, which sits in the middle of it. */
+   risk here: the supplier's originals are square, so a square tile takes all of
+   a square photograph. Where a seller uploaded a tall one it loses the top and
+   foot of the *frame*, not of the shoe, which sits in the middle of it.
+
+   **Measured, after the tile was accused of cutting shoes** — «چرا بعضی عکسا
+   ناقص افتادن … جلوشون رفته بیرون». Chromium was pointed at the live listing
+   and asked what each card was showing: box 177×177, file 1280×1280 or
+   1500×1500, and **100.0% of the file's width and 100.0% of its height on
+   screen**, on every card sampled. This rule crops nothing. A shoe that runs
+   out of its frame ran out of it before the file arrived, and no value of
+   `object-fit` puts back pixels the file does not have — the remedy is a new
+   photograph. Four indirect measurements went wrong before that one went
+   right; see the note in CLAUDE.md before re-deriving any of it. */
 .vp-card-shot.is-supplied img {
   inset: 0;
   width: 100%;
