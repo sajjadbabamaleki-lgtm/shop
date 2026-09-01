@@ -23506,12 +23506,26 @@ body.shoe-shop {
   margin-inline: auto;
 }
 
+/* A banner, the way the client's reference has it, and not «whatever shape the
+   file happens to be».
+ *
+ * Measured: a square photograph in this 820px column came out 820 tall, so the
+ * whole of the first screen was one picture and the title was below the fold.
+ * 16:9 and `cover` caps it at 461 and puts the headline back where a headline
+ * goes.
+ *
+ * **Cropping is allowed here and nowhere else.** The rule across this site is
+ * resize only, never crop — that is about the *product* photographs, which are
+ * the goods and may not be recomposed. An article's picture is decoration, and
+ * the same exception is written on `.vp-home-art-shot` and `.vp-art-gallery`. */
 .vp-art-doc-shot {
   display: block;
   width: 100%;
-  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
   margin-bottom: 24px;
   border-radius: 20px;
+  background: rgba(16, 17, 17, 0.045);
 }
 
 .vp-art-doc-when {

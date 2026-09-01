@@ -12921,9 +12921,11 @@ body.shoe-shop {
 .vp-art-doc-shot {
   display: block;
   width: 100%;
-  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
   margin-bottom: 24px;
   border-radius: 20px;
+  background: rgba(16, 17, 17, 0.045);
 }
 
 .vp-art-doc-when {
