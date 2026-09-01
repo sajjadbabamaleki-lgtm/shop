@@ -245,9 +245,43 @@ class HomeController extends Controller
          * the largest thing on the front page. `FrontPage::heroSlides()` is
          * where the two readings meet, and the file is still the default.
          */
-        $chosen = collect(app(FrontPage::class)->heroSlides())
+        $wanted = collect(app(FrontPage::class)->heroSlides());
+
+        /*
+         * **The deck is three shoes whether or not they are in stock today.**
+         *
+         * «قبلا کارتهای هیرو ۳ تا بودن الان دوتا هستن، اون جردن صورتی حذف شده».
+         * Nothing was deleted and no deploy did it: `catalogue()` is
+         * `purchasable()`, which requires a variant that can go in a basket, so
+         * the last pair of a hero shoe being sold takes its slide off the front
+         * page in the same minute. Silently — the deck still renders, just with
+         * two in it, and nothing anywhere goes red.
+         *
+         * That is the same mistake as the sale window in
+         * `HeroOutlivesTheSaleTest`, one shelf along: **a band that does not
+         * print a fact must not be built from it.** This slide prints an
+         * eyebrow, the name, a photograph and a button — no price, no discount
+         * and no stock — so it is looked up among what the branch *sells*
+         * (`listable()`: published, and offered here) rather than among what it
+         * can sell this minute. The shoe's own page still says it is out; that
+         * is the page whose job it is.
+         *
+         * Only the ones the catalogue is missing are asked for, so a deck whose
+         * three are all in stock — the ordinary case — still costs no query at
+         * all, on a machine where each is worth 10ms.
+         */
+        $missing = $wanted->pluck('slug')->reject(fn (string $slug) => $products->has($slug));
+
+        $standIns = $missing->isEmpty() ? collect() : Product::query()
+            ->listable()
+            ->whereIn('slug', $missing->all())
+            ->with(['media', 'defaultVariant.offer'])
+            ->get()
+            ->keyBy('slug');
+
+        $chosen = $wanted
             ->mapWithKeys(fn (array $slide) => [$slide['slug'] => [
-                'product' => $products->get($slide['slug']),
+                'product' => $products->get($slide['slug']) ?? $standIns->get($slide['slug']),
                 'eyebrow' => $slide['eyebrow'],
             ]])
             ->filter(fn (array $slide) => $slide['product'] !== null)

@@ -8961,15 +8961,15 @@ button.vp-cart-keep {
 }
 
 @keyframes vp-fab-nudge {
-  0%, 89%, 100% { transform: rotate(0deg); }
-  91% { transform: rotate(-11deg); }
-  93.5% { transform: rotate(9deg); }
-  96% { transform: rotate(-5deg); }
-  98% { transform: rotate(2deg); }
+  0%, 81.7%, 100% { transform: rotate(0deg); }
+  84.7% { transform: rotate(-11deg); }
+  88.9% { transform: rotate(9deg); }
+  93% { transform: rotate(-5deg); }
+  96.7% { transform: rotate(2deg); }
 }
 
 .vp-support-fab.show:not(.is-wide) > i {
-  animation: vp-fab-nudge 5s ease-in-out infinite;
+  animation: vp-fab-nudge 3s ease-in-out infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -12597,13 +12597,6 @@ body.shoe-shop {
   box-shadow: none;
 }
 
-@media (max-width: 991.98px) {
-
-  .vp-shop-panel.vp-pdp-talk {
-    padding-inline: 10px;
-  }
-}
-
 .vp-pdp-talk-head {
   display: flex;
   align-items: baseline;
@@ -13594,7 +13587,7 @@ body.shoe-shop {
 .vp-home-arts-row {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 28px;
+  gap: 14px;
 }
 
 .vp-home-art {
@@ -13688,7 +13681,7 @@ body.shoe-shop {
 
   .vp-home-arts-row {
     grid-template-columns: minmax(0, 1fr);
-    gap: 26px;
+    gap: 13px;
   }
 
   .vp-home-art-title {

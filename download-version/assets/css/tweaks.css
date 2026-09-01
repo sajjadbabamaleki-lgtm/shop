@@ -16359,9 +16359,11 @@ button.vp-cart-keep {
 
 /* **A ring every few seconds** — «یه تکون ریز هم هر چند ثانیه یبار بخوره».
  *
- * The whole cycle is 5s and the movement is the last 0.55s of it, so what the
- * page mostly shows is a still button; a mark that shook constantly would be a
- * fault rather than an invitation. Four keyframes, ±11° and falling, which is
+ * Every three seconds — «اون آیکون پشتیبانی ۲۴ ساعته باید هر ۳ ثانیه یبار
+ * تکون بخوره». The movement is the last 0.55s of the cycle and the keyframe
+ * percentages were rescaled when the cycle came down from 5s, so the shake
+ * itself is the same speed it was; only the wait between shakes is shorter.
+ * What the page mostly shows is still a still button. Four keyframes, ±11° and falling, which is
  * the shape of something that was knocked rather than something that is being
  * animated.
  *
@@ -16370,15 +16372,15 @@ button.vp-cart-keep {
  * waits for `.show` and stands down while `.is-wide` is on — a button that is
  * still introducing itself in words does not also need to wave. */
 @keyframes vp-fab-nudge {
-  0%, 89%, 100% { transform: rotate(0deg); }
-  91% { transform: rotate(-11deg); }
-  93.5% { transform: rotate(9deg); }
-  96% { transform: rotate(-5deg); }
-  98% { transform: rotate(2deg); }
+  0%, 81.7%, 100% { transform: rotate(0deg); }
+  84.7% { transform: rotate(-11deg); }
+  88.9% { transform: rotate(9deg); }
+  93% { transform: rotate(-5deg); }
+  96.7% { transform: rotate(2deg); }
 }
 
 .vp-support-fab.show:not(.is-wide) > i {
-  animation: vp-fab-nudge 5s ease-in-out infinite;
+  animation: vp-fab-nudge 3s ease-in-out infinite;
 }
 
 /* Somebody who has asked their device for less movement gets the button and
@@ -23119,14 +23121,17 @@ body.shoe-shop {
   box-shadow: none;
 }
 
-@media (max-width: 991.98px) {
-  /* Ten in from the page's own 14, so the cards stand clear of both screen
-     edges. Padding on the band and not a margin on the cards, so the heading
-     moves in with them. */
-  .vp-shop-panel.vp-pdp-talk {
-    padding-inline: 10px;
-  }
-}
+/* **The band lines up with the shoes above it, and nothing more.**
+   «فاصله بخش نظرات و متن بالاش باید از بغلا مث فاصله اون موارد بالا از بغلا
+   باشه یعنی کارهای کفشا».
+
+   It used to take ten more, which was an answer to «نباید به دو طرف موبایل
+   چسبیده باشه» written before the band was flattened — at the time the panel's
+   own padding had just been taken away and the sentences really were on the
+   screen edge. They are not: the page's container already holds everything 14
+   in, which is where «کفش‌های مشابه» and its cards sit. Measured at 390 with
+   the ten still on: the comments heading at 24 and a shoe card at 14, which is
+   the ten-pixel step the client is pointing at. */
 
 .vp-pdp-talk-head {
   display: flex;
@@ -24360,10 +24365,14 @@ body.shoe-shop {
   color: var(--vp-gold-ink);
 }
 
+/* Halved, at the client's measure — «فاصله مقالات از هم تو هوم باید نصف بشه».
+   28 → 14 across and down. The listing at `/articles` reads this same rule on
+   purpose: an article is offered in three places and has to look the same in
+   all of them, so the gap is not a per-page decision. */
 .vp-home-arts-row {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 28px;
+  gap: 14px;
 }
 
 /* **Each article on a white card of its own** — «بنظرم هر مقاله باید بره رو یه
@@ -24483,7 +24492,7 @@ body.shoe-shop {
 
   .vp-home-arts-row {
     grid-template-columns: minmax(0, 1fr);
-    gap: 26px;
+    gap: 13px;
   }
 
   .vp-home-art-title {

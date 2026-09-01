@@ -3,7 +3,9 @@
 namespace Tests\Feature;
 
 use App\Models\Branch;
+use App\Models\BranchInventory;
 use App\Models\BranchOffer;
+use App\Models\Product;
 use App\Support\Tenancy\TenantContext;
 use Database\Seeders\BranchSeeder;
 use Database\Seeders\CatalogueSeeder;
@@ -68,6 +70,65 @@ class HeroOutlivesTheSaleTest extends TestCase
         // `@foreach` leaves the deck's markup behind with nothing in it, which
         // is exactly what the client photographed.
         $page->assertSee(config('storefront.hero.products')[array_key_first(config('storefront.hero.products'))]);
+    }
+
+    /**
+     * The same rule, one shelf along: **the deck outlives a sell-out too.**
+     *
+     * «قبلا کارتهای هیرو ۳ تا بودن الان دوتا هستن، اون جردن صورتی حذف شده».
+     * The front page's catalogue is `purchasable()`, which wants a variant that
+     * can go in a basket today — so selling the last pair of a hero shoe took
+     * its slide off the front page, silently, in the same minute. The deck
+     * still rendered; it just had two in it.
+     *
+     * A hero slide prints an eyebrow, a name, a photograph and a button. No
+     * price, no discount, no stock. So it may not be built from stock.
+     */
+    public function test_the_hero_keeps_its_three_when_one_of_them_sells_out(): void
+    {
+        $slugs = array_keys(config('storefront.hero.products'));
+        $soldOut = $slugs[1];
+
+        // Empty every shelf this shoe has, at every branch, the way the last
+        // sale of the last pair does.
+        BranchInventory::query()
+            ->whereIn('variant_id', Product::where('slug', $soldOut)->firstOrFail()->variants()->pluck('id'))
+            ->update(['stock_on_hand' => 0, 'stock_reserved' => 0]);
+
+        // The premise: it really is out of the buyable catalogue now.
+        $this->assertFalse(
+            Product::query()->purchasable()->where('slug', $soldOut)->exists(),
+            'The shoe is still purchasable, so this case is not testing anything.'
+        );
+
+        $page = $this->get('/')->assertOk();
+
+        $this->assertCount(
+            count($slugs) * config('storefront.hero.repeat'),
+            $page->viewData('heroSlides'),
+            'A hero slide went missing because the shoe sold out. It prints no stock and must not depend on any.'
+        );
+
+        $this->assertSame(
+            $slugs,
+            collect($page->viewData('heroSlides'))
+                ->take(count($slugs))
+                ->pluck('product.slug')
+                ->all(),
+            'The deck is there but the sold-out shoe is not the one in it.'
+        );
+    }
+
+    /** A shoe that is genuinely gone is still gone — this is not a licence. */
+    public function test_an_archived_shoe_does_not_come_back_to_the_hero(): void
+    {
+        $slugs = array_keys(config('storefront.hero.products'));
+
+        Product::where('slug', $slugs[1])->update(['status' => 'archived']);
+
+        $slides = $this->get('/')->assertOk()->viewData('heroSlides');
+
+        $this->assertCount((count($slugs) - 1) * config('storefront.hero.repeat'), $slides);
     }
 
     /**
