@@ -65,6 +65,19 @@ jobs:
           echo
           echo "total: $(sort -u /tmp/all.tsv | wc -l)"
 
+      - name: The vocabulary the names are written in
+        run: |
+          echo "──────── first word ────────"
+          cut -f2 /tmp/all.tsv | sort -u | awk '{print $1}' | sort | uniq -c | sort -rn
+          echo
+          echo "──────── first two words ────────"
+          cut -f2 /tmp/all.tsv | sort -u | awk '{print $1, $2}' | sort | uniq -c | sort -rn
+          echo
+          echo "──────── anything that is none of the four ────────"
+          cut -f2 /tmp/all.tsv | sort -u \
+            | grep -v '^کتونی' | grep -v '^ونس' | grep -v '^صندل' | grep -v '^کالج' \
+            || echo "(none)"
+
       - name: And how many each category already holds
         run: |
           for slug in majlesi sneaker college sandal boot bag-set accessory sport-set; do
