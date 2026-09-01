@@ -2383,7 +2383,14 @@ a.vp-adm-mini {
   --adm-bg: #131311;
   --adm-surface: #1B1B18;
   --adm-ink: #F2EFE7;
-  --adm-ink-2: #A39C8C;
+  /* **A fifth lighter than it was.** «تو نسخه دارک اون متن زیر عنوان ها در
+     همجای پنل ادمین باید ۲۰ درصد روشنتر بشن خیلی تاریکن» — this is the colour
+     every sub-heading, note and count in the panel is written in, so the ask
+     reaches all of them through one line. #A39C8C was L 59.4%; x1.2 is 71.3%,
+     the hue and the saturation untouched. On the ink theme's black card that
+     takes the contrast 7.69:1 to 10.6:1. Both dark themes carry it — the ask
+     was «همه جای پنل» — and the light one is not here and does not move. */
+  --adm-ink-2: #BEB9AE;
   --adm-line: #302E28;
   --adm-sunk: #232219;
   --adm-sunk-2: #1F1F1C;
@@ -2401,7 +2408,7 @@ a.vp-adm-mini {
   /* The paragraph twin of the line above, and found the same way: a <p>
      in the panel takes the shop's body colour, not the panel's ink, so
      `.vp-adm-note` came out #6E7070 on black — 4.21:1. */
-  --body-color: #A39C8C;
+  --body-color: #BEB9AE;
 
   /* The gold ramp is the one thing that does not change: it is the shop's
      mark and it was chosen to sit on light *and* dark — see «گلد سبز», where
@@ -2459,7 +2466,14 @@ a.vp-adm-mini {
   --adm-bg: #121212;
   --adm-surface: #000000;
   --adm-ink: #F2EFE7;
-  --adm-ink-2: #A39C8C;
+  /* **A fifth lighter than it was.** «تو نسخه دارک اون متن زیر عنوان ها در
+     همجای پنل ادمین باید ۲۰ درصد روشنتر بشن خیلی تاریکن» — this is the colour
+     every sub-heading, note and count in the panel is written in, so the ask
+     reaches all of them through one line. #A39C8C was L 59.4%; x1.2 is 71.3%,
+     the hue and the saturation untouched. On the ink theme's black card that
+     takes the contrast 7.69:1 to 10.6:1. Both dark themes carry it — the ask
+     was «همه جای پنل» — and the light one is not here and does not move. */
+  --adm-ink-2: #BEB9AE;
   --adm-line: #282828;
   --adm-sunk: #1C1C1C;
   --adm-sunk-2: #181818;
@@ -2467,7 +2481,7 @@ a.vp-adm-mini {
   /* The paragraph twin of the line above, and found the same way: a <p>
      in the panel takes the shop's body colour, not the panel's ink, so
      `.vp-adm-note` came out #6E7070 on black — 4.21:1. */
-  --body-color: #A39C8C;
+  --body-color: #BEB9AE;
 
   --adm-gold-ink: #EFC94F;
   --adm-gold-wash: #2A2410;
@@ -2641,4 +2655,50 @@ a.vp-adm-mini {
 
 :root[data-theme="ink"] .vp-adm .vp-admin-table tbody tr:hover td {
   background: var(--adm-sunk-2);
+}
+
+/* --- «صفحه اصلی»'s type, in the panel's own scale -------------------------
+   «عنوان ها سایزشون خیلی بزرگه». They were the shop's, not the panel's:
+   `.vp-shop-title` is 24px because a storefront section heading is read from
+   across a page, and this screen is seven stacked panels in a dense admin.
+
+   The panel already has a scale and these now speak it — `.vp-adm-card-title`
+   is 16 and `.vp-adm-sub` is 12, so a band's heading is a card's heading and
+   the line under it is a card's sub. The screen's own name is one step above
+   at 18, and only one: the topbar prints it too, and this file says elsewhere
+   that a heading arguing with the navigation is how that happens.
+
+   In admin.css rather than tweaks.css because this is the panel's type scale,
+   and because loading last is what lets a plain class beat the shop's own. */
+.vp-adm-band h1.vp-shop-title {
+  font-size: 18px;
+}
+
+.vp-adm-band h2.vp-shop-title {
+  font-size: 16px;
+}
+
+.vp-adm-band .vp-shop-count {
+  color: var(--adm-ink-2);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+/* **The controls stand off the sentence above them.** «چرا اون روشن کن خاموش
+   کن چسبیده به متن بالاییش استاندارد فاصله هارو رعایت کن» — measured, the
+   paragraph's bottom edge and the button row's top edge were both at 432: a
+   gap of exactly zero. `.vp-admin-inline` is a flex row with a gap *between*
+   its own items and nothing above it, and every other thing on this screen
+   brought its own spacing.
+
+   16px, which is the panel's own step — `.vp-adm-head` and `.vp-adm-card` are
+   both `margin-bottom: 16px` and the two grids are `gap: 16px`. Not a number
+   chosen for this row.
+
+   **Direct children only.** `.vp-admin-inline` is also the wrapper around the
+   up/down/delete buttons *inside* a table cell, where a top margin would push
+   every row's controls off their own line. `>` is what keeps this to the rows
+   that sit in the panel's flow. */
+.vp-adm-band > .vp-admin-inline {
+  margin-top: 16px;
 }

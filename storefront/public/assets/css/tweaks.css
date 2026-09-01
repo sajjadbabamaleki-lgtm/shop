@@ -4631,10 +4631,22 @@ button.vp-cart-keep {
 
 .vp-admin-save.is-off {
   background: #B3261E;
+  color: #FFFFFF;
 }
 
 .vp-admin-save.is-off:hover {
   background: #8F1E18;
+  color: #FFFFFF;
+}
+
+.vp-admin-save.is-go {
+  background: #44AD2C;
+  color: #FFFFFF;
+}
+
+.vp-admin-save.is-go:hover {
+  background: #3A9426;
+  color: #FFFFFF;
 }
 
 .vp-admin-save:disabled,

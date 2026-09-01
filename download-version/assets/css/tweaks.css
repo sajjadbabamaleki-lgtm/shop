@@ -7512,15 +7512,53 @@ button.vp-cart-keep {
 
    A modifier on the existing class rather than a class of its own — the shape,
    the height and the radius are all still the panel's button. */
+/* **White on it, which it never had.** `.vp-admin-save` sets `color: #101111`
+   and this rule only ever changed the background, so every «حذف» in the panel
+   has been the page's ink on a dark red — measured 2.51:1, which is a label
+   you squint at. White is 8.16:1 and is what the green opposite it carries at
+   the client's own instruction. Found while pairing the two ends of the sale's
+   switch; it was never about that switch. */
 .vp-admin-save.is-off {
   background: #B3261E;
+  color: #FFFFFF;
 }
 
 .vp-admin-save.is-off:hover {
   background: #8F1E18;
+  color: #FFFFFF;
+}
+
+/* The other half of a switch. «اون دکمه خاموش روشن چرا انگار غیره فعال هستن از
+   یه رنگ قرمز و سبز روشن استفاده کن — یه سبز قبلا تو پنل ادمین داشتیم از اون
+   استفاده کن مقابلش از یه قرمز تو همون سبک رنگی».
+
+   Both colours are the panel's own and neither is new: `#44AD2C` is
+   `--adm-save`, chosen by the client themselves — «از این سبز استفاده کن توشم
+   با سفید بنویس» — and the red opposite it is `.is-off`'s `#B3261E`, which is
+   `--adm-bad`. A green and a red at the same weight read as one control with
+   two ends; the gold this used to wear read as «a button», which is what made
+   the pair look like one live button and one dead one.
+
+   White on both, at the client's instruction for the green and to match on the
+   red. Measured: 4.02:1 on the green and 8.16:1 on the red. */
+.vp-admin-save.is-go {
+  background: #44AD2C;
+  color: #FFFFFF;
+}
+
+.vp-admin-save.is-go:hover {
+  background: #3A9426;
+  color: #FFFFFF;
 }
 
 /* A button that cannot be pressed has to look like one.
+
+   **The sale's switch no longer uses this**, and that is the client's call:
+   «چرا انگار غیره فعال هستن». A two-ended switch drawn with one end dimmed
+   reads as a broken control rather than as a state, so both ends are now full
+   strength — see `.vp-admin-save.is-go` above — and pressing the end that is
+   already true is simply a no-op. This rule stays for the buttons that really
+   are unavailable.
 
    The sale's switch draws both «روشن کن» and «خاموش کن» at all times — the one
    that would do nothing is the one that is already true, and hiding it would

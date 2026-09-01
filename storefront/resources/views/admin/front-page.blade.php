@@ -68,17 +68,25 @@
         خودت عوضش نکنی همان‌طور می‌ماند. روی همه شعبه‌ها اعمال می‌شود.
     </p>
 
+    {{-- Green and red, both live. «اون دکمه خاموش روشن چرا انگار غیره فعال
+         هستن از یه رنگ قرمز و سبز روشن استفاده کن — یه سبز قبلا تو پنل ادمین
+         داشتیم از اون استفاده کن مقابلش از یه قرمز تو همون سبک رنگی».
+
+         Neither is `@disabled` any more. A two-ended switch with one end
+         dimmed reads as a broken control rather than as a state; pressing the
+         end that is already true is a no-op, which is the honest behaviour and
+         costs one statement that updates nothing. --}}
     <div class="vp-admin-inline">
         <form method="post" action="{{ route('admin.front-page.sale') }}">
             @csrf
             <input type="hidden" name="state" value="on">
-            <button type="submit" class="vp-admin-save" @disabled($saleIsOn)>روشن کن</button>
+            <button type="submit" class="vp-admin-save is-go">روشن کن</button>
         </form>
 
         <form method="post" action="{{ route('admin.front-page.sale') }}">
             @csrf
             <input type="hidden" name="state" value="off">
-            <button type="submit" class="vp-admin-save is-off" @disabled(! $saleIsOn)>خاموش کن</button>
+            <button type="submit" class="vp-admin-save is-off">خاموش کن</button>
         </form>
     </div>
 </section>
