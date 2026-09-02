@@ -1,13 +1,17 @@
 # Temporary. Asks the live shop which product each of the client's photographs
 # is of.
 #
-# The names alone cannot settle it — «آبی طوسی» and «یشمی» are both plausible
-# for one teal shoe — so this reads each candidate's own photograph and prints
-# its mean colour. That is comparable against the file the client sent, which
-# can be measured here.
+# The names cannot settle it on their own — the shop carries eight New Balance
+# 530s and six Travis Scotts, and «سفید نقره ای» against «سفید مشکی» is a guess
+# from the outside. So this reads each candidate's own photograph and prints its
+# mean colour over the shoe alone, which is comparable against the file the
+# client sent measured the same way here.
 #
 # The proxy in the working container refuses vikyplus.ir; a runner can reach it,
 # and only the deploy job is gated on `main`, so this ships nothing.
+#
+# `magick`, not `convert`: ImageMagick 7 dropped the old name and the runner
+# answers 127 for it.
 #
 # Delete this file once the slugs are read.
 name: Find two slugs
@@ -20,28 +24,25 @@ jobs:
   ask:
     runs-on: ubuntu-latest
     steps:
-      - name: List the candidates
-        run: |
-          for q in "نیوبالانس" "کلادتیلت" "زوم"; do
-            echo "==================== $q"
-            curl -sS --get --data-urlencode "q=$q" https://vikyplus.ir/search \
-              | grep -oE 'href="https://vikyplus\.ir/products/[^"]+"' \
-              | sed 's/href="//;s/"$//' | sort -u | head -40
-          done
-
       - name: Read each candidate's own photograph
         run: |
-          probe () {
-            for url in $(curl -sS --get --data-urlencode "q=$1" https://vikyplus.ir/search \
+          for q in "نیوبالانس" "تراویس" "گلدن گوس"; do
+            echo "==================== $q"
+            for url in $(curl -sS --get --data-urlencode "q=$q" https://vikyplus.ir/search \
                           | grep -oE 'https://vikyplus\.ir/products/[^"]+' | sort -u | head -40); do
-              img=$(curl -sS "$url" | grep -oE 'https://vikyplus\.ir/[^"]*\.(jpg|jpeg|png|webp)' | head -1)
+              img=$(curl -sS "$url" | grep -oE 'https://vikyplus\.ir/[^"]*\.(jpg|jpeg|png|webp)' | grep -v 'favicon\|logo\|appicon\|icon/' | head -1)
               [ -z "$img" ] && continue
               curl -sS -o /tmp/shot "$img" || continue
-              mean=$(convert /tmp/shot -resize 1x1! -format '%[fx:int(255*r)] %[fx:int(255*g)] %[fx:int(255*b)]' info: 2>/dev/null)
-              printf '%s\n    mean %s\n' "$(python3 -c 'import urllib.parse,sys;print(urllib.parse.unquote(sys.argv[1]))' "$url")" "$mean"
+              # The mean over the shoe rather than over the frame: everything
+              # brighter than 235 in all three channels is the studio's ground
+              # and is thrown out, so a white shoe on white does not read as
+              # white paper.
+              mean=$(magick /tmp/shot -fuzz 8% -fill none -opaque white -alpha on \
+                       -channel RGB -separate -average -format '%[fx:int(255*mean)]' info: 2>/dev/null)
+              rgb=$(magick /tmp/shot -colorspace sRGB -white-threshold 92% -transparent white \
+                       -resize 1x1! -format '%[fx:int(255*r)] %[fx:int(255*g)] %[fx:int(255*b)]' info: 2>/dev/null)
+              printf '%s\n    shoe-mean %s   (grey %s)\n' \
+                "$(python3 -c 'import urllib.parse,sys;print(urllib.parse.unquote(sys.argv[1]))' "$url")" \
+                "$rgb" "$mean"
             done
-          }
-          for q in "نیوبالانس" "کلادتیلت" "زوم" "تراویس"; do
-            echo "==================== $q"
-            probe "$q"
           done
