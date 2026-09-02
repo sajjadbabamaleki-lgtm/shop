@@ -23,9 +23,16 @@ use Illuminate\Database\Migrations\Migration;
  * brown reads r−b +15, «قهوه ای» +11 and «کرم قهوه ای» +8, so the warmer of
  * the two is the match.
  *
- * The order inside each set is deliberate: the upright three-quarter view of
- * the pair first, because that is the one every card shows at 177px, and the
- * top-down flat lay last.
+ * **The first photograph is the side profile of one shoe** — «عکس اول در همه
+ * موردا باید این عکسی باشه که از این زاویس نه عکس دوتایی». That is the one
+ * every card draws at 177px, and a single shoe from the side is the shape the
+ * eye reads at that size; a pair at three-quarters is two small shoes and a
+ * gap. The rest follow in the order they arrived, with the top-down flat lay
+ * last.
+ *
+ * **The black set is the exception and it is not a choice.** Its five
+ * photographs are all of the pair — there is no side profile among them — so
+ * its first is the squarest three-quarter view until one arrives.
  *
  * A migration and not a seeder — `catalogue:seed` runs only on an empty
  * catalogue and this shop has 148 products. And not the panel, only because
