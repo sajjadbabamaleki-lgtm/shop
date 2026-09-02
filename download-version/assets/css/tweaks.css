@@ -3221,6 +3221,92 @@ option:hover {
   color: rgba(16, 17, 17, 0.62);
 }
 
+/* The sale's cards, stamped and out of focus.
+
+   «حالا هر ۶ کارت باید ۳ درصد بلور بشن و این بج سولد اوت بیاد روشون», then
+   «کارت و قیمت باهم بلور بشن», then «حتی اون ستاره تخفیف».
+
+   **So the whole card goes soft and only the stamp stays sharp.** The first
+   build blurred the photograph alone, on the reasoning that the name and the
+   two prices had just had their weight and their ink argued down one message
+   earlier so that they could be read; that reasoning was ours and the client
+   has now said otherwise twice, naming the price and then the burst. Sharp
+   type over a soft photograph also reads as a rendering fault rather than as a
+   decision, which is the better argument for their answer than for ours.
+
+   **What blurs is the contents, not the card.** «نباید کل بخش حراج پله ایرو
+   بلور کنی، فقط هر کارت جدا» — the first build put the filter on
+   `.vp-deal-shot`, which is the white card itself: its own rounded edge and
+   its hairline went soft with everything inside it, six cards lost their
+   outlines together and the band read as one hazy block rather than as six
+   stamped cards. `filter` blurs an element's own painting, its background and
+   its border included, so it has to go on the things *on* the card and not on
+   the card.
+
+   Three of them, which is everything the client named: the photograph, the ٪۳۰
+   burst and the two lines of type inside the strip. The white strip keeps its
+   own crisp pill, the card keeps its edge, and the basket beside it is left
+   alone — those are the shapes that say «this is a card», and blurring them
+   was the complaint.
+
+   **The stamp is a sibling of the link, not a child of it.** `filter` on an
+   element applies to its whole subtree with no way out, so a stamp inside the
+   thing being blurred is a blurred stamp. It is also why it cannot be a child
+   of `.vp-deal-shot` for positioning convenience — see the note on its own
+   rule.
+
+   **3% of what.** Blur takes a length, not a proportion, so the percentage has
+   to be read against something: 3% of the tile's own photograph box, which is
+   145px wide at 390 and 232 at 1440. That is 4.4px and 7.0px — measured, and
+   far past "slightly out of focus": the shoe stops being a shoe and the price
+   stops being a number. So it is a length that holds at every width instead,
+   and 2px is where a 177px card still shows which shoe it is and roughly what
+   it cost, while reading as unavailable. One number, here, if it wants moving.
+
+   `is-out` rather than styling `.vp-deal` outright: the stamp is a decision
+   about a campaign and not a fact about stock — every card in this band is
+   purchasable by construction — so it has to be as easy to take off as it was
+   to put on. */
+.vp-deal.is-out .vp-deal-shot > img,
+.vp-deal.is-out .vp-deal-burst,
+.vp-deal.is-out .vp-deal-lines {
+  filter: blur(2px);
+}
+
+.vp-deal-out {
+  position: absolute;
+  z-index: 4;
+  /* **The whole tile, not the photograph's box.** «باید ۲ برابر بشه سایز اون
+     مهر سولد اوت» — and at 78% of the photograph's own box the stamp had
+     nowhere left to grow: 94.4px on a 180px tile, so doubling it would have put
+     it outside the card and into the gutter. Measured against the tile instead,
+     the card's own width is the ceiling.
+
+     Nothing under it is lost by this: everything the stamp covers — the name,
+     the two prices, the burst — is blurred, which is the point. */
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* The card is a link. A stamp that ate the click would make six products
+     unreachable. */
+  pointer-events: none;
+}
+
+.vp-deal-out img {
+  /* «حالا ۳۰ درصد کوچیکتر بشه» — off the card's full width, so 70%. That is
+     126px on a 180px tile, still 1.33x the 94.4 it started at and clear of the
+     card's edge on both sides. */
+  width: 70%;
+  height: auto;
+  max-height: 100%;
+  object-fit: contain;
+  /* The mark is gold on nothing, and it sits on a photograph that may be pale.
+     A shadow at the stamp's own hue rather than a black one: black under gold
+     reads as dirt. */
+  filter: drop-shadow(0 1px 2px rgba(139, 114, 23, 0.28));
+}
+
 /* The basket, round, on the tile's own corner — the same 12px inset as the
    strip beside it, so the two sit on one baseline as separate objects rather
    than one lapping the other. 52.8 plus a 10px gap is the strip's 74.8px

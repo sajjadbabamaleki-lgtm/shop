@@ -211,8 +211,17 @@ class HeroOutlivesTheSaleTest extends TestCase
         );
     }
 
+    /**
+     * Counted on the opening tag rather than on the class alone: `vp-deal` is
+     * also the stem of `vp-deal-shot`, `vp-deal-label` and half a dozen others,
+     * and the card itself carries `is-out` now — the stamp the whole band wears
+     * — so neither the bare class nor the bare tag would count cards.
+     */
     private function saleCards(): int
     {
-        return substr_count($this->get('/')->assertOk()->getContent(), '<div class="vp-deal">');
+        return preg_match_all(
+            '/<div class="vp-deal(?: [^"]*)?">/',
+            $this->get('/')->assertOk()->getContent()
+        );
     }
 }

@@ -1539,7 +1539,7 @@ const LADDER_DEALS_HTML = LADDER_DEALS
   .map(({ deal: [file, name, price], i, phoneOnly }) => {
   const now = Math.round(price * (100 - LADDER_CUT) / 100);
   return '\n                <div class="col' + (phoneOnly ? ' d-lg-none' : '') + '">' +
-    '\n                    <div class="vp-deal">' +
+    '\n                    <div class="vp-deal is-out">' +
     `\n                        <a class="vp-deal-shot" href="shop.html">` +
     `\n                            <img src="assets/img/${file}" alt="" loading="lazy">` +
     `\n                            ${dealBurst(LADDER_CUT, i)}` +
@@ -1551,6 +1551,12 @@ const LADDER_DEALS_HTML = LADDER_DEALS
     '\n                                </span>' +
     '\n                            </span>' +
     '\n                        </a>' +
+    // «حالا هر ۶ کارت باید ۳ درصد بلور بشن و این بج سولد اوت بیاد روشون», then
+    // «کارت و قیمت باهم بلور بشن», then «حتی اون ستاره تخفیف». Outside the link
+    // because `filter` reaches an element's whole subtree with no way out, so a
+    // stamp inside the blurred thing is a blurred stamp. Kept in step with
+    // resources/views/home/ladder.blade.php, or check-parity.js fails.
+    '\n                        <span class="vp-deal-out"><img src="assets/img/badge/vikyplus-sold-out.webp" alt="فروش رفت" loading="lazy"></span>' +
     // Its own control, outside the link, so a basket is never a navigation.
     '\n                        <button type="button" class="vp-deal-cart" aria-label="افزودن به سبد خرید">' +
     '<i class="fa-solid fa-bag-shopping" aria-hidden="true"></i></button>' +

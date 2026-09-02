@@ -1860,6 +1860,34 @@ option:hover {
   color: rgba(16, 17, 17, 0.62);
 }
 
+.vp-deal.is-out .vp-deal-shot > img,
+.vp-deal.is-out .vp-deal-burst,
+.vp-deal.is-out .vp-deal-lines {
+  filter: blur(2px);
+}
+
+.vp-deal-out {
+  position: absolute;
+  z-index: 4;
+
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  pointer-events: none;
+}
+
+.vp-deal-out img {
+
+  width: 70%;
+  height: auto;
+  max-height: 100%;
+  object-fit: contain;
+
+  filter: drop-shadow(0 1px 2px rgba(139, 114, 23, 0.28));
+}
+
 .vp-deal-cart {
   position: absolute;
   z-index: 3;

@@ -92,7 +92,7 @@
                 @foreach ($deals as $card)
                 @php($deal = $card['deal'])
                 <div class="col{{ $card['phoneOnly'] ? ' d-lg-none' : '' }}">
-                    <div class="vp-deal">
+                    <div class="vp-deal is-out">
                         <a class="vp-deal-shot" href="{{ storefront_route('product', $deal) }}">
                             <img src="{{ asset($deal->imagePath()) }}"{!! photo_srcset($deal->imagePath()) !!} alt="" loading="lazy">
                             @include('partials.deal-burst', ['key' => $loop->index, 'percent' => $deal->offerHere()->discountPercent()])
@@ -103,6 +103,30 @@
                                 </span>
                             </span>
                         </a>
+                        {{-- «حالا هر ۶ کارت باید ۳ درصد بلور بشن و این بج سولد اوت
+                             بیاد روشون», then «کارت و قیمت باهم بلور بشن», then
+                             «حتی اون ستاره تخفیف» — so everything on the tile goes
+                             soft and this stays sharp.
+
+                             **Outside the link, and that is not a tidiness
+                             choice.** `filter` applies to an element's whole
+                             subtree with no way out, so a stamp inside the thing
+                             being blurred is a blurred stamp. It sits over the
+                             photograph from here instead.
+
+                             **It is a decision, not a fact read off the shelf.**
+                             Every card in this band is `purchasable()` by
+                             construction — that is what lets it print a real price
+                             beside a struck-through one — so none of the six is out
+                             of stock in the catalogue's sense. The stamp says the
+                             campaign is over, which is a thing only the shop knows.
+                             Taking it off is deleting this element and the `is-out`
+                             class above.
+
+                             The words are the picture's `alt`, not decoration: the
+                             stamp is text, and a customer who cannot see it is
+                             being told the same thing about the same shoe. --}}
+                        <span class="vp-deal-out"><img src="{{ asset('assets/img/badge/vikyplus-sold-out.webp') }}" alt="فروش رفت" loading="lazy"></span>
                         <button type="button" class="vp-deal-cart" aria-label="افزودن به سبد خرید"><i class="fa-solid fa-bag-shopping" aria-hidden="true"></i></button>
                     </div>
                 </div>
