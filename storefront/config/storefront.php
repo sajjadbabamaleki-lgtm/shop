@@ -386,10 +386,36 @@ return [
 
     'hero' => [
         'products' => [
-            'new-balance-530' => 'پر فروش این هفته',
+            'on-cloudtilt' => 'پر فروش این هفته',
             'jordan-one-air' => 'یه پیشنهاد ویژه',
             'golden-goose' => 'موجودی محدود',
         ],
+
+        /*
+        | The photograph a hero slide draws, when it may not be the product's
+        | own.
+        |
+        | «عکس های فروشگاه بکگراند دارن و مواردی که ما تو هیرو میزاریم باید بی
+        | بکگراند باشن که بشینن رو شیشه هیرو» — and that is a real constraint
+        | rather than a preference: the slide's photograph sits on the glass
+        | pane with nothing behind it, so a shot with a studio ground draws a
+        | grey rectangle on the pane. Every other place in the shop shows the
+        | catalogue's own photograph, ground and all, and should.
+        |
+        | So this is an override and not a second catalogue: a slug listed here
+        | draws the cut-out named, and a slug that is not falls back to
+        | `imagePath()` exactly as the deck always did. It is keyed by slug and
+        | not by position, so it holds whether the deck came from the list
+        | above or from `/admin/front-page`.
+        |
+        | The files are made by `theme/make-hero-photos.js` from the cut-outs in
+        | `theme/hero-src/`: trimmed to the shoe and laid on one canvas, so the
+        | three read as one set rather than three crops.
+        */
+        'photos' => [
+            'on-cloudtilt' => 'assets/img/hero/vikyplus-hero-cloudtilt-black.webp',
+        ],
+
         'repeat' => 2,
     ],
 

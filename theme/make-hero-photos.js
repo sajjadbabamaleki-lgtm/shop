@@ -51,7 +51,11 @@ const H = 990;
 // and the toe are the extremes and they should not sit hard against the crop.
 const INSET = 0.96;
 
-const SOURCES = ['jordan', 'goldengoose', 'nb530'];
+// `cloudtilt-black` replaced `nb530` in the deck — «تو هیرو ها بیاد بجای
+// نیوبالانس». The New Balance stays here and its file stays on disk: the deck
+// is editable from `/admin/front-page`, so a shoe that leaves it may be put
+// back without anybody re-running this.
+const SOURCES = ['jordan', 'goldengoose', 'nb530', 'cloudtilt-black'];
 
 // Anything at or below this is background, not shoe. The cut-outs carry a
 // feathered edge, so a strict `> 0` would keep a rim of near-invisible pixels

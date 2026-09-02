@@ -293,6 +293,26 @@ class HomeController extends Controller
                     'eyebrow' => $slide['eyebrow'],
                     'kind' => $kind,
                     'model' => str_replace(' ', "\u{00A0}", $model),
+                    /*
+                     * **The slide's photograph is not always the product's.**
+                     *
+                     * «عکس های فروشگاه بکگراند دارن و مواردی که ما تو هیرو
+                     * میزاریم باید بی بکگراند باشن که بشینن رو شیشه هیرو». The
+                     * shot sits on the glass pane with nothing behind it, so a
+                     * catalogue photograph with a studio ground draws a grey
+                     * rectangle there — and the catalogue's photographs are
+                     * right everywhere else and must not be cut for this.
+                     *
+                     * `hero.photos` is the override, read by slug so it holds
+                     * whether the deck came from config or from
+                     * `/admin/front-page`. A slug that is not in it falls back
+                     * to the product's own, which is what every slide did
+                     * before this existed. Fetched whole rather than through
+                     * `config('...'.$slug)` — a slug is user data and a dot in
+                     * one would read as a level of the array.
+                     */
+                    'photo' => config('storefront.hero.photos', [])[$slide['product']->slug]
+                        ?? $slide['product']->imagePath(),
                 ];
             });
 

@@ -36,7 +36,11 @@
                                     </div>
                                     <div class="col-lg-6">
                                         <div class="hero-img" data-ani="slideinrighthero" data-ani-delay="0.8s">
-                                            <img src="{{ asset($slide['product']->imagePath()) }}"{!! photo_srcset($slide['product']->imagePath()) !!} alt="Image">
+                                            {{-- `$slide['photo']`, not the product's own: a hero shot
+                                                 has to be background-free to sit on the glass, and the
+                                                 catalogue's photographs carry the studio's ground. See
+                                                 `hero.photos` in config/storefront.php. --}}
+                                            <img src="{{ asset($slide['photo']) }}"{!! photo_srcset($slide['photo']) !!} alt="Image">
                                             {{-- The ٪۲۵ badge is gone from every slide.
 
                                                  «روی عکس‌های اسلایدر همشون ۲۵ درصد تخفیف خورده قسمت
@@ -78,7 +82,7 @@
             var deck = document.querySelector("#heroSlide6");
             var marks = document.querySelector(".vp-hero-marks");
             if (!deck || !marks) return;
-            var tones = {"vikyplus-hero-jordan.webp":"#DDC1BB","vikyplus-hero-goldengoose.webp":"#DDCEBB","vikyplus-hero-nb530.webp":"#BBCFDD"};
+            var tones = {"vikyplus-hero-jordan.webp":"#DDC1BB","vikyplus-hero-goldengoose.webp":"#DDCEBB","vikyplus-hero-nb530.webp":"#BBCFDD","vikyplus-hero-cloudtilt-black.webp":"#CCCCCC"};
             function paint() {
                 var shot = deck.querySelector(".swiper-slide-active .hero-img img");
                 if (!shot) return;

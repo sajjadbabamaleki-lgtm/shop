@@ -462,7 +462,7 @@ for (const [from, to] of Object.entries(SVG_GOLD)) {
 // lead-in, and the models start at the same place on every slide instead of
 // wrapping wherever the measure happens to run out.
 const HERO_TITLES = {
-  hero_6_1: 'کتونی نیوبالانس ۵۳۰',
+  hero_6_1: 'کتونی اون کلادتیلت',
   hero_6_2: 'کتونی جردن وان ایر',
   hero_6_3: 'کتونی گلدن گوس',
 };
@@ -474,7 +474,7 @@ const HERO_TITLES = {
 //
 // These must stay in step with `storefront.hero.products` in the Laravel
 // config, which carries the same three lines against the same three slugs:
-// hero_6_1 is new-balance-530, _2 is jordan-one-air, _3 is golden-goose. The
+// hero_6_1 is on-cloudtilt, _2 is jordan-one-air, _3 is golden-goose. The
 // two copies of this page are compared pixel for pixel by check-parity.js, so
 // a line changed on one side and not the other fails there.
 const HERO_EYEBROWS = {
@@ -491,8 +491,14 @@ const heroHeading = (name) => {
   return kind + '<br>' + model.join('\u00A0');
 };
 
+// The slide's photograph, which is not the product's card photograph: a hero
+// shot has to be background-free to sit on the glass — «عکس های فروشگاه
+// بکگراند دارن و مواردی که ما تو هیرو میزاریم باید بی بکگراند باشن که بشینن رو
+// شیشه هیرو». On the Laravel side that is `hero.photos` in
+// config/storefront.php, keyed by slug; here it is this table, keyed by slot.
+// The two have to name the same file or check-parity.js fails.
 const HERO_PHOTOS = {
-  hero_6_1: 'vikyplus-hero-nb530.webp',
+  hero_6_1: 'vikyplus-hero-cloudtilt-black.webp',
   hero_6_2: 'vikyplus-hero-jordan.webp',
   hero_6_3: 'vikyplus-hero-goldengoose.webp',
 };
@@ -2404,10 +2410,20 @@ for (const heading of [
 // waiting for that to exist is a race this does not need. A MutationObserver
 // on the wrapper's classes catches every change, including the ones the deck
 // makes on its own.
+//
+// **A shoe with no colour gets no hue**, and this one has none: with white,
+// black and grey left out of the vote, 47.7% of the Jordan's pixels vote,
+// 24.0% of the New Balance's and 20.5% of the Golden Goose's — and 0.3% of
+// this Cloudtilt's, which is the red Swiss flag on its heel and nothing else.
+// Run through the same recipe it would come out at 5.8°, a pink within one
+// level of the Jordan's own mark. So it takes the family's lightness with the
+// saturation at nothing: the shoe is a black knit on a white sole and the mark
+// under it says so.
 const HERO_MARKS = {
   'vikyplus-hero-jordan.webp': '#DDC1BB',
   'vikyplus-hero-goldengoose.webp': '#DDCEBB',
   'vikyplus-hero-nb530.webp': '#BBCFDD',
+  'vikyplus-hero-cloudtilt-black.webp': '#CCCCCC',
 };
 
 html = html.replace('</body>',
