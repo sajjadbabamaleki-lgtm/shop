@@ -41,9 +41,21 @@
                 @foreach ($bestSellers as $tile)
                 <div class="col">
                     <div class="vp-best">
-                        @php($shot = $tile['product']->primaryMedia())
+                        {{-- The tile's picture, which is not always the product's.
+
+                             «اینام برای بخش پر فروشها» — cut-outs, because a tile
+                             wants one and the catalogue's photographs carry the
+                             studio's ground.
+
+                             **By slug, not by position.** The name and the price
+                             are printed directly under this picture, so a picture
+                             chosen by position puts a Nike over Golden Goose's name
+                             at Golden Goose's price — measured, four of six tiles
+                             mislabelled, when it was built that way. A slug with no
+                             entry falls back to the product's own. --}}
+                        @php($shot = config('storefront.placeholders.best_sellers.photos')[$tile['product']->slug] ?? $tile['product']->primaryMedia()?->path)
                         <a class="vp-best-shot" href="{{ storefront_route('product', $tile['product']) }}">
-                            @if ($shot)<img src="{{ asset($shot->path) }}"{!! photo_srcset($shot->path) !!} alt="{{ $tile['product']->title }}" loading="lazy">@endif
+                            @if ($shot)<img src="{{ asset($shot) }}"{!! photo_srcset($shot) !!} alt="{{ $tile['product']->title }}" loading="lazy">@endif
                             {{-- «بعضی از همون کارتها» — every other tile. Nothing in
                                  the catalogue says which of these six is discounted
                                  (none is, on this band: the price shown is the one

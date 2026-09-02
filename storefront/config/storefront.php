@@ -887,6 +887,33 @@ return [
          */
         'best_sellers' => [
             'tiles' => 6,
+
+            /*
+            | The photograph a tile draws, when it may not be the product's own.
+            |
+            | «اینام برای بخش پر فروشها، یدونه کم بهت دادم که از اون جردن صورتی
+            | استفاده کن» — cut-outs on transparency, which is what a tile wants
+            | and not what the catalogue holds: the shop's own photographs carry
+            | the studio's ground and are right everywhere else.
+            |
+            | **Keyed by slug and not by position**, unlike the story strip's.
+            | A tile prints the shoe's name and its price directly under the
+            | picture — «از همون عکس های قسمت حراج پله ای استفاده کن» is what
+            | put them together — so a picture chosen by position would sooner
+            | or later put a Nike over Golden Goose's name at Golden Goose's
+            | price. Built positionally once and measured: four of the six tiles
+            | were labelled with a different shoe than the one shown.
+            |
+            | A slug not listed here falls back to the product's own photograph,
+            | which is what every tile did before this existed.
+            */
+            'photos' => [
+                'new-balance-530' => 'assets/img/hero/vikyplus-hero-nb530-white.webp',
+                'on-cloudtilt' => 'assets/img/hero/vikyplus-hero-cloudtilt-black.webp',
+                'golden-goose' => 'assets/img/hero/vikyplus-hero-goldengoose-black.webp',
+                'jordan-one-air' => 'assets/img/hero/vikyplus-hero-jordan.webp',
+            ],
+
             'priced_from' => [
                 'new-balance-530',
                 'jordan-one-air',

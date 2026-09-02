@@ -217,6 +217,15 @@ class HomePageTest extends TestCase
      * and «از همون عکس های قسمت حراج پله ای استفاده کن» retired that half of
      * it. This is what keeps it retired.
      *
+     * **The picture is the shoe's, which is not always the catalogue's.**
+     * `placeholders.best_sellers.photos` names a cut-out per slug, because a
+     * tile wants a shoe on transparency and the shop's own photographs carry
+     * the studio's ground. Keyed by slug and not by position for exactly the
+     * reason this test exists: the row cycles five products over six tiles, and
+     * a picture chosen by position puts a Nike over Golden Goose's name at
+     * Golden Goose's price. That was built and measured — four of six tiles
+     * mislabelled — before it was keyed on the shoe instead.
+     *
      * Worth a test rather than a look, because the failure is quiet: a tile
      * with the wrong picture still renders, still links, still prices, and
      * `check-parity.js` cannot see it at all — that script compares this page
@@ -233,16 +242,32 @@ class HomePageTest extends TestCase
         $slugs = config('storefront.placeholders.best_sellers.priced_from');
         $this->assertNotEmpty($slugs);
 
+        $photos = config('storefront.placeholders.best_sellers.photos', []);
+
         foreach ($slugs as $slug) {
             $product = Product::where('slug', $slug)->firstOrFail();
-            $shot = $product->primaryMedia();
+            $shot = $photos[$slug] ?? $product->primaryMedia()?->path;
 
             $this->assertNotNull($shot, "{$slug} has no photograph to put on its tile.");
             $this->assertStringContainsString(
-                $shot->path,
+                $shot,
                 $row,
-                "The best sellers do not show {$slug}'s own photograph."
+                "The best sellers do not show the photograph chosen for {$slug}."
             );
+
+            // The name under it is that same shoe's, which is the half of this
+            // that a positional picture breaks.
+            $this->assertStringContainsString(
+                '<span class="vp-best-name">'.$product->short_title.'</span>',
+                $row,
+                "{$slug}'s tile does not name the shoe it shows."
+            );
+        }
+
+        // Every override names a file that is on disk. A src that 404s is six
+        // broken pictures on the front page and a green test run.
+        foreach ($photos as $slug => $path) {
+            $this->assertFileExists(public_path($path), "{$slug}'s tile photograph is not in public/.");
         }
 
         // And the thing it replaced is gone: no category photograph is left in

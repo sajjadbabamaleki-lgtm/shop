@@ -55,7 +55,20 @@ const INSET = 0.96;
 // نیوبالانس». The New Balance stays here and its file stays on disk: the deck
 // is editable from `/admin/front-page`, so a shoe that leaves it may be put
 // back without anybody re-running this.
-const SOURCES = ['jordan', 'goldengoose', 'nb530', 'cloudtilt-black'];
+// The first three are the hero deck's; `cloudtilt-black` replaced `nb530`
+// there — «تو هیرو ها بیاد بجای نیوبالانس» — and the New Balance stays because
+// the deck is editable from `/admin/front-page` and a shoe that leaves it may
+// be put back.
+//
+// The four after it are the best sellers' row, which is six tiles the client
+// supplied six pictures for: «اینام برای بخش پر فروشها، یدونه کم بهت دادم که
+// از اون جردن صورتی استفاده کن». They are laid on the same canvas as the hero's
+// because that row's tiles draw from the same files, so all of them read as
+// one set rather than as two sets at two crops.
+const SOURCES = [
+  'jordan', 'goldengoose', 'nb530', 'cloudtilt-black',
+  'nb530-white', 'airzoom-cream', 'goldengoose-black', 'jordan-travis',
+];
 
 // Anything at or below this is background, not shoe. The cut-outs carry a
 // feathered edge, so a strict `> 0` would keep a rim of near-invisible pixels

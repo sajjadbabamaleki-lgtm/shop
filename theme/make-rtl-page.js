@@ -1258,8 +1258,24 @@ const BEST_TEST_ITEMS = BEST_ORDER.map((wanted) => {
 // The category's own file is no longer read — the tile takes the shoe's
 // photograph instead — but the parameter stays so the caller's list of
 // categories still drives how many tiles there are and in what order.
+// The tile's picture, by shoe rather than by position.
+//
+// «اینام برای بخش پر فروشها» — cut-outs the client supplied. Keyed on the shoe
+// because the name and the price are printed directly under the picture: built
+// positionally once, four of the six tiles came out labelled with a different
+// shoe than the one shown. Kept in step with
+// `placeholders.best_sellers.photos` in the Laravel config, or check-parity.js
+// fails.
+const BEST_PHOTOS = {
+  'کتونی نیوبالانس ۵۳۰': 'hero/vikyplus-hero-nb530-white.webp',
+  'کتونی اون کلادتیلت': 'hero/vikyplus-hero-cloudtilt-black.webp',
+  'کتونی گلدن گوس': 'hero/vikyplus-hero-goldengoose-black.webp',
+  'کتونی جردن وان ایر': 'hero/vikyplus-hero-jordan.webp',
+};
+
 const bestCard = (_category, i) => {
-  const [name, price, file] = BEST_TEST_ITEMS[i % BEST_TEST_ITEMS.length];
+  const [name, price, own] = BEST_TEST_ITEMS[i % BEST_TEST_ITEMS.length];
+  const file = BEST_PHOTOS['کتونی ' + name] || own;
   return (
     '\n                <div class="col">' +
     '\n                    <div class="vp-best">' +
