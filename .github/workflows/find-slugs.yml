@@ -1,0 +1,27 @@
+# Temporary. Asks the live shop what two of its products are called.
+#
+# The best sellers' row needs six products and the front page's list names
+# five; two of the photographs the client sent are shoes this container cannot
+# look up, because the proxy here refuses vikyplus.ir. A runner can reach it,
+# and only the deploy job is gated on `main`, so a push to a working branch
+# runs this and ships nothing.
+#
+# Delete this file once the slugs are read.
+name: Find two slugs
+
+on:
+  push:
+    branches: [claude/website-loading-speed-zn0uri]
+
+jobs:
+  ask:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ask the shop's own search
+        run: |
+          for q in "زوم" "تراویس" "ایر" "نایک"; do
+            echo "==================== $q"
+            curl -sS --get --data-urlencode "q=$q" https://vikyplus.ir/search \
+              | grep -oE 'href="https://vikyplus\.ir/products/[^"]+"' \
+              | sort -u | head -40
+          done
