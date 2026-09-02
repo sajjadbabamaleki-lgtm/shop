@@ -47,6 +47,7 @@ class TheShopsOwnPhotographsTest extends TestCase
         'samba-sandal-lightblue',
         'samba-sandal-pink',
         'slipper-woven-silver',
+        'slipper-woven-gold',
     ];
 
     /**
@@ -83,6 +84,7 @@ class TheShopsOwnPhotographsTest extends TestCase
         'samba-sandal-lightblue' => '1e0f3831140c8bdb1c2a15e5570c71c8',
         'samba-sandal-pink' => 'aa61959c90de8697c9ff5c2cb6c65f3f',
         'slipper-woven-silver' => '747159e85393dcb4534f42d97007a628',
+        'slipper-woven-gold' => '8680164d573ec263e787c967f650291c',
     ];
 
     protected function setUp(): void
