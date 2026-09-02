@@ -1,0 +1,15 @@
+name: Which Samba sandal is which colour
+
+# ⛔ TEMPORARY, working branch only. Delete when read.
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  colours:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 -m pip install --quiet pillow
+      - run: python3 .github/scripts/samba-colours.py
