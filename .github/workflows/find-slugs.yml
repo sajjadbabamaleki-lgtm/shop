@@ -50,7 +50,11 @@ jobs:
               for url in seen[:40]:
                   try:
                       page = get(url).decode('utf-8', 'replace')
-                      m = re.search(r'https://vikyplus\.ir/[^"]*?\.(?:jpg|jpeg|png|webp)', page)
+                      # The product's own photograph, not the shop's mark: the
+                      # first image on any page is the gold appicon in the
+                      # header, which is why an earlier run measured
+                      # [200, 163, 93] for all twenty-six candidates.
+                      m = re.search(r'https://vikyplus\.ir/(?:storage|assets/img/(?:product|hero))/[^"]*?\.(?:jpg|jpeg|png|webp)', page)
                       if not m:
                           continue
                       im = Image.open(io.BytesIO(get(m.group(0)))).convert('RGB')
