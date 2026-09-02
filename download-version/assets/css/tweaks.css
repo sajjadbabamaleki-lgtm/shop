@@ -3243,11 +3243,16 @@ option:hover {
    its border included, so it has to go on the things *on* the card and not on
    the card.
 
-   Three of them, which is everything the client named: the photograph, the ٪۳۰
-   burst and the two lines of type inside the strip. The white strip keeps its
-   own crisp pill, the card keeps its edge, and the basket beside it is left
-   alone — those are the shapes that say «this is a card», and blurring them
-   was the complaint.
+   Everything on it: the photograph, the ٪۳۰ burst, the two lines of type inside
+   the strip, and the basket. «وقتی میگم کل کارت بلور یعنی چی» — the basket was
+   left out of the first pass of this on the reasoning that it is one of the
+   shapes that says «this is a card»; it is a control on the card, not the card,
+   and a crisp button offering a shoe the stamp has just withdrawn was the wrong
+   thing to protect.
+
+   What stays sharp is the card's own edge and the strip's pill — the boxes
+   themselves — so six blurred cards still read as six cards rather than as one
+   blurred band. That is the whole of the distinction the client drew.
 
    **The stamp is a sibling of the link, not a child of it.** `filter` on an
    element applies to its whole subtree with no way out, so a stamp inside the
@@ -3269,7 +3274,8 @@ option:hover {
    to put on. */
 .vp-deal.is-out .vp-deal-shot > img,
 .vp-deal.is-out .vp-deal-burst,
-.vp-deal.is-out .vp-deal-lines {
+.vp-deal.is-out .vp-deal-lines,
+.vp-deal.is-out .vp-deal-cart {
   filter: blur(2px);
 }
 

@@ -1862,7 +1862,8 @@ option:hover {
 
 .vp-deal.is-out .vp-deal-shot > img,
 .vp-deal.is-out .vp-deal-burst,
-.vp-deal.is-out .vp-deal-lines {
+.vp-deal.is-out .vp-deal-lines,
+.vp-deal.is-out .vp-deal-cart {
   filter: blur(2px);
 }
 
