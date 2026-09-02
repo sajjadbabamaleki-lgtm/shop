@@ -1,16 +1,23 @@
-# Temporary. Asks the live shop for the names of the products the client's
-# photographs are of.
+# Temporary. Asks the live shop which of its colourways each of the client's
+# photographs is of.
 #
 # The proxy in the working container refuses vikyplus.ir; a runner can reach it,
 # and only the deploy job is gated on `main`, so this ships nothing.
 #
-# Two earlier attempts tried to measure each candidate's colour on the runner
-# and both answered 127 — `convert` is gone in ImageMagick 7 and `magick` is not
-# installed either. So this prints the names and the picture each one uses, and
-# the choosing is done by eye against the files the client sent. `which` is in
-# here so the next person does not spend a third run finding out.
+# **Why it measures rather than reads.** The shop carries eight New Balance 530s
+# and six Travis Scotts, and the colour is only in the slug — the card's own name
+# is shortened with an ellipsis, so «سفید نقره ای» and «سفید مشکی» look identical
+# on the listing. Choosing between those from the outside is a guess.
 #
-# Delete this file once the names are read.
+# Two earlier runs tried ImageMagick and both answered 127: `convert` is gone in
+# version 7 and `magick` is not on ubuntu-24.04 either. `python3` is, and Pillow
+# is one install.
+#
+# The mean is taken over the shoe alone — every pixel within 8 levels of white
+# on all three channels is the studio's ground — so a white shoe on white paper
+# does not read as paper. That is the same rule the files here are measured by.
+#
+# Delete this file once the answer is read.
 name: Find two slugs
 
 on:
@@ -21,14 +28,40 @@ jobs:
   ask:
     runs-on: ubuntu-latest
     steps:
-      - name: What this runner has
-        run: which magick convert python3 node || true
+      - run: pip install --quiet pillow
 
-      - name: The candidates, by name
+      - name: Measure every candidate
         run: |
-          for q in "نیوبالانس" "تراویس" "گلدن گوس"; do
-            echo "==================== $q"
-            curl -sS --get --data-urlencode "q=$q" https://vikyplus.ir/search \
-              | grep -oE 'class="vp-card-name"[^>]*>[^<]+' \
-              | sed 's/.*>//' | sort -u
-          done
+          python3 - <<'PY'
+          import io, re, urllib.parse, urllib.request
+          from PIL import Image
+
+          def get(url):
+              with urllib.request.urlopen(url, timeout=30) as r:
+                  return r.read()
+
+          for q in ('نیوبالانس', 'تراویس', 'گلدن گوس'):
+              print('=' * 20, q)
+              html = get('https://vikyplus.ir/search?' + urllib.parse.urlencode({'q': q})).decode('utf-8', 'replace')
+              seen = []
+              for u in re.findall(r'https://vikyplus\.ir/products/[^"]+', html):
+                  if u not in seen:
+                      seen.append(u)
+              for url in seen[:40]:
+                  try:
+                      page = get(url).decode('utf-8', 'replace')
+                      m = re.search(r'https://vikyplus\.ir/[^"]*?\.(?:jpg|jpeg|png|webp)', page)
+                      if not m:
+                          continue
+                      im = Image.open(io.BytesIO(get(m.group(0)))).convert('RGB')
+                      im.thumbnail((240, 240))
+                      px = [p for p in im.getdata() if not (p[0] > 240 and p[1] > 240 and p[2] > 240)]
+                      if not px:
+                          continue
+                      mean = [round(sum(c[i] for c in px) / len(px)) for i in range(3)]
+                  except Exception as e:
+                      print(urllib.parse.unquote(url), '  ->', e)
+                      continue
+                  print(urllib.parse.unquote(url).rsplit('/', 1)[-1])
+                  print('    mean', mean)
+          PY
