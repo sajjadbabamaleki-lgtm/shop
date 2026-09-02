@@ -1,10 +1,13 @@
-# Temporary. Asks the live shop what two of its products are called.
+# Temporary. Asks the live shop which product each of the client's photographs
+# is of.
 #
-# The best sellers' row needs six products and the front page's list names
-# five; two of the photographs the client sent are shoes this container cannot
-# look up, because the proxy here refuses vikyplus.ir. A runner can reach it,
-# and only the deploy job is gated on `main`, so a push to a working branch
-# runs this and ships nothing.
+# The names alone cannot settle it — «آبی طوسی» and «یشمی» are both plausible
+# for one teal shoe — so this reads each candidate's own photograph and prints
+# its mean colour. That is comparable against the file the client sent, which
+# can be measured here.
+#
+# The proxy in the working container refuses vikyplus.ir; a runner can reach it,
+# and only the deploy job is gated on `main`, so this ships nothing.
 #
 # Delete this file once the slugs are read.
 name: Find two slugs
@@ -17,11 +20,28 @@ jobs:
   ask:
     runs-on: ubuntu-latest
     steps:
-      - name: Ask the shop's own search
+      - name: List the candidates
         run: |
-          for q in "زوم" "تراویس" "ایر" "نایک"; do
+          for q in "نیوبالانس" "کلادتیلت" "زوم"; do
             echo "==================== $q"
             curl -sS --get --data-urlencode "q=$q" https://vikyplus.ir/search \
               | grep -oE 'href="https://vikyplus\.ir/products/[^"]+"' \
-              | sort -u | head -40
+              | sed 's/href="//;s/"$//' | sort -u | head -40
+          done
+
+      - name: Read each candidate's own photograph
+        run: |
+          probe () {
+            for url in $(curl -sS --get --data-urlencode "q=$1" https://vikyplus.ir/search \
+                          | grep -oE 'https://vikyplus\.ir/products/[^"]+' | sort -u | head -40); do
+              img=$(curl -sS "$url" | grep -oE 'https://vikyplus\.ir/[^"]*\.(jpg|jpeg|png|webp)' | head -1)
+              [ -z "$img" ] && continue
+              curl -sS -o /tmp/shot "$img" || continue
+              mean=$(convert /tmp/shot -resize 1x1! -format '%[fx:int(255*r)] %[fx:int(255*g)] %[fx:int(255*b)]' info: 2>/dev/null)
+              printf '%s\n    mean %s\n' "$(python3 -c 'import urllib.parse,sys;print(urllib.parse.unquote(sys.argv[1]))' "$url")" "$mean"
+            done
+          }
+          for q in "نیوبالانس" "کلادتیلت" "زوم" "تراویس"; do
+            echo "==================== $q"
+            probe "$q"
           done
