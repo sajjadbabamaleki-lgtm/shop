@@ -30,11 +30,11 @@ use Illuminate\Database\Migrations\Migration;
  * gap. The rest follow in the order they arrived, with the top-down flat lay
  * last.
  *
- * The rule is measurable and `SambaPhotographsTest` measures it: on the shoe's
- * own bounding box a side profile runs 2.65–2.89 wide for one tall, and
- * everything else in these sets is at or under 1.76. That is not a stylistic
- * preference written down — it is the difference between one shoe seen from
- * the side and two shoes seen at an angle.
+ * `SambaPhotographsTest` holds that leading photograph by its content rather
+ * than by measuring it. Measuring was tried — the shoe's bounding box, where a
+ * profile runs 2.65–2.89 wide for one tall against 1.76 or less for a pair —
+ * and it worked for four sets and then read 1.84 against 1.81 on the fifth,
+ * whose ground has more of a gradient. See the note on `LEADS` there.
  *
  * The black set is six rather than five: its profile shot came after the other
  * five had been placed, so it went in front of them.
@@ -52,6 +52,7 @@ return new class extends Migration
         'رنگ-قهوه-ای' => 'samba-sandal-brown',
         'رنگ-سفید-سرمه-ای' => 'samba-sandal-navy',
         'رنگ-سفید-آبی-روشن' => 'samba-sandal-lightblue',
+        'رنگ-سفید-صورتی' => 'samba-sandal-pink',
     ];
 
     private const BASE = 'صندل-ادیداس-سامبا-چسبی-Adidas-Samba-Sandal-';

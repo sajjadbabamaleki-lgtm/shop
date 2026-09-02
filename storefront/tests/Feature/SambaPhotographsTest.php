@@ -35,6 +35,36 @@ class SambaPhotographsTest extends TestCase
         'samba-sandal-brown',
         'samba-sandal-navy',
         'samba-sandal-lightblue',
+        'samba-sandal-pink',
+    ];
+
+    /**
+     * The photograph the client chose to lead each set, by content.
+     *
+     * **This replaced a measurement that did not survive contact.** The rule —
+     * «عکس اول در همه موردا باید این عکسی باشه که از این زاویس نه عکس دوتایی» —
+     * looked measurable: mask the shoe off the ground, take its bounding box,
+     * and a single shoe in profile is 2.65–2.89 as wide as it is tall while a
+     * pair is at or under 1.76. That held for four sets and then failed on the
+     * fifth: the pink profile shot reads 1.84 against 1.81 for a pair shot in
+     * the same set, because it is framed smaller on a ground with more of a
+     * gradient. A classifier tuned until it agrees is not a measurement, and a
+     * test that rejects a photograph the shop wants to sell with is worse than
+     * no test.
+     *
+     * So this pins the file instead. It is exact, it cannot be wrong about a
+     * legitimate photograph, and it fails loudly the one way that matters: if
+     * a directory is re-sorted and a pair shot ends up leading, the hash at
+     * position 1 changes and the set is named.
+     *
+     * @var array<string, string>
+     */
+    private const LEADS = [
+        'samba-sandal-black' => '1b14596f3d0a07765d228fb273895e87',
+        'samba-sandal-brown' => '58dcd98b23146fd46eaa4ecc0c8a7ecc',
+        'samba-sandal-navy' => 'd43abe2a30b0f1f7478160794a33e0b4',
+        'samba-sandal-lightblue' => 'c2db486d8ca31292efaf3ebe42815395',
+        'samba-sandal-pink' => 'c5853aec47b1d9f44657325716aceb27',
     ];
 
     protected function setUp(): void
@@ -106,89 +136,20 @@ class SambaPhotographsTest extends TestCase
         }
     }
 
-    /**
-     * **The first photograph of every set is one shoe from the side.**
-     *
-     * «عکس اول در همه موردا باید این عکسی باشه که از این زاویس نه عکس دوتایی» —
-     * and the difference is measurable rather than a matter of taste. Mask the
-     * shoe off the studio ground and take the bounding box: a single shoe in
-     * profile is 2.65–2.89 as wide as it is tall, and every pair shot in these
-     * four sets is at or under 1.76. The gap between those is not close.
-     *
-     * This is the assertion that would catch somebody re-sorting a directory
-     * and putting the pair back in front, which is exactly what happened once
-     * already and had to be corrected by hand.
-     */
-    public function test_the_first_photograph_of_each_set_is_a_single_shoe_in_profile(): void
+    /** Each set still leads with the photograph the client picked for it. */
+    public function test_each_set_leads_with_the_photograph_the_client_chose(): void
     {
         foreach (self::SETS as $set) {
-            $first = $this->filesIn($set)[0];
-
-            $this->assertGreaterThan(
-                2.2,
-                $this->shoeAspect($first),
-                "The first photograph of {$set} is not a single shoe from the side."
+            $this->assertSame(
+                self::LEADS[$set],
+                md5_file($this->filesIn($set)[0]),
+                "The first photograph of {$set} is not the one that was chosen for it."
             );
         }
     }
 
-    /**
-     * How wide the shoe is against how tall, in its own frame.
-     *
-     * The ground is the average of the four corners; anything far from it is
-     * shoe. That is the same instrument used to tell these sets apart in the
-     * first place, and it is the only one that survived — a fixed threshold
-     * against the corner colour alone reported "all four edges" for every
-     * studio shot, because the ground is a gradient.
-     */
-    private function shoeAspect(string $path): float
-    {
-        $im = imagecreatefromjpeg($path);
-        $small = imagescale($im, 96, 96);
-        imagedestroy($im);
-
-        $at = function (int $x, int $y) use ($small): array {
-            $rgb = imagecolorat($small, $x, $y);
-
-            return [($rgb >> 16) & 0xFF, ($rgb >> 8) & 0xFF, $rgb & 0xFF];
-        };
-
-        $corners = [$at(0, 0), $at(95, 0), $at(0, 95), $at(95, 95)];
-        $ground = array_map(
-            fn (int $i) => (int) round(array_sum(array_column($corners, $i)) / 4),
-            [0, 1, 2],
-        );
-
-        $minX = 96;
-        $maxX = -1;
-        $minY = 96;
-        $maxY = -1;
-
-        for ($y = 0; $y < 96; $y++) {
-            for ($x = 0; $x < 96; $x++) {
-                $p = $at($x, $y);
-                $far = abs($p[0] - $ground[0]) + abs($p[1] - $ground[1]) + abs($p[2] - $ground[2]);
-
-                if ($far > 70) {
-                    $minX = min($minX, $x);
-                    $maxX = max($maxX, $x);
-                    $minY = min($minY, $y);
-                    $maxY = max($maxY, $y);
-                }
-            }
-        }
-
-        imagedestroy($small);
-
-        if ($maxX < 0) {
-            return 0.0;
-        }
-
-        return ($maxX - $minX + 1) / ($maxY - $minY + 1);
-    }
-
-    /** And the four sets are four different shoes, not the same one copied. */
-    public function test_the_four_sets_are_four_different_shoes(): void
+    /** And the sets are different shoes, not one copied about. */
+    public function test_the_sets_are_all_different_shoes(): void
     {
         $firsts = array_map(fn (string $set) => md5_file($this->filesIn($set)[0]), self::SETS);
 
@@ -213,12 +174,10 @@ class SambaPhotographsTest extends TestCase
             'assets/img/product/samba-sandal-black/2.jpg',
         ]]);
 
-        $paths = $product->media()->pluck('path')->all();
-
         $this->assertSame([
             'assets/img/product/samba-sandal-black/1.jpg',
             'assets/img/product/samba-sandal-black/2.jpg',
-        ], $paths, 'The supplier’s photograph is still there.');
+        ], $product->media()->pluck('path')->all(), 'The supplier’s photograph is still there.');
     }
 
     /**
