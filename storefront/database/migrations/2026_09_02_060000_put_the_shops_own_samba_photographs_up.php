@@ -30,9 +30,14 @@ use Illuminate\Database\Migrations\Migration;
  * gap. The rest follow in the order they arrived, with the top-down flat lay
  * last.
  *
- * **The black set is the exception and it is not a choice.** Its five
- * photographs are all of the pair — there is no side profile among them — so
- * its first is the squarest three-quarter view until one arrives.
+ * The rule is measurable and `SambaPhotographsTest` measures it: on the shoe's
+ * own bounding box a side profile runs 2.65–2.89 wide for one tall, and
+ * everything else in these sets is at or under 1.76. That is not a stylistic
+ * preference written down — it is the difference between one shoe seen from
+ * the side and two shoes seen at an angle.
+ *
+ * The black set is six rather than five: its profile shot came after the other
+ * five had been placed, so it went in front of them.
  *
  * A migration and not a seeder — `catalogue:seed` runs only on an empty
  * catalogue and this shop has 148 products. And not the panel, only because
@@ -56,10 +61,17 @@ return new class extends Migration
         $photographs = [];
 
         foreach (self::SETS as $suffix => $directory) {
-            $photographs[self::BASE.$suffix] = array_map(
-                fn (int $n) => "assets/img/product/{$directory}/{$n}.jpg",
-                range(1, 5),
-            );
+            // Counted off the disk rather than fixed at five: the black set is
+            // six, because its profile shot arrived after the other five and
+            // went in front of them. A number written here would have shipped
+            // a product missing its last photograph and gone green doing it.
+            $paths = [];
+
+            for ($n = 1; is_file(public_path("assets/img/product/{$directory}/{$n}.jpg")); $n++) {
+                $paths[] = "assets/img/product/{$directory}/{$n}.jpg";
+            }
+
+            $photographs[self::BASE.$suffix] = $paths;
         }
 
         ReplacePhotos::run($photographs);

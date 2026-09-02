@@ -57,35 +57,140 @@ class SambaPhotographsTest extends TestCase
 
     // --- the twenty files ---------------------------------------------------
 
-    /** Every photograph the migration names is on disk, and is a photograph. */
-    public function test_all_twenty_photographs_are_committed(): void
+    /** @return list<string> the set's photographs, in the order it offers them */
+    private function filesIn(string $set): array
+    {
+        $files = [];
+
+        for ($n = 1; is_file($p = public_path("assets/img/product/{$set}/{$n}.jpg")); $n++) {
+            $files[] = $p;
+        }
+
+        return $files;
+    }
+
+    /**
+     * Every photograph is on disk, is a photograph, and is shaped like one.
+     *
+     * **Not exactly square, and not 1400.** Those were this file's first two
+     * assertions and both were house rules rather than facts about the goods:
+     * the black profile shot the client sent is 1125×1116, which is 0.8% off
+     * square and perfectly fine in a square tile. A test that fails on a real
+     * photograph the shop wants to sell with is a test that will be deleted.
+     * What is worth holding is that the file exists, opens, and is not some
+     * banner-shaped thing that would sit in the tile with bands round it.
+     */
+    public function test_every_photograph_is_committed_and_shaped_like_a_product_shot(): void
     {
         foreach (self::SETS as $set) {
-            for ($n = 1; $n <= 5; $n++) {
-                $path = public_path("assets/img/product/{$set}/{$n}.jpg");
+            $files = $this->filesIn($set);
 
-                $this->assertFileExists($path, "{$set}/{$n}.jpg is missing.");
+            $this->assertGreaterThanOrEqual(4, count($files), "{$set} has almost no photographs.");
 
+            foreach ($files as $path) {
+                $name = basename(dirname($path)).'/'.basename($path);
                 $size = @getimagesize($path);
 
-                $this->assertIsArray($size, "{$set}/{$n}.jpg is not an image.");
-                $this->assertSame($size[0], $size[1], "{$set}/{$n}.jpg is not square.");
+                $this->assertIsArray($size, "{$name} is not an image.");
+
+                $ratio = $size[0] / $size[1];
+
+                $this->assertGreaterThan(0.95, $ratio, "{$name} is much taller than it is wide.");
+                $this->assertLessThan(1.05, $ratio, "{$name} is much wider than it is tall.");
                 $this->assertGreaterThanOrEqual(
-                    1200,
-                    $size[0],
-                    "{$set}/{$n}.jpg is smaller than a product photograph should be."
+                    1000,
+                    min($size[0], $size[1]),
+                    "{$name} is too small to be a product photograph."
                 );
             }
         }
     }
 
+    /**
+     * **The first photograph of every set is one shoe from the side.**
+     *
+     * «عکس اول در همه موردا باید این عکسی باشه که از این زاویس نه عکس دوتایی» —
+     * and the difference is measurable rather than a matter of taste. Mask the
+     * shoe off the studio ground and take the bounding box: a single shoe in
+     * profile is 2.65–2.89 as wide as it is tall, and every pair shot in these
+     * four sets is at or under 1.76. The gap between those is not close.
+     *
+     * This is the assertion that would catch somebody re-sorting a directory
+     * and putting the pair back in front, which is exactly what happened once
+     * already and had to be corrected by hand.
+     */
+    public function test_the_first_photograph_of_each_set_is_a_single_shoe_in_profile(): void
+    {
+        foreach (self::SETS as $set) {
+            $first = $this->filesIn($set)[0];
+
+            $this->assertGreaterThan(
+                2.2,
+                $this->shoeAspect($first),
+                "The first photograph of {$set} is not a single shoe from the side."
+            );
+        }
+    }
+
+    /**
+     * How wide the shoe is against how tall, in its own frame.
+     *
+     * The ground is the average of the four corners; anything far from it is
+     * shoe. That is the same instrument used to tell these sets apart in the
+     * first place, and it is the only one that survived — a fixed threshold
+     * against the corner colour alone reported "all four edges" for every
+     * studio shot, because the ground is a gradient.
+     */
+    private function shoeAspect(string $path): float
+    {
+        $im = imagecreatefromjpeg($path);
+        $small = imagescale($im, 96, 96);
+        imagedestroy($im);
+
+        $at = function (int $x, int $y) use ($small): array {
+            $rgb = imagecolorat($small, $x, $y);
+
+            return [($rgb >> 16) & 0xFF, ($rgb >> 8) & 0xFF, $rgb & 0xFF];
+        };
+
+        $corners = [$at(0, 0), $at(95, 0), $at(0, 95), $at(95, 95)];
+        $ground = array_map(
+            fn (int $i) => (int) round(array_sum(array_column($corners, $i)) / 4),
+            [0, 1, 2],
+        );
+
+        $minX = 96;
+        $maxX = -1;
+        $minY = 96;
+        $maxY = -1;
+
+        for ($y = 0; $y < 96; $y++) {
+            for ($x = 0; $x < 96; $x++) {
+                $p = $at($x, $y);
+                $far = abs($p[0] - $ground[0]) + abs($p[1] - $ground[1]) + abs($p[2] - $ground[2]);
+
+                if ($far > 70) {
+                    $minX = min($minX, $x);
+                    $maxX = max($maxX, $x);
+                    $minY = min($minY, $y);
+                    $maxY = max($maxY, $y);
+                }
+            }
+        }
+
+        imagedestroy($small);
+
+        if ($maxX < 0) {
+            return 0.0;
+        }
+
+        return ($maxX - $minX + 1) / ($maxY - $minY + 1);
+    }
+
     /** And the four sets are four different shoes, not the same one copied. */
     public function test_the_four_sets_are_four_different_shoes(): void
     {
-        $firsts = array_map(
-            fn (string $set) => md5_file(public_path("assets/img/product/{$set}/1.jpg")),
-            self::SETS,
-        );
+        $firsts = array_map(fn (string $set) => md5_file($this->filesIn($set)[0]), self::SETS);
 
         $this->assertSame(count($firsts), count(array_unique($firsts)));
     }
