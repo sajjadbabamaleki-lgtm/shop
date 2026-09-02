@@ -49,13 +49,28 @@ for n, colour in enumerate(COLOURS, start=1):
 
     im = Image.open(f'/tmp/s{n}').convert('RGB')
     w, h = im.size
-    # The middle half of the frame is the shoe; the border is the ground.
-    mid = im.crop((w // 4, h // 4, 3 * w // 4, 3 * h // 4)).resize((32, 32))
-    px = list(mid.getdata())
-    r = sum(p[0] for p in px) // len(px)
-    g = sum(p[1] for p in px) // len(px)
-    b = sum(p[2] for p in px) // len(px)
 
-    print(f'{colour:16} rgb({r:3},{g:3},{b:3})  lightness={(r + g + b) // 3:3}  '
-          f'{w}x{h}  {url.split("/")[-1]}')
+    # **Not the middle of the frame.** That was the first try and it told me
+    # nothing: all seven colourways came back 186–215, because the middle of a
+    # studio shot is mostly still the ground — the shoe is small and low in it.
+    # So: take the ground from the corners, keep only the pixels far from it,
+    # and average those. That is the shoe.
+    small = im.resize((160, 160))
+    px = small.load()
+    corners = [px[0, 0], px[159, 0], px[0, 159], px[159, 159]]
+    ground = tuple(sum(c[i] for c in corners) // 4 for i in range(3))
+
+    shoe = [px[x, y] for x in range(160) for y in range(160)
+            if sum(abs(px[x, y][i] - ground[i]) for i in range(3)) > 60]
+
+    if not shoe:
+        print(f'{colour:16} no pixels differ from the ground — cannot tell')
+        continue
+
+    r = sum(p[0] for p in shoe) // len(shoe)
+    g = sum(p[1] for p in shoe) // len(shoe)
+    b = sum(p[2] for p in shoe) // len(shoe)
+
+    print(f'{colour:16} shoe rgb({r:3},{g:3},{b:3})  lightness={(r + g + b) // 3:3}  '
+          f'({100 * len(shoe) // 25600}% of frame)  ground rgb{ground}')
     print(f'                 path: {shots[0]}')
