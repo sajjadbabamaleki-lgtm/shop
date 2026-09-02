@@ -1,0 +1,11 @@
+name: Which navy Samba is which
+# ⛔ TEMPORARY, working branch only.
+on: [push, workflow_dispatch]
+jobs:
+  match:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 -m pip install --quiet pillow
+      - run: python3 .github/scripts/navy-match.py
