@@ -164,4 +164,55 @@ class HeroOutlivesTheSaleTest extends TestCase
         $this->assertNotEmpty($page->viewData('bestSellers'));
         $this->assertNotNull($page->viewData('dailyDeal'));
     }
+
+    /**
+     * The stepped sale is six cards on the phone, whatever the shelf says.
+     *
+     * «حراج پله ای چرا ناقص شده باید ۶ محصول توش باشه» — five, because one of
+     * the five promoted shoes had sold its last pair. This band is the one that
+     * may *not* be given the shoe back the way the hero and the story rings
+     * were: its cards print a struck-through price beside a real one, so it has
+     * to be built from what is genuinely discounted and genuinely sellable.
+     *
+     * The client's own answer from an earlier round is what covers the gap —
+     * «یک محصول تکراری در حراج پله ای بزار که ۶ تایی بشه» — and it only had to
+     * learn to count: it padded by one where it should pad up to six.
+     */
+    public function test_the_sale_is_six_cards_on_a_phone_even_when_one_sells_out(): void
+    {
+        $this->assertSame(6, $this->saleCards(), 'The full pool should already fill the phone.');
+
+        $slug = config('storefront.front_page.ladder_products')[1];
+
+        BranchInventory::query()
+            ->whereIn('variant_id', Product::where('slug', $slug)->firstOrFail()->variants()->pluck('id'))
+            ->update(['stock_on_hand' => 0, 'stock_reserved' => 0]);
+
+        // The premise: it really has left the band.
+        $this->assertNotContains($slug, $this->get('/')->viewData('ladderDeals')->pluck('slug')->all());
+
+        $this->assertSame(6, $this->saleCards(), 'A sold-out shoe left a gap in the sale.');
+    }
+
+    /**
+     * And every card past the fifth is hidden above 992.
+     *
+     * `row-cols-xl-5` puts five on one line; a sixth without `d-lg-none` wraps
+     * the desktop row onto two, which is the thing the pad was built to avoid.
+     */
+    public function test_the_padding_never_reaches_the_desktop_row(): void
+    {
+        $page = $this->get('/')->assertOk()->getContent();
+
+        $this->assertSame(
+            6 - count(config('storefront.front_page.ladder_products')),
+            substr_count($page, 'class="col d-lg-none"'),
+            'The pads are not all hidden above 992.'
+        );
+    }
+
+    private function saleCards(): int
+    {
+        return substr_count($this->get('/')->assertOk()->getContent(), '<div class="vp-deal">');
+    }
 }

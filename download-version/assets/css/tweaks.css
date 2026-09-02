@@ -11730,6 +11730,50 @@ button.vp-cart-keep {
   }
 }
 
+/* And then all the way back down again.
+
+   «نوشته اسم و قیمت خیلی پررنگ و ضخیمه باید کمرنگتر بشه ضخامتش کمتر بشه» —
+   which reverses the three rounds above it: the names went 630 → 662 → 808.5 →
+   810 with a 0.3px stroke laid over the top, each step asked for and each one
+   measured. This block is the fourth measurement in the same series and it goes
+   the other way, so the earlier three are left where they are rather than
+   deleted; the argument for each is still worth reading, and the last one wins
+   either way.
+
+   **Two instructions, two properties.** «ضخامتش کمتر» is the stroke and the
+   weight: the stroke comes off entirely — it was 27% more ink on its own — and
+   the weight goes back to the 630 the design shipped with. «کمرنگتر» is the
+   colour, which every round of this so far has left at a flat #101111: the name
+   drops to 80% of it and the price to 84%, which composite to 71 and 55 on
+   white — 6.4:1 and 8.6:1, both well clear of anything a price has to be read
+   at.
+
+   Measured at 8x on the phone, ink across the whole word — every pixel's
+   distance from white, summed:
+   name 1,767,037 → 1,286,272 (-27%), price 3,181,865 → 2,596,491 (-18%). The
+   name's own pixel count falls with it, 21,441 → 15,995, which is the stroke
+   leaving; the price keeps its footprint and loses its density, which is what
+   a lighter weight and a softer ink do.
+
+   Both strips together, as every round before this did: «باکسها» are the same
+   object twice and the sale card and the best sellers' card have never carried
+   different type. Below 992 only — the desktop pair keeps Cairo at 630 and has
+   never been part of this thread. */
+@media (max-width: 991.98px) {
+  .vp-deal-name,
+  .vp-best-name {
+    font-weight: 630;
+    -webkit-text-stroke-width: 0;
+    color: rgba(16, 17, 17, 0.8);
+  }
+
+  .vp-deal-price strong,
+  .vp-best-cta strong {
+    font-weight: 600;
+    color: rgba(16, 17, 17, 0.84);
+  }
+}
+
 /* Half the air between a best seller's name and its price.
 
    «فاصله بین اسم کتونی و قیمتش در قسمت پرفروش ترین ها باید نصف بشه». The two

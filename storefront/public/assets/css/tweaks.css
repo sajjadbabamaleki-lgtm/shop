@@ -7075,6 +7075,21 @@ button.vp-cart-keep {
 }
 
 @media (max-width: 991.98px) {
+  .vp-deal-name,
+  .vp-best-name {
+    font-weight: 630;
+    -webkit-text-stroke-width: 0;
+    color: rgba(16, 17, 17, 0.8);
+  }
+
+  .vp-deal-price strong,
+  .vp-best-cta strong {
+    font-weight: 600;
+    color: rgba(16, 17, 17, 0.84);
+  }
+}
+
+@media (max-width: 991.98px) {
   .vp-best-cta {
     margin-top: -5px;
   }

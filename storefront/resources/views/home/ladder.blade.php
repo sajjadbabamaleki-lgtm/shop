@@ -54,20 +54,38 @@
                 </div>
                 @php
                     // «یک محصول تکراری در حراج پله ای بزار که ۶ تایی بشه». The
-                    // phone shows six cards and the catalogue holds five — every
-                    // product with a live promotion, which is what the sale is —
-                    // so the sixth is the first one again.
+                    // phone shows six cards and the catalogue holds fewer — the
+                    // band is every product with a live promotion, which is what
+                    // the sale is — so the rest are the first ones again.
                     //
-                    // `d-lg-none` on it, so the desktop row is still the five it
-                    // was drawn for: `row-cols-xl-5` puts five on one line, and a
-                    // sixth would wrap it onto two. If a sixth product is ever
-                    // promoted this pads nothing and the repeat disappears on its
-                    // own.
+                    // **It pads up to six rather than by one.** It added a single
+                    // card, which was right while the pool held five and wrong the
+                    // first time it held four: «حراج پله ای چرا ناقص شده باید ۶
+                    // محصول توش باشه», five cards on the phone. The pool shrinks on
+                    // its own — a promoted shoe selling its last pair leaves
+                    // `purchasable()` and the band with it — and unlike the hero
+                    // and the story rings this one may not have it back:
+                    // these cards print a struck-through price, so they have to be
+                    // built from what is really discounted and really sellable.
+                    // Padding is the answer the client already chose; it just has
+                    // to count.
+                    //
+                    // The pads cycle through the pool rather than repeating the
+                    // first one twice, so two missing products show as two
+                    // different shoes rather than one shoe three times.
+                    //
+                    // `d-lg-none` on every pad, so the desktop row is still the
+                    // five it was drawn for: `row-cols-xl-5` puts five on one line
+                    // and a sixth would wrap it onto two. With six promoted
+                    // products this pads nothing and the repeats disappear on
+                    // their own.
                     $deals = $ladderDeals->values()
                         ->map(fn ($deal) => ['deal' => $deal, 'phoneOnly' => false]);
 
-                    if ($deals->isNotEmpty() && $deals->count() < 6) {
-                        $deals = $deals->push(['deal' => $deals->first()['deal'], 'phoneOnly' => true]);
+                    $real = $deals->count();
+
+                    for ($i = 0; $real > 0 && $deals->count() < 6; $i++) {
+                        $deals = $deals->push(['deal' => $deals[$i % $real]['deal'], 'phoneOnly' => true]);
                     }
                 @endphp
                 <div class="row gy-4 row-cols-2 row-cols-md-3 row-cols-xl-5 vp-ladder-deals">

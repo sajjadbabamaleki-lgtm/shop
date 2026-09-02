@@ -1518,15 +1518,24 @@ const LADDER_TRACK_HTML = LADDER_STEPS.map(([, , , state], i) => {
 // its place; that was our reasoning, not theirs, and they have now said
 // otherwise. The rule is still in tweaks.css, unused, next to that argument.
 // «یک محصول تکراری در حراج پله ای بزار که ۶ تایی بشه». The phone shows six
-// cards and the sale holds five, so the sixth is the first one again — and it
-// carries `d-lg-none`, because `row-cols-xl-5` puts five on one line above 992
-// and a sixth would wrap that row onto two. The Blade does the same thing from
-// the catalogue's side; see home/ladder.blade.php, and change the two together.
+// cards and the sale holds fewer, so the rest are the first ones again — each
+// carrying `d-lg-none`, because `row-cols-xl-5` puts five on one line above 992
+// and a sixth would wrap that row onto two.
+//
+// It pads *up to* six rather than by one: this list is five and the Blade's
+// pool is whatever is promoted and sellable on the day, which came back four
+// once and put five cards on the phone — «حراج پله ای چرا ناقص شده باید ۶ محصول
+// توش باشه». The pads cycle through the list so two gaps read as two shoes
+// rather than one shoe three times. The Blade does the same thing from the
+// catalogue's side; see home/ladder.blade.php, and change the two together.
+const LADDER_PADS = [];
+for (let i = 0; LADDER_DEALS.length + LADDER_PADS.length < 6; i++) {
+  LADDER_PADS.push({ deal: LADDER_DEALS[i % LADDER_DEALS.length], i: i % LADDER_DEALS.length, phoneOnly: true });
+}
+
 const LADDER_DEALS_HTML = LADDER_DEALS
   .map((deal, i) => ({ deal, i, phoneOnly: false }))
-  .concat(LADDER_DEALS.length < 6
-    ? [{ deal: LADDER_DEALS[0], i: 0, phoneOnly: true }]
-    : [])
+  .concat(LADDER_PADS)
   .map(({ deal: [file, name, price], i, phoneOnly }) => {
   const now = Math.round(price * (100 - LADDER_CUT) / 100);
   return '\n                <div class="col' + (phoneOnly ? ' d-lg-none' : '') + '">' +
