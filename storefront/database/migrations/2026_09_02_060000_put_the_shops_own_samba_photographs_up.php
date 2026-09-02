@@ -1,0 +1,67 @@
+<?php
+
+use App\Support\Catalogue\ReplacePhotos;
+use Illuminate\Database\Migrations\Migration;
+
+/**
+ * The shop's own photographs of four Samba sandals.
+ *
+ * «برو تو سامباها این رنگو پیدا کن و این عکسارو بزار جاش» — four sets, sent one
+ * after another, of the shop's own studio shots.
+ *
+ * **Why they were needed.** The photographs these replace came from the
+ * supplier with the shoe already running out of its frame — the toe and the
+ * heel flat against the edges. That was measured rather than guessed: Chromium
+ * on the live listing reported 100.0% of the file's width and height on screen
+ * for every card, so nothing here was cropping them. The pixels were missing
+ * from the file, and the only remedy for that is a new photograph.
+ *
+ * **Which set went on which product.** The colour is in every slug, and the
+ * four sets are unambiguous — black, brown, navy, light blue. The one real
+ * question was «قهوه ای» against «کرم قهوه ای», two names for two browns, and
+ * the measurement settled it: on the darkest tenth of the frame the client's
+ * brown reads r−b +15, «قهوه ای» +11 and «کرم قهوه ای» +8, so the warmer of
+ * the two is the match.
+ *
+ * The order inside each set is deliberate: the upright three-quarter view of
+ * the pair first, because that is the one every card shows at 177px, and the
+ * top-down flat lay last.
+ *
+ * A migration and not a seeder — `catalogue:seed` runs only on an empty
+ * catalogue and this shop has 148 products. And not the panel, only because
+ * the files had to reach the server first; anything the panel *can* do belongs
+ * in the panel.
+ */
+return new class extends Migration
+{
+    /** @var array<string, string> slug suffix => the directory the files are in */
+    private const SETS = [
+        'رنگ-سفید-مشکی' => 'samba-sandal-black',
+        'رنگ-قهوه-ای' => 'samba-sandal-brown',
+        'رنگ-سفید-سرمه-ای' => 'samba-sandal-navy',
+        'رنگ-سفید-آبی-روشن' => 'samba-sandal-lightblue',
+    ];
+
+    private const BASE = 'صندل-ادیداس-سامبا-چسبی-Adidas-Samba-Sandal-';
+
+    public function up(): void
+    {
+        $photographs = [];
+
+        foreach (self::SETS as $suffix => $directory) {
+            $photographs[self::BASE.$suffix] = array_map(
+                fn (int $n) => "assets/img/product/{$directory}/{$n}.jpg",
+                range(1, 5),
+            );
+        }
+
+        ReplacePhotos::run($photographs);
+    }
+
+    public function down(): void
+    {
+        // Nothing. The photographs this replaced are the supplier's cropped
+        // ones; putting them back would restore the fault the client asked to
+        // have fixed, and their rows are gone either way.
+    }
+};
