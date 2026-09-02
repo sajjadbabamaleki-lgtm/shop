@@ -1208,6 +1208,33 @@ const dealBurst = (cut, i) =>
 // The five shoes in the stepped sale: photograph, name, list price, and the
 // stock line each one carries.
 //
+// The sale's steps and its live cut, declared up here with the deals rather
+// than beside the board they draw, because the best sellers' row prices its
+// tiles with `LADDER_CUT` and is built before that markup — «قیمتو ایناش هم
+// باید برابر نمونش در فروشگاه باشه». A `const` is only in scope after it is
+// evaluated, so reading it earlier throws on load; that is the same trap
+// LADDER_DEALS itself fell into, and the note below is its record.
+// Step, its cut, the week it runs, and where it stands. Exactly one is
+// 'current' — the CSS leans on that for the gold tile and the live label.
+const LADDER_STEPS = [
+  ['پله اول', 15, 'هفته اول', 'done'],
+  ['پله دوم', 30, 'هفته دوم', 'current'],
+  ['پله سوم', 45, 'هفته سوم', ''],
+  ['پله چهارم', 60, 'هفته چهارم', ''],
+  ['پله نهایی', 70, 'پس از هفته چهارم', ''],
+];
+
+// The standing condition first, the countdown second: in RTL the first sits on
+// the right, which is the order the reference reads in.
+const LADDER_NOTES = [
+  'انتقال پله فقط در صورت باقی‌ماندن موجودی',
+  'پله بعدی در ۲۲ روز و ۱۴ ساعت',
+];
+
+// The cut is the live step's, so the two cannot drift apart when the step
+// moves — the card's badge and its price both read from here.
+const LADDER_CUT = LADDER_STEPS.find(([, , , state]) => state === 'current')[1];
+
 // Declared here rather than beside the sale's own markup further down, because
 // three bands read it now — the sale, the daily-deal banner, and the best
 // sellers, which take their photographs from it — and a `const` is only in
@@ -1252,7 +1279,11 @@ const BEST_TEST_ITEMS = BEST_ORDER.map((wanted) => {
     throw new Error(`best sellers: no shoe in LADDER_DEALS called ${wanted}`);
   }
   const [file, name, price] = deal;
-  return [name.replace(/^کتونی\s+/, ''), fa(price), file];
+  // The raw price, cut where it is printed rather than here: `LADDER_CUT` is
+  // declared further down and a `const` is only in scope after it is
+  // evaluated — the same trap this file fell into once with LADDER_DEALS
+  // itself, and it throws on load rather than printing a wrong number.
+  return [name.replace(/^کتونی\s+/, ''), price, file];
 });
 
 // The category's own file is no longer read — the tile takes the shoe's
@@ -1274,7 +1305,13 @@ const BEST_PHOTOS = {
 };
 
 const bestCard = (_category, i) => {
-  const [name, price, own] = BEST_TEST_ITEMS[i % BEST_TEST_ITEMS.length];
+  const [name, was, own] = BEST_TEST_ITEMS[i % BEST_TEST_ITEMS.length];
+  // What the shop charges, not the price before the cut — «قیمتو ایناش هم باید
+  // برابر نمونش در فروشگاه باشه». The tile printed the before price, so one
+  // shoe read one number in this row and a lower one on its own card. The
+  // Blade reads `offerHere()->price` for the same reason, and the two have to
+  // agree or check-parity.js fails.
+  const price = fa(Math.round(was * (100 - LADDER_CUT) / 100));
   const file = BEST_PHOTOS['کتونی ' + name] || own;
   return (
     '\n                <div class="col">' +
@@ -1411,26 +1448,6 @@ const LADDER_INTRO = {
   how: 'نحوه کار',
 };
 
-// Step, its cut, the week it runs, and where it stands. Exactly one is
-// 'current' — the CSS leans on that for the gold tile and the live label.
-const LADDER_STEPS = [
-  ['پله اول', 15, 'هفته اول', 'done'],
-  ['پله دوم', 30, 'هفته دوم', 'current'],
-  ['پله سوم', 45, 'هفته سوم', ''],
-  ['پله چهارم', 60, 'هفته چهارم', ''],
-  ['پله نهایی', 70, 'پس از هفته چهارم', ''],
-];
-
-// The standing condition first, the countdown second: in RTL the first sits on
-// the right, which is the order the reference reads in.
-const LADDER_NOTES = [
-  'انتقال پله فقط در صورت باقی‌ماندن موجودی',
-  'پله بعدی در ۲۲ روز و ۱۴ ساعت',
-];
-
-// The cut is the live step's, so the two cannot drift apart when the step
-// moves — the card's badge and its price both read from here.
-const LADDER_CUT = LADDER_STEPS.find(([, , , state]) => state === 'current')[1];
 const LADDER_STEP_NAME = LADDER_STEPS.find(([, , , state]) => state === 'current')[0];
 
 // Four products, all cut-outs on transparent so they sit on the card's glass

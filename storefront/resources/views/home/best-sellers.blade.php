@@ -87,7 +87,16 @@
                             <div class="vp-best-label">
                                 <span class="vp-best-lines">
                                     <span class="vp-best-name">{{ $tile['product']->short_title }}</span>
-                                    <span class="vp-best-cta"><strong>{{ toman($tile['product']->offerHere()->compare_at_price) }} <span>تومان</span></strong></span>
+                                    {{-- **The price the shop charges, not the one before
+                                         the sale.** «قیمتو ایناش هم باید برابر نمونش در
+                                         فروشگاه باشه» — this band printed
+                                         `compare_at_price`, so the same shoe read one
+                                         number here and a lower one on its own page and
+                                         in the listing, which is the number a customer
+                                         actually pays. `offerHere()->price` is what
+                                         `shop/card.blade.php` prints, and now what this
+                                         does. --}}
+                                    <span class="vp-best-cta"><strong>{{ toman($tile['product']->offerHere()->price) }} <span>تومان</span></strong></span>
                                 </span>
                             </div>
                             {{-- Two marks, one shown at a time. «ما یدونه آیکون
