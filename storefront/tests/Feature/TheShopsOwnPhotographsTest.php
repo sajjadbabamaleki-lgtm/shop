@@ -13,29 +13,40 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
- * The shop's own Samba photographs, and the machinery that put them up.
+ * The shop's own photographs, and the machinery that put them up.
  *
- * The migration itself does nothing here — it names four products from the live
+ * The migrations themselves do nothing here — they name products from the live
  * shop and the seeded catalogue is five sneakers — so the two halves are tested
- * apart: `ReplacePhotos` against products this file makes, and the twenty files
+ * apart: `ReplacePhotos` against products this file makes, and the files
  * against the disk.
  *
  * **The file check is the one that matters.** A migration that points a product
  * at a photograph nobody committed goes green in CI and shows a broken image on
  * every card, and the shop has been bitten by exactly that shape of failure
  * before — a manifest naming a file that was not there.
+ *
+ * It was `SambaPhotographsTest` while every set was a Samba. The ninth was not,
+ * and the checks were never about the shoe.
  */
-class SambaPhotographsTest extends TestCase
+class TheShopsOwnPhotographsTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** The four sets, as the migration names them. */
+    /**
+     * Every set a migration puts on a product.
+     *
+     * Sets that are on disk but *not* wired to anything are deliberately out:
+     * three arrived without it being clear which shoe they are of, and are
+     * waiting on the client to say. A test that pinned them would be holding
+     * a decision nobody has made.
+     */
     private const SETS = [
         'samba-sandal-black',
         'samba-sandal-brown',
         'samba-sandal-navy',
         'samba-sandal-lightblue',
         'samba-sandal-pink',
+        'slipper-woven-silver',
     ];
 
     /**
@@ -57,14 +68,21 @@ class SambaPhotographsTest extends TestCase
      * a directory is re-sorted and a pair shot ends up leading, the hash at
      * position 1 changes and the set is named.
      *
+     * **`theme/make-product-photos.js` changes these**, because cutting a
+     * photograph to 1400 re-encodes it. That is the pin's one cost and it is
+     * paid on purpose: it cannot tell a re-cut from a re-order, so a run that
+     * touched a wired set means reading the six hashes again. The script says
+     * so when it finishes.
+     *
      * @var array<string, string>
      */
     private const LEADS = [
         'samba-sandal-black' => '1b14596f3d0a07765d228fb273895e87',
-        'samba-sandal-brown' => '58dcd98b23146fd46eaa4ecc0c8a7ecc',
-        'samba-sandal-navy' => 'd43abe2a30b0f1f7478160794a33e0b4',
-        'samba-sandal-lightblue' => 'c2db486d8ca31292efaf3ebe42815395',
-        'samba-sandal-pink' => 'c5853aec47b1d9f44657325716aceb27',
+        'samba-sandal-brown' => 'ddf66bc609f7f1a5337da4be5600fd2e',
+        'samba-sandal-navy' => 'dc58693da199053eaa5133885ebbc930',
+        'samba-sandal-lightblue' => '1e0f3831140c8bdb1c2a15e5570c71c8',
+        'samba-sandal-pink' => 'aa61959c90de8697c9ff5c2cb6c65f3f',
+        'slipper-woven-silver' => '747159e85393dcb4534f42d97007a628',
     ];
 
     protected function setUp(): void
@@ -136,6 +154,33 @@ class SambaPhotographsTest extends TestCase
         }
     }
 
+    /**
+     * No product photograph is wider than the site can draw.
+     *
+     * **Every set on disk, not only the wired ones**, because the cost is paid
+     * the moment a file is committed and a set is wired later without anybody
+     * looking at it again. The studio files arrive at 2560 — 0.6 to 1.1MB each,
+     * 3.4MB for one shoe — and the largest box this shop has for a photograph
+     * is about 600 CSS pixels, so a 2x screen can use 1200. A JPEG is already
+     * compressed, so the server's gzip does nothing about the rest.
+     *
+     * `theme/make-product-photos.js` is the fix, and it is resize only. 1400 is
+     * a ceiling and not a size: the black profile shot is 1125 and is fine.
+     */
+    public function test_no_product_photograph_is_wider_than_the_site_can_draw(): void
+    {
+        foreach (glob(public_path('assets/img/product/*/*.jpg')) as $path) {
+            $size = getimagesize($path);
+            $name = basename(dirname($path)).'/'.basename($path);
+
+            $this->assertLessThanOrEqual(
+                1400,
+                $size[0],
+                "{$name} is {$size[0]} wide. Run node theme/make-product-photos.js."
+            );
+        }
+    }
+
     /** Each set still leads with the photograph the client picked for it. */
     public function test_each_set_leads_with_the_photograph_the_client_chose(): void
     {
@@ -202,6 +247,67 @@ class SambaPhotographsTest extends TestCase
         );
 
         $this->assertSame([0, 1, 2], $product->media()->pluck('position')->all());
+    }
+
+    // --- finding the product by its name ------------------------------------
+
+    /** The shop's five woven mules, as it names them. */
+    private function theFiveSlippers(): void
+    {
+        foreach (['سفید', 'طلایی', 'مشکی', 'نقره ای', 'کرم'] as $colour) {
+            Product::create([
+                'slug' => 'اسلیپر-حصیری-رنگ-'.str_replace(' ', '-', $colour),
+                'title' => "اسلیپر حصیری رنگ {$colour}",
+                'status' => 'active',
+                'published_at' => now()->subDay(),
+            ]);
+        }
+    }
+
+    public function test_it_finds_the_one_product_whose_name_carries_every_word(): void
+    {
+        $this->theFiveSlippers();
+
+        $this->assertSame(
+            'اسلیپر-حصیری-رنگ-نقره-ای',
+            ReplacePhotos::theOneProductNamed('اسلیپر', 'نقره')
+        );
+    }
+
+    /**
+     * And it finds it however the name was typed.
+     *
+     * The colour is «نقره ای» on one keyboard and «نقره‌ای» — with a zero-width
+     * non-joiner — on another, and they are the same word to a reader and two
+     * different strings to `LIKE`. This is exactly the case a slug written from
+     * memory gets wrong, silently.
+     */
+    public function test_a_zero_width_joiner_in_the_name_does_not_hide_the_product(): void
+    {
+        Product::create([
+            'slug' => 'a-slipper',
+            'title' => "اسلیپر حصیری رنگ نقره\u{200C}ای",
+            'status' => 'active',
+            'published_at' => now()->subDay(),
+        ]);
+
+        $this->assertSame('a-slipper', ReplacePhotos::theOneProductNamed('اسلیپر', 'نقره'));
+    }
+
+    /** A word that matches two shoes names neither of them. */
+    public function test_it_returns_nothing_rather_than_guessing_between_two(): void
+    {
+        $this->theFiveSlippers();
+
+        $this->assertNull(ReplacePhotos::theOneProductNamed('اسلیپر'));
+    }
+
+    /** And a word the shop does not use at all finds nothing. */
+    public function test_it_returns_nothing_when_no_product_matches(): void
+    {
+        $this->theFiveSlippers();
+
+        $this->assertNull(ReplacePhotos::theOneProductNamed('اسلیپر', 'یاسی'));
     }
 
     /** A slug the shop does not have is skipped, not thrown on. */

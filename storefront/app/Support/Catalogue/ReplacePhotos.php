@@ -35,6 +35,52 @@ class ReplacePhotos
      * @param  array<string, list<string>>  $photographs  slug => paths under public/
      * @return array<string, int> slug => how many were written
      */
+    /**
+     * The slug of the one product whose name carries every one of these words.
+     *
+     * **This exists because a slug written from memory is a silent no-op.**
+     * `run()` skips a slug it cannot find — it has to, since the catalogue in
+     * this repository is five sneakers and a migration written for the live
+     * shop matches nothing locally — so a migration naming
+     * `اسلیپر-حصیری-رنگ-نقره-ای` when the shop spells it with a zero-width
+     * non-joiner deploys green and changes nothing. That failure has no
+     * symptom until somebody opens the product and sees the old photographs.
+     *
+     * So the caller names the words it is sure of and this finds the product,
+     * folding both sides first (`fold_persian()`) so ی/ي, ک/ك and the
+     * invisible joiners cannot come between a name typed on one keyboard and
+     * a name typed on another. It reads every product into PHP rather than
+     * asking the database, because 148 rows is nothing and because folding in
+     * SQL is a different expression on Postgres and on the sqlite the tests
+     * run against.
+     *
+     * **Nothing, if there is not exactly one.** Two matches is a question the
+     * caller has to answer with a better word, and photographs put on a shoe
+     * nobody chose are worse than photographs put on none.
+     *
+     * @param  string  ...$words  fragments of the product's name
+     */
+    public static function theOneProductNamed(string ...$words): ?string
+    {
+        $folded = array_map(fn (string $word) => fold_persian($word), $words);
+
+        $matches = Product::query()
+            ->get(['slug', 'title'])
+            ->filter(function (Product $product) use ($folded): bool {
+                $title = fold_persian((string) $product->title);
+
+                foreach ($folded as $word) {
+                    if (! str_contains($title, $word)) {
+                        return false;
+                    }
+                }
+
+                return true;
+            });
+
+        return $matches->count() === 1 ? $matches->first()->slug : null;
+    }
+
     public static function run(array $photographs): array
     {
         $written = [];

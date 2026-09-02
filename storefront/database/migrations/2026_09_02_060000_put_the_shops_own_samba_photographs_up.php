@@ -30,7 +30,7 @@ use Illuminate\Database\Migrations\Migration;
  * gap. The rest follow in the order they arrived, with the top-down flat lay
  * last.
  *
- * `SambaPhotographsTest` holds that leading photograph by its content rather
+ * `TheShopsOwnPhotographsTest` holds that leading photograph by its content rather
  * than by measuring it. Measuring was tried — the shoe's bounding box, where a
  * profile runs 2.65–2.89 wide for one tall against 1.76 or less for a pair —
  * and it worked for four sets and then read 1.84 against 1.81 on the fifth,

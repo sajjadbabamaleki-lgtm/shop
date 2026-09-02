@@ -227,6 +227,38 @@ the client saw an old page and had no way to tell why. So, plainly:
   offered at one size only — which is how the best-sellers band and the
   gallery's thumbnails were caught still pulling the large one. The manifest is
   copied to `public/` by name, because only `storefront/` is deployed.
+- `theme/make-product-photos.js` — **the client's own studio shots, cut to a
+  width the site can draw: 14.9MB → 3.9MB across 42 files.** They arrive at
+  2560 square, 0.6–1.1MB each, 3.4MB for one shoe; the largest box this shop
+  has for a photograph is about 600 CSS pixels, so a 2x screen can use 1200 and
+  1400 covers it. A JPEG is already compressed, so the server's gzip does
+  nothing about the rest — the same reason the icon fonts mattered more than
+  the stylesheets. Resize only, same rule as the category tiles and the app
+  icon, and only ever downwards. **It rewrites in place and keeps no original**,
+  unlike `make-icon-fonts.js`: a font is re-subset whenever an icon is added, a
+  photograph is cut once, and `git checkout` is the undo. The width is a floor
+  as well as a ceiling, so running it twice cannot re-encode a photograph twice.
+  These live under `storefront/public/assets/img/product/` and not in
+  `download-version/`, because only `storefront/` is deployed and the preview
+  has no catalogue. `TheShopsOwnPhotographsTest` fails on any file wider than
+  1400, wired to a product or not — the cost is paid when it is committed, and
+  a set gets wired later without anybody looking again. It is **not** in
+  `photo-sizes.json` yet, so a phone gets the 1400.
+- **A set of photographs is put on a product by a migration, and the product is
+  found by name.** `ReplacePhotos::run()` replaces rather than adds — new shots
+  of a shoe are not more shots of it — and it *skips* a slug it cannot find,
+  which it has to, since the catalogue in this repository is five sneakers and
+  these migrations name the live shop's products. That makes a slug written
+  from memory a **silent no-op**: green deploy, old photographs, no symptom
+  until somebody opens the product. So `ReplacePhotos::theOneProductNamed()`
+  takes the words that cannot be wrong instead, folds both sides with
+  `fold_persian()` (the colour is «نقره ای» on one keyboard and «نقره‌ای» on
+  another) and returns nothing rather than choosing between two matches.
+  **The first photograph of every set is the side profile of one shoe** —
+  «عکس اول در همه موردا باید این عکسی باشه که از این زاویس نه عکس دوتایی» —
+  and it is pinned by md5, because measuring it was tried and did not survive
+  (see the note on `LEADS`). Cutting a set re-encodes it, so the pins move with
+  it; the script says so when it finishes.
 - **The page loads three libraries, not eleven.** Eight of the template's
   scripts bind to markup that exists in none of the pages this shop serves —
   187KB and eight round trips — and they come off in `DEAD_LIBRARIES` in
