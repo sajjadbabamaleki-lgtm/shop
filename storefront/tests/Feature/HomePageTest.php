@@ -358,6 +358,18 @@ class HomePageTest extends TestCase
 
     /**
      * A product that sells out drops off the page rather than being offered.
+     *
+     * **Except as a story ring, which offers nothing.** This used to read
+     * `assertDontSee` and the name had to be gone from the markup entirely.
+     * It is not any more: the five circles are five products the client named,
+     * and losing one to a sell-out shortened the strip and slid every campaign
+     * photograph after it onto the wrong shoe — see `StoriesTest`. So the ring
+     * stays, carrying no variant, and the two places its name survives are
+     * that one link's `aria-label` and its `data-vp-story-name`.
+     *
+     * What this still holds is the thing it was written for: **nothing offers
+     * it**. Two occurrences is the ring and only the ring — a card, a hero
+     * slide or a sale tile coming back would be a third.
      */
     public function test_a_sold_out_product_leaves_the_sale(): void
     {
@@ -365,7 +377,20 @@ class HomePageTest extends TestCase
 
         $this->restock('jordan-one-air', 0);
 
-        $this->get('/')->assertDontSee('کتونی جردن وان ایر', false);
+        $page = $this->get('/')->getContent();
+        $id = Product::where('slug', 'jordan-one-air')->firstOrFail()->id;
+
+        $this->assertSame(
+            2,
+            substr_count($page, 'کتونی جردن وان ایر'),
+            'A sold-out shoe is being offered somewhere on the front page.'
+        );
+
+        $this->assertMatchesRegularExpression(
+            '/data-vp-story-product="'.$id.'"\s+data-vp-story-variant=""/',
+            $page,
+            'The story ring it survives on is offering a variant the basket would refuse.'
+        );
     }
 
     /**

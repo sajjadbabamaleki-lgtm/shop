@@ -1289,7 +1289,13 @@ const bestCard = (_category, i) => {
     `\n                                    <span class="vp-best-cta"><strong>${price} <span>تومان</span></strong></span>` +
     '\n                                </span>' +
     '\n                            </div>' +
-    `\n                            <a class="vp-best-browse" href="shop.html" aria-label="افزودن ${name} به سبد خرید"><i class="fa-solid fa-bag-shopping" aria-hidden="true"></i></a>` +
+    // Two marks, one shown at a time: the shop page's own Tabler
+    // `shopping-bag-plus` for the phone's square — «ما یدونه آیکون سبد خرید که
+    // روش بعلاوه داره تو صفحه فروشگاه داریم چرا آیکون جدیدی میاری؟» — and the
+    // plain bag for the desktop circle, which is not being changed. Kept in
+    // step with resources/views/home/best-sellers.blade.php, or
+    // check-parity.js fails.
+    `\n                            <a class="vp-best-browse" href="shop.html" aria-label="افزودن ${name} به سبد خرید"><i class="fa-solid fa-bag-shopping" aria-hidden="true"></i><svg class="vp-best-add" viewBox="0 0 24 24" fill="none" aria-hidden="true"><g stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M12.5 21H8.574a3 3 0 0 1-2.965-2.544l-1.255-8.152A2 2 0 0 1 6.331 8H17.67a2 2 0 0 1 1.977 2.304l-.263 1.708M16 19h6m-3-3v6"></path><path d="M9 11V6a3 3 0 0 1 6 0v5"></path></g></svg></a>` +
     '\n                        </div>' +
     '\n                    </div>' +
     '\n                </div>'

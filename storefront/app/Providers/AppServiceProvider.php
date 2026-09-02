@@ -156,14 +156,47 @@ class AppServiceProvider extends ServiceProvider
              */
             $named = app(FrontPage::class)->slugs('stories');
 
+            $load = ['brand', 'media', 'variants.offer', 'variants.stock', 'defaultVariant.offer', 'defaultVariant.stock'];
+
             $stories = Product::query()
                 ->purchasable()
                 ->pricedHere()
-                ->with(['brand', 'media', 'variants.offer', 'variants.stock', 'defaultVariant.offer', 'defaultVariant.stock'])
+                ->with($load)
                 ->when($named !== [], fn ($q) => $q->whereIn('slug', $named))
                 ->latest('id')
                 ->take(5)
                 ->get();
+
+            /*
+             * **A named ring that has sold out is still one of the five.**
+             * «تو صفحه فروشگاه استوری های بالای بخش فروشگاه پنج تا بودن چرا
+             * چارتا شدن» — one shoe ran out of every size and the strip came
+             * back four circles wide.
+             *
+             * `purchasable()` is right about *buying* and wrong about *being
+             * there*, and here it was doing more damage than a missing circle:
+             * the campaign photographs are positional
+             * (`config('storefront.stories.photos')[$loop->index]`), so losing
+             * the third product does not leave a gap — it slides the fourth and
+             * fifth pictures one place along and shows two shoes under artwork
+             * chosen for two others.
+             *
+             * So a named slug that is still listed here comes back on
+             * `listable()`, exactly as the hero deck's does and for the same
+             * reason: a band the client chose by name is a decision, not a
+             * query result. Nothing about the button moves — the viewer already
+             * disables «سبد خرید» when a circle carries no addable variant, so
+             * an empty shelf can be seen and still cannot be sold.
+             */
+            if ($named !== [] && $stories->count() < count($named)) {
+                $missing = array_diff($named, $stories->pluck('slug')->all());
+
+                $stories = $stories
+                    ->concat(Product::query()->listable()->whereIn('slug', $missing)->with($load)->get())
+                    ->sortByDesc('id')
+                    ->take(5)
+                    ->values();
+            }
 
             $view->with('stories', $stories);
         });

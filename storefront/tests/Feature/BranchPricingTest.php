@@ -94,8 +94,21 @@ class BranchPricingTest extends TestCase
         $this->tenant->forBranch($this->shiraz, fn () => BranchInventory::whereIn('variant_id', $variants)
             ->update(['stock_on_hand' => 0]));
 
-        $this->get('/shiraz')->assertDontSee('کتونی جردن وان ایر', false);
-        $this->get('/')->assertSee('کتونی جردن وان ایر', false);
+        // Two occurrences is the story ring and nothing else — its
+        // `aria-label` and its `data-vp-story-name`. The ring is one of five
+        // the client named and stays whatever the shelf says, offering no
+        // variant; see `StoriesTest`. Shiraz offering it would be a third.
+        $this->assertSame(
+            2,
+            substr_count($this->get('/shiraz')->getContent(), 'کتونی جردن وان ایر'),
+            'Shiraz is offering a shoe it has sold out of.'
+        );
+
+        $this->assertGreaterThan(
+            2,
+            substr_count($this->get('/')->getContent(), 'کتونی جردن وان ایر'),
+            'The main store lost the shoe because Shiraz ran out of it.'
+        );
     }
 
     /**

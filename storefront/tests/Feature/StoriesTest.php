@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Branch;
+use App\Models\BranchInventory;
 use App\Models\Category;
 use App\Models\Product;
 use App\Support\Branches\BranchOpener;
@@ -51,6 +52,25 @@ class StoriesTest extends TestCase
         );
     }
 
+    /**
+     * Sell the last pair of every size this shoe has, at every branch.
+     *
+     * Through `forBranch` and not bare: `variants()` is branch-scoped and
+     * fails closed, so with nothing bound it returns no ids at all and the
+     * update below quietly matches no rows — a set-up step that looks like it
+     * ran. The binding is put back afterwards, because the page under test
+     * resolves its own tenant and a branch left in the container is a request
+     * that never exercises that.
+     */
+    private function emptyEveryShelf(string $slug): void
+    {
+        app(TenantContext::class)->forBranch(Branch::central(), function () use ($slug): void {
+            BranchInventory::query()
+                ->whereIn('variant_id', Product::where('slug', $slug)->firstOrFail()->variants()->pluck('id'))
+                ->update(['stock_on_hand' => 0, 'stock_reserved' => 0]);
+        });
+    }
+
     public function test_the_strip_is_products_and_not_categories(): void
     {
         $page = $this->get('/products')->assertOk();
@@ -79,12 +99,91 @@ class StoriesTest extends TestCase
         $this->assertNotEmpty($found[1], 'the strip should render its circles');
 
         foreach ($found[1] as $variantId) {
-            // Empty would mean the shoe has no sellable size, which the
-            // composer's `purchasable()` is supposed to have kept out. The
-            // viewer disables the button in that case rather than posting a
-            // 404, but a strip full of disabled buttons is a broken strip.
+            // Empty means the shoe has no sellable size. That is a legitimate
+            // state for a *named* ring since the sell-out case below — the
+            // circle stays and the viewer disables its button — but it is not
+            // the state a shop with stock should be in, and a strip full of
+            // disabled buttons is a broken strip.
             $this->assertNotSame('', $variantId, 'a story with no addable variant cannot be bought from');
         }
+    }
+
+    /**
+     * Five circles stay five when one of the five sells out.
+     *
+     * «تو صفحه فروشگاه استوری های بالای بخش فروشگاه پنج تا بودن چرا چارتا
+     * شدن» — `purchasable()` took the ring away with the last pair.
+     *
+     * The count is the smaller half of the damage. The campaign photographs
+     * are positional — `config('storefront.stories.photos')[$loop->index]` —
+     * so a missing product does not leave a gap, it slides every picture after
+     * it one place along and shows shoes under artwork chosen for other shoes.
+     */
+    public function test_the_strip_keeps_its_five_when_one_of_them_sells_out(): void
+    {
+        $named = config('storefront.front_page.story_products');
+        $soldOut = $named[1];
+
+        $this->emptyEveryShelf($soldOut);
+
+        $this->assertFalse(
+            app(TenantContext::class)->forBranch(
+                Branch::central(),
+                fn () => Product::query()->purchasable()->where('slug', $soldOut)->exists(),
+            ),
+            'The shoe is still purchasable, so this case is not testing anything.'
+        );
+
+        $page = $this->get('/products')->assertOk()->getContent();
+
+        preg_match_all('/data-vp-story-product="(\\d+)"/', $page, $rings);
+
+        $this->assertCount(count($named), $rings[1], 'A story ring went missing because the shoe sold out.');
+        $this->assertContains(
+            (string) Product::where('slug', $soldOut)->firstOrFail()->id,
+            $rings[1],
+            'The sold-out shoe is not the one that came back.'
+        );
+    }
+
+    /**
+     * And the ring that came back cannot be bought from.
+     *
+     * That is the whole reason it is allowed back: the circle is a picture and
+     * a link, and «سبد خرید» is disabled by the viewer when the circle carries
+     * no variant. If this ever renders a variant id for a shoe with no
+     * sellable size, the button would post one and the checkout would refuse
+     * it in front of the shopper.
+     */
+    public function test_a_sold_out_ring_offers_no_variant_to_the_basket(): void
+    {
+        $named = config('storefront.front_page.story_products');
+        $soldOut = $named[1];
+
+        $this->emptyEveryShelf($soldOut);
+
+        $page = $this->get('/products')->assertOk()->getContent();
+        $id = Product::where('slug', $soldOut)->firstOrFail()->id;
+
+        $this->assertMatchesRegularExpression(
+            '/data-vp-story-product="'.$id.'"\s+data-vp-story-variant=""/',
+            $page,
+            'The sold-out ring is offering a variant the basket would refuse.'
+        );
+    }
+
+    /** A shoe that is genuinely gone is still gone — this is not a licence. */
+    public function test_an_archived_shoe_does_not_come_back_to_the_strip(): void
+    {
+        $named = config('storefront.front_page.story_products');
+
+        Product::where('slug', $named[1])->update(['status' => 'archived']);
+
+        $page = $this->get('/products')->assertOk()->getContent();
+
+        preg_match_all('/data-vp-story-product="(\\d+)"/', $page, $rings);
+
+        $this->assertNotContains((string) Product::where('slug', $named[1])->firstOrFail()->id, $rings[1]);
     }
 
     public function test_both_buttons_post_to_the_routes_that_do_the_work(): void

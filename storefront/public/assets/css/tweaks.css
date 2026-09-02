@@ -2038,6 +2038,10 @@ option:hover {
   color: rgba(16, 17, 17, 0.62);
 }
 
+.vp-best-add {
+  display: none;
+}
+
 .vp-best-browse {
   flex: 0 0 auto;
   width: 52.8px;
@@ -8819,8 +8823,8 @@ button.vp-cart-keep {
   }
 
   .vp-deal-burst {
-    width: 43.2px;
-    height: 43.2px;
+    width: 38.88px;
+    height: 38.88px;
   }
 
   .vp-deal-label {
@@ -9128,8 +9132,49 @@ body.vp-soon-open .vp-support-fab {
     inset-block-start: 2px;
   }
 
+  .vp-best-label {
+
+    padding-inline-start: 12px;
+    padding-inline-end: 47.52px;
+  }
+
   .vp-best-browse {
+    position: absolute;
+    z-index: 3;
+
+    inset-inline-end: 12.76px;
+    inset-block-end: 12.76px;
+    width: 34px;
+    height: 34px;
+    border-radius: 12.4262px;
+    background: linear-gradient(90deg, var(--vp-gold-fill), var(--vp-gold-lit));
+    box-shadow: none;
+    color: #FFFFFF;
+
+    font-size: 14px;
+  }
+
+  .vp-best-browse:hover {
+    transform: none;
+    box-shadow: none;
+    filter: brightness(1.04);
+  }
+
+  .vp-best-browse > i {
     display: none;
+  }
+
+  .vp-best-add {
+    display: block;
+    width: 17px;
+    height: 17px;
+  }
+}
+
+@media (max-width: 359.98px) {
+  .vp-best-label {
+    padding-inline-start: 7px;
+    padding-inline-end: 43.76px;
   }
 }
 

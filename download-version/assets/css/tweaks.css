@@ -3505,6 +3505,15 @@ option:hover {
   color: rgba(16, 17, 17, 0.62);
 }
 
+/* The second mark inside the browse control is the phone's, and it is off
+   everywhere else. The desktop circle carries the plain bag it has always
+   carried; below 992 one `display` rule each way swaps the two. Written here
+   rather than only in the phone block so that the SVG is never drawn by a
+   width nothing has stated a rule for. */
+.vp-best-add {
+  display: none;
+}
+
 /* The browse control, glass rather than solid: same tint and ring as the
    strip beside it, so the two read as one material instead of a control
    borrowed from the deal cards next door. Ink icon on it for the same
@@ -15893,9 +15902,16 @@ button.vp-cart-keep {
       inset 0 -1.4px 0 rgba(16, 17, 17, 0.07);
   }
 
+  /* «تو نسخه موبایل اون بج تخفیف گوشه اینا ۱۰ درصد کوچیکتر بشه» — 43.2 - 10%
+     = 38.88, and it applies to both cards rather than only to the best
+     sellers' the client was looking at when they said it. This is one class:
+     the sale card and the best sellers' card carry the same burst because
+     «دقیقا همون کارت حراج پله برای پر فروش ترینها اجرا بشه», and shrinking one
+     of them would be the first time in the page's history that the two badges
+     were different sizes. Below 992 only; the desktop pair is untouched. */
   .vp-deal-burst {
-    width: 43.2px;
-    height: 43.2px;
+    width: 38.88px;
+    height: 38.88px;
   }
 
   .vp-deal-label {
@@ -16768,18 +16784,127 @@ body.vp-soon-open .vp-support-fab {
     inset-block-start: 2px;
   }
 
-  /* «دقیقا همون کارت حراج پله برای پر فروش ترینها اجرا بشه» — and the sale
-     card has no basket below 992, so this one does not either. It was kept
-     through the last round on the reasoning that the client had designed it
-     two rounds before that and a sentence about glass should not delete it;
-     the client has now said otherwise in as many words, which settles it.
+  /* The basket square, back on the phone — and this is the third time this
+     control has changed state, so the whole thread is here rather than a
+     sentence about the last round.
 
-     `display: none` rather than deleting the markup: the button is still in
-     the Blade and in the generator, still labelled, and still there above 992
-     where the desktop card carries one. Above 992 nothing in this block
-     applies. */
+     «یدونه هم مربع با گوشه های کرو هم بیاد جلو اسم و قیمت با آیکون سبد و
+     بعلاوه تو بخش پر فروش ترین ها». It was designed, then taken off when
+     «دقیقا همون کارت حراج پله برای پر فروش ترینها اجرا بشه» made this card the
+     sale card's twin and the sale card has no basket below 992, and it is now
+     asked for again in as many words. The two cards are therefore no longer
+     identical on the phone, deliberately: that is what was asked for, and it
+     is the newer instruction.
+
+     **Inside the strip, not beside it** — «اون مربع باید میزاشتی داخل باکس
+     قیمت». The first build put it next to the white strip and took 46px of the
+     strip's width to make room; it sits within the strip now, so the strip is
+     the full width of the card again and the name and price have all of it
+     back bar the square's own corner.
+
+     **34, and its corners are the strip's own** — «اندازه مربع باید کوچیکتر
+     بشه»، «گوشه های مربع باید با گوشه های باکس فیت باشه کروشون». It was the
+     heart's 39.9 and it is 34 now, which is what leaves the two curves room to
+     agree: centred in a strip 47.52 high, a 34 square is inset 6.76 on every
+     side it touches, and a rounded box inside a rounded box reads as one shape
+     only when the inner radius is the outer one *minus that inset*. The strip
+     rounds at 19.1862, so this rounds at 19.1862 - 6.76 = 12.4262 and the gap
+     between the two curves is the same 6.76 all the way round the corner. Any
+     other radius and the curves cross.
+
+     **Gold, not white.** The heart above it is white because it sits on a
+     photograph; this one sits on the card, which is white, and the first build
+     of it was a white square on white — the mark floated and the square the
+     client asked for was not there at all. It is filled and it gets pressed,
+     so it takes what every filled control on this site takes:
+     `--vp-gold-fill` to `--vp-gold-lit` with a white glyph, the same recipe as
+     the sale card's own basket. See «گلد سبز» in CLAUDE.md.
+
+     Above 992 nothing in this block applies and the desktop card is untouched
+     — «به هیچ عنوان به نسخه دستاپ دست نزنی». */
+  .vp-best-label {
+    /* The square stands inside the strip's inline-end end, so the text's own
+       box has to stop short of it: 3.81 + 39.9 + 3.81 = 47.52, the strip's
+       own height, which is what a square inset equally on three sides of it
+       comes to. The inline-start side keeps 12.
+
+       Measured, because the price will not shrink: «۷,۹۸۰,۰۰۰ تومان» needs
+       78.9 to 81.5 across the six tiles, read in place at every width rather
+       than estimated. The first build of this left 67.1 at 320 and «تومان»
+       dropped to a line that fell out of a strip whose height is fixed. */
+    padding-inline-start: 12px;
+    padding-inline-end: 47.52px; /* 6.76 + 34 + 6.76 */
+  }
+
   .vp-best-browse {
+    position: absolute;
+    z-index: 3;
+    /* 6 is the strip's own inset from the card, 6.76 is the square's from the
+       strip. */
+    inset-inline-end: 12.76px;
+    inset-block-end: 12.76px;
+    width: 34px;
+    height: 34px;
+    border-radius: 12.4262px;
+    background: linear-gradient(90deg, var(--vp-gold-fill), var(--vp-gold-lit));
+    box-shadow: none;
+    color: #FFFFFF;
+    /* 14 rather than the strip's 16.2: the glyph shares this box with the plus
+       above it, and at 16.2 the two touched. */
+    font-size: 14px;
+  }
+
+  .vp-best-browse:hover {
+    transform: none;
+    box-shadow: none;
+    filter: brightness(1.04);
+  }
+
+  /* The bag with the plus on it — the shop page's own, not a new one.
+
+     «ما یدونه آیکون سبد خرید که روش بعلاوه داره تو صفحه فروشگاه داریم چرا
+     آیکون جدیدی میاری؟» It is Tabler's `shopping-bag-plus`, picked off a sheet
+     of eleven for `.vp-card-add` («یک عالیه»), and the markup here is that
+     one's byte for byte. The first build of this square drew its own plus out
+     of two gradients beside a `fa-bag-shopping`, which was a second answer to
+     a question the shop had already answered.
+
+     `currentColor` is why it is inline SVG rather than a file, exactly as it
+     is on the card: the mark has to take the button's ink, and an `<img>`
+     cannot.
+
+     The plain bag is still in the markup for the desktop circle, which is not
+     being changed — «به هیچ عنوان به نسخه دستاپ دست نزنی» — so exactly one of
+     the two is drawn at any width. 17 against the square's 34 is the half the
+     glyph it replaces read at. */
+  .vp-best-browse > i {
     display: none;
+  }
+
+  .vp-best-add {
+    display: block;
+    width: 17px;
+    height: 17px;
+  }
+}
+
+/* Under 360 the strip gives up padding, because the price will not give up
+   anything.
+
+   The card is 145 wide at 320 and «۷,۹۸۰,۰۰۰ تومان» needs 81.5 of it —
+   measured in place at every width, not estimated: 78.9 to 81.5 across the six
+   tiles. With the padding above, the strip's content box is 73.5 there and
+   «تومان» drops to a second line, inside a box whose height is fixed at 47.52,
+   so the line falls out of the bottom of it. Nothing else catches that:
+   `check-overflow.js` watches the page's own width, and 320 is not one of the
+   widths it loads.
+
+   7 and 43.76 leave 82.24, which clears 81.5. The square does not move or
+   change size — only the space either side of the words does. */
+@media (max-width: 359.98px) {
+  .vp-best-label {
+    padding-inline-start: 7px;
+    padding-inline-end: 43.76px; /* 3 + 34 + 6.76 */
   }
 }
 
