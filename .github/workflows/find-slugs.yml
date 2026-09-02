@@ -1,19 +1,16 @@
-# Temporary. Asks the live shop which product each of the client's photographs
-# is of.
-#
-# The names cannot settle it on their own — the shop carries eight New Balance
-# 530s and six Travis Scotts, and «سفید نقره ای» against «سفید مشکی» is a guess
-# from the outside. So this reads each candidate's own photograph and prints its
-# mean colour over the shoe alone, which is comparable against the file the
-# client sent measured the same way here.
+# Temporary. Asks the live shop for the names of the products the client's
+# photographs are of.
 #
 # The proxy in the working container refuses vikyplus.ir; a runner can reach it,
 # and only the deploy job is gated on `main`, so this ships nothing.
 #
-# `magick`, not `convert`: ImageMagick 7 dropped the old name and the runner
-# answers 127 for it.
+# Two earlier attempts tried to measure each candidate's colour on the runner
+# and both answered 127 — `convert` is gone in ImageMagick 7 and `magick` is not
+# installed either. So this prints the names and the picture each one uses, and
+# the choosing is done by eye against the files the client sent. `which` is in
+# here so the next person does not spend a third run finding out.
 #
-# Delete this file once the slugs are read.
+# Delete this file once the names are read.
 name: Find two slugs
 
 on:
@@ -24,25 +21,14 @@ jobs:
   ask:
     runs-on: ubuntu-latest
     steps:
-      - name: Read each candidate's own photograph
+      - name: What this runner has
+        run: which magick convert python3 node || true
+
+      - name: The candidates, by name
         run: |
           for q in "نیوبالانس" "تراویس" "گلدن گوس"; do
             echo "==================== $q"
-            for url in $(curl -sS --get --data-urlencode "q=$q" https://vikyplus.ir/search \
-                          | grep -oE 'https://vikyplus\.ir/products/[^"]+' | sort -u | head -40); do
-              img=$(curl -sS "$url" | grep -oE 'https://vikyplus\.ir/[^"]*\.(jpg|jpeg|png|webp)' | grep -v 'favicon\|logo\|appicon\|icon/' | head -1)
-              [ -z "$img" ] && continue
-              curl -sS -o /tmp/shot "$img" || continue
-              # The mean over the shoe rather than over the frame: everything
-              # brighter than 235 in all three channels is the studio's ground
-              # and is thrown out, so a white shoe on white does not read as
-              # white paper.
-              mean=$(magick /tmp/shot -fuzz 8% -fill none -opaque white -alpha on \
-                       -channel RGB -separate -average -format '%[fx:int(255*mean)]' info: 2>/dev/null)
-              rgb=$(magick /tmp/shot -colorspace sRGB -white-threshold 92% -transparent white \
-                       -resize 1x1! -format '%[fx:int(255*r)] %[fx:int(255*g)] %[fx:int(255*b)]' info: 2>/dev/null)
-              printf '%s\n    shoe-mean %s   (grey %s)\n' \
-                "$(python3 -c 'import urllib.parse,sys;print(urllib.parse.unquote(sys.argv[1]))' "$url")" \
-                "$rgb" "$mean"
-            done
+            curl -sS --get --data-urlencode "q=$q" https://vikyplus.ir/search \
+              | grep -oE 'class="vp-card-name"[^>]*>[^<]+' \
+              | sed 's/.*>//' | sort -u
           done
