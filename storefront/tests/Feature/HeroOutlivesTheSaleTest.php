@@ -136,6 +136,16 @@ class HeroOutlivesTheSaleTest extends TestCase
      * page in large type, and it is null when nothing is discounted — so they
      * are right to go quiet, and handing them the catalogue would print a zero
      * rather than fill the page.
+     *
+     * **«پرفروش‌ترین‌ها» used to be counted among them and is not one.** It was
+     * handed the discounted subset and asserted empty here, on the strength of
+     * a struck-through price it does not print: a tile prints
+     * `offerHere()->price`, the price the shop charges, and its ٪۲۵ burst is a
+     * rule on alternate tiles rather than a fact read off an offer. The cost of
+     * that was on the live shop, where two of the band's six chosen shoes
+     * carried a promotion and the row cycled those two across all six tiles —
+     * «من ۶ عکس مختلف برای این بخش بهت دادم ایناااااا چیین؟؟». It belongs with
+     * the hero above, and the case below is where it is now held.
      */
     public function test_the_bands_that_print_a_struck_through_price_go_quiet_instead(): void
     {
@@ -144,8 +154,12 @@ class HeroOutlivesTheSaleTest extends TestCase
         $page = $this->get('/')->assertOk();
 
         $this->assertEmpty($page->viewData('ladderDeals'));
-        $this->assertEmpty($page->viewData('bestSellers'));
         $this->assertNull($page->viewData('dailyDeal'));
+
+        $this->assertNotEmpty(
+            $page->viewData('bestSellers'),
+            'The best sellers emptied because the sale ended. The band prints no struck-through price and must not depend on one.'
+        );
 
         // Whatever else is missing, the page is a page: it renders, and the
         // bands that owe nothing to a campaign are all still on it.

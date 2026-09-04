@@ -1306,6 +1306,11 @@ const BEST_PHOTOS = {
   'کتونی نیوبالانس ۵۳۰': 'hero/vikyplus-hero-nb530-white.webp',
   'کتونی گلدن گوس': 'hero/vikyplus-hero-goldengoose-black.webp',
   'کتونی جردن وان ایر': 'hero/vikyplus-hero-jordan.webp',
+  // The hero's own cut-out, on the hero's own product. The black Cloudtilt has
+  // no product of its own and this is that model in another colourway — the
+  // pairing the client chose when the shot arrived. Keep it in step with
+  // `placeholders.best_sellers.photos`, or check-parity.js fails.
+  'کتونی اون کلادتیلت': 'hero/vikyplus-hero-cloudtilt-black.webp',
 };
 
 const bestCard = (_category, i) => {

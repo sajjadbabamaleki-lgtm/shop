@@ -923,12 +923,20 @@ return [
                 'golden-goose' => 'assets/img/hero/vikyplus-hero-goldengoose-black.webp',
                 'jordan-one-air' => 'assets/img/hero/vikyplus-hero-jordan.webp',
 
-                // `on-cloudtilt` and `nike-v2k-run` are deliberately absent and
-                // keep their own photographs. The black Cloudtilt and the cream
-                // Air Zoom the client sent have no product in the shop — the
-                // live search finds neither — so there is nothing to hang them
-                // on until somebody creates those two in the panel. The files
-                // are in `theme/hero-src/` and wired to nothing.
+                // The same shoe the hero draws with the same cut-out. The black
+                // Cloudtilt has no product of its own — the live search finds
+                // none — and `on-cloudtilt` is that model in another colourway,
+                // which is the pairing the client chose for the hero when the
+                // shot was sent («تو هیرو ها بیاد بجای نیوبالانس»). One picture,
+                // one product, one page: the tile goes to the Cloudtilt's own.
+                'on-cloudtilt' => 'assets/img/hero/vikyplus-hero-cloudtilt-black.webp',
+
+                // `nike-v2k-run` is deliberately absent and keeps its own
+                // photograph. The sixth cut-out is a cream Nike Air Zoom, which
+                // is a different model from the V2K Run, and no Air Zoom exists
+                // in the shop for it to sit on. `theme/hero-src/` holds it
+                // wired to nothing until that product is created in the panel
+                // or the shop says which shoe it is.
             ],
 
             'priced_from' => [

@@ -44,7 +44,12 @@ class HomeController extends Controller
             'ladder' => $this->ladder(),
             // These two draw a struck-through price, so they need a real one.
             'ladderDeals' => $this->ladderDeals($onSale),
-            'bestSellers' => $this->bestSellers($categories, $onSale),
+            // **The catalogue, not the sale.** This band prints the price the
+            // shop charges and no struck-through one, so it is not a band about
+            // discounts — and it was being built from the discounted subset,
+            // which on the live shop is two of its six shoes. Six tiles over
+            // two products is the repeat the client photographed.
+            'bestSellers' => $this->bestSellers($categories, $catalogue),
             'dailyDeal' => $this->dailyDeal($onSale),
             'brands' => $this->brands($categories),
             /*
@@ -355,12 +360,42 @@ class HomeController extends Controller
     }
 
     /**
-     * Six category photographs with a shoe's name and price on each strip.
+     * Six tiles, each one shoe: its picture, its name and its price.
      *
-     * The pairing is arbitrary and admitted: a category photograph is not a
-     * SKU, and the client asked for a name and a price on the strip anyway
-     * rather than leave it bare. Which product lands under which photograph
-     * carries no meaning and is not supposed to.
+     * The category still decides how many tiles there are and in what order;
+     * it no longer supplies the picture. The shoes are the band's own list —
+     * `/admin/front-page`, or the config's default — and there are meant to be
+     * six of them, one per tile, none repeated.
+     *
+     * **Built from the whole catalogue, not from the discounted subset.** It
+     * was handed `$onSale`, and on the live shop that is two of its six shoes:
+     * six named products came back as two, and the row below cycled them three
+     * times each. That is the row the client photographed — «من ۶ عکس مختلف
+     * برای این بخش بهت دادم ایناااااا چیین؟؟».
+     *
+     * The band is not about discounts. It prints `offerHere()->price`, the
+     * price the shop charges, and no struck-through one; its ٪۲۵ burst is a
+     * rule on alternate tiles, not a fact read off an offer. So it is the same
+     * mistake as the hero's, one shelf along: **a band that does not print a
+     * fact must not be built from it.** A campaign ending, or simply not
+     * covering the six shoes somebody chose, may not decide what this row
+     * shows.
+     *
+     * **And the row never shows one shoe twice while it has another to show.**
+     * Cycling was how a short list filled six tiles, which is fine for a band
+     * nobody has chosen and wrong the moment somebody has: one chosen shoe
+     * selling out silently put a repeat back on the page. A short list is
+     * filled out from the band's own default — the shop's five in
+     * `placeholders.best_sellers.priced_from`, which is what the row falls back
+     * to when nobody has chosen at all — and only cycles when that cannot fill
+     * six either.
+     *
+     * **The filler is that list and not the catalogue**, which was written
+     * first and is wrong: the newest rows in the catalogue are whatever was
+     * imported last, so a supplier feed would have walked its own products onto
+     * the front page the day it ran. `BasalamImportTest` says so in as many
+     * words, and caught it. What fills a tile on the front page is always
+     * something somebody chose.
      *
      * @param  Collection<string, Category>  $categories
      * @param  Collection<string, Product>  $products
@@ -368,23 +403,39 @@ class HomeController extends Controller
      */
     private function bestSellers(Collection $categories, Collection $products): array
     {
-        $placeholder = config('storefront.placeholders.best_sellers');
+        $room = config('storefront.placeholders.best_sellers.tiles');
 
-        $priced = collect(app(FrontPage::class)->slugs('best_sellers'))
+        $chosen = collect(app(FrontPage::class)->slugs('best_sellers'))
             ->map(fn (string $slug) => $products->get($slug))
             ->filter()
+            ->take($room)
             ->values();
 
-        if ($priced->isEmpty()) {
+        if ($chosen->count() < $room) {
+            $taken = $chosen->pluck('slug')->all();
+
+            $chosen = $chosen->concat(
+                collect(config('storefront.placeholders.best_sellers.priced_from', []))
+                    ->reject(fn (string $slug) => in_array($slug, $taken, true))
+                    ->map(fn (string $slug) => $products->get($slug))
+                    ->filter()
+                    ->take($room - $chosen->count())
+                    ->values()
+            )->values();
+        }
+
+        if ($chosen->isEmpty()) {
             return [];
         }
 
         $tiles = [];
 
-        foreach ($categories->take($placeholder['tiles'])->values() as $i => $category) {
+        foreach ($categories->take($room)->values() as $i => $category) {
             $tiles[] = [
                 'category' => $category,
-                'product' => $priced[$i % $priced->count()],
+                // Only ever reached when the whole catalogue is shorter than
+                // the row: a shop with six products has no sixth to show.
+                'product' => $chosen[$i % $chosen->count()],
             ];
         }
 
