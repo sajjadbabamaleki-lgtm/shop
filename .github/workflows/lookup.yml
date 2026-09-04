@@ -48,10 +48,10 @@ jobs:
           for i, (slug, _) in enumerate(items):
               print(f'  [{i:02d}] {slug}')
 
-          CELL = 150
-          COLS = 6
+          CELL = 72
+          COLS = 8
           rows = (len(items) + COLS - 1) // COLS
-          sheet = Image.new('RGB', (COLS * CELL, rows * (CELL + 18)), 'white')
+          sheet = Image.new('RGB', (COLS * CELL, rows * (CELL + 14)), 'white')
           draw = ImageDraw.Draw(sheet)
 
           for i, (slug, src) in enumerate(items):
@@ -62,12 +62,12 @@ jobs:
                   continue
               shot.thumbnail((CELL, CELL))
               x = (i % COLS) * CELL
-              y = (i // COLS) * (CELL + 18)
+              y = (i // COLS) * (CELL + 14)
               sheet.paste(shot, (x + (CELL - shot.width) // 2, y + (CELL - shot.height) // 2))
-              draw.text((x + 4, y + CELL + 3), f'{i:02d}', fill='black')
+              draw.text((x + 3, y + CELL + 2), f'{i:02d}', fill='black')
 
           out = io.BytesIO()
-          sheet.save(out, 'PNG', optimize=True)
+          sheet.save(out, 'JPEG', quality=55, optimize=True)
           blob = base64.b64encode(out.getvalue()).decode()
           print(f'SHEET {sheet.width}x{sheet.height} {len(blob)} bytes of base64')
           for i in range(0, len(blob), 400):
