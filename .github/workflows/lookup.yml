@@ -1,14 +1,16 @@
 # TEMPORARY. Delete once it has answered.
 #
-# The shop has two dozen Air Jordan 1s and the colourway lives only in the
-# name, so which one the client's photograph is of cannot be read from a slug.
-# Measuring a mean colour has been tried three times and failed three times —
-# the supplier's studio ground dominates every average. So this brings the
-# pictures back instead: a labelled contact sheet, base64 in the log, decoded
-# and looked at.
+# Which of the shop's two dozen Air Jordan 1s the client's photograph is of.
+# The colourway lives only in the name, and nothing in the container can reach
+# vikyplus.ir. Only the deploy job is gated on `main`, so this ships nothing.
 #
-# Nothing in the container can reach vikyplus.ir. Only the deploy job is gated
-# on `main`, so this ships nothing.
+# **Measuring a mean colour failed three times before and this is not that.**
+# A mean is dominated by the supplier's studio ground, which is a light
+# gradient and nearly the same in every shot. What is measured here instead is
+# the *fraction of pixels that are strongly red* and *strongly black* — the
+# ground contributes nothing to either, so it dilutes both equally and cannot
+# reorder the ranking. The client's cut-out, measured the same way over its
+# own alpha, is 40.2% red, 43.8% white, 10.8% black.
 name: Look up
 
 on:
@@ -21,11 +23,11 @@ jobs:
     steps:
       - run: pip install --quiet pillow
 
-      - name: Contact sheet of every Jordan the shop sells
+      - name: How red is each Jordan
         run: |
           python3 - <<'PY'
-          import base64, io, re, urllib.parse, urllib.request
-          from PIL import Image, ImageDraw
+          import io, re, urllib.parse, urllib.request
+          from PIL import Image
 
           HOST = 'https://vikyplus.ir'
 
@@ -41,35 +43,39 @@ jobs:
               href = re.search(r'class="vp-card-name" href="([^"]+)"', block)
               shot = re.search(r'class="vp-card-shot[^"]*"[^>]*>\s*<img src="([^"]+)"', block)
               if href and shot:
-                  slug = urllib.parse.unquote(href.group(1).rsplit('/', 1)[-1])
-                  items.append((slug, shot.group(1)))
+                  items.append((urllib.parse.unquote(href.group(1).rsplit('/', 1)[-1]), shot.group(1)))
 
-          print(f'{len(items)} Jordans')
-          for i, (slug, _) in enumerate(items):
-              print(f'  [{i:02d}] {slug}')
+          def profile(img):
+              px = list(img.getdata())
+              n = len(px)
+              red = white = black = 0
+              for r, g, b in px:
+                  if r > 110 and r - g > 50 and r - b > 50:
+                      red += 1
+                  elif r > 195 and g > 195 and b > 195:
+                      white += 1
+                  elif r < 80 and g < 80 and b < 80:
+                      black += 1
+              return (100 * red / n, 100 * white / n, 100 * black / n)
 
-          CELL = 72
-          COLS = 8
-          rows = (len(items) + COLS - 1) // COLS
-          sheet = Image.new('RGB', (COLS * CELL, rows * (CELL + 14)), 'white')
-          draw = ImageDraw.Draw(sheet)
-
-          for i, (slug, src) in enumerate(items):
+          rows = []
+          for slug, src in items:
               try:
-                  shot = Image.open(io.BytesIO(get(src))).convert('RGB')
+                  img = Image.open(io.BytesIO(get(src))).convert('RGB')
               except Exception as exc:
-                  print(f'  [{i:02d}] could not fetch: {exc}')
+                  print(f'  could not fetch {slug}: {exc}')
                   continue
-              shot.thumbnail((CELL, CELL))
-              x = (i % COLS) * CELL
-              y = (i // COLS) * (CELL + 14)
-              sheet.paste(shot, (x + (CELL - shot.width) // 2, y + (CELL - shot.height) // 2))
-              draw.text((x + 3, y + CELL + 2), f'{i:02d}', fill='black')
+              img.thumbnail((240, 240))
+              w, h = img.size
+              # The whole frame, and the middle of it, where the shoe is and
+              # the ground mostly is not.
+              whole = profile(img)
+              middle = profile(img.crop((int(w * .2), int(h * .2), int(w * .8), int(h * .8))))
+              rows.append((middle[0], whole, middle, slug))
 
-          out = io.BytesIO()
-          sheet.save(out, 'JPEG', quality=55, optimize=True)
-          blob = base64.b64encode(out.getvalue()).decode()
-          print(f'SHEET {sheet.width}x{sheet.height} {len(blob)} bytes of base64')
-          for i in range(0, len(blob), 400):
-              print('B64 ' + blob[i:i + 400])
+          rows.sort(reverse=True)
+          print('   red%  white% black%  |   red%  white% black%   (whole frame | middle 60%)')
+          for _, whole, middle, slug in rows:
+              print('  {:5.1f} {:6.1f} {:6.1f}  | {:5.1f} {:6.1f} {:6.1f}   {}'.format(
+                  whole[0], whole[1], whole[2], middle[0], middle[1], middle[2], slug))
           PY
