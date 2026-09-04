@@ -330,6 +330,18 @@ the client saw an old page and had no way to tell why. So, plainly:
   photograph and its badge at `opacity: 0`, and Swiper's runtime classes. It
   calibrates its own noise floor by rendering a third time, because the same
   sheets twice differ by up to 51 pixels on the home page.
+  **A handful of pixels at delta 1 is that noise and not a finding — measure
+  before chasing it.** Four runs in a row each flagged exactly one of the 390
+  states (the phone drawer, the search, the mini basket — all the same page
+  with a different overlay) at 4–6 pixels, and never the same one twice; the
+  floor coming out one pixel lower is all that decided which. Rendering the
+  home page at 390 six times *with no change at all* settles it: two of those
+  identical renders differ by **6 pixels at 22,623, delta 1** — byte for byte
+  the signature the checker had been reporting — while others differ by 10,207,
+  because the hero's carousel is at a different frame. So: a diff in the
+  thousands is the carousel, a diff of single digits at delta 1 is the
+  rasteriser, and **a missing rule is neither** — it moves layout or colour
+  over an area, which is what both of the real ones did.
   `CssSubsetTest` is the CI half: `subset.json` records the fingerprint of the
   vocabulary the cut was made from, and the test rebuilds it in PHP. **A new
   class in a template fails it; rewording a Persian sentence does not.** Re-run
