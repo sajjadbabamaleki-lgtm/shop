@@ -123,6 +123,47 @@ class HeroPhotographTest extends TestCase
         }
     }
 
+    /**
+     * And the phone-sized copy of it is there too.
+     *
+     * `photo_srcset()` offers a 700-wide copy of any photograph the manifest
+     * lists, and it lists these — they go through `make-photo-sizes.js` like
+     * every other shot. But **`sync-storefront-assets.js` copies what the page
+     * references**, and a photograph chosen in a config file is referenced by
+     * neither copy of the home page: the crawl cannot see it, so the file sat
+     * in `download-version/` and only `storefront/` is deployed. The large one
+     * failing is a grey box on the live front page; the small one failing is a
+     * grey box on a telephone only, which is worse, because that is the device
+     * nobody here is looking at.
+     *
+     * Both maps, because both are read the same way and neither is on the page.
+     */
+    public function test_every_config_photograph_is_on_disk_at_both_sizes(): void
+    {
+        $manifest = json_decode(
+            (string) file_get_contents(public_path('assets/img/photo-sizes.json')),
+            true
+        )['photos'] ?? [];
+
+        $named = array_merge(
+            config('storefront.hero.photos', []),
+            config('storefront.placeholders.best_sellers.photos', []),
+        );
+
+        $this->assertNotEmpty($named, 'nothing is overridden, so this test is not testing anything');
+
+        foreach ($named as $slug => $path) {
+            $this->assertFileExists(public_path($path), "{$slug}'s photograph is not in public/.");
+
+            if (isset($manifest[$path]['small'])) {
+                $this->assertFileExists(
+                    public_path($manifest[$path]['small']),
+                    "{$slug}'s photograph is offered at 700 wide and that copy is not in public/."
+                );
+            }
+        }
+    }
+
     /** The deck is what config asks for, in the order it asks for it. */
     public function test_the_deck_is_the_three_the_file_names(): void
     {

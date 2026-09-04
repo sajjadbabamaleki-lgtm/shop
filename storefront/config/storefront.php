@@ -414,6 +414,15 @@ return [
         */
         'photos' => [
             'on-cloudtilt' => 'assets/img/hero/vikyplus-hero-cloudtilt-black.webp',
+
+            // The red Air Jordan 1 High — «اینو بزار بجای اون جردن تو هیرو».
+            // Which of the shop's twenty-four Jordans it is was measured
+            // rather than read off a name: see the migration
+            // `2026_09_04_140000_…`, which is also what puts the shoe in the
+            // deck. The slug is the live shop's and is in no database here, so
+            // this line is inert locally and both copies of the home page are
+            // unmoved by it.
+            'کتونی-نایک-جردن-وان-ساق-بلند-Air-Jordan-1-High-رنگ-قرمز' => 'assets/img/hero/vikyplus-hero-jordan-chicago.webp',
         ],
 
         'repeat' => 2,
@@ -930,6 +939,16 @@ return [
                 // shot was sent («تو هیرو ها بیاد بجای نیوبالانس»). One picture,
                 // one product, one page: the tile goes to the Cloudtilt's own.
                 'on-cloudtilt' => 'assets/img/hero/vikyplus-hero-cloudtilt-black.webp',
+
+                // The same shoe the hero draws, with the same cut-out. It
+                // takes the sixth tile from `new-balance-530` — a product this
+                // repository *seeds a fresh install with*, still in production
+                // from setup day at a price no New Balance in the shop is
+                // charged, which the row had been falling back to because the
+                // band's own sixth shoe sold out. «یکی از نیو بالانس ها به
+                // فروشگاه لینک نمیشه و اضافست، باید بجاش این جردن بیاد و از
+                // فروشگاه خونده بشه.»
+                'کتونی-نایک-جردن-وان-ساق-بلند-Air-Jordan-1-High-رنگ-قرمز' => 'assets/img/hero/vikyplus-hero-jordan-chicago.webp',
 
                 // `nike-v2k-run` is deliberately absent and keeps its own
                 // photograph. The sixth cut-out is a cream Nike Air Zoom, which

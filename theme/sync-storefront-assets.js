@@ -233,6 +233,50 @@ if (saved) console.log(`  ${(saved / 1024).toFixed(0)}KB of comment left in the 
   }
 }
 
+// **Every photograph `config/storefront.php` names, for the third time the
+// same reason.** The crawl above follows the *page*, and these are chosen in a
+// config file: `hero.photos` and `placeholders.best_sellers.photos` are the
+// cut-outs a slide or a tile draws instead of the product's own catalogue
+// shot, keyed by a slug that exists only in the live shop. Nothing in either
+// copy of the home page references them here, so the crawl cannot see them —
+// and only `storefront/` is deployed, so the file would be present in this
+// repository and a broken image on the site. That failure is silent in every
+// direction: the tests pass, `check-parity.js` prints zero (neither page draws
+// it), and the first symptom is the client photographing a grey box.
+//
+// The phone-sized sibling goes with it, read off the manifest rather than
+// guessed at, so a picture the crawl never saw is still offered at two sizes.
+{
+  const config = fs.readFileSync(path.resolve(__dirname, '../storefront/config/storefront.php'), 'utf8');
+  const manifest = JSON.parse(fs.readFileSync(path.join(FROM, 'assets/img/photo-sizes.json'), 'utf8')).photos;
+  const named = new Set();
+
+  for (const [, rel] of config.matchAll(/'(assets\/img\/[^']+\.(?:webp|png|jpe?g|svg))'/g)) {
+    named.add(rel);
+    if (manifest[rel]?.small) named.add(manifest[rel].small);
+  }
+
+  for (const rel of named) {
+    const from = path.join(FROM, rel);
+    if (!fs.existsSync(from)) {
+      // Some of these never passed through the preview at all — the story
+      // strip's photographs were made straight into the app, because the
+      // preview has no catalogue to open a story on. A file already sitting
+      // where it is served is not missing; one that is in neither place is.
+      if (!fs.existsSync(path.join(TO, rel))) {
+        missing.push({ rel, by: 'storefront/config/storefront.php' });
+      }
+      continue;
+    }
+    const src = fs.readFileSync(from);
+    const dest = path.join(TO, rel);
+    if (fs.existsSync(dest) && fs.readFileSync(dest).equals(src)) continue;
+    fs.mkdirSync(path.dirname(dest), { recursive: true });
+    fs.writeFileSync(dest, src);
+    console.log('  +', rel, ' (named in config/storefront.php, by no page)');
+  }
+}
+
 const ico = fs.readFileSync(path.join(FROM, 'assets/img/favicons/favicon.ico'));
 for (const rel of ['favicon.ico', 'assets/img/favicons/favicon.ico']) {
   const dest = path.join(TO, rel);
