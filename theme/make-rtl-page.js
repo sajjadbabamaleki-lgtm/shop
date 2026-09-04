@@ -1297,9 +1297,13 @@ const BEST_TEST_ITEMS = BEST_ORDER.map((wanted) => {
 // shoe than the one shown. Kept in step with
 // `placeholders.best_sellers.photos` in the Laravel config, or check-parity.js
 // fails.
+//
+// The Cloudtilt is not in here and keeps its own picture: the black one the
+// client sent has no product in the shop at all — the live search finds
+// neither it nor the cream Air Zoom — so there is nothing to hang it on until
+// somebody creates those two in the panel.
 const BEST_PHOTOS = {
   'کتونی نیوبالانس ۵۳۰': 'hero/vikyplus-hero-nb530-white.webp',
-  'کتونی اون کلادتیلت': 'hero/vikyplus-hero-cloudtilt-black.webp',
   'کتونی گلدن گوس': 'hero/vikyplus-hero-goldengoose-black.webp',
   'کتونی جردن وان ایر': 'hero/vikyplus-hero-jordan.webp',
 };

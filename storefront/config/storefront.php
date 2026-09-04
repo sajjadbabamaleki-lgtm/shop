@@ -908,10 +908,27 @@ return [
             | which is what every tile did before this existed.
             */
             'photos' => [
+                // The live shop's own products, which is where these tiles
+                // point: the slugs are Persian and are not in the seeded
+                // catalogue here, so locally they fall through to the entries
+                // below and nothing changes. Which colourway each photograph
+                // is of was asked rather than guessed — the shop carries eight
+                // New Balance 530s and the colour lives only in the slug.
+                'کتونی-نیوبالانس-New-balance-530-رنگ-سفید-مشکی' => 'assets/img/hero/vikyplus-hero-nb530-white.webp',
+                'نایک-جردن-تراویس-اسکات-رنگ-یشمی-Nike-jordan-travis-scott' => 'assets/img/hero/vikyplus-hero-jordan-travis.webp',
+                'کتونی-گلدن-گوس-رنگ-مشکی-Golden-Goose' => 'assets/img/hero/vikyplus-hero-goldengoose-black.webp',
+
+                // A fresh install's five, which is what this repository seeds.
                 'new-balance-530' => 'assets/img/hero/vikyplus-hero-nb530-white.webp',
-                'on-cloudtilt' => 'assets/img/hero/vikyplus-hero-cloudtilt-black.webp',
                 'golden-goose' => 'assets/img/hero/vikyplus-hero-goldengoose-black.webp',
                 'jordan-one-air' => 'assets/img/hero/vikyplus-hero-jordan.webp',
+
+                // `on-cloudtilt` and `nike-v2k-run` are deliberately absent and
+                // keep their own photographs. The black Cloudtilt and the cream
+                // Air Zoom the client sent have no product in the shop — the
+                // live search finds neither — so there is nothing to hang them
+                // on until somebody creates those two in the panel. The files
+                // are in `theme/hero-src/` and wired to nothing.
             ],
 
             'priced_from' => [
