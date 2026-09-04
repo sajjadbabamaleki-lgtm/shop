@@ -277,6 +277,38 @@ class Product extends Model
     }
 
     /**
+     * The name «پرفروش‌ترین‌ها» prints: the card's name without the kind in
+     * front of it.
+     *
+     * That band's tile is a name and a price on one strip, and the client asked
+     * for the kind off the front so the two fit on one line. It is the same
+     * name the listing prints, one word shorter — «کتونی گلدن گوس» there,
+     * «گلدن گوس» here.
+     *
+     * **It used to be the `short_title` column, and that was the bug.** The
+     * column is nullable, is written by hand in `/admin/catalogue` and by the
+     * importer, and **nothing else in the shop reads it** — every other surface
+     * prints `title` through `cardName()`. So a product created in the panel
+     * with the field left blank drew a tile with no name at all, and one whose
+     * title was corrected afterwards kept the old name here and nowhere else.
+     * «اسم کفشها و قیمتشون هم باید از فروشگاه خونده بشه.»
+     *
+     * Only «کتونی» comes off, and only from the front. It is the one word the
+     * request was about and the only kind the band's own shoes carry; a bag or
+     * a sandal keeps its name whole, which is what the shop calls it.
+     */
+    public function bandName(int $words = 4): string
+    {
+        $name = Str::of($this->persianTitle())->trim();
+
+        if ($name->startsWith('کتونی ')) {
+            $name = $name->after('کتونی ');
+        }
+
+        return Str::words((string) $name, $words, '…');
+    }
+
+    /**
      * A title split where it stops being Persian: the name to show, and the
      * tail to keep.
      *

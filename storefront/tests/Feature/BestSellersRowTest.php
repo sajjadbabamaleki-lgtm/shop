@@ -174,6 +174,65 @@ class BestSellersRowTest extends TestCase
     }
 
     /**
+     * The name on a tile is the shop's name for that shoe, not a second one
+     * typed into a field beside it.
+     *
+     * It used to print `short_title` — a nullable column written by hand in
+     * `/admin/catalogue` and by the importer, and read **nowhere else in the
+     * shop**. A product created in the panel with that field left blank drew a
+     * tile with no name at all, and a title corrected afterwards left the old
+     * name here and only here. «اسم کفشها و قیمتشون هم باید از فروشگاه خونده
+     * بشه.»
+     */
+    public function test_the_name_comes_from_the_title_and_not_from_short_title(): void
+    {
+        Product::query()->update(['short_title' => 'یک اسم اشتباه']);
+
+        $page = $this->get('/')->assertOk();
+
+        $this->assertStringNotContainsString('یک اسم اشتباه', $page->getContent());
+
+        foreach ($page->viewData('bestSellers') as $tile) {
+            $this->assertNotSame('', $tile['product']->bandName(), 'A tile would draw an empty name.');
+            $this->assertStringContainsString($tile['product']->bandName(), $page->getContent());
+        }
+    }
+
+    /**
+     * The price and the cut are the branch's own offer — the same numbers the
+     * listing's card prints for the same shoe.
+     */
+    public function test_the_price_and_the_cut_are_the_shops_own(): void
+    {
+        $page = $this->get('/')->assertOk();
+        $html = $page->getContent();
+
+        foreach ($page->viewData('bestSellers') as $tile) {
+            $offer = $tile['product']->offerHere();
+
+            $this->assertStringContainsString(toman($offer->price), $html);
+            $this->assertStringContainsString('٪'.fa_number($offer->discountPercent()), $html);
+        }
+    }
+
+    /**
+     * No cut, no burst. The tile carried a flat ٪۲۵ on every other card, which
+     * on an undiscounted shoe is a number the shop does not honour.
+     */
+    public function test_a_shoe_with_no_discount_gets_no_burst(): void
+    {
+        BranchOffer::query()->update(['promotion_ends_at' => now()->subDay()]);
+
+        $html = $this->get('/')->assertOk()->getContent();
+
+        $this->assertStringNotContainsString(
+            'vp-deal-burst-gold-b',
+            $html,
+            'A best-seller tile is advertising a cut the shop is not giving.'
+        );
+    }
+
+    /**
      * Every tile links to the shoe's own page in the shop, and not to a page
      * built for the row.
      *

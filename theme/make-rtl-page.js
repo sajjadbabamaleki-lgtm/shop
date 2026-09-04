@@ -1335,10 +1335,12 @@ const bestCard = (_category, i) => {
     //
     // Outline heart, not filled: nothing is favourited, and there is no
     // wishlist behind this yet.
-    // «بعضی از همون کارتها» — every other tile. Nothing in the data says which
-    // of these six is discounted (none of them is, on this band: the price
-    // shown is the one before the sale), so "some" had to be a rule rather
-    // than a fact. Alternating is the plainest one that reads as "some".
+    // **The shoe's own cut.** This was a flat ٪۲۵ on every other tile —
+    // «بعضی از همون کارتها» — from a time when nothing in the data said which
+    // of the six was discounted, so "some" had to be a rule. The Blade reads
+    // `discountPercent()` off the branch's offer now, and every shoe in this
+    // page's data carries the live step, so every tile draws it. A ٪ beside a
+    // price the shop does not cut is a number it does not honour.
     //
     // `dealBurst` itself, not a copy of it: «اون ستاره تخفیف فقط در هیرو باید
     // سفید بشه» settled that this badge is the sale cards' gold one, and once
@@ -1346,7 +1348,7 @@ const bestCard = (_category, i) => {
     // the <a>, where the sale card puts its own, so it positions against the
     // tile — an <svg> in a link is valid where the button below is not. The id
     // suffix is prefixed so it cannot collide with the sale cards' five.
-    (i % 2 === 0 ? '\n                            ' + dealBurst(25, `b${i}`) : '') +
+    '\n                            ' + dealBurst(LADDER_CUT, `b${i}`) +
     '\n                        </a>' +
     `\n                        <button type="button" class="vp-best-fav" aria-label="افزودن ${name} به علاقه‌مندی‌ها">` +
     '<i class="fa-regular fa-heart" aria-hidden="true"></i></button>' +

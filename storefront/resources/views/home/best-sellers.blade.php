@@ -9,9 +9,14 @@
 
     Still a placeholder in one respect, and admitted as one: these are not
     actually the best sellers. Nothing counts orders yet, so the six are the
-    priced products cycled over the category list. The price shown is the one
-    before the sale, which is why it does not agree with the same shoe's card
-    in the stepped sale above.
+    shoes somebody chose in `/admin/front-page`, or the band's own default
+    behind them.
+
+    **Everything a tile says about a shoe is read off that shoe.** The name is
+    `bandName()`, the same title the listing prints with the kind off the front;
+    the price and the cut are one `offerHere()` lookup, the same one
+    `shop/card.blade.php` makes. So the tile, the listing and the product's own
+    page cannot disagree — «اسم کفشها و قیمتشون هم باید از فروشگاه خونده بشه».
 
     The brand filters below do not filter — the six tiles are categories, not
     products tagged by brand — and the colour swatches on each tile do not
@@ -54,22 +59,33 @@
                              mislabelled, when it was built that way. A slug with no
                              entry falls back to the product's own. --}}
                         @php($shot = config('storefront.placeholders.best_sellers.photos')[$tile['product']->slug] ?? $tile['product']->primaryMedia()?->path)
+                        {{-- The offer this branch has for the shoe: the price
+                             the tile prints, and the cut the burst prints. One
+                             lookup, so the two can never disagree. --}}
+                        @php($offer = $tile['product']->offerHere())
+                        @php($cut = $offer?->discountPercent())
                         <a class="vp-best-shot" href="{{ storefront_route('product', $tile['product']) }}">
                             @if ($shot)<img src="{{ asset($shot) }}"{!! photo_srcset($shot) !!} alt="{{ $tile['product']->title }}" loading="lazy">@endif
-                            {{-- «بعضی از همون کارتها» — every other tile. Nothing in
-                                 the catalogue says which of these six is discounted
-                                 (none is, on this band: the price shown is the one
-                                 before the sale), so "some" had to be a rule rather
-                                 than a fact. The 25 is the client's own number.
+                            {{-- **The shoe's own cut, or no burst at all.**
+
+                                 This was a flat ٪۲۵ on every other tile — «بعضی از
+                                 همون کارتها» — because the band was built from a
+                                 collection that could not say which shoe was
+                                 discounted, so "some" had to be a rule. It can say
+                                 now, and a gold ٪۲۵ beside an undiscounted price is
+                                 a number the shop does not honour: «اسم کفشها و
+                                 قیمتشون هم باید از فروشگاه خونده بشه». It reads
+                                 `discountPercent()`, which is what the listing's
+                                 card prints, so the same shoe shows the same cut
+                                 here, in the shop and on its own page.
 
                                  The sale cards' own burst, not a variant of it —
                                  «اون ستاره تخفیف فقط در هیرو باید سفید بشه» settled
-                                 that this one stays gold, and once it does there is
-                                 nothing left that differs but the number. The $key
-                                 is prefixed so its gradient id cannot collide with
-                                 the five in the sale above. Kept in step with
+                                 that this one stays gold. The $key is prefixed so
+                                 its gradient id cannot collide with the five in the
+                                 sale above. Kept in step with
                                  theme/make-rtl-page.js, or check-parity.js fails. --}}
-                            @if ($loop->index % 2 === 0)@include('partials.deal-burst', ['key' => 'b'.$loop->index, 'percent' => 25])@endif
+                            @if ($cut)@include('partials.deal-burst', ['key' => 'b'.$loop->index, 'percent' => $cut])@endif
                             <div class="vp-best-colors" aria-hidden="true">
                                 <span></span><span></span><span></span><span></span><span></span>
                             </div>
@@ -82,11 +98,11 @@
 
                              Outline heart: nothing is favourited, and there is no
                              wishlist behind it yet. --}}
-                        <button type="button" class="vp-best-fav" aria-label="افزودن {{ $tile['product']->short_title }} به علاقه‌مندی‌ها"><i class="fa-regular fa-heart" aria-hidden="true"></i></button>
+                        <button type="button" class="vp-best-fav" aria-label="افزودن {{ $tile['product']->title }} به علاقه‌مندی‌ها"><i class="fa-regular fa-heart" aria-hidden="true"></i></button>
                         <div class="vp-best-info">
                             <div class="vp-best-label">
                                 <span class="vp-best-lines">
-                                    <span class="vp-best-name">{{ $tile['product']->short_title }}</span>
+                                    <span class="vp-best-name">{{ $tile['product']->bandName() }}</span>
                                     {{-- **The price the shop charges, not the one before
                                          the sale.** «قیمتو ایناش هم باید برابر نمونش در
                                          فروشگاه باشه» — this band printed
@@ -94,9 +110,9 @@
                                          number here and a lower one on its own page and
                                          in the listing, which is the number a customer
                                          actually pays. `offerHere()->price` is what
-                                         `shop/card.blade.php` prints, and now what this
+                                         `shop/card.blade.php` prints, and what this
                                          does. --}}
-                                    <span class="vp-best-cta"><strong>{{ toman($tile['product']->offerHere()->price) }} <span>تومان</span></strong></span>
+                                    <span class="vp-best-cta"><strong>{{ toman($offer->price) }} <span>تومان</span></strong></span>
                                 </span>
                             </div>
                             {{-- Two marks, one shown at a time. «ما یدونه آیکون
@@ -113,7 +129,7 @@
                                  which is not being changed — «به هیچ عنوان به
                                  نسخه دستاپ دست نزنی». One `display` rule each
                                  side of 992 picks which. --}}
-                            <a class="vp-best-browse" href="{{ storefront_route('product', $tile['product']) }}" aria-label="افزودن {{ $tile['product']->short_title }} به سبد خرید"><i class="fa-solid fa-bag-shopping" aria-hidden="true"></i><svg class="vp-best-add" viewBox="0 0 24 24" fill="none" aria-hidden="true"><g stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M12.5 21H8.574a3 3 0 0 1-2.965-2.544l-1.255-8.152A2 2 0 0 1 6.331 8H17.67a2 2 0 0 1 1.977 2.304l-.263 1.708M16 19h6m-3-3v6"></path><path d="M9 11V6a3 3 0 0 1 6 0v5"></path></g></svg></a>
+                            <a class="vp-best-browse" href="{{ storefront_route('product', $tile['product']) }}" aria-label="افزودن {{ $tile['product']->title }} به سبد خرید"><i class="fa-solid fa-bag-shopping" aria-hidden="true"></i><svg class="vp-best-add" viewBox="0 0 24 24" fill="none" aria-hidden="true"><g stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M12.5 21H8.574a3 3 0 0 1-2.965-2.544l-1.255-8.152A2 2 0 0 1 6.331 8H17.67a2 2 0 0 1 1.977 2.304l-.263 1.708M16 19h6m-3-3v6"></path><path d="M9 11V6a3 3 0 0 1 6 0v5"></path></g></svg></a>
                         </div>
                     </div>
                 </div>
