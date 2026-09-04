@@ -68,6 +68,7 @@ const INSET = 0.96;
 const SOURCES = [
   'jordan', 'goldengoose', 'nb530', 'cloudtilt-black',
   'nb530-white', 'airzoom-cream', 'goldengoose-black', 'jordan-travis',
+  'jordan-chicago',
 ];
 
 // Anything at or below this is background, not shoe. The cut-outs carry a

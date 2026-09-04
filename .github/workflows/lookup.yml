@@ -1,12 +1,14 @@
 # TEMPORARY. Delete once it has answered.
 #
-# Nothing in the container can reach vikyplus.ir — the agent proxy answers 403
-# for it and for the Liara address — so a question whose answer is only on the
-# live shop has to be asked from a runner. Only the deploy job is gated on
-# `main`, so this ships nothing.
+# The shop has two dozen Air Jordan 1s and the colourway lives only in the
+# name, so which one the client's photograph is of cannot be read from a slug.
+# Measuring a mean colour has been tried three times and failed three times —
+# the supplier's studio ground dominates every average. So this brings the
+# pictures back instead: a labelled contact sheet, base64 in the log, decoded
+# and looked at.
 #
-# What it is asking: which product in the shop is the Chicago Air Jordan the
-# client sent, and which of the best-seller tiles is the redundant New Balance.
+# Nothing in the container can reach vikyplus.ir. Only the deploy job is gated
+# on `main`, so this ships nothing.
 name: Look up
 
 on:
@@ -17,84 +19,57 @@ jobs:
   ask:
     runs-on: ubuntu-latest
     steps:
-      - name: Ask the shop
+      - run: pip install --quiet pillow
+
+      - name: Contact sheet of every Jordan the shop sells
         run: |
-          set -u
-          host=vikyplus.ir
+          python3 - <<'PY'
+          import base64, io, re, urllib.parse, urllib.request
+          from PIL import Image, ImageDraw
 
-          say () { echo "$@" >> "$GITHUB_STEP_SUMMARY"; }
+          HOST = 'https://vikyplus.ir'
 
-          # Every product card on a page: its href, its name and its price.
-          cards () {
-            python3 - "$1" <<'PY'
-          import re, sys, urllib.request, gzip, io
-          url = sys.argv[1]
-          req = urllib.request.Request(url, headers={'User-Agent': 'vikyplus-lookup'})
-          raw = urllib.request.urlopen(req, timeout=60).read()
-          html = raw.decode('utf-8', 'replace')
-          seen = []
+          def get(url):
+              req = urllib.request.Request(url, headers={'User-Agent': 'vikyplus-lookup'})
+              return urllib.request.urlopen(req, timeout=60).read()
+
+          html = get(HOST + '/search?q=' + urllib.parse.quote('جردن')).decode('utf-8', 'replace')
+
+          items = []
           for m in re.finditer(r'<article class="vp-card".*?</article>', html, re.S):
               block = m.group(0)
               href = re.search(r'class="vp-card-name" href="([^"]+)"', block)
-              name = re.search(r'class="vp-card-name"[^>]*>([^<]*)', block)
-              price = re.search(r'class="vp-card-price">([^<]*)', block)
-              seen.append((
-                  (href.group(1) if href else '?'),
-                  (name.group(1).strip() if name else '?'),
-                  (price.group(1).strip() if price else '?'),
-              ))
-          print(f'{len(seen)} cards')
-          for href, name, price in seen:
-              print(f'  {name}  |  {price}  |  {href}')
+              shot = re.search(r'class="vp-card-shot"[^>]*>\s*<img src="([^"]+)"', block)
+              if href and shot:
+                  slug = urllib.parse.unquote(href.group(1).rsplit('/', 1)[-1])
+                  items.append((slug, shot.group(1)))
+
+          print(f'{len(items)} Jordans')
+          for i, (slug, _) in enumerate(items):
+              print(f'  [{i:02d}] {slug}')
+
+          CELL = 150
+          COLS = 6
+          rows = (len(items) + COLS - 1) // COLS
+          sheet = Image.new('RGB', (COLS * CELL, rows * (CELL + 18)), 'white')
+          draw = ImageDraw.Draw(sheet)
+
+          for i, (slug, src) in enumerate(items):
+              try:
+                  shot = Image.open(io.BytesIO(get(src))).convert('RGB')
+              except Exception as exc:
+                  print(f'  [{i:02d}] could not fetch: {exc}')
+                  continue
+              shot.thumbnail((CELL, CELL))
+              x = (i % COLS) * CELL
+              y = (i // COLS) * (CELL + 18)
+              sheet.paste(shot, (x + (CELL - shot.width) // 2, y + (CELL - shot.height) // 2))
+              draw.text((x + 4, y + CELL + 3), f'{i:02d}', fill='black')
+
+          out = io.BytesIO()
+          sheet.save(out, 'PNG', optimize=True)
+          blob = base64.b64encode(out.getvalue()).decode()
+          print(f'SHEET {sheet.width}x{sheet.height} {len(blob)} bytes of base64')
+          for i in range(0, len(blob), 400):
+              print('B64 ' + blob[i:i + 400])
           PY
-          }
-
-          say '## Search: جردن'
-          say '```'
-          cards "https://$host/search?q=%D8%AC%D8%B1%D8%AF%D9%86" 2>&1 | tee -a "$GITHUB_STEP_SUMMARY" || true
-          say '```'
-
-          say '## Search: نیوبالانس'
-          say '```'
-          cards "https://$host/search?q=%D9%86%DB%8C%D9%88%D8%A8%D8%A7%D9%84%D8%A7%D9%86%D8%B3" 2>&1 | tee -a "$GITHUB_STEP_SUMMARY" || true
-          say '```'
-
-          say '## Search: شیکاگو'
-          say '```'
-          cards "https://$host/search?q=%D8%B4%DB%8C%DA%A9%D8%A7%DA%AF%D9%88" 2>&1 | tee -a "$GITHUB_STEP_SUMMARY" || true
-          say '```'
-
-          say '## The best-sellers row as the site draws it now'
-          say '```'
-          python3 - "https://$host/" <<'PY' 2>&1 | tee -a "$GITHUB_STEP_SUMMARY" || true
-          import re, sys, urllib.request
-          req = urllib.request.Request(sys.argv[1], headers={'User-Agent': 'vikyplus-lookup'})
-          html = urllib.request.urlopen(req, timeout=60).read().decode('utf-8', 'replace')
-          i = html.find('vp-best-row')
-          seg = html[i:i + 40000]
-          shots = re.findall(r'class="vp-best-shot" href="([^"]+)"', seg)
-          names = re.findall(r'class="vp-best-name">([^<]*)', seg)
-          prices = re.findall(r'class="vp-best-cta"><strong>([^<]*)', seg)
-          imgs = re.findall(r'class="vp-best-shot"[^>]*>\s*<img src="([^"]+)"', seg)
-          for row in zip(shots, names, prices):
-              print('  ' + '  |  '.join(x.strip() for x in row))
-          print('  photographs:')
-          for src in imgs:
-              print('    ' + src)
-          PY
-          say '```'
-
-          say '## The hero deck as the site draws it now'
-          say '```'
-          python3 - "https://$host/" <<'PY' 2>&1 | tee -a "$GITHUB_STEP_SUMMARY" || true
-          import re, sys, urllib.request
-          req = urllib.request.Request(sys.argv[1], headers={'User-Agent': 'vikyplus-lookup'})
-          html = urllib.request.urlopen(req, timeout=60).read().decode('utf-8', 'replace')
-          i = html.find('heroSlide6')
-          seg = html[i:i + 40000]
-          for src in dict.fromkeys(re.findall(r'<img src="([^"]*hero[^"]*)"', seg)):
-              print('  ' + src)
-          for href in dict.fromkeys(re.findall(r'href="([^"]*/products/[^"]+)"', seg)):
-              print('  ' + href)
-          PY
-          say '```'
