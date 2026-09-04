@@ -462,7 +462,7 @@ for (const [from, to] of Object.entries(SVG_GOLD)) {
 // lead-in, and the models start at the same place on every slide instead of
 // wrapping wherever the measure happens to run out.
 const HERO_TITLES = {
-  hero_6_1: 'کتونی اون کلادتیلت',
+  hero_6_1: 'کتونی آن کلادتیلت',
   hero_6_2: 'کتونی جردن وان ایر',
   hero_6_3: 'کتونی گلدن گوس',
 };
@@ -498,7 +498,7 @@ const heroHeading = (name) => {
 // config/storefront.php, keyed by slug; here it is this table, keyed by slot.
 // The two have to name the same file or check-parity.js fails.
 const HERO_PHOTOS = {
-  hero_6_1: 'vikyplus-hero-cloudtilt-black.webp',
+  hero_6_1: 'vikyplus-hero-cloudtilt-on-black.webp',
   hero_6_2: 'vikyplus-hero-jordan.webp',
   hero_6_3: 'vikyplus-hero-goldengoose.webp',
 };
@@ -1242,7 +1242,7 @@ const LADDER_CUT = LADDER_STEPS.find(([, , , state]) => state === 'current')[1];
 // threw on load.
 const LADDER_DEALS = [
   ['hero/vikyplus-hero-goldengoose.webp', 'کتونی گلدن گوس', 6480000, 'فقط سایزهای ۳۷ و ۳۹'],
-  ['hero/vikyplus-deal-cloudtilt.webp', 'کتونی اون کلادتیلت', 4880000, 'فقط سایزهای ۳۸ و ۴۰'],
+  ['hero/vikyplus-deal-cloudtilt.webp', 'کتونی آن کلادتیلت', 4880000, 'فقط سایزهای ۳۸ و ۴۰'],
   ['hero/vikyplus-hero-nb530.webp', 'کتونی نیوبالانس ۵۳۰', 7980000, 'فقط ۱ عدد باقی مانده'],
   ['hero/vikyplus-deal-v2k.webp', 'کتونی نایک وی۲کی ران', 6980000, 'فقط سایزهای ۳۷ و ۳۹'],
   ['hero/vikyplus-hero-jordan.webp', 'کتونی جردن وان ایر', 8480000, 'فقط سایز ۳۸'],
@@ -1270,7 +1270,7 @@ const BEST_ORDER = [
   'کتونی جردن وان ایر',
   'کتونی گلدن گوس',
   'کتونی نایک وی۲کی ران',
-  'کتونی اون کلادتیلت',
+  'کتونی آن کلادتیلت',
 ];
 
 const BEST_TEST_ITEMS = BEST_ORDER.map((wanted) => {
@@ -1310,7 +1310,7 @@ const BEST_PHOTOS = {
   // no product of its own and this is that model in another colourway — the
   // pairing the client chose when the shot arrived. Keep it in step with
   // `placeholders.best_sellers.photos`, or check-parity.js fails.
-  'کتونی اون کلادتیلت': 'hero/vikyplus-hero-cloudtilt-black.webp',
+  'کتونی آن کلادتیلت': 'hero/vikyplus-hero-cloudtilt-on-black.webp',
 };
 
 const bestCard = (_category, i) => {
@@ -2126,7 +2126,7 @@ const BRANDS = [
     ],
   },
   {
-    name: 'اون', logo: 'vikyplus-on.png', stock: '۱۹',
+    name: 'آن', logo: 'vikyplus-on.png', stock: '۱۹',
     photos: [
       'assets/img/brand/vikyplus-on-running.webp',
       'assets/img/brand/vikyplus-on-kit.webp',
@@ -2478,11 +2478,31 @@ for (const heading of [
 // level of the Jordan's own mark. So it takes the family's lightness with the
 // saturation at nothing: the shoe is a black knit on a white sole and the mark
 // under it says so.
+//
+// **The three added later were derived rather than picked, and the rule was
+// checked against the three that were.** Take the mean hue of the shoe's own
+// opaque pixels as a vector (so a black shoe averages to nothing rather than
+// to some arbitrary angle), scale its saturation into this family's band, and
+// set the lightness to 80%. Run on the hand-picked three it returns #DFBEB9
+// for the Jordan against #DDC1BB, #DFD1B9 for the Golden Goose against
+// #DDCEBB, and #B9CADF for the New Balance against #BBCFDD — near enough that
+// the same rule plainly produced them. Those three keep their measured values
+// anyway, because changing them would move pixels for no reason.
+//
+// **This map is duplicated in `home/hero.blade.php` and they have to agree.**
+// It has already gone wrong once: the Cloudtilt's photograph was renamed here
+// and not there, so the storefront looked up a filename it did not have, the
+// tint silently kept the previous slide's colour, and `check-parity.js`
+// reported 48,441 pixels — which is the only reason anybody noticed.
+// `HeroPhotographTest` now holds that every photograph the deck can draw has a
+// tone in the Blade's copy.
 const HERO_MARKS = {
   'vikyplus-hero-jordan.webp': '#DDC1BB',
   'vikyplus-hero-goldengoose.webp': '#DDCEBB',
   'vikyplus-hero-nb530.webp': '#BBCFDD',
-  'vikyplus-hero-cloudtilt-black.webp': '#CCCCCC',
+  'vikyplus-hero-cloudtilt-on-black.webp': '#CCCCCC',
+  'vikyplus-hero-jordan-chicago.webp': '#DFB9BD',
+  'vikyplus-hero-goldengoose-suede.webp': '#DFCAB9',
 };
 
 html = html.replace('</body>',

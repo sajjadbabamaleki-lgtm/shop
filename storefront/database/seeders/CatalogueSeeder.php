@@ -93,7 +93,7 @@ class CatalogueSeeder extends Seeder
         ['jordan', 'جردن', 'Jordan', 'assets/img/brand/vikyplus-jordan.png'],
         ['new-balance', 'نیوبالانس', 'New Balance', 'assets/img/brand/vikyplus-nb.png'],
         ['golden-goose', 'گلدن گوس', 'Golden Goose', 'assets/img/brand/brand_1_3.svg'],
-        ['on', 'اون', 'On', 'assets/img/brand/vikyplus-on.png'],
+        ['on', 'آن', 'On', 'assets/img/brand/vikyplus-on.png'],
     ];
 
     /**
@@ -120,8 +120,8 @@ class CatalogueSeeder extends Seeder
         ],
         [
             'slug' => 'on-cloudtilt',
-            'title' => 'کتونی اون کلادتیلت',
-            'short' => 'اون کلادتیلت',
+            'title' => 'کتونی آن کلادتیلت',
+            'short' => 'آن کلادتیلت',
             'brand' => 'on',
             'was' => 4_880_000,
             'photo' => 'assets/img/hero/vikyplus-deal-cloudtilt.webp',

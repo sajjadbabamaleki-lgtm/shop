@@ -413,7 +413,20 @@ return [
         | three read as one set rather than three crops.
         */
         'photos' => [
-            'on-cloudtilt' => 'assets/img/hero/vikyplus-hero-cloudtilt-black.webp',
+            // «این دوتا هم تو هیرو عوض بشن» — the client's newer shot of the
+            // Cloudtilt, and a different shoe from the one it replaces: the old
+            // cut-out is all black (1% white), this one carries the white
+            // CloudTec sole (38%). It arrived on a **black** background rather
+            // than on transparency, which is the one thing a hero shot may not
+            // be; `theme/lift-off-black.js` is what cut it, and its own notes
+            // say how a black shoe comes off a black ground.
+            'on-cloudtilt' => 'assets/img/hero/vikyplus-hero-cloudtilt-on-black.webp',
+
+            // The black suede Golden Goose, on the shop's own black Golden
+            // Goose — ۳٬۱۹۰٬۰۰۰, where the seeded `golden-goose` this slide
+            // used to point at is ۴٬۵۳۶٬۰۰۰ and is not a shoe anybody sells.
+            // Seven Golden Geese are listed and exactly one of them is «مشکی».
+            'کتونی-گلدن-گوس-رنگ-مشکی-Golden-Goose' => 'assets/img/hero/vikyplus-hero-goldengoose-suede.webp',
 
             // The red Air Jordan 1 High — «اینو بزار بجای اون جردن تو هیرو».
             // Which of the shop's twenty-four Jordans it is was measured
@@ -932,13 +945,12 @@ return [
                 'golden-goose' => 'assets/img/hero/vikyplus-hero-goldengoose-black.webp',
                 'jordan-one-air' => 'assets/img/hero/vikyplus-hero-jordan.webp',
 
-                // The same shoe the hero draws with the same cut-out. The black
-                // Cloudtilt has no product of its own — the live search finds
-                // none — and `on-cloudtilt` is that model in another colourway,
-                // which is the pairing the client chose for the hero when the
-                // shot was sent («تو هیرو ها بیاد بجای نیوبالانس»). One picture,
-                // one product, one page: the tile goes to the Cloudtilt's own.
-                'on-cloudtilt' => 'assets/img/hero/vikyplus-hero-cloudtilt-black.webp',
+                // The same shoe the hero draws with the same cut-out — one
+                // product, one picture. It moved to the client's newer shot
+                // when the hero did: the two are different colourways of the
+                // Cloudtilt, and leaving the tile on the old one would have put
+                // two different shoes under one product's name.
+                'on-cloudtilt' => 'assets/img/hero/vikyplus-hero-cloudtilt-on-black.webp',
 
                 // The same shoe the hero draws, with the same cut-out. It
                 // takes the sixth tile from `new-balance-530` — a product this

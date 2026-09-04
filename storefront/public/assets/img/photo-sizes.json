@@ -21,8 +21,18 @@
       "smallWidth": 700,
       "width": 1400
     },
+    "assets/img/hero/vikyplus-hero-cloudtilt-on-black.webp": {
+      "small": "assets/img/hero/vikyplus-hero-cloudtilt-on-black-700.webp",
+      "smallWidth": 700,
+      "width": 1400
+    },
     "assets/img/hero/vikyplus-hero-goldengoose-black.webp": {
       "small": "assets/img/hero/vikyplus-hero-goldengoose-black-700.webp",
+      "smallWidth": 700,
+      "width": 1400
+    },
+    "assets/img/hero/vikyplus-hero-goldengoose-suede.webp": {
+      "small": "assets/img/hero/vikyplus-hero-goldengoose-suede-700.webp",
       "smallWidth": 700,
       "width": 1400
     },

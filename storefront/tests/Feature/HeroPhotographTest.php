@@ -164,6 +164,55 @@ class HeroPhotographTest extends TestCase
         }
     }
 
+    /**
+     * Every photograph the deck can draw has a mark tone behind it.
+     *
+     * The blurred shape behind the hero takes its colour from the slide's
+     * photograph, through a map of filename ⇒ tint that lives in the Blade —
+     * and **in `theme/make-rtl-page.js` as well**, because the static preview
+     * draws the same deck. Two copies of one table is the arrangement, and it
+     * drifted the first time a photograph was renamed: the storefront looked
+     * up a filename its map did not have, `tone` came back undefined, and the
+     * shape simply kept the colour of whichever slide came before — pink glow
+     * behind a black shoe. Nothing threw, nothing logged, and it took
+     * `check-parity.js` reporting 48,441 pixels to find it.
+     *
+     * So: every file `hero.photos` names, and every catalogue photograph a
+     * slide falls back to, must appear in the Blade's map.
+     */
+    public function test_every_hero_photograph_has_a_mark_tone(): void
+    {
+        $blade = (string) file_get_contents(resource_path('views/home/hero.blade.php'));
+
+        $this->assertTrue(
+            (bool) preg_match('/var tones = (\{.*?\});/s', $blade, $found),
+            'the hero no longer declares its mark tones the way this test reads them'
+        );
+
+        $tones = json_decode($found[1], true);
+
+        $this->assertNotEmpty($tones, 'the tone map did not parse as JSON');
+
+        foreach ($this->slides() as $slide) {
+            $file = basename($slide['photo']);
+
+            $this->assertArrayHasKey(
+                $file,
+                $tones,
+                "{$slide['product']->slug}'s slide draws {$file}, and the mark behind it has no tone — "
+                .'it will keep the previous slide\'s colour.'
+            );
+        }
+
+        foreach (config('storefront.hero.photos', []) as $slug => $path) {
+            $this->assertArrayHasKey(
+                basename($path),
+                $tones,
+                "{$slug}'s cut-out has no mark tone."
+            );
+        }
+    }
+
     /** The deck is what config asks for, in the order it asks for it. */
     public function test_the_deck_is_the_three_the_file_names(): void
     {

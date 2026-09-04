@@ -82,7 +82,7 @@
             var deck = document.querySelector("#heroSlide6");
             var marks = document.querySelector(".vp-hero-marks");
             if (!deck || !marks) return;
-            var tones = {"vikyplus-hero-jordan.webp":"#DDC1BB","vikyplus-hero-goldengoose.webp":"#DDCEBB","vikyplus-hero-nb530.webp":"#BBCFDD","vikyplus-hero-cloudtilt-black.webp":"#CCCCCC"};
+            var tones = {"vikyplus-hero-jordan.webp":"#DDC1BB","vikyplus-hero-goldengoose.webp":"#DDCEBB","vikyplus-hero-nb530.webp":"#BBCFDD","vikyplus-hero-cloudtilt-on-black.webp":"#CCCCCC","vikyplus-hero-jordan-chicago.webp":"#DFB9BD","vikyplus-hero-goldengoose-suede.webp":"#DFCAB9"};
             function paint() {
                 var shot = deck.querySelector(".swiper-slide-active .hero-img img");
                 if (!shot) return;

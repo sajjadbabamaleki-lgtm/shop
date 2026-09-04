@@ -1,7 +1,7 @@
 {
   "note": "Written by theme/make-css-subset.js. Do not edit — re-run the script.",
-  "vocabulary": "600fd2b13c3fb603fafdd053541db9dae61635f6f4049254355f84c2d532bd44",
-  "words": 7393,
+  "vocabulary": "ab4f74ed23ce1cb8613671c181f2160b9b3ea39f7bbccbd705db265c591811a4",
+  "words": 7397,
   "read": [
     "download-version/assets/js/gsap.min.js",
     "download-version/assets/js/main.js",

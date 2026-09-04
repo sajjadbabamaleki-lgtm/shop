@@ -675,7 +675,7 @@ class CataloguePagesTest extends TestCase
         // products too, so a bare name is not evidence of a result.
         $this->get('/search?q='.urlencode('Super Star'))
             ->assertOk()
-            ->assertDontSee('>کتونی اون کلادتیلت</a>', false);
+            ->assertDontSee('>کتونی آن کلادتیلت</a>', false);
     }
 
     /**
@@ -1238,7 +1238,7 @@ class CataloguePagesTest extends TestCase
         $persian = $this->get('/products?min='.urlencode('۵۰۰۰۰۰۰'))->assertOk()->getContent();
 
         $this->assertSame($latin, $persian);
-        $this->assertStringNotContainsString('کتونی اون کلادتیلت', $this->results($latin));
+        $this->assertStringNotContainsString('کتونی آن کلادتیلت', $this->results($latin));
     }
 
     /**
