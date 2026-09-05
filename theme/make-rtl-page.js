@@ -1234,6 +1234,10 @@ const LADDER_NOTES = [
 // The five discount filters under the conditions. **The same five as
 // `ShopController::CUTS`**, which is what the listing accepts — a sixth here
 // would be a button that lands on an unfiltered page.
+//
+// Ascending here and reversed where it is drawn, exactly as the Blade does it:
+// the page is RTL, so the first child sits at the right, and «از چپ به راست
+// باشه ۱۵ درصد» wants the scale to start at the left.
 const LADDER_CUTS = [15, 30, 45, 60, 70];
 
 // The cut is the live step's, so the two cannot drift apart when the step
@@ -1647,7 +1651,7 @@ html = html.replace(
   LADDER_NOTES.map((n) => `                    <span>${n}</span>`).join('\n') + '\n' +
   '                </div>\n' +
   '                <div class="vp-ladder-cuts">\n' +
-  LADDER_CUTS.map((c) => `                    <a class="vp-ladder-cut" href="shop.html?cut=${c}">٪${fa(c)}</a>`).join('\n') + '\n' +
+  LADDER_CUTS.slice().reverse().map((c) => `                    <a class="vp-ladder-cut" href="shop.html?cut=${c}">٪${fa(c)}</a>`).join('\n') + '\n' +
   '                </div>\n' +
   '                <div class="row gy-4 row-cols-2 row-cols-md-3 row-cols-xl-5 vp-ladder-deals">' + LADDER_DEALS_HTML + '\n' +
   '                </div>\n' +

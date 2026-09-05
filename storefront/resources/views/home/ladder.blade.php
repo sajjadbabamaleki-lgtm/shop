@@ -63,8 +63,21 @@
                      them. Kept in step with theme/make-rtl-page.js by hand, the
                      way every hand-owned band is; check-parity.js is what
                      notices. --}}
+                {{-- **Reversed, so the row reads ٪۱۵ ٪۳۰ ٪۴۵ ٪۶۰ ٪۷۰ from the
+                     left** — «از چپ به راست باشه ۱۵ درصد». The page is RTL, so
+                     the first child of the grid lands on the *right*, and the
+                     ascending list came out ٪۷۰ first from the left: the scale
+                     ran backwards against the way a number line is read.
+
+                     The order is reversed here rather than in
+                     `ShopController::CUTS`, which stays ascending because it is
+                     the list the listing validates against and reads as a
+                     range. And it is done in the markup rather than with
+                     `direction: ltr` on the row: that would flip the boxes and
+                     take «٪۱۵» with it, since the percent sign is a neutral and
+                     would resolve to the wrong side of its digits. --}}
                 <div class="vp-ladder-cuts">
-                    @foreach (\App\Http\Controllers\ShopController::CUTS as $cut)
+                    @foreach (array_reverse(\App\Http\Controllers\ShopController::CUTS) as $cut)
                     <a class="vp-ladder-cut" href="{{ storefront_route('shop', ['cut' => $cut]) }}">٪{{ fa_number($cut) }}</a>
                     @endforeach
                 </div>

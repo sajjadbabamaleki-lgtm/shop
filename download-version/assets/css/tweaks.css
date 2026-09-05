@@ -4249,19 +4249,26 @@ option:hover {
   margin-block-end: 18px;
 }
 
-/* The gold tint the old link had, with its literal corrected. That link
-   carried `rgba(164, 127, 37, …)` — the *previous* gold, four degrees browner
-   and eight points less saturated than the palette's, and invisible to any
-   search for a token because it was written as raw channels. See «گلد سبز» in
-   CLAUDE.md. This is the current gold's own tint, and the ink is
-   `--vp-gold-fill-ink`, which is what every flat gold glyph on this site is. */
+/* White, like the two conditions above them — «رنگ دکمه های درصد تخفیف باید
+   سفید باشه». They opened on a gold tint, which put five filled chips directly
+   under two white ones and made the row read as the loudest thing in the band
+   rather than as the controls it is. Same white and the same hairline as
+   `.vp-ladder-notes span`, so the seven boxes are one material.
+
+   The ink stays gold, and that is what separates them: the conditions are
+   statements and these are pressable. `--vp-gold-fill-ink` is what every flat
+   gold glyph on this site is — see «گلد سبز» in CLAUDE.md, which is also why
+   the tint this had is gone: it was `rgba(164, 127, 37, …)`, the *previous*
+   gold, four degrees browner than the palette's and invisible to any search
+   for a token because it was written as raw channels. */
 .vp-ladder-cut {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   padding: 11px 8px;
   border-radius: 12px;
-  background: rgba(218, 178, 38, 0.12);
+  background: #FFFFFF;
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.05);
   font-size: 14px;
   font-weight: 630;
   line-height: 1.7;
@@ -4271,7 +4278,7 @@ option:hover {
 }
 
 .vp-ladder-cut:hover {
-  background: rgba(218, 178, 38, 0.20);
+  box-shadow: inset 0 0 0 1px rgba(218, 178, 38, 0.45);
   color: var(--vp-gold-ink);
 }
 
