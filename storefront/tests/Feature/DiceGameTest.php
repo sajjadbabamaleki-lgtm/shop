@@ -303,13 +303,21 @@ class DiceGameTest extends TestCase
 
         $this->assertStringStartsWith('DICE-', $code->code);
         $this->assertSame('percent', $code->type);
-        $this->assertSame(30 * 100, $code->value, 'Percent is stored in hundredths.');
+        // **From config, not a literal.** The prize is the shop's number to
+        // set — it has been 30 and is 10 — and a test that names it makes
+        // changing it look like a broken build. What has to hold is that the
+        // code carries whatever the shop asked for, in hundredths.
+        $this->assertSame(
+            (int) config('storefront.game.percent') * 100,
+            $code->value,
+            'Percent is stored in hundredths.'
+        );
         $this->assertSame(1, $code->usage_limit);
         $this->assertSame(1, $code->usage_limit_per_customer);
         $this->assertSame($this->central->id, $code->branch_id);
         $this->assertTrue($code->isLive());
         $this->assertEqualsWithDelta(
-            now()->addHours(24)->timestamp,
+            now()->addHours((int) config('storefront.game.hours'))->timestamp,
             $code->ends_at->timestamp,
             60,
             'The card says 24 hours; the code has to agree with the card.'

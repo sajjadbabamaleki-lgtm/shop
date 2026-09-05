@@ -44,9 +44,11 @@ return [
     |
     | **`rig_attempt` makes a throw win on purpose, and it is not a toy.**
     | Set to a throw number, every player's throw of that number comes up a
-    | double six — so with 2, *everybody* who throws twice wins 30% off. That
-    | is the shop paying 30% on effectively every order somebody bothers to
-    | play for, not the 5 or 6 in a hundred the honest dice cost. It is here
+    | double six — so with 2, *everybody* who throws twice wins whatever
+    | `percent` is. That is the shop paying it on effectively every order
+    | somebody bothers to play for, not on the 5 or 6 in a hundred the honest
+    | dice cost. (It was 30 and is 10 now, which makes that cheaper and does
+    | not make it free.) It is here
     | because it was asked for in those words — «فعلا دفعه دوم تستو جفت شیش
     | بزار برای همه» — and «فعلا» is the important word: it is meant to come
     | back off.
@@ -64,7 +66,7 @@ return [
         'enabled' => env('GAME_DICE', true),
         'tries' => 2,
         'rig_attempt' => (int) env('GAME_DICE_RIG', 2) ?: null,
-        'percent' => 30,
+        'percent' => 10,
         'hours' => 24,
         'min_subtotal_rial' => 0,
         'max_discount_rial' => 0,
