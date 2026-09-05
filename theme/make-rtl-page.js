@@ -1197,6 +1197,15 @@ const BURST_STUDS = Array.from({ length: BURST_LOBES }, (_, i) => {
 // size there is room for the cut and nothing else. A gradient id per card:
 // SVG ids have to be unique in the document, and five cards each need their
 // own.
+// Tabler's `shopping-bag-plus`, MIT — the icon the client picked off a sheet
+// of eleven («یک عالیه»). Two places on this page draw it now, the best
+// sellers' phone square and the special offer's button, so it is one function
+// rather than two copies of a 500-byte path. The class is the caller's: the
+// two are shown and hidden by different rules. Kept in step with
+// `resources/views/partials/bag-plus.blade.php`, or check-parity.js fails.
+const bagPlus = (cls) =>
+  `<svg class="${cls}" viewBox="0 0 24 24" fill="none" aria-hidden="true"><g stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M12.5 21H8.574a3 3 0 0 1-2.965-2.544l-1.255-8.152A2 2 0 0 1 6.331 8H17.67a2 2 0 0 1 1.977 2.304l-.263 1.708M16 19h6m-3-3v6"></path><path d="M9 11V6a3 3 0 0 1 6 0v5"></path></g></svg>`;
+
 const dealBurst = (cut, i) =>
   `<svg class="vp-deal-burst" viewBox="0 0 150 150" aria-hidden="true">` +
   `<defs><linearGradient id="vp-deal-burst-gold-${i}" x1="0" y1="0" x2="0" y2="1">` +
@@ -1381,7 +1390,7 @@ const bestCard = (_category, i) => {
     // plain bag for the desktop circle, which is not being changed. Kept in
     // step with resources/views/home/best-sellers.blade.php, or
     // check-parity.js fails.
-    `\n                            <a class="vp-best-browse" href="shop.html" aria-label="افزودن ${name} به سبد خرید"><i class="fa-solid fa-bag-shopping" aria-hidden="true"></i><svg class="vp-best-add" viewBox="0 0 24 24" fill="none" aria-hidden="true"><g stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M12.5 21H8.574a3 3 0 0 1-2.965-2.544l-1.255-8.152A2 2 0 0 1 6.331 8H17.67a2 2 0 0 1 1.977 2.304l-.263 1.708M16 19h6m-3-3v6"></path><path d="M9 11V6a3 3 0 0 1 6 0v5"></path></g></svg></a>` +
+    `\n                            <a class="vp-best-browse" href="shop.html" aria-label="افزودن ${name} به سبد خرید"><i class="fa-solid fa-bag-shopping" aria-hidden="true"></i>${bagPlus('vp-best-add')}</a>` +
     '\n                        </div>' +
     '\n                    </div>' +
     '\n                </div>'
@@ -1691,6 +1700,14 @@ html = html.replace(
 // scratch — data-offer-date is the one input it reads.
 const [DAILY_SHOT, DAILY_NAME, DAILY_PRICE, DAILY_STOCK] = LADDER_DEALS[2];
 
+// The cut-out this band draws — «آن رانینگ تو هیرو یعنی مشکی سفیده بیاد اینجا».
+// The Blade reads `placeholders.best_sellers.photos` for it, so this reads
+// `BEST_PHOTOS`, the same table on this side: one shoe has one cut-out wherever
+// the front page draws it, and a second list keyed by the same names is how the
+// two come apart with nothing to notice. It falls back to the sale's own shot
+// for a shoe that has no cut-out, which is what the Blade's `??` does.
+const DAILY_CUTOUT = BEST_PHOTOS[DAILY_NAME] ?? DAILY_SHOT;
+
 const DAILY_DEAL =
   '<div class="vp-daily-deal">\n' +
   '                <div class="vp-daily-deal-copy">\n' +
@@ -1704,10 +1721,6 @@ const DAILY_DEAL =
   // at every desktop width, so without the <br> it would never stack.
   '                    <h2 class="vp-daily-deal-title">قبل از<br>تمام شدن بخرش!</h2>\n' +
   '                    <p class="vp-daily-deal-sub">عجله کن؛ موجودی محدوده.</p>\n' +
-  // The arrow stays here and is switched off below 992 in tweaks.css —
-  // «فلش هم حذف بشه» is a phone instruction and the desktop keeps its arrow.
-  '                    <a href="shop-details.html" class="vp-daily-deal-cta">خرید کنید' +
-  '<i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>\n' +
   '                </div>\n' +
   '                <div class="vp-daily-deal-card">\n' +
   '                    <div class="vp-daily-deal-info">\n' +
@@ -1751,7 +1764,21 @@ const DAILY_DEAL =
   // `'d'` keys its gradient away from the sale's five and the best sellers'
   // six, which are all on this page. Kept in step with
   // `home/daily-deal.blade.php`, or check-parity.js fails.
-  `                    <div class="vp-daily-deal-shot">${dealBurst(LADDER_CUT, 'd')}<img src="assets/img/${DAILY_SHOT}" alt="" loading="lazy"></div>\n` +
+  // **The photograph and the button, in one column.** «اون دکمه خرید کنید باید
+  // بشه اضافه کردن به سبد خرید به همراه اون آیکون سبدی که بعلاوه کنارشه و بیاد
+  // زیر کفش قرار بگیره» — the call to action left the copy column, where it sat
+  // above the card, and stands under the shoe. The card is a row of two, so a
+  // button under the photograph means the photograph and the button are one of
+  // them, and that is what this wrapper is.
+  //
+  // The photograph is the cut-out and not the catalogue's own studio shot —
+  // «آن رانینگ تو هیرو یعنی مشکی سفیده بیاد اینجا». The Blade reads the same
+  // map the best sellers read, which is why `DAILY_CUTOUT` below is derived
+  // from `BEST_PHOTOS` here rather than written out a second time.
+  '                    <div class="vp-daily-deal-figure">\n' +
+  `                        <div class="vp-daily-deal-shot">${dealBurst(LADDER_CUT, 'd')}<img src="assets/img/${DAILY_CUTOUT}" alt="" loading="lazy"></div>\n` +
+  `                        <a href="shop-details.html" class="vp-daily-deal-cta">اضافه کردن به سبد خرید${bagPlus('vp-daily-deal-mark')}</a>\n` +
+  '                    </div>\n' +
   '                </div>\n' +
   '            </div>';
 

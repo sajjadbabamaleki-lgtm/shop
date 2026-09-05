@@ -4000,9 +4000,51 @@ option:hover {
   text-decoration: none;
 }
 
-.vp-daily-deal-cta i { font-size: 15px; }
+/* The basket mark that replaced the arrow — «به همراه اون آیکون سبدی که بعلاوه
+   کنارشه». Sized off the label rather than off the old arrow: 17px of type, and
+   the listing's own button sets its mark at 1.18 of its words, which is 20. It
+   takes the button's ink through `currentColor`, which is why it is markup and
+   not an <img>. */
+.vp-daily-deal-mark {
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+}
 
 .vp-daily-deal-cta:hover { color: #101111; }
+
+/* **The whole card opens the product** — «هرجای این کارت زده میشه باید بره به
+   صفحه جزئیات خرید همین محصول».
+
+   Done by stretching this one anchor's hit area over `.vp-daily-deal-card`
+   rather than by wrapping the card in a second link. The card already contains
+   this button, and an <a> inside an <a> is invalid markup that browsers repair
+   by splitting the outer one — so the wrap would have produced two links, one
+   of them chopped, where the point was one. It also keeps the card a single
+   tab stop with a single accessible name, instead of two that go to the same
+   page.
+
+   `z-index: 3` because `.vp-deal-burst` sits at 2 inside the photograph; at 1
+   the star would be a hole in the card where the click does nothing.
+
+   The cost, stated because it is real: an overlay over the card means the name,
+   the price and the countdown can no longer be selected with the cursor. That
+   is what «هرجای این کارت» asks for, and it is the standard price of the
+   pattern.
+
+   **The button itself must stay unpositioned**, which is the whole mechanism:
+   an absolute box resolves against its nearest *positioned* ancestor, so with
+   nothing between it and `.vp-daily-deal-card` a plain `inset: 0` is the card's
+   own four edges and needs no arithmetic at all. Giving this anchor
+   `position: relative` would make it its own context and shrink the hit area
+   back to the pill. `.vp-daily-deal-shot` is positioned but is a sibling, not
+   an ancestor, so it does not interpose. */
+.vp-daily-deal-cta::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+}
 
 /* The white card: photo and info, photo last in source so RTL's own flow —
    first child at the row's right, last at its left — puts it at the card's
@@ -4017,6 +4059,10 @@ option:hover {
    above). The ring and the drop shadow stay: a tinted card needs its edge
    even more than a solid one did, now that the pane behind it is white too. */
 .vp-daily-deal-card {
+  /* The positioning context for the button's stretched hit area — «هرجای این
+     کارت زده میشه باید بره به صفحه جزئیات خرید همین محصول». See
+     `.vp-daily-deal-cta::after`. */
+  position: relative;
   flex: 0 1 775px;
   display: flex;
   align-items: center;
@@ -4228,6 +4274,26 @@ option:hover {
    No inset on the img: the box's own edges are already the card's 40px
    clearance, so padding here would be a second inset inside the first and
    would come straight off the photo, since height is the binding limit. */
+/* The photograph and the button, stacked — «بیاد زیر کفش قرار بگیره».
+
+   The card is a row of two, so a button under the photograph means the
+   photograph and the button are one of them. `align-items: center` keeps the
+   pill centred under the shoe rather than stretched to the column's width,
+   which is what `stretch` (the flex default) would do to it.
+
+   **Deliberately not positioned.** The button's stretched hit area is an
+   `::after` that has to resolve against `.vp-daily-deal-card` so that a click
+   anywhere on the card opens the product; giving this wrapper `position:
+   relative` would shrink that area to the photograph and the button. */
+.vp-daily-deal-figure {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
 /* `position: relative` is here for the burst — «ستاره تخفیف هم بیاد روش».
    `.vp-deal-burst` is absolutely positioned against its nearest positioned
    ancestor, and without this that ancestor is whatever the page offers next up
@@ -4235,8 +4301,7 @@ option:hover {
    shoe. */
 .vp-daily-deal-shot {
   position: relative;
-  flex: 1 1 auto;
-  min-width: 0;
+  align-self: stretch;
   height: 264.5px;
 }
 
@@ -20671,34 +20736,36 @@ html {
     color: #FFFFFF;
   }
 
-  /* The arrows. Three of them and no two are the same object, which is why
-     this takes three rules rather than one:
+  /* The arrows. They were three and are two, and no two are the same object,
+     which is why this takes two rules rather than one:
 
        .th-btn.th-icon::after   the template's arrow-right.svg mask
        .line-btn::after         the same mask at 32x10, which is the long rule
                                 the second banner card reads as an underline
-       .vp-daily-deal-cta i     a FontAwesome element in the markup
 
-     **All three go here rather than two here and one in the Blade.** Taking
-     the daily deal's `<i>` out of `home/daily-deal.blade.php` was the first
-     attempt and it is wrong: that markup has no width in it, so the element
-     would have gone at every width and the desktop would have lost an arrow
-     nobody asked about. «ما داریم در مورد نسخه گوشی حرف میزنیم» — the
-     instruction is a phone's, so the switch has to be one too.
+     **The third was `.vp-daily-deal-cta i` and there is no longer an arrow
+     there to hide.** That button carries the shop's basket-with-a-plus now —
+     «اون دکمه خرید کنید باید بشه اضافه کردن به سبد خرید به همراه اون آیکون
+     سبدی که بعلاوه کنارشه» — and the mark is the point of it, so nothing may
+     take it off at any width. The rule is gone rather than repointed at
+     `.vp-daily-deal-mark`: repointing it would hide the very thing that was
+     just asked for.
 
-     `content: none` on the two pseudo-elements, `display: none` on the one
-     real element, and neither leaves a gap behind it: a gap is drawn between
-     two flex items, so a button with one visible child draws none. That is
-     the same reasoning the hero's own arrow rule sets out. `.line-btn`'s hover
-     widens its arrow from 32 to 45; with no arrow there is nothing to widen,
-     so that rule is left where it is rather than unpicked. */
+     The reasoning that put all three here rather than in the Blade still
+     holds for the two that are left: the markup has no width in it, so an
+     element removed there goes at every width, and «ما داریم در مورد نسخه
+     گوشی حرف میزنیم» — the instruction was a phone's, so the switch has to be
+     one too.
+
+     `content: none` on both, and it leaves no gap behind: a gap is drawn
+     between two flex items, so a button with one visible child draws none.
+     That is the same reasoning the hero's own arrow rule sets out.
+     `.line-btn`'s hover widens its arrow from 32 to 45; with no arrow there is
+     nothing to widen, so that rule is left where it is rather than
+     unpicked. */
   .cta-area4 .th-btn.th-icon::after,
   .cta-area4 .line-btn::after {
     content: none;
-  }
-
-  .vp-daily-deal-section .vp-daily-deal-cta i {
-    display: none;
   }
 }
 

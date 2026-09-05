@@ -31,13 +31,6 @@
                     <span class="vp-daily-deal-badge">پیشنهاد ویژه</span>
                     <h2 class="vp-daily-deal-title">قبل از<br>تمام شدن بخرش!</h2>
                     <p class="vp-daily-deal-sub">عجله کن؛ موجودی محدوده.</p>
-                    {{-- The arrow stays in the markup and is switched off below
-                         992 in tweaks.css, beside the offer banner's two.
-                         «فلش هم حذف بشه» came with a phone's screenshots, and a
-                         phone request is not licence to touch the desktop —
-                         taking the element out here would have removed it at
-                         every width. --}}
-                    <a href="{{ storefront_route('product', $dailyDeal['product']) }}" class="vp-daily-deal-cta">خرید کنید<i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
                 </div>
                 <div class="vp-daily-deal-card">
                     <div class="vp-daily-deal-info">
@@ -94,7 +87,36 @@
                          take the first one's fill.
 
                          Kept in step with theme/make-rtl-page.js, or parity fails. --}}
-                    <div class="vp-daily-deal-shot">@if ($offer->hasActivePromotion())@include('partials.deal-burst', ['key' => 'd', 'percent' => $offer->discountPercent()])@endif<img src="{{ asset($dailyDeal['product']->imagePath()) }}"{!! photo_srcset($dailyDeal['product']->imagePath()) !!} alt="" loading="lazy"></div>
+                    {{-- **The photograph and the button, in one column.**
+                         «اون دکمه خرید کنید باید بشه اضافه کردن به سبد خرید به
+                         همراه اون آیکون سبدی که بعلاوه کنارشه و بیاد زیر کفش
+                         قرار بگیره» — so the call to action left the copy
+                         column, where it sat above the card, and stands under
+                         the shoe. This wrapper exists for that: the card is a
+                         row of two, and a button under the photograph means the
+                         photograph and the button are one of them.
+
+                         The words are the listing's own — `.vp-card-add` says
+                         «اضافه کردن به سبد خرید» — and so is the mark, after
+                         them rather than before: «آیکون باید جلوی جمله باشه نه
+                         پشتش», which on a right-to-left row is the left end. --}}
+                    <div class="vp-daily-deal-figure">
+                        {{-- **The cut-out, not the catalogue's own photograph.**
+                             «آن رانینگ تو هیرو یعنی مشکی سفیده بیاد اینجا» — the
+                             product's own shot is the studio's, on the studio's
+                             ground; the hero draws this shoe as a cut-out and
+                             the band beside it must draw the same one.
+
+                             It reads the map the best sellers read, and that is
+                             the point rather than an accident: one shoe has one
+                             cut-out wherever the front page draws it, and a
+                             second map keyed by the same slugs is how the two
+                             drift apart with nothing to notice. The key is
+                             still named for the band that first needed it. --}}
+                        @php($shot = config('storefront.placeholders.best_sellers.photos')[$dailyDeal['product']->slug] ?? $dailyDeal['product']->imagePath())
+                        <div class="vp-daily-deal-shot">@if ($offer->hasActivePromotion())@include('partials.deal-burst', ['key' => 'd', 'percent' => $offer->discountPercent()])@endif<img src="{{ asset($shot) }}"{!! photo_srcset($shot) !!} alt="" loading="lazy"></div>
+                        <a href="{{ storefront_route('product', $dailyDeal['product']) }}" class="vp-daily-deal-cta">اضافه کردن به سبد خرید@include('partials.bag-plus', ['class' => 'vp-daily-deal-mark'])</a>
+                    </div>
                 </div>
             </div>
         </div>

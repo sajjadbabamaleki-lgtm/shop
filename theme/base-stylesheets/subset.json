@@ -1,7 +1,7 @@
 {
   "note": "Written by theme/make-css-subset.js. Do not edit — re-run the script.",
-  "vocabulary": "50eb93509790406d15315bd1041e3194789ec37f86ae746c117b4a127b0168b0",
-  "words": 7437,
+  "vocabulary": "8e9492b94c4deb3a63b1f110271560383b66dc11389effb6857be802de50ef82",
+  "words": 7444,
   "read": [
     "download-version/assets/js/gsap.min.js",
     "download-version/assets/js/main.js",
@@ -72,6 +72,7 @@
     "storefront/resources/views/pages/wholesale.blade.php",
     "storefront/resources/views/pagination/vikyplus.blade.php",
     "storefront/resources/views/partials/admin-scripts.blade.php",
+    "storefront/resources/views/partials/bag-plus.blade.php",
     "storefront/resources/views/partials/chrome.blade.php",
     "storefront/resources/views/partials/deal-burst.blade.php",
     "storefront/resources/views/partials/faq-items.blade.php",

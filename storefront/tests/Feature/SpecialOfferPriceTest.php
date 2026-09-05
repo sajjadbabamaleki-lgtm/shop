@@ -9,6 +9,7 @@ use Database\Seeders\BranchSeeder;
 use Database\Seeders\CatalogueSeeder;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 /**
@@ -122,5 +123,80 @@ class SpecialOfferPriceTest extends TestCase
 
         $this->assertStringNotContainsString('vp-daily-deal-shot"><svg', $page);
         $this->assertStringContainsString('vp-daily-deal-price">'.fa_number(3_920_000), $page);
+    }
+
+    /**
+     * **The cut-out, not the catalogue's own photograph.**
+     *
+     * «آن رانینگ تو هیرو یعنی مشکی سفیده بیاد اینجا» — the band was drawing the
+     * product's studio shot, on the studio's ground, while the hero draws the
+     * same shoe cut out. One shoe has one picture wherever the front page
+     * draws it.
+     *
+     * The band reads the map the best sellers read, which is the point rather
+     * than a shortcut: a second map keyed by the same slugs is how two lists
+     * come apart with nothing to notice — this repository has already paid for
+     * that once, with a duplicated hero tone map that drifted and put a black
+     * shoe in a pink glow. So this asserts the band takes the mapped path, and
+     * that it is genuinely not the product's own.
+     */
+    public function test_the_band_draws_the_shared_cut_out(): void
+    {
+        $product = $this->get('/')->assertOk()->viewData('dailyDeal')['product'];
+
+        $cutout = config('storefront.placeholders.best_sellers.photos')[$product->slug] ?? null;
+
+        $this->assertNotNull($cutout, 'The band\'s shoe has no cut-out, so this case is not testing anything.');
+        $this->assertNotSame(
+            $cutout,
+            $product->imagePath(),
+            'The cut-out and the catalogue photograph are the same file, so this case cannot fail.'
+        );
+
+        $this->get('/')->assertOk()->assertSee($cutout, false);
+    }
+
+    /**
+     * **The whole card opens the product, through exactly one link.**
+     *
+     * «هرجای این کارت زده میشه باید بره به صفحه جزئیات خرید همین محصول» — done
+     * by stretching the button's own hit area over the card rather than by
+     * wrapping the card in a second anchor, because an <a> inside an <a> is
+     * invalid and browsers repair it by splitting the outer one.
+     *
+     * The stretch itself is CSS and nothing here can see it. What this holds is
+     * the half that would make the CSS meaningless: that the card contains one
+     * anchor and no more, and that it goes to this product. A rewrite that adds
+     * a second link inside the card is the failure this catches, and it would
+     * otherwise look fine on screen right up until a click landed on the wrong
+     * one.
+     */
+    public function test_the_card_carries_exactly_one_link_and_it_is_the_product(): void
+    {
+        $page = $this->get('/')->assertOk();
+
+        $product = $page->viewData('dailyDeal')['product'];
+        $html = $page->getContent();
+
+        // `Str::between` runs to the *last* needle, which here is the last
+        // `</section>` on the page — the whole footer and then some. The card
+        // is the first close after the card's own opening tag.
+        $card = Str::before(Str::after($html, '<div class="vp-daily-deal-card">'), '</section>');
+
+        $this->assertSame(
+            1,
+            substr_count($card, '<a '),
+            'The special offer card should hold one link and only one — see `.vp-daily-deal-cta::after`.'
+        );
+
+        $this->assertStringContainsString(storefront_route('product', $product), $card);
+
+        // And it still says what it was asked to say, with the mark after the
+        // words — «آیکون باید جلوی جمله باشه نه پشتش», the left end on an RTL
+        // row.
+        $this->assertStringContainsString(
+            'اضافه کردن به سبد خرید<svg class="vp-daily-deal-mark"',
+            $card
+        );
     }
 }
