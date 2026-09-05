@@ -28,8 +28,13 @@ jobs:
         with:
           node-version: '22'
 
+      # Locally, not globally: ESM ignores NODE_PATH, so a global install is
+      # not importable from a script in the workspace.
       - name: Install a browser
-        run: npm i -g playwright@1.49.1 && npx --yes playwright@1.49.1 install --with-deps chromium
+        run: |
+          npm init -y >/dev/null
+          npm i playwright@1.49.1
+          npx playwright install --with-deps chromium
 
       - name: Render
         run: |
@@ -53,4 +58,4 @@ jobs:
           console.log(seen.join('\n'));
           await b.close();
           JS
-          NODE_PATH=$(npm root -g) node read.mjs
+          node read.mjs
