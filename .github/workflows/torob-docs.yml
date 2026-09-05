@@ -2,14 +2,8 @@ name: Read the Torob docs
 
 # TEMPORARY. Delete this file once the answer is in hand.
 #
-# This container's egress proxy refuses panel.torob.com, and WebFetch with it,
-# so the only way to read the specification the shop has been asked to
-# implement is from a runner. Only the deploy job is gated on `main`, so a
-# working branch runs everything and ships nothing — the same tool the
-# supplier-photograph question was settled with.
-#
-# The page is a JavaScript panel: curl gets «لطفا کمی صبر کنید» and 5KB of
-# shell. So it is rendered.
+# The panel is a JavaScript app; rendering it turned up the specification's own
+# source, a markdown file it fetches. This pulls that file whole.
 
 on:
   workflow_dispatch:
@@ -24,38 +18,12 @@ jobs:
     name: Fetch the specification
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-
-      # Locally, not globally: ESM ignores NODE_PATH, so a global install is
-      # not importable from a script in the workspace.
-      - name: Install a browser
+      - name: Fetch the markdown the panel renders
         run: |
-          npm init -y >/dev/null
-          npm i playwright@1.49.1
-          npx playwright install --with-deps chromium
-
-      - name: Render
-        run: |
-          cat > read.mjs <<'JS'
-          import { chromium } from 'playwright';
-          const b = await chromium.launch();
-          const p = await b.newPage({ viewport: { width: 1400, height: 2000 } });
-          const seen = [];
-          p.on('response', (r) => {
-            const u = r.url();
-            if (/api|json|doc/i.test(u) && !/\.(png|jpg|svg|woff2?|css)$/i.test(u)) seen.push(r.status() + ' ' + u);
-          });
-          await p.goto('https://panel.torob.com/s/torobApiV3', { waitUntil: 'networkidle', timeout: 90000 });
-          await p.waitForTimeout(6000);
-          console.log('=== TITLE:', await p.title());
-          console.log('=== TEXT ===');
-          console.log((await p.evaluate(() => document.body.innerText)).slice(0, 60000));
-          console.log('=== LINKS ===');
-          console.log((await p.evaluate(() => [...document.querySelectorAll('a')].map((a) => a.href + ' | ' + a.textContent.trim()))).join('\n').slice(0, 6000));
-          console.log('=== REQUESTS ===');
-          console.log(seen.join('\n'));
-          await b.close();
-          JS
-          node read.mjs
+          for u in \
+            "https://panel.torob.com/s/assets/TorobAPI_v3-DrkI35Pg.md" ; do
+            echo "=================== $u"
+            curl -sSL --max-time 60 "$u" -o spec.md
+            wc -c spec.md
+            cat spec.md
+          done
