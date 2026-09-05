@@ -1,9 +1,10 @@
-name: Match the tile photographs to the shop's colourways
+name: Black or navy
 
 # TEMPORARY. Delete once the answer is in hand.
 #
-# «تو باید همون رنگی که تو هوم هست محصول لینک بشه دقیق به همون رنگش» — so which
-# colourway each tile shows has to be measured, not read off a name.
+# The cut-out's dark body is neutral (mean 28,28,28, b-r = -0.1), which is black
+# and not navy. This asks the same question of the shop's two dark On Running
+# listings: a navy shoe's dark pixels lean blue, a black one's do not.
 
 on:
   workflow_dispatch:
@@ -15,7 +16,7 @@ permissions:
 
 jobs:
   look:
-    name: Measure every candidate
+    name: Measure the dark body
     runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-node@v4
@@ -34,48 +35,33 @@ jobs:
           import { chromium } from 'playwright';
           import sharp from 'sharp';
 
-          const V2K = ['سفید-آبی-روشن', 'طوسی-قهوه-ای', 'سفید-صورتی', 'موکا', 'سرمه-ای', 'مشکی']
-            .map((c) => 'کتونی-نایک-وی-تو-کی-Nike-V2K-رنگ-' + c);
-          const ON = ['مشکی', 'سرمه-ای', 'کرم', 'آبی', 'طوسی', 'صورتی']
+          const SLUGS = ['مشکی', 'سرمه-ای', 'طوسی']
             .map((c) => 'کتونی-آن-رانینگ-ON-Running-رنگ-' + c);
-
-          function stats(data, info) {
-            const { channels } = info;
-            let opaque = 0, blue = 0, pink = 0, brown = 0, dark = 0, light = 0, rS = 0, gS = 0, bS = 0;
-            for (let i = 0; i < data.length; i += channels) {
-              if (channels === 4 && data[i + 3] < 200) continue;
-              const r = data[i], g = data[i + 1], b = data[i + 2];
-              opaque++; rS += r; gS += g; bS += b;
-              if (b > r + 18 && b > g + 8 && b > 90) blue++;
-              if (r > b + 22 && r > g + 10 && r > 140) pink++;
-              if (r > b + 18 && g > b + 8 && r > 90 && r < 200) brown++;
-              if (r < 70 && g < 70 && b < 70) dark++;
-              if (r > 200 && g > 200 && b > 200) light++;
-            }
-            const pc = (n) => +(100 * n / opaque).toFixed(1);
-            return { blue: pc(blue), pink: pc(pink), brown: pc(brown), dark: pc(dark), light: pc(light),
-                     mean: [rS, gS, bS].map((v) => Math.round(v / opaque)).join(',') };
-          }
 
           const b = await chromium.launch();
           const p = await b.newPage({ viewport: { width: 1400, height: 1200 } });
 
-          for (const slug of [...V2K, ...ON]) {
-            try {
-              await p.goto('https://vikyplus.ir/products/' + encodeURIComponent(slug),
-                           { waitUntil: 'load', timeout: 60000 });
-              await p.waitForTimeout(2000);
-              const src = await p.evaluate(() => {
-                const img = document.querySelector('.vp-pdp-shot img, .vp-pdp-gallery img, main img');
-                return img ? img.currentSrc : null;
-              });
-              if (!src) { console.log(slug.padEnd(52), 'NO IMAGE'); continue; }
-              const buf = Buffer.from(await (await fetch(src)).arrayBuffer());
-              const { data, info } = await sharp(buf).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
-              console.log(slug.padEnd(52), JSON.stringify(stats(data, info)));
-            } catch (e) {
-              console.log(slug.padEnd(52), 'ERR ' + e.message.slice(0, 80));
+          for (const slug of SLUGS) {
+            await p.goto('https://vikyplus.ir/products/' + encodeURIComponent(slug),
+                         { waitUntil: 'load', timeout: 60000 });
+            await p.waitForTimeout(2000);
+            const src = await p.evaluate(() => {
+              const img = document.querySelector('.vp-pdp-shot img, .vp-pdp-gallery img, main img');
+              return img ? img.currentSrc : null;
+            });
+            const buf = Buffer.from(await (await fetch(src)).arrayBuffer());
+            const { data, info } = await sharp(buf).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+            const ch = info.channels;
+            let n = 0, r = 0, g = 0, bl = 0;
+            for (let i = 0; i < data.length; i += ch) {
+              if (ch === 4 && data[i + 3] < 200) continue;
+              const R = data[i], G = data[i + 1], B = data[i + 2];
+              if (Math.max(R, G, B) < 110) { n++; r += R; g += G; bl += B; }
             }
+            console.log(slug.padEnd(44),
+              'darkpx=' + n,
+              'mean=' + Math.round(r / n) + ',' + Math.round(g / n) + ',' + Math.round(bl / n),
+              'b-r=' + (bl / n - r / n).toFixed(1));
           }
 
           await b.close();
