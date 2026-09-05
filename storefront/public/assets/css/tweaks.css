@@ -2466,6 +2466,8 @@ option:hover {
   .vp-step { --tile: 44px; }
   .vp-step-rate b { font-size: 21px; }
 
+  .vp-ladder-notes span:last-child { display: none; }
+
   .vp-ladder-notes { flex-direction: column; gap: 10px; }
 
   .vp-ladder-cuts { gap: 8px; }

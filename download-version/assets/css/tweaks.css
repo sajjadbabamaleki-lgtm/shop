@@ -4339,7 +4339,19 @@ option:hover {
      free while the mark had a line of its own; sharing a 140 row with it,
      «پله چهارم» + «هفته چهارم» at 12 need 162 of that 140 and no amount of
      padding closes 22. At 11 they need 140 exactly. */
-  /* Stacked: two full-width conditions, one under the other. */
+  /* Stacked, and one condition rather than two — «در نسخه موبایل این حذف
+     بشه». «پله بعدی در ۲۲ روز و ۱۴ ساعت» is a countdown, and a countdown
+     stacked on its own line is a whole row of the phone's screen spent on a
+     number nobody acts on; the condition above it is the one that changes what
+     somebody does. It keeps its place on the desktop, where the two share a
+     line and cost nothing.
+
+     Hidden rather than cut from the markup, because it is still on the page at
+     992 and up — and `display: none` takes it out of the accessibility tree as
+     well, so a screen reader on a phone does not read out a row that is not
+     there. */
+  .vp-ladder-notes span:last-child { display: none; }
+
   .vp-ladder-notes { flex-direction: column; gap: 10px; }
 
   /* The five stay five — they are a scale, and a scale that wraps to two rows
