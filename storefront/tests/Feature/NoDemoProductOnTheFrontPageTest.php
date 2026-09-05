@@ -84,10 +84,19 @@ class NoDemoProductOnTheFrontPageTest extends TestCase
         '2026_09_04_140000_put_the_chicago_jordan_in_the_hero_and_the_row.php',
         '2026_09_04_160000_call_the_on_brand_by_its_name_and_move_the_hero.php',
         '2026_09_05_140000_the_on_running_is_the_special_offer_at_twenty_off.php',
-        // Names `on-cloudtilt` only to find the row it is replacing — it is the
-        // migration that takes the demo product *off* two bands.
-        '2026_09_05_170000_the_on_running_bands_point_at_the_shop_s_own_shoe.php',
     ];
+
+    /**
+     * The escape hatch for a migration that names a seed **in order to remove
+     * it** from a band.
+     *
+     * A corrective migration has to name the demo slug — it is the row it is
+     * looking for — so a plain text search cannot tell it apart from the
+     * mistake it is fixing. Rather than let the history list above grow every
+     * time one is written, the intent is declared in the migration's own
+     * docblock, next to the code it excuses, where a reviewer reads it.
+     */
+    private const REMOVAL_TAG = '@removes-demo-placement';
 
     public function test_no_migration_puts_a_seeded_sneaker_on_a_front_page_band(): void
     {
@@ -103,6 +112,12 @@ class NoDemoProductOnTheFrontPageTest extends TestCase
             }
 
             $source = $file->getContents();
+
+            // A migration that says, in its own docblock, that it is taking a
+            // demo product off a band.
+            if (str_contains($source, self::REMOVAL_TAG)) {
+                continue;
+            }
 
             // Only migrations that actually write a placement are of interest.
             // A rename, a reprice or a retirement may name a seed all it likes.

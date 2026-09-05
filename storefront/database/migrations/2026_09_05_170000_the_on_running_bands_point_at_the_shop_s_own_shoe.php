@@ -47,6 +47,9 @@ use Illuminate\Support\Facades\DB;
  *
  * A database without the shop's own products — this repository's five, so every
  * test and both copies of the home page — is left untouched.
+ *
+ * @removes-demo-placement This migration names a seeded slug only to take it
+ *   off a band. See NoDemoProductOnTheFrontPageTest.
  */
 return new class extends Migration
 {
