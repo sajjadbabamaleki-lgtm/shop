@@ -1,9 +1,6 @@
 name: Read the Torob docs
 
 # TEMPORARY. Delete this file once the answer is in hand.
-#
-# The panel is a JavaScript app; rendering it turned up the specification's own
-# source, a markdown file it fetches. This pulls that file whole.
 
 on:
   workflow_dispatch:
@@ -15,16 +12,35 @@ permissions:
 
 jobs:
   read:
-    name: Fetch the specification
+    name: Fetch the token guide
     runs-on: ubuntu-latest
     steps:
-      - name: Fetch the markdown the panel renders
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install a browser
         run: |
-          for u in \
-            "https://panel.torob.com/s/assets/TorobAPI_v3-DrkI35Pg.md" ; do
-            echo "=================== $u"
-            curl -sSL --max-time 60 "$u" -o spec.md
-            wc -c spec.md
-            # The log is read from its tail, so print the opening on its own.
-            head -n 150 spec.md
-          done
+          npm init -y >/dev/null
+          npm i playwright@1.49.1
+          npx playwright install --with-deps chromium
+
+      - name: Find the markdown behind the token guide, then print it
+        run: |
+          cat > read.mjs <<'JS'
+          import { chromium } from 'playwright';
+          const b = await chromium.launch();
+          const p = await b.newPage();
+          const md = [];
+          p.on('response', (r) => { if (/\.md(\?|$)/.test(r.url())) md.push(r.url()); });
+          await p.goto('https://panel.torob.com/s/torob_api_token_guide', { waitUntil: 'networkidle', timeout: 90000 });
+          await p.waitForTimeout(5000);
+          console.log('MDURL ' + md.join(' '));
+          await b.close();
+          JS
+          node read.mjs | tee found.txt
+          u=$(grep -o 'https://[^ ]*\.md' found.txt | head -1)
+          echo "=== $u"
+          curl -sSL --max-time 60 "$u" -o guide.md
+          wc -c guide.md
+          head -n 120 guide.md
