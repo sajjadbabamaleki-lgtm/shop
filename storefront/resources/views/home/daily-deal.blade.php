@@ -43,7 +43,23 @@
                     <div class="vp-daily-deal-info">
                         <span class="vp-daily-deal-cat">{{ $dailyDeal['category']?->name }}</span>
                         <h3 class="vp-daily-deal-name">{{ $dailyDeal['product']->title }}</h3>
-                        <strong class="vp-daily-deal-price">{{ toman($dailyDeal['product']->offerHere()->price) }} <span>تومان</span></strong>
+                        {{-- One lookup for both numbers and the burst, so the
+                             three cannot disagree about the same offer. --}}
+                        @php($offer = $dailyDeal['product']->offerHere())
+                        {{-- **The before-price only while there is really a cut.**
+                             «قیمت اصلیش ۴ میلیون ۹۰۰ باشه که ۲۰ درصد تخفیف خورده»
+                             — so the band shows both numbers now, where it showed
+                             one. It is guarded on `hasActivePromotion()` and not on
+                             `compare_at_price` alone: a campaign that ends leaves
+                             that column behind, and a struck-through number over an
+                             undiscounted price is the shop telling a lie nothing
+                             would go red about. With no cut it prints exactly what
+                             it printed before.
+
+                             One line, deliberately: a newline inside the element
+                             is a whitespace text node, and the two copies of this
+                             page have to render to the same pixel. --}}
+                        <strong class="vp-daily-deal-price">@if ($offer->hasActivePromotion())<del>{{ toman($offer->compare_at_price) }}</del>@endif{{ toman($offer->price) }} <span>تومان</span></strong>
                         <div class="vp-daily-deal-stock">
                             <span>فقط {{ fa_number($dailyDeal['product']->sellableStock()) }} عدد باقی مانده</span>
                             <span class="vp-daily-deal-bar"><span class="vp-daily-deal-bar-fill"></span></span>
@@ -69,7 +85,16 @@
                             <li><div class="day count-number">00</div><span class="count-name">روز</span></li>
                         </ul>
                     </div>
-                    <div class="vp-daily-deal-shot"><img src="{{ asset($dailyDeal['product']->imagePath()) }}"{!! photo_srcset($dailyDeal['product']->imagePath()) !!} alt="" loading="lazy"></div>
+                    {{-- «ستاره تخفیف هم بیاد روش» — the sale cards' own burst,
+                         on the photograph, drawn from `discountPercent()` so the
+                         figure on it is the one the two prices beside it imply.
+                         `$key` is 'd' because the page already draws this shape
+                         five times for the stepped sale and six for the best
+                         sellers, and a repeated gradient id would have them all
+                         take the first one's fill.
+
+                         Kept in step with theme/make-rtl-page.js, or parity fails. --}}
+                    <div class="vp-daily-deal-shot">@if ($offer->hasActivePromotion())@include('partials.deal-burst', ['key' => 'd', 'percent' => $offer->discountPercent()])@endif<img src="{{ asset($dailyDeal['product']->imagePath()) }}"{!! photo_srcset($dailyDeal['product']->imagePath()) !!} alt="" loading="lazy"></div>
                 </div>
             </div>
         </div>

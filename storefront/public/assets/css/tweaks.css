@@ -2311,6 +2311,13 @@ option:hover {
   color: rgba(16, 17, 17, 0.62);
 }
 
+.vp-daily-deal-price del {
+  margin-inline-end: 11.9px;
+  font-size: 16.9px;
+  font-weight: 540;
+  color: rgba(16, 17, 17, 0.42);
+}
+
 .vp-daily-deal-stock {
   margin-block-end: 18px;
   font-size: 14.4px;
@@ -2388,6 +2395,7 @@ option:hover {
 }
 
 .vp-daily-deal-shot {
+  position: relative;
   flex: 1 1 auto;
   min-width: 0;
   height: 264.5px;

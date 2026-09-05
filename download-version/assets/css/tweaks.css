@@ -4076,6 +4076,26 @@ option:hover {
   color: rgba(16, 17, 17, 0.62);
 }
 
+/* The price before the cut — «قیمت اصلیش ۴ میلیون ۹۰۰ باشه که ۲۰ درصد تخفیف
+   خورده».
+
+   Both numbers are set from the sale card's own pair rather than picked: there
+   `del` is 9.9 against a 13.5 `strong` and they stand 7 apart. This `strong`
+   is 23, so the same proportions are 23 x (9.9/13.5) = 16.9 and
+   23 x (7/13.5) = 11.9. Two bands printing a was-price at two different
+   relationships is what makes a page look assembled rather than designed, and
+   the ratio is the thing that has to carry across, not the pixel.
+
+   `margin` and not a flex `gap`: this element is `display: block` with a
+   trailing «تومان» inside it, and turning it into a flex row here would put
+   that word on its own baseline and re-space the whole line. */
+.vp-daily-deal-price del {
+  margin-inline-end: 11.9px;
+  font-size: 16.9px;
+  font-weight: 540;
+  color: rgba(16, 17, 17, 0.42);
+}
+
 .vp-daily-deal-stock {
   margin-block-end: 18px;
   font-size: 14.4px;
@@ -4208,7 +4228,13 @@ option:hover {
    No inset on the img: the box's own edges are already the card's 40px
    clearance, so padding here would be a second inset inside the first and
    would come straight off the photo, since height is the binding limit. */
+/* `position: relative` is here for the burst — «ستاره تخفیف هم بیاد روش».
+   `.vp-deal-burst` is absolutely positioned against its nearest positioned
+   ancestor, and without this that ancestor is whatever the page offers next up
+   the tree: the star would land in a corner of the section rather than on the
+   shoe. */
 .vp-daily-deal-shot {
+  position: relative;
   flex: 1 1 auto;
   min-width: 0;
   height: 264.5px;

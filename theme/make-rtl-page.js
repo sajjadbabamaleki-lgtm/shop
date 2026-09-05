@@ -1717,7 +1717,12 @@ const DAILY_DEAL =
   // the best-seller tiles do, and for the same reason: this band printed the
   // before-price, so one shoe read two numbers on one page. The Blade reads
   // `offerHere()->price`, and the two have to agree or check-parity.js fails.
-  `                        <strong class="vp-daily-deal-price">${fa(Math.round(DAILY_PRICE * (100 - LADDER_CUT) / 100))} <span>تومان</span></strong>\n` +
+  // And the price before the cut beside it — «قیمت اصلیش ۴ میلیون ۹۰۰ باشه که
+  // ۲۰ درصد تخفیف خورده». The Blade guards this on `hasActivePromotion()`; here
+  // the band is always the sale's own shoe at the live step, so it always
+  // draws. One line: a newline inside the element is a whitespace text node,
+  // and the two copies of this page have to render to the same pixel.
+  `                        <strong class="vp-daily-deal-price"><del>${fa(DAILY_PRICE)}</del>${fa(Math.round(DAILY_PRICE * (100 - LADDER_CUT) / 100))} <span>تومان</span></strong>\n` +
   '                        <div class="vp-daily-deal-stock">\n' +
   `                            <span>${DAILY_STOCK}</span>\n` +
   '                            <span class="vp-daily-deal-bar"><span class="vp-daily-deal-bar-fill"></span></span>\n' +
@@ -1742,7 +1747,11 @@ const DAILY_DEAL =
   '                            <li><div class="day count-number">00</div><span class="count-name">روز</span></li>\n' +
   '                        </ul>\n' +
   '                    </div>\n' +
-  `                    <div class="vp-daily-deal-shot"><img src="assets/img/${DAILY_SHOT}" alt="" loading="lazy"></div>\n` +
+  // «ستاره تخفیف هم بیاد روش» — the sale cards' own burst, on the photograph.
+  // `'d'` keys its gradient away from the sale's five and the best sellers'
+  // six, which are all on this page. Kept in step with
+  // `home/daily-deal.blade.php`, or check-parity.js fails.
+  `                    <div class="vp-daily-deal-shot">${dealBurst(LADDER_CUT, 'd')}<img src="assets/img/${DAILY_SHOT}" alt="" loading="lazy"></div>\n` +
   '                </div>\n' +
   '            </div>';
 
