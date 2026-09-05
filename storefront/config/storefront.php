@@ -422,6 +422,15 @@ return [
             // than on transparency, which is the one thing a hero shot may not
             // be; `theme/lift-off-black.js` is what cut it, and its own notes
             // say how a black shoe comes off a black ground.
+            // **The shop's own black On Running**, which is what the hero and
+            // «پیشنهاد ویژه» both draw now — «چرا روش میزنم میبره به این صفحه
+            // فیک؟». `on-cloudtilt` beside it is one of the five sneakers this
+            // repository seeds a fresh install with; it kept the deck working
+            // locally and had been carrying the live slide too, which was the
+            // bug. Both keys stay: the seed is what a fresh install and both
+            // copies of the home page have, the Persian slug is what
+            // production has, and a slug that is absent simply never matches.
+            'کتونی-آن-رانینگ-ON-Running-رنگ-مشکی' => 'assets/img/hero/vikyplus-hero-cloudtilt-on-black.webp',
             'on-cloudtilt' => 'assets/img/hero/vikyplus-hero-cloudtilt-on-black.webp',
 
             // The black suede Golden Goose, on the shop's own black Golden
@@ -973,6 +982,9 @@ return [
                 // when the hero did: the two are different colourways of the
                 // Cloudtilt, and leaving the tile on the old one would have put
                 // two different shoes under one product's name.
+                // The shop's own black On Running — the shoe «پیشنهاد ویژه»
+                // draws now that both bands are off the seeded demo product.
+                'کتونی-آن-رانینگ-ON-Running-رنگ-مشکی' => 'assets/img/hero/vikyplus-hero-cloudtilt-on-black.webp',
                 'on-cloudtilt' => 'assets/img/hero/vikyplus-hero-cloudtilt-on-black.webp',
 
                 // The same shoe the hero draws, with the same cut-out. It
