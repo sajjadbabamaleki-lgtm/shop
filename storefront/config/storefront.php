@@ -445,9 +445,23 @@ return [
 
     'daily_deal' => [
         'product' => 'new-balance-530',
-        // The template's countdown widget reads this one attribute, in the
-        // m/d/Y it was written in.
-        'ends_at' => '08/08/2026',
+        /*
+         | When the countdown ends — **null unless a campaign really has a
+         | deadline**.
+         |
+         | It was '08/08/2026', and on 08/08/2026 the band started showing four
+         | zeroes and went on showing them. Nothing could see it: a countdown
+         | that has run out renders perfectly, and every test that draws this
+         | page draws it at whatever «now» happens to be. It is the same shape
+         | as the stepped sale's seeded window — see «the stepped sale has no
+         | end date» in CLAUDE.md — and the same answer: null, and the code
+         | works out the end of today instead, which is what «پیشنهاد امروز»
+         | means and cannot expire.
+         |
+         | Set a date here (or an end on the offer itself, which wins) only for
+         | a campaign that genuinely stops at a moment somebody chose.
+         */
+        'ends_at' => null,
     ],
 
     /*

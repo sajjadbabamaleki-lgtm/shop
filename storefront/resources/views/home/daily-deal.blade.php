@@ -5,10 +5,15 @@
     مانده» is a count and not a claim — and the bar beside it is drawn near
     empty because one left is not a comfortable stock level.
 
-    Like the best sellers, the price shown is the one before the sale.
+    **The price is the one the shop charges.** It printed `compare_at_price`,
+    the number before the cut — «این باید قیمتشو اسمشو از فروشگاه بخونه» — so
+    this band, the shoe's own page and the listing disagreed about what a
+    customer pays. `offerHere()->price` is what `shop/card.blade.php` prints
+    and now what this does.
 
     The countdown is the template's own widget; data-offer-date is the single
-    input it reads.
+    input it reads, and `HomeController::dailyDealEndsAt()` is where that date
+    comes from and why it rolls.
 
     Hand-owned: theme/make-blade.js no longer regenerates this file.
 --}}
@@ -32,7 +37,7 @@
                     <div class="vp-daily-deal-info">
                         <span class="vp-daily-deal-cat">{{ $dailyDeal['category']?->name }}</span>
                         <h3 class="vp-daily-deal-name">{{ $dailyDeal['product']->title }}</h3>
-                        <strong class="vp-daily-deal-price">{{ toman($dailyDeal['product']->offerHere()->compare_at_price) }} <span>تومان</span></strong>
+                        <strong class="vp-daily-deal-price">{{ toman($dailyDeal['product']->offerHere()->price) }} <span>تومان</span></strong>
                         <div class="vp-daily-deal-stock">
                             <span>فقط {{ fa_number($dailyDeal['product']->sellableStock()) }} عدد باقی مانده</span>
                             <span class="vp-daily-deal-bar"><span class="vp-daily-deal-bar-fill"></span></span>

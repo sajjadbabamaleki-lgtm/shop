@@ -80,6 +80,29 @@ async function shoot(browser, url, width, file) {
     // grows a band the other has not.
     document.querySelectorAll('.vp-home-reviews, .vp-home-arts')
         .forEach((el) => { el.style.display = 'none'; });
+
+    // **The daily deal's countdown, stopped and zeroed on both pages.**
+    //
+    // It is a clock. The storefront's runs against a deadline the server
+    // works out — the end of today, so that the band cannot rot into four
+    // zeroes the way it did — while the static preview carries a literal date
+    // it was generated with. Even setting the two aside, the widget rewrites
+    // itself every second, so two shots of the *same* page taken a moment
+    // apart disagree about the seconds.
+    //
+    // Nothing about that is a difference between the two copies of the page,
+    // which is all this check exists to find. Zeroed on both, so a change to
+    // the boxes around the digits is still caught.
+    //
+    // **The interval has to be stopped first.** Zeroing the digits alone does
+    // nothing: the widget re-queries them and writes the remaining time back a
+    // second later, so the shot lands on whatever it wrote. Its interval id is
+    // in a closure with no way in from outside, so every interval on the page
+    // is cleared — the deck's autoplay above is already stopped by hand, and
+    // nothing else on this page runs on one.
+    for (let id = window.setInterval(() => {}, 9e6); id >= 0; id--) window.clearInterval(id);
+
+    document.querySelectorAll('.count-number').forEach((el) => { el.textContent = '00'; });
   });
 
   // The pictures themselves, bounded: a photograph that has not decoded is

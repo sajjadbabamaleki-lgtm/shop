@@ -8,6 +8,7 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductComment;
 use App\Support\FrontPage;
+use Carbon\CarbonImmutable;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
 
@@ -50,7 +51,12 @@ class HomeController extends Controller
             // which on the live shop is two of its six shoes. Six tiles over
             // two products is the repeat the client photographed.
             'bestSellers' => $this->bestSellers($categories, $catalogue),
-            'dailyDeal' => $this->dailyDeal($onSale),
+            // **The catalogue, not the sale** — the same rule as the band
+            // above. It prints one price now, the one the shop charges, and no
+            // struck-through one, so a campaign ending may not empty it. Built
+            // from the discounted subset it would have gone the way the hero
+            // and the best sellers both went.
+            'dailyDeal' => $this->dailyDeal($catalogue),
             'brands' => $this->brands($categories),
             /*
              * The two bands the client asked for on the front page: the
@@ -466,8 +472,40 @@ class HomeController extends Controller
         return [
             'product' => $product,
             'category' => $product->categories->first(),
-            'ends_at' => config('storefront.daily_deal.ends_at'),
+            'ends_at' => $this->dailyDealEndsAt($product),
         ];
+    }
+
+    /**
+     * When the daily deal's countdown runs out.
+     *
+     * **It rolls, and that is the whole point.** It was one date in
+     * `config/storefront.php`, written months ago; the date passed, and the
+     * band has been showing 00 روز 00 ساعت 00 دقیقه 00 ثانیه ever since —
+     * «تایمرش هم فعال بشه». Nothing went red, because a countdown that has run
+     * out renders perfectly. It is the same failure as the stepped sale's
+     * seeded window, which closed on its own and emptied three bands: **a date
+     * written down once is a clock, not a code path, and no test can see it.**
+     *
+     * So the order is: the offer's own end, if the shop set one — a real
+     * campaign with a real deadline, and the countdown should say so. Then an
+     * explicit date in config, for a campaign somebody wants to pin. And
+     * failing both, the end of today, which is what «پیشنهاد امروز» means and
+     * is never in the past.
+     *
+     * ISO 8601 with the offset on it, because the browser parses this string
+     * with `new Date()` and a bare `m/d/Y` is read as *the visitor's* midnight.
+     * A shopper in another timezone would otherwise see a different number of
+     * hours left than the shop does.
+     */
+    private function dailyDealEndsAt(Product $product): string
+    {
+        $ends = $product->offerHere()?->promotion_ends_at
+            ?? config('storefront.daily_deal.ends_at');
+
+        return $ends
+            ? CarbonImmutable::parse($ends)->toIso8601String()
+            : CarbonImmutable::now()->endOfDay()->toIso8601String();
     }
 
     /**

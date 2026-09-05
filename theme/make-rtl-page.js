@@ -1702,7 +1702,11 @@ const DAILY_DEAL =
   '                    <div class="vp-daily-deal-info">\n' +
   '                        <span class="vp-daily-deal-cat">ونس و کتونی</span>\n' +
   `                        <h3 class="vp-daily-deal-name">${DAILY_NAME}</h3>\n` +
-  `                        <strong class="vp-daily-deal-price">${fa(DAILY_PRICE)} <span>تومان</span></strong>\n` +
+  // The price the shop charges, cut where it is printed — the same arithmetic
+  // the best-seller tiles do, and for the same reason: this band printed the
+  // before-price, so one shoe read two numbers on one page. The Blade reads
+  // `offerHere()->price`, and the two have to agree or check-parity.js fails.
+  `                        <strong class="vp-daily-deal-price">${fa(Math.round(DAILY_PRICE * (100 - LADDER_CUT) / 100))} <span>تومان</span></strong>\n` +
   '                        <div class="vp-daily-deal-stock">\n' +
   `                            <span>${DAILY_STOCK}</span>\n` +
   '                            <span class="vp-daily-deal-bar"><span class="vp-daily-deal-bar-fill"></span></span>\n' +

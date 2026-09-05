@@ -154,11 +154,22 @@ class HeroOutlivesTheSaleTest extends TestCase
         $page = $this->get('/')->assertOk();
 
         $this->assertEmpty($page->viewData('ladderDeals'));
-        $this->assertNull($page->viewData('dailyDeal'));
 
         $this->assertNotEmpty(
             $page->viewData('bestSellers'),
             'The best sellers emptied because the sale ended. The band prints no struck-through price and must not depend on one.'
+        );
+
+        // **«پیشنهاد روز» left this list too, and for the same reason.** It
+        // printed `compare_at_price` — the number before the cut — which is
+        // what put it here; it prints the price the shop charges now, and a
+        // band with one honest price and a countdown is not a claim about a
+        // discount. Its own failure was the mirror of this one: the deadline
+        // was a date in config, that date passed, and the countdown showed
+        // four zeroes for a month with nothing anywhere going red.
+        $this->assertNotNull(
+            $page->viewData('dailyDeal'),
+            'The daily deal emptied because the sale ended. It prints no struck-through price and must not depend on one.'
         );
 
         // Whatever else is missing, the page is a page: it renders, and the
