@@ -7,6 +7,9 @@ name: Read the Torob docs
 # implement is from a runner. Only the deploy job is gated on `main`, so a
 # working branch runs everything and ships nothing — the same tool the
 # supplier-photograph question was settled with.
+#
+# The page is a JavaScript panel: curl gets «لطفا کمی صبر کنید» and 5KB of
+# shell. So it is rendered.
 
 on:
   workflow_dispatch:
@@ -21,27 +24,33 @@ jobs:
     name: Fetch the specification
     runs-on: ubuntu-latest
     steps:
-      - name: Fetch
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install a browser
+        run: npm i -g playwright@1.49.1 && npx --yes playwright@1.49.1 install --with-deps chromium
+
+      - name: Render
         run: |
-          set -x
-          for u in \
-            "https://panel.torob.com/s/torobApiV3" \
-            "https://panel.torob.com/api/v3/docs" \
-            "https://panel.torob.com/s/torobApiV3/" ; do
-            echo "=============== $u"
-            curl -sSL --max-time 40 -D - -o body.html "$u" || true
-            wc -c body.html || true
-            echo "--------------- text"
-            python3 - <<'PY' || true
-          import html, re
-          try:
-              raw = open('body.html', encoding='utf-8', errors='replace').read()
-          except FileNotFoundError:
-              raise SystemExit
-          raw = re.sub(r'(?is)<(script|style)[^>]*>.*?</\1>', ' ', raw)
-          text = html.unescape(re.sub(r'(?s)<[^>]+>', ' ', raw))
-          text = re.sub(r'[ \t]+', ' ', text)
-          text = re.sub(r'\n\s*\n+', '\n', text)
-          print(text[:40000])
-          PY
-          done
+          cat > read.mjs <<'JS'
+          import { chromium } from 'playwright';
+          const b = await chromium.launch();
+          const p = await b.newPage({ viewport: { width: 1400, height: 2000 } });
+          const seen = [];
+          p.on('response', (r) => {
+            const u = r.url();
+            if (/api|json|doc/i.test(u) && !/\.(png|jpg|svg|woff2?|css)$/i.test(u)) seen.push(r.status() + ' ' + u);
+          });
+          await p.goto('https://panel.torob.com/s/torobApiV3', { waitUntil: 'networkidle', timeout: 90000 });
+          await p.waitForTimeout(6000);
+          console.log('=== TITLE:', await p.title());
+          console.log('=== TEXT ===');
+          console.log((await p.evaluate(() => document.body.innerText)).slice(0, 60000));
+          console.log('=== LINKS ===');
+          console.log((await p.evaluate(() => [...document.querySelectorAll('a')].map((a) => a.href + ' | ' + a.textContent.trim()))).join('\n').slice(0, 6000));
+          console.log('=== REQUESTS ===');
+          console.log(seen.join('\n'));
+          await b.close();
+          JS
+          NODE_PATH=$(npm root -g) node read.mjs
