@@ -262,4 +262,30 @@ return [
         ],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | ترب — the product feed
+    |--------------------------------------------------------------------------
+    |
+    | Torob reads the whole catalogue from one address of ours, to their v3
+    | specification. See `App\Http\Controllers\TorobFeedController`.
+    |
+    | `enabled` is the switch. It is **off by default**, so the feed is a 404
+    | until somebody turns it on deliberately — and so that it can be taken
+    | back off the air from the Liara panel in one variable if it ever has to
+    | come down in a hurry, without waiting for a deploy.
+    |
+    | `public_key` overrides the key the token is verified with. It is here for
+    | the day Torob rotates theirs — that is what their `Token-Version` header
+    | exists for — and is empty the rest of the time, when the key compiled
+    | into `App\Support\Torob\Token` is used. It is a public key: it verifies
+    | and cannot sign, so there is nothing secret about either place.
+    |
+    */
+
+    'torob' => [
+        'enabled' => env('TOROB_ENABLED', false),
+        'public_key' => env('TOROB_PUBLIC_KEY'),
+    ],
+
 ];

@@ -14,9 +14,11 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProductCommentController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ShopController;
+use App\Http\Controllers\TorobFeedController;
 use App\Http\Controllers\VendorApplicationController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Middleware\ResolveTenant;
+use App\Http\Middleware\VerifyTorobToken;
 use App\Models\Enquiry;
 use Illuminate\Support\Facades\Route;
 
@@ -291,6 +293,29 @@ $storefront = function (): void {
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('order');
     Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('order.cancel');
 };
+
+/*
+ * ترب's product feed.
+ *
+ * Registered before the storefront for the same reason the panel is: the
+ * branch group's bare {branch} segment would otherwise swallow it, and Laravel
+ * matches in registration order.
+ *
+ * **Outside the branch group on purpose.** `ResolveTenant` reads the host, and
+ * a host that is not in `branch_domains` is a 404 — which for a machine caller
+ * would be an outage nobody could explain, and `www.` versus the bare domain is
+ * exactly the shape of mistake that has already cost this shop a round on the
+ * payment gateway. The controller binds the central branch itself instead.
+ *
+ * The address ends in `/products`, which is Torob's own convention, and their
+ * documentation's example is `https://example.com/torob_api/v3/products`.
+ *
+ * POST only, and JSON only: that is their specification, and a feed that also
+ * answered GET would be a price list one browser address bar away.
+ */
+Route::post('/torob_api/v3/products', TorobFeedController::class)
+    ->middleware(VerifyTorobToken::class)
+    ->name('torob.products');
 
 /*
  * The panel goes on before the storefront, because the storefront's branch

@@ -42,8 +42,8 @@ class Branch extends Model
         'franchise', 'logout', 'orders', 'pages', 'panel', 'password',
         'payment', 'privacy', 'product', 'products', 'profile', 'register',
         'search', 'shop', 'size-guide', 'sitemap', 'stepped-sale', 'storage',
-        'store', 'support', 'terms', 'up', 'vendor', 'vendors', 'wholesale',
-        'wishlist',
+        'store', 'support', 'terms', 'torob_api', 'up', 'vendor', 'vendors',
+        'wholesale', 'wishlist',
     ];
 
     protected $fillable = [
