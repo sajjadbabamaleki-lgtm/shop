@@ -25,5 +25,6 @@ jobs:
             echo "=================== $u"
             curl -sSL --max-time 60 "$u" -o spec.md
             wc -c spec.md
-            cat spec.md
+            # The log is read from its tail, so print the opening on its own.
+            head -n 150 spec.md
           done
