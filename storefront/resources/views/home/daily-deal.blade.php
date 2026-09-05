@@ -22,7 +22,13 @@
         <div class="container th-container vp-daily-deal-wrap">
             <div class="vp-daily-deal">
                 <div class="vp-daily-deal-copy">
-                    <span class="vp-daily-deal-badge">پیشنهاد امروز</span>
+                    {{-- «اون قسمت پیشنهاد امروز هم بشه پیشنهاد ویژه». The
+                         deadline underneath is still the end of today when
+                         nothing else sets one, and the clock re-arms itself on
+                         a fresh day — so what the band offers is still today's,
+                         it is simply no longer named after the day. Kept in
+                         step with theme/make-rtl-page.js, or parity fails. --}}
+                    <span class="vp-daily-deal-badge">پیشنهاد ویژه</span>
                     <h2 class="vp-daily-deal-title">قبل از<br>تمام شدن بخرش!</h2>
                     <p class="vp-daily-deal-sub">عجله کن؛ موجودی محدوده.</p>
                     {{-- The arrow stays in the markup and is switched off below

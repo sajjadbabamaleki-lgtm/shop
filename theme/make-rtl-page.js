@@ -1694,7 +1694,11 @@ const [DAILY_SHOT, DAILY_NAME, DAILY_PRICE, DAILY_STOCK] = LADDER_DEALS[2];
 const DAILY_DEAL =
   '<div class="vp-daily-deal">\n' +
   '                <div class="vp-daily-deal-copy">\n' +
-  '                    <span class="vp-daily-deal-badge">پیشنهاد امروز</span>\n' +
+  // «اون قسمت پیشنهاد امروز هم بشه پیشنهاد ویژه». The deadline underneath is
+  // still the end of today when nothing else sets one, and the clock re-arms
+  // itself on a fresh day — the band is simply no longer named after the day.
+  // Kept in step with `home/daily-deal.blade.php`, or check-parity.js fails.
+  '                    <span class="vp-daily-deal-badge">پیشنهاد ویژه</span>\n' +
   // Broken where the client broke it in their own message, not left to
   // wrap on its own — the copy column is 521 wide and the line fits on one
   // at every desktop width, so without the <br> it would never stack.
@@ -1864,7 +1868,7 @@ const DICT = {
   "Women's Collections": 'کالکشن زنانه',
   "Men's Collections": 'کالکشن مردانه',
   'Best Seller Products': 'پرفروش‌ترین‌ها',
-  "Today's Best Deals": 'پیشنهاد امروز',
+  "Today's Best Deals": 'پیشنهاد ویژه',
   'Feature Products': 'محصولات منتخب',
   'Membership Offer': 'باشگاه مشتریان',
   'New Trend Edition': 'کالکشن جدید',
@@ -4287,7 +4291,7 @@ html = html.replace('</body>',
   '         * That fixes every fresh load; it does not fix the tab somebody left\n' +
   '         * open. The template\'s widget clears its own interval the moment the\n' +
   '         * deadline passes and marks the list `expired`, so at midnight the\n' +
-  '         * clock simply stops — and a shop that says «پیشنهاد امروز» over a\n' +
+  '         * clock simply stops — and a shop that says «پیشنهاد ویژه» over a\n' +
   '         * dead clock is worse than one that says nothing.\n' +
   '         *\n' +
   '         * So: watch for that class, push the deadline on by whole days until\n' +

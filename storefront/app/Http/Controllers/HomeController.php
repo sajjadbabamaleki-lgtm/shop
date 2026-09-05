@@ -490,8 +490,10 @@ class HomeController extends Controller
      * So the order is: the offer's own end, if the shop set one — a real
      * campaign with a real deadline, and the countdown should say so. Then an
      * explicit date in config, for a campaign somebody wants to pin. And
-     * failing both, the end of today, which is what «پیشنهاد امروز» means and
-     * is never in the past.
+     * failing both, the end of today, which is never in the past. The band is
+     * «پیشنهاد ویژه» now rather than «پیشنهاد امروز», so that is no longer what
+     * its name says; it stays the default because the page re-arms the clock a
+     * day on when it runs out, and a deadline a day away is what matches that.
      *
      * ISO 8601 with the offset on it, because the browser parses this string
      * with `new Date()` and a bare `m/d/Y` is read as *the visitor's* midnight.

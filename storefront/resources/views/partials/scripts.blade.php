@@ -528,7 +528,7 @@
          * That fixes every fresh load; it does not fix the tab somebody left
          * open. The template's widget clears its own interval the moment the
          * deadline passes and marks the list `expired`, so at midnight the
-         * clock simply stops — and a shop that says «پیشنهاد امروز» over a
+         * clock simply stops — and a shop that says «پیشنهاد ویژه» over a
          * dead clock is worse than one that says nothing.
          *
          * So: watch for that class, push the deadline on by whole days until

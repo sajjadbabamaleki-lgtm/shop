@@ -455,8 +455,11 @@ return [
          | page draws it at whatever «now» happens to be. It is the same shape
          | as the stepped sale's seeded window — see «the stepped sale has no
          | end date» in CLAUDE.md — and the same answer: null, and the code
-         | works out the end of today instead, which is what «پیشنهاد امروز»
-         | means and cannot expire.
+         | works out the end of today instead, which cannot expire. The band is
+         | «پیشنهاد ویژه» now rather than «پیشنهاد امروز», so the end of today
+         | is no longer what its own name says; it stays the default because
+         | the clock re-arms itself on a fresh day when it runs out, and a
+         | deadline a day away is the one that matches that.
          |
          | Set a date here (or an end on the offer itself, which wins) only for
          | a campaign that genuinely stops at a moment somebody chose.
