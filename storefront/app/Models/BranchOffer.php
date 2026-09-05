@@ -77,6 +77,27 @@ class BranchOffer extends Model
     }
 
     /**
+     * Promoted, and by at least this much.
+     *
+     * The five buttons under the stepped sale ask «show me ٪۳۰ and better», so
+     * the comparison has to happen in SQL: the deepest cuts among two hundred
+     * products are not the deepest among whichever page you are on, which is
+     * the same reason `pricedHere()` is a subquery.
+     *
+     * `discountPercent()` rounds, and this must agree with it or a shoe at
+     * 29.6% would carry a ٪۳۰ badge and be missing from the ٪۳۰ filter. So the
+     * threshold is shifted half a point down rather than the column rounded:
+     * `(was - now) * 200 >= (2 * cut - 1) * was` is `(was - now) / was * 100 >=
+     * cut - 0.5` with no division and no floating point, which is what rounding
+     * to `cut` means.
+     */
+    public function scopeCutBy(Builder $query, int $percent): Builder
+    {
+        return $query->promoted()
+            ->whereRaw('(compare_at_price - price) * 200 >= ? * compare_at_price', [2 * $percent - 1]);
+    }
+
+    /**
      * A promotion counts only inside its own window. A compare_at_price left
      * behind after the campaign ended is not a discount (§14) — it is a
      * struck-through number that makes the shop look like it is lying.

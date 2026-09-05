@@ -48,9 +48,25 @@
                     @endforeach
                 </div>
                 <div class="vp-ladder-notes">
-                    <a href="{{ page_url('shop.html') }}" class="vp-ladder-all">مشاهده همه محصولات موجود در حراج</a>
                     <span>انتقال پله فقط در صورت باقی‌ماندن موجودی</span>
                     <span>پله بعدی در ۲۲ روز و ۱۴ ساعت</span>
+                </div>
+                {{-- «این دکمه باید بیاد زیر اون دوتا پایینیش و تغییر ماهیت بده
+                     و تبدیل بشه به پنج دکمه فیلتر درصد قیمت».
+
+                     What was here was one link to the whole listing —
+                     «مشاهده همه محصولات موجود در حراج» — sharing the row above
+                     with the two conditions. It is five now, under them, and
+                     each one is a filter rather than a way out: ?cut=N is
+                     «discounted by N or more», and the five are
+                     `ShopController::CUTS`, which is the only list that accepts
+                     them. Kept in step with theme/make-rtl-page.js by hand, the
+                     way every hand-owned band is; check-parity.js is what
+                     notices. --}}
+                <div class="vp-ladder-cuts">
+                    @foreach (\App\Http\Controllers\ShopController::CUTS as $cut)
+                    <a class="vp-ladder-cut" href="{{ storefront_route('shop', ['cut' => $cut]) }}">٪{{ fa_number($cut) }}</a>
+                    @endforeach
                 </div>
                 @php
                     // «یک محصول تکراری در حراج پله ای بزار که ۶ تایی بشه». The

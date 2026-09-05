@@ -1231,6 +1231,11 @@ const LADDER_NOTES = [
   'پله بعدی در ۲۲ روز و ۱۴ ساعت',
 ];
 
+// The five discount filters under the conditions. **The same five as
+// `ShopController::CUTS`**, which is what the listing accepts — a sixth here
+// would be a button that lands on an unfiltered page.
+const LADDER_CUTS = [15, 30, 45, 60, 70];
+
 // The cut is the live step's, so the two cannot drift apart when the step
 // moves — the card's badge and its price both read from here.
 const LADDER_CUT = LADDER_STEPS.find(([, , , state]) => state === 'current')[1];
@@ -1629,16 +1634,20 @@ html = html.replace(
   '                </div>\n' +
   '                <div class="vp-ladder-track">' + LADDER_TRACK_HTML + '\n' +
   '                </div>\n' +
-  // The way out sits with the two conditions rather than on a line of its own
-  // under the tiles. It is the same kind of thing they are — a standing fact
-  // about the sale, not a step in it — and putting it here takes a whole row
-  // off the section's height.
+  // The two standing conditions, and under them the five cuts.
   //
-  // First in the row, not last: the row is RTL, so the first child sits at
-  // the right, which is where the client asked for the link to read.
+  // There was one link here — «مشاهده همه محصولات موجود در حراج» — sharing the
+  // row with the conditions. «این دکمه باید بیاد زیر اون دوتا پایینیش و تغییر
+  // ماهیت بده و تبدیل بشه به پنج دکمه فیلتر درصد قیمت»: it is five now, below
+  // them, and each is a filter rather than a way out. `?cut=N` is «discounted
+  // by N or more» and the five are `ShopController::CUTS`, which is the only
+  // list the listing accepts — the two have to stay in step, and so do this
+  // block and `home/ladder.blade.php`, or check-parity.js fails.
   '                <div class="vp-ladder-notes">\n' +
-  '                    <a href="shop.html" class="vp-ladder-all">مشاهده همه محصولات موجود در حراج</a>\n' +
   LADDER_NOTES.map((n) => `                    <span>${n}</span>`).join('\n') + '\n' +
+  '                </div>\n' +
+  '                <div class="vp-ladder-cuts">\n' +
+  LADDER_CUTS.map((c) => `                    <a class="vp-ladder-cut" href="shop.html?cut=${c}">٪${fa(c)}</a>`).join('\n') + '\n' +
   '                </div>\n' +
   '                <div class="row gy-4 row-cols-2 row-cols-md-3 row-cols-xl-5 vp-ladder-deals">' + LADDER_DEALS_HTML + '\n' +
   '                </div>\n' +

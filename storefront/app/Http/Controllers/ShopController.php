@@ -107,8 +107,20 @@ class ShopController extends Controller
      * types into the box, and become Rial here — the one place the conversion
      * happens on the way in.
      *
-     * @return array{category: ?Category, brand: list<string>, size: ?string, color: ?string, min: ?int, max: ?int, sale: bool, sort: string, q: ?string}
+     * @return array{category: ?Category, brand: list<string>, size: ?string, color: ?string, min: ?int, max: ?int, sale: bool, cut: ?int, sort: string, q: ?string}
      */
+    /**
+     * The discount thresholds the shop filters by.
+     *
+     * The five buttons under the stepped sale on the front page, and the only
+     * values `?cut=` accepts. `theme/make-rtl-page.js` writes the same five
+     * into the static preview and `config/storefront.php`'s ladder steps are
+     * the campaign they describe — if those move, these move with them.
+     *
+     * @var list<int>
+     */
+    public const CUTS = [15, 30, 45, 60, 70];
+
     private function filters(Request $request, ?Category $category): array
     {
         $toman = function (?string $value): ?int {
@@ -125,6 +137,13 @@ class ShopController extends Controller
             'min' => $toman($request->query('min')),
             'max' => $toman($request->query('max')),
             'sale' => $request->boolean('sale'),
+            // **A whitelist, not a number.** These are the five steps the
+            // stepped sale offers and the five buttons under it link to; any
+            // other value is somebody typing in the address bar, and a listing
+            // headed «تخفیف‌های ٪۳۷ و بیشتر» is a promise the shop never made.
+            'cut' => in_array((int) $request->query('cut'), self::CUTS, true)
+                ? (int) $request->query('cut')
+                : null,
             'sort' => array_key_exists((string) $request->query('sort'), self::SORTS)
                 ? (string) $request->query('sort')
                 : 'newest',
@@ -222,6 +241,15 @@ class ShopController extends Controller
                 ->whereHas('offer', fn (Builder $o) => $o->promoted()));
         }
 
+        // «تبدیل بشه به پنج دکمه فیلتر درصد قیمت» — the five buttons under the
+        // stepped sale. Asked of the sellable variants for the same reason the
+        // plain sale filter is: a shoe cut 30% in a size this branch has none
+        // of is not an answer to «show me ٪۳۰».
+        if ($filters['cut']) {
+            $query->whereHas('variants', fn (Builder $v) => $v->sellable()
+                ->whereHas('offer', fn (Builder $o) => $o->cutBy($filters['cut'])));
+        }
+
         if ($filters['q']) {
             // Both sides folded to one spelling. Persian is typed three ways by
             // three keyboards and none of them is wrong: ي and ی are different
@@ -310,6 +338,12 @@ class ShopController extends Controller
     {
         if ($filters['q']) {
             return "نتیجه جست‌وجو برای «{$filters['q']}»";
+        }
+
+        if ($filters['cut']) {
+            $cut = 'تخفیف ٪'.fa_number($filters['cut']).' و بیشتر';
+
+            return $filters['category'] ? $filters['category']->name.'، '.$cut : $cut;
         }
 
         if ($filters['sale']) {

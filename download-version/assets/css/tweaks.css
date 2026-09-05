@@ -2925,25 +2925,20 @@ option:hover {
 
 /* --- the two notes, and the way out beside them --------------------------- */
 
-/* The row is set to the deal grid below it: same gap as the gap between two
-   cards, and the link sized to exactly one card (see .vp-ladder-all). The
-   cards are a Bootstrap row whose gutter is 24 — measured, the visual gap
-   between two cards is 24 at every width — so 24 here puts the two rows on
-   one rhythm.
+/* The row is set to the deal grid below it: the same gap as the gap between
+   two cards. The cards are a Bootstrap row whose gutter is 24 — measured, the
+   visual gap between two cards is 24 at every width — so 24 here puts the rows
+   on one rhythm.
 
-   --deal-cols is how many cards that row runs, which is what the link's width
-   is worked out from. The grid is row-cols-2 / md-3 / xl-5; below 992 this row
-   stacks anyway, so only the 3 and the 5 matter. */
+   It used to carry a `--deal-cols` custom property, which existed only to size
+   the one link that shared this row against exactly one card beneath it. That
+   link is five filter buttons on a row of their own now, so the property and
+   the breakpoint that changed it have gone with it. */
 .vp-ladder-notes {
-  --deal-cols: 3;
   display: flex;
   align-items: stretch;
   gap: 24px;
   margin-block-end: 18px;
-}
-
-@media (min-width: 1200px) {
-  .vp-ladder-notes { --deal-cols: 5; }
 }
 
 /* White again. They carried the page's ink wash while the panel under them was
@@ -4237,54 +4232,47 @@ option:hover {
   .vp-daily-deal-title { font-size: 23.4px; }   /* the same ten per cent off 26 */
 }
 
-/* --- the way out --------------------------------------------------------- */
+/* --- the five cuts ------------------------------------------------------- */
 
-/* Exactly one deal card wide, so it sits directly over the card beneath it
-   rather than at whatever width its own text happens to want. The cards
-   divide the row's width between them with a 24px gutter, so one card is
-   (100% - (n-1) * 24) / n, and the row it lives in is the same width as the
-   deals row — both are the panel's content box, measured equal at 1364 at
-   1440. It still does not share the row evenly with the two conditions: it is
-   a way out, not a third condition. */
-.vp-ladder-all {
-  flex: 0 0 calc((100% - (var(--deal-cols) - 1) * 24px) / var(--deal-cols));
+/* «این دکمه باید بیاد زیر اون دوتا پایینیش و تغییر ماهیت بده و تبدیل بشه به
+   پنج دکمه فیلتر درصد قیمت». What was here was one link to the whole listing,
+   sized to sit over exactly one deal card and sharing the row above with the
+   two conditions. It is five filters now, on a row of their own under them.
+
+   A grid rather than the flex row above it, because five equal buttons is what
+   this is: `1fr` five times says so once, where flex would need a basis worked
+   out from the gap. Same 24 gap, so it stays on the deal grid's rhythm. */
+.vp-ladder-cuts {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 24px;
+  margin-block-end: 18px;
+}
+
+/* The gold tint the old link had, with its literal corrected. That link
+   carried `rgba(164, 127, 37, …)` — the *previous* gold, four degrees browner
+   and eight points less saturated than the palette's, and invisible to any
+   search for a token because it was written as raw channels. See «گلد سبز» in
+   CLAUDE.md. This is the current gold's own tint, and the ink is
+   `--vp-gold-fill-ink`, which is what every flat gold glyph on this site is. */
+.vp-ladder-cut {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 11px 18px;
+  padding: 11px 8px;
   border-radius: 12px;
-  background: rgba(164, 127, 37, 0.10);
+  background: rgba(218, 178, 38, 0.12);
   font-size: 14px;
   font-weight: 630;
   line-height: 1.7;
-  /* Both needed for the basis above to actually bind. A flex item will not go
-     below its content width while min-width is auto, and this label sets 274
-     against a card of 253.6 at 1440 and 193.6 at 1200 — so it simply ignored
-     the basis and stayed 274 at both. min-width: 0 lets it shrink, and the
-     wrap lets the words take a second line rather than spilling out of the
-     box. The row is align-items: stretch, so the two conditions beside it grow
-     to match and the three stay one band. */
   min-width: 0;
   text-align: center;
-  color: var(--theme-color);
+  color: var(--vp-gold-fill-ink);
 }
 
-/* Physical borders again, and pointing left because that is where the page
-   continues in RTL — the logical pair would resolve to the right and send the
-   chevron back the way the reader came. */
-.vp-ladder-all:after {
-  content: '';
-  width: 7px;
-  height: 7px;
-  border-left: 1.6px solid currentColor;
-  border-bottom: 1.6px solid currentColor;
-  transform: rotate(45deg);
-}
-
-.vp-ladder-all:hover {
-  background: rgba(164, 127, 37, 0.16);
-  color: var(--title-color);
+.vp-ladder-cut:hover {
+  background: rgba(218, 178, 38, 0.20);
+  color: var(--vp-gold-ink);
 }
 
 /* --- narrower ------------------------------------------------------------ */
@@ -4316,10 +4304,18 @@ option:hover {
      free while the mark had a line of its own; sharing a 140 row with it,
      «پله چهارم» + «هفته چهارم» at 12 need 162 of that 140 and no amount of
      padding closes 22. At 11 they need 140 exactly. */
-  /* Stacked, so there is no card beside the link to match — it goes back to
-     filling the line like the two conditions above it. */
+  /* Stacked: two full-width conditions, one under the other. */
   .vp-ladder-notes { flex-direction: column; gap: 10px; }
-  .vp-ladder-all { flex: none; }
+
+  /* The five stay five — they are a scale, and a scale that wraps to two rows
+     stops reading as one. At 390 the panel's content box is 342, so five
+     columns with an 8 gap are 60.4 each and «٪۱۵» sets 34 at 13px. */
+  .vp-ladder-cuts { gap: 8px; }
+
+  .vp-ladder-cut {
+    padding: 10px 4px;
+    font-size: 13px;
+  }
 }
 
 /* The ladder is a scale, so it is never allowed to wrap — under 700 it scrolls
