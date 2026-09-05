@@ -65,6 +65,11 @@
       "small": "assets/img/hero/vikyplus-hero-nb530-700.webp",
       "smallWidth": 700,
       "width": 1400
+    },
+    "assets/img/hero/vikyplus-hero-v2k-white-blue.webp": {
+      "small": "assets/img/hero/vikyplus-hero-v2k-white-blue-700.webp",
+      "smallWidth": 700,
+      "width": 1400
     }
   }
 }

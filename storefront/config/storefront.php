@@ -984,6 +984,14 @@ return [
                 // two different shoes under one product's name.
                 // The shop's own black On Running — the shoe «پیشنهاد ویژه»
                 // draws now that both bands are off the seeded demo product.
+                // **The shop's own white-and-light-blue V2K**, as a cut-out —
+                // «عکس اون محصول تو قسمت پرفروش ترین ها بشه این». The tile had
+                // been drawing the catalogue's own photograph, which carries the
+                // studio's ground and sat as a small grey square among five
+                // cut-outs. Built by `theme/make-hero-photos.js` onto the same
+                // 1400x990 canvas as the other five, so the row reads as one set.
+                'کتونی-نایک-وی-تو-کی-Nike-V2K-رنگ-سفید-آبی-روشن' => 'assets/img/hero/vikyplus-hero-v2k-white-blue.webp',
+
                 'کتونی-آن-رانینگ-ON-Running-رنگ-مشکی' => 'assets/img/hero/vikyplus-hero-cloudtilt-on-black.webp',
                 'on-cloudtilt' => 'assets/img/hero/vikyplus-hero-cloudtilt-on-black.webp',
 

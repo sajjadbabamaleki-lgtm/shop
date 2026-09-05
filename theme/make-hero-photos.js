@@ -69,6 +69,11 @@ const SOURCES = [
   'jordan', 'goldengoose', 'nb530', 'cloudtilt-black',
   'nb530-white', 'airzoom-cream', 'goldengoose-black', 'jordan-travis',
   'jordan-chicago', 'cloudtilt-on-black', 'goldengoose-suede',
+  // The white-and-light-blue V2K, for the best sellers' sixth tile —
+  // «عکس اون محصول تو قسمت پرفروش ترین ها بشه این». It replaces a shot with
+  // the studio's ground on it, which is what the tile had been drawing from
+  // the catalogue since that tile started naming the shop's own shoe.
+  'v2k-white-blue',
 ];
 
 // Anything at or below this is background, not shoe. The cut-outs carry a
