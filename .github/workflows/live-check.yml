@@ -1,0 +1,67 @@
+name: What the live special offer draws
+
+# TEMPORARY. Delete once the answer is in hand.
+#
+# This container's proxy refuses vikyplus.ir, so the only way to see what the
+# live page actually serves is from a runner. Only the deploy job is gated on
+# `main`, so a working branch runs everything and ships nothing.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [claude/website-loading-speed-zn0uri]
+
+permissions:
+  contents: read
+
+jobs:
+  look:
+    name: Read the front page
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install a browser
+        run: |
+          npm init -y >/dev/null
+          npm i playwright@1.49.1
+          npx playwright install --with-deps chromium
+
+      - name: Look
+        run: |
+          cat > look.mjs <<'JS'
+          import { chromium } from 'playwright';
+          const b = await chromium.launch();
+          const p = await b.newPage({ viewport: { width: 390, height: 900 } });
+          await p.goto('https://vikyplus.ir/', { waitUntil: 'load', timeout: 90000 });
+          await p.waitForTimeout(4000);
+          await p.evaluate(() => document.querySelector('.vp-daily-deal')?.scrollIntoView());
+          await p.waitForTimeout(3000);
+
+          const out = await p.evaluate(() => {
+            const file = (el) => el && el.currentSrc ? el.currentSrc.split('/').pop() : null;
+            const deal = document.querySelector('.vp-daily-deal');
+            return {
+              heroShots: [...document.querySelectorAll('.heroSlide6 .hero-img img')].map(file),
+              dealName: deal?.querySelector('.vp-daily-deal-name')?.textContent.trim(),
+              dealShot: file(deal?.querySelector('.vp-daily-deal-shot img')),
+              dealPrice: deal?.querySelector('.vp-daily-deal-price')?.textContent.replace(/\s+/g,' ').trim(),
+              dealBurst: deal?.querySelector('.vp-deal-burst text')?.textContent,
+              ctaText: deal?.querySelector('.vp-daily-deal-cta')?.textContent.trim(),
+              ctaHref: deal?.querySelector('.vp-daily-deal-cta')?.getAttribute('href'),
+              hasMark: !!deal?.querySelector('.vp-daily-deal-mark'),
+              linksInCard: deal?.querySelectorAll('.vp-daily-deal-card a').length,
+            };
+          });
+          console.log('RESULT ' + JSON.stringify(out, null, 1));
+          await p.screenshot({ path: 'live.png', fullPage: false });
+          await b.close();
+          JS
+          node look.mjs
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: live
+          path: live.png
