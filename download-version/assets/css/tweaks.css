@@ -4270,7 +4270,23 @@ option:hover {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 11px 8px;
+  /* **The box's height is its own, not the figure's.** It used to be padding
+     plus a 1.7 line box, so every change to `font-size` moved it — which is
+     how three asks about the number alone took the box from 46 to 52. It is
+     stated here instead, and the flex centring above does the rest, so the
+     figure can be set to anything without the row changing shape. 46 is what
+     the two conditions above it measure, and what this measured on the day it
+     was built. */
+  height: 46px;
+  /* **The 3 at the top is a measured correction, not spacing.** Flex centres
+     the *line box*, and a line box is not the ink: this face carries more
+     ascent than descent, so the figure sat 3px high inside the button —
+     measured at 4x zoom on the rendered page, 63 device pixels of white above
+     the gold and 75 below. With `box-sizing: border-box` and the height
+     stated, 3 of top padding moves the centred content down by half of it,
+     which is the 1.5 that closes the gap. Re-measure if the face or the size
+     changes; the phone's own figure needs its own number for the same reason. */
+  padding: 3px 8px 0;
   border-radius: 12px;
   background: #FFFFFF;
   box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.05);
@@ -4278,9 +4294,12 @@ option:hover {
      asks — «۲۰ درصد بزرگتر», then «ده درصد بزرگتر بشه باز», then once more.
      The conditions are a sentence to read once; these are the number you are
      choosing between, so they carry the weight rather than matching it. */
-  font-size: 20.33px;
+  font-size: 18.3px;
   font-weight: 630;
-  line-height: 1.7;
+  /* 1, so the line box is the figure itself and the flex centring has nothing
+     asymmetric to centre. Anything larger reintroduces half-leading above and
+     below, which is invisible until the box is asked to be a fixed height. */
+  line-height: 1;
   min-width: 0;
   text-align: center;
   color: var(--vp-gold-fill-ink);
@@ -4329,13 +4348,16 @@ option:hover {
   .vp-ladder-cuts { gap: 8px; }
 
   .vp-ladder-cut {
-    padding: 10px 4px;
-    /* The same again, from the 13 this had. Measured at 390 at each step: the
-       button is 68 wide and «٪۱۵» sets 49 of it at this size, so the five
-       still stand in one row without wrapping — which they must, because a
-       scale that wraps stops reading as a scale. That measurement is the
-       ceiling on any further ask. */
-    font-size: 18.88px;
+    /* 42, which is what this row measured before the figure was ever touched.
+       Measured at 390: the button is 68 wide and «٪۱۵» sets 44 of it at this
+       size, so the five still stand in one row without wrapping — which they
+       must, because a scale that wraps stops reading as a scale. That
+       measurement is the ceiling on any further ask. */
+    height: 42px;
+    /* 4 here against the base's 3: the same asymmetry over a smaller figure,
+       measured the same way — 55 device pixels above the ink and 71 below. */
+    padding: 4px 4px 0;
+    font-size: 17px;
   }
 }
 
