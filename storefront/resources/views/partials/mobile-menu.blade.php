@@ -33,12 +33,23 @@
                          say what they are. The «فروشگاه» heading below stays:
                          it has a list under it that does need naming. --}}
                     <div class="vp-drawer-quick">
-                        {{-- The sale is the lit one, and it is the listing's own
-                             `sale` filter rather than a page of its own — one
-                             grid, opened on a different question. --}}
-                        <a class="vp-quick is-lit" href="{{ storefront_route('shop') }}?sale=1">
-                            <span class="vp-quick-mark"><i class="fa-solid fa-tag" aria-hidden="true"></i></span>
-                            <span class="vp-quick-name">تخفیف‌دارها</span>
+                        {{-- «اینجا اون بالا بجای تخفیف دارها مقالات بیاد».
+
+                             «تخفیف‌دارها» was the listing's own `sale` filter,
+                             and the front page grew five discount buttons under
+                             the stepped sale that ask the same question with a
+                             depth attached — so this tile was the third way to
+                             the same grid. The articles had no way in from a
+                             phone at all: the page is in the footer, and the
+                             footer on the home page is seven thousand pixels
+                             down.
+
+                             It keeps the lit treatment, which marks the tile
+                             the shop is pointing at rather than the one that is
+                             urgent. --}}
+                        <a class="vp-quick is-lit" href="{{ page_url('blog.html') }}">
+                            <span class="vp-quick-mark"><i class="fa-solid fa-newspaper" aria-hidden="true"></i></span>
+                            <span class="vp-quick-name">مقالات</span>
                         </a>
                         <a class="vp-quick" href="{{ storefront_route('shop') }}?sort=newest">
                             <span class="vp-quick-mark"><i class="fa-solid fa-clock" aria-hidden="true"></i></span>

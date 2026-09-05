@@ -519,6 +519,65 @@
         })();
     </script>
     <script>
+        /*
+         * **The daily deal's countdown starts over instead of stopping at
+         * zero** — «هربار تایم به ۰ میرسه ریست بشه رو یک روز».
+         *
+         * The server hands it the end of today, so the band cannot rot into
+         * four zeroes the way it did for a month on a date written in config.
+         * That fixes every fresh load; it does not fix the tab somebody left
+         * open. The template's widget clears its own interval the moment the
+         * deadline passes and marks the list `expired`, so at midnight the
+         * clock simply stops — and a shop that says «پیشنهاد امروز» over a
+         * dead clock is worse than one that says nothing.
+         *
+         * So: watch for that class, push the deadline on by whole days until
+         * it is in the future again, and start the widget over. It re-reads
+         * the attribute when it initialises, and its old interval is already
+         * cleared, so nothing doubles up.
+         *
+         * The `while` rather than one addition is for the tab that was asleep:
+         * a laptop shut for three days comes back to a deadline three days
+         * gone, and one addition would leave it still expired.
+         *
+         * Kept in step with theme/make-rtl-page.js, or check-parity.js fails.
+         */
+        (function () {
+            var $ = window.jQuery;
+            var timer = document.querySelector(".vp-daily-deal-timer");
+
+            if (!timer || !$ || !$.fn.countdown) return;
+
+            var DAY = 24 * 60 * 60 * 1000;
+
+            setInterval(function () {
+                if (!timer.classList.contains("expired")) return;
+
+                var next = new Date(timer.getAttribute("data-offer-date")).getTime();
+
+                if (!next) return;
+
+                while (next <= Date.now()) next += DAY;
+
+                var iso = new Date(next).toISOString();
+
+                // **Both, and the `data()` one is the one that matters.** The
+                // widget reads `$counter.data("offer-date")`, and jQuery's
+                // data store is filled from the attribute *once*, on first
+                // read — so setting the attribute alone re-arms the clock with
+                // the deadline that had just expired, and it expires again on
+                // the next tick, forever. Measured: the re-armed countdown
+                // came back showing the original 14 hours rather than the day
+                // it had just been given. The attribute is kept in step for
+                // anybody reading the DOM.
+                timer.setAttribute("data-offer-date", iso);
+                $(timer).data("offer-date", iso);
+                timer.classList.remove("expired");
+                $(timer).countdown();
+            }, 1000);
+        })();
+    </script>
+    <script>
         (function () {
             var $ = window.jQuery;
             var wrap = document.querySelector(".sticky-wrapper");

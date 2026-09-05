@@ -83,18 +83,31 @@ class PhoneDrawerTest extends TestCase
     }
 
     /**
-     * The three shortcuts open the listing on a real question, and each one
-     * answers differently from the others.
+     * The three shortcuts each open something real, and each answers a
+     * different question from the other two.
+     *
+     * **The first one was «تخفیف‌دارها» and is «مقالات» now** — «اینجا اون بالا
+     * بجای تخفیف دارها مقالات بیاد». The discounts had grown a better door in
+     * the meantime: five buttons under the stepped sale that ask the same
+     * question with a depth attached, so this tile was a third way to one grid.
+     * The articles had no way in from a phone at all — that page is in the
+     * footer, and the footer on the home page is seven thousand pixels down.
      */
-    public function test_the_three_shortcuts_open_the_listing_on_a_real_filter(): void
+    public function test_the_three_shortcuts_each_open_something_real(): void
     {
         $drawer = $this->drawer();
 
-        foreach (['sale=1', 'sort=newest', 'sort=bestselling'] as $query) {
-            $this->assertStringContainsString($query, $drawer);
+        foreach ([route('articles'), 'sort=newest', 'sort=bestselling'] as $needle) {
+            $this->assertStringContainsString($needle, $drawer);
         }
 
-        $this->get('/products?sale=1')->assertOk();
+        $this->assertStringNotContainsString(
+            'sale=1',
+            $drawer,
+            'The discounts tile is back, and the five buttons under the stepped sale already ask that.'
+        );
+
+        $this->get('/articles')->assertOk();
         $this->get('/products?sort=newest')->assertOk();
         $this->get('/products?sort=bestselling')->assertOk();
     }

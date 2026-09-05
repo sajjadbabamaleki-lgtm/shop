@@ -43,10 +43,24 @@
                             <span class="vp-daily-deal-bar"><span class="vp-daily-deal-bar-fill"></span></span>
                         </div>
                         <ul class="counter-list vp-daily-deal-timer" data-offer-date="{{ $dailyDeal['ends_at'] }}">
-                            <li><div class="day count-number">00</div><span class="count-name">روز</span></li>
-                            <li><div class="hour count-number">00</div><span class="count-name">ساعت</span></li>
-                            <li><div class="minute count-number">00</div><span class="count-name">دقیقه</span></li>
+                            {{-- **Reversed, so the clock reads روز ساعت دقیقه ثانیه
+                                 from the left.** The page is RTL, so the first
+                                 child of the row lands on the right, and the
+                                 natural order came out with the seconds leftmost
+                                 — a timer running backwards against the way a
+                                 clock is read.
+
+                                 Order here is presentation only: the widget finds
+                                 each box by its own class (`.day`, `.hour`,
+                                 `.minute`, `.seconds`) inside the list, so moving
+                                 them cannot mis-wire it. And it is done in the
+                                 markup rather than with `direction: ltr` on the
+                                 row, which would flip the Persian labels under
+                                 the digits with it. --}}
                             <li><div class="seconds count-number">00</div><span class="count-name">ثانیه</span></li>
+                            <li><div class="minute count-number">00</div><span class="count-name">دقیقه</span></li>
+                            <li><div class="hour count-number">00</div><span class="count-name">ساعت</span></li>
+                            <li><div class="day count-number">00</div><span class="count-name">روز</span></li>
                         </ul>
                     </div>
                     <div class="vp-daily-deal-shot"><img src="{{ asset($dailyDeal['product']->imagePath()) }}"{!! photo_srcset($dailyDeal['product']->imagePath()) !!} alt="" loading="lazy"></div>

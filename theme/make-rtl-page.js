@@ -744,10 +744,17 @@ const CATEGORY_ROW =
 // is not among them: this shop has no customer accounts — an order is found by
 // its number — so the foot of the drawer is the basket instead. That swaps back
 // the day accounts exist and not before.
+//
+// «اینجا اون بالا بجای تخفیف دارها مقالات بیاد» — «تخفیف‌دارها» was the
+// listing's own `sale` filter, and the front page has grown five discount
+// buttons under the stepped sale that ask the same question with a depth
+// attached, so this tile was a third way to one grid. The articles had no way
+// in from a phone at all: that page is in the footer, and the footer on the
+// home page is seven thousand pixels down.
 const QUICK_LINKS = [
-  ['fa-tag', 'تخفیف‌دارها', 'is-lit'],
-  ['fa-clock', 'جدیدترین‌ها', ''],
-  ['fa-arrow-trend-up', 'پرفروش‌ترین‌ها', ''],
+  ['fa-newspaper', 'مقالات', 'is-lit', 'blog.html'],
+  ['fa-clock', 'جدیدترین‌ها', '', 'shop.html'],
+  ['fa-arrow-trend-up', 'پرفروش‌ترین‌ها', '', 'shop.html'],
 ];
 
 // The four tiles at the foot of the drawer. Their order is the client's, read
@@ -836,8 +843,8 @@ const DRAWER =
   // menu does not otherwise have. The «فروشگاه» heading below stays: it has a
   // list under it that does need naming, and «همه محصولات» opposite it.
   '                    <div class="vp-drawer-quick">\n' +
-  QUICK_LINKS.map(([icon, name, lit]) =>
-    `                        <a class="vp-quick${lit ? ' ' + lit : ''}" href="shop.html">\n` +
+  QUICK_LINKS.map(([icon, name, lit, href]) =>
+    `                        <a class="vp-quick${lit ? ' ' + lit : ''}" href="${href}">\n` +
     `                            <span class="vp-quick-mark"><i class="fa-solid ${icon}" aria-hidden="true"></i></span>\n` +
     `                            <span class="vp-quick-name">${name}</span>\n` +
     '                        </a>\n'
@@ -1720,10 +1727,15 @@ const DAILY_DEAL =
   // component's own boxes were fighting a design that happened to look
   // like a finished one, not building from a blank slate.
   '                        <ul class="counter-list vp-daily-deal-timer" data-offer-date="08/08/2026">\n' +
-  '                            <li><div class="day count-number">00</div><span class="count-name">روز</span></li>\n' +
-  '                            <li><div class="hour count-number">00</div><span class="count-name">ساعت</span></li>\n' +
-  '                            <li><div class="minute count-number">00</div><span class="count-name">دقیقه</span></li>\n' +
+  // Reversed, so the clock reads روز ساعت دقیقه ثانیه from the left: the page
+  // is RTL, so the first child lands on the right, and the natural order put
+  // the seconds leftmost — a timer running backwards against the way a clock
+  // is read. Order here is presentation only; the widget finds each box by its
+  // own class. Kept in step with `home/daily-deal.blade.php`, or parity fails.
   '                            <li><div class="seconds count-number">00</div><span class="count-name">ثانیه</span></li>\n' +
+  '                            <li><div class="minute count-number">00</div><span class="count-name">دقیقه</span></li>\n' +
+  '                            <li><div class="hour count-number">00</div><span class="count-name">ساعت</span></li>\n' +
+  '                            <li><div class="day count-number">00</div><span class="count-name">روز</span></li>\n' +
   '                        </ul>\n' +
   '                    </div>\n' +
   `                    <div class="vp-daily-deal-shot"><img src="assets/img/${DAILY_SHOT}" alt="" loading="lazy"></div>\n` +
@@ -4264,6 +4276,66 @@ html = html.replace('</body>',
   '                navigator.serviceWorker.register("/sw.js").catch(function () {});\n' +
   '            });\n' +
   '        }\n' +
+  '    </script>\n' +
+  '    <script>\n' +
+  '        /*\n' +
+  '         * **The daily deal\'s countdown starts over instead of stopping at\n' +
+  '         * zero** — «هربار تایم به ۰ میرسه ریست بشه رو یک روز».\n' +
+  '         *\n' +
+  '         * The server hands it the end of today, so the band cannot rot into\n' +
+  '         * four zeroes the way it did for a month on a date written in config.\n' +
+  '         * That fixes every fresh load; it does not fix the tab somebody left\n' +
+  '         * open. The template\'s widget clears its own interval the moment the\n' +
+  '         * deadline passes and marks the list `expired`, so at midnight the\n' +
+  '         * clock simply stops — and a shop that says «پیشنهاد امروز» over a\n' +
+  '         * dead clock is worse than one that says nothing.\n' +
+  '         *\n' +
+  '         * So: watch for that class, push the deadline on by whole days until\n' +
+  '         * it is in the future again, and start the widget over. It re-reads\n' +
+  '         * the attribute when it initialises, and its old interval is already\n' +
+  '         * cleared, so nothing doubles up.\n' +
+  '         *\n' +
+  '         * The `while` rather than one addition is for the tab that was asleep:\n' +
+  '         * a laptop shut for three days comes back to a deadline three days\n' +
+  '         * gone, and one addition would leave it still expired.\n' +
+  '         *\n' +
+  '         * Kept in step with theme/make-rtl-page.js, or check-parity.js fails.\n' +
+  '         */\n' +
+  '        (function () {\n' +
+  '            var $ = window.jQuery;\n' +
+  '            var timer = document.querySelector(".vp-daily-deal-timer");\n' +
+  '\n' +
+  '            if (!timer || !$ || !$.fn.countdown) return;\n' +
+  '\n' +
+  '            var DAY = 24 * 60 * 60 * 1000;\n' +
+  '\n' +
+  '            setInterval(function () {\n' +
+  '                if (!timer.classList.contains("expired")) return;\n' +
+  '\n' +
+  '                var next = new Date(timer.getAttribute("data-offer-date")).getTime();\n' +
+  '\n' +
+  '                if (!next) return;\n' +
+  '\n' +
+  '                while (next <= Date.now()) next += DAY;\n' +
+  '\n' +
+  '                var iso = new Date(next).toISOString();\n' +
+  '\n' +
+  '                // **Both, and the `data()` one is the one that matters.** The\n' +
+  '                // widget reads `$counter.data("offer-date")`, and jQuery\'s\n' +
+  '                // data store is filled from the attribute *once*, on first\n' +
+  '                // read — so setting the attribute alone re-arms the clock with\n' +
+  '                // the deadline that had just expired, and it expires again on\n' +
+  '                // the next tick, forever. Measured: the re-armed countdown\n' +
+  '                // came back showing the original 14 hours rather than the day\n' +
+  '                // it had just been given. The attribute is kept in step for\n' +
+  '                // anybody reading the DOM.\n' +
+  '                timer.setAttribute("data-offer-date", iso);\n' +
+  '                $(timer).data("offer-date", iso);\n' +
+  '                timer.classList.remove("expired");\n' +
+  '                $(timer).countdown();\n' +
+  '            }, 1000);\n' +
+  '        })();\n' +
+  '    </script>\n' +
   '    </script>\n</body>');
 
 // --- every photograph offered at the size the screen can show ----------------
