@@ -213,6 +213,48 @@ class HeroPhotographTest extends TestCase
         }
     }
 
+    /**
+     * The heading is the shoe, not the shoe and its colourway.
+     *
+     * «اسم جردن و گلدن گوس هم طولانی هست، نباید بزنی ساق بلند یا رنگ مشکی» —
+     * the shop's titles carry the height and the colour because eight New
+     * Balances and ten Air Jordans differ by nothing else on a listing. In the
+     * hero, where one shoe stands alone and its colour is in the photograph,
+     * they are three lines of type.
+     *
+     * The live titles are not in this database, so the rule is exercised
+     * directly against the shapes they have.
+     */
+    public function test_the_heading_drops_the_height_and_the_colourway(): void
+    {
+        $cases = [
+            'کتونی نایک جردن وان ساق بلند' => 'کتونی نایک جردن وان',
+            'کتونی گلدن گوس رنگ مشکی' => 'کتونی گلدن گوس',
+            'کتونی نیوبالانس رنگ سفید مشکی' => 'کتونی نیوبالانس',
+            'نایک جردن تراویس اسکات رنگ یشمی' => 'نایک جردن تراویس اسکات',
+            // Nothing to take off, so nothing comes off.
+            'کتونی آن رانینگ' => 'کتونی آن رانینگ',
+        ];
+
+        foreach ($cases as $title => $expected) {
+            $this->assertSame($expected, (new Product(['title' => $title]))->frontPageName());
+        }
+    }
+
+    /**
+     * And the listing keeps them, which is the other half of the rule.
+     *
+     * A card is one of a grid, and the shop carries eight New Balance 530s that
+     * differ only in the words the front page takes off. Trimming there would
+     * be eight identical names.
+     */
+    public function test_the_listing_keeps_the_colourway(): void
+    {
+        $product = new Product(['title' => 'کتونی نیوبالانس رنگ سفید مشکی']);
+
+        $this->assertStringContainsString('رنگ', $product->cardName(6));
+    }
+
     /** The deck is what config asks for, in the order it asks for it. */
     public function test_the_deck_is_the_three_the_file_names(): void
     {

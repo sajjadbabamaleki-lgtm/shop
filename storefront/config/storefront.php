@@ -938,7 +938,11 @@ return [
                 // New Balance 530s and the colour lives only in the slug.
                 'کتونی-نیوبالانس-New-balance-530-رنگ-سفید-مشکی' => 'assets/img/hero/vikyplus-hero-nb530-white.webp',
                 'نایک-جردن-تراویس-اسکات-رنگ-یشمی-Nike-jordan-travis-scott' => 'assets/img/hero/vikyplus-hero-jordan-travis.webp',
-                'کتونی-گلدن-گوس-رنگ-مشکی-Golden-Goose' => 'assets/img/hero/vikyplus-hero-goldengoose-black.webp',
+                // The hero's own shot, on the hero's own shoe — «عکس گلدن گوس
+                // که تو هیرو هست همون باید تو گلدن گوس پرفروش ترین ها قرار
+                // بگیره». One product, one picture, wherever the front page
+                // draws it.
+                'کتونی-گلدن-گوس-رنگ-مشکی-Golden-Goose' => 'assets/img/hero/vikyplus-hero-goldengoose-suede.webp',
 
                 // A fresh install's five, which is what this repository seeds.
                 'new-balance-530' => 'assets/img/hero/vikyplus-hero-nb530-white.webp',

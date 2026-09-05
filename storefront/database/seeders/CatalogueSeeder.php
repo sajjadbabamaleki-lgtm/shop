@@ -120,8 +120,8 @@ class CatalogueSeeder extends Seeder
         ],
         [
             'slug' => 'on-cloudtilt',
-            'title' => 'کتونی آن کلادتیلت',
-            'short' => 'آن کلادتیلت',
+            'title' => 'کتونی آن رانینگ',
+            'short' => 'آن رانینگ',
             'brand' => 'on',
             'was' => 4_880_000,
             'photo' => 'assets/img/hero/vikyplus-deal-cloudtilt.webp',

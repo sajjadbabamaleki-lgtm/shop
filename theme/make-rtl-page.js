@@ -462,7 +462,7 @@ for (const [from, to] of Object.entries(SVG_GOLD)) {
 // lead-in, and the models start at the same place on every slide instead of
 // wrapping wherever the measure happens to run out.
 const HERO_TITLES = {
-  hero_6_1: 'کتونی آن کلادتیلت',
+  hero_6_1: 'کتونی آن رانینگ',
   hero_6_2: 'کتونی جردن وان ایر',
   hero_6_3: 'کتونی گلدن گوس',
 };
@@ -1242,7 +1242,7 @@ const LADDER_CUT = LADDER_STEPS.find(([, , , state]) => state === 'current')[1];
 // threw on load.
 const LADDER_DEALS = [
   ['hero/vikyplus-hero-goldengoose.webp', 'کتونی گلدن گوس', 6480000, 'فقط سایزهای ۳۷ و ۳۹'],
-  ['hero/vikyplus-deal-cloudtilt.webp', 'کتونی آن کلادتیلت', 4880000, 'فقط سایزهای ۳۸ و ۴۰'],
+  ['hero/vikyplus-deal-cloudtilt.webp', 'کتونی آن رانینگ', 4880000, 'فقط سایزهای ۳۸ و ۴۰'],
   ['hero/vikyplus-hero-nb530.webp', 'کتونی نیوبالانس ۵۳۰', 7980000, 'فقط ۱ عدد باقی مانده'],
   ['hero/vikyplus-deal-v2k.webp', 'کتونی نایک وی۲کی ران', 6980000, 'فقط سایزهای ۳۷ و ۳۹'],
   ['hero/vikyplus-hero-jordan.webp', 'کتونی جردن وان ایر', 8480000, 'فقط سایز ۳۸'],
@@ -1270,7 +1270,7 @@ const BEST_ORDER = [
   'کتونی جردن وان ایر',
   'کتونی گلدن گوس',
   'کتونی نایک وی۲کی ران',
-  'کتونی آن کلادتیلت',
+  'کتونی آن رانینگ',
 ];
 
 const BEST_TEST_ITEMS = BEST_ORDER.map((wanted) => {
@@ -1310,7 +1310,7 @@ const BEST_PHOTOS = {
   // no product of its own and this is that model in another colourway — the
   // pairing the client chose when the shot arrived. Keep it in step with
   // `placeholders.best_sellers.photos`, or check-parity.js fails.
-  'کتونی آن کلادتیلت': 'hero/vikyplus-hero-cloudtilt-on-black.webp',
+  'کتونی آن رانینگ': 'hero/vikyplus-hero-cloudtilt-on-black.webp',
 };
 
 const bestCard = (_category, i) => {

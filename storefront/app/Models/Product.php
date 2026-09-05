@@ -299,13 +299,49 @@ class Product extends Model
      */
     public function bandName(int $words = 4): string
     {
-        $name = Str::of($this->persianTitle())->trim();
+        $name = Str::of($this->frontPageName())->trim();
 
         if ($name->startsWith('کتونی ')) {
             $name = $name->after('کتونی ');
         }
 
         return Str::words((string) $name, $words, '…');
+    }
+
+    /**
+     * The name the front page prints: the shoe, without the qualifiers that
+     * tell one of its colourways from another.
+     *
+     * «اسم جردن و گلدن گوس هم طولانی هست، نباید بزنی ساق بلند یا رنگ مشکی» —
+     * the shop's own titles carry the height and the colour because the
+     * catalogue needs them to: «کتونی نایک جردن وان ساق بلند» is one of ten
+     * Air Jordan 1s and «کتونی گلدن گوس رنگ مشکی» is one of seven Golden
+     * Geese, and on the listing those words are the whole difference between
+     * two cards. Printed in the hero's heading they are three lines of type
+     * for one shoe standing on its own.
+     *
+     * So the cut is «ساق» and «رنگ» and nothing else — the two words the shop
+     * named — and it takes everything after them, because what follows either
+     * is always part of the same qualifier: «ساق بلند», «رنگ سفید مشکی».
+     *
+     * **The listing does not get this and must not.** `cardName()` is what a
+     * card prints, and eight New Balance 530s differ only in the words this
+     * takes off; a grid of eight identical names is worse than a long one.
+     * The front page shows a shoe alone, where the colour is in the picture.
+     */
+    public function frontPageName(): string
+    {
+        $name = $this->persianTitle();
+
+        foreach ([' ساق ', ' رنگ '] as $qualifier) {
+            $at = mb_strpos($name, $qualifier);
+
+            if ($at !== false) {
+                $name = mb_substr($name, 0, $at);
+            }
+        }
+
+        return trim($name);
     }
 
     /**

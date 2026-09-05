@@ -291,7 +291,14 @@ class HomeController extends Controller
             ]])
             ->filter(fn (array $slide) => $slide['product'] !== null)
             ->map(function (array $slide) {
-                [$kind, $model] = explode(' ', $slide['product']->title, 2);
+                // The heading is the kind on one line and the model on the
+                // next, and the model is `frontPageName()` — the shop's title
+                // without the words that tell one colourway from another.
+                // «اسم جردن و گلدن گوس هم طولانی هست، نباید بزنی ساق بلند یا
+                // رنگ مشکی»: those words earn their place on a listing, where
+                // eight New Balances differ by nothing else, and cost three
+                // lines of type here, where one shoe stands on its own.
+                [$kind, $model] = array_pad(explode(' ', $slide['product']->frontPageName(), 2), 2, '');
 
                 return [
                     'product' => $slide['product'],
