@@ -30,7 +30,20 @@
                                             <span class="sub-title" data-ani="slideinleft" data-ani-delay="0.2s">{{ $slide['eyebrow'] }}</span>
                                             <h1 class="hero-title" data-ani="slideinleft" data-ani-delay="0.4s">
                                                 {{ $slide['kind'] }}<br>{{ $slide['model'] }} </h1>
-                                            <div class="btn-group" data-ani="slideinup" data-ani-delay="0.7s"><a href="{{ page_url('shop.html') }}" class="th-btn th-icon">خرید محصول</a>
+                                            {{-- **The slide's own shoe, not the listing.** «کارتهای هیرو
+                                                 لینک میشن به فروشگاه، این اشتباهه، باید لینک بشن
+                                                 به همون محصول» — the button said «خرید محصول» and
+                                                 went to the shop's whole grid, so a visitor who
+                                                 wanted the shoe they were looking at had to find
+                                                 it again among hundreds.
+
+                                                 `$slide['product']` is the same object the
+                                                 photograph and the heading come from, so the
+                                                 three cannot disagree about which shoe the slide
+                                                 is. Kept in step with theme/make-rtl-page.js —
+                                                 the preview has no catalogue, so its own button
+                                                 points at the template's product page. --}}
+                                            <div class="btn-group" data-ani="slideinup" data-ani-delay="0.7s"><a href="{{ storefront_route('product', $slide['product']) }}" class="th-btn th-icon">خرید محصول</a>
                                             </div>
                                         </div>
                                     </div>

@@ -67,6 +67,52 @@ class HeroPhotographTest extends TestCase
         }
     }
 
+    /**
+     * **The button on a slide buys the shoe on that slide.**
+     *
+     * «کارتهای هیرو لینک میشن به فروشگاه، این اشتباهه، باید لینک بشن به همون
+     * محصول.» It said «خرید محصول» and went to the listing — the whole grid —
+     * so somebody who wanted the shoe in front of them had to go and find it
+     * again among hundreds. The photograph, the heading and the button all come
+     * off `$slide['product']` now, so the three cannot disagree about which
+     * shoe a slide is.
+     *
+     * Asserted on the rendered page and not on the view data: the href is the
+     * whole point, and view data would pass with the old `page_url('shop.html')`
+     * still in the markup.
+     */
+    public function test_each_slide_buys_the_shoe_it_shows(): void
+    {
+        $page = $this->get('/')->assertOk()->getContent();
+
+        $buttons = preg_match_all(
+            '/<div class="btn-group"[^>]*><a href="([^"]+)" class="th-btn th-icon">/',
+            $page,
+            $found
+        );
+
+        $slides = $this->slides();
+
+        $this->assertSame(
+            count($slides),
+            $buttons,
+            'The hero has a different number of buy buttons than it has slides.'
+        );
+
+        foreach ($slides as $i => $slide) {
+            $this->assertSame(
+                storefront_route('product', $slide['product']),
+                html_entity_decode($found[1][$i]),
+                "Slide {$i} shows {$slide['product']->slug} and its button goes somewhere else."
+            );
+        }
+
+        // And the listing is not among them, which is the exact thing that was
+        // wrong: a button that went to /products was indistinguishable from one
+        // that worked until somebody pressed it.
+        $this->assertNotContains(storefront_route('shop'), array_map('html_entity_decode', $found[1]));
+    }
+
     /** And a slide without one falls back to the product's own, as every slide did before. */
     public function test_a_slide_with_no_override_still_draws_the_products_own_photograph(): void
     {

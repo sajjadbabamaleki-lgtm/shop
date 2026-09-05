@@ -4279,9 +4279,19 @@ if (!html.includes('vp-foot-m-head')) {
     throw new Error(`expected the hero's six buy buttons, found ${heroButtons} — check before renaming them`);
   }
 
+  // **And it goes to the shoe, not to the listing** — «کارتهای هیرو لینک میشن
+  // به فروشگاه، این اشتباهه، باید لینک بشن به همون محصول». A visitor who wants
+  // the shoe on the slide should not have to find it again in a grid of
+  // hundreds.
+  //
+  // `shop-details.html` here and `storefront_route('product', ...)` in the
+  // Blade: this page is a static design copy with no catalogue behind it, so
+  // the template's own product page is the closest thing it has. The same
+  // arrangement as the special offer's button. check-parity.js compares pixels
+  // and an href has none, so the two may differ here and only here.
   html = html.split(heroButton).join(
     '<div class="btn-group" data-ani="slideinup" data-ani-delay="0.7s">' +
-    '<a href="shop.html" class="th-btn th-icon">خرید محصول</a>'
+    '<a href="shop-details.html" class="th-btn th-icon">خرید محصول</a>'
   );
 }
 
