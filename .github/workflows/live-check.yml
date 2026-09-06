@@ -1,0 +1,49 @@
+name: What the Torob endpoint answers
+
+# TEMPORARY. Delete once the answer is in hand.
+#
+# Torob's bot reported a 404. Three causes are possible and the response body
+# tells them apart:
+#
+#   404 + {"error":"the product feed is not enabled"}  -> TOROB_ENABLED unset
+#   401 + {"error":"X-Torob-Token is missing"}         -> route is live and fine
+#   404 + HTML                                         -> the route is not there
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [claude/website-loading-speed-zn0uri]
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    name: Ask the endpoint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe
+        run: |
+          for u in \
+            "https://vikyplus.ir/torob_api/v3/products" \
+            "https://www.vikyplus.ir/torob_api/v3/products" \
+            "https://vikyplus.ir/api/torob_api/v3/products" ; do
+            echo "=================== POST $u"
+            curl -sS --max-time 40 -o body.txt -w 'status=%{http_code} type=%{content_type}\n' \
+              -X POST \
+              -H 'Content-Type: application/json' \
+              -H 'Accept: application/json' \
+              --data '{"page": 1, "sort": "date_added_desc"}' \
+              "$u" || true
+            echo "--- first 400 bytes of the body"
+            head -c 400 body.txt; echo
+          done
+
+          echo "=================== a GET on the same path (should be 405)"
+          curl -sS --max-time 40 -o g.txt -w 'status=%{http_code}\n' \
+            "https://vikyplus.ir/torob_api/v3/products" || true
+          head -c 200 g.txt; echo
+
+          echo "=================== the shop itself, as a control"
+          curl -sS --max-time 40 -o /dev/null -w 'status=%{http_code}\n' \
+            "https://vikyplus.ir/" || true
