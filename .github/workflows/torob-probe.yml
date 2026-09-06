@@ -1,0 +1,38 @@
+name: TEMP — what the Torob endpoint answers
+
+# Temporary, and on a working branch only. Nothing in this container can reach
+# vikyplus.ir (the proxy answers 403), so a runner is the only instrument that
+# can say what the live site sends. Only the deploy job in deploy-liara.yml is
+# gated on `main`, so this ships nothing. Delete when the question is answered.
+
+on:
+  push:
+    branches: [claude/website-loading-speed-zn0uri]
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Both addresses, both hosts
+        run: |
+          for host in vikyplus.ir www.vikyplus.ir; do
+            for path in /torob_api/v3/products /api/torob_api/v3/products; do
+              echo "=============================================="
+              echo "POST https://$host$path"
+
+              echo "--- no token"
+              curl -sS -o /tmp/body -w 'status=%{http_code} type=%{content_type} time=%{time_total}\n' \
+                -X POST "https://$host$path" \
+                -H 'Content-Type: application/json' -H 'Accept: application/json' \
+                -d '{"page":1,"sort":"date_added_desc"}' || true
+              head -c 300 /tmp/body; echo
+
+              echo "--- a token that is not Torob's"
+              curl -sS -o /tmp/body -w 'status=%{http_code} type=%{content_type} time=%{time_total}\n' \
+                -X POST "https://$host$path" \
+                -H 'Content-Type: application/json' -H 'Accept: application/json' \
+                -H 'X-Torob-Token: not.a.token' \
+                -d '{"page":1,"sort":"date_added_desc"}' || true
+              head -c 300 /tmp/body; echo
+            done
+          done
