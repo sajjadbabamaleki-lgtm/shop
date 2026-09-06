@@ -8,12 +8,24 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Middleware\SubstituteBindings;
+use Illuminate\Support\Facades\Route;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
+        /*
+         * ترب's product feed, in a group of its own with **no middleware**.
+         *
+         * Not in `routes/web.php`, and that is the whole point: the `web`
+         * group carries `ValidateCsrfToken`, and a POST from Torob's servers
+         * has no CSRF token — every request came back 419 before reaching any
+         * code of ours. See routes/torob.php for the rest of it.
+         */
+        then: function (): void {
+            Route::group([], base_path('routes/torob.php'));
+        },
     )
     ->withMiddleware(function (Middleware $middleware): void {
         // Every host this can be deployed to terminates TLS in front of the

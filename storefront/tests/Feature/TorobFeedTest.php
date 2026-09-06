@@ -2,14 +2,18 @@
 
 namespace Tests\Feature;
 
+use App\Http\Middleware\VerifyTorobToken;
 use App\Models\Branch;
 use App\Models\BranchInventory;
 use App\Models\Product;
 use App\Support\Tenancy\TenantContext;
-use App\Support\Torob\Token;
 use Database\Seeders\BranchSeeder;
 use Database\Seeders\CatalogueSeeder;
+use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Routing\Router;
+use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\Facades\Route;
 use Tests\TestCase;
 
 /**
@@ -139,6 +143,59 @@ class TorobFeedTest extends TestCase
         config()->set('services.torob.enabled', false);
 
         $this->ask(['page' => 1, 'sort' => 'date_added_desc'])->assertStatus(404);
+    }
+
+    /**
+     * **The route must not be in the `web` group, and nothing else here can
+     * tell you so.**
+     *
+     * The first version of this feature was registered in `routes/web.php`.
+     * That group carries `ValidateCsrfToken`, and a POST from Torob's servers
+     * has no CSRF token and no session to have got one from — so the live
+     * endpoint answered **419 «صفحه منقضی شد»** to every request, before a line
+     * of this feature ran. Torob's bot reported it as a failure to reach the
+     * address at all.
+     *
+     * **Every other case in this file passed the whole time.** Laravel's own
+     * `ValidateCsrfToken` skips itself when it detects a test run, so the suite
+     * was exercising a middleware stack production does not have. That is the
+     * shape of bug this repository keeps paying for: a guard that cannot fail
+     * on the one thing that is wrong.
+     *
+     * So this asserts the stack itself rather than the behaviour. Session
+     * middleware is named too — the feed is a machine reading JSON, and a
+     * hundred pages of catalogue should not write a hundred sessions.
+     */
+    public function test_the_route_carries_no_session_or_csrf_middleware(): void
+    {
+        $route = Route::getRoutes()->getByName('torob.products');
+
+        $this->assertNotNull($route, 'The feed has no route named torob.products.');
+
+        // **Group names have to be expanded first.**
+        // `gatherRouteMiddleware` returns `'web'` as the bare string rather
+        // than the classes behind it, so a check for the CSRF class alone
+        // passes on a route that is squarely inside the group — measured, and
+        // it is how the first version of this very case came back green on the
+        // bug it was written to catch.
+        $groups = app(Router::class)->getMiddlewareGroups();
+
+        $middleware = collect(app(Router::class)->gatherRouteMiddleware($route))
+            ->flatMap(fn ($name) => $groups[$name] ?? [$name])
+            ->map(fn ($name) => is_string($name) ? $name : $name::class)
+            ->all();
+
+        foreach (['web', ValidateCsrfToken::class, StartSession::class] as $unwanted) {
+            $this->assertNotContains(
+                $unwanted,
+                $middleware,
+                "The feed is behind {$unwanted}. Torob posts with no cookie and no token; ".
+                'in production that is a 419 on every request, and the test suite cannot see it '.
+                'because Laravel skips CSRF while testing. Keep this route out of the web group.'
+            );
+        }
+
+        $this->assertContains(VerifyTorobToken::class, $middleware);
     }
 
     // ---- the request shapes ------------------------------------------------
