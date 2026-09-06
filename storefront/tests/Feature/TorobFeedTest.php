@@ -36,6 +36,9 @@ class TorobFeedTest extends TestCase
 
     private const URL = '/torob_api/v3/products';
 
+    /** The same feed on the path Torob's bot asks for. See routes/torob.php. */
+    private const PREFIXED_URL = '/api/torob_api/v3/products';
+
     private string $secret;
 
     private string $pem;
@@ -75,12 +78,12 @@ class TorobFeedTest extends TestCase
         return $head.'.'.$body.'.'.rtrim(strtr(base64_encode($signature), '+/', '-_'), '=');
     }
 
-    private function ask(array $body, ?string $token = null)
+    private function ask(array $body, ?string $token = null, string $url = self::URL)
     {
         return $this->withHeaders([
             'X-Torob-Token' => $token ?? $this->token(),
             'Accept' => 'application/json',
-        ])->postJson(self::URL, $body);
+        ])->postJson($url, $body);
     }
 
     // ---- the token ---------------------------------------------------------
@@ -168,34 +171,71 @@ class TorobFeedTest extends TestCase
      */
     public function test_the_route_carries_no_session_or_csrf_middleware(): void
     {
-        $route = Route::getRoutes()->getByName('torob.products');
+        foreach (['torob.products', 'torob.products.prefixed'] as $name) {
+            $route = Route::getRoutes()->getByName($name);
 
-        $this->assertNotNull($route, 'The feed has no route named torob.products.');
+            $this->assertNotNull($route, "The feed has no route named {$name}.");
 
-        // **Group names have to be expanded first.**
-        // `gatherRouteMiddleware` returns `'web'` as the bare string rather
-        // than the classes behind it, so a check for the CSRF class alone
-        // passes on a route that is squarely inside the group — measured, and
-        // it is how the first version of this very case came back green on the
-        // bug it was written to catch.
-        $groups = app(Router::class)->getMiddlewareGroups();
+            // **Group names have to be expanded first.**
+            // `gatherRouteMiddleware` returns `'web'` as the bare string rather
+            // than the classes behind it, so a check for the CSRF class alone
+            // passes on a route that is squarely inside the group — measured,
+            // and it is how the first version of this very case came back green
+            // on the bug it was written to catch.
+            $groups = app(Router::class)->getMiddlewareGroups();
 
-        $middleware = collect(app(Router::class)->gatherRouteMiddleware($route))
-            ->flatMap(fn ($name) => $groups[$name] ?? [$name])
-            ->map(fn ($name) => is_string($name) ? $name : $name::class)
-            ->all();
+            $middleware = collect(app(Router::class)->gatherRouteMiddleware($route))
+                ->flatMap(fn ($middleware) => $groups[$middleware] ?? [$middleware])
+                ->map(fn ($middleware) => is_string($middleware) ? $middleware : $middleware::class)
+                ->all();
 
-        foreach (['web', ValidateCsrfToken::class, StartSession::class] as $unwanted) {
-            $this->assertNotContains(
-                $unwanted,
-                $middleware,
-                "The feed is behind {$unwanted}. Torob posts with no cookie and no token; ".
-                'in production that is a 419 on every request, and the test suite cannot see it '.
-                'because Laravel skips CSRF while testing. Keep this route out of the web group.'
-            );
+            foreach (['web', ValidateCsrfToken::class, StartSession::class] as $unwanted) {
+                $this->assertNotContains(
+                    $unwanted,
+                    $middleware,
+                    "The feed's {$name} is behind {$unwanted}. Torob posts with no cookie and no ".
+                    'token; in production that is a 419 on every request, and the test suite cannot '.
+                    'see it because Laravel skips CSRF while testing. Keep this route out of the web group.'
+                );
+            }
+
+            $this->assertContains(VerifyTorobToken::class, $middleware);
         }
+    }
 
-        $this->assertContains(VerifyTorobToken::class, $middleware);
+    /**
+     * **The feed answers on `/api/torob_api/v3/products` as well.**
+     *
+     * Torob was given `https://vikyplus.ir/torob_api/v3/products` and reported
+     * a 404 against it twice; both reports name the path their bot actually
+     * asked for — «مسیر api/torob_api/v3/products در سرور شما یافت نشد» — with
+     * an `api/` in front that appears in nothing we published. The second
+     * report is timed half an hour after the endpoint was measured answering
+     * 401 on both hosts, so it is not a deploy that had not landed.
+     *
+     * Serving both is a line of routing. Losing it means another week of a
+     * feed that is correct and unreachable, which is what this case is here to
+     * prevent.
+     */
+    public function test_the_feed_answers_on_the_path_torobs_bot_asks_for(): void
+    {
+        $canonical = $this->ask(['page' => 1, 'sort' => 'date_added_desc'])->assertOk()->json();
+        $prefixed = $this->ask(['page' => 1, 'sort' => 'date_added_desc'], null, self::PREFIXED_URL)
+            ->assertOk()->json();
+
+        $this->assertSame($canonical, $prefixed, 'The two addresses must serve the same feed.');
+
+        // And it is the same door, not an open one: the token is checked there
+        // too. A second path that skipped the middleware would put the shop's
+        // whole price list on a public URL.
+        //
+        // `flushHeaders` first — `withHeaders` sets the *default* headers for
+        // the rest of the test, so without this the token from the two calls
+        // above is still attached and the request is not tokenless at all. It
+        // answered 200 and the case passed for the wrong reason; measured.
+        $this->flushHeaders()
+            ->postJson(self::PREFIXED_URL, ['page' => 1, 'sort' => 'date_added_desc'])
+            ->assertStatus(401);
     }
 
     // ---- the request shapes ------------------------------------------------

@@ -105,7 +105,13 @@ return Application::configure(basePath: dirname(__DIR__))
         );
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        // `torob_api/*` beside `api/*` so a machine that asks for the wrong
+        // path under the feed's prefix — a version we do not serve, a trailing
+        // segment — is told so in JSON rather than handed the error page's
+        // HTML. Torob reads status codes and bodies, not pages. (`api/*`
+        // already covers `api/torob_api/*`, which is the path their bot builds
+        // for itself; see routes/torob.php.)
         $exceptions->shouldRenderJsonWhen(
-            fn (Request $request) => $request->is('api/*'),
+            fn (Request $request) => $request->is('api/*', 'torob_api/*'),
         );
     })->create();

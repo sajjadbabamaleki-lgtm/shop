@@ -33,6 +33,21 @@ use Illuminate\Support\Facades\Route;
 | The address is unchanged — it is already with Torob — and ends in
 | `/products`, which is their convention.
 |
+| **It answers on two paths, because Torob's bot asks for the second one.**
+| The address given to them is `https://vikyplus.ir/torob_api/v3/products`, and
+| both of their 404 reports name the path they actually requested:
+|
+|     «مسیر api/torob_api/v3/products در سرور شما یافت نشد»
+|
+| — an `api/` in front of it that is in neither the address they were given nor
+| anything this shop wrote. Whether their crawler builds it or their panel's
+| field adds it cannot be seen from here, and it does not matter: the second
+| report came in at ۱۲:۵۴ on ۱۵ شهریور, half an hour *after* the endpoint was
+| measured answering 401 on both hosts, so the thing being tested was never the
+| address we published. Registering both is one line and ends the round trip.
+| The unprefixed one stays canonical and keeps the name; nothing generates a
+| link to either.
+|
 | POST only, and deliberately: the feed is the whole catalogue with prices, and
 | a GET would put it one browser address bar away from anybody.
 |
@@ -41,3 +56,7 @@ use Illuminate\Support\Facades\Route;
 Route::post('/torob_api/v3/products', TorobFeedController::class)
     ->middleware(VerifyTorobToken::class)
     ->name('torob.products');
+
+Route::post('/api/torob_api/v3/products', TorobFeedController::class)
+    ->middleware(VerifyTorobToken::class)
+    ->name('torob.products.prefixed');
