@@ -11,6 +11,7 @@ use App\Models\Product;
 use App\Models\Variant;
 use App\Support\Tenancy\TenantContext;
 use Illuminate\Console\Command;
+use Illuminate\Console\ConfirmableTrait;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -37,11 +38,21 @@ use Illuminate\Support\Facades\DB;
  */
 class MakeDemoProduct extends Command
 {
+    /**
+     * **It asks first on the live shop**, and this one is published where
+     * customers can see it. Testing a card against the real gateway is the
+     * reason it exists, so `--force` still does it — the gate is there because
+     * the shop is trading now and a test item left on the front of it is
+     * «دیتای فیک» a customer can add to a basket. `--remove` is never gated.
+     */
+    use ConfirmableTrait;
+
     protected $signature = 'demo:product
         {--toman=100000 : the price, in Toman}
         {--stock=20 : units on the shelf}
         {--branch= : the branch slug; defaults to the central shop}
-        {--remove : delete the test product instead of making one}';
+        {--remove : delete the test product instead of making one}
+        {--force : make it even on the live shop, where customers can see it}';
 
     protected $description = 'Put one cheap, buyable product in the shop so the payment gateway can be tested';
 
@@ -66,6 +77,10 @@ class MakeDemoProduct extends Command
         // no existing row and tried to insert a second one — straight into the
         // unique index on (branch_id, variant_id). The command looked like it
         // could only ever be run once.
+        if (! $this->option('remove') && ! $this->confirmToProceed('این دستور یک کالای آزمایشی روی سایت واقعی منتشر می‌کند.')) {
+            return self::FAILURE;
+        }
+
         return app(TenantContext::class)->forBranch($branch, fn () => $this->option('remove')
             ? $this->remove($branch)
             : $this->make($branch));

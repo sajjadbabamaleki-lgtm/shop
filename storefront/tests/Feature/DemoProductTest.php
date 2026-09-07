@@ -186,4 +186,28 @@ class DemoProductTest extends TestCase
             ->expectsOutputToContain('ZARINPAL_SANDBOX')
             ->assertSuccessful();
     }
+
+    /**
+     * **On the live shop it asks first**, because this one is published and a
+     * customer can put it in a basket. Testing a real card against the real
+     * gateway is what it is for, so `--force` still makes one — the gate only
+     * makes it deliberate now that the shop is trading. Removing is never
+     * gated.
+     */
+    public function test_it_asks_before_publishing_one_on_the_live_shop(): void
+    {
+        $this->app['env'] = 'production';
+
+        $this->artisan('demo:product')
+            ->expectsConfirmation('Are you sure you want to run this command?', 'no')
+            ->assertFailed();
+
+        $this->assertNull(Product::where('slug', MakeDemoProduct::SLUG)->first());
+
+        $this->artisan('demo:product --force')->assertSuccessful();
+        $this->get('/products/'.MakeDemoProduct::SLUG)->assertOk();
+
+        $this->artisan('demo:product --remove')->assertSuccessful();
+        $this->get('/products/'.MakeDemoProduct::SLUG)->assertNotFound();
+    }
 }

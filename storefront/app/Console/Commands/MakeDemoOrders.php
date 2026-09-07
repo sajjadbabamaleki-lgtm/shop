@@ -16,6 +16,7 @@ use App\Support\Fulfilment\Promise;
 use App\Support\Tenancy\TenantContext;
 use Carbon\CarbonImmutable;
 use Illuminate\Console\Command;
+use Illuminate\Console\ConfirmableTrait;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Throwable;
@@ -54,11 +55,26 @@ use Throwable;
  */
 class MakeDemoOrders extends Command
 {
+    /**
+     * **It asks first on the live shop.** «از امروز بصورت واقعی کار پروژه شروع
+     * میشه، نباید با دیتای واقعی قاطی بشن» — the demo orders were cleared off
+     * production the day it started trading, and the way they would come back
+     * is somebody reaching for this command on the wrong console, exactly as
+     * they were meant to. So in production it says what it is about to do and
+     * waits, and `--force` is the way to mean it. Everywhere else — a
+     * developer's machine, the test suite — it runs as it always did.
+     *
+     * `--remove` is never gated: taking pretend data off a real shop is
+     * something anybody should be able to do without an argument.
+     */
+    use ConfirmableTrait;
+
     protected $signature = 'demo:orders
         {--branch= : the branch slug to make them at; defaults to the central shop}
         {--floor=1 : units of each size the demo will not touch, so the shop keeps selling}
         {--lend : put the units the demo needs onto the shelf first, and take them back on --remove}
-        {--remove : delete the demo orders instead of making them}';
+        {--remove : delete the demo orders instead of making them}
+        {--force : make them even on the live shop, where they would sit beside real sales}';
 
     protected $description = 'Make (or remove) sample orders so the panel can be seen in every state';
 
@@ -79,6 +95,12 @@ class MakeDemoOrders extends Command
      */
     public const PHONE_PREFIX = '0999';
 
+    /**
+     * The mark on a basket the demo built. A shopper's token is random, so
+     * nothing a customer carries can begin with this.
+     */
+    public const BASKET_PREFIX = 'demo-';
+
     public function handle(TenantContext $tenant, PlaceOrder $place, SettleOrder $settle, Promise $promise): int
     {
         $branch = $this->option('branch')
@@ -88,6 +110,10 @@ class MakeDemoOrders extends Command
         if (! $branch) {
             $this->error('آن شعبه پیدا نشد.');
 
+            return self::FAILURE;
+        }
+
+        if (! $this->option('remove') && ! $this->confirmToProceed('این دستور سفارش‌های ساختگی می‌سازد و روی سایت واقعی اجرا شده است.')) {
             return self::FAILURE;
         }
 
@@ -332,7 +358,7 @@ class MakeDemoOrders extends Command
             return null;
         }
 
-        $cart = Cart::create(['branch_id' => $branch->id, 'token' => 'demo-'.uniqid()]);
+        $cart = Cart::create(['branch_id' => $branch->id, 'token' => self::BASKET_PREFIX.uniqid()]);
 
         foreach ($chosen as $variantId => $quantity) {
             $cart->items()->create(['variant_id' => $variantId, 'quantity' => $quantity]);
@@ -445,6 +471,7 @@ class MakeDemoOrders extends Command
      */
     private function remove(Branch $branch, SettleOrder $settle): int
     {
+        $baskets = $this->sweepBaskets($branch);
         $orders = $this->existing($branch)->get();
 
         if ($orders->isEmpty()) {
@@ -454,6 +481,10 @@ class MakeDemoOrders extends Command
             $stray = $this->reclaim($branch);
 
             $this->info('سفارش نمونه‌ای برای پاک کردن نبود.');
+
+            if ($baskets > 0) {
+                $this->line(fa_number($baskets).' سبد خرید نمونه پاک شد.');
+            }
 
             if ($stray > 0) {
                 $this->line(fa_number($stray).' واحد موجودی قرضی از قفسه برداشته شد.');
@@ -509,11 +540,38 @@ class MakeDemoOrders extends Command
 
         $this->info($orders->count().' سفارش نمونه پاک شد و موجودی‌شان برگشت.');
 
+        if ($baskets > 0) {
+            $this->line(fa_number($baskets).' سبد خرید نمونه هم پاک شد.');
+        }
+
         if ($reclaimed > 0) {
             $this->line(fa_number($reclaimed).' واحد موجودی قرضی هم از قفسه برداشته شد.');
         }
 
         return self::SUCCESS;
+    }
+
+    /**
+     * The baskets the demo built, which nothing else takes away.
+     *
+     * `PlaceOrder` turns a basket into an order and then empties the
+     * *shopper's* basket through the session; the `carts` row itself stays,
+     * which is right for a real visitor and wrong for eight baskets that only
+     * ever existed as a way of placing these orders. Nothing in `/admin` reads
+     * `carts`, so they would sit beside the real ones for good with nobody in
+     * a position to notice them — which is exactly what «دیتای فیک» left in
+     * the database means. The token is the mark here, the way the note is on
+     * the order and the slug is on the test product.
+     *
+     * `cart_items` goes with them on the database's own cascade. Written with
+     * the branch id rather than left to the model's scope so it says out loud
+     * that a franchise's demo is its own.
+     */
+    private function sweepBaskets(Branch $branch): int
+    {
+        return Cart::where('branch_id', $branch->id)
+            ->where('token', 'like', self::BASKET_PREFIX.'%')
+            ->delete();
     }
 
     /**

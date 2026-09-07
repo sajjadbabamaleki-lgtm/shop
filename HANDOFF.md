@@ -4547,3 +4547,83 @@ clean tree with everything stashed, the markup and `srcset` are identical on bot
 sides, both files are on disk, and neither page has a failed request. It is the
 checker's 4000ms image wait against a slower container. Worth fixing in the
 checker rather than the page.
+
+## The day the shop started trading, and the pretend data came off
+
+«دیتاهای فیک از پنل ادمین حذف بشه چون از امروز بصورت واقعی کار پروژه شروع میشه،
+نباید با دیتای واقعی قاطی بشن اون دیتای فیک موجود.» 2026-09-07. The eight demo
+orders did the job they were made for — every screen in `/admin` is a view of
+orders and none of them can be judged against zero — and on the day the shop
+starts selling they stop being a fixture and become eight sales nobody made,
+sitting in the same six figures as the real ones.
+
+**It is a migration, because nobody runs a command on the live site.** The
+deploy runs `php artisan migrate --force` and nothing else, so
+`2026_09_07_090000_take_the_demo_data_off_the_live_panel` is where this
+happens, the same shape as `take_the_test_product_off_the_live_shop` before it.
+
+**It calls `demo:orders --remove` rather than copying its statements, and that
+is the one decision here worth defending.** The test product's migration is
+`remove()` rewritten statement for statement, which is right for five updates
+that touch no ledger. This is not that. Taking a demo order away *puts stock
+back*, and stock in this application moves in exactly two places — `PlaceOrder`
+reserves it, `SettleOrder` sells or releases it. Hand-written SQL in a migration
+would be a third, and the way it fails is a shelf left short for orders that no
+longer exist, on the morning the shop opens, with nothing going red. The command
+already knows the whole shape of it: walk a shipped or delivered one back to
+«paid» so the sale reverses rather than the reservation, then read the borrowed
+units off `inventory_movements` and take them back.
+
+**Every branch, by slug.** `--remove` is scoped to one branch on purpose — one
+shop clearing another's rows is the worst thing a convenience command could do —
+so the loop over `branches` is what makes the migration platform-wide. A version
+reaching for `Branch::central()` would leave a franchise's panel full of pretend
+sales and look entirely successful doing it.
+
+**It cannot fail the deploy.** `liara_pre_start.sh` runs `migrate --force` under
+`set -eu`, so a migration that throws does not fail a tidy-up — it stops the shop
+from starting. Each branch is wrapped, a refusal is printed with the same
+`storefront:` prefix the rest of that script uses and written to the log, and the
+rest still run. Same trade as the sign-in alert's `try/catch`: an outage is worse
+than an unfinished chore, as long as the chore says so out loud.
+
+### Three things that were leaking, and one that was not
+
+- **The baskets.** `PlaceOrder` turns a basket into an order and empties the
+  *shopper's* basket through the session; the `carts` row itself stays, which is
+  right for a real visitor and wrong for eight rows that only ever existed as a
+  way of placing these orders. Nothing in `/admin` reads `carts`, so they would
+  have sat beside the real ones for good with nobody in a position to see them.
+  `demo:orders --remove` sweeps them now, on `MakeDemoOrders::BASKET_PREFIX`,
+  the way the note marks an order and the slug marks the test product.
+- **The test product.** `2026_08_31_170000` retired one already, and the card
+  gateway was being connected in the weeks after — `demo:product` publishes a
+  fresh one whenever somebody needs to put a real card through something that
+  does not cost millions. The migration runs those statements again; on a shop
+  where nobody did, they are a no-op.
+- **The way it all comes back.** Both demo commands now ask before they *make*
+  anything in production, through Laravel's own `ConfirmableTrait`, and
+  `--force` is how somebody means it. Removing is never gated: taking pretend
+  data off a real shop is the direction anybody should be able to go without an
+  argument. `demo:product` is still the way to test a real card against the real
+  gateway — the gate only makes publishing it deliberate now that customers are
+  buying.
+- **The stock ledger is left alone.** The demo's own `inventory_movements` rows
+  net to nothing once the orders are cancelled, and they are the audit trail for
+  units that really did leave a shelf and come back. Deleting them would be a
+  shelf that cannot explain itself, which is the thing that ledger exists to
+  prevent. No panel screen renders them.
+
+**What this does not reach, and what to ask the client.** A test order placed
+through the real checkout with a real telephone number is indistinguishable from
+a customer's, because it *is* one — nothing marks it. If gateway testing left
+any of those on the live shop, they are still there and only a person can point
+at them. Same for a test enquiry on `/admin/enquiries`, a test discount code, or
+a staff account made to look at a screen once.
+
+`NoDemoDataOnTheLivePanelTest` holds the migration: the orders go, the stock
+comes back to the unit, a franchise is cleared too, running it twice changes
+nothing — and a real order placed through `PlaceOrder` beside the demo is still
+there afterwards, still holding its stock, its customer still in the shop. That
+last one is the client's own sentence read the other way round: the fake goes
+and nothing else moves.

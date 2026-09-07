@@ -586,6 +586,22 @@ the client saw an old page and had no way to tell why. So, plainly:
   sellable and `check-parity.js` prints zero the whole time. `--floor=0` there
   empties all eight sizes and collapses the home page. Never wire any of it
   into a seeder or into `liara_pre_start.sh`.
+- **The shop trades for real from 2026-09-07, and the pretend orders are off
+  it.** «دیتاهای فیک از پنل ادمین حذف بشه … نباید با دیتای واقعی قاطی بشن» —
+  `2026_09_07_090000_take_the_demo_data_off_the_live_panel` is the removal,
+  because nobody runs a command on the live site and only a migration reaches
+  production. **It calls `demo:orders --remove` for every branch rather than
+  writing SQL**: taking a demo order away puts stock back, and stock moves in
+  `PlaceOrder` and `SettleOrder` and nowhere else — a migration with its own
+  `branch_inventory` update would be the third place, and its failure is a
+  shelf short for orders that no longer exist. It never throws, because
+  `migrate --force` runs under `set -eu` and a failed tidy-up would keep the
+  shop from starting. **So both demo commands now ask before they *make*
+  anything in production** (`ConfirmableTrait`; `--force` means it), while
+  `--remove` is never gated. Anything put on the live shop from here is a real
+  order somebody has to recognise by eye: a test placed through the real
+  checkout carries no mark at all. `NoDemoDataOnTheLivePanelTest` holds the
+  migration, including that a real order beside the demo survives it.
 - **`php artisan demo:product` puts one cheap buyable thing in the shop**, at
   `--toman=100000` by default, so a card can go through the gateway without
   putting a real one through a shoe that costs millions. It is a real product
@@ -594,7 +610,9 @@ the client saw an old page and had no way to tell why. So, plainly:
   customers can see it**, so `--remove` afterwards; that retires rather than
   deletes, since an order that bought it keeps its line. It also prints which
   payment driver is live, because on `at-the-door` there is no gateway to reach
-  and the test would look broken rather than absent.
+  and the test would look broken rather than absent. On production it asks
+  before publishing one — `--force` is how to mean it — and `--remove` never
+  does; the migration above retires whichever one is standing when it runs.
 - **The panel's dates are Jalali on both sides.** `fa_date()` prints them, and
   `public/assets/js/admin-jalali.js` — loaded from `layouts/admin.blade.php`,
   fingerprinted like admin.css — puts a Persian calendar on the five fields

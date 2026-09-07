@@ -373,4 +373,37 @@ class DemoOrdersTest extends TestCase
             ->assertSee('پرداخت در محل')
             ->assertDontSee('cash_on_delivery');
     }
+
+    /**
+     * **On the live shop it asks first.**
+     *
+     * «از امروز بصورت واقعی کار پروژه شروع میشه … نباید با دیتای واقعی قاطی
+     * بشن» — the demo orders were cleared off production on the day it started
+     * trading, and the way they come back is somebody running this on the
+     * wrong console, doing exactly what the command is for. There is nothing
+     * to notice afterwards either: a pretend sale looks like a sale.
+     *
+     * So the gate is on making them and never on removing them, and `--force`
+     * is how somebody says they meant it.
+     */
+    public function test_it_asks_before_making_them_on_the_live_shop(): void
+    {
+        $this->app['env'] = 'production';
+
+        $this->artisan('demo:orders')
+            ->expectsConfirmation('Are you sure you want to run this command?', 'no')
+            ->assertFailed();
+
+        $this->assertSame(0, $this->demo()->count(), 'Pretend orders were made on a live shop without being asked for twice.');
+
+        $this->artisan('demo:orders --force')->assertSuccessful();
+
+        $this->assertSame(8, $this->demo()->count());
+
+        // Taking them away again is never gated: that is the direction a live
+        // shop always wants to be able to go.
+        $this->artisan('demo:orders --remove')->assertSuccessful();
+
+        $this->assertSame(0, $this->demo()->count());
+    }
 }
