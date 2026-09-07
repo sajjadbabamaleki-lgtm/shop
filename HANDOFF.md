@@ -4702,3 +4702,103 @@ If the live counts come out lower than the shop feels, that is the reason and
 not the query — and assigning brands by name, the way
 `catalogue:categorise` assigns sections, is the next piece of work rather than
 something this round guessed at.
+
+## The five shoes the shop opened with, taken off it
+
+«در قسمت فروشگاه بجز مواردی که از باسلام با api برداشتیم باید حذف بشن چون این
+موارد اوایل راه اندازی سایت قرار داده شدن برای اینکه سایت خالی نباشه مث این
+جردن که بالاش هم زده ناموجود» — sent with a photograph of «کتونی جردن وان ایر»
+sitting in the listing under a ناموجود chip. Asked and answered the same
+afternoon: **the five, and only the five.**
+
+They are `CatalogueSeeder`'s: `golden-goose`, `on-cloudtilt`, `new-balance-530`,
+`nike-v2k-run`, `jordan-one-air`. Live since setup day, with seeded copy,
+seeded colourways and prices nobody chose. Three separate rounds had already
+been spent moving front-page bands *off* them one at a time — the hero, the
+special offer, the daily deal, two best-seller tiles — and every one of those
+notes ends the same way: retiring them changes what the shop sells and is the
+shop's call, not a side effect of fixing a link. The shop made the call.
+
+`2026_09_07_160000_take_the_five_setup_shoes_off_the_shop`:
+
+- **Retired, not deleted.** Offers inactive, variants inactive, product
+  archived with `published_at` cleared. An order that bought one keeps its
+  line, which a deleted row would take with it.
+- **The shelf is deliberately untouched**, unlike the test product's migration
+  which zeroed it. `branch_inventory` carries CHECK constraints — stock never
+  negative, a reservation never above what is on hand — so zeroing
+  `stock_on_hand` under an order still holding units throws, and a migration
+  that throws does not fail a tidy-up: `liara_pre_start.sh` runs under
+  `set -eu`, so it stops the shop from starting. An inactive offer is already
+  unsellable.
+- **It only fires where the shop is not empty without them.** The guard is the
+  client's own sentence read back — they are there «برای اینکه سایت خالی نباشه»
+  — so the migration returns early unless the catalogue holds something that is
+  not one of the five. That is what keeps every test here, and both copies of
+  the home page, rendering against the design they were drawn with.
+
+### The part that would have torn a hole in the front page
+
+Taking the products away is four statements. The bands that name them are the
+work.
+
+**`front_page.ladder_products` and `front_page.story_products` in
+`config/storefront.php` are those five slugs**, and neither band has placement
+rows on the live shop — so both read the file. A band that names five products
+the shop no longer lists renders **nothing at all**: no error, no failing test,
+no deploy to blame, and a home page that goes from six bands to four. That is
+the exact shape of «چرا هیروهای سایت حذف شدن؟؟؟!!!», which this repository has
+now had twice.
+
+So two fallbacks, both narrow:
+
+- `FrontPage::filter()` returns the pool it was given when the named list
+  matches **nothing whatsoever**. A partly stale list still narrows, and naming
+  nothing was always "show the whole pool" — this makes a list that has gone
+  entirely stale mean the same thing.
+- The stories composer falls back to the newest five purchasable, which is what
+  the strip did before it could be named. Five shoes under campaign artwork
+  chosen for five others is not ideal; a missing strip is worse, and the five
+  are choosable in `/admin/front-page`.
+
+`TheSetupShoesAreOffTheShopTest` asserts the bands and not only the
+retirement — the stepped sale draws cards and the story strip draws rings on a
+shop whose seeded five have just gone.
+
+### The brands had to be read off the names first
+
+The strip counts products per brand as of that morning, and `brand_id` was set
+on exactly five products in the whole shop: these five. `basalam:import` writes
+none, and the panel's برند select is a field nothing obliges anybody to touch.
+So retiring them would have taken every tile off «برندهای موجود» in the same
+minute.
+
+`App\Support\Catalogue\BrandByName` reads the make out of the name, the same
+way `CategoriseByName` reads the section — this shop writes «کتونی نایک وی تو
+کی رنگ موکا» and «کتونی آن رانینگ ON Running رنگ مشکی», so the make is already
+in the row. Two rules carry it, and both are in the class with their reasons:
+
+- **Jordan is tried before Nike.** Air Jordan is Nike's and the shop writes it
+  that way — «نایک جردن تراویس اسکات» — so both words are in the name and only
+  one of them is the tile the shoe belongs on.
+- **«آن» alone is never On.** It is the ordinary Persian word for «that». The
+  brand is read only from «آن رانینگ», «کلادتیلت» or the Latin «on running». A
+  brand matched on a pronoun would file half the catalogue under it and nothing
+  would look wrong until the strip printed the number.
+
+Everything is folded with `fold_persian()` first, so آ/ا, ي/ی and both sets of
+digits are one spelling, and the Latin half of a name is searched too.
+`read_the_brand_off_every_product_name` does the catalogue that is here;
+`php artisan catalogue:brand --dry-run` prints the plan for the next import and
+names every product it could not read, because each of those is a shoe no tile
+will ever count. It only ever fills a blank.
+
+### What the client should expect to see
+
+The tiles will print smaller numbers than the four invented ones did, and they
+will be true. A shoe whose name says no brand this shop has a row for — every
+صندل, every کالج, every اسلیپر — belongs to no tile and is counted nowhere;
+that is not a fault to fix in code, it is the برند column in `/admin/catalogue`.
+And the stepped sale now shows what is genuinely discounted rather than five
+seeded shoes with seeded cuts: «حراج پله ای کلا دستی تنظیم میشه» was the
+instruction, and its products are chosen in `/admin/front-page`.

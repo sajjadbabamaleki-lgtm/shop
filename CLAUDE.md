@@ -601,7 +601,9 @@ the client saw an old page and had no way to tell why. So, plainly:
   `--remove` is never gated. Anything put on the live shop from here is a real
   order somebody has to recognise by eye: a test placed through the real
   checkout carries no mark at all. `NoDemoDataOnTheLivePanelTest` holds the
-  migration, including that a real order beside the demo survives it.
+  migration, including that a real order beside the demo survives it. The five
+  seeded shoes went the same way that afternoon — see the bullet below on
+  `take_the_five_setup_shoes_off_the_shop`.
 - **`php artisan demo:product` puts one cheap buyable thing in the shop**, at
   `--toman=100000` by default, so a card can go through the gateway without
   putting a real one through a shoe that costs millions. It is a real product
@@ -709,6 +711,37 @@ the client saw an old page and had no way to tell why. So, plainly:
   plate and the bar together — and `theme/make-rtl-page.js` now carries the
   *seeder's* count (۱ per brand), so adding a shoe to `CatalogueSeeder` without
   telling that file turns four tiles red in `check-parity.js`.
+- **The five shoes the shop opened with are off the shop, since 2026-09-07.**
+  «این موارد اوایل راه اندازی سایت قرار داده شدن برای اینکه سایت خالی نباشه» —
+  `CatalogueSeeder`'s five, live since setup day, carrying seeded copy and
+  prices nobody chose. `take_the_five_setup_shoes_off_the_shop` **retires**
+  them (offers and variants inactive, product archived, `published_at`
+  cleared) rather than deleting, because an order that bought one keeps its
+  line — and it **leaves the shelf alone**: `branch_inventory` has CHECK
+  constraints, so zeroing stock under an order still holding units throws, and
+  a migration that throws stops the shop from starting. It fires **only where
+  the shop has a catalogue of its own** (`whereNotIn(SLUGS)->exists()`), which
+  is the client's own reason read back and is why every test here, and both
+  copies of the home page, still render against the five.
+  **What it nearly broke is the part worth knowing.** Two bands name products
+  in `config/storefront.php` — `front_page.ladder_products` and
+  `story_products` — and what they name is those five, so both would have
+  looked up slugs the shop no longer lists and drawn *nothing*, with nothing
+  going red. `FrontPage::filter()` and the stories composer now fall back to
+  their own query when a named list matches nothing at all; a partly stale list
+  still narrows. `TheSetupShoesAreOffTheShopTest` holds the bands, not just the
+  retirement.
+- **A brand is read off the product's name.** `App\Support\Catalogue\BrandByName`,
+  `php artisan catalogue:brand` (with `--dry-run`), and
+  `read_the_brand_off_every_product_name` for the catalogue that is already
+  here — the same shape as `CategoriseByName` and `catalogue:categorise` before
+  it. It exists because `basalam:import` writes no `brand_id` and the panel's
+  برند select is optional, so the shop's own catalogue belonged to no brand at
+  all — invisible until the strip started counting. Two rules carry it:
+  **Jordan is tried before Nike** (Air Jordan carries both words and the strip
+  draws two tiles), and **«آن» alone is never On** — it is the ordinary word
+  for «that», so the brand is read only from «آن رانینگ», «کلادتیلت» or the
+  Latin. It only ever fills a blank; a choice made in the panel survives it.
 - **A section that is «به‌زودی» looks exactly like one that is open.** Four of
   the eight — «بوت و نیم‌بوت», «ست کیف و کفش», «اکسسوری», «ست ورزشی» — hold no
   products, and `categories.coming_soon` is the flag. **It changes nothing that

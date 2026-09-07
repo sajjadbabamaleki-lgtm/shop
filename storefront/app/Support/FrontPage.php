@@ -176,6 +176,27 @@ class FrontPage
             return $products;
         }
 
-        return $products->filter(fn (Product $product) => in_array($product->slug, $named, true));
+        $kept = $products->filter(fn (Product $product) => in_array($product->slug, $named, true));
+
+        /*
+         * **A band whose named products have all left the shop falls back to
+         * the query it filters, rather than going empty.**
+         *
+         * The names can go stale on their own: a product is archived, sold
+         * out, or — the reason this line exists — the five shoes the shop
+         * opened with were taken off it, and `front_page.ladder_products`
+         * still names them because that is what a fresh install's file says.
+         * Filtering a pool down to five products that are no longer in it
+         * leaves nothing, and a front-page band rendering nothing is the
+         * failure this repository has already had twice: nothing goes red, no
+         * deploy caused it, and the client photographs a home page with a
+         * section missing.
+         *
+         * Falling back is the same answer as naming nothing at all, which is
+         * what the band did before it could be chosen from the panel. A
+         * *partly* stale list still narrows: this only fires when the list
+         * matches nothing whatsoever.
+         */
+        return $kept->isEmpty() ? $products : $kept;
     }
 }

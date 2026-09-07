@@ -198,6 +198,30 @@ class AppServiceProvider extends ServiceProvider
                     ->values();
             }
 
+            /*
+             * **A named strip whose products have all left the shop falls back
+             * to the newest five**, which is what this did before it could be
+             * named.
+             *
+             * The list goes stale on its own and the file's default is the
+             * five sneakers a fresh install seeds — so the day those were
+             * taken off the live shop, every ring named a product that is no
+             * longer listed and the strip disappeared: no error, no deploy,
+             * and the phone's listing simply loses the row above it. Five
+             * shoes under campaign artwork chosen for five others is not
+             * ideal; a missing strip is worse, and the five are choosable in
+             * `/admin/front-page`.
+             */
+            if ($stories->isEmpty()) {
+                $stories = Product::query()
+                    ->purchasable()
+                    ->pricedHere()
+                    ->with($load)
+                    ->latest('id')
+                    ->take(5)
+                    ->get();
+            }
+
             $view->with('stories', $stories);
         });
     }
