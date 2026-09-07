@@ -1,0 +1,33 @@
+name: TEMP what a foreign IP gets
+
+# Temporary. The build's own probe has been timing out since this morning,
+# where yesterday it answered in 32 seconds — so a request from outside Iran
+# gets nothing. This says *what* kind of nothing: DNS, TCP, TLS or silence.
+# Working branch only; the deploy job is gated on main, so this ships nothing.
+# Deleted as soon as it has answered.
+
+on:
+  push:
+    branches: ['claude/**']
+
+jobs:
+  what-a-foreign-ip-gets:
+    name: What a foreign IP gets
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - name: Ask both hosts, briefly
+        run: |
+          for host in vikyplus.ir www.vikyplus.ir vikyplus.liara.run; do
+            echo "=============== $host"
+            echo "--- dns"
+            getent hosts "$host" || echo "no A record"
+            echo "--- tcp 443"
+            timeout 10 bash -c "cat < /dev/null > /dev/tcp/$host/443" \
+              && echo "connected" || echo "could not connect (exit $?)"
+            echo "--- https, 15s ceiling"
+            curl -sS -o /dev/null -m 15 -w 'code=%{http_code} dns=%{time_namelookup}s tcp=%{time_connect}s tls=%{time_appconnect}s wait=%{time_starttransfer}s total=%{time_total}s\n' \
+              "https://$host/" || echo "curl exit $?"
+            echo "--- headers"
+            curl -sS -I -m 15 "https://$host/" | head -12 || echo "curl exit $?"
+          done
