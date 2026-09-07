@@ -870,9 +870,13 @@ return [
          | a fifth tile would fall back on, and because dropping it would mean
          | a brand with no set drawing nothing at all.
          |
-         | The counts are invented outright, for every tile: nothing in the
-         | catalogue adds up to them, and seeding inventory until it did would
-         | be inventing stock rather than counting it.
+         | **The counts used to live here and no longer do.** Four invented
+         | numbers — ۴۲، ۲۸، ۳۵، ۱۹ — on a tile that has always linked to the
+         | brand-filtered listing, so the plate and the page it opened
+         | disagreed. «هر برند باید تعداد موجودی واقعی در فروشگاه نوشته بشه»:
+         | HomeController::brands() counts what this shop lists for the brand,
+         | which is the same query that page's «X کالا» comes from. There is
+         | nothing to configure and nothing to keep in step.
          |
          | **This list also decides which four brands the strip shows** — it is
          | the `whereIn` the query runs. گلدن گوس came out of it when the
@@ -880,9 +884,7 @@ return [
          | بشه»; it is still an active brand with a shoe, a page and a place in
          | the best-sellers filter, it is simply not one of the four featured.
          |
-         | Keyed by brand slug. A brand with no entry here shows its own three
-         | photographs and its real count, which is what should happen as each
-         | brand's assets arrive.
+         | Keyed by brand slug, and photographs are all that is left in it.
          */
         'brand_strip' => [
             'nike' => [
@@ -891,7 +893,6 @@ return [
                     'assets/img/brand/vikyplus-nike-kit.webp',
                     'assets/img/brand/vikyplus-nike-athlete.webp',
                 ],
-                'stock' => 42,
             ],
             'jordan' => [
                 'photos' => [
@@ -899,7 +900,6 @@ return [
                     'assets/img/brand/vikyplus-jordan-kit.webp',
                     'assets/img/brand/vikyplus-jordan-athlete.webp',
                 ],
-                'stock' => 28,
             ],
             'new-balance' => [
                 'photos' => [
@@ -907,7 +907,6 @@ return [
                     'assets/img/brand/vikyplus-nb-kit.webp',
                     'assets/img/brand/vikyplus-nb-athlete.webp',
                 ],
-                'stock' => 35,
             ],
             'on' => [
                 'photos' => [
@@ -915,7 +914,6 @@ return [
                     'assets/img/brand/vikyplus-on-kit.webp',
                     'assets/img/brand/vikyplus-on-athlete.webp',
                 ],
-                'stock' => 19,
             ],
         ],
 

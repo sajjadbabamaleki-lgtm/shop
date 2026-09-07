@@ -3198,7 +3198,7 @@ ul.vp-how-list.is-ticked li:before {
 
 .vp-brands-row {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(var(--vp-brands-cols, 4), 1fr);
   gap: 18px;
 }
 

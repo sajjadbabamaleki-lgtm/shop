@@ -129,12 +129,13 @@ Three things fall out of the wiring that are worth knowing:
   cards reads. Moving the sale on is one number in `config/storefront.php`.
 - **«فقط ۱ عدد باقی مانده» is a count.** It follows `sellable_stock`, and a
   product whose stock reaches zero leaves the sale rather than being offered.
-- **What is invented did not go into the catalogue.** The brand strip's
-  counts, which four brands it features, and the pairing that puts a shoe's
-  price under a category's photograph are all
-  in `config/storefront.php` under `placeholders`. Seeding an invented number into the tables would make it
-  indistinguishable from a counted one, which is the whole thing that block
-  exists to prevent.
+- **What is invented did not go into the catalogue.** Which four brands the
+  strip features, and the pairing that puts a shoe's price under a category's
+  photograph, are in `config/storefront.php` under `placeholders`. Seeding an
+  invented number into the tables would make it indistinguishable from a
+  counted one, which is the whole thing that block exists to prevent. The
+  brand strip's counts were the largest thing in there and are **counted** as
+  of 2026-09-07 — see the last section of this file.
 
 **What is still not wired:** nothing on the page needs a customer. There is no
 cart, no product page, no search, no account — `page_url()` sends all
@@ -314,7 +315,7 @@ photographs are ours rather than the template's.
 | best sellers | «پرفروش‌ترین‌ها» | 6 of 6 ours | ours |
 | offer banner | «SPECIAL OFFER» / «BLACK FRIDAY» | 0 of 1 | **template** |
 | daily deal — was today's deals | «قبل از تمام شدن بخرش!» | 1 of 1 ours | ours |
-| brand strip | «برندهای موجود» | our layout, real content bar the counts | see below |
+| brand strip | «برندهای موجود» | our layout, real content | see below |
 | footer | «Menu» | 0 of 5 | **template** |
 
 So two blocks are still wholly the template's: **the offer banner and the
@@ -322,17 +323,15 @@ footer.** The banner reads BLACK FRIDAY / SPECIAL OFFER over ADIDAS SHOES on a
 stock photograph; the footer carries «Menu», the column headings and an address
 in Germany for a furniture company.
 
-**The brand strip is ours in shape, and its content is real now bar one
-thing.** The template's carousel is gone, replaced by four tiles on one white
-card — a photo mosaic per tile with a glass plate floating in the middle
-carrying the brand's mark, its name and a stock count. The layout is settled
-and measured. Of the three things that used to be stand-ins here, two are
-finished: the client sent a set of three photographs per brand and a logo for
-every mark. **Only the counts are still invented**, and they are the one part
-nobody can supply — they are a number the catalogue would have to hold. All of
-it lives in one array (`BRANDS`) at the top of the brand block in
-`theme/make-rtl-page.js`, mirrored by `placeholders.brand_strip` on the
-Laravel side:
+**The brand strip is ours in shape, and its content is real.** The template's
+carousel is gone, replaced by four tiles on one white card — a photo mosaic per
+tile with a glass plate floating in the middle carrying the brand's mark, its
+name and a count. The layout is settled and measured. All three of the things
+that used to be stand-ins here are finished: the client sent a set of three
+photographs per brand and a logo for every mark, and **the count is counted**
+as of 2026-09-07 (the last section of this file). What is left in
+`theme/make-rtl-page.js`'s `BRANDS` array and in `placeholders.brand_strip` is
+the marks and the photographs:
 
 - **the marks** — **all four are real now**, and no abstract stand-in is left
   on this block. **A mark is the one part of a tile that lives in the
@@ -4627,3 +4626,79 @@ nothing — and a real order placed through `PlaceOrder` beside the demo is stil
 there afterwards, still holding its stock, its customer still in the shop. That
 last one is the client's own sentence read the other way round: the fake goes
 and nothing else moves.
+
+## «برندهای موجود» — the plate says a number the shop can be held to
+
+«از تو وبسایت قسمت برندها رو هر برند باید تعداد موجودی واقعی در فروشگاه نوشته
+بشه و وقتی روش زده میشه وارد فروشگاه بشه و همه اون موجودی هارو نشون بده.»
+2026-09-07, the day the shop started trading.
+
+**The tile already opened the right page. It was the number above the link that
+was invented.** ۴۲، ۲۸، ۳۵، ۱۹ sat in `placeholders.brand_strip`, written there
+deliberately so an invented figure could never be mistaken for a counted one,
+and the tile has linked to `?brand=<slug>` since the listing learned to filter.
+So the shop was already answering the second half of the request and
+contradicting itself while it did: «۴۲ کالا موجود» on the plate, «۱ کالا» in
+the bar of the page it opened.
+
+### What the number is, and why it is not the stock
+
+It is **the products this shop lists for that brand** — `Product::listable()`,
+which is what the listing itself runs, so the plate and the «X کالا» in that
+page's bar are the same query and cannot disagree. `listable()` is
+branch-scoped through the offer it asks for, so a franchise's strip counts a
+franchise's shelves.
+
+Counting units of stock instead, or counting only what is in stock, is a truer
+reading of the word «موجود» and a number that contradicts the page the tile
+opens — which is the fault being fixed, one screen further on.
+`BrandStripCountsTest` asserts the two together and moves them together: a
+second Nike shoe has to change the plate *and* the bar in the same breath.
+
+### Three things that fall out of it
+
+- **A brand this shop lists nothing for has no tile**, rather than «۰ کالا
+  موجود» over a listing that says «چیزی با این مشخصات پیدا نشد». Which is also
+  why the count is not `count($brand->products)`: a product with no active
+  offer at this branch is not in this shop, whatever the `brands` table says.
+  **If the last tile goes, the band goes with it** — and the header's «برندها»
+  link, which is an anchor to `#brands` and the one item in that bar with no
+  page of its own, then scrolls nowhere. That is the state of a shop that lists
+  nothing under any of its four featured brands, which is worth knowing about
+  before it is worth fixing.
+- **The row is told how many tiles it has.** `.vp-brands-row` was
+  `repeat(4, 1fr)` and a dropped tile would have left a hole at the end of the
+  row; it reads `var(--vp-brands-cols, 4)` now, the Laravel page writes the
+  number it actually has, floored at two, and the static preview writes
+  nothing — so the four-tile rendering everything was measured against, and
+  everything `check-parity.js` compares, is unchanged to the pixel. Measured
+  with Nike's offers switched off: three tiles at 1440 come out 436×327 each
+  with no gap, which is the same tile the 992 two-up rendering already draws at
+  445×334.
+- **The listing names the brand it was opened on.** It said «همه محصولات» with
+  the filter applied, which reads as a filter that did not take. The brand is a
+  qualifier of the same kind the sale already was — «ونس و کتونی، نایک» — and
+  it replaces «همه محصولات» outright when it is the only thing asked for. One
+  brand only: two ticked in the rail is a list the shopper built and can see
+  ticked.
+
+### The preview's number is the seeder's number
+
+`check-parity.js` renders this page against a *seeded* catalogue, so the four
+tiles in `theme/make-rtl-page.js` now read «۱ کالا موجود» — one shoe per brand
+is what `CatalogueSeeder` builds. That is the same contract the stepped sale's
+prices in that file already have, and it has teeth now: **add a sixth shoe to
+the seeder and four tiles go red at once.** Measure it with `php artisan
+tinker` rather than counting the seeder's array, because a shoe with no offer
+at the central branch is not listed and does not count.
+
+### What it cannot do, and what the client should look at
+
+The count is only as good as the `brand_id` on each product. Nothing in
+`basalam:import` sets one, and the panel's product form is where a brand is
+chosen, so a shoe uploaded without one counts towards no brand at all and shows
+up on no tile. The برند column in `/admin/catalogue` is where that is visible.
+If the live counts come out lower than the shop feels, that is the reason and
+not the query — and assigning brands by name, the way
+`catalogue:categorise` assigns sections, is the next piece of work rather than
+something this round guessed at.

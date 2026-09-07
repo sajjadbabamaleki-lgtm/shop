@@ -693,6 +693,22 @@ the client saw an old page and had no way to tell why. So, plainly:
   and the daily deal — `compare_at_price` is null when nothing is on offer, so
   handing them everything would print a zero in large type rather than fill the
   page). `HeroOutlivesTheSaleTest` holds the line.
+- **«برندهای موجود» counts, and the plate and the page behind it are the same
+  query.** «هر برند باید تعداد موجودی واقعی در فروشگاه نوشته بشه و وقتی روش
+  زده میشه … همه اون موجودی هارو نشون بده» — the four tiles used to print
+  ۴۲، ۲۸، ۳۵، ۱۹ out of `placeholders.brand_strip` above a link that has always
+  opened `?brand=<slug>`, so the plate and the listing's «X کالا» said different
+  things. `HomeController::brands()` counts `Product::listable()` per brand,
+  which is the listing's own query, branch-scoped through the offer it asks
+  for. **Not a stock sum and not `purchasable()`**: a number that contradicts
+  the page it links to is the fault being fixed. A brand this shop lists
+  nothing for **has no tile**, so `.vp-brands-row` takes its column count from
+  the Laravel page (`--vp-brands-cols`, default 4, floored at 2) and the
+  four-tile rendering is unchanged to the pixel. The listing names the brand in
+  its heading when exactly one is asked for. `BrandStripCountsTest` holds the
+  plate and the bar together — and `theme/make-rtl-page.js` now carries the
+  *seeder's* count (۱ per brand), so adding a shoe to `CatalogueSeeder` without
+  telling that file turns four tiles red in `check-parity.js`.
 - **A section that is «به‌زودی» looks exactly like one that is open.** Four of
   the eight — «بوت و نیم‌بوت», «ست کیف و کفش», «اکسسوری», «ست ورزشی» — hold no
   products, and `categories.coming_soon` is the flag. **It changes nothing that

@@ -296,16 +296,27 @@ class HomePageTest extends TestCase
     }
 
     /**
-     * The brand strip's counts are invented and are not allowed to look
-     * counted. They come from config, and the catalogue does not hold them.
+     * The brand strip's counts are counted, and nothing may put an invented
+     * one back.
+     *
+     * They were four numbers in `placeholders.brand_strip` — ۴۲، ۲۸، ۳۵، ۱۹ —
+     * on tiles that have always opened the brand-filtered listing, so the
+     * plate and the page behind it said different things. The whole of what
+     * this asserts is that config cannot decide the number any more;
+     * `BrandStripCountsTest` is where the counting itself is held.
      */
-    public function test_the_brand_counts_are_config_placeholders_not_catalogue(): void
+    public function test_the_brand_counts_come_from_the_catalogue_and_not_from_config(): void
     {
-        $this->get('/')->assertSee('۴۲ کالا موجود', false);
+        foreach (config('storefront.placeholders.brand_strip') as $slug => $stand_in) {
+            $this->assertArrayNotHasKey(
+                'stock',
+                $stand_in,
+                "{$slug} carries an invented count again; the strip counts the catalogue now",
+            );
+        }
 
-        config(['storefront.placeholders.brand_strip.nike.stock' => 7]);
-
-        $this->get('/')->assertSee('۷ کالا موجود', false)->assertDontSee('۴۲ کالا موجود', false);
+        // The seeder gives each brand one shoe, and the plate says so.
+        $this->get('/')->assertSee('۱ کالا موجود', false);
     }
 
     /**

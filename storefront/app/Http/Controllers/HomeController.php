@@ -25,9 +25,9 @@ class HomeController extends Controller
      * Two things are read from config rather than from the catalogue, and the
      * difference matters. Which products get the hero and the daily deal is an
      * editorial choice nothing in the tables can answer. The brand strip's
-     * photographs and counts, and the pairing that puts a shoe's price under a
-     * category's photograph, are admitted placeholders — see
-     * config/storefront.php.
+     * photographs, and the pairing that puts a shoe's price under a category's
+     * photograph, are admitted placeholders — see config/storefront.php. The
+     * strip's counts are **not** among them any more: they are counted.
      */
     public function __invoke(): View
     {
@@ -513,15 +513,33 @@ class HomeController extends Controller
     /**
      * The strip's four tiles.
      *
-     * The name, the mark and — where they exist — the photographs are the
-     * brand's own. The count never is, and neither are the photographs of a
-     * brand whose three have not arrived yet; see `placeholders.brand_strip`,
-     * which is where both substitutions are written down. A brand with no
-     * entry there falls back to what the catalogue can actually answer, which
-     * is what should happen as each brand's real assets arrive.
+     * **The count is counted now.** «هر برند باید تعداد موجودی واقعی در فروشگاه
+     * نوشته بشه و وقتی روش زده میشه وارد فروشگاه بشه و همه اون موجودی هارو
+     * نشون بده» — it was four invented numbers (۴۲، ۲۸، ۳۵، ۱۹) sitting in
+     * `placeholders.brand_strip`, on a tile that has always linked to the
+     * brand-filtered listing. So the tile promised a number and the page it
+     * opened said a different one.
+     *
+     * **It is `listable()` and not `purchasable()` because that is the set the
+     * listing shows.** The promise this makes is exactly the one a shopper can
+     * check: the number on the plate and the «X کالا» in the bar of the page
+     * the tile opens are the same query, so they cannot disagree. Counting
+     * what is in stock instead would be a truer reading of «موجود» and a
+     * number that contradicts the page it links to, which is the fault being
+     * fixed. `BrandStripCountsTest` holds the two together.
+     *
+     * A brand with nothing to show loses its tile rather than advertising
+     * «۰ کالا موجود» over a listing with nothing in it. That is also why the
+     * count is not `count($brand->products)` — a product with no branch offer
+     * here is not in this shop, whatever the brands table says.
+     *
+     * The name, the mark and — where they exist — the photographs are still
+     * the brand's own, and the photographs of a brand whose three have not
+     * arrived yet are still `placeholders.brand_strip`'s, which is now the only
+     * thing left in there.
      *
      * @param  Collection<string, Category>  $categories
-     * @return list<array{brand: Brand, mosaic: list<string>, stock: int}>
+     * @return list<array{brand: Brand, mosaic: list<string>, count: int}>
      */
     private function brands(Collection $categories): array
     {
@@ -530,12 +548,20 @@ class HomeController extends Controller
         $brands = Brand::query()
             ->where('is_active', true)
             ->whereIn('slug', array_keys($placeholders))
+            // One query for the four counts rather than four. `listable()` is
+            // branch-scoped through the offer it asks for, so this is what
+            // *this* shop lists, not what the platform holds.
+            ->withCount(['products' => fn ($products) => $products->listable()])
             ->orderBy('position')
             ->get();
 
         $tiles = [];
 
         foreach ($brands as $brand) {
+            if ($brand->products_count < 1) {
+                continue;
+            }
+
             $stand_in = $placeholders[$brand->slug] ?? null;
 
             // The brand's own three if it has them; otherwise the category
@@ -552,7 +578,7 @@ class HomeController extends Controller
             $tiles[] = [
                 'brand' => $brand,
                 'mosaic' => $mosaic,
-                'stock' => $stand_in['stock'] ?? 0,
+                'count' => (int) $brand->products_count,
             ];
         }
 

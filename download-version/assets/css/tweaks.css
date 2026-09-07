@@ -5513,9 +5513,19 @@ ul.vp-how-list.is-ticked li:before {
   text-decoration: underline;
 }
 
+/* Four across, and four is what the design was drawn against and what every
+   rendering `check-parity.js` compares makes — the variable is a fallback of
+   4 and this static page never sets it, so the computed value is unchanged.
+
+   It is here because a tile can be missing: since 2026-09-07 the plate carries
+   the brand's real count and a brand this shop lists nothing for is not drawn
+   at all, and three tiles in a four-column grid leaves a hole at the end of
+   the row. The Laravel page writes the number of tiles it actually has, and
+   the 992 and 575 blocks below still override the whole property, so this only
+   ever decides the wide rendering. */
 .vp-brands-row {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(var(--vp-brands-cols, 4), 1fr);
   gap: 18px;
 }
 

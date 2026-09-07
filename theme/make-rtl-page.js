@@ -2132,10 +2132,11 @@ html = html.replace('</body>', HOW_HTML + '</body>');
 // plate floating in the middle of it — four of them, on one white card running
 // the width of the page.
 //
-// Three things in here are placeholders and are marked as such below: the
-// logos, the photographs and the stock counts. The client chose each of those
-// substitutions rather than wait for the real assets, so the layout can be
-// settled now and the content dropped in later.
+// Two things in here were placeholders and are marked as such below: the logos
+// and the photographs. The client chose each of those substitutions rather
+// than wait for the real assets, so the layout can be settled now and the
+// content dropped in later. The counts were a third until 2026-09-07; see the
+// note on them below.
 const BRANDS = [
   // **Every tile carries the brand's own photographs now** — supplied by the
   // client, three per brand, for this arrangement: «این ۳ تصویر در ۳ کادر اول
@@ -2164,14 +2165,26 @@ const BRANDS = [
   // theme/make-brand-marks.js, which puts every one of them in the page's ink
   // on transparency whatever state it arrived in — Jordan's already cut out,
   // New Balance's black on white, On's still inside the poster it was sent
-  // with. The stock counts on the plates are the only invented thing left
-  // here.
+  // with.
   //
-  // The counts are invented. There is no inventory behind this page — the
-  // Laravel app has the tables, this static page has no data — so they are
-  // shaped like real numbers and are not real numbers.
+  // **The counts are no longer invented, and they are no longer free.** They
+  // used to read ۴۲، ۲۸، ۳۵، ۱۹ — numbers shaped like real ones, because this
+  // static page has no database. «هر برند باید تعداد موجودی واقعی در فروشگاه
+  // نوشته بشه»: the Laravel page counts the products it lists for each brand,
+  // and `check-parity.js` compares this page against that one against a
+  // *seeded* catalogue. So the number written here has to be the number
+  // `CatalogueSeeder` produces, exactly the way the stepped sale's prices in
+  // this file are the seeder's prices.
+  //
+  // That is **one product per brand** today: the seeder builds five shoes, one
+  // for each of its five brands, and each is listable at the central branch.
+  // Add a sixth shoe to the seeder and this file has to say so, or parity goes
+  // red on four tiles at once — measure it with
+  // `php artisan tinker` rather than counting the seeder's array by eye, since
+  // a shoe with no offer at the central branch is not listed and does not
+  // count.
   {
-    name: 'نایک', logo: 'brand_5_2.png', stock: '۴۲',
+    name: 'نایک', logo: 'brand_5_2.png', stock: '۱',
     photos: [
       'assets/img/brand/vikyplus-nike-vomero.webp',
       'assets/img/brand/vikyplus-nike-kit.webp',
@@ -2179,7 +2192,7 @@ const BRANDS = [
     ],
   },
   {
-    name: 'جردن', logo: 'vikyplus-jordan.png', stock: '۲۸',
+    name: 'جردن', logo: 'vikyplus-jordan.png', stock: '۱',
     photos: [
       'assets/img/brand/vikyplus-jordan-one.webp',
       'assets/img/brand/vikyplus-jordan-kit.webp',
@@ -2187,7 +2200,7 @@ const BRANDS = [
     ],
   },
   {
-    name: 'نیوبالانس', logo: 'vikyplus-nb.png', stock: '۳۵',
+    name: 'نیوبالانس', logo: 'vikyplus-nb.png', stock: '۱',
     photos: [
       'assets/img/brand/vikyplus-nb-530.webp',
       'assets/img/brand/vikyplus-nb-kit.webp',
@@ -2195,7 +2208,7 @@ const BRANDS = [
     ],
   },
   {
-    name: 'آن', logo: 'vikyplus-on.png', stock: '۱۹',
+    name: 'آن', logo: 'vikyplus-on.png', stock: '۱',
     photos: [
       'assets/img/brand/vikyplus-on-running.webp',
       'assets/img/brand/vikyplus-on-kit.webp',

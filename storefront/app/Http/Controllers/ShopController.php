@@ -51,6 +51,14 @@ class ShopController extends Controller
     private const PER_PAGE = 24;
 
     /**
+     * What the page calls itself when nothing has been asked of it. Named
+     * because two methods compare against it: rewording it in one place and
+     * not the other would put «همه محصولات، نایک» on a page filtered to one
+     * brand, which is two answers to one question.
+     */
+    private const EVERYTHING = 'همه محصولات';
+
+    /**
      * What the sort control offers, and what each one means to the database.
      *
      * `branch_price` is the subquery `pricedHere()` adds, so cheapest-first is
@@ -330,7 +338,16 @@ class ShopController extends Controller
      *
      * The sale reads as a qualifier on whatever else was asked for — «صندل، با
      * تخفیف» — rather than replacing it, so arriving from the drawer's
-     * «تخفیف‌دارها» and then picking a category still says both things.
+     * «تخفیف‌دارها» and then picking a category still says both things. **The
+     * brand is a qualifier of the same kind**, and it is here because of where
+     * the shopper arrives from: «وقتی روش زده میشه وارد فروشگاه بشه و همه اون
+     * موجودی هارو نشون بده» — the home page's brand tile opens this listing
+     * filtered to one brand, and a page that answered «همه محصولات» read as a
+     * filter that had not taken.
+     *
+     * One brand only. Two or three ticked in the rail is a list the shopper
+     * built and can see ticked; spelling it back into the heading says nothing
+     * and gets long. A search says what was searched for and nothing else.
      *
      * @param  array<string, mixed>  $filters
      */
@@ -340,6 +357,23 @@ class ShopController extends Controller
             return "نتیجه جست‌وجو برای «{$filters['q']}»";
         }
 
+        $brand = count($filters['brand']) === 1
+            // One lookup, and only on a page that asked for a brand. A slug
+            // nobody has is not a heading — the listing below it is empty and
+            // says so in its own words.
+            ? Brand::where('slug', $filters['brand'][0])->value('name')
+            : null;
+
+        return $this->qualify($this->withoutTheBrand($filters), $brand);
+    }
+
+    /**
+     * The heading as it read before a brand could be part of it.
+     *
+     * @param  array<string, mixed>  $filters
+     */
+    private function withoutTheBrand(array $filters): string
+    {
         if ($filters['cut']) {
             $cut = 'تخفیف ٪'.fa_number($filters['cut']).' و بیشتر';
 
@@ -352,6 +386,19 @@ class ShopController extends Controller
                 : 'تخفیف‌دارها';
         }
 
-        return $filters['category']?->name ?? 'همه محصولات';
+        return $filters['category']?->name ?? self::EVERYTHING;
+    }
+
+    /**
+     * The brand added to whatever the page was already called — except when
+     * nothing else was asked for, where the brand *is* the answer.
+     */
+    private function qualify(string $heading, ?string $brand): string
+    {
+        if ($brand === null) {
+            return $heading;
+        }
+
+        return $heading === self::EVERYTHING ? $brand : $heading.'، '.$brand;
     }
 }

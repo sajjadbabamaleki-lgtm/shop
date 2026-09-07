@@ -6,19 +6,21 @@
     the three tiles the client has supplied a set for — Nike, Jordan and New
     Balance, each reading shoe, kit, athlete down the tile. The fourth still
     borrows the category photographs from the top of the page, because we hold
-    one product photograph for that brand and a tile wants three. No count is
-    real; they are invented outright.
+    one product photograph for that brand and a tile wants three.
 
-    Photographs and counts alike come out of
-    config('storefront.placeholders.brand_strip') rather than out of the
-    catalogue, so an invented number never sits in the tables looking like a
-    counted one.
+    **The count is the catalogue's own.** It was invented until 2026-09-07 and
+    is now the number of products this shop lists for that brand — the same
+    query the page behind the tile runs, so the plate and that page's «X کالا»
+    say the same thing. A brand this shop lists nothing for has no tile.
+    See HomeController::brands(). config('storefront.placeholders.brand_strip')
+    is photographs and nothing else now.
 
     Only the Nike mark is real. The other three are the template's own
     abstract marks.
 
     Hand-owned: theme/make-blade.js no longer regenerates this file.
 --}}
+@if ($brands !== [])
 {{-- `id` for the section bar in the header: «برندها» is the one link in
      it with no page of its own, because this band is the only place the
      shop lists its brands. An id paints nothing, so `check-parity.js`
@@ -30,7 +32,15 @@
                 <h2 class="vp-brands-title">برندهای موجود</h2>
                 <a href="{{ page_url('shop.html') }}" class="vp-brands-all">مشاهده همه برندها</a>
             </div>
-            <div class="vp-brands-row">
+            {{-- The row is four columns and stays four while there are four,
+                 which is every rendering the design was drawn against and the
+                 one the static preview makes — so this cannot move a pixel of
+                 `check-parity.js`. It exists because a tile can now drop out:
+                 a brand this shop lists nothing for is not shown, and three
+                 tiles in a four-column grid is a hole at the end of the row.
+                 Floored at two, because one tile across the whole panel is a
+                 photograph four times the size the mosaic was cut for. --}}
+            <div class="vp-brands-row" style="--vp-brands-cols: {{ min(4, max(2, count($brands))) }}">
                 @foreach ($brands as $tile)
                 <a class="vp-brand" href="{{ storefront_route('shop', ['brand' => $tile['brand']->slug]) }}">
                     <span class="vp-brand-mosaic" aria-hidden="true">
@@ -42,7 +52,7 @@
                         <img class="vp-brand-logo" src="{{ asset($tile['brand']->logo_path) }}" alt="" loading="lazy">
                         <span class="vp-brand-lines">
                             <span class="vp-brand-name">{{ $tile['brand']->name }}</span>
-                            <span class="vp-brand-stock">{{ fa_number($tile['stock']) }} کالا موجود</span>
+                            <span class="vp-brand-stock">{{ fa_number($tile['count']) }} کالا موجود</span>
                         </span>
                     </span>
                 </a>
@@ -50,3 +60,4 @@
             </div>
         </div>
     </section>
+@endif
