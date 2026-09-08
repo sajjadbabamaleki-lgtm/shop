@@ -536,6 +536,52 @@ the client saw an old page and had no way to tell why. So, plainly:
   delivery charge, the cancellation answer is `Order::isCancellable()` in words.
   **The legal text on `/terms` and `/privacy` is a draft nobody qualified has
   read.** It is accurate about the software; that is not the same thing.
+- **`/sitemap.xml` and `/robots.txt` are the shop's side of being found, and
+  both are served by the application.** An aggregator refused the shop over the
+  first — «سایت مپ پیدا نشد» — and the second is most of why: `public/robots.txt`
+  was a static two-line file that named no sitemap at all, so a crawler either
+  guessed `/sitemap.xml` and got the 404 page or gave up. **That static file is
+  deleted, and it has to stay deleted**: the web server answers anything it
+  finds on disk before Laravel sees the request, so putting it back takes
+  `RobotsController` out of service and silently restores the state the
+  aggregator refused. `RobotsAndSitemapTest` asserts its absence for that
+  reason. Neither file can be static, because two things in them are only known
+  at request time — the `Sitemap:` directive must be a fully-qualified URL and
+  this app answers on `vikyplus.ir`, `www.vikyplus.ir` and the Liara address
+  alike, and **every franchise has a sitemap of its own** at
+  `/{branch}/sitemap.xml`, a list no file could know.
+  Three things worth reading before touching either:
+  - **The sitemap route is registered inside the storefront closure**, so it is
+    mounted at the root and again under `/{branch}`. That is the format's rule,
+    not tidiness: a sitemap may only name URLs at or below its own path, so
+    `/shiraz/products/…` has to be listed from `/shiraz/sitemap.xml`. It also
+    means `ResolveTenant` has already bound the branch, which the queries
+    depend on — `Product::listable()` reads a price, prices belong to a branch,
+    and with nothing bound it correctly returns nothing. (The Torob feed binds
+    central by hand for exactly this reason; it is a POST from a machine, not a
+    visitor at an address.) `robots.txt` is registered once at the host root
+    instead, **before the `{branch}` group**, which would otherwise match
+    `robots.txt` as a branch name.
+  - **`RobotsAndSitemapTest::test_every_url_in_the_sitemap_answers` renders
+    every page the file names**, and it is the guard the way `ContentPagesTest`
+    counting dead footer links is. A sitemap is a list of promises made to a
+    machine that never reports back: a slug renamed in the panel or a route
+    renamed here breaks one silently, and it surfaces as a line in somebody
+    else's crawl report weeks later. The other half is what must *not* be in
+    it — `/cart`, `/checkout`, `/account…`, `/orders…`, `/admin`, the vendor
+    panel and `/search` (a query string is an unbounded space of pages). None
+    of that failing is visible from a happy-path test.
+  - **`Disallow: /vendor/` keeps its trailing slash.** A Disallow is a prefix
+    match, so `/vendor` would also match `/vendors/apply` — the public
+    «فروشنده شوید» page — and deindex it with nothing going red. The franchise
+    paths are written out one branch at a time rather than reached with a `*`,
+    which is an extension not every crawler honours; no rule about `/cart`
+    matches `/shiraz/cart`.
+  There is **no `priority` and no `changefreq`**: Google has ignored both for
+  years and every number anyone writes into them is invented. `lastmod` is
+  there only on the URLs with one row behind them — a product, a section, an
+  article — and carries that row's own timestamp; the fixed pages carry none
+  rather than a date derived from something that is not quite what changed.
 - **`/wholesale` and `/franchise` are the two things the shop advertises and
   had no way of hearing about.** «خرید تکی و عمده» has been on the front page's
   trust row and in the footer's strap since the template was dressed with no

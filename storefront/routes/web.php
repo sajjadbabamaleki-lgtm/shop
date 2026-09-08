@@ -13,7 +13,9 @@ use App\Http\Controllers\PageController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProductCommentController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\RobotsController;
 use App\Http\Controllers\ShopController;
+use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\VendorApplicationController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Middleware\ResolveTenant;
@@ -58,6 +60,15 @@ $storefront = function (): void {
     Route::get('/categories/{category}', ShopController::class)->name('category');
 
     Route::get('/products/{product}', ProductController::class)->name('product');
+
+    /*
+     * The sitemap, mounted here rather than at the site root only, so every
+     * franchise gets one of its own at /{branch}/sitemap.xml. That is a
+     * requirement of the format and not a convenience: a sitemap may only name
+     * URLs at or below its own path, so /shiraz/products/... has to be listed
+     * from /shiraz/sitemap.xml. robots.txt names all of them.
+     */
+    Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
 
     /*
      * What a buyer thought of the shoe — «فقط کسی که خریده».
@@ -300,6 +311,18 @@ $storefront = function (): void {
  */
 Route::prefix('admin')->name('admin.')->group(base_path('routes/admin.php'));
 Route::prefix('vendor')->name('vendor.')->group(base_path('routes/vendor.php'));
+
+/*
+ * robots.txt, and the host root is the only place it is ever read from — so it
+ * is registered once here and not inside the storefront closure, which would
+ * also mount a /{branch}/robots.txt that no crawler would ever ask for.
+ *
+ * It must be registered before the {branch} group below, which is a bare
+ * {branch} segment that would otherwise match "robots.txt" as a branch name.
+ * No ResolveTenant: the file is about the whole host, and it names every
+ * branch's sitemap rather than belonging to one of them.
+ */
+Route::get('/robots.txt', RobotsController::class)->name('robots');
 
 Route::middleware(ResolveTenant::class)->group($storefront);
 
