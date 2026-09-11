@@ -278,8 +278,28 @@
         </section>
     @endif
 
-    {{-- --- the money arrived -------------------------------------------- --}}
-    @if ($order->status === \App\Models\Order::PLACED)
+    {{-- --- the money arrived --------------------------------------------
+
+         **Not for an order that pays at the gateway.** «رو مواردی که به درگاه
+         میره اون پرداخت شد دستی نباشه» — such an order is paid when the bank
+         says so, and a button that writes the word anyway makes an order the
+         panel calls «پرداخت‌شده» with nothing behind it.
+
+         The card is gone rather than disabled: a control somebody can press
+         and be refused is a control they will press. `OrderController` refuses
+         it too, because a hidden form is a hint and not a rule. --}}
+    @if ($order->status === \App\Models\Order::PLACED && $order->paysOnline())
+        <section class="vp-adm-card">
+            <div class="vp-adm-card-head">
+                <h2 class="vp-adm-card-title">پرداخت</h2>
+            </div>
+
+            <p class="vp-adm-empty">
+                این سفارش از درگاه پرداخت می‌شود، پس پرداختش دستی ثبت نمی‌شود.
+                وقتی پول برسد، همین‌جا خودش «پرداخت‌شده» می‌شود.
+            </p>
+        </section>
+    @elseif ($order->status === \App\Models\Order::PLACED)
         <section class="vp-adm-card">
             <div class="vp-adm-card-head">
                 <h2 class="vp-adm-card-title">پول را گرفتم</h2>
@@ -290,9 +310,14 @@
             <form class="vp-adm-form" method="post" action="{{ route('admin.order.pay', $order) }}">
                 @csrf
 
+                {{-- «پرداخت اینترنتی» is not on this list, and cannot be: a
+                     payment recorded by hand did not come through a gateway,
+                     and letting somebody label it as one would put a row in
+                     the table the shop reconciles against that says a bank
+                     confirmed money no bank has seen. --}}
                 <label for="pay-method">چطور پرداخت شد</label>
                 <select id="pay-method" name="method">
-                    @foreach (\App\Models\Order::methodLabels() as $value => $label)
+                    @foreach (\App\Models\Order::handRecordedMethods() as $value => $label)
                         <option value="{{ $value }}" @selected($order->payment_method === $value)>{{ $label }}</option>
                     @endforeach
                 </select>

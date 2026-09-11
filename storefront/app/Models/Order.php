@@ -124,6 +124,25 @@ class Order extends Model
         return $number;
     }
 
+    /**
+     * Whether this order's money is the gateway's business and nobody else's.
+     *
+     * «رو مواردی که به درگاه میره اون پرداخت شد دستی نباشه». An order placed
+     * against a card gateway is paid when the bank says so, and until then the
+     * only honest answer is that it is not paid — a button that writes the
+     * word anyway produces an order the panel calls «پرداخت‌شده» with nothing
+     * behind it, which is how a pair of shoes leaves for money that never
+     * arrived.
+     *
+     * Read off the order and not off `config`, because `PlaceOrder` fixed this
+     * at the moment of ordering from the gateway the shop actually had:
+     * switching gateway tomorrow must not change what happened today.
+     */
+    public function paysOnline(): bool
+    {
+        return $this->payment_method === 'online';
+    }
+
     public function isCancellable(): bool
     {
         return in_array($this->status, [self::PLACED], true);
@@ -200,6 +219,22 @@ class Order extends Model
             'cash_on_delivery' => 'پرداخت در محل',
             'online' => 'پرداخت اینترنتی',
         ];
+    }
+
+    /**
+     * The ways money can arrive that a person may write down afterwards.
+     *
+     * Every method except the gateway's. A payment recorded by hand did not
+     * come through one, and an order that *does* go through one is refused
+     * this screen altogether — so «پرداخت اینترنتی» here could only ever be
+     * somebody mislabelling cash, in the one table the shop reconciles
+     * against.
+     *
+     * @return array<string, string>
+     */
+    public static function handRecordedMethods(): array
+    {
+        return array_diff_key(self::methodLabels(), ['online' => true]);
     }
 
     public function methodLabel(): string

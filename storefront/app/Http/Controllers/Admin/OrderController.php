@@ -219,12 +219,20 @@ class OrderController extends Controller
             return $back->with('status', 'این سفارش از قبل پرداخت‌شده ثبت شده بود؛ چیزی تغییر نکرد.');
         }
 
+        // Said apart from the transition rule below it, because «this order is
+        // paid at the gateway» and «an order that is already shipped cannot be
+        // marked paid» are two different refusals and one sentence for both
+        // sends somebody looking in the wrong place.
+        if ($order->paysOnline()) {
+            return $back->withErrors(['status' => 'پرداخت این سفارش از درگاه انجام می‌شود و دستی ثبت نمی‌شود. اگر پول در درگاه نشسته و سفارش پرداخت‌نشده مانده، اول با php artisan payment:test علت را پیدا کنید.']);
+        }
+
         if (! $this->allowed($order, Order::PAID)) {
             return $back->withErrors(['status' => "سفارشی که «{$order->statusLabel()}» است را نمی‌شود پرداخت‌شده ثبت کرد."]);
         }
 
         $input = $request->validate([
-            'method' => ['required', Rule::in(array_keys(Order::methodLabels()))],
+            'method' => ['required', Rule::in(array_keys(Order::handRecordedMethods()))],
             'reference' => ['nullable', 'string', 'max:60'],
         ]);
 
@@ -362,8 +370,19 @@ class OrderController extends Controller
 
         $moved = 0;
         $skipped = 0;
+        $atTheGateway = 0;
 
         foreach ($orders as $order) {
+            // Counted apart from the rest, because «these are paid at the
+            // gateway» and «these cannot move from where they are» are two
+            // different answers, and one number for both would leave somebody
+            // clicking the same button again expecting a different result.
+            if ($input['status'] === Order::PAID && $order->paysOnline()) {
+                $atTheGateway++;
+
+                continue;
+            }
+
             if (! $this->allowed($order, $input['status'])) {
                 $skipped++;
 
@@ -378,6 +397,10 @@ class OrderController extends Controller
 
         if ($skipped > 0) {
             $said .= ' '.fa_number($skipped).' سفارش از وضعیت فعلی‌شان نمی‌توانستند به این وضعیت بروند و دست‌نخورده ماندند.';
+        }
+
+        if ($atTheGateway > 0) {
+            $said .= ' '.fa_number($atTheGateway).' سفارش از درگاه پرداخت می‌شود و دستی پرداخت‌شده نمی‌شود.';
         }
 
         return redirect()->back()->with('status', $said);
@@ -425,11 +448,28 @@ class OrderController extends Controller
         }, $name, ['Content-Type' => 'text/csv; charset=UTF-8']);
     }
 
-    /** The one place a status actually changes, so both routes agree. */
+    /**
+     * The one place a status actually changes, so both routes agree.
+     *
+     * **Including about the money.** They agreed about the status and not
+     * about the record: the order's own «پول را گرفتم» form wrote a `payments`
+     * row and this wrote none, so an order settled from the grid or from the
+     * status dropdown was paid with nothing anywhere saying when, by which
+     * door, or for how much — and the payments table stopped adding up to what
+     * the orders said, silently. Now everything that settles an order by hand
+     * leaves the same receipt.
+     *
+     * No reference here, because neither of these two doors can ask for one.
+     * A row with a blank reference is still the truth; a missing row is not.
+     */
     private function move(Order $order, string $to, SettleOrder $settle, string $by): void
     {
         match ($to) {
-            Order::PAID => $settle->paid($order),
+            Order::PAID => DB::transaction(function () use ($order, $settle): void {
+                $settle->paid($order);
+
+                Payment::recordedInThePanel($order);
+            }),
             Order::CANCELLED => $settle->cancelled($order, "Cancelled in the panel by {$by}."),
             default => $order->update(['status' => $to]),
         };
@@ -444,6 +484,18 @@ class OrderController extends Controller
      */
     private function allowed(Order $order, string $to): bool
     {
+        // **Money that is the gateway's business cannot be settled by hand.**
+        // «رو مواردی که به درگاه میره اون پرداخت شد دستی نباشه» — said after
+        // an order read «پرداخت‌شده» over a ZarinPal attempt that never
+        // finished, because one click in the grid had written the word.
+        //
+        // Here rather than in the two actions, because this method is already
+        // the one place both routes ask before moving anything, and a rule
+        // about money written twice is a rule one of them will stop obeying.
+        if ($to === Order::PAID && $order->paysOnline()) {
+            return false;
+        }
+
         return match ($order->status) {
             Order::PLACED => in_array($to, [Order::PAID, Order::CANCELLED], true),
             Order::PAID => in_array($to, [Order::SHIPPED, Order::CANCELLED], true),

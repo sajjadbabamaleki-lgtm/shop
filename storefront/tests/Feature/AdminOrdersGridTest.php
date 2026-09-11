@@ -306,27 +306,98 @@ class AdminOrdersGridTest extends TestCase
      * are mostly paid at the door that is the record that matters.
      */
     /**
-     * **Both options on the screen work.**
+     * **A payment recorded by hand cannot be labelled as the gateway's.**
      *
-     * The select on the order screen is built from `Order::methodLabels()` and
-     * the controller validates against the same list, so «پرداخت اینترنتی»
-     * looked available from every angle a reader checks — while the CHECK
-     * constraint on the column allowed `cash_on_delivery` alone and the post
-     * 500'd. Nothing caught it because every test posted the first option.
+     * «رو مواردی که به درگاه میره اون پرداخت شد دستی نباشه». The select used
+     * to be built from every method the shop has, so somebody settling a
+     * card-to-card transfer could file it as «پرداخت اینترنتی» — a row in the
+     * one table the shop reconciles against saying a bank confirmed money no
+     * bank has seen.
+     *
+     * The list and the validation are still the same list, which is what this
+     * holds: they were `Order::methodLabels()` on both sides once and looked
+     * available from every angle a reader checks, while the CHECK constraint
+     * on the column allowed `cash_on_delivery` alone and the post 500'd.
      */
-    public function test_payment_may_be_taken_by_card_as_well_as_at_the_door(): void
+    public function test_a_payment_recorded_by_hand_cannot_be_called_an_online_one(): void
     {
-        $order = $this->order(['status' => Order::PLACED]);
+        $order = $this->order(['status' => Order::PLACED, 'payment_method' => 'cash_on_delivery']);
 
         $this->actingAs($this->admin(), 'web')
             ->post(route('admin.order.pay', $order), ['method' => 'online', 'reference' => 'REF-2211'])
+            ->assertSessionHasErrors('method');
+
+        $this->assertSame('unpaid', $order->refresh()->payment_status);
+    }
+
+    /** What it can be called still works, and still writes the receipt. */
+    public function test_a_payment_taken_at_the_door_is_recorded_by_hand(): void
+    {
+        $order = $this->order(['status' => Order::PLACED, 'payment_method' => 'cash_on_delivery']);
+
+        $this->actingAs($this->admin(), 'web')
+            ->post(route('admin.order.pay', $order), ['method' => 'cash_on_delivery', 'reference' => 'REF-2211'])
             ->assertRedirect(route('admin.order', $order));
 
         $order->refresh();
 
         $this->assertSame('paid', $order->payment_status);
-        $this->assertSame('online', $order->payment_method);
-        $this->assertSame('پرداخت اینترنتی', $order->methodLabel());
+        $this->assertSame('پرداخت در محل', $order->methodLabel());
+        $this->assertSame('REF-2211', $order->payments()->where('gateway', 'panel')->value('ref_id'));
+    }
+
+    /**
+     * **An order that pays at the gateway is not settled by hand at all.**
+     *
+     * Not the button, not the bulk action, and not the form posted directly —
+     * «پرداخت‌شده» on such an order can only come from `verify()`. It was one
+     * click in the grid that put the word on an order whose ZarinPal attempt
+     * never finished, which is the whole reason for this rule.
+     */
+    public function test_an_order_that_pays_at_the_gateway_refuses_a_hand_written_payment(): void
+    {
+        $order = $this->order(['status' => Order::PLACED, 'payment_method' => 'online']);
+
+        $this->actingAs($this->admin(), 'web')
+            ->post(route('admin.order.pay', $order), ['method' => 'cash_on_delivery'])
+            ->assertSessionHasErrors('status');
+
+        $this->assertSame('unpaid', $order->refresh()->payment_status);
+        $this->assertSame(Order::PLACED, $order->status);
+    }
+
+    /** And the grid's bulk action refuses it too, saying which refusal it is. */
+    public function test_the_bulk_action_leaves_gateway_orders_alone(): void
+    {
+        $atTheGateway = $this->order(['status' => Order::PLACED, 'payment_method' => 'online']);
+        $atTheDoor = $this->order(['status' => Order::PLACED, 'payment_method' => 'cash_on_delivery']);
+
+        $this->actingAs($this->admin(), 'web')
+            ->post(route('admin.orders.bulk'), [
+                'status' => Order::PAID,
+                'orders' => [$atTheGateway->id, $atTheDoor->id],
+            ])
+            ->assertSessionHas('status', fn (string $said) => str_contains($said, 'از درگاه پرداخت می‌شود'));
+
+        $this->assertSame('unpaid', $atTheGateway->refresh()->payment_status);
+        $this->assertSame('paid', $atTheDoor->refresh()->payment_status);
+
+        // And the one it did move leaves the same receipt the order's own form
+        // leaves. This wrote nothing at all once, so the payments table did not
+        // add up to what the orders said and nothing went red.
+        $this->assertSame(1, $atTheDoor->payments()->where('gateway', 'panel')->count());
+    }
+
+    /** The screen offers no way in either, on an order the gateway owns. */
+    public function test_the_order_screen_offers_no_hand_written_payment_at_the_gateway(): void
+    {
+        $order = $this->order(['status' => Order::PLACED, 'payment_method' => 'online']);
+
+        $this->actingAs($this->admin(), 'web')
+            ->get(route('admin.order', $order))
+            ->assertOk()
+            ->assertDontSee(route('admin.order.pay', $order), false)
+            ->assertSee('از درگاه پرداخت می‌شود', false);
     }
 
     public function test_taking_payment_records_a_payment_and_sells_the_stock(): void

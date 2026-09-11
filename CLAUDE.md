@@ -468,6 +468,26 @@ the client saw an old page and had no way to tell why. So, plainly:
   the quiet window working. The order alert has no such window, so the same
   bug arrived as two identical messages for one sale. **Register listeners by
   name; do not switch discovery back on.**
+- **An order that pays at the gateway is never settled by hand.**
+  «رو مواردی که به درگاه میره اون پرداخت شد دستی نباشه», said after one order
+  read «پرداخت‌شده» above a ZarinPal attempt that had never finished — one
+  click in the grid had written the word. `Order::paysOnline()` is the test and
+  `OrderController::allowed()` is where it is enforced, which is the one place
+  the button, the status dropdown and the bulk action all ask before moving
+  anything; the order screen drops the «پول را گرفتم» card for such an order
+  and says why, because a control somebody can press and be refused is a
+  control they will press. **The consequence to know:** if the money is sitting
+  at ZarinPal and the callback never landed, the shop now has no way to settle
+  that order from the panel — the fix is the callback (`php artisan
+  payment:test`, and the note on ZarinPal's `-14`), not a button.
+  Two smaller rules came with it. **A payment recorded by hand cannot be
+  labelled «پرداخت اینترنتی»** (`Order::handRecordedMethods()`): it did not come
+  through a gateway, and saying it did puts a row in the one table the shop
+  reconciles against claiming a bank confirmed money no bank has seen. And
+  **everything that settles an order by hand now leaves the same receipt** —
+  `Payment::recordedInThePanel()`, from the order's own form *and* from
+  `move()`, which had been changing the status and writing no `payments` row at
+  all.
 - **«مالک شرکت» is `Role::OWNER`, and it answers yes to everything.**
   `Role::FULL_ACCESS` is the one list of roles that do — `super-admin` and
   `owner` — read by both `Role::grants()` and `User::isSuperAdmin()`. Two lists
