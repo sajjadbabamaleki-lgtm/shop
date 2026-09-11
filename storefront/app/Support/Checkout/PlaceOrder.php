@@ -2,6 +2,7 @@
 
 namespace App\Support\Checkout;
 
+use App\Events\OrderPlaced;
 use App\Models\Branch;
 use App\Models\BranchInventory;
 use App\Models\Cart;
@@ -173,6 +174,18 @@ class PlaceOrder
 
             $this->carts->clear();
             $this->discounts->forget();
+
+            // **Said out loud, once, from the one place a basket can become an
+            // order.** The listener behind it puts a text message on the
+            // shop's phone; a second checkout door would get that for nothing,
+            // and a listener wired into `CheckoutController` would not.
+            //
+            // Dispatched inside the transaction on purpose: `OrderPlaced` is
+            // `ShouldDispatchAfterCommit`, so the dispatcher holds it until
+            // this commits and drops it if the last locked line rolls the
+            // whole thing back. Announcing an order that then did not exist is
+            // not a message anybody can take back.
+            event(new OrderPlaced($order));
 
             return $order;
         });

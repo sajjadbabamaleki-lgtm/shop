@@ -2,6 +2,9 @@
 
 namespace App\Providers;
 
+use App\Events\OrderPaid;
+use App\Events\OrderPlaced;
+use App\Listeners\TellTheOwnerAnOrderArrived;
 use App\Listeners\TellTheOwnerSomebodySignedIn;
 use App\Models\Category;
 use App\Models\Product;
@@ -35,14 +38,27 @@ class AppServiceProvider extends ServiceProvider
          * A text message to the owner every time somebody signs in to the
          * panel.
          *
-         * Registered by name rather than left to event discovery, which this
-         * application does not switch on: a listener that runs because of
-         * where its file happens to sit is a listener that stops running when
-         * somebody moves it, and nothing would go red. The same reason the SMS
-         * driver is named in a map instead of guessed from which credentials
-         * are filled in.
+         * Registered by name rather than left to event discovery, which is
+         * switched off in `bootstrap/app.php` for this to be the only wiring:
+         * a listener that runs because of where its file happens to sit is a
+         * listener that stops running when somebody moves it, and nothing
+         * would go red. The same reason the SMS driver is named in a map
+         * instead of guessed from which credentials are filled in.
          */
         Event::listen(Login::class, TellTheOwnerSomebodySignedIn::class);
+
+        /*
+         * A text message to the shop when an order becomes its work.
+         *
+         * Both events, one listener, because exactly one of them is the moment
+         * for any given order and which one depends on how that order is being
+         * paid for — the listener holds that rule and nothing else needs to
+         * know it. Registered by name here for the same reason as the sign-in
+         * alert, and see `bootstrap/app.php` for what happened when discovery
+         * was registering both of them a second time.
+         */
+        Event::listen(OrderPlaced::class, TellTheOwnerAnOrderArrived::class);
+        Event::listen(OrderPaid::class, TellTheOwnerAnOrderArrived::class);
 
         /*
          * The header's basket badge.

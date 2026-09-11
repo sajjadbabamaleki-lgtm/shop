@@ -11,6 +11,28 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Support\Facades\Route;
 
 return Application::configure(basePath: dirname(__DIR__))
+    /*
+     * **Listeners are registered by name, in `AppServiceProvider`, and only
+     * there.**
+     *
+     * `Application::configure()` switches event discovery on for `app/Listeners`
+     * by itself, which is not a third opinion about where listeners come from —
+     * it is a second registration of the same ones. Every listener in that
+     * directory was already bound by hand, so each was wired **twice** and ran
+     * twice for one event.
+     *
+     * It had been that way for as long as the sign-in alert has existed and
+     * nothing showed it: that listener swallows the same person twice inside
+     * two minutes, so its duplicate looked exactly like the guard working. The
+     * new-order alert has no such window — one order is one message by
+     * construction — so the same bug arrived as two identical text messages for
+     * one sale, which is how it was finally seen.
+     *
+     * Off, rather than dropping the explicit `Event::listen` calls, for the
+     * reason written above them: a listener that runs because of where its file
+     * sits stops running the day somebody moves it, and nothing goes red.
+     */
+    ->withEvents(discover: false)
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
         commands: __DIR__.'/../routes/console.php',

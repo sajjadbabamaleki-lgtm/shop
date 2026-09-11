@@ -143,22 +143,39 @@ abstract class Melipayamak implements Sender
     }
 
     /**
-     * The registered pattern for one of the shop's two messages.
+     * Which setting holds each message's own pattern id.
+     *
+     * A map rather than a branch per message, so adding a fourth sentence is
+     * one line here and one in `config/services.php` — and so that the only
+     * way to forget one is to forget it in a file that lists them all.
+     *
+     * @var array<string, string>
+     */
+    private const PATTERNS = [
+        self::ALERT => 'pattern_alert',
+        self::ORDER => 'pattern_order',
+    ];
+
+    /**
+     * The registered pattern for one of the shop's three messages.
      *
      * `SMS_PATTERN` is the shopper's code, because that is the message this
-     * shop cannot run without and the one every deployment has had. The alert
-     * falls back to it when `SMS_PATTERN_ALERT` is unset — not to be clever,
-     * but so that a shop which has only got one pattern approved so far still
-     * sends *something* rather than throwing on a sign-in. The wrong-looking
-     * message that produces is visible; a panel nobody can sign in to is not.
+     * shop cannot run without and the one every deployment has had. The other
+     * two fall back to it when their own id is unset — not to be clever, but
+     * so that a shop which has only got one pattern approved so far still
+     * sends *something* rather than throwing on a sign-in or a sale. The
+     * wrong-looking message that produces is visible; a panel nobody can sign
+     * in to is not.
      */
     protected function pattern(string $purpose): string
     {
-        if ($purpose === self::ALERT) {
-            $alert = config('services.sms.pattern_alert');
+        $own = self::PATTERNS[$purpose] ?? null;
 
-            if ($alert !== null && $alert !== '') {
-                return (string) $alert;
+        if ($own !== null) {
+            $id = config("services.sms.{$own}");
+
+            if ($id !== null && $id !== '') {
+                return (string) $id;
             }
         }
 

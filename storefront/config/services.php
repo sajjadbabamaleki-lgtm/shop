@@ -102,7 +102,7 @@ return [
          | The sign-in alert's own pattern.
          |
          | A provider approves a sentence with numbered blanks, and this shop's
-         | two messages have different numbers of them — the shopper's code has
+         | messages have different numbers of them — the shopper's code has
          | one, «somebody signed in to the panel» has three. Sending the alert
          | through the code's pattern puts three values into one blank and the
          | message that arrives is wrong, silently. So it gets its own id.
@@ -112,7 +112,22 @@ return [
          */
         'pattern_alert' => env('SMS_PATTERN_ALERT'),
         /*
-         | Where the «somebody signed in to the panel» message goes.
+         | The new-order alert's own pattern.
+         |
+         | Five values — the branch, the number, the amount, how many items and
+         | who ordered — so it cannot share the sign-in alert's three blanks
+         | any more than that one could share the code's single blank. Unset
+         | falls back to SMS_PATTERN for the same reason as the alert: a shop
+         | with one approved pattern should send a wrong-looking message rather
+         | than throw on somebody's checkout.
+         |
+         | The shop this was written for sends free text on its own line, where
+         | none of these ids is read at all. See Melipayamak.
+         */
+        'pattern_order' => env('SMS_PATTERN_ORDER'),
+        /*
+         | Where the «somebody signed in to the panel» and «a new order» messages
+         | go.
          |
          | Not a secret — it is the shop's own number — so it has a default
          | and the feature works the moment it deploys. It is still `env()`

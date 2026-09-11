@@ -2,6 +2,8 @@
 
 namespace App\Console\Commands;
 
+use App\Events\OrderPaid;
+use App\Events\OrderPlaced;
 use App\Models\Branch;
 use App\Models\BranchInventory;
 use App\Models\Cart;
@@ -19,6 +21,7 @@ use Illuminate\Console\Command;
 use Illuminate\Console\ConfirmableTrait;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 use Throwable;
 
 /**
@@ -103,6 +106,24 @@ class MakeDemoOrders extends Command
 
     public function handle(TenantContext $tenant, PlaceOrder $place, SettleOrder $settle, Promise $promise): int
     {
+        /*
+         * **Nobody's phone rings for a pretend order.**
+         *
+         * These go through `PlaceOrder` and `SettleOrder` on purpose — a
+         * shortcut past either would exercise a path the shop does not have —
+         * and those are exactly where the new-order alert is announced from.
+         * Eight demo orders would be eight text messages to the owner about
+         * sales that did not happen, which is both a lie and a bill.
+         *
+         * Forgotten here rather than guarded inside the listener, because the
+         * mark that says an order is a demo (`staff_note`) is written *after*
+         * `PlaceOrder` returns: a listener looking for it would be reading a
+         * column that is still empty. This process is a console command and
+         * ends when the command does, so nothing can leak into a request.
+         */
+        Event::forget(OrderPlaced::class);
+        Event::forget(OrderPaid::class);
+
         $branch = $this->option('branch')
             ? Branch::where('slug', $this->option('branch'))->first()
             : Branch::central();

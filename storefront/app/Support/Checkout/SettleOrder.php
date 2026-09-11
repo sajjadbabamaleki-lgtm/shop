@@ -2,6 +2,7 @@
 
 namespace App\Support\Checkout;
 
+use App\Events\OrderPaid;
 use App\Models\BranchInventory;
 use App\Models\InventoryMovement;
 use App\Models\LedgerEntry;
@@ -57,6 +58,17 @@ class SettleOrder
                 'payment_status' => 'paid',
                 'paid_at' => now(),
             ]);
+
+            // The money landed, and for an order paid by card that is the
+            // moment the shop has work to do — see
+            // `TellTheOwnerAnOrderArrived` for why the alert waits for this
+            // one rather than for the order being written.
+            //
+            // `OrderPaid` is `ShouldDispatchAfterCommit`, and it has to be:
+            // `PaymentController::record()` settles inside a transaction of
+            // its own that locks the payment row first and rolls everything
+            // back if the receipt cannot be written.
+            event(new OrderPaid($order));
 
             return $order;
         });

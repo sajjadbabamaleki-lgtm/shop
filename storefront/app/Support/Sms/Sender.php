@@ -43,12 +43,18 @@ interface Sender
     public const ALERT = 'alert';
 
     /**
+     * «a new order», to the shop. Five values: the branch, the number, the
+     * amount, how many items, and who ordered — in that order.
+     */
+    public const ORDER = 'order';
+
+    /**
      * **`$purpose` exists because a pattern is per-message, not per-shop.**
      *
      * A provider approves a *sentence* with numbered blanks in it, and this
-     * shop sends two sentences with different numbers of blanks — a code has
-     * one, the sign-in alert has three. One registered pattern cannot carry
-     * both: sent through the code's pattern, the alert's three values fill one
+     * shop sends three sentences with different numbers of blanks — a code has
+     * one, the sign-in alert has three, a new order has five. One registered
+     * pattern cannot carry them: sent through the code's pattern, the alert's three values fill one
      * blank and the message that arrives is wrong, with nothing going red. So
      * each message says which of its shop's patterns it is, and a driver that
      * sends patterns looks the id up per purpose. A driver that sends the
@@ -56,8 +62,9 @@ interface Sender
      *
      * @param  list<string>  $args  the message's own values, in the order the
      *                              provider's approved pattern expects them
-     * @param  self::CODE|self::ALERT  $purpose  which of the shop's messages
-     *                                           this is
+     * @param  self::CODE|self::ALERT|self::ORDER  $purpose  which of the
+     *                                                       shop's messages
+     *                                                       this is
      */
     public function send(string $phone, string $message, array $args = [], string $purpose = self::CODE): void;
 }

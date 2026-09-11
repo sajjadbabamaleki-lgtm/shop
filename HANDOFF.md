@@ -827,6 +827,32 @@ Two smaller things fell out of it:
   signed in — a state no browser can produce, and it reported the panel's guard
   as broken when the test was what was broken. Two tests, one each.
 
+### A new order goes to the same phone, on 2026-09-11
+
+«نمیشه وقتی یک سفارش ثبت میشه پیام بیاد؟» — asked after a session spent unable
+to answer «سفارش جدید ثبت شده؟», because the panel is the only place an order
+appears and this container cannot reach the live site to look.
+
+**Not WhatsApp**, and the reason is not code: Meta does not open a WhatsApp
+Business account for an Iranian shop, and the Liara container's own address
+cannot reach Meta's API either, so both halves of the official route are shut.
+An unofficial gateway is a real WhatsApp number driven by a bot, which is
+against WhatsApp's rules, risks that number, and needs a second always-on
+service holding a session that every deploy would throw away. SMS was already
+written, tested and one setting away.
+
+**Status: finished and inert.** It is exactly as switched-on as the sign-in
+alert — which is to say, `SMS_DRIVER` is still `log`, so both write to the log
+and neither reaches a telephone. The day the Melipayamak variables go on the
+Liara app, both start working with no deploy and no code. Until then
+`php artisan sms:test <number> --order` is the only way to see the sentence.
+
+**The rule to keep.** One order is one message, and which of the two moments
+sends it is read off the order's `payment_method`: a card order waits for the
+money, anything else speaks when it is placed. Do not "fix" the silence after a
+checkout that reached the gateway and stopped — that silence is the feature.
+The engineering notes are in CLAUDE.md; `NewOrderAlertTest` is the guard.
+
 ## What «تمیز» turned out to mean
 
 The drawer was rebuilt once for structure and then twice more for feel, and the

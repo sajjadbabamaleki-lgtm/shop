@@ -2,6 +2,8 @@
 
 namespace App\Console\Commands;
 
+use App\Events\OrderPaid;
+use App\Events\OrderPlaced;
 use App\Listeners\TellTheOwnerSomebodySignedIn;
 use App\Support\Sms\Sender;
 use Illuminate\Auth\Events\Login;
@@ -36,7 +38,8 @@ class TestSms extends Command
 {
     protected $signature = 'sms:test
         {phone : the number to send to, as 09xxxxxxxxx}
-        {--alert : send the sign-in alert itself, to the number the alert is set to}';
+        {--alert : send the sign-in alert itself, to the number the alert is set to}
+        {--order : send the new-order alert itself, to the number the alert is set to}';
 
     protected $description = 'Send one test message through the configured SMS provider and report what happened';
 
@@ -126,6 +129,28 @@ class TestSms extends Command
             .' ثانیه عمداً پیامک نمی‌فرستد.');
         $this->newLine();
 
+        // --- the new-order alert's own chain --------------------------------
+        //
+        // The same number and the same door, so everything above still holds —
+        // but it has a silence of its own that nothing else can explain, and
+        // it is the one that looks most like a bug: **an order paid by card is
+        // announced when the money lands, not when it is placed**, so a
+        // checkout somebody abandoned at the gateway is meant to send nothing
+        // at all. Somebody testing by placing an order and never paying would
+        // otherwise conclude the feature is broken.
+        $this->line('— هشدار سفارش جدید —');
+
+        $listening = collect(Event::getListeners(OrderPlaced::class))->isNotEmpty()
+            && collect(Event::getListeners(OrderPaid::class))->isNotEmpty();
+
+        $this->line($listening
+            ? 'شنوندهٔ سفارش ثبت شده است.'
+            : 'شنوندهٔ سفارش ثبت نشده — هیچ سفارشی پیامک نمی‌فرستد.');
+
+        $this->line('سفارش کارتی وقتی پرداخت شد پیامک می‌شود، نه لحظهٔ ثبت.');
+        $this->line('پس سفارشی که تا درگاه رفته و پرداخت نشده، عمداً پیامکی ندارد.');
+        $this->newLine();
+
         // Said out loud, because the two doors fail for opposite reasons and
         // the message that comes back does not say which door was used.
         if (str_ends_with($driver, 'simple')) {
@@ -183,6 +208,28 @@ class TestSms extends Command
             $this->line('حالت هشدار: همان جمله‌ای که هنگام ورود می‌رود، به '.$to);
         }
 
+        if ($this->option('order')) {
+            if ($alertTo === '') {
+                $this->error('SMS_ALERT_TO خالی است، پس --order جایی برای فرستادن ندارد.');
+
+                return self::FAILURE;
+            }
+
+            // The same five values the listener sends, in the same order, so a
+            // pattern that carries this one carries a real sale. The numbers
+            // are plainly not a sale — «آزمایشی» in the place of the order
+            // number — because a test message that reads like an order is a
+            // shoe somebody packs.
+            $sample = ['ویکی پلاس', 'آزمایشی', toman(1_000_000).' تومان', fa_number(1).' قلم', 'آزمایشی'];
+
+            $to = $alertTo;
+            $body = "سفارش جدید — {$sample[0]}\nشماره {$sample[1]}\n{$sample[2]}\n{$sample[3]} — {$sample[4]}";
+            $args = $sample;
+            $purpose = Sender::ORDER;
+
+            $this->line('حالت سفارش: همان جمله‌ای که با هر سفارش می‌رود، به '.$to);
+        }
+
         // **What the provider answered, caught on its way past.**
         //
         // `Sender::send()` returns nothing and swallows a refusal into the log
@@ -201,7 +248,17 @@ class TestSms extends Command
         $said = [];
 
         Log::listen(function ($record) use (&$said) {
-            $said[] = $record->message;
+            // **Only what something is complaining about.** `LogSender` — the
+            // driver every shop has before it has an account — writes the
+            // whole message out at `info` on its way past, and that line
+            // matches the same «SMS to» filter below that a refusal does. So
+            // the command answered «ملی‌پیامک این پیام را نفرستاد» about a
+            // message nobody had refused, and failed, on the one driver where
+            // nothing can go wrong. A provider's refusal is always logged as
+            // an error; the log driver's copy of the message never is.
+            if (in_array($record->level, ['error', 'critical', 'alert', 'emergency'], true)) {
+                $said[] = $record->message;
+            }
         });
 
         try {
@@ -266,7 +323,7 @@ class TestSms extends Command
         Log::info('sms:test dispatched', array_filter([
             'driver' => $driver,
             'phone' => $to,
-            'stamp' => $this->option('alert') ? null : $stamp,
+            'stamp' => ($this->option('alert') || $this->option('order')) ? null : $stamp,
         ]));
 
         return self::SUCCESS;

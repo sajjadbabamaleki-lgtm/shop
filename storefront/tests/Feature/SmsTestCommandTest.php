@@ -301,6 +301,25 @@ class SmsTestCommandTest extends TestCase
             ->assertFailed();
     }
 
+    /**
+     * **The log driver is not a refusal.**
+     *
+     * `LogSender` writes the whole message at `info` on its way past, and the
+     * command filters the log for «SMS to» to catch what Melipayamak said — so
+     * every run on the driver a shop has *before* it has an account reported
+     * «ملی‌پیامک این پیام را نفرستاد», quoted the shop's own message back as
+     * the provider's answer, and failed. The one driver where nothing can go
+     * wrong was the only one that always looked broken.
+     */
+    public function test_the_log_driver_is_not_reported_as_a_refusal(): void
+    {
+        config(['services.sms.driver' => 'log']);
+
+        $this->artisan('sms:test 09121234567')
+            ->doesntExpectOutputToContain('نفرستاد')
+            ->assertSuccessful();
+    }
+
     /** And a send nothing complained about still reports success. */
     public function test_a_quiet_send_is_reported_as_accepted(): void
     {

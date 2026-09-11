@@ -427,6 +427,47 @@ the client saw an old page and had no way to tell why. So, plainly:
   `SignInAlertTest` holds the cases that matter: a refused password sends
   nothing, a shopper sends nothing, and a sender that throws still signs the
   user in.
+- **A new order puts a text message on the same phone, and which moment sends
+  it depends on how the order is paid for.** «نمیشه وقتی یک سفارش ثبت میشه
+  پیام بیاد؟», asked after a session that could not answer «سفارش جدید ثبت
+  شده؟» at all — the panel is the only place an order appears and somebody has
+  to go and look. `TellTheOwnerAnOrderArrived` listens to **two** events,
+  `OrderPlaced` from `PlaceOrder` and `OrderPaid` from `SettleOrder`, and the
+  order's own `payment_method` chooses exactly one of them: **online waits for
+  the money**, anything else sends at placement because nothing is ever going
+  to arrive on its own. That is where "one order, one message" comes from —
+  there is no marker written and no cache entry to expire — and it is also why
+  **a card order nobody pays for is never announced**, which is deliberate and
+  is the first thing to look at if the client ever says a message did not come.
+  Three more things worth knowing before touching it:
+  - **Both events are `ShouldDispatchAfterCommit`, and they have to be.**
+    `PlaceOrder` can still roll back after the order row is written, and
+    `SettleOrder` is called *inside* `PaymentController::record()`'s own
+    transaction. A text message about a sale that then unhappened cannot be
+    taken back and nothing would explain it.
+  - **It is not queued, because nothing on Liara runs a worker.**
+    `liara_pre_start.sh` starts no `queue:work`, so a queued listener would
+    write a row into `jobs` that is never read — silent, with everything
+    green. It costs the checkout up to the sender's ten-second timeout
+    instead; that is the trade, and it is the first thing that should move if
+    a worker is ever added.
+  - **`demo:orders` forgets both events before it runs.** Those orders go
+    through `PlaceOrder` and `SettleOrder` on purpose, so without that the
+    command is eight text messages about sales that did not happen. It is
+    forgotten in the command rather than guarded in the listener because the
+    mark that says an order is a demo is written *after* `PlaceOrder` returns.
+  `php artisan sms:test <number> --order` sends the real sentence, and the
+  command now says whether the two listeners are wired at all.
+  `NewOrderAlertTest` is mostly the silences, which is the specification here.
+- **Event discovery is off, in `bootstrap/app.php`, and that is load-bearing.**
+  `Application::configure()` switches it on by itself, and every listener in
+  `app/Listeners` was *already* registered by name in `AppServiceProvider` — so
+  each was wired twice and ran twice for one event. Nothing showed it for as
+  long as the sign-in alert has existed, because that listener swallows the
+  same person twice inside two minutes and its duplicate looked exactly like
+  the quiet window working. The order alert has no such window, so the same
+  bug arrived as two identical messages for one sale. **Register listeners by
+  name; do not switch discovery back on.**
 - **«مالک شرکت» is `Role::OWNER`, and it answers yes to everything.**
   `Role::FULL_ACCESS` is the one list of roles that do — `super-admin` and
   `owner` — read by both `Role::grants()` and `User::isSuperAdmin()`. Two lists
