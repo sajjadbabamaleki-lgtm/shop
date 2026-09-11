@@ -392,6 +392,45 @@ class AdminResponsiveTest extends TestCase
     }
 
     /**
+     * **The row's tick box is not a field, and both ends have to say so.**
+     *
+     * «این دیگه چه حالتیه؟» — a photograph of `/admin/orders` on a telephone.
+     * The selection box has no column heading, so stacked it drew a blank
+     * label on a 44px line of its own above the order number: an empty square
+     * at the top of every card. It is lifted into the card's corner instead.
+     *
+     * The stylesheet finds it with `:has([data-adm-row])`, which is the same
+     * attribute the bulk bar works off — so what is held here is that the two
+     * still name the same thing. Rename the attribute in the markup and the
+     * tick box silently goes back to a line of its own, with the selection
+     * itself still working perfectly and nothing to say why.
+     *
+     * The frame rule is held here too, because it is the one that had already
+     * gone quiet once. tweaks.css gives up a panel's own border when the
+     * panel's whole content is a list of cards, and says it about
+     * `.vp-shop-panel` — so every screen rebuilt on `.vp-adm-card` since drew
+     * a white card inside a white card, measured at 390 as 324px of card
+     * inside 358px of card. The `> form >` arm is the half that matters most:
+     * the orders grid wraps its table in the bulk-action form, and a `:has(>)`
+     * looking only for a direct table misses the screen with the most rows in
+     * the panel.
+     */
+    public function test_the_row_tick_box_goes_to_the_cards_corner(): void
+    {
+        $css = file_get_contents(public_path('assets/css/admin.css'));
+
+        $this->assertStringContainsString('td:has([data-adm-row])', $css);
+        $this->assertStringContainsString(
+            '.vp-adm-card:has(> form > .vp-admin-table[data-vp-stack])',
+            $css,
+        );
+
+        $page = $this->actingAs($this->admin(), 'web')->get('/admin/orders')->assertOk()->getContent();
+
+        $this->assertStringContainsString('data-adm-row', $page);
+    }
+
+    /**
      * **The tick boxes have to be visible.**
      *
      * The template's stylesheet hides every checkbox with three properties at

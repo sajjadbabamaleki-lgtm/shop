@@ -2604,6 +2604,101 @@ a.vp-adm-mini {
   }
 }
 
+/* --- the phone's cards, made a list again ---------------------------------
+   «این دیگه چه حالتیه؟» — a photograph of `/admin/orders` on a telephone:
+   a white card inside a white card, an empty tick box on a line of its own at
+   the top of each one, and every field on its own line under that.
+
+   Measured at 390 before this, on a shop holding eight orders:
+
+   | | before | after |
+   | --- | --- | --- |
+   | one order's card | 394px | 252px |
+   | its width | 324px | 358px |
+   | the whole page | 3,701px | 2,531px |
+
+   Three separate things, and each is a rule this panel already had somewhere
+   else:
+
+   **One frame, not two.** tweaks.css gives up the panel's own border and
+   padding when the panel's whole content is a list of cards — the cards *are*
+   the enclosure — but it says so about `.vp-shop-panel`, and every screen
+   rebuilt since is a `.vp-adm-card`. So the rule has been quietly not applying
+   to the panel's own screens: a white card with a 1px ring, 16px of padding,
+   holding white cards with 1px rings. The `> form >` arm is not decoration —
+   the orders grid wraps its table in the bulk-action form, and a `:has(>)`
+   that only looks for a direct table misses exactly the screen with the most
+   rows on it.
+
+   **The tick box is not a field.** It has no heading, so it drew a blank label
+   and a 44px line above the order number. It is lifted into the card's corner
+   and the first real line is indented past it.
+
+   Found with `:has()` and not with a marker written by the shell's script:
+   `[data-adm-row]` is already this shop's name for a row-selection box — the
+   bulk bar works off it — so the cell holding one needs no second name, and a
+   name written in two files is a name that drifts. It also keeps the cut
+   stylesheets out of it: a new attribute in a template moves the vocabulary
+   `subset.json` fingerprints and fails `CssSubsetTest` until the three bought
+   sheets are re-cut, which is a lot of machinery to move for a tick box.
+
+   **12px of padding on a cell is a table's rhythm, not a list's.** It is there
+   so a row can be read across a 1200px screen; stacked, it is 24px of air per
+   field, eight fields deep. 5px keeps the lines apart without the card
+   becoming a page of its own.
+
+   The badges keep their own height — a status pill is 24px and cramping it
+   would undo the one thing on the card that can be read at a glance. */
+@media (max-width: 991.98px) {
+  .vp-adm-card:has(> .vp-admin-table[data-vp-stack]),
+  .vp-adm-card:has(> form > .vp-admin-table[data-vp-stack]) {
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+  }
+
+  /* Everything the card's padding *was* holding off the edge — a heading, the
+     bulk-action bar — keeps a little of it. 4px rather than the 16px that
+     went, because the cards below now have the full width and a bar indented
+     further than they are reads as belonging to something else.
+
+     Margin and not padding: the bulk bar has a frame of its own and 12px of
+     padding inside it, so setting its padding here would push its own content
+     against its own border rather than moving the bar. Everything except the
+     table, said that way round, so the next screen to grow a footer under its
+     list is covered without anybody remembering this rule. */
+  .vp-adm-card:has(> .vp-admin-table[data-vp-stack]) > *:not(.vp-admin-table),
+  .vp-adm-card:has(> form > .vp-admin-table[data-vp-stack]) > form > *:not(.vp-admin-table) {
+    margin-inline: 4px;
+  }
+
+  .vp-adm .vp-admin-table[data-vp-stack] tbody tr {
+    position: relative;
+  }
+
+  .vp-adm .vp-admin-table[data-vp-stack] td {
+    padding: 5px 0;
+  }
+
+  /* The card's own padding, so the box sits where the first line starts. */
+  .vp-adm .vp-admin-table[data-vp-stack] td:has([data-adm-row]) {
+    position: absolute;
+    top: 12px;
+    inset-inline-start: 14px;
+    padding: 0;
+    box-shadow: none;
+  }
+
+  /* 20px of box and 12 of air. The hairline goes with it: the line below the
+     tick box is the top of the card now, and a rule across the top of a card
+     is a line under nothing. */
+  .vp-adm .vp-admin-table[data-vp-stack] td:has([data-adm-row]) + td {
+    padding-inline-start: 32px;
+    box-shadow: none;
+  }
+}
+
 /* --- «صفحه اصلی»'s panels, in the dark ------------------------------------
    «چرا باز این صفحات سفید افتادن» — a photograph of the live dark panel with
    white cards on it, and pale type on the white.

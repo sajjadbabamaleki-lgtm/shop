@@ -654,6 +654,28 @@ the client saw an old page and had no way to tell why. So, plainly:
   plaintext, after which every sign-in 500s on `Hash::check`. That has
   happened; `BrokenPasswordTest` and `App\Support\Auth\Passwords` are what
   came of it.
+- **Below 992 every table in the panel becomes one card per row, and a rule
+  written for the old panel class had been quietly skipping every screen
+  rebuilt since.** «این دیگه چه حالتیه؟», a photograph of `/admin/orders` on a
+  telephone: a white card inside a white card, an empty tick box on a line of
+  its own at the top of each one, every field on its own 46px line. tweaks.css
+  does say a panel gives up its own frame when its whole content is a list of
+  cards — the cards *are* the enclosure — but it says it about
+  `.vp-shop-panel`, and the panel's own screens are `.vp-adm-card`. Fixed in
+  `admin.css`, which loads last: measured at 390, one order went from **394px
+  to 252px** and the page from 3,701 to 2,531, with the card 324px wide to
+  358. Two things to carry forward. **A `:has(>)` has to name the form**: the
+  orders grid wraps its table in the bulk-action form, so a selector looking
+  only for a direct table misses the screen with the most rows in the panel.
+  And **the row's tick box is not a field** — it has no column heading, so
+  stacked it drew a blank label and took a line; the stylesheet finds it with
+  `:has([data-adm-row])`, the shop's own name for a row-selection box, and
+  lifts it into the card's corner. No marker written by a script, deliberately:
+  a new attribute in a template moves the vocabulary `subset.json` fingerprints
+  and fails `CssSubsetTest` until the three bought sheets are re-cut.
+  `AdminResponsiveTest` holds the stylesheet and the markup together.
+  Everything here is inside `@media (max-width: 991.98px)`; nothing above 992
+  moved.
 - **`php artisan demo:orders` fills the panel with pretend orders**, one in
   every state the shop can produce — unconfirmed, confirmed, late, shipped,
   delivered, cancelled before payment, refunded after it — because against an
