@@ -8,6 +8,7 @@ use App\Models\InventoryMovement;
 use App\Models\LedgerEntry;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Payment;
 use App\Models\VendorOffer;
 use App\Support\Marketplace\Commission;
 use Illuminate\Support\Facades\DB;
@@ -59,6 +60,8 @@ class SettleOrder
                 'paid_at' => now(),
             ]);
 
+            $this->closeOpenAttempts($order, 'The order was settled another way.');
+
             // The money landed, and for an order paid by card that is the
             // moment the shop has work to do — see
             // `TellTheOwnerAnOrderArrived` for why the alert waits for this
@@ -72,6 +75,41 @@ class SettleOrder
 
             return $order;
         });
+    }
+
+    /**
+     * An attempt nobody is waiting for any more.
+     *
+     * «یجا نوشتی پرداخت شد یجا نوشتی در انتظار پرداخت اخه این چه مزخرفیه؟» — a
+     * photograph of one order page saying both at once, and it was saying the
+     * truth twice: the *order* was paid, and a gateway attempt opened at 20:45
+     * was still `pending`, because a customer who walks away from ZarinPal
+     * never comes back to close their own row and nothing else ever did
+     * either. On screen, four lines apart, that reads as the panel
+     * contradicting itself.
+     *
+     * A payment is pending only while somebody might still finish it. Once the
+     * order is settled — paid some other way, or off altogether — nobody can,
+     * so the row is closed here, in the same transaction that settles it. Same
+     * shape as the stock: a reservation nobody releases is stock that can
+     * never be sold again, and an attempt nobody closes is a line that
+     * contradicts the order for ever.
+     *
+     * `cancelled` and not `failed`: nothing refused this payment. It is the
+     * state the contract already has for «came back from the gateway without
+     * paying», and `failure` carries why it was closed so the row can still
+     * explain itself.
+     *
+     * **A row already `paid` is never touched**, which is what keeps the
+     * gateway's own path correct: `PaymentController::record()` marks the
+     * winning attempt paid *before* it settles the order, so the attempt that
+     * actually brought the money is not pending by the time this runs.
+     */
+    private function closeOpenAttempts(Order $order, string $why): void
+    {
+        $order->payments()
+            ->where('status', Payment::PENDING)
+            ->update(['status' => Payment::CANCELLED, 'failure' => $why]);
     }
 
     /**
@@ -100,6 +138,9 @@ class SettleOrder
                 'payment_status' => $wasPaid ? 'refunded' : $order->payment_status,
                 'cancelled_at' => now(),
             ]);
+
+            // Nobody is going to finish paying for an order that is off.
+            $this->closeOpenAttempts($order, 'The order was cancelled.');
 
             return $order;
         });

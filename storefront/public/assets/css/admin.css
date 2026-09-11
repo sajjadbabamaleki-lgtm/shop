@@ -340,6 +340,20 @@
 }
 
 /* --- notes ----------------------------------------------------------------- */
+/* A note under a value, saying where the value came from — «ثبت دستی در پنل،
+   بدون تأیید درگاه» under «پرداخت‌شده».
+   It sits inside the value's own `<b>`, because it is about that value and
+   moving it out would put it in the label's column; without this it inherits
+   the bold and reads as a second value rather than as a footnote to the
+   first. An element selector and not a class: the cut stylesheets fingerprint
+   the vocabulary of the templates, so a new class name here means re-cutting
+   three bought sheets for a line of grey text. */
+.vp-adm-list b small {
+  display: block;
+  font-weight: 400;
+  color: var(--adm-ink-2);
+}
+
 .vp-adm-note {
   margin: 0 0 16px;
   padding: 10px 14px;

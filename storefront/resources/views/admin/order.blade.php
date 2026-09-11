@@ -83,7 +83,23 @@
             <li><span>نام</span><b>{{ $order->contact_name }}</b></li>
             <li><span>تلفن</span><b><bdi dir="ltr">{{ $order->contact_phone }}</bdi></b></li>
             <li><span>وضعیت</span><b><span class="vp-adm-badge is-{{ $order->status }}">{{ $order->statusLabel() }}</span></b></li>
-            <li><span>پرداخت</span><b>{{ $order->paymentLabel() }}</b></li>
+            <li>
+                <span>پرداخت</span>
+                <b>
+                    {{ $order->paymentLabel() }}
+                    {{-- **Where that word came from.** «یجا نوشتی پرداخت شد
+                         یجا نوشتی در انتظار پرداخت» — an order reading
+                         «پرداخت‌شده» over a gateway attempt that never
+                         finished. Both were true and neither said which:
+                         a bank confirming money, and somebody in this office
+                         saying so, printed the same three words. Said out loud
+                         here, because the difference is whether the shoes
+                         should go. --}}
+                    @if ($order->payment_status === 'paid' && ($receipt === null || $receipt->gateway === 'panel'))
+                        <small>ثبت دستی در پنل، بدون تأیید درگاه</small>
+                    @endif
+                </b>
+            </li>
             @if ($order->payment_method)
                 <li><span>روش پرداخت</span><b>{{ $order->methodLabel() }}</b></li>
             @endif
@@ -107,7 +123,10 @@
             <ul class="vp-adm-list">
                 @foreach ($attempts as $attempt)
                     <li>
-                        <span>{{ fa_date($attempt->created_at, true) }}</span>
+                        <span>
+                            {{ fa_date($attempt->created_at, true) }}
+                            <br><small>{{ $attempt->gatewayLabel() }}</small>
+                        </span>
                         <b>
                             <span class="vp-adm-badge is-{{ $attempt->isPaid() ? 'delivered' : ($attempt->status === \App\Models\Payment::FAILED ? 'cancelled' : 'placed') }}">
                                 {{ $attempt->statusLabel() }}

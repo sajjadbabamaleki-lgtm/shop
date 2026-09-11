@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Str;
 
 /**
  * One attempt to pay for one order.
@@ -60,6 +61,56 @@ class Payment extends Model
     public function isPaid(): bool
     {
         return $this->status === self::PAID;
+    }
+
+    /**
+     * Which door this money came through, in words.
+     *
+     * On the screen beside the status, because the two answer different
+     * questions and the panel was only ever showing one of them: «پرداخت شد»
+     * on a row whose gateway is `panel` means somebody in this office said so,
+     * and on a row whose gateway is `zarinpal` it means a bank did. Told apart
+     * only by a column nobody could see, an order settled by hand and an order
+     * paid by a customer read identically — and the shop finds out which it
+     * was when it reconciles, or when the shoes have already gone.
+     */
+    public function gatewayLabel(): string
+    {
+        return match ($this->gateway) {
+            'panel' => 'ثبت دستی در پنل',
+            'zarinpal' => 'زرین‌پال',
+            default => (string) $this->gateway,
+        };
+    }
+
+    /**
+     * The receipt for money the shop took some other way.
+     *
+     * Cash at the counter, a card-to-card transfer, an order the gateway never
+     * confirmed and staff settled by hand. **Not a gateway** — saying
+     * «zarinpal» here would be a lie in the one table the shop reconciles
+     * against.
+     *
+     * It lives on the model because there are two doors into «paid» in the
+     * panel — the order's own button and the grid's bulk action — and only the
+     * first one wrote a row. `OrderController::move()` calls itself «the one
+     * place a status actually changes, so both routes agree», and they did
+     * agree about the status; they disagreed about the money. Eight orders
+     * marked paid from the grid left no trace of *being* paid anywhere, so the
+     * payments table did not add up to what the orders said, with nothing
+     * going red.
+     */
+    public static function recordedInThePanel(Order $order, ?string $reference = null): self
+    {
+        return self::create([
+            'order_id' => $order->id,
+            'gateway' => 'panel',
+            'authority' => 'PANEL-'.Str::upper(Str::random(26)),
+            'amount' => $order->grand_total,
+            'status' => self::PAID,
+            'ref_id' => $reference ?: null,
+            'paid_at' => now(),
+        ]);
     }
 
     public function statusLabel(): string

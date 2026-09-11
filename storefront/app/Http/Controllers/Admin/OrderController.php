@@ -18,7 +18,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -241,18 +240,10 @@ class OrderController extends Controller
 
             $order->forceFill(['payment_method' => $input['method']])->save();
 
-            Payment::create([
-                'order_id' => $order->id,
-                // Not a gateway — this money did not come through one, and
-                // saying «zarinpal» here would be a lie in the one table the
-                // shop reconciles against.
-                'gateway' => 'panel',
-                'authority' => 'PANEL-'.Str::upper(Str::random(26)),
-                'amount' => $order->grand_total,
-                'status' => Payment::PAID,
-                'ref_id' => $input['reference'] ?: null,
-                'paid_at' => now(),
-            ]);
+            // On the model, because this is the receipt for money taken some
+            // other way and the panel has more than one door onto that state.
+            // See Payment::recordedInThePanel().
+            Payment::recordedInThePanel($order, $input['reference']);
         });
 
         return $back->with('status', 'پرداخت ثبت شد و موجودی رزروشده فروخته شد.');
