@@ -6,9 +6,12 @@ use App\Models\Article;
 use App\Models\Category;
 use App\Models\Enquiry;
 use App\Models\Product;
+use App\Support\Tenancy\TenantContext;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * The sitemap, at /sitemap.xml.
@@ -62,16 +65,73 @@ use Illuminate\Support\Carbon;
  */
 class SitemapController extends Controller
 {
-    public function __invoke(): Response
+    /**
+     * How long a built sitemap is served again before it is rebuilt.
+     *
+     * Five minutes, and the number is a trade rather than a preference. The
+     * cost of caching is staleness — a product published in the panel is not in
+     * the file until this expires — and five minutes is short enough that
+     * nobody waits on it and long enough that no burst of requests is ever
+     * answered by more than a handful of rebuilds.
+     *
+     * **Deliberately not an hour**, which is the reflex. The thing being
+     * defended against is a crawler asking repeatedly in a short window; an
+     * hour buys almost nothing more against that and costs twelve times the
+     * staleness against the shop's own catalogue.
+     *
+     * Worth being straight about what this does not do: **the crawl load is the
+     * product pages, not this file.** A crawler reads the sitemap once and then
+     * walks the hundred-odd URLs in it, so this is the cheap half. The other
+     * half is the `Crawl-delay` in RobotsController and, past that, the plan.
+     */
+    private const FRESH_FOR = 300;
+
+    public function __invoke(Request $request): Response
     {
-        $urls = [
+        /*
+         * Built once every few minutes per branch and per host, rather than
+         * once per request.
+         *
+         * This file is a whole-catalogue scan — the products, the sections and
+         * the articles, each `get()` in full — and it is asked for by machines,
+         * repeatedly, at whatever rate they please. It is also the one address
+         * this shop published *in order to be crawled*: robots.txt names it, so
+         * the same push that made it findable made it worth caching.
+         *
+         * **The host is in the key, and taking it out would be a bug that only
+         * shows up on one domain.** Every `loc` in here is absolute and built
+         * from the host the request arrived on — that is the whole reason this
+         * is a route and not a file on disk — and this application answers on
+         * vikyplus.ir, www.vikyplus.ir and the Liara address alike. One cache
+         * entry for all three would hand a crawler on one domain a sitemap
+         * full of URLs on another, which is precisely the cross-domain
+         * duplication a sitemap exists to prevent.
+         *
+         * The branch is in the key for the ordinary reason: /shiraz/sitemap.xml
+         * lists Shiraz's shelves, and prices and stock belong to a branch.
+         *
+         * Measured here on the seeded catalogue: **8 queries uncached, 6 on a
+         * hit** — and that understates it, because the five seeded shoes are
+         * the smallest catalogue this shop will ever have. Most of the six that
+         * remain are the framework's own; what the cache actually removes are
+         * the whole-table `get()`s, and those are the ones that grow with the
+         * catalogue while a cache hit stays flat. The store is `database`, so a
+         * hit is a row read rather than free.
+         */
+        $key = sprintf(
+            'sitemap:%s:%s',
+            $request->getHost(),
+            app(TenantContext::class)->branchOrNull()?->slug ?? 'central',
+        );
+
+        $xml = Cache::remember($key, self::FRESH_FOR, fn (): string => $this->xml([
             ...$this->fixedPages(),
             ...$this->categories(),
             ...$this->products(),
             ...$this->articles(),
-        ];
+        ]));
 
-        return response($this->xml($urls), 200, [
+        return response($xml, 200, [
             'Content-Type' => 'application/xml; charset=UTF-8',
         ]);
     }

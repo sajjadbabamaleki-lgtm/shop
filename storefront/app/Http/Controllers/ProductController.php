@@ -35,8 +35,12 @@ class ProductController extends Controller
         // Who can supply each size, cheapest first: the branch, then every
         // approved vendor with stock. Worked out once and passed to the view,
         // which needs it twice.
-        $bySize = $product->variants
-            ->mapWithKeys(fn (Variant $variant) => [$variant->id => $sellers->for($variant)])
+        //
+        // `forMany()` and not `for()` in a loop: the second shape ran one
+        // `vendor_offers` query per size, which is up to eight on this shop's
+        // shoes and about 10ms each on the live machine. See the note there —
+        // this page is the one a crawler asks for a hundred times in a row.
+        $bySize = $sellers->forMany($product->variants)
             ->filter(fn ($offers) => $offers->isNotEmpty());
 
         /*

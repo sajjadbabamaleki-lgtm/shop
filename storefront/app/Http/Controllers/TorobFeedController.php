@@ -185,6 +185,36 @@ class TorobFeedController extends Controller
             // on this shop before. A string, because their schema says str.
             'page_unique' => (string) $product->id,
             'page_url' => storefront_route('product', $product),
+            /*
+             * **Null on purpose, and this is the field behind «چند عنوان
+             * تکراری» on ترب.**
+             *
+             * `product_group_id` is how their schema collapses several pages
+             * that are one shoe in different colours into one entry with
+             * variants. This shop needs it: `basalam:import` creates **one
+             * product per supplier listing**, keyed on `source_id`, and a
+             * supplier lists each colourway separately — so six colourways of
+             * one shoe are six products here, with six near-identical titles,
+             * and ترب indexes them as six shoes.
+             *
+             * It stays null because **nothing in this catalogue knows which
+             * products are one shoe.** Basalam sends no group of its own,
+             * `colorways()` groups the *variants inside* one product rather
+             * than products with each other, and the only remaining signal is
+             * the title — where grouping would mean deciding that two names are
+             * the same shoe with the colour words taken off. Get that wrong in
+             * the loose direction and two different shoes merge into one entry
+             * on ترب; get it wrong in the tight direction and nothing changes.
+             * Either way the shop cannot see it from here, and «در صورت تغییر
+             * شناسه‌ی محصول، محصولات شما در ترب از دسترس خارج می‌شوند» applies to
+             * this id too once it starts being sent.
+             *
+             * So it is a real improvement that needs the live titles in front
+             * of whoever writes the rule, and a guess written from memory is
+             * exactly the silent no-op `ReplacePhotos::theOneProductNamed()`
+             * exists to avoid. Duplicate entries cost this shop listings;
+             * merged entries would cost it products.
+             */
             'product_group_id' => null,
             'title' => Str::limit($product->title, 500, ''),
             // Usually the English name, which is exactly what `title_latin`

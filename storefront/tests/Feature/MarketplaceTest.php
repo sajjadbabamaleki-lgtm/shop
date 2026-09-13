@@ -20,12 +20,14 @@ use App\Models\VendorOffer;
 use App\Models\VendorUser;
 use App\Support\Checkout\SettleOrder;
 use App\Support\Marketplace\Commission;
+use App\Support\Marketplace\Sellers;
 use App\Support\Marketplace\Settlements;
 use App\Support\Tenancy\TenantContext;
 use Database\Seeders\BranchSeeder;
 use Database\Seeders\CatalogueSeeder;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use RuntimeException;
 use Tests\TestCase;
 
@@ -174,6 +176,63 @@ class MarketplaceTest extends TestCase
     }
 
     // --- buying from a vendor ---------------------------------------------
+
+    /**
+     * Who sells each size is answered for the whole shoe in **one** query.
+     *
+     * `Sellers::for()` was the only way in, and the product page called it once
+     * per size — so a shoe listed in eight ran eight `vendor_offers` queries,
+     * each carrying the `whereHas('vendor')` subquery `sellable()` adds. That
+     * costs about 0.9ms here and 9–11ms on the live machine, and the page it is
+     * on is the one a crawler asks for a hundred times in a row while ordinary
+     * visitors are arriving from an aggregator. What overlaps past the worker
+     * pool comes back as a 502.
+     *
+     * **The count is the assertion and not a proxy for one**: batching is the
+     * whole of what changed, so a return to one-query-per-size is exactly what
+     * this has to catch. The answers are checked beside it, because a batch
+     * that loses a seller would be fast and wrong.
+     */
+    public function test_every_size_is_priced_in_one_query(): void
+    {
+        $offer = $this->offer(price: 20_000_000);
+
+        $product = Product::where('slug', 'nike-v2k-run')->firstOrFail()
+            ->load(['variants.offer', 'variants.stock']);
+
+        $this->assertGreaterThan(1, $product->variants->count(), 'This shoe needs more than one size to be worth asking.');
+
+        $queries = 0;
+        DB::listen(function ($query) use (&$queries): void {
+            if (str_contains($query->sql, 'vendor_offers')) {
+                $queries++;
+            }
+        });
+
+        $bySize = app(Sellers::class)->forMany($product->variants);
+
+        $this->assertSame(1, $queries, 'The sizes were priced one query each; they are meant to be batched.');
+
+        // The size the vendor also stocks carries both sellers, cheapest first.
+        $sellers = $bySize->get($offer->variant_id);
+
+        $this->assertCount(2, $sellers);
+
+        $prices = $sellers->pluck('offer.price')->all();
+        $this->assertSame($prices, collect($prices)->sort()->values()->all(), 'The sellers are meant to be cheapest first.');
+
+        $this->assertEqualsCanonicalizing(
+            [null, $this->vendor->id],
+            $sellers->map(fn (array $seller) => $seller['vendor']?->id)->all(),
+            'Both the branch and the vendor should be offering this size.',
+        );
+
+        // Every other size is the branch's alone, and is still listed.
+        foreach ($product->variants->where('id', '!=', $offer->variant_id) as $variant) {
+            $this->assertCount(1, $bySize->get($variant->id));
+            $this->assertNull($bySize->get($variant->id)[0]['vendor']);
+        }
+    }
 
     public function test_the_same_shoe_from_two_sellers_is_two_basket_lines(): void
     {

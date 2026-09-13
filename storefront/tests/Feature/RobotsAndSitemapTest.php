@@ -13,6 +13,7 @@ use App\Support\Tenancy\TenantContext;
 use Database\Seeders\BranchSeeder;
 use Database\Seeders\CatalogueSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
 use Tests\TestCase;
 
 /**
@@ -57,6 +58,20 @@ class RobotsAndSitemapTest extends TestCase
      */
     private function locations(string $url = '/sitemap.xml'): array
     {
+        /*
+         * The sitemap is built once and served from the cache for a few
+         * minutes, so a case that changes the catalogue and asks again would
+         * otherwise be handed the copy from before its own edit — and would
+         * fail for a reason that has nothing to do with what it is asserting.
+         *
+         * Every case that reads the file through this helper is asking **what
+         * the sitemap says**, so the cache is cleared first and each of them
+         * sees a freshly built file. That the caching happens at all, and that
+         * it is keyed by host, is asserted on its own in the two cases at the
+         * foot of this class — where it is the subject rather than the weather.
+         */
+        Cache::flush();
+
         $response = $this->get($url)->assertOk();
 
         $this->assertStringContainsString('application/xml', $response->headers->get('Content-Type'));
@@ -349,5 +364,95 @@ class RobotsAndSitemapTest extends TestCase
     public function test_sitemap_cannot_be_taken_by_a_branch(): void
     {
         $this->assertContains('sitemap', Branch::RESERVED_SLUGS);
+    }
+
+    /**
+     * The sitemap is built once and served again, not rebuilt per request.
+     *
+     * It is a whole-catalogue scan on an address published *in order to be
+     * crawled*, on a container that is CPU-bound — and a crawler asks for it as
+     * often as it likes. This is the case that would go red if somebody took
+     * the cache out again, which is easy to do while chasing a stale entry.
+     *
+     * Asserted by changing a row underneath it rather than by counting
+     * queries: what is being promised is that the second caller is handed the
+     * first caller's file, and a query count is a proxy for that which a
+     * refactor can move without breaking anything real.
+     */
+    public function test_the_sitemap_is_built_once_and_served_again(): void
+    {
+        Cache::flush();
+
+        $before = $this->get('/sitemap.xml')->assertOk()->getContent();
+
+        Article::create([
+            'title' => 'یادداشت تازه',
+            'slug' => 'a-fresh-note',
+            'body' => 'متن',
+            'status' => Article::PUBLISHED,
+            'published_at' => now(),
+        ]);
+
+        $this->assertSame(
+            $before,
+            $this->get('/sitemap.xml')->assertOk()->getContent(),
+            'The sitemap was rebuilt for the second caller; it is meant to be served from the cache.',
+        );
+
+        Cache::flush();
+
+        $this->assertStringContainsString('/articles/a-fresh-note', $this->get('/sitemap.xml')->getContent());
+    }
+
+    /**
+     * **Two hosts, two sitemaps.**
+     *
+     * Every `<loc>` is absolute and built from the host the request arrived on
+     * — that is the whole reason this is a route rather than a file on disk —
+     * and this application answers on vikyplus.ir, www.vikyplus.ir and the
+     * Liara address alike. Cache the built file under one key for all of them
+     * and a crawler on one domain is handed a sitemap full of URLs on another,
+     * which is the cross-domain duplication a sitemap exists to prevent.
+     *
+     * It is the failure a single-host test suite cannot see, and it would
+     * reach production as somebody else's crawl report.
+     */
+    public function test_the_cached_sitemap_is_kept_apart_per_host(): void
+    {
+        Cache::flush();
+
+        /*
+         * The real pair, not two invented hosts: `BranchSeeder` points
+         * vikyplus.ir and www.vikyplus.ir at the central branch, and ZarinPal
+         * has already cost this shop a round over treating them as one. An
+         * unseeded host resolves to no branch and 404s, which would make this
+         * case pass or fail for the wrong reason.
+         */
+        $bare = $this->get('http://vikyplus.ir/sitemap.xml')->assertOk()->getContent();
+        $www = $this->get('http://www.vikyplus.ir/sitemap.xml')->assertOk()->getContent();
+
+        $this->assertStringContainsString('http://vikyplus.ir/', $bare);
+        $this->assertStringNotContainsString('http://www.vikyplus.ir/', $bare);
+
+        $this->assertStringContainsString('http://www.vikyplus.ir/', $www);
+    }
+
+    /**
+     * robots.txt asks crawlers to take the shop slowly.
+     *
+     * Every page is rendered by PHP against the database with no page cache in
+     * front of it, and the sitemap this same file names lists every listable
+     * product — so a crawler taking that list at face value asks for a hundred
+     * pages in a row on a container that needs about a second for each. What
+     * overlaps past the worker pool is answered by Liara with 502, which is
+     * what a visitor arriving from an aggregator was shown.
+     *
+     * Not a fix, and the comment in the controller says so: Googlebot ignores
+     * `Crawl-delay`. It is the only lever over crawl rate that lives in this
+     * repository.
+     */
+    public function test_robots_asks_for_a_crawl_delay(): void
+    {
+        $this->assertStringContainsString("Crawl-delay: 10\n", $this->get('/robots.txt')->assertOk()->getContent());
     }
 }

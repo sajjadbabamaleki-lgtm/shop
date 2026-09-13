@@ -56,6 +56,34 @@ class RobotsController extends Controller
         $lines = ['User-agent: *'];
 
         /*
+         * How fast a crawler may walk the shop.
+         *
+         * Every page here is rendered by PHP against the database — there is no
+         * page cache in front of the storefront — and the live container is
+         * CPU-bound: about a second of its own work per product page, measured
+         * and recorded in CLAUDE.md. The sitemap this file names lists every
+         * listable product, so a crawler that takes it at face value asks for a
+         * hundred-odd of those in a row. Requests that overlap past the worker
+         * pool are answered by Liara with **502**, and that is what a visitor
+         * arriving from an aggregator was shown while a bot was mid-walk.
+         *
+         * Ten seconds, so one well-behaved crawler costs the shop a tenth of a
+         * request per second instead of as many as it can open. A full walk of
+         * the catalogue then takes about twenty minutes, which is no worse for
+         * indexing than being refused half way through.
+         *
+         * **Two things this is not.** It is not a fix: Googlebot has ignored
+         * `Crawl-delay` for years and takes its rate from Search Console, and a
+         * crawler that ignores robots.txt altogether ignores this line with it.
+         * And it is not the answer to «سایت کنده» — the plan is, per the
+         * measurements in CLAUDE.md. It is the one lever over crawl rate that
+         * lives in this repository, and it is worth having for the crawlers
+         * that do honour it (Bing, Yandex, and most of the smaller aggregators
+         * this shop is trying to be listed by).
+         */
+        $lines[] = 'Crawl-delay: 10';
+
+        /*
          * The panels. `/admin` bare, because nothing public begins with those
          * six characters — but `/vendor` gets a **trailing slash and must keep
          * it**: a Disallow is a prefix match, so `/vendor` would also match

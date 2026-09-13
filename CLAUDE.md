@@ -111,11 +111,37 @@ the client saw an old page and had no way to tell why. So, plainly:
   three jobs (Tests, What the live site sends, Deploy to Liara) and report the
   conclusion of each. This container's proxy still answers 403 for
   vikyplus.liara.run and vikyplus.ir, so nothing here can curl the site.
+- **⛔ THE PROBE HAS BEEN BLIND SINCE 2026-09-07, AND IT DOES NOT GO RED.**
+  Read this before trusting anything below it or planning to "just re-run the
+  probe". On the last two runs on `main` — #772 (07 Sept) and #776 (09 Sept) —
+  **every one of the fifteen paths came back `http_code 000` on both hosts**,
+  and each run sat in `curl` for **2h17m** doing it. The shape is the same both
+  times and it is specific: DNS resolves in about half a second, then
+  `tcp 0.000000` — the connection never opens at all.
+
+  **That is almost certainly a network path, not the site.** A dead application
+  behind Liara's edge answers 502; it does not swallow the TCP handshake. And
+  the 502 the client's own visitors see is itself the proof that the edge is up
+  and answering from inside Iran. What has stopped working is a GitHub runner
+  reaching an Iranian host, which is not something this repository can fix.
+
+  The consequences are what matter here. **Nothing in CI can see the live site
+  any more** — that includes the "a runner *can* reach the site" trick recorded
+  further down as the tool for any question whose answer is only on production;
+  it worked in August and does not now, so re-check it before planning around
+  it. It also means `continue-on-error: true` is doing exactly what it was
+  written to do and hiding a total blackout behind a green tick, and that
+  **every timing in the table below is from August and cannot be refreshed from
+  here.** The instruments that are left are the Liara panel's own logs and
+  resource graphs, and the `Server-Timing` header on any response, which a
+  person with a browser can read and this container cannot.
+
 - **The `probe` job is the second opinion this repository spent three rounds
   without.** It runs on every push, cannot fail a run, and asks both hosts what
   they actually send: sizes refused-and-accepted compressed, the reply's own
-  headers, and the timings. **Read it before optimising anything.** What it
-  found the first time it ran:
+  headers, and the timings. **Read it before optimising anything** — and read
+  the block above first, because it has not been able to ask since 07 Sept.
+  What it found the first time it ran:
   - **The server does compress** — gzip, HTTP/2, and vikyplus.ir and the Liara
     address answer identically, so nothing is sitting in front of either.
     1,047KB of stylesheet crossed as 154KB. Three rounds of cutting bytes had
@@ -582,6 +608,54 @@ the client saw an old page and had no way to tell why. So, plainly:
   there only on the URLs with one row behind them — a product, a section, an
   article — and carries that row's own timestamp; the fixed pages carry none
   rather than a date derived from something that is not quite what changed.
+- **Being found has a bill, and it arrived as a 502.** Shipping the sitemap on
+  09 Sept did what it was for: it handed every crawler a list of ~128 product
+  pages and invited them to walk it. Four days later ترب reported that a
+  shopper pressing «خرید از ویکی پلاس» lands on **502 Bad Gateway**.
+  Read the error before theorising — a 502 means Liara's edge took the request
+  and the PHP app did not answer, so the domain, the TLS, the route and the
+  link from ترب are all fine and the fault is behind the edge. And **ترب itself
+  is not the load**: it does not crawl, it POSTs once to the feed and takes the
+  whole catalogue back in two requests. It only sends *visitors*, so its users
+  see whatever everyone else sees at that moment; they are just the ones who
+  reported it.
+  Measured here on the seeded catalogue, since nothing can reach production:
+  a product page is **35 queries and ~83ms**. Put through the ratios in the
+  Liara block above (PHP 13–16×, a query ~11×) that is **about a second of CPU
+  per product page on the live machine**, which agrees with the 915ms already
+  recorded for the home page. There is no page cache in front of the storefront,
+  so a crawler walking the sitemap costs one of those per URL and whatever
+  overlaps past the worker pool is a 502 for whoever else is arriving.
+  Three things were done about it, and **none of them is the fix**:
+  `SitemapController` caches its built XML for five minutes (**keyed by host as
+  well as branch** — every `loc` is absolute and built from the request's host,
+  so one key for vikyplus.ir and www.vikyplus.ir hands a crawler on one domain
+  a file full of the other's URLs); `robots.txt` asks for `Crawl-delay: 10`,
+  which Googlebot ignores and Bing and the smaller aggregators honour; and
+  `Sellers::forMany()` prices a whole shoe's sizes in one query where the
+  product page used to run one per size. **The fix is the Liara plan**, for the
+  reason the table above gives: the ratio is the same on pages of very
+  different weight, so it is the machine and not a code path. Do not re-derive
+  that either — and note that `check-parity.js` and the test suite cannot see
+  any of this, because they render pages one at a time on a fast machine.
+- **ترب shows several of this shop's shoes twice, and the field that would fix
+  it is deliberately still null.** Reported alongside the 502 above: 128
+  products indexed, «چند عنوان تکراری/کم‌دقت». The cause is upstream of the
+  feed — `basalam:import` makes **one product per supplier listing** and a
+  supplier lists each colourway separately, so six colourways are six products
+  here with six near-identical titles. `product_group_id` in
+  `TorobFeedController` is their way of collapsing those into one entry, and it
+  is null because **nothing in this catalogue knows which products are one
+  shoe**: Basalam sends no group, `colorways()` groups variants *inside* a
+  product rather than products with each other, and the only signal left is the
+  title. Writing that rule means deciding two names are the same shoe with the
+  colour words removed — and getting it wrong in the loose direction merges two
+  different shoes into one ترب entry, which costs more than the duplicates do.
+  The full reasoning is in the field's own comment. **Whoever picks this up
+  needs the live titles in front of them**, from `/admin/catalogue` or a
+  `page_uniques` fetch of the feed, not memory — and their own warning applies
+  to this id once it starts being sent: «در صورت تغییر شناسه‌ی محصول، محصولات
+  شما در ترب از دسترس خارج می‌شوند».
 - **`/wholesale` and `/franchise` are the two things the shop advertises and
   had no way of hearing about.** «خرید تکی و عمده» has been on the front page's
   trust row and in the footer's strap since the template was dressed with no
