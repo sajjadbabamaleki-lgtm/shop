@@ -61,8 +61,6 @@ class SnappPayTest extends TestCase
             'username' => 'merchant',
             'password' => 'merchant-password',
             'commission_type' => 3,
-            'min_amount' => null,
-            'max_amount' => null,
         ]);
 
         $this->app->forgetInstance(Gateway::class);
@@ -707,47 +705,110 @@ class SnappPayTest extends TestCase
         app(Gateways::class);
     }
 
-    // --- the range ---------------------------------------------------------
+    // --- whether it is offered at all --------------------------------------
 
     /**
-     * **A button certain to be refused is worse than no button.**
+     * **The range is SnappPay's and it is asked for, never guessed.**
      *
-     * SnappPay lends between a floor and a ceiling agreed with the shop. The
-     * range is read from the environment rather than asked over the network,
-     * because the question is asked while an order page renders and the live
-     * machine is slow enough that a round trip there would be felt on every
-     * load.
+     * This shop used to answer from two environment variables, to keep a
+     * network call out of a page render on a machine thirteen times slower
+     * than this one. Their document forbids it — the range is dynamic, differs
+     * between staging and production, and «از هر گونه پیاده‌سازی دستی در سمت
+     * خود خودداری فرمایید». So the page asks, and the two lines it prints are
+     * their words rather than any written here.
      */
-    public function test_an_order_outside_the_lending_range_is_not_offered_instalments(): void
+    public function test_the_page_asks_snapppay_whether_this_order_can_be_financed(): void
     {
-        config()->set('services.payment.snapppay.max_amount', 1_000_000);
+        Http::fake([
+            '*/api/online/v1/oauth/token' => Http::response(['access_token' => 'bearer-1', 'expires_in' => 3600]),
+            '*/api/online/offer/v1/eligible*' => Http::response([
+                'successful' => true,
+                'response' => [
+                    'eligible' => true,
+                    'title_message' => 'پرداخت اقساطی اسنپ‌پی',
+                    'description' => '۴ قسط ماهیانه ۳۱۲٬۵۰۰ تومان (بدون کارمزد)',
+                ],
+            ]),
+        ]);
 
         $order = $this->order();
 
-        $this->holding($order)->get("/orders/{$order->number}")
+        $this->holding($order)->getJson("/orders/{$order->number}/instalments")
             ->assertOk()
-            ->assertSee('پرداخت')
-            ->assertDontSee('خرید اقساطی با اسنپ‌پی');
+            ->assertExactJson([
+                'eligible' => true,
+                'title' => 'پرداخت اقساطی اسنپ‌پی',
+                'description' => '۴ قسط ماهیانه ۳۱۲٬۵۰۰ تومان (بدون کارمزد)',
+            ]);
 
-        // And the post is refused as well as the button hidden: the page is a
-        // render, the post is what actually charges.
-        $this->holding($order)->post("/orders/{$order->number}/pay/snapppay")
-            ->assertRedirect()
-            ->assertSessionHasErrors('payment');
-
-        $this->assertSame(0, Payment::count());
+        // Asked about this order's own total, in Rial.
+        Http::assertSent(fn ($request) => str_contains($request->url(), 'offer/v1/eligible')
+            && str_contains($request->url(), 'amount=1250000'));
     }
 
-    /** Inside it, the order page offers both ways to pay. */
-    public function test_the_order_page_offers_the_card_first_and_the_instalments_after(): void
+    /** A refusal is a button that never appears. */
+    public function test_a_refused_amount_is_not_offered_instalments(): void
+    {
+        Http::fake([
+            '*/api/online/v1/oauth/token' => Http::response(['access_token' => 'bearer-1', 'expires_in' => 3600]),
+            '*/api/online/offer/v1/eligible*' => Http::response([
+                'successful' => true,
+                'response' => ['eligible' => false],
+            ]),
+        ]);
+
+        $order = $this->order();
+
+        $this->holding($order)->getJson("/orders/{$order->number}/instalments")
+            ->assertOk()
+            ->assertJson(['eligible' => false]);
+    }
+
+    /**
+     * And so is a provider that cannot be reached.
+     *
+     * The safe direction: a button that goes nowhere is worse than no button,
+     * and the card beside it is untouched either way.
+     */
+    public function test_a_silent_provider_offers_nothing(): void
+    {
+        Http::fake([
+            '*/api/online/v1/oauth/token' => fn () => throw new ConnectionException('timed out'),
+        ]);
+
+        $order = $this->order();
+
+        $this->holding($order)->getJson("/orders/{$order->number}/instalments")
+            ->assertOk()
+            ->assertJson(['eligible' => false]);
+    }
+
+    /** The amount is what is being asked about, so it is not asked by strangers. */
+    public function test_a_stranger_cannot_ask_what_an_order_is_worth(): void
+    {
+        $order = $this->order();
+
+        $this->getJson("/orders/{$order->number}/instalments")->assertForbidden();
+    }
+
+    /**
+     * The page ships the card button drawn and the instalment one hidden.
+     *
+     * Hidden rather than absent, because the script that reveals it has to
+     * have something to reveal — and absent rather than visible, because
+     * whether SnappPay will finance this basket is not known when the page is
+     * built. A shopper whose browser never asks sees the card button, which is
+     * the failure this can afford.
+     */
+    public function test_the_card_button_is_drawn_and_the_instalment_one_waits(): void
     {
         $order = $this->order();
 
         $page = $this->holding($order)->get("/orders/{$order->number}")->assertOk();
 
-        $page->assertSee('خرید اقساطی با اسنپ‌پی');
         $page->assertSee("/orders/{$order->number}/pay/zarinpal", escape: false);
         $page->assertSee("/orders/{$order->number}/pay/snapppay", escape: false);
+        $page->assertSee("/orders/{$order->number}/instalments", escape: false);
 
         $content = (string) $page->getContent();
 
@@ -756,5 +817,28 @@ class SnappPayTest extends TestCase
             strpos($content, "/orders/{$order->number}/pay/zarinpal"),
             'the card is the ordinary way to pay and comes first'
         );
+
+        // The instalment form is in the page and not on it.
+        $this->assertMatchesRegularExpression('/<form[^>]*vp-snapp-form[^>]*hidden/', $content);
+
+        // And nothing on it says what the instalments cost: those words are
+        // SnappPay's, they arrive with the eligible answer, and a sentence
+        // written here would be the thing their document forbids.
+        $page->assertDontSee('قسط ماهیانه');
+    }
+
+    /** Their logo, at both of the sizes they supply. */
+    public function test_the_component_carries_their_own_mark(): void
+    {
+        $order = $this->order();
+
+        $page = $this->holding($order)->get("/orders/{$order->number}")->assertOk();
+
+        $page->assertSee('assets/img/snapppay/logo-40.svg', escape: false);
+        $page->assertSee('assets/img/snapppay/logo-32.svg', escape: false);
+
+        foreach (['logo-40.svg', 'logo-32.svg'] as $mark) {
+            $this->assertFileExists(public_path('assets/img/snapppay/'.$mark));
+        }
     }
 }

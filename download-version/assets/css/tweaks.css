@@ -21477,6 +21477,90 @@ body.vp-bare .vp-cart-shot {
   }
 }
 
+/* اسنپ‌پی's payment method, drawn to their guideline and not to this site's.
+
+   The shop's contract obliges it — «پذیرنده موظف است جهت سهولت در خرید کاربر
+   درگاه پرداخت را بر اساس طرح‌های پیشنهادی اسنپ‌پی نمایش دهد» — and their
+   guideline is specific: three parts in a row (logo, title, subtitle), 16px
+   between them above the phone breakpoint and 12px below it, with the mark at
+   40px and 32px respectively.
+
+   **So this is the one pressable on the site that is not the gold gradient**,
+   and that is not a lapse in «گلد سبز»: the rule there is that *this shop's*
+   buttons are one material. This one is somebody else's payment method wearing
+   their own identity, the way a card mark on a checkout is, and the same
+   guideline forbids repainting it («استفاده از رنگ‌های دیگر (قرمز، سبز، …)»)
+   while explicitly allowing the grey used here.
+
+   The two type colours are the guideline's own instruction — «از دستورالعمل‌های
+   کنتراست WCAG پیروی کنید» — measured on white: the title reads 15.9:1 and the
+   description 5.3:1, both above the 4.5:1 their rule points at.
+
+   It starts hidden and the page's script reveals it, because whether SnappPay
+   will finance this basket is a question only they can answer and asking them
+   during the render would put a round trip to Tehran in front of every shopper
+   looking at an order. */
+.vp-snapp {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 12px 16px;
+  border: 0;
+  border-radius: 16px;
+  background: #FFFFFF;
+  /* The shop's own hairline, quoted from .vp-shop-panel: the component is
+     theirs, the surface it rests on is this page's. */
+  box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.12);
+  text-align: right;
+  cursor: pointer;
+}
+
+.vp-snapp:hover {
+  box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.24);
+}
+
+.vp-snapp-mark img {
+  display: block;
+  width: 40px;
+  height: 40px;
+}
+
+.vp-snapp-lines {
+  display: grid;
+  gap: 4px;
+}
+
+.vp-snapp-title {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.5;
+  color: rgba(16, 17, 17, 0.92);
+}
+
+.vp-snapp-say {
+  font-size: 13px;
+  line-height: 1.6;
+  color: rgba(16, 17, 17, 0.62);
+}
+
+@media (max-width: 575.98px) {
+  .vp-snapp {
+    gap: 12px;
+  }
+
+  .vp-snapp-mark img {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+@media (min-width: 576px) {
+  .vp-snapp {
+    min-width: 288px;
+  }
+}
+
 /* --------------------------------------------------------------------------
    «تاس شانس» — the game band.
 

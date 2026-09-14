@@ -55,30 +55,22 @@
                          through, in the order `Gateways` offers them: the card
                          first, the instalments after it.
 
-                         **The first button keeps its wording and the rest are
-                         named by their driver.** «پرداخت ۱٬۲۰۰٬۰۰۰ تومان» says
-                         what pressing it costs, which is the sentence a
-                         shopper needs on the ordinary way to pay; an
-                         instalment button cannot say that — what it costs
-                         today is a quarter of it — so it says what it is
-                         instead, in the provider's own name.
-
-                         Both are the site's one button: the gold gradient of
-                         «گلد سبز», with no second style invented for the
-                         second one. A pressed fill on this site is that
-                         gradient wherever it appears. --}}
+                         **A gateway with a presentation of its own gets its
+                         own partial**, and one that has not brings the site's
+                         gold button. اسنپ‌پی is the first of the former: their
+                         contract obliges the shop to show their method to
+                         their guideline («پذیرنده موظف است … درگاه پرداخت را
+                         بر اساس طرح‌های پیشنهادی اسنپ‌پی نمایش دهد»), which is
+                         a logo and two lines of their words rather than
+                         anything this site would draw. Naming the file after
+                         the driver keeps that out of this page: the third
+                         gateway either has a guideline and a partial, or it
+                         does not and falls through to the default. --}}
                     @foreach ($gateways as $gateway)
-                        <form class="vp-order-pay" method="post"
-                              action="{{ storefront_route('order.pay', ['order' => $order, 'gateway' => $gateway->name()]) }}">
-                            @csrf
-                            <button type="submit" class="vp-filter-apply vp-cart-go">
-                                @if ($loop->first)
-                                    پرداخت {{ toman($order->grand_total) }} تومان
-                                @else
-                                    {{ $gateway->label() }}
-                                @endif
-                            </button>
-                        </form>
+                        @includeFirst(
+                            ['shop.pay.'.$gateway->name(), 'shop.pay.default'],
+                            ['gateway' => $gateway, 'order' => $order, 'first' => $loop->first]
+                        )
                     @endforeach
 
                     {{-- «اگه فیلترشکنش روشنه خاموش کنه تا در مراحل ثبت سفارش و

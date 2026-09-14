@@ -631,36 +631,57 @@ the client saw an old page and had no way to tell why. So, plainly:
   - **Nothing reaches SnappPay from an IP they have not whitelisted**, the
     token call included: «تنها درخواست‌هایی پردازش می‌شوند که فرستندهٔ آن‌ها را
     از قبل بشناسیم». The address to send them is what
-    `https://whatisip.snapppay.ir/whatis/ip` reports from the deployed
-    container, which is what `payment:test` now asks first. The `returnURL`'s
-    **domain** has to be registered with them too, and `vikyplus.ir` and
-    `www.vikyplus.ir` are two domains — the same trap as ZarinPal's `-14`,
-    written down this time.
-  - **⚠️ The `eligible` service is mandatory and is not yet wired.**
-    `SNAPPPAY_MIN` and `SNAPPPAY_MAX` keep a certainly-refused button off the
-    order page, and they were chosen to avoid a network call while a page
-    renders on a machine thirteen times slower than this one. **The document
-    forbids exactly that**: the range is dynamic, `eligible` must be called on
-    every change of amount, and the title and description it returns must be
-    shown verbatim — «از هر گونه پیاده‌سازی دستی در سمت خود خودداری فرمایید».
-    Their staging range is 40,000 to 10,000,000 Toman and production differs,
-    which is the point. Until it is wired, this shop cannot pass SnappPay's
-    own certification, and neither can the four services below.
+    `https://whatisip.snapppay.ir/whatis/ip` reports **from the deployed
+    container**, which is what `payment:test` now asks first, and on
+    2026-09-14 that was **185.208.181.162** — the Liara app's outgoing
+    address, sent to them for both environments.
+    **It is a silent single point of failure.** If Liara ever moves the app and
+    that address changes, every SnappPay call answers `Access Denied`, the
+    instalment button quietly stops appearing, and nothing goes red: the card
+    gateway is untouched, the suite is green, and the site looks well.
+    `payment:test` is the one thing that says so in a sentence.
+    The `returnURL`'s **domain** is whitelisted separately, and `vikyplus.ir`
+    and `www.vikyplus.ir` are two domains to them — the same trap as ZarinPal's
+    `-14`, written down this time.
+  - **Whether instalments are offered is `eligible`'s answer, and the button's
+    own words are its answer too.** There is no `SNAPPPAY_MIN`/`SNAPPPAY_MAX`
+    any more and there must not be: the range is dynamic, differs between
+    staging and production, and «از هر گونه پیاده‌سازی دستی در سمت خود خودداری
+    فرمایید». What it returns is `eligible`, a **title** and a **description**
+    — «۴ قسط ماهیانه ۶۲۷٬۰۰۰ تومان (بدون کارمزد)» — and both lines are printed
+    unchanged, which is also why nothing here computes an instalment figure.
+    **It is asked after the page is drawn, not during it.** `GET
+    /orders/{order}/instalments` (`InstalmentsController`, behind the same
+    session proof as the pay route, because the amount is the thing being
+    asked about) answers the page's own script, which fills the two lines and
+    unhides the form. The order page costs about 1.4s on the live machine
+    before anything of SnappPay's is added, and a round trip to Tehran inside
+    its render would be paid by every shopper looking at an order. A browser
+    that never asks simply sees the card button.
+    **The component is theirs and not this site's** — بند ۸-۹ obliges it — so
+    it is the one pressable here that is not the gold gradient: their logo at
+    40px above 576 and 32px below (two files, because the small one is redrawn
+    rather than scaled — 4,503 of 49,152 bytes differ in the same box), 16px
+    and 12px gaps, grey type at 15.9:1 and 5.3:1 on white, which is the
+    contrast rule their guideline points at. Measured 320 to 1920: no sideways
+    scroll, and at 320 the description takes a second line inside the box
+    rather than spilling out of it. `resources/views/shop/pay/` is one partial
+    per gateway, picked by driver name with a default — the third gateway
+    either brings a guideline or falls through.
   Amounts go in **Rial and there is no currency field**, so unlike ZarinPal
   nothing on either side would notice a Toman figure — it would simply be a
   bill one tenth the size, and every log would look normal. `SnappPayTest` is
   the guard for all of it, and its fixture buys **two** of one shoe on purpose.
   **The official API document (REST, v2.1) arrived on 14 Sept and this was read
   against it**, which is where every correction above came from. What it also
-  lists is what SnappPay certify before giving production access, and **four
-  of those are still missing**: `eligible` (above), `update` (partial return —
-  a shopper sends one item back), `cancel` (the whole basket, and it is the
-  only way to reverse a settled purchase), and `status` wired as a check of its
-  own. Two of them need something this shop has never had — **a partial return
-  in `/admin`** — and both must ask the admin to confirm before they fire,
-  because neither can be undone. The transaction id must also be searchable in
-  the panel and printed to the shopper, since it is the one number SnappPay and
-  this shop have in common. `revert` is the one service the document says need
+  lists is what SnappPay certify before giving production access, and **three
+  of those are still missing**: `update` (partial return — a shopper sends one
+  item back), `cancel` (the whole basket, and the only way to reverse a settled
+  purchase), and the transaction id being searchable in the panel. The first
+  two need something this shop has never had — **a partial return in
+  `/admin`** — and both must ask the admin to confirm before they fire, because
+  neither can be undone. The id must also be printed to the shopper, since it
+  is the one number SnappPay and this shop have in common. `revert` is the one service the document says need
   not be implemented.
 - **The content pages are `/about`, `/contact`, `/size-guide`, `/faq`, `/terms`
   and `/privacy`** — `PageController`, one view each under `resources/views/pages/`,

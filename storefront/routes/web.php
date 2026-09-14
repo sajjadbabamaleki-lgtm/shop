@@ -7,6 +7,7 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\DiceGameController;
 use App\Http\Controllers\EnquiryController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\InstalmentsController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PageController;
@@ -282,6 +283,14 @@ $storefront = function (): void {
      * branch prefix: a franchise's customer must come back to the franchise's
      * own address, or the order page they land on is the wrong shop's.
      */
+    /*
+     * Asked by the order page once it is on screen, never during its render:
+     * اسنپ‌پی's `eligible` is a round trip to Tehran and the page is already
+     * the slowest thing this shop serves. See InstalmentsController.
+     */
+    Route::get('/orders/{order}/instalments', [InstalmentsController::class, 'show'])
+        ->middleware('throttle:60,1')->name('order.instalments');
+
     Route::post('/orders/{order}/pay/{gateway?}', [PaymentController::class, 'pay'])
         ->where('gateway', '[a-z-]+')
         ->middleware('throttle:20,10')->name('order.pay');

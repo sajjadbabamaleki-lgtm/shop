@@ -101,8 +101,6 @@ class SnappPay implements Gateway
         // گردد». A shop whose contract names several product categories sends
         // the code for each; this one sells «کیف و کفش» and nothing else.
         private int $commissionType = 100,
-        private ?int $minAmount = null,
-        private ?int $maxAmount = null,
         private int $timeout = self::TIMEOUT,
     ) {}
 
@@ -122,22 +120,22 @@ class SnappPay implements Gateway
     }
 
     /**
-     * Inside the range the provider agreed to lend in.
+     * **Always yes here, because this is not the question that decides.**
      *
-     * Both ends are optional: a shop that has not been told its range yet
-     * leaves them unset and every order sees the button, which is the state
-     * this shipped in. The cost of that is a refusal the shopper reads on the
-     * order page instead of a button they never saw — SnappPay's own sentence,
-     * passed through — and the cost of guessing a number here instead would be
-     * a button hidden from orders it would have taken.
+     * An earlier version answered from `SNAPPPAY_MIN`/`SNAPPPAY_MAX`, to keep
+     * a certainly-refused button off the order page without a network call on
+     * a machine thirteen times slower than this one. SnappPay forbid exactly
+     * that: their range is dynamic, moves between staging and production, and
+     * «از هر گونه پیاده‌سازی دستی در سمت خود خودداری فرمایید و حتماً سرویس
+     * eligible را به درستی پیاده‌سازی فرمایید».
+     *
+     * So the range lives in `eligibleFor()` and the button is revealed by its
+     * answer — see `InstalmentsController`. What stays here is the floor every
+     * gateway has: there is no such thing as paying nothing.
      */
     public function canTake(int $amount): bool
     {
-        if ($this->minAmount !== null && $amount < $this->minAmount) {
-            return false;
-        }
-
-        return $this->maxAmount === null || $amount <= $this->maxAmount;
+        return $amount > 0;
     }
 
     /**
@@ -366,11 +364,43 @@ class SnappPay implements Gateway
     }
 
     /**
-     * Would SnappPay lend this much to somebody, today?
+     * **Would SnappPay finance this amount, right now, and what should the
+     * button say?**
      *
-     * **Not asked while a page renders** — `canTake()` is that question, and it
-     * reads the environment. This one is for `payment:test`, where the answer
-     * worth having is the provider's own, including the range it reports.
+     * The one service whose implementation they check by name. Three things
+     * about it are theirs and not ours: whether to offer instalments at all,
+     * the **title** and the **description** printed beside the logo — «تایتل و
+     * دیسکریپشن که در جواب بازگردانده می‌شود بدون هیچ‌گونه تغییری نمایش داده
+     * شود» — and the fact that all three change with the amount, so it is
+     * asked again whenever the amount does.
+     *
+     * The description is the sentence a shopper actually decides on: «۴ قسط
+     * ماهیانه ۶۲۷٬۰۰۰ تومان (بدون کارمزد)». Nothing in this repository could
+     * compute it, and computing it would be forbidden even if it could.
+     *
+     * Returns what the page needs, with `eligible` false whenever the provider
+     * was not reached — the safe direction, since the alternative is a button
+     * that goes nowhere.
+     *
+     * @return array{eligible: bool, title: string, description: string}
+     */
+    public function eligibleFor(int $amount): array
+    {
+        $answer = $this->attempt(self::ELIGIBLE, ['amount' => $amount], method: 'get');
+
+        return [
+            'eligible' => data_get($answer, 'response.eligible') === true,
+            'title' => trim((string) data_get($answer, 'response.title_message', '')),
+            'description' => trim((string) data_get($answer, 'response.description', '')),
+        ];
+    }
+
+    /**
+     * The same question, whole, for `payment:test`.
+     *
+     * It prints the answer verbatim — including a refusal's reason, which is
+     * the thing a shop diagnosing «چرا دکمه نمی‌آید» needs and which
+     * `eligibleFor()` deliberately flattens away.
      *
      * @return array<string, mixed>
      */

@@ -205,12 +205,15 @@ return [
         |                            carries a mismatch: «هر نوع مسئولیت عدم
         |                            تطابق دسته‌بندی ارسال شده با دسته‌بندی ذکر
         |                            شده در قرارداد، بر عهده پذیرنده است».
-        |   SNAPPPAY_MIN / SNAPPPAY_MAX   the range they agreed to lend in, in
-        |                            **Rial**, for keeping a button that is
-        |                            certain to be refused off the order page.
-        |                            Both optional: unset means every order
-        |                            sees the button and SnappPay's own
-        |                            sentence explains any refusal.
+        |
+        | **There is no min and no max here, and there must not be.** An
+        | earlier version had `SNAPPPAY_MIN`/`SNAPPPAY_MAX` to keep a
+        | certainly-refused button off the order page without a network call
+        | during a render. SnappPay forbid it: the range is dynamic, differs
+        | between staging and production, and «از هر گونه پیاده‌سازی دستی در سمت
+        | خود خودداری فرمایید و حتماً سرویس eligible را به درستی پیاده‌سازی
+        | فرمایید». The button is revealed by that service's own answer, and
+        | the two lines on it are its own words.
         |
         | With any of the first four empty the provider refuses to boot the
         | gateway and says which — an instalment button that cannot take an
@@ -228,8 +231,6 @@ return [
             'username' => env('SNAPPPAY_USERNAME'),
             'password' => env('SNAPPPAY_PASSWORD'),
             'commission_type' => env('SNAPPPAY_COMMISSION_TYPE', 100),
-            'min_amount' => env('SNAPPPAY_MIN'),
-            'max_amount' => env('SNAPPPAY_MAX'),
         ],
     ],
 

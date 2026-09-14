@@ -153,13 +153,7 @@ class PaymentServiceProvider extends ServiceProvider
             clientSecret: (string) $settings['client_secret'],
             username: (string) $settings['username'],
             password: (string) $settings['password'],
-            commissionType: (int) ($settings['commission_type'] ?? 1),
-            // Null rather than zero when unset: «no floor» and «a floor of
-            // nothing» are the same here, but «no ceiling» and «a ceiling of
-            // nothing» are not, and one of those hides the button from every
-            // order in the shop.
-            minAmount: ($settings['min_amount'] ?? null) !== null ? (int) $settings['min_amount'] : null,
-            maxAmount: ($settings['max_amount'] ?? null) !== null ? (int) $settings['max_amount'] : null,
+            commissionType: (int) ($settings['commission_type'] ?? 100),
         );
     }
 }
