@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Support\Checkout\SettleOrder;
-use App\Support\Payments\Gateway;
+use App\Support\Payments\Gateways;
 use App\Support\Payments\PaymentFailed;
 use App\Support\Tenancy\TenantContext;
 use Illuminate\Http\RedirectResponse;
@@ -38,14 +38,23 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
  *     because `SettleOrder::paid()` moves stock, and running it twice sells the
  *     same shoes twice.
  *
- *  4. **A verified payment is never lost to a later failure.** Once ZarinPal
- *     has confirmed, the row is written and the order is settled in one
- *     transaction; if anything after that throws, the customer sees an error
- *     but the money is already recorded against the order.
+ *  4. **A verified payment is never lost to a later failure.** Once the
+ *     gateway has confirmed, the row is written and the order is settled in
+ *     one transaction; if anything after that throws, the customer sees an
+ *     error but the money is already recorded against the order.
+ *
+ * **Nothing here knows there are two gateways.** The shop takes a card through
+ * زرین‌پال and lends through اسنپ‌پی, and the two agree about almost nothing:
+ * one comes back with `?Authority=…&Status=OK`, the other to an address
+ * carrying a key this side wrote, and one of them has to be settled after it
+ * is verified or the shop is paid nothing. All of that lives in the drivers.
+ * What this file holds is the part that is the same either way — the amount
+ * comes off the order, only `verify()` may declare a payment good, and the
+ * callback runs once however many times it arrives.
  */
 class PaymentController extends Controller
 {
-    public function __construct(private Gateway $gateway) {}
+    public function __construct(private Gateways $gateways) {}
 
     /**
      * Start an attempt and go.
@@ -54,9 +63,27 @@ class PaymentController extends Controller
      * for — and it has to be one that can still be paid for. A paid order sent
      * here again would open a second attempt against money already taken.
      */
-    public function pay(Request $request, Order $order): RedirectResponse
+    public function pay(Request $request, Order $order, ?string $gateway = null): RedirectResponse
     {
         $this->mustBeTheirs($request, $order);
+
+        // Which button they pressed. With nothing named it is the shop's own
+        // gateway, which is what the form posted before there was a choice.
+        $driver = $this->gateways->named($gateway);
+
+        // A name this shop has no driver for is a 404 and not an error
+        // message: it is a made-up URL, not a shopper with a problem.
+        if ($driver === null) {
+            abort(404);
+        }
+
+        // And one that cannot take *this* order — an amount outside the
+        // lender's range — is refused here as well as hidden on the page,
+        // because the page is a render and the post is what actually charges.
+        if (! $driver->takesMoneyOnline() || ! $driver->canTake((int) $order->grand_total)) {
+            return redirect()->to(storefront_route('order', $order))
+                ->withErrors(['payment' => 'این روش پرداخت برای این سفارش در دسترس نیست.']);
+        }
 
         if ($order->payment_status === 'paid') {
             return redirect()->to(storefront_route('order', $order))
@@ -70,14 +97,19 @@ class PaymentController extends Controller
 
         $payment = Payment::create([
             'order_id' => $order->id,
-            'gateway' => $this->gateway->name(),
+            // The row records which gateway opened it, and that is what the
+            // callback verifies through — not whichever one is configured when
+            // they come back. A shop that connects or drops a provider while
+            // somebody is mid-payment must not verify their attempt against
+            // the wrong one.
+            'gateway' => $driver->name(),
             // Read off the order, in Rial, at the moment of paying.
             'amount' => (int) $order->grand_total,
             'status' => Payment::PENDING,
         ]);
 
         try {
-            $to = $this->gateway->start($payment, storefront_route('payment.callback'));
+            $to = $driver->start($payment);
         } catch (PaymentFailed $e) {
             return redirect()->to(storefront_route('order', $order))
                 ->withErrors(['payment' => $e->getMessage()]);
@@ -93,13 +125,23 @@ class PaymentController extends Controller
      * may have lost their session on the way — a gateway can come back in a
      * new tab, and a phone can drop the cookie — and refusing them here would
      * mean money taken with the order left unpaid. What stands in for it is
-     * the authority: 36 characters ZarinPal chose, which nobody can guess, and
-     * which is worth nothing on its own — the verify call is what decides, and
-     * it is asked with the amount from the order.
+     * the authority: unguessable characters — زرین‌پال's, or this shop's own
+     * for a gateway that mints none — and worth nothing on its own, because
+     * the verify call is what decides and it is asked with the amount from the
+     * order.
      */
-    public function callback(Request $request, SettleOrder $settle): RedirectResponse
+    public function callback(Request $request, SettleOrder $settle, ?string $gateway = null, ?string $key = null): RedirectResponse
     {
-        $authority = (string) $request->query('Authority', '');
+        $driver = $this->gateways->named($gateway);
+
+        if ($driver === null) {
+            abort(404);
+        }
+
+        // Each gateway says which attempt its own return is about: زرین‌پال
+        // out of the query string it appends, اسنپ‌پی out of the address it
+        // was handed. Either way the value is what `authority` holds.
+        $authority = $driver->attemptKey($request);
 
         $payment = Payment::where('authority', $authority)->first();
 
@@ -131,17 +173,35 @@ class PaymentController extends Controller
             return $back->with('status', 'این پرداخت قبلاً ثبت شده است.');
         }
 
-        // `Status` is a hint about which page to show, never evidence. NOK
-        // means the customer pressed cancel — there is nothing to verify and
-        // asking would only produce a confusing error.
-        if ($request->query('Status') !== 'OK') {
+        // **Verified by the gateway that opened it**, read off the row rather
+        // than off the URL: the row is the only thing that knows where this
+        // money actually is. A provider disconnected while somebody was
+        // paying leaves nothing to ask, which is a sentence and a log line —
+        // never a stack trace in front of somebody whose money has moved.
+        $verifier = $this->gateways->named($payment->gateway);
+
+        if ($verifier === null) {
+            Log::error('A payment came back through a gateway this shop no longer has.', [
+                'payment' => $payment->id,
+                'order' => $order->number,
+                'gateway' => $payment->gateway,
+            ]);
+
+            return $back->withErrors(['payment' => 'وضعیت این پرداخت را نمی‌توانیم بررسی کنیم؛ با پشتیبانی تماس بگیر.']);
+        }
+
+        // Some gateways say outright that nothing was paid — زرین‌پال's
+        // `Status=NOK` is somebody pressing cancel — and asking them to verify
+        // it produces a confusing error for a thing that plainly did not
+        // happen. One that says no such thing is asked instead.
+        if ($verifier->cameBackWithoutPaying($request)) {
             $payment->update(['status' => Payment::CANCELLED]);
 
             return $back->withErrors(['payment' => 'پرداخت انجام نشد. می‌توانی دوباره تلاش کنی.']);
         }
 
         try {
-            $receipt = $this->gateway->verify($payment);
+            $receipt = $verifier->verify($payment);
         } catch (PaymentFailed $e) {
             return $back->withErrors(['payment' => $e->getMessage()]);
         }

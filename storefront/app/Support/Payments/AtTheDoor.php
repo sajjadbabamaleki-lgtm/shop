@@ -3,6 +3,7 @@
 namespace App\Support\Payments;
 
 use App\Models\Payment;
+use Illuminate\Http\Request;
 
 /**
  * No gateway.
@@ -28,13 +29,24 @@ class AtTheDoor implements Gateway
         return 'at-the-door';
     }
 
+    public function label(): string
+    {
+        return 'پرداخت اینترنتی';
+    }
+
     /** No — that is what this driver means. */
-    public function takesCardOnline(): bool
+    public function takesMoneyOnline(): bool
     {
         return false;
     }
 
-    public function start(Payment $payment, string $callbackUrl): string
+    /** Nothing, at any amount. Kept honest rather than short. */
+    public function canTake(int $amount): bool
+    {
+        return false;
+    }
+
+    public function start(Payment $payment): string
     {
         throw new PaymentFailed('پرداخت اینترنتی همین حالا در دسترس نیست؛ برای هماهنگی با پشتیبانی تماس بگیر.');
     }
@@ -42,5 +54,15 @@ class AtTheDoor implements Gateway
     public function verify(Payment $payment): Receipt
     {
         throw new PaymentFailed('پرداخت اینترنتی برای این فروشگاه فعال نیست.');
+    }
+
+    public function attemptKey(Request $request): string
+    {
+        return '';
+    }
+
+    public function cameBackWithoutPaying(Request $request): bool
+    {
+        return false;
     }
 }

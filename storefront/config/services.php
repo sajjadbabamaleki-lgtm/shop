@@ -166,6 +166,63 @@ return [
             'merchant_id' => env('ZARINPAL_MERCHANT_ID'),
             'sandbox' => env('ZARINPAL_SANDBOX', false),
         ],
+
+        /*
+        | **The instalment gateway, offered beside the card one and never
+        | instead of it.** Empty is «this shop does not sell in instalments»,
+        | which is what it was until اسنپ‌پی was connected.
+        |
+        |   PAYMENT_INSTALMENTS=snapppay
+        |
+        | A second variable rather than a list because the two are not
+        | interchangeable: one takes a card, the other lends against the
+        | basket. A shop can have either, both, or neither.
+        */
+        'instalments' => env('PAYMENT_INSTALMENTS', ''),
+
+        /*
+        | **اسنپ‌پی — four credentials in two pairs, and mixing them up is the
+        | first thing that goes wrong.** The client id and secret identify the
+        | integration and are sent as HTTP Basic on the token call only; the
+        | username and password are the shop's own merchant account and go in
+        | that call's form. All four arrive in the integration document
+        | SnappPay sends after the contract is signed, together with the host
+        | the account belongs to.
+        |
+        |   SNAPPPAY_CLIENT_ID / SNAPPPAY_CLIENT_SECRET
+        |   SNAPPPAY_USERNAME  / SNAPPPAY_PASSWORD
+        |   SNAPPPAY_BASE_URL        the host from that document. Their staging
+        |                            host is a different one and live
+        |                            credentials are refused there, exactly the
+        |                            way ZARINPAL_SANDBOX is.
+        |   SNAPPPAY_COMMISSION_TYPE the commission group agreed with SnappPay.
+        |                            Theirs to assign; 1 unless told otherwise.
+        |   SNAPPPAY_MIN / SNAPPPAY_MAX   the range they agreed to lend in, in
+        |                            **Rial**, for keeping a button that is
+        |                            certain to be refused off the order page.
+        |                            Both optional: unset means every order
+        |                            sees the button and SnappPay's own
+        |                            sentence explains any refusal.
+        |
+        | With any of the first four empty the provider refuses to boot the
+        | gateway and says which — an instalment button that cannot take an
+        | instalment is worse than no button.
+        |
+        | **Amounts go to SnappPay in Rial and there is no currency field.**
+        | Nothing on either side would notice a Toman figure; it would simply
+        | be a bill one tenth the size. This application stores Rial and sends
+        | it untouched.
+        */
+        'snapppay' => [
+            'base_url' => env('SNAPPPAY_BASE_URL', 'https://api.snapppay.ir'),
+            'client_id' => env('SNAPPPAY_CLIENT_ID'),
+            'client_secret' => env('SNAPPPAY_CLIENT_SECRET'),
+            'username' => env('SNAPPPAY_USERNAME'),
+            'password' => env('SNAPPPAY_PASSWORD'),
+            'commission_type' => env('SNAPPPAY_COMMISSION_TYPE', 1),
+            'min_amount' => env('SNAPPPAY_MIN'),
+            'max_amount' => env('SNAPPPAY_MAX'),
+        ],
     ],
 
     'slack' => [

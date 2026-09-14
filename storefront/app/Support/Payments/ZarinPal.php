@@ -4,6 +4,7 @@ namespace App\Support\Payments;
 
 use App\Models\Payment;
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -47,16 +48,54 @@ class ZarinPal implements Gateway
         return 'zarinpal';
     }
 
-    public function takesCardOnline(): bool
+    public function label(): string
+    {
+        return 'پرداخت با کارت بانکی';
+    }
+
+    public function takesMoneyOnline(): bool
     {
         return true;
     }
 
-    public function start(Payment $payment, string $callbackUrl): string
+    /** Any amount the shop can charge. A card gateway has no lending range. */
+    public function canTake(int $amount): bool
+    {
+        return $amount > 0;
+    }
+
+    /**
+     * The authority, out of the query string ZarinPal sends them back with.
+     *
+     * Worth nothing on its own — the verify call is what decides — but it is
+     * 36 characters ZarinPal chose, which is why the callback needs no session
+     * to find the attempt it is about.
+     */
+    public function attemptKey(Request $request): string
+    {
+        return (string) $request->query('Authority', '');
+    }
+
+    /**
+     * `Status` is a hint about which page to show, never evidence.
+     *
+     * NOK means the customer pressed cancel: there is nothing to verify and
+     * asking would only produce a confusing error. Anything else is asked.
+     */
+    public function cameBackWithoutPaying(Request $request): bool
+    {
+        return $request->query('Status') !== 'OK';
+    }
+
+    public function start(Payment $payment): string
     {
         $answer = $this->ask('/pg/v4/payment/request.json', $this->requestBody(
             amount: $payment->amount,
-            callbackUrl: $callbackUrl,
+            // One fixed address, built from the domain the customer shopped
+            // on — **not** from APP_URL, which only the console has to fall
+            // back on. Every domain a shopper can arrive on has to be
+            // registered on the terminal, or ZarinPal refuses with -14.
+            callbackUrl: storefront_route('payment.callback'),
             description: 'سفارش '.$payment->orderNumber().' — ویکی پلاس',
             // Read without the branch scope for the same reason as the
             // description above: this must not depend on a bound tenant.

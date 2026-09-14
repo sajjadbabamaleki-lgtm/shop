@@ -10,11 +10,17 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * Not branch-scoped, and that is deliberate rather than an omission: the
  * gateway sends the customer back to a URL this application chose, and the
- * row is found by ZarinPal's `authority` — 36 unguessable characters — and
- * then checked against its own order, which **is** branch-scoped. Scoping this
- * as well would mean a callback that arrives with the wrong branch bound finds
- * nothing and the customer's money sits paid with the order unsettled, which
- * is the worst failure this whole flow has.
+ * row is found by `authority` — unguessable either way — and then checked
+ * against its own order, which **is** branch-scoped. Scoping this as well
+ * would mean a callback that arrives with the wrong branch bound finds nothing
+ * and the customer's money sits paid with the order unsettled, which is the
+ * worst failure this whole flow has.
+ *
+ * **`authority` and `gateway_token` are two different things.** The first is
+ * the key a returning customer is found by, and which side chose it depends on
+ * the gateway: ZarinPal mints it, SnappPay is handed one. The second is the
+ * instalment provider's own handle, which its verify and settle calls are made
+ * with, and it is null on a card payment.
  */
 class Payment extends Model
 {
@@ -28,7 +34,7 @@ class Payment extends Model
     public const CANCELLED = 'cancelled';
 
     protected $fillable = [
-        'order_id', 'gateway', 'authority', 'amount', 'status',
+        'order_id', 'gateway', 'authority', 'gateway_token', 'amount', 'status',
         'ref_id', 'card_pan', 'failure', 'paid_at',
     ];
 

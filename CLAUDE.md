@@ -550,7 +550,61 @@ the client saw an old page and had no way to tell why. So, plainly:
   (a live id on the sandbox is refused exactly like a wrong one), whether the
   config is cached, the merchant id's shape and its two ends, the callback URL,
   this server's outbound IP (an allow-list refuses everything as «Invalid
-  merchant_id»), and the answer verbatim.
+  merchant_id»), and the answer verbatim — now for **both** gateways in one
+  run, since «پرداخت کار نمی‌کند» never says which of them.
+- **اسنپ‌پی is the second gateway, and it sits beside زرین‌پال rather than
+  instead of it.** `PAYMENT_INSTALMENTS=snapppay` plus four credentials
+  (`SNAPPPAY_CLIENT_ID`, `SNAPPPAY_CLIENT_SECRET`, `SNAPPPAY_USERNAME`,
+  `SNAPPPAY_PASSWORD`) and the host from their integration document in
+  `SNAPPPAY_BASE_URL`. Two variables and not one list, because a card gateway
+  and a lender are not interchangeable: `PAYMENT_DRIVER` is still the card, and
+  `Gateway::class` still resolves to it, so everything written when there was
+  one gateway means what it meant. `Gateways` is the registry the order page,
+  the pay route and `PlaceOrder` now ask, and the order page draws **one button
+  per gateway**, the card first.
+  **It is not a card payment and four things follow from that**, every one of
+  them a way to be wrong while looking right:
+  - **It lends against goods, so it wants the basket** — every line, its
+    **unit price** and its count, plus delivery. `amount` is unit and `count`
+    is how many, which are the same number for an order of one item and differ
+    only where somebody bought two of a shoe: the mistake would look correct
+    until the first customer bought a pair. The parts must sum —
+    `cartList.totalAmount − discountAmount − externalSourceAmount = amount` —
+    and this shop stores `grand_total = subtotal − discount + shipping`, so the
+    cart total is the basket *before* the discount, with `isShipmentIncluded`
+    saying delivery is already inside it. A basket that does not add up is
+    refused with a validation code that names no number, which is why
+    `assertTheSumIsRight()` logs both sides.
+  - **Verify is not the end — settle is.** «SnappPay reverts a payment that is
+    verified but never settled»: the shopper's credit unwinds, the shop is paid
+    nothing, and the order would be sitting there marked paid. So `verify()`
+    does both in one breath, settle is retried once, and only its success
+    returns a receipt. **Never split them across two requests of a customer's**
+    — the second request may never arrive.
+  - **The shop chooses the handle.** ZarinPal mints an authority and puts it in
+    the callback; SnappPay hands back a `paymentToken` the browser never
+    carries. So `authority` holds a `transactionId` this side wrote, the return
+    address carries it **in its path** (`/checkout/callback/snapppay/<key>` — a
+    path segment survives being appended to, a `?key=` does not), and their
+    token goes in the new `payments.gateway_token`. `/checkout/callback` with
+    nothing after it is still ZarinPal's, and must stay that way: a payment
+    opened before a deploy comes home to it.
+  - **There is a floor and a ceiling**, agreed with the shop. `SNAPPPAY_MIN`
+    and `SNAPPPAY_MAX` (Rial, both optional) keep a button that is certain to
+    be refused off the order page. **Read from the environment and never asked
+    over the network**, because the question is asked while an order page
+    renders and that machine is thirteen times slower than this one. Unset
+    means every order sees the button and SnappPay's own sentence explains any
+    refusal — which is the right way round: «مبلغ خارج از بازه» is a sentence
+    no code here could write.
+  Amounts go in **Rial and there is no currency field**, so unlike ZarinPal
+  nothing on either side would notice a Toman figure — it would simply be a
+  bill one tenth the size, and every log would look normal. `SnappPayTest` is
+  the guard for all of it, and its fixture buys **two** of one shoe on purpose.
+  **The official API document is confidential and arrives after the contract**;
+  this was written against the public implementations of the same API, so the
+  first thing to do with that document in hand is read it against
+  `App\Support\Payments\SnappPay`.
 - **The content pages are `/about`, `/contact`, `/size-guide`, `/faq`, `/terms`
   and `/privacy`** — `PageController`, one view each under `resources/views/pages/`,
   copy and no database. They exist because the footer had been linking to them

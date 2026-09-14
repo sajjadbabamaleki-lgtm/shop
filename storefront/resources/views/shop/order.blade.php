@@ -41,15 +41,45 @@
                  `Order::methodLabels()` keeps «پرداخت در محل» for the panel,
                  because orders that really were paid that way still exist. --}}
             @if ($order->status === \App\Models\Order::PLACED)
-                @if ($canPayOnline)
+                {{-- **The list, not a flag.** It is empty for both of the
+                     reasons the sentence below covers: a shop with no gateway
+                     connected at all, and an order no connected gateway will
+                     take — an instalment provider lends between a floor and a
+                     ceiling, and a basket outside it has nowhere to go. Both
+                     end in the same place for the shopper, which is the
+                     telephone. --}}
+                @if ($gateways !== [])
                     <p class="vp-note">سفارشت ثبت شد و کالاها برایت کنار گذاشته شده. برای نهایی شدن، مبلغ را پرداخت کن.</p>
 
-                    <form class="vp-order-pay" method="post" action="{{ storefront_route('order.pay', $order) }}">
-                        @csrf
-                        <button type="submit" class="vp-filter-apply vp-cart-go">
-                            پرداخت {{ toman($order->grand_total) }} تومان
-                        </button>
-                    </form>
+                    {{-- One form per gateway the shop can take this order
+                         through, in the order `Gateways` offers them: the card
+                         first, the instalments after it.
+
+                         **The first button keeps its wording and the rest are
+                         named by their driver.** «پرداخت ۱٬۲۰۰٬۰۰۰ تومان» says
+                         what pressing it costs, which is the sentence a
+                         shopper needs on the ordinary way to pay; an
+                         instalment button cannot say that — what it costs
+                         today is a quarter of it — so it says what it is
+                         instead, in the provider's own name.
+
+                         Both are the site's one button: the gold gradient of
+                         «گلد سبز», with no second style invented for the
+                         second one. A pressed fill on this site is that
+                         gradient wherever it appears. --}}
+                    @foreach ($gateways as $gateway)
+                        <form class="vp-order-pay" method="post"
+                              action="{{ storefront_route('order.pay', ['order' => $order, 'gateway' => $gateway->name()]) }}">
+                            @csrf
+                            <button type="submit" class="vp-filter-apply vp-cart-go">
+                                @if ($loop->first)
+                                    پرداخت {{ toman($order->grand_total) }} تومان
+                                @else
+                                    {{ $gateway->label() }}
+                                @endif
+                            </button>
+                        </form>
+                    @endforeach
 
                     {{-- «اگه فیلترشکنش روشنه خاموش کنه تا در مراحل ثبت سفارش و
                          پرداخت اختلال ایجاد نشه» — said about this page, which

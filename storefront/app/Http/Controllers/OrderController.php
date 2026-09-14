@@ -6,7 +6,7 @@ use App\Models\Customer;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Support\Checkout\SettleOrder;
-use App\Support\Payments\Gateway;
+use App\Support\Payments\Gateways;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -27,21 +27,24 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
  */
 class OrderController extends Controller
 {
-    public function show(Request $request, Order $order, Gateway $gateway): View
+    public function show(Request $request, Order $order, Gateways $gateways): View
     {
         $this->mustBeTheirs($request, $order);
 
         return view('shop.order', [
             'order' => $order->load('items'),
 
-            // Whether this shop can take a card at all. Asked of the gateway
-            // that is configured rather than of a setting read in the view, so
-            // a shop with a gateway shows the button and one without says
-            // plainly that paying is not possible yet — neither has to be kept
-            // in step by hand. The same question `PlaceOrder` asks before
-            // writing the order's method, so the page and the panel cannot
-            // disagree.
-            'canPayOnline' => $gateway->takesCardOnline(),
+            // **One button per gateway that would take this order**, in the
+            // order the shop offers them — the card first, the instalments
+            // after it. Asked of the drivers that are configured rather than
+            // of a setting read in the view, so connecting a provider puts its
+            // button on the page and disconnecting one takes it off, with
+            // nothing to keep in step by hand.
+            //
+            // The amount is part of the question because an instalment
+            // provider lends between a floor and a ceiling: an order outside
+            // that range would otherwise show a button certain to be refused.
+            'gateways' => $gateways->offeredFor((int) $order->grand_total),
 
             // The receipt, if the money arrived. Read here so the page does
             // not have to know that a payment is a row.

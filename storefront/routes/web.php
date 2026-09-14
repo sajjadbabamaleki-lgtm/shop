@@ -271,8 +271,8 @@ $storefront = function (): void {
     /*
      * §6's card payment.
      *
-     * `/checkout/callback` carries no authentication and that is deliberate:
-     * the customer coming back from ZarinPal may have lost their session on
+     * The callback carries no authentication and that is deliberate:
+     * the customer coming back from a gateway may have lost their session on
      * the way — a gateway can return in a new tab, and a phone can drop a
      * cookie — and refusing them there would mean money taken with the order
      * left unpaid. What stands in its place is the authority, which ZarinPal
@@ -282,9 +282,22 @@ $storefront = function (): void {
      * branch prefix: a franchise's customer must come back to the franchise's
      * own address, or the order page they land on is the wrong shop's.
      */
-    Route::post('/orders/{order}/pay', [PaymentController::class, 'pay'])
+    Route::post('/orders/{order}/pay/{gateway?}', [PaymentController::class, 'pay'])
+        ->where('gateway', '[a-z-]+')
         ->middleware('throttle:20,10')->name('order.pay');
-    Route::get('/checkout/callback', [PaymentController::class, 'callback'])->name('payment.callback');
+
+    /*
+     * **Both optional segments are load-bearing, and the empty case is the
+     * one that must not move**: `/checkout/callback` with nothing after it is
+     * the address زرین‌پال was given, and a payment opened an hour before a
+     * deploy comes home to it. Naming a gateway picks the driver; the key
+     * after it is how a provider that mints no authority of its own — اسنپ‌پی
+     * hands back a token, not a key in the URL — says which attempt came back.
+     */
+    Route::get('/checkout/callback/{gateway?}/{key?}', [PaymentController::class, 'callback'])
+        ->where('gateway', '[a-z-]+')
+        ->where('key', '[A-Za-z0-9]+')
+        ->name('payment.callback');
 
     /*
      * «تاس شانس». One throw per visitor, decided on this side — see
