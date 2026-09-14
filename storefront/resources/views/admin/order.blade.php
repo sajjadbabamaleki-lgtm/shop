@@ -52,7 +52,16 @@
                          digits reorders itself against the Persian around it. --}}
                     <td><bdi dir="ltr">{{ $item->sku }}</bdi></td>
                     <td>{{ $item->size_value }}</td>
-                    <td>{{ fa_number($item->quantity) }}</td>
+                    {{-- What was bought, and — only when some of it came
+                         back — what is left beside it. The line itself never
+                         changes: it is the receipt, and a return is a second
+                         fact rather than a correction of the first. --}}
+                    <td>
+                        {{ fa_number($item->quantity) }}
+                        @if ($item->returned_quantity > 0)
+                            <br><small>{{ fa_number($item->returned_quantity) }} مرجوع شد</small>
+                        @endif
+                    </td>
                     <td>{{ toman($item->unit_price) }}</td>
                     <td>{{ toman($item->line_total) }}</td>
                 </tr>
@@ -96,6 +105,14 @@
                 @if ($receipt->card_pan)
                     <li><span>کارت</span><b><bdi dir="ltr">{{ $receipt->card_pan }}</bdi></b></li>
                 @endif
+
+                {{-- **The transaction id, which is the number somebody else
+                     quotes.** اسنپ‌پی require it on this screen and searchable
+                     in the orders list, because it is the only identifier they
+                     and this shop have in common: when their support desk asks
+                     about a purchase, this is what they ask with. It is also
+                     what the shopper is shown on their own order page. --}}
+                <li><span>شمارهٔ تراکنش</span><b><bdi dir="ltr">{{ $receipt->authority }}</bdi></b></li>
             @endif
         </ul>
 
@@ -335,6 +352,84 @@
                        placeholder="مثلاً مشتری منصرف شد" value="{{ old('reason') }}" required>
 
                 <button type="submit" class="vp-adm-danger">لغو سفارش</button>
+            </form>
+        </section>
+    @endif
+
+    {{-- --- مرجوعی, for an instalment order ----------------------------- --}}
+
+    {{-- **The first return anywhere in this application**, and only for an
+         order paid through اسنپ‌پی — see ReturnsController for why it is not
+         offered on a card order.
+
+         Two separate irreversible things live in this card, which is why each
+         asks before it fires: a partial return tells SnappPay the basket
+         shrank, and a cancel unwinds the whole purchase. Their document asks
+         for the confirmation in as many words — «به دلیل برگشت‌ناپذیر بودن …
+         قبل از ارسال درخواست یک تاییدیه از ادمین گرفته شود» — and it is the
+         same `confirm()` the panel's own cancel has always used, rather than a
+         second kind of dialog for one screen. --}}
+    @if ($instalment && $order->status !== \App\Models\Order::CANCELLED)
+        <section class="vp-adm-card vp-adm-span-2">
+            <div class="vp-adm-card-head">
+                <h2 class="vp-adm-card-title">مرجوعی اقساطی</h2>
+                <span class="vp-adm-card-more">اسنپ‌پی · <bdi dir="ltr">{{ $instalment->authority }}</bdi></span>
+            </div>
+
+            <p class="vp-adm-empty">
+                هرچه اینجا مرجوع شود، به انبار برمی‌گردد و همان لحظه به اسنپ‌پی هم اعلام می‌شود
+                تا اقساط مشتری کم شود. تخفیف — اگر کد تخفیف خورده باشد — به‌نسبت کم می‌شود.
+                برگشت‌پذیر نیست.
+            </p>
+
+            <form class="vp-adm-form" method="post" action="{{ route('admin.order.return', $order) }}"
+                  onsubmit="return confirm('این اقلام مرجوع می‌شوند، به انبار برمی‌گردند و مبلغ اقساط مشتری نزد اسنپ‌پی کم می‌شود. برگشت‌پذیر نیست.')">
+                @csrf
+
+                <table class="vp-admin-table">
+                    <thead><tr><th>کالا</th><th>سایز</th><th>باقی‌مانده</th><th>چندتا برگشت؟</th></tr></thead>
+                    <tbody>
+                    @foreach ($order->items as $item)
+                        <tr>
+                            <td>{{ $item->product_title }}</td>
+                            <td>{{ $item->size_value }}</td>
+                            <td>{{ fa_number($item->remaining()) }}</td>
+                            <td>
+                                @if ($item->vendor_id !== null)
+                                    <small>فروشندهٔ دیگر — فقط لغو کامل</small>
+                                @elseif ($item->remaining() > 0)
+                                    <input type="number" name="lines[{{ $item->id }}]" value="0"
+                                           min="0" max="{{ $item->remaining() }}" step="1">
+                                @else
+                                    <small>چیزی نمانده</small>
+                                @endif
+                            </td>
+                        </tr>
+                    @endforeach
+                    </tbody>
+                </table>
+
+                <label for="return-why">علت مرجوعی</label>
+                <input id="return-why" type="text" name="reason" maxlength="200"
+                       placeholder="مثلاً سایز بزرگ بود" value="{{ old('reason') }}" required>
+
+                <button type="submit" class="vp-adm-danger">ثبت مرجوعی</button>
+            </form>
+
+            {{-- The whole basket back. A separate form because it is a
+                 different call to SnappPay — after a settle, `cancel` is the
+                 only thing that reverses a purchase — and because mixing it
+                 into the one above would put «everything» one mistyped number
+                 away from «one». --}}
+            <form class="vp-adm-form" method="post" action="{{ route('admin.order.instalments.cancel', $order) }}"
+                  onsubmit="return confirm('کل این سفارش نزد اسنپ‌پی لغو می‌شود، همهٔ اقساط مشتری برداشته می‌شود و موجودی برمی‌گردد. برگشت‌پذیر نیست.')">
+                @csrf
+
+                <label for="instalment-cancel-why">علت لغو کامل</label>
+                <input id="instalment-cancel-why" type="text" name="reason" maxlength="200"
+                       placeholder="مثلاً مشتری کل سفارش را پس فرستاد" required>
+
+                <button type="submit" class="vp-adm-danger">لغو کامل نزد اسنپ‌پی</button>
             </form>
         </section>
     @endif

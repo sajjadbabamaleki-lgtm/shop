@@ -20,8 +20,20 @@ class OrderItem extends Model
 
     protected $fillable = [
         'order_id', 'variant_id', 'vendor_id', 'product_title', 'sku', 'size_value',
-        'display_color', 'unit_price', 'compare_at_price', 'quantity', 'line_total',
+        'display_color', 'unit_price', 'compare_at_price', 'quantity', 'returned_quantity', 'line_total',
     ];
+
+    /**
+     * How many of this line the customer still has.
+     *
+     * The line's own `quantity` is what was bought and never changes — it is a
+     * receipt. This is that minus what came back, and it is what the basket
+     * sent to an instalment provider is built from.
+     */
+    public function remaining(): int
+    {
+        return max(0, (int) $this->quantity - (int) $this->returned_quantity);
+    }
 
     protected function casts(): array
     {
@@ -29,6 +41,7 @@ class OrderItem extends Model
             'unit_price' => 'integer',
             'compare_at_price' => 'integer',
             'quantity' => 'integer',
+            'returned_quantity' => 'integer',
             'line_total' => 'integer',
         ];
     }

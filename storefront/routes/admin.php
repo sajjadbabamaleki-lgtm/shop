@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\MarketplaceController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\PricingController;
 use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\ReturnsController;
 use App\Http\Controllers\Admin\SearchController;
 use App\Http\Controllers\Admin\SessionController;
 use App\Http\Controllers\Admin\SettingsController;
@@ -93,6 +94,19 @@ Route::middleware(['auth:web', ResolveAdminTenant::class])->group(function (): v
     Route::post('/orders/{order}', [OrderController::class, 'update'])
         ->middleware(RequirePermission::class.':branch.orders.manage')
         ->name('order.update');
+    /*
+     * «مرجوعی» — part of an اسنپ‌پی order coming back, and the whole of one
+     * going back. Both under the same permission as any other change to an
+     * order, and both irreversible on the provider's side, which is why the
+     * screen asks before it posts. See ReturnsController.
+     */
+    Route::post('/orders/{order}/return', [ReturnsController::class, 'store'])
+        ->middleware(RequirePermission::class.':branch.orders.manage')
+        ->name('order.return');
+    Route::post('/orders/{order}/instalments/cancel', [ReturnsController::class, 'cancel'])
+        ->middleware(RequirePermission::class.':branch.orders.manage')
+        ->name('order.instalments.cancel');
+
     Route::post('/orders/{order}/note', [OrderController::class, 'annotate'])
         ->middleware(RequirePermission::class.':branch.orders.manage')
         ->name('order.annotate');

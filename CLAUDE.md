@@ -674,15 +674,51 @@ the client saw an old page and had no way to tell why. So, plainly:
   the guard for all of it, and its fixture buys **two** of one shoe on purpose.
   **The official API document (REST, v2.1) arrived on 14 Sept and this was read
   against it**, which is where every correction above came from. What it also
-  lists is what SnappPay certify before giving production access, and **three
-  of those are still missing**: `update` (partial return — a shopper sends one
-  item back), `cancel` (the whole basket, and the only way to reverse a settled
-  purchase), and the transaction id being searchable in the panel. The first
-  two need something this shop has never had — **a partial return in
-  `/admin`** — and both must ask the admin to confirm before they fire, because
-  neither can be undone. The id must also be printed to the shopper, since it
-  is the one number SnappPay and this shop have in common. `revert` is the one service the document says need
-  not be implemented.
+  lists is what SnappPay certify before giving production access, and all of it
+  is now here — `revert` is the one service the document says need not be.
+- **The shop has a partial return now, and only اسنپ‌پی orders have it.** It is
+  the first anywhere in this application: `admin/OrderController` used to say
+  in its own docblock that there is «no refund and no return anywhere in the
+  schema, and a button that pretended otherwise would be worse than its
+  absence». What put one here is their `update` service, required of every
+  multi-item merchant, and it is how a shopper who posts one shoe back stops
+  paying instalments on it (بند ۸-۱۰: twenty-four hours, systematically).
+  A card order still cancels whole, at the client's decision — reversing part
+  of a ZarinPal payment is a conversation with ZarinPal this shop does not
+  have, and taking stock back without moving money is that pretence.
+  Five things to know before touching it:
+  - **`order_items.returned_quantity` sits beside `quantity` and never
+    replaces it.** The line is a receipt; a return is a second fact, not a
+    correction of the first. It also keeps the table's CHECK true —
+    `line_total = unit_price * quantity` — where editing the quantity would
+    mean restating an invoice's four numbers to record one event.
+  - **`AfterReturns` is the only place that decides what is still owed**, and
+    the discount comes off **in proportion**, at the client's decision: send
+    back a 500,000 shoe from a 2,000,000 basket with 200,000 off and 450,000
+    goes back. The alternative — the whole line, discount untouched — grows the
+    discount against a shrinking basket until it exceeds it. **Delivery is
+    never returned**: the parcel was carried.
+  - **`SettleOrder::returned()` is where the stock moves**, because that file
+    and `PlaceOrder` are still the only two that may write `branch_inventory`.
+    A partial return is a third *reason*, not a third writer. **A vendor's line
+    is refused** — its `ledger_entries` credit would have to be part-reversed
+    on a rounding rule nobody has agreed — and those orders can still be
+    cancelled whole, which reverses it exactly as it was written.
+  - **SnappPay is told before this side moves on a cancel, and after it on a
+    return.** Not an inconsistency: a cancel they refuse must leave the shop
+    untouched, while an update can only be sent once the basket it describes
+    exists. The failure each way is chosen — a refused cancel changes nothing;
+    a refused update leaves the shop believing less is owed than the shopper is
+    paying, and that one says so on the screen with the transaction id in it
+    and shouts in the log.
+  - **Both ask before they fire**, which their document requires of anything
+    irreversible, through the same `confirm()` the panel's own cancel has used
+    since it was written rather than a second kind of dialog for one screen.
+  The **transaction id** is on the panel's order screen, searchable in the
+  orders list (`orWhereHas('payments', …)` on the folded `authority`) and
+  printed to the shopper on their own order page. All three are required, and
+  the reason is the same each time: it is the one number this shop, the shopper
+  and their lender all hold.
 - **The content pages are `/about`, `/contact`, `/size-guide`, `/faq`, `/terms`
   and `/privacy`** — `PageController`, one view each under `resources/views/pages/`,
   copy and no database. They exist because the footer had been linking to them

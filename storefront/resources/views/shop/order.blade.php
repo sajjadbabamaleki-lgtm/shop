@@ -131,6 +131,18 @@
                     @if ($receipt->card_pan)
                         · کارت <bdi dir="ltr">{{ $receipt->card_pan }}</bdi>
                     @endif
+
+                    {{-- **The transaction id, shown to the shopper on
+                         purpose.** اسنپ‌پی ask for it — «پس از پرداخت موفق لازم
+                         هست که شماره تراکنش آیدی (مشترک و یونیک بین پذیرنده و
+                         اسنپ‌پی) به کاربر نمایش داده شود» — and the reason is
+                         plain: it is the only number this shop, the shopper
+                         and their lender all hold, so it is what any of the
+                         three can start a question with. The panel prints the
+                         same one and can be searched by it. --}}
+                    @if ($receipt->gateway === 'snapppay')
+                        · شمارهٔ تراکنش <bdi dir="ltr">{{ $receipt->authority }}</bdi>
+                    @endif
                 </p>
             @endif
 

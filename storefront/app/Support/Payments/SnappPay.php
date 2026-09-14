@@ -4,6 +4,7 @@ namespace App\Support\Payments;
 
 use App\Models\Order;
 use App\Models\Payment;
+use App\Support\Checkout\AfterReturns;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Request;
@@ -458,9 +459,7 @@ class SnappPay implements Gateway
         $this->assertTheSumIsRight($payment, $order);
 
         return [
-            'amount' => $payment->amount,
-            'discountAmount' => (int) $order->discount_total,
-            'externalSourceAmount' => 0,
+            ...$this->basket($order),
             'transactionId' => $transactionId,
             // **No `forcedPaymentMethodTypes`.** It is optional, it only works
             // for a merchant SnappPay has enabled it for, and its effect is to
@@ -471,10 +470,35 @@ class SnappPay implements Gateway
             // The number the shopper's Snapp credit belongs to. SnappPay wants
             // it in international form; the shop stores 09… — see `inE164()`.
             'mobile' => $this->inE164((string) $order->contact_phone),
+        ];
+    }
+
+    /**
+     * The basket as it stands, in the shape both `token` and `update` take.
+     *
+     * One builder for both, because they are the same three numbers and the
+     * same cart — the difference is only what is wrapped around them, and two
+     * builders would be two places for the arithmetic to drift apart.
+     *
+     * It reads **what is left**, never what was bought: `AfterReturns` takes
+     * the returned units off the subtotal and the discount off in proportion,
+     * so an order nobody has returned anything from produces exactly the
+     * figures it was opened with.
+     *
+     * @return array<string, mixed>
+     */
+    private function basket(Order $order): array
+    {
+        $left = AfterReturns::of($order);
+
+        return [
+            'amount' => $left->payable,
+            'discountAmount' => $left->discount,
+            'externalSourceAmount' => 0,
             'cartList' => [[
                 'cartId' => (int) $order->id,
-                'totalAmount' => (int) $order->subtotal + (int) $order->shipping_total,
-                'shippingAmount' => (int) $order->shipping_total,
+                'totalAmount' => $left->subtotal + $left->shipping,
+                'shippingAmount' => $left->shipping,
                 // False means «not in the item prices — add it». See above.
                 'isShipmentIncluded' => false,
                 'taxAmount' => 0,
@@ -482,6 +506,80 @@ class SnappPay implements Gateway
                 'cartItems' => $this->cartItems($order),
             ]],
         ];
+    }
+
+    /**
+     * **Tell them the basket shrank**, after part of an order has come back.
+     *
+     * The service exists for exactly this, the contract obliges it within
+     * twenty-four hours («پذیرنده موظف است مراتب را ظرف حداکثر ۲۴ ساعت پس از
+     * مرجوعی کالا به‌صورت سیستمی به اسنپ‌پی اعلام کند»), and without it a
+     * shopper who sent a shoe back keeps paying instalments on it.
+     *
+     * Two of their rules are in the basket rather than here: the new amount
+     * must be **less** than the old one, and a line returned in full leaves
+     * the cart entirely — «اگر یک محصول کاملا حذف می‌شود، لازم است از بین کارت
+     * آیتم‌ها نیز حذف شود». `cartItems()` drops a line with nothing left, and
+     * the caller is what refuses a return that changes nothing.
+     *
+     * A return of *everything* is not this call: after settling, the only
+     * thing that reverses a purchase whole is `cancel()`.
+     */
+    public function update(Payment $payment, Order $order): void
+    {
+        $answer = $this->attempt(self::UPDATE, [
+            ...$this->basket($order),
+            'paymentToken' => (string) $payment->gateway_token,
+        ]);
+
+        if (! $this->wentThrough($answer)) {
+            $this->tellTheShop($payment, $answer, 'update');
+        }
+    }
+
+    /**
+     * **Reverse the whole purchase.** The only thing that can, once settled.
+     *
+     * «بدیهی است پس از فراخوانی سرویس settle، صرفا با فراخوانی سرویس cancel
+     * امکان لغو سفارش وجود خواهد داشت» — and implementing it is not optional
+     * for a merchant, which is why it is here and `revert` is not.
+     */
+    public function cancel(Payment $payment): void
+    {
+        $answer = $this->attempt(self::CANCEL, ['paymentToken' => (string) $payment->gateway_token]);
+
+        if (! $this->wentThrough($answer)) {
+            $this->tellTheShop($payment, $answer, 'cancel');
+        }
+    }
+
+    /**
+     * An update or a cancel that SnappPay refused, said out loud.
+     *
+     * **Unlike a refused payment, nobody is waiting on a page for this** — it
+     * is a member of staff in the panel, acting on a shopper who has already
+     * sent a shoe back. So the row is left alone (its `status` is the
+     * *payment's*, and the payment did happen) and what is thrown carries
+     * their own words for the panel to print, with the token beside it in the
+     * log because that is what their support desk asks for.
+     *
+     * @param  array<string, mixed>|null  $answer
+     */
+    private function tellTheShop(Payment $payment, ?array $answer, string $what): never
+    {
+        $message = trim((string) data_get($answer, 'errorData.message', ''));
+
+        Log::error("SnappPay refused a {$what}.", [
+            'payment' => $payment->id,
+            'order' => $payment->orderNumber(),
+            'transaction' => $payment->authority,
+            'token' => $payment->gateway_token,
+            'answer' => $answer,
+        ]);
+
+        throw new PaymentFailed($message !== ''
+            ? $message
+            : 'اسنپ‌پی این تغییر را نپذیرفت. چیزی در سفارش عوض نشد.');
     }
 
     /**
@@ -500,18 +598,23 @@ class SnappPay implements Gateway
      */
     private function cartItems(Order $order): array
     {
-        return $order->items->map(fn ($item): array => [
-            'id' => (int) $item->id,
-            'name' => (string) $item->product_title,
-            'count' => (int) $item->quantity,
-            'amount' => (int) $item->unit_price,
-            // The section a shoe belongs to is not on the order's own line —
-            // the line is a receipt, written to outlive the catalogue — and
-            // sending the catalogue's name for a product renamed since would
-            // be describing a different thing. One honest word instead.
-            'category' => 'کفش و کیف',
-            'commissionType' => $this->commissionType,
-        ])->all();
+        return $order->items
+            // A line with nothing left of it leaves the cart entirely, which
+            // is their rule for a product returned in full.
+            ->filter(fn ($item): bool => $item->remaining() > 0)
+            ->values()
+            ->map(fn ($item): array => [
+                'id' => (int) $item->id,
+                'name' => (string) $item->product_title,
+                'count' => $item->remaining(),
+                'amount' => (int) $item->unit_price,
+                // The section a shoe belongs to is not on the order's own line —
+                // the line is a receipt, written to outlive the catalogue — and
+                // sending the catalogue's name for a product renamed since would
+                // be describing a different thing. One honest word instead.
+                'category' => 'کفش و کیف',
+                'commissionType' => $this->commissionType,
+            ])->all();
     }
 
     /**
@@ -524,18 +627,17 @@ class SnappPay implements Gateway
      */
     private function assertTheSumIsRight(Payment $payment, Order $order): void
     {
-        $basket = (int) $order->subtotal + (int) $order->shipping_total;
-        $payable = $basket - (int) $order->discount_total;
+        $left = AfterReturns::of($order);
 
-        if ($payable === $payment->amount) {
+        if ($left->payable === $payment->amount) {
             return;
         }
 
         Log::warning('A SnappPay basket does not add up to the amount being charged.', [
             'order' => $order->number,
-            'basket' => $basket,
-            'discount' => (int) $order->discount_total,
-            'payable' => $payable,
+            'basket' => $left->subtotal + $left->shipping,
+            'discount' => $left->discount,
+            'payable' => $left->payable,
             'amount' => $payment->amount,
         ]);
     }

@@ -63,6 +63,93 @@ class SettleOrder
     }
 
     /**
+     * Part of it came back.
+     *
+     * **The third thing that moves stock, and it is here rather than in a
+     * controller for exactly that reason** — «Stock only ever moves in two
+     * places: PlaceOrder reserves it and SettleOrder sells or releases it.
+     * Anything else that writes branch_inventory is a bug waiting to be an
+     * oversell.» A partial return is a third *reason* and not a third writer:
+     * it locks the shelf the same way, records the same kind of movement, and
+     * leaves the order's own totals alone.
+     *
+     * What it does **not** do is touch the order's money. `subtotal`,
+     * `discount_total` and `grand_total` are an invoice that was issued; what
+     * is now owed is `AfterReturns::of()`, computed from the lines. Rewriting
+     * an invoice to match a return would lose the fact that there was one.
+     *
+     * **A vendor's line is refused**, and that is a limit rather than an
+     * oversight: a marketplace line has a `ledger_entries` credit behind it
+     * that would have to be reversed in proportion, and part-reversing
+     * somebody else's money on a rounding rule nobody has agreed is not
+     * something to do quietly. Those orders can still be cancelled whole,
+     * which reverses the credit exactly as it was written.
+     *
+     * @param  array<int, int>  $lines  order item id ⇒ how many units came back
+     *
+     * @throws CannotFulfil
+     */
+    public function returned(Order $order, array $lines, string $reason): Order
+    {
+        return DB::transaction(function () use ($order, $lines, $reason) {
+            // Ascending item id, for the reason PlaceOrder locks in order:
+            // two returns touching the same two shelves in opposite orders
+            // deadlock, and a deadlock under load looks like the site being
+            // down.
+            $items = $order->items()->whereIn('id', array_keys($lines))
+                ->orderBy('id')->lockForUpdate()->get();
+
+            if ($items->count() !== count($lines)) {
+                throw new CannotFulfil('یکی از ردیف‌های این مرجوعی مال این سفارش نیست.');
+            }
+
+            foreach ($items as $item) {
+                $units = (int) $lines[$item->id];
+
+                if ($units < 1) {
+                    continue;
+                }
+
+                if ($item->vendor_id !== null) {
+                    throw new CannotFulfil('این قلم از فروشندهٔ دیگری است و مرجوعی جزئی‌اش از اینجا انجام نمی‌شود.');
+                }
+
+                if ($units > $item->remaining()) {
+                    throw new CannotFulfil("از «{$item->product_title}» بیشتر از چیزی که مانده نمی‌شود مرجوع کرد.");
+                }
+
+                $this->putBack($order, $item, $units, $reason);
+
+                $item->forceFill(['returned_quantity' => (int) $item->returned_quantity + $units])->save();
+            }
+
+            return $order->fresh('items');
+        });
+    }
+
+    /**
+     * The units go back on the shelf, and the shelf says why.
+     *
+     * Only where the order was **paid** — an unpaid order's units are still
+     * reserved rather than sold, and putting them back twice is the oversell
+     * this whole file exists to prevent. `SettleOrder::paid()` is what moved
+     * them out of stock in the first place.
+     */
+    private function putBack(Order $order, OrderItem $item, int $units, string $reason): void
+    {
+        $inventory = $this->lockBranch($order, $item);
+
+        if ($inventory === null) {
+            return;
+        }
+
+        $inventory->stock_on_hand += $units;
+        $inventory->save();
+
+        $this->record($order, $item, 'return', $units, "Returned from order {$order->number}: {$reason}");
+    }
+
+    /**
      * The order is off. Everything it was holding goes back, and anything
      * already credited is reversed.
      */

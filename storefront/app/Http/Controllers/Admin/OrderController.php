@@ -33,11 +33,17 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  * thing standing between it and somebody else's shop.
  *
  * **What §4 asks for and is not here**, so that nobody has to read the whole
- * file to find out: print invoice and shipping label, refund, and the
- * return/exchange workflow. The first two are a print stylesheet and a view;
- * the last three need models this application does not have — there is no
- * refund and no return anywhere in the schema, and a button that pretended
- * otherwise would be worse than its absence. Filtering by seller and by
+ * file to find out: print invoice and shipping label, and a general
+ * refund/exchange workflow. The first two are a print stylesheet and a view.
+ *
+ * The third is no longer quite true and the change is worth knowing: there is
+ * now **one** return in the schema — `order_items.returned_quantity`, driven
+ * by `ReturnsController`, and **only for orders paid through اسنپ‌پی**, whose
+ * `update` service is what a return has to be told to. A card order still
+ * cancels whole, because reversing part of a ZarinPal payment is a
+ * conversation with ZarinPal this shop does not have, and a button that took
+ * stock back without moving money would be exactly the pretence this
+ * paragraph was written about. Filtering by seller and by
  * shipping method is missing for the same reason: the order line carries no
  * vendor and the order carries no shipping method.
  */
@@ -102,7 +108,16 @@ class OrderController extends Controller
                     $inner->where(Search::fold('number'), 'ilike', $needle)
                         ->orWhere(Search::fold('contact_name'), 'ilike', $needle)
                         ->orWhere(Search::fold('contact_phone'), 'ilike', $needle)
-                        ->orWhere(Search::fold('tracking_number'), 'ilike', $needle);
+                        ->orWhere(Search::fold('tracking_number'), 'ilike', $needle)
+                        // **The gateway's transaction id, which is the number
+                        // somebody else quotes.** اسنپ‌پی require it: «تراکنش
+                        // آیدی ارسال شده توسط پذیرنده لازم است در پنل ادمین
+                        // سایت پذیرنده نمایش داده شود و قابلیت جستجو در قسمت
+                        // سفارشات داشته باشد». It is the one identifier the
+                        // shop and a lender have in common, so when their
+                        // support desk asks about a purchase, this is what
+                        // they ask with — and until now it matched nothing.
+                        ->orWhereHas('payments', fn (Builder $paid) => $paid->where(Search::fold('authority'), 'ilike', $needle));
                 });
             })
             ->when(array_key_exists($status, Order::statusLabels()), fn (Builder $b) => $b->where('status', $status))
@@ -157,6 +172,17 @@ class OrderController extends Controller
             // paid, and this says by what and with which reference.
             'receipt' => $order->payments()->where('status', Payment::PAID)->latest('id')->first(),
             'attempts' => $order->payments()->latest('id')->get(),
+
+            // The settled instalment payment, if this order has one. It is
+            // what the return card is drawn from, and it is asked for by
+            // gateway *and* status: an order that opened an اسنپ‌پی attempt and
+            // was then paid by card has a row for each, and only one of them
+            // is the money.
+            'instalment' => $order->payments()
+                ->where('gateway', 'snapppay')
+                ->where('status', Payment::PAID)
+                ->latest('id')
+                ->first(),
 
             'delaysEnabled' => (bool) ($settings['delays_enabled'] ?? true),
             'maxDelay' => (int) ($settings['max_delay_days'] ?? 7),
