@@ -91,6 +91,22 @@ async function shoot(browser, { width, url, full, click }) {
     });
   }
 
+  // **The clock is pinned, and this is not the same thing as freezing motion.**
+  // The daily deal counts down in text, so the cut run and the full run — which
+  // are seconds apart — render different digits and the check reports them as a
+  // difference. Measured: 239 differing pixels at 390 and 346 at 1920, all of
+  // them inside the seconds box, at delta 239 because it is black type on
+  // white. That is neither of the two shapes CLAUDE.md names (a diff in the
+  // thousands is the carousel; single digits at delta 1 are the rasteriser),
+  // and it is not a missing rule either — it is a clock, and it cost a session
+  // an investigation.
+  //
+  // `page.clock` stops `Date.now()` and the timers reading it, so both runs
+  // draw the same instant. CSS animations are untouched, deliberately: an
+  // animation that never runs because its `@keyframes` was dropped is the
+  // fault this whole check exists for, and the note further down says so.
+  await page.clock.setFixedTime(new Date('2026-01-01T09:00:00Z'));
+
   // Settled the same way `check-parity.js` settles a page, and for the same
   // reason: the deck autoplays and the reveals are timed, so two loads of the
   // same page differ by seconds rather than by stylesheets.

@@ -368,6 +368,18 @@ the client saw an old page and had no way to tell why. So, plainly:
   thousands is the carousel, a diff of single digits at delta 1 is the
   rasteriser, and **a missing rule is neither** — it moves layout or colour
   over an area, which is what both of the real ones did.
+  **There was a third shape and it was a clock.** The daily deal counts down
+  in *text*, so the cut run and the full run — seconds apart — drew different
+  digits: 239 differing pixels at 390 and 346 at 1920, every one of them
+  inside the seconds box, at **delta 239**, because it is black type on white.
+  That is none of the three above and it reads exactly like a real finding,
+  which is what it cost to identify. `page.clock.setFixedTime` now pins the
+  instant both runs draw, and the two home pages come back identical.
+  It is **not** the same as freezing motion, which this checker must not do to
+  a page shot: an animation that never runs because its `@keyframes` was
+  dropped is the fault the whole check exists for, and it is one of the two it
+  has caught. Anything else on this page that prints the time will need the
+  same treatment, and will look like a missing rule until it gets it.
   `CssSubsetTest` is the CI half: `subset.json` records the fingerprint of the
   vocabulary the cut was made from, and the test rebuilds it in PHP. **A new
   class in a template fails it; rewording a Persian sentence does not.** Re-run

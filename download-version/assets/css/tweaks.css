@@ -6927,6 +6927,63 @@ button.vp-cart-keep {
   align-items: stretch;
 }
 
+/* --- the same card with no photograph: the order pages --------------------
+   «چرا اسم کالا کلمه به کلمه شکسته؟» — a photograph of `/orders/{number}` on a
+   390 phone with the product's name running one word to a line.
+
+   The name is not long; the column is 49px. Every `grid-template-columns` on
+   this card — the base rule above, the desktop's 96/560, the two phone blocks
+   further down — is `<photograph> minmax(0, 1fr)`, and none of them is scoped
+   to a card that has a photograph. `shop/order.blade.php` and
+   `admin/order.blade.php` reuse this line with **three** children and no
+   photograph, so auto-placement drops the name into the photograph's fixed
+   track, gives «۱ عدد» the whole of `1fr`, and pushes the price onto a second
+   row. Measured before: name 49px and 4–5 lines at 320/360/390/430/768, 62px
+   at 1200/1440, card 303px tall for one item. It was never right at any width
+   — the phone is only where somebody finally looked.
+
+   Two rules were already scoped to `:has(.vp-cart-shot)` for exactly this
+   reason (`align-items`, and the four rows' `line-height`); the columns were
+   the one that was missed.
+
+   `:not(:has())` rather than moving the columns onto `:has()`: on a browser
+   that does not understand `:has()` the whole of this block is dropped and
+   the photograph card keeps the arrangement it has, which is the fallback the
+   block above chose and states. Reversing it would leave the *photograph*
+   card with no column on those browsers, which is the worse half to break.
+   Its specificity is (0,2,0) against the bare class's (0,1,0), so it wins
+   over all four of those rules wherever they sit in this file — which is what
+   lets one block answer every breakpoint instead of four patches.
+
+   Three parts, so three columns: the name takes what is left, the count and
+   the money take what they need. Measured after — see the phone block under
+   this one for the narrow end. */
+.vp-cart-line:not(:has(.vp-cart-shot)) {
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: baseline;
+}
+
+/* Below 576 the three do not fit across: at 320 the card has 264 inside its
+   padding, the price wants about 130 and the count about 45, which leaves the
+   name 65 — the same fault in a smaller number. So the name takes the whole
+   width and the count and the money share the row under it, the count at the
+   reading edge and the money at the far one, which is the order a receipt is
+   read in. */
+@media (max-width: 575.98px) {
+  .vp-cart-line:not(:has(.vp-cart-shot)) {
+    grid-template-columns: minmax(0, 1fr) auto;
+    row-gap: 10px;
+  }
+
+  .vp-cart-line:not(:has(.vp-cart-shot)) .vp-cart-what {
+    grid-column: 1 / -1;
+  }
+
+  .vp-cart-line:not(:has(.vp-cart-shot)) .vp-cart-money {
+    justify-self: end;
+  }
+}
+
 .vp-cart-line:has(.vp-cart-shot) .vp-cart-what {
   gap: 0;
   justify-content: space-between;

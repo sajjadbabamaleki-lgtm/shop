@@ -4093,6 +4093,26 @@ button.vp-cart-keep {
   align-items: stretch;
 }
 
+.vp-cart-line:not(:has(.vp-cart-shot)) {
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: baseline;
+}
+
+@media (max-width: 575.98px) {
+  .vp-cart-line:not(:has(.vp-cart-shot)) {
+    grid-template-columns: minmax(0, 1fr) auto;
+    row-gap: 10px;
+  }
+
+  .vp-cart-line:not(:has(.vp-cart-shot)) .vp-cart-what {
+    grid-column: 1 / -1;
+  }
+
+  .vp-cart-line:not(:has(.vp-cart-shot)) .vp-cart-money {
+    justify-self: end;
+  }
+}
+
 .vp-cart-line:has(.vp-cart-shot) .vp-cart-what {
   gap: 0;
   justify-content: space-between;
