@@ -634,7 +634,11 @@ the client saw an old page and had no way to tell why. So, plainly:
     `https://whatisip.snapppay.ir/whatis/ip` reports **from the deployed
     container**, which is what `payment:test` now asks first, and on
     2026-09-14 that was **185.208.181.162** — the Liara app's outgoing
-    address, sent to them for both environments.
+    address, which SnappPay's support desk confirmed whitelisted the same
+    afternoon («وایت شد») for staging and production both. The shop had been
+    a SnappPay merchant on its previous site; the account carried over and the
+    **server did not**, which is the whole reason this had to be asked for
+    again.
     **It is a silent single point of failure.** If Liara ever moves the app and
     that address changes, every SnappPay call answers `Access Denied`, the
     instalment button quietly stops appearing, and nothing goes red: the card
