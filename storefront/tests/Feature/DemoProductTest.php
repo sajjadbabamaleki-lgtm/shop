@@ -188,6 +188,61 @@ class DemoProductTest extends TestCase
     }
 
     /**
+     * **The instalment gateway is reported too, and on a shop with no card
+     * gateway as well.**
+     *
+     * That second half is the part worth a test: the `at-the-door` branch used
+     * to return early, so a shop that takes no card and *does* lend through
+     * اسنپ‌پی — a real arrangement — would never have heard about its own
+     * gateway.
+     */
+    public function test_it_names_the_instalment_gateway_even_with_no_card_gateway(): void
+    {
+        config([
+            'services.payment.driver' => 'at-the-door',
+            'services.payment.instalments' => 'snapppay',
+        ]);
+
+        $this->artisan('demo:product')
+            ->expectsOutputToContain('درگاه اقساطی: snapppay')
+            ->assertSuccessful();
+    }
+
+    /**
+     * **Both ends of SnappPay's test basket, because both fail silently.**
+     *
+     * Over 100,000 Toman is outside what they certify against; under 40,000
+     * their staging `eligible` answers false, the button never appears at all,
+     * and the tester concludes the integration is broken rather than that the
+     * basket is too cheap.
+     */
+    public function test_it_warns_when_a_test_basket_is_outside_what_snapppay_will_finance(): void
+    {
+        config(['services.payment.instalments' => 'snapppay']);
+
+        $this->artisan('demo:product', ['--toman' => 30000])
+            ->expectsOutputToContain('۴۰ هزار تومان')
+            ->assertSuccessful();
+
+        $this->artisan('demo:product', ['--toman' => 150000, '--force' => true])
+            ->expectsOutputToContain('۱۰۰ هزار تومان')
+            ->assertSuccessful();
+    }
+
+    /**
+     * And the delivery charge, which is the trap underneath both of them: a
+     * 90,000 Toman item on «پست معمولی» is a 290,000 Toman basket.
+     */
+    public function test_it_names_the_delivery_method_a_test_basket_needs(): void
+    {
+        config(['services.payment.instalments' => 'snapppay']);
+
+        $this->artisan('demo:product', ['--toman' => 90000])
+            ->expectsOutputToContain('پس‌کرایه')
+            ->assertSuccessful();
+    }
+
+    /**
      * **On the live shop it asks first**, because this one is published and a
      * customer can put it in a basket. Testing a real card against the real
      * gateway is what it is for, so `--force` still makes one — the gate only

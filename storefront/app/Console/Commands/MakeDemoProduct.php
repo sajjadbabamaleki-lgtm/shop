@@ -192,19 +192,58 @@ class MakeDemoProduct extends Command
         $this->newLine();
         $this->line('درگاه فعال: '.$driver);
 
+        // Not an early return, which is what this was: a shop that takes no
+        // card but *does* lend through اسنپ‌پی is a real arrangement, and it
+        // would never have heard about its own gateway below.
         if ($driver === 'at-the-door') {
             $this->warn('این یعنی «پرداخت در محل»؛ هیچ درگاه بانکی‌ای در کار نیست.');
             $this->line('برای آزمایش کارت، در پنل لیارا این‌ها را بگذارید:');
             $this->line('  PAYMENT_DRIVER=zarinpal');
             $this->line('  ZARINPAL_MERCHANT_ID=<شناسه ۳۶ کاراکتری از پنل زرین‌پال>');
             $this->line('بعدش: php artisan config:cache');
+        } elseif (config('services.payment.zarinpal.sandbox')) {
+            $this->error('ZARINPAL_SANDBOX روشن است؛ پرداخت‌ها واقعی نیستند و نباید در سایت زنده روشن باشد.');
+        }
 
+        $this->instalments();
+    }
+
+    /**
+     * And whether the *other* gateway is on, which is half of what this
+     * command is now used for.
+     *
+     * اسنپ‌پی's own test scenario is run against an item like this one, and
+     * their two constraints on it are both easy to miss and both silent: a
+     * basket over 100,000 Toman is outside what they will certify against, and
+     * one under 40,000 is refused by `eligible` on staging, so the button
+     * simply never appears and the tester concludes the integration is broken.
+     *
+     * The delivery charge is named for the same reason: «پست معمولی» adds
+     * 200,000 Toman to the order, which takes a 90,000 Toman test basket to
+     * 290,000 on its own. The other two methods are پس‌کرایه and add nothing.
+     */
+    private function instalments(): void
+    {
+        $lender = (string) config('services.payment.instalments', '');
+
+        $this->line('درگاه اقساطی: '.($lender !== '' ? $lender : 'تنظیم نشده'));
+
+        if ($lender === '') {
             return;
         }
 
-        if (config('services.payment.zarinpal.sandbox')) {
-            $this->error('ZARINPAL_SANDBOX روشن است؛ پرداخت‌ها واقعی نیستند و نباید در سایت زنده روشن باشد.');
+        $toman = (int) $this->option('toman');
+
+        if ($toman > 100_000) {
+            $this->warn('برای آزمایش اسنپ‌پی سبد باید تا ۱۰۰ هزار تومان باشد؛ این گران‌تر است.');
         }
+
+        if ($toman < 40_000) {
+            $this->warn('زیر ۴۰ هزار تومان، اسنپ‌پی در محیط تست «واجد شرایط نیست» می‌دهد و دکمه اصلاً نمی‌آید.');
+        }
+
+        $this->line('سر تسویه روش ارسال پس‌کرایه را انتخاب کنید (پست پیشتاز یا تیپاکس)؛');
+        $this->line('«پست معمولی» ۲۰۰ هزار تومان به سبد اضافه می‌کند و از سقف آزمایش رد می‌شود.');
     }
 
     private function remove(Branch $branch): int
