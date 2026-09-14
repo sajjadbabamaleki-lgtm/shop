@@ -274,8 +274,25 @@ class SnappPay implements Gateway
      * construction, and `assertTheSumIsRight()` says so out loud rather than
      * letting a future change to the order's totals drift silently.
      *
-     * `isShipmentIncluded` reports whether `shippingAmount` is already part of
-     * `totalAmount` — it is, here — rather than asking for it to be added.
+     * **`isShipmentIncluded` is false, and it is the one field here that was
+     * wrong before SnappPay stated their arithmetic.** Their formula is
+     *
+     *     totalAmount = count × item amount + shipment (if not included)
+     *                                       + tax      (if not included)
+     *     amount      = Σ totalAmount − (discountAmount + externalSourceAmount)
+     *
+     * so the flags say whether each of those is **already inside the item
+     * lines**, and a false is what asks for the figure beside it to be added.
+     * This shop's unit prices carry no delivery, so delivery is added — which
+     * makes it *not included*, however natural it reads to say that a total
+     * with the shipping in it «includes» shipping. Sending true while also
+     * adding `shippingAmount` claims both, and the two sides of the equation
+     * then disagree by exactly the delivery charge.
+     *
+     * That failure is loud — a refusal when the payment is opened, before
+     * anybody is sent anywhere and before any money moves — which is the only
+     * reason it is safe to be less than certain here.
+     *
      * `externalSourceAmount` is for a wallet or a gift card paying part of the
      * basket, which this shop has none of.
      *
@@ -302,7 +319,8 @@ class SnappPay implements Gateway
                 'cartId' => (int) $order->id,
                 'totalAmount' => (int) $order->subtotal + (int) $order->shipping_total,
                 'shippingAmount' => (int) $order->shipping_total,
-                'isShipmentIncluded' => true,
+                // False means «not in the item prices — add it». See above.
+                'isShipmentIncluded' => false,
                 'taxAmount' => 0,
                 'isTaxIncluded' => false,
                 'cartItems' => $this->cartItems($order),

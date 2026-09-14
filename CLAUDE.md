@@ -564,17 +564,30 @@ the client saw an old page and had no way to tell why. So, plainly:
   per gateway**, the card first.
   **It is not a card payment and four things follow from that**, every one of
   them a way to be wrong while looking right:
-  - **It lends against goods, so it wants the basket** — every line, its
-    **unit price** and its count, plus delivery. `amount` is unit and `count`
-    is how many, which are the same number for an order of one item and differ
-    only where somebody bought two of a shoe: the mistake would look correct
-    until the first customer bought a pair. The parts must sum —
-    `cartList.totalAmount − discountAmount − externalSourceAmount = amount` —
-    and this shop stores `grand_total = subtotal − discount + shipping`, so the
-    cart total is the basket *before* the discount, with `isShipmentIncluded`
-    saying delivery is already inside it. A basket that does not add up is
-    refused with a validation code that names no number, which is why
-    `assertTheSumIsRight()` logs both sides.
+  - **It lends against goods, so it wants the basket**, and SnappPay have
+    since stated the arithmetic they check it with, verbatim:
+
+        totalAmount = count × item amount + shipment (if not included)
+                                          + tax      (if not included)
+        amount      = Σ totalAmount − (discountAmount + externalSourceAmount)
+
+    Three things fall out of it. **`amount` on a line is the unit price and
+    `count` is how many** — the two readings give the same number for an order
+    of one item and differ only where somebody bought two of a shoe, so the
+    mistake would have looked correct until the first customer bought a pair.
+    **The flags say what is inside the item lines, not what is inside the
+    total**: a false is what asks for the figure beside it to be added, and
+    this shop's unit prices carry no delivery, so `isShipmentIncluded` is
+    **false** even though the total it sends does contain the delivery charge.
+    Sending true while also adding `shippingAmount` claims both, and the two
+    sides disagree by exactly the delivery. (That was the shape this shipped
+    in on 14 Sept, corrected the same day, before the gateway was ever
+    switched on.) And this shop stores
+    `grand_total = subtotal − discount + shipping`, so the cart total is the
+    basket *before* the discount. A basket that does not add up is refused
+    with a validation code that names no number, which is why
+    `assertTheSumIsRight()` logs both sides — and why the refusal lands when
+    the payment is opened, before anybody is sent anywhere.
   - **Verify is not the end — settle is.** «SnappPay reverts a payment that is
     verified but never settled»: the shopper's credit unwinds, the shop is paid
     nothing, and the order would be sitting there marked paid. So `verify()`
