@@ -9,7 +9,6 @@ use App\Support\Payments\SnappPay;
 use App\Support\Payments\ZarinPal;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Str;
 use Throwable;
 
 /**
@@ -244,20 +243,24 @@ class TestPayment extends Command
 
         $this->info('✓ اسنپ‌پی پاسخ داد و اعتبارنامه‌ها پذیرفته شد.');
 
+        // What `eligible` actually answers: whether *this amount* can be paid
+        // in instalments, and the two sentences to print beside the button.
+        // There is no floor or ceiling in the reply — the range is theirs and
+        // it moves, which is exactly why the service has to be asked rather
+        // than guessed at.
         $eligible = data_get($answer, 'response.eligible');
 
-        if ($eligible !== null) {
-            $this->line('این مبلغ اقساطی می‌شود؟ '.($eligible ? 'بله' : 'خیر'));
-        }
+        $this->line('این مبلغ اقساطی می‌شود؟ '.match ($eligible) {
+            true => 'بله',
+            false => 'خیر — دکمهٔ اقساطی برای این مبلغ نباید نمایش داده شود',
+            default => 'نامشخص',
+        });
 
-        // Their own floor and ceiling, when they send them — the two numbers
-        // SNAPPPAY_MIN and SNAPPPAY_MAX should be set to, so the shop stops
-        // showing a button for orders outside them.
-        foreach (['min_amount' => 'کف', 'max_amount' => 'سقف'] as $key => $word) {
-            $value = data_get($answer, 'response.'.$key, data_get($answer, 'response.'.Str::camel($key)));
+        foreach (['title_message' => 'عنوان', 'description' => 'توضیح'] as $key => $word) {
+            $line = trim((string) data_get($answer, 'response.'.$key, ''));
 
-            if ($value !== null) {
-                $this->line($word.' وام‌دهی: '.number_format((int) $value).' ریال');
+            if ($line !== '') {
+                $this->line($word.': '.$line);
             }
         }
 
@@ -331,22 +334,40 @@ class TestPayment extends Command
     }
 
     /**
-     * Which IP the gateway sees us as.
+     * Which IP the gateways see us as.
      *
      * Best effort and clearly marked when it fails: a gateway with an IP
      * allow-list refuses everything with a message about the merchant id, and
      * without this line the question that follows has no answer from inside a
      * container.
+     *
+     * **SnappPay's own answer first.** They publish `whatisip.snapppay.ir` for
+     * exactly this and whitelist what it reports — «تنها درخواست‌هایی پردازش
+     * می‌شوند که فرستندهٔ آن‌ها را از قبل بشناسیم» — so their reading is the
+     * one that decides, and a general-purpose service is only the fallback for
+     * when theirs cannot be reached.
      */
     private function outboundIp(): string
     {
-        try {
-            $ip = trim(Http::timeout(6)->get('https://api.ipify.org')->body());
+        foreach (['https://whatisip.snapppay.ir/whatis/ip', 'https://api.ipify.org'] as $service) {
+            try {
+                $said = trim(Http::timeout(6)->get($service)->body());
+            } catch (Throwable) {
+                continue;
+            }
 
-            return filter_var($ip, FILTER_VALIDATE_IP) ? $ip : 'نامشخص';
-        } catch (Throwable) {
-            return 'نامشخص (دسترسی به سرویس تشخیص IP نبود)';
+            // Theirs answers with the address in a sentence rather than alone,
+            // so the address is taken out of whatever came back.
+            preg_match('/\b\d{1,3}(?:\.\d{1,3}){3}\b/', $said, $found);
+
+            $ip = $found[0] ?? $said;
+
+            if (filter_var($ip, FILTER_VALIDATE_IP)) {
+                return $ip;
+            }
         }
+
+        return 'نامشخص (دسترسی به سرویس تشخیص IP نبود)';
     }
 
     /** ZarinPal's codes, in the words of what to do about them. */

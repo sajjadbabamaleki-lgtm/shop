@@ -7,10 +7,8 @@ use App\Models\Payment;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
 
 /**
  * اسنپ‌پی — the shop's instalment gateway, on its online REST API.
@@ -63,24 +61,34 @@ class SnappPay implements Gateway
 
     private const SETTLE = '/api/online/payment/v1/settle';
 
-    /**
-     * The only payment method this integration asks for.
-     *
-     * SnappPay's whole proposition to the shopper is «۴ قسط بدون سود», and the
-     * shop is not offering a second way of paying through them.
-     */
-    private const METHOD = 'INSTALLMENT';
+    private const STATUS = '/api/online/payment/v1/status';
+
+    private const CANCEL = '/api/online/payment/v1/cancel';
+
+    private const UPDATE = '/api/online/payment/v1/update';
 
     /**
-     * Where the access token is kept between requests.
+     * What `status` can answer, and the two that matter.
      *
-     * A bearer token is good for the hour SnappPay says it is, and asking for
-     * a new one on every payment adds a round trip to the slowest moment in
-     * the shop — the one where the customer is waiting to be sent away. Cached
-     * a minute short of its own expiry, so a token is never used at the moment
-     * it turns.
+     * `VERIFY` means verified and waiting to be settled; `SETTLE` means the
+     * money is the shop's. The document's own recovery procedure is written
+     * in terms of these, and it is the only way to tell a lost answer from a
+     * refusal — see `verify()`.
      */
-    private const TOKEN_CACHE = 'snapppay.access-token';
+    private const IS_VERIFIED = 'VERIFY';
+
+    private const IS_SETTLED = 'SETTLE';
+
+    private const IS_PENDING = 'PENDING';
+
+    /**
+     * Thirty seconds, because the document says thirty seconds.
+     *
+     * It is the timeout it tells a merchant to set on `verify`, and what to do
+     * when it expires is written out: ask `status`. A shorter one would invent
+     * a lost answer that had not been lost yet.
+     */
+    private const TIMEOUT = 30;
 
     public function __construct(
         private string $baseUrl,
@@ -88,10 +96,14 @@ class SnappPay implements Gateway
         private string $clientSecret,
         private string $username,
         private string $password,
-        private int $commissionType = 1,
+        // **100 is SnappPay's own default**, not a number chosen here: «در
+        // غیر این صورت پارامتر CommissionType را به‌صورت پیش‌فرض عدد ۱۰۰ ارسال
+        // گردد». A shop whose contract names several product categories sends
+        // the code for each; this one sells «کیف و کفش» and nothing else.
+        private int $commissionType = 100,
         private ?int $minAmount = null,
         private ?int $maxAmount = null,
-        private int $timeout = 25,
+        private int $timeout = self::TIMEOUT,
     ) {}
 
     public function name(): string
@@ -129,43 +141,37 @@ class SnappPay implements Gateway
     }
 
     /**
-     * The key this side wrote, out of the return address it was handed.
+     * The transaction id, out of the form SnappPay **POSTs** to the return
+     * address.
      *
-     * In the **path** and not in the query string, deliberately: a return URL
-     * is a string handed to somebody else's system, and a path segment
-     * survives being appended to, re-encoded or given its own parameters,
-     * which a `?key=` does not reliably do.
+     * Not a query string and not a path segment: «نتیجه تراکنش کاربر به صورت
+     * POST یک فرم … به آن آدرس ارسال گردد», carrying `transactionId`, `state`
+     * and `amount`. The transaction id is the one this side wrote, which is
+     * what `authority` holds — so the row is found by the same column ZarinPal
+     * uses, on a value the browser could not have invented usefully.
      */
     public function attemptKey(Request $request): string
     {
-        return (string) $request->route('key', '');
+        return (string) $request->input('transactionId', '');
     }
 
     /**
-     * Never assumed — always asked.
+     * `state` is OK or FAILED, and FAILED means the purchase did not happen.
      *
-     * ZarinPal states the outcome in the URL it returns with. SnappPay reports
-     * the credit decision on its own return too, but this integration does not
-     * read it: the shape of those parameters is the provider's to change, and
-     * reading a cancellation wrong means telling somebody their instalments
-     * failed when the money is in fact committed. `verify()` is one HTTP call
-     * and it is the truth.
+     * Asking `verify` about a failed purchase produces a refusal that reads
+     * like a fault. It is still never *evidence* of payment: a state of OK
+     * sends this straight to `verify()`, which is the only thing that decides.
      */
     public function cameBackWithoutPaying(Request $request): bool
     {
-        return false;
+        return $request->input('state') !== 'OK';
     }
 
     public function start(Payment $payment): string
     {
         $order = $payment->order()->withoutGlobalScopes()->with('items')->sole();
 
-        // Ours, unguessable, and written before anything is asked of SnappPay:
-        // it is both the `transactionId` the provider is given and the key in
-        // the address they send the customer back to, so it has to exist while
-        // the request body is being built. The column is unique, which is what
-        // makes a callback arriving twice land on one row.
-        $transactionId = 'vp'.Str::lower(Str::random(30));
+        $transactionId = $this->transactionId($payment);
         $payment->update(['authority' => $transactionId]);
 
         $answer = $this->ask(self::OPEN, $this->openingBody($payment, $order, $transactionId));
@@ -188,6 +194,30 @@ class SnappPay implements Gateway
     }
 
     /**
+     * The id this shop gives the purchase — **ten characters, one of them a
+     * letter**.
+     *
+     * SnappPay's rule is narrow and nothing else about it is negotiable:
+     * «تراکنش آیدی باید بین ۵ تا ۱۰ رقم باشد. (برای موارد ۱۰ رقم به بالا حتماً
+     * از یک حرف در آن استفاده شود)». The 32 random characters this used to
+     * send were refused by that rule alone.
+     *
+     * It is the payment row's own id, padded, so it is **unique by
+     * construction** rather than by luck — «باید در سیستم پذیرنده unique و
+     * یکتا باشد و به ازای هر خرید متفاوت باشد» — and short enough for a person
+     * to read down the telephone, which matters because this number is the one
+     * thing SnappPay's support desk and this shop's panel have in common.
+     *
+     * Guessable, and that is not a weakness: the return it travels on is a
+     * claim, never proof. `verify()` is asked server-to-server and it is what
+     * decides whether an order is paid.
+     */
+    private function transactionId(Payment $payment): string
+    {
+        return 'V'.str_pad((string) $payment->id, 9, '0', STR_PAD_LEFT);
+    }
+
+    /**
      * Confirm the credit, then take the money. Both, or neither counts.
      *
      * **A verified payment that is not settled is reverted by SnappPay.** The
@@ -201,43 +231,138 @@ class SnappPay implements Gateway
     {
         $handle = ['paymentToken' => (string) $payment->gateway_token];
 
-        $verified = $this->ask(self::VERIFY, $handle);
+        // **Verify is called once**, whatever happens — «پذیرنده صرفاً یک بار
+        // سرویس verify را فراخوانی کند (حتی اگر استثنائاً فراخوانی آدرس
+        // بازگشتی پذیرنده چندین بار رخ داده باشد)». Everything below recovers
+        // by *asking* rather than by repeating, and the one retry that does
+        // exist is the one the document itself prescribes.
+        $verified = $this->attempt(self::VERIFY, $handle);
 
         if (! $this->wentThrough($verified)) {
-            $this->refuse($payment, $verified, 'پرداخت اقساطی تأیید نشد.');
+            // A refusal and a lost answer look identical from here, and they
+            // are opposites: one means nothing happened, the other means it
+            // may have happened and this side did not hear. The document's own
+            // procedure is to stop guessing and ask.
+            $verified = $this->recoverVerify($payment, $handle, $verified);
         }
 
-        $settled = $this->ask(self::SETTLE, $handle, retries: 2);
-
-        if (! $this->wentThrough($settled)) {
-            // The expensive case, and the reason it gets its own line: the
-            // credit was granted and the shop did not collect it. SnappPay
-            // will revert it on their side, so the customer is not out of
-            // pocket — but somebody has to know it happened, and the payment
-            // token is what their support desk asks for.
-            Log::error('SnappPay verified a payment and would not settle it.', [
-                'payment' => $payment->id,
-                'order' => $payment->orderNumber(),
-                'token' => $payment->gateway_token,
-                'answer' => $settled,
-            ]);
-
-            $this->refuse($payment, $settled, 'پرداخت اقساطی نهایی نشد. اگر مبلغی از اعتبارت کم شده با پشتیبانی تماس بگیر.');
-        }
+        $this->settle($payment, $handle);
 
         return new Receipt(
-            // Whatever they call the movement on their side, falling back to
-            // the id this shop gave the attempt. A reference is what somebody
-            // quotes on the telephone; it is never computed with, and an
-            // empty one helps nobody.
-            reference: (string) (data_get($settled, 'response.transactionId')
-                ?? data_get($verified, 'response.transactionId')
-                ?? $payment->authority),
+            // Their id for the movement, falling back to the one this shop
+            // gave the purchase — which is the number their support desk and
+            // this shop's panel have in common, so it is never empty.
+            reference: (string) (data_get($verified, 'response.transactionId') ?: $payment->authority),
 
             // There is no card in an instalment purchase, and inventing a
             // masked number for the receipt would be inventing a fact.
             cardPan: null,
         );
+    }
+
+    /**
+     * Verify did not answer, or answered no. Ask what actually happened.
+     *
+     * Straight out of the document: on a timeout or a refusal, call `status`
+     * and read it — `VERIFY` means it worked and the answer was lost, so carry
+     * on; `PENDING` means it has not finished, so ask once more; `SETTLE`
+     * means a previous attempt already completed the whole thing. Anything
+     * else is a purchase that did not happen.
+     *
+     * @param  array<string, string>  $handle
+     * @param  array<string, mixed>|null  $answer
+     * @return array<string, mixed>
+     */
+    private function recoverVerify(Payment $payment, array $handle, ?array $answer): array
+    {
+        $state = $this->state($payment);
+
+        if ($state === self::IS_VERIFIED || $state === self::IS_SETTLED) {
+            return $answer ?? [];
+        }
+
+        if ($state === self::IS_PENDING) {
+            $second = $this->attempt(self::VERIFY, $handle);
+
+            if ($this->wentThrough($second)) {
+                return $second ?? [];
+            }
+
+            $answer = $second ?? $answer;
+        }
+
+        $this->refuse($payment, $answer ?? [], 'پرداخت اقساطی تأیید نشد.');
+    }
+
+    /**
+     * Take the money, and do not stop at one refusal.
+     *
+     * **A verified payment that is never settled is reverted** — the shopper's
+     * credit unwinds and the shop is paid nothing — so a lost answer here is
+     * the most expensive kind in the whole flow, and the document says exactly
+     * what to do about it: ask `status`, settle again if it still says
+     * `VERIFY`, and treat `SETTLE` as the success it is.
+     *
+     * @param  array<string, string>  $handle
+     */
+    private function settle(Payment $payment, array $handle): void
+    {
+        $settled = $this->attempt(self::SETTLE, $handle);
+
+        if ($this->wentThrough($settled)) {
+            return;
+        }
+
+        $state = $this->state($payment);
+
+        if ($state === self::IS_SETTLED) {
+            return;
+        }
+
+        if ($state === self::IS_VERIFIED) {
+            $second = $this->attempt(self::SETTLE, $handle);
+
+            if ($this->wentThrough($second)) {
+                return;
+            }
+
+            $settled = $second ?? $settled;
+        }
+
+        // The expensive case, and the reason it gets its own line: the credit
+        // was granted and the shop did not collect it. SnappPay reverts it on
+        // their side, so the customer is not out of pocket — but somebody has
+        // to know, and the payment token is what their support desk asks for.
+        Log::error('SnappPay verified a payment and would not settle it.', [
+            'payment' => $payment->id,
+            'order' => $payment->orderNumber(),
+            'transaction' => $payment->authority,
+            'token' => $payment->gateway_token,
+            'state' => $state,
+            'answer' => $settled,
+        ]);
+
+        $this->refuse($payment, $settled ?? [], 'پرداخت اقساطی نهایی نشد. اگر مبلغی از اعتبارت کم شده با پشتیبانی تماس بگیر.');
+    }
+
+    /**
+     * What SnappPay says this payment's state is: SETTLE, VERIFY, PENDING,
+     * CANCEL, REVERT — or an empty string if they could not be asked.
+     *
+     * This is the service «برای جلوگیری از مغایرت», and it is the only
+     * instrument that can tell a lost answer from a refusal. It is never the
+     * thing that declares a payment good on its own: `verify` and `settle` do
+     * that, and this says whether they already did.
+     */
+    public function state(Payment $payment): string
+    {
+        $answer = $this->attempt(
+            self::STATUS,
+            ['paymentToken' => (string) $payment->gateway_token],
+            method: 'get',
+        );
+
+        return (string) data_get($answer, 'response.status', '');
     }
 
     /**
@@ -306,12 +431,13 @@ class SnappPay implements Gateway
             'amount' => $payment->amount,
             'discountAmount' => (int) $order->discount_total,
             'externalSourceAmount' => 0,
-            'paymentMethodTypeDto' => self::METHOD,
             'transactionId' => $transactionId,
-            'returnURL' => storefront_route('payment.callback', [
-                'gateway' => $this->name(),
-                'key' => $transactionId,
-            ]),
+            // **No `forcedPaymentMethodTypes`.** It is optional, it only works
+            // for a merchant SnappPay has enabled it for, and its effect is to
+            // *narrow* what the shopper may choose. Left off, they are offered
+            // every method their own account can use — which is more ways for
+            // the shop to be paid, not fewer.
+            'returnURL' => storefront_route('payment.callback', ['gateway' => $this->name()]),
             // The number the shopper's Snapp credit belongs to. SnappPay wants
             // it in international form; the shop stores 09… — see `inE164()`.
             'mobile' => $this->inE164((string) $order->contact_phone),
@@ -345,7 +471,7 @@ class SnappPay implements Gateway
     private function cartItems(Order $order): array
     {
         return $order->items->map(fn ($item): array => [
-            'id' => (string) $item->id,
+            'id' => (int) $item->id,
             'name' => (string) $item->product_title,
             'count' => (int) $item->quantity,
             'amount' => (int) $item->unit_price,
@@ -416,14 +542,10 @@ class SnappPay implements Gateway
      * @param  array<string, mixed>  $body
      * @return array<string, mixed>
      */
-    private function ask(string $path, array $body, string $method = 'post', int $retries = 1): array
+    private function ask(string $path, array $body, string $method = 'post'): array
     {
         try {
             $request = $this->client()->withToken($this->accessToken());
-
-            if ($retries > 1) {
-                $request = $request->retry($retries, 300, throw: false);
-            }
 
             $response = $method === 'get'
                 ? $request->get($this->baseUrl.$path, $body)
@@ -438,22 +560,45 @@ class SnappPay implements Gateway
     }
 
     /**
-     * The bearer token, minted on the password grant and kept for its hour.
+     * The same call, for the places where a dead provider is not a refusal.
+     *
+     * `verify`, `settle` and `status` recover from silence by asking rather
+     * than by giving up, so they need to tell «SnappPay said no» from «SnappPay
+     * said nothing» — and a thrown exception erases that difference. Null is
+     * the second case.
+     *
+     * @param  array<string, mixed>  $body
+     * @return array<string, mixed>|null
+     */
+    private function attempt(string $path, array $body, string $method = 'post'): ?array
+    {
+        try {
+            return $this->ask($path, $body, $method);
+        } catch (PaymentFailed) {
+            return null;
+        }
+    }
+
+    /**
+     * The bearer token, minted on the password grant for this one call.
      *
      * Two credentials, two roles, and mixing them up is the first thing that
      * goes wrong: the **client id and secret** are HTTP Basic on this one call
      * and identify the integration, while the **username and password** are the
      * merchant's own account and go in the form. The scope is the one SnappPay
      * issues merchant tokens under.
+     *
+     * **It is deliberately not cached**, which costs a round trip on every
+     * call and is what SnappPay asks for in as many words: «لازم است که
+     * access token در حافظه کش نشود و منقضی شود، تا برای ادامه فرآیند خطای
+     * دسترسی دریافت نکنید». A cache here was the first version of this file,
+     * and the argument for it — one fewer round trip at the slowest moment in
+     * the shop — is real and loses anyway: a token held past the provider's own
+     * idea of its life turns every call into an access error, and this shop
+     * cannot see that happen.
      */
     private function accessToken(): string
     {
-        $cached = Cache::get(self::TOKEN_CACHE);
-
-        if (is_string($cached) && $cached !== '') {
-            return $cached;
-        }
-
         try {
             $answer = $this->client()
                 ->withBasicAuth($this->clientId, $this->clientSecret)
@@ -479,12 +624,6 @@ class SnappPay implements Gateway
             throw new PaymentFailed('اتصال فروشگاه به اسنپ‌پی برقرار نیست؛ با پشتیبانی تماس بگیر.');
         }
 
-        // A minute short of what they said, so a token is never handed to the
-        // next call in the second it turns.
-        $seconds = max(60, (int) data_get($answer, 'expires_in', 3600) - 60);
-
-        Cache::put(self::TOKEN_CACHE, $token, $seconds);
-
         return $token;
     }
 
@@ -501,9 +640,12 @@ class SnappPay implements Gateway
      * status alone says nothing. Read as a strict comparison because a missing
      * field must not read as success.
      *
-     * @param  array<string, mixed>  $answer
+     * Null is a provider that did not answer at all, which is not a refusal
+     * and is not a success — see `attempt()`.
+     *
+     * @param  array<string, mixed>|null  $answer
      */
-    private function wentThrough(array $answer): bool
+    private function wentThrough(?array $answer): bool
     {
         return data_get($answer, 'successful') === true;
     }

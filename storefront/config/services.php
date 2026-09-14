@@ -196,7 +196,15 @@ return [
         |                            credentials are refused there, exactly the
         |                            way ZARINPAL_SANDBOX is.
         |   SNAPPPAY_COMMISSION_TYPE the commission group agreed with SnappPay.
-        |                            Theirs to assign; 1 unless told otherwise.
+        |                            **Their own default is 100**, which is what
+        |                            a shop sends when its contract names one
+        |                            product category — this one sells «کیف و
+        |                            کفش» and nothing else. A shop with several
+        |                            sends the code for each, off the list they
+        |                            supply, and the document is blunt about who
+        |                            carries a mismatch: «هر نوع مسئولیت عدم
+        |                            تطابق دسته‌بندی ارسال شده با دسته‌بندی ذکر
+        |                            شده در قرارداد، بر عهده پذیرنده است».
         |   SNAPPPAY_MIN / SNAPPPAY_MAX   the range they agreed to lend in, in
         |                            **Rial**, for keeping a button that is
         |                            certain to be refused off the order page.
@@ -219,7 +227,7 @@ return [
             'client_secret' => env('SNAPPPAY_CLIENT_SECRET'),
             'username' => env('SNAPPPAY_USERNAME'),
             'password' => env('SNAPPPAY_PASSWORD'),
-            'commission_type' => env('SNAPPPAY_COMMISSION_TYPE', 1),
+            'commission_type' => env('SNAPPPAY_COMMISSION_TYPE', 100),
             'min_amount' => env('SNAPPPAY_MIN'),
             'max_amount' => env('SNAPPPAY_MAX'),
         ],

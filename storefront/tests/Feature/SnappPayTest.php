@@ -13,7 +13,9 @@ use Database\Seeders\BranchSeeder;
 use Database\Seeders\CatalogueSeeder;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Testing\TestResponse;
 use RuntimeException;
 use Tests\TestCase;
 
@@ -122,10 +124,14 @@ class SnappPayTest extends TestCase
      * @param  array<string, mixed>  $verify
      * @param  array<string, mixed>  $settle
      */
-    private function fakeSnappPay(array $open = [], array $verify = [], array $settle = []): void
+    private function fakeSnappPay(array $open = [], array $verify = [], array $settle = [], array $status = []): void
     {
         Http::fake([
             '*/api/online/v1/oauth/token' => Http::response(['access_token' => 'bearer-1', 'expires_in' => 3600]),
+            '*/api/online/payment/v1/status*' => Http::response($status ?: [
+                'successful' => true,
+                'response' => ['transactionId' => 'SNP-777', 'status' => 'VERIFY', 'amount' => 1_250_000],
+            ]),
             '*/api/online/payment/v1/token' => Http::response($open ?: [
                 'successful' => true,
                 'response' => [
@@ -150,6 +156,23 @@ class SnappPayTest extends TestCase
         $this->holding($order)->post("/orders/{$order->number}/pay/snapppay")->assertRedirect();
 
         return Payment::latest('id')->firstOrFail();
+    }
+
+    /**
+     * The return, as SnappPay makes it: a **POST** of a form carrying
+     * `transactionId`, `state` and `amount`.
+     *
+     * Not a GET with a query string — that is ZarinPal's shape, and writing
+     * this helper the other way round is how the difference would go unnoticed
+     * until a real customer came back.
+     */
+    private function comeBackFrom(Payment $payment, string $state = 'OK'): TestResponse
+    {
+        return $this->post('/checkout/callback/snapppay', [
+            'transactionId' => $payment->authority,
+            'state' => $state,
+            'amount' => $payment->amount,
+        ]);
     }
 
     /** @return array<string, mixed> */
@@ -277,43 +300,71 @@ class SnappPayTest extends TestCase
         $this->assertSame('+989121110000', $this->opening()['mobile']);
     }
 
-    /** Instalments are the only method this shop asks for. */
-    public function test_it_asks_for_instalments(): void
+    /**
+     * **No payment-method field is sent at all.**
+     *
+     * `paymentMethodTypeDto` was carried here from a public implementation and
+     * appears nowhere in SnappPay's own document; what does appear is
+     * `forcedPaymentMethodTypes`, which is optional, needs enabling per
+     * merchant, and exists to *narrow* what the shopper may use. Sending
+     * neither is what offers them every method their own account can pay with.
+     */
+    public function test_it_forces_no_payment_method_on_the_shopper(): void
     {
         $this->fakeSnappPay();
 
         $this->payFor($this->order());
 
-        $this->assertSame('INSTALLMENT', $this->opening()['paymentMethodTypeDto']);
+        $body = $this->opening();
+
+        $this->assertArrayNotHasKey('paymentMethodTypeDto', $body);
+        $this->assertArrayNotHasKey('forcedPaymentMethodTypes', $body);
     }
 
     // --- coming back -------------------------------------------------------
 
     /**
-     * **This side chooses the key, and it is in the path of the return
-     * address.**
+     * **The transaction id is this shop's, and its shape is SnappPay's rule.**
      *
-     * ZarinPal mints an authority and puts it in the callback; SnappPay hands
-     * back a token the browser never carries, so a customer returning would be
-     * unidentifiable unless the address they return to says who they are. The
-     * key is written before the provider is asked, it is what `authority`
-     * holds, and it is unguessable for the same reason ZarinPal's is: it
-     * stands in for a session that may have been lost on the way.
+     * «تراکنش آیدی باید بین ۵ تا ۱۰ رقم باشد. (برای موارد ۱۰ رقم به بالا حتماً
+     * از یک حرف در آن استفاده شود)» — so ten characters with a letter in them,
+     * and unique per purchase. It is the payment row's own id, which makes the
+     * uniqueness a fact rather than a hope, and it is what `authority` holds:
+     * the column a returning customer is found by, whichever gateway they came
+     * through.
      */
-    public function test_the_return_address_carries_the_key_the_attempt_is_found_by(): void
+    public function test_the_transaction_id_has_the_shape_snapppay_requires(): void
     {
         $this->fakeSnappPay();
 
         $order = $this->order();
         $payment = $this->payFor($order);
 
-        $this->assertNotEmpty($payment->authority);
-        $this->assertSame('PT-000111', $payment->gateway_token, "SnappPay's own handle is kept apart");
+        $this->assertSame('V'.str_pad((string) $payment->id, 9, '0', STR_PAD_LEFT), $payment->authority);
+        $this->assertSame(10, strlen((string) $payment->authority));
+        $this->assertMatchesRegularExpression('/[A-Za-z]/', (string) $payment->authority, 'ten characters need a letter');
         $this->assertSame($payment->authority, $this->opening()['transactionId']);
-        $this->assertStringEndsWith(
-            "/checkout/callback/snapppay/{$payment->authority}",
-            $this->opening()['returnURL']
-        );
+
+        $this->assertSame('PT-000111', $payment->gateway_token, "SnappPay's own handle is kept apart");
+    }
+
+    /**
+     * **The return address is one fixed path, because they POST to it.**
+     *
+     * An earlier shape put an unguessable key in the path, which this no
+     * longer needs: the form SnappPay posts carries `transactionId` itself.
+     * The address also has to sit on the domain registered with them —
+     * «درخواست‌های شامل returnURL که دامنه آن با دامنه تعریف شده در سرویس
+     * منطبق نباشند رد خواهند شد» — which is why it is built from the host the
+     * shopper is on rather than from a constant.
+     */
+    public function test_the_return_address_is_the_registered_one(): void
+    {
+        $this->fakeSnappPay();
+
+        $this->payFor($this->order());
+
+        $this->assertSame('http://localhost/checkout/callback/snapppay', $this->opening()['returnURL']);
     }
 
     /** The address زرین‌پال was given has not moved. */
@@ -335,8 +386,15 @@ class SnappPayTest extends TestCase
     public function test_a_franchise_comes_back_to_its_own_address(): void
     {
         $this->assertSame(
-            'http://localhost/shiraz/checkout/callback/snapppay/vpkey',
-            route('branch.payment.callback', ['branch' => 'shiraz', 'gateway' => 'snapppay', 'key' => 'vpkey'])
+            'http://localhost/shiraz/checkout/callback/snapppay',
+            route('branch.payment.callback', ['branch' => 'shiraz', 'gateway' => 'snapppay'])
+        );
+
+        // And the POST they actually make has a franchise version too — a
+        // route registered outside the storefront closure would not.
+        $this->assertSame(
+            'http://localhost/shiraz/checkout/callback/snapppay',
+            route('branch.payment.callback.post', ['branch' => 'shiraz', 'gateway' => 'snapppay'])
         );
     }
 
@@ -358,7 +416,7 @@ class SnappPayTest extends TestCase
         $order = $this->order();
         $payment = $this->payFor($order);
 
-        $this->get("/checkout/callback/snapppay/{$payment->authority}")
+        $this->comeBackFrom($payment)
             ->assertRedirect()
             ->assertSessionHasErrors('payment');
 
@@ -375,7 +433,7 @@ class SnappPayTest extends TestCase
         $order = $this->order();
         $payment = $this->payFor($order);
 
-        $this->get("/checkout/callback/snapppay/{$payment->authority}")
+        $this->comeBackFrom($payment)
             ->assertRedirect()
             ->assertSessionHas('status');
 
@@ -391,18 +449,28 @@ class SnappPayTest extends TestCase
         Http::assertSent(fn ($request) => str_contains($request->url(), 'payment/v1/settle'));
     }
 
-    /** A refused verify pays for nothing, whatever the customer came back on. */
+    /**
+     * A refused verify pays for nothing — once `status` agrees.
+     *
+     * The refusal alone is not the end of it: the document's procedure is to
+     * ask `status`, because a refusal and a lost answer are indistinguishable
+     * from here and mean opposite things. Here the provider says the purchase
+     * was cancelled, and only then is the order left unpaid.
+     */
     public function test_a_refused_verification_pays_for_nothing(): void
     {
-        $this->fakeSnappPay(verify: [
-            'successful' => false,
-            'errorData' => ['errorCode' => '2018', 'message' => 'اعتبار کافی نیست.'],
-        ]);
+        $this->fakeSnappPay(
+            verify: [
+                'successful' => false,
+                'errorData' => ['errorCode' => '2018', 'message' => 'اعتبار کافی نیست.'],
+            ],
+            status: ['successful' => true, 'response' => ['status' => 'CANCEL']],
+        );
 
         $order = $this->order();
         $payment = $this->payFor($order);
 
-        $this->get("/checkout/callback/snapppay/{$payment->authority}")
+        $this->comeBackFrom($payment)
             ->assertRedirect()
             // The provider's own sentence, which is the one that says what to
             // do about it. Nothing written here could know it.
@@ -415,6 +483,91 @@ class SnappPayTest extends TestCase
         Http::assertNotSent(fn ($request) => str_contains($request->url(), 'payment/v1/settle'));
     }
 
+    /**
+     * **A lost answer is not a refusal, and `status` is what tells them
+     * apart.**
+     *
+     * The document sets a thirty-second timeout on `verify` and says what to
+     * do when it expires: ask `status`, and if it says VERIFY the call worked
+     * and only the answer was lost. Reading that as a failure would leave a
+     * paid shopper with an unpaid order and a credit they owe.
+     */
+    public function test_a_verify_whose_answer_is_lost_is_recovered_from_the_status(): void
+    {
+        $this->fakeSnappPay();
+
+        $order = $this->order();
+        $payment = $this->payFor($order);
+
+        // The provider stops answering verify — a timeout, not a refusal.
+        Http::fake([
+            '*/api/online/v1/oauth/token' => Http::response(['access_token' => 'bearer-1', 'expires_in' => 3600]),
+            '*/api/online/payment/v1/verify' => fn () => throw new ConnectionException('timed out'),
+            '*/api/online/payment/v1/status*' => Http::response([
+                'successful' => true,
+                'response' => ['status' => 'VERIFY', 'transactionId' => 'SNP-777'],
+            ]),
+            '*/api/online/payment/v1/settle' => Http::response([
+                'successful' => true,
+                'response' => ['transactionId' => 'SNP-777'],
+            ]),
+        ]);
+
+        $this->comeBackFrom($payment)->assertRedirect()->assertSessionHas('status');
+
+        $this->assertSame('paid', $order->fresh()->payment_status);
+        Http::assertSent(fn ($request) => str_contains($request->url(), 'payment/v1/status'));
+        Http::assertSent(fn ($request) => str_contains($request->url(), 'payment/v1/settle'));
+    }
+
+    /**
+     * **And a settle whose answer is lost is recovered the same way.**
+     *
+     * This is the expensive direction: a payment verified and not settled is
+     * reverted, so a settle that answers false while the money has in fact
+     * moved would leave the shop believing it was never paid. `status` saying
+     * SETTLE is the answer, and it is a success.
+     */
+    public function test_a_settle_that_already_happened_is_read_off_the_status(): void
+    {
+        $this->fakeSnappPay(
+            settle: ['successful' => false, 'errorData' => ['errorCode' => '500', 'message' => 'خطا']],
+            status: ['successful' => true, 'response' => ['status' => 'SETTLE', 'transactionId' => 'SNP-777']],
+        );
+
+        $order = $this->order();
+        $payment = $this->payFor($order);
+
+        $this->comeBackFrom($payment)->assertRedirect()->assertSessionHas('status');
+
+        $this->assertSame('paid', $order->fresh()->payment_status);
+        $this->assertSame(Payment::PAID, Payment::sole()->status);
+    }
+
+    /**
+     * `state=FAILED` is the purchase that did not happen, and nothing is asked.
+     *
+     * Asking `verify` about it produces a refusal that reads like a fault on
+     * this side. The state is still never *evidence* of payment in the other
+     * direction: an OK goes straight to `verify()`, which decides.
+     */
+    public function test_a_failed_state_asks_the_provider_nothing(): void
+    {
+        $this->fakeSnappPay();
+
+        $order = $this->order();
+        $payment = $this->payFor($order);
+
+        $this->comeBackFrom($payment, state: 'FAILED')
+            ->assertRedirect()
+            ->assertSessionHasErrors('payment');
+
+        $this->assertSame(Payment::CANCELLED, Payment::sole()->status);
+        $this->assertSame('unpaid', $order->fresh()->payment_status);
+
+        Http::assertNotSent(fn ($request) => str_contains($request->url(), 'payment/v1/verify'));
+    }
+
     /** Gateways retry and people press back; the second one does nothing. */
     public function test_a_second_callback_does_not_settle_the_order_twice(): void
     {
@@ -423,12 +576,12 @@ class SnappPayTest extends TestCase
         $order = $this->order();
         $payment = $this->payFor($order);
 
-        $this->get("/checkout/callback/snapppay/{$payment->authority}")->assertRedirect();
+        $this->comeBackFrom($payment)->assertRedirect();
 
         $paidAt = Payment::sole()->paid_at;
         $this->travel(1)->minutes();
 
-        $this->get("/checkout/callback/snapppay/{$payment->authority}")
+        $this->comeBackFrom($payment)
             ->assertRedirect()
             ->assertSessionHasNoErrors();
 
@@ -442,7 +595,7 @@ class SnappPayTest extends TestCase
     {
         $this->fakeSnappPay();
 
-        $this->get('/checkout/callback/snapppay/vpnothinglikethisone')
+        $this->post('/checkout/callback/snapppay', ['transactionId' => 'V000999999', 'state' => 'OK'])
             ->assertRedirect()
             ->assertSessionHasErrors('payment');
 
@@ -455,7 +608,7 @@ class SnappPayTest extends TestCase
         $order = $this->order();
 
         $this->holding($order)->post("/orders/{$order->number}/pay/digipay")->assertNotFound();
-        $this->get('/checkout/callback/digipay/whatever')->assertNotFound();
+        $this->post('/checkout/callback/digipay', ['transactionId' => 'V000000001'])->assertNotFound();
     }
 
     // --- the credentials ---------------------------------------------------
@@ -491,13 +644,16 @@ class SnappPayTest extends TestCase
     }
 
     /**
-     * The token is kept for its hour.
+     * **A token per call, and it is deliberately not cached.**
      *
-     * A fresh token per payment adds a round trip at the slowest moment in the
-     * shop — the one where a customer is waiting to be sent away — on a machine
-     * already measured at thirteen times slower than this one.
+     * The first version of this driver cached it for its hour, which is the
+     * obvious thing to do and costs one fewer round trip at the slowest moment
+     * in the shop. SnappPay asks for the opposite in as many words — «لازم است
+     * که access token در حافظه کش نشود و منقضی شود، تا برای ادامه فرآیند خطای
+     * دسترسی دریافت نکنید» — and a held token turning stale is a failure this
+     * shop cannot see from the outside.
      */
-    public function test_the_token_is_not_fetched_again_for_every_payment(): void
+    public function test_a_token_is_minted_for_every_call_and_never_cached(): void
     {
         $this->fakeSnappPay();
 
@@ -505,16 +661,22 @@ class SnappPayTest extends TestCase
         $this->payFor($this->order());
 
         $minted = 0;
+        $opened = 0;
 
-        Http::assertSent(function ($request) use (&$minted): bool {
+        Http::assertSent(function ($request) use (&$minted, &$opened): bool {
             if (str_contains($request->url(), 'oauth/token')) {
                 $minted++;
+            }
+
+            if (str_contains($request->url(), 'payment/v1/token')) {
+                $opened++;
             }
 
             return true;
         });
 
-        $this->assertSame(1, $minted, 'one token, reused');
+        $this->assertSame(2, $opened);
+        $this->assertSame($opened, $minted, 'one token minted for each call, none reused');
     }
 
     /**

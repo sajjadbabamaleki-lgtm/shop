@@ -594,30 +594,74 @@ the client saw an old page and had no way to tell why. So, plainly:
     does both in one breath, settle is retried once, and only its success
     returns a receipt. **Never split them across two requests of a customer's**
     — the second request may never arrive.
-  - **The shop chooses the handle.** ZarinPal mints an authority and puts it in
-    the callback; SnappPay hands back a `paymentToken` the browser never
-    carries. So `authority` holds a `transactionId` this side wrote, the return
-    address carries it **in its path** (`/checkout/callback/snapppay/<key>` — a
-    path segment survives being appended to, a `?key=` does not), and their
-    token goes in the new `payments.gateway_token`. `/checkout/callback` with
-    nothing after it is still ZarinPal's, and must stay that way: a payment
+  - **The shop chooses the handle, and SnappPay POSTs the customer back.**
+    ZarinPal mints an authority and returns with it in a GET's query string;
+    SnappPay takes a `transactionId` from this side and **posts a form** to the
+    return address — «نتیجه تراکنش کاربر به صورت POST یک فرم … به آن آدرس
+    ارسال گردد» — carrying `transactionId`, `state` (OK/FAILED) and `amount`.
+    So `authority` holds that id for both gateways, their own `paymentToken`
+    goes in `payments.gateway_token`, and `/checkout/callback/{gateway}` is
+    registered twice, GET and POST, with the POST excused CSRF in
+    `bootstrap/app.php` the way ترب's feed is. `/checkout/callback` with
+    nothing after it is still ZarinPal's and must stay that way: a payment
     opened before a deploy comes home to it.
-  - **There is a floor and a ceiling**, agreed with the shop. `SNAPPPAY_MIN`
-    and `SNAPPPAY_MAX` (Rial, both optional) keep a button that is certain to
-    be refused off the order page. **Read from the environment and never asked
-    over the network**, because the question is asked while an order page
-    renders and that machine is thirteen times slower than this one. Unset
-    means every order sees the button and SnappPay's own sentence explains any
-    refusal — which is the right way round: «مبلغ خارج از بازه» is a sentence
-    no code here could write.
+    **The id is ten characters with a letter in them** — «تراکنش آیدی باید بین
+    ۵ تا ۱۰ رقم باشد، برای موارد ۱۰ رقم به بالا حتماً از یک حرف در آن استفاده
+    شود» — and it is the payment row's own id, padded, so uniqueness is a fact
+    rather than a hope. Guessable, and that costs nothing: the return is a
+    claim, `verify()` is the proof.
+  - **Verify once, then settle, and recover by asking rather than repeating.**
+    The document sets a thirty-second timeout on `verify` and says what to do
+    when it expires or refuses: call `status` and read it. `VERIFY` means the
+    call worked and only the answer was lost; `PENDING` means ask again once;
+    `SETTLE` means a previous pass already finished. Settle recovers the same
+    way, and that is the expensive direction — a payment verified and never
+    settled is reverted, so a lost settle answer must never be read as "not
+    paid". **Verify is called once per purchase however many times the return
+    is hit**, which is why `PaymentController` now stops on a payment that is
+    already failed or cancelled, not only on a paid one.
+  - **Four more things the document settled that guesswork had wrong**, all of
+    them found by reading it against the code on 14 Sept: the access token is
+    **not cached** («لازم است که access token در حافظه کش نشود») and is minted
+    per call; `commissionType` defaults to **100**, not 1; a cart item's `id`
+    is a number; and `paymentMethodTypeDto` does not exist — the field is
+    `forcedPaymentMethodTypes`, it is optional, it must be enabled per
+    merchant, and its only effect is to *narrow* what a shopper may use, so
+    this shop sends neither.
+  - **Nothing reaches SnappPay from an IP they have not whitelisted**, the
+    token call included: «تنها درخواست‌هایی پردازش می‌شوند که فرستندهٔ آن‌ها را
+    از قبل بشناسیم». The address to send them is what
+    `https://whatisip.snapppay.ir/whatis/ip` reports from the deployed
+    container, which is what `payment:test` now asks first. The `returnURL`'s
+    **domain** has to be registered with them too, and `vikyplus.ir` and
+    `www.vikyplus.ir` are two domains — the same trap as ZarinPal's `-14`,
+    written down this time.
+  - **⚠️ The `eligible` service is mandatory and is not yet wired.**
+    `SNAPPPAY_MIN` and `SNAPPPAY_MAX` keep a certainly-refused button off the
+    order page, and they were chosen to avoid a network call while a page
+    renders on a machine thirteen times slower than this one. **The document
+    forbids exactly that**: the range is dynamic, `eligible` must be called on
+    every change of amount, and the title and description it returns must be
+    shown verbatim — «از هر گونه پیاده‌سازی دستی در سمت خود خودداری فرمایید».
+    Their staging range is 40,000 to 10,000,000 Toman and production differs,
+    which is the point. Until it is wired, this shop cannot pass SnappPay's
+    own certification, and neither can the four services below.
   Amounts go in **Rial and there is no currency field**, so unlike ZarinPal
   nothing on either side would notice a Toman figure — it would simply be a
   bill one tenth the size, and every log would look normal. `SnappPayTest` is
   the guard for all of it, and its fixture buys **two** of one shoe on purpose.
-  **The official API document is confidential and arrives after the contract**;
-  this was written against the public implementations of the same API, so the
-  first thing to do with that document in hand is read it against
-  `App\Support\Payments\SnappPay`.
+  **The official API document (REST, v2.1) arrived on 14 Sept and this was read
+  against it**, which is where every correction above came from. What it also
+  lists is what SnappPay certify before giving production access, and **four
+  of those are still missing**: `eligible` (above), `update` (partial return —
+  a shopper sends one item back), `cancel` (the whole basket, and it is the
+  only way to reverse a settled purchase), and `status` wired as a check of its
+  own. Two of them need something this shop has never had — **a partial return
+  in `/admin`** — and both must ask the admin to confirm before they fire,
+  because neither can be undone. The transaction id must also be searchable in
+  the panel and printed to the shopper, since it is the one number SnappPay and
+  this shop have in common. `revert` is the one service the document says need
+  not be implemented.
 - **The content pages are `/about`, `/contact`, `/size-guide`, `/faq`, `/terms`
   and `/privacy`** — `PageController`, one view each under `resources/views/pages/`,
   copy and no database. They exist because the footer had been linking to them

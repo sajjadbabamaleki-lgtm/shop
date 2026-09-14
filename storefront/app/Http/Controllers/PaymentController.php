@@ -130,7 +130,7 @@ class PaymentController extends Controller
      * the verify call is what decides and it is asked with the amount from the
      * order.
      */
-    public function callback(Request $request, SettleOrder $settle, ?string $gateway = null, ?string $key = null): RedirectResponse
+    public function callback(Request $request, SettleOrder $settle, ?string $gateway = null): RedirectResponse
     {
         $driver = $this->gateways->named($gateway);
 
@@ -171,6 +171,17 @@ class PaymentController extends Controller
             // The second callback for one attempt. Nothing to do, and saying
             // so is better than a failure message on a paid order.
             return $back->with('status', 'این پرداخت قبلاً ثبت شده است.');
+        }
+
+        // **An attempt that is already settled as failed is not asked about
+        // again.** اسنپ‌پی is explicit that verify must be called once per
+        // purchase however many times the return address is hit — «پذیرنده
+        // صرفاً یک بار سرویس verify را فراخوانی کند (حتی اگر استثنائاً
+        // فراخوانی آدرس بازگشتی پذیرنده چندین بار رخ داده باشد)» — and its
+        // own recovery procedure is to ask `status`, which `verify()` does
+        // internally. A second pass here would ask the question twice.
+        if (in_array($payment->status, [Payment::FAILED, Payment::CANCELLED], true)) {
+            return $back->withErrors(['payment' => 'این پرداخت انجام نشد. می‌توانی دوباره تلاش کنی.']);
         }
 
         // **Verified by the gateway that opened it**, read off the row rather

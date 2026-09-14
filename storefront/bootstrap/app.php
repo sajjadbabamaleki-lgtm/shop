@@ -37,6 +37,25 @@ return Application::configure(basePath: dirname(__DIR__))
         // its headers is trusting the platform.
         $middleware->trustProxies(at: '*');
 
+        /*
+         * اسنپ‌پی returns the customer by **POSTing a form** to the address
+         * this shop gave it, and that form carries no CSRF token of ours —
+         * it was built on somebody else's server. Without this the callback
+         * is a 419 before any code of ours runs, which is money taken and an
+         * order left unpaid. The same shape as ترب's feed above, and the
+         * narrowest form of it: one path, both at the site root and under a
+         * franchise's prefix.
+         *
+         * What stands in for the token is what stands in for it on every
+         * gateway callback: the POST is a claim, not proof. The attempt is
+         * found by a transaction id and settled only on what `verify` answers
+         * server-to-server.
+         */
+        $middleware->validateCsrfTokens(except: [
+            'checkout/callback/*',
+            '*/checkout/callback/*',
+        ]);
+
         // Every response says how long the server took, in the standard
         // `Server-Timing` header. Prepended so it wraps everything else and
         // the figure is the whole request rather than part of it. See the

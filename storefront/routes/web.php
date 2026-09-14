@@ -287,17 +287,27 @@ $storefront = function (): void {
         ->middleware('throttle:20,10')->name('order.pay');
 
     /*
-     * **Both optional segments are load-bearing, and the empty case is the
-     * one that must not move**: `/checkout/callback` with nothing after it is
-     * the address زرین‌پال was given, and a payment opened an hour before a
-     * deploy comes home to it. Naming a gateway picks the driver; the key
-     * after it is how a provider that mints no authority of its own — اسنپ‌پی
-     * hands back a token, not a key in the URL — says which attempt came back.
+     * **The empty case is the one that must not move**: `/checkout/callback`
+     * with nothing after it is the address زرین‌پال was given, and a payment
+     * opened an hour before a deploy comes home to it. Naming a gateway picks
+     * the driver.
+     *
+     * **Two methods, because the two providers return differently.** زرین‌پال
+     * sends the customer back with a GET and its authority in the query
+     * string; اسنپ‌پی **POSTs a form** — «نتیجه تراکنش کاربر به صورت POST یک
+     * فرم … به آن آدرس ارسال گردد» — carrying `transactionId`, `state` and
+     * `amount`. One address, one handler, and the driver reads whichever of
+     * the two its own return carries. The POST is excused CSRF in
+     * `bootstrap/app.php`, for the same reason ترب's feed is: the form comes
+     * from somebody else's server and has no token of ours to carry.
      */
-    Route::get('/checkout/callback/{gateway?}/{key?}', [PaymentController::class, 'callback'])
+    Route::get('/checkout/callback/{gateway?}', [PaymentController::class, 'callback'])
         ->where('gateway', '[a-z-]+')
-        ->where('key', '[A-Za-z0-9]+')
         ->name('payment.callback');
+
+    Route::post('/checkout/callback/{gateway}', [PaymentController::class, 'callback'])
+        ->where('gateway', '[a-z-]+')
+        ->name('payment.callback.post');
 
     /*
      * «تاس شانس». One throw per visitor, decided on this side — see
