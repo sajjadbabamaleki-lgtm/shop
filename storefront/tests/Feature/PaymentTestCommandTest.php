@@ -33,10 +33,36 @@ class PaymentTestCommandTest extends TestCase
         $this->app->forgetInstance(Gateway::class);
     }
 
+    /**
+     * Every address the command can dial, stubbed — the two IP services with
+     * **different answers** on purpose.
+     *
+     * An unmatched URL in `Http::fake()` is *not* faked: Laravel hands it to
+     * the real handler. `outboundIp()` asks اسنپ‌پی's address service before
+     * ipify, and only ipify was listed here, so the command reached the open
+     * internet from inside the suite. That failed on a GitHub runner and
+     * nowhere else: a runner can reach the service, so it printed the
+     * runner's own address; this container's proxy refuses it, so the call
+     * threw, `outboundIp()` caught it, and the ipify stub answered. Green
+     * here, red there, and the code identical.
+     *
+     * The two answers differ because that is what gives the assertion teeth:
+     * the test names اسنپ‌پی's address, so it can only pass if the first
+     * service was the one asked and its answer was the one printed. Stubbing
+     * both with the same address would go green again the moment a real call
+     * slipped back in.
+     *
+     * `preventStrayRequests()` is here for the rest of the command and not
+     * for this: `outboundIp()` catches `Throwable`, so a stray inside it is
+     * swallowed exactly as a refused proxy was. The stub is the guard.
+     */
     private function fake(array $answer): void
     {
+        Http::preventStrayRequests();
+
         Http::fake([
-            'api.ipify.org' => Http::response('185.10.10.10'),
+            'whatisip.snapppay.ir/*' => Http::response('your ip is :185.10.10.10'),
+            'api.ipify.org' => Http::response('93.93.93.93'),
             '*/pg/v4/payment/request.json' => Http::response($answer),
         ]);
     }

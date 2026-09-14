@@ -639,6 +639,19 @@ the client saw an old page and had no way to tell why. So, plainly:
     a SnappPay merchant on its previous site; the account carried over and the
     **server did not**, which is the whole reason this had to be asked for
     again.
+    **Asking for that address is a real network call, and it caught a test
+    out.** `Http::fake([...])` does **not** fake a URL that is not in the
+    list — Laravel hands an unmatched one to the real handler — and
+    `outboundIp()` asks اسنپ‌پی's service before ipify. Only ipify was
+    stubbed, so `PaymentTestCommandTest` dialled out from inside the suite:
+    green on this container, whose proxy refuses the host and whose refusal
+    `outboundIp()` catches, and **red on a GitHub runner**, which reaches it
+    and printed the runner's own address instead of the stub's. Run #792, one
+    failure out of 1,008, with the code identical on both sides. The two
+    stubs now answer **different addresses** on purpose, so the assertion can
+    only pass if the first service was the one asked. `preventStrayRequests()`
+    cannot see this one: `outboundIp()` catches `Throwable`, so a refused
+    stray looks exactly like a refused proxy.
     **It is a silent single point of failure.** If Liara ever moves the app and
     that address changes, every SnappPay call answers `Access Denied`, the
     instalment button quietly stops appearing, and nothing goes red: the card
