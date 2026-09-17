@@ -81,7 +81,12 @@ class TheSetupShoesAreOffTheShopTest extends TestCase
             $this->assertSame('archived', $product->status);
             $this->assertNull($product->published_at);
 
-            $this->get('/products/'.$slug)->assertNotFound();
+            // The address stays and says the shoe has gone — ترب held
+            // `/products/golden-goose` from before this migration ran and
+            // read the 404 as «کالا وجود ندارد». `RetiredProductPageTest`
+            // is where that page is held; what this file is about is that
+            // the shoe is off the *shop*, which the count below asserts.
+            $this->get('/products/'.$slug)->assertOk()->assertSee('دیگر در فروشگاه عرضه نمی‌شود', false);
         }
 
         $this->assertSame(0, Product::query()->listable()->whereIn('slug', self::SETUP)->count());

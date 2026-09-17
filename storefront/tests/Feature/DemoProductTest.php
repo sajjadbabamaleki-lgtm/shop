@@ -100,7 +100,14 @@ class DemoProductTest extends TestCase
 
         $this->artisan('demo:product --remove')->assertSuccessful();
 
-        $this->get('/products/'.MakeDemoProduct::SLUG)->assertNotFound();
+        // **Off the shop is no longer a 404**, it is the retired page: the
+        // address answers and says the thing is not sold, because an address
+        // that 404s is one ترب reads as «کالا وجود ندارد». What must still be
+        // true is that nothing about it can be bought — see
+        // `RetiredProductPageTest`, and the sellable check below.
+        $this->get('/products/'.MakeDemoProduct::SLUG)
+            ->assertOk()
+            ->assertSee('دیگر در فروشگاه عرضه نمی‌شود', false);
 
         app(TenantContext::class)->forBranch($this->branch, function () {
             $variant = $this->variant();
@@ -128,7 +135,7 @@ class DemoProductTest extends TestCase
 
         $this->migration()->up();
 
-        $this->get('/products/'.MakeDemoProduct::SLUG)->assertNotFound();
+        $this->get('/products/'.MakeDemoProduct::SLUG)->assertOk()->assertSee('دیگر در فروشگاه عرضه نمی‌شود', false);
 
         app(TenantContext::class)->forBranch($this->branch, function () {
             $variant = $this->variant();
@@ -263,6 +270,6 @@ class DemoProductTest extends TestCase
         $this->get('/products/'.MakeDemoProduct::SLUG)->assertOk();
 
         $this->artisan('demo:product --remove')->assertSuccessful();
-        $this->get('/products/'.MakeDemoProduct::SLUG)->assertNotFound();
+        $this->get('/products/'.MakeDemoProduct::SLUG)->assertOk()->assertSee('دیگر در فروشگاه عرضه نمی‌شود', false);
     }
 }

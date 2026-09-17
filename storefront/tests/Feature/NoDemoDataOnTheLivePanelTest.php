@@ -207,7 +207,12 @@ class NoDemoDataOnTheLivePanelTest extends TestCase
 
         $this->migration()->up();
 
-        $this->get('/products/'.MakeDemoProduct::SLUG)->assertNotFound();
+        // Retired, which since `RetiredProductPageTest` means the address
+        // answers and says so rather than 404ing. Unreachable as a purchase is
+        // the assertion; unreachable as an address was never the point.
+        $this->get('/products/'.MakeDemoProduct::SLUG)
+            ->assertOk()
+            ->assertSee('دیگر در فروشگاه عرضه نمی‌شود', false);
 
         $product = Product::query()->withoutGlobalScopes()->where('slug', MakeDemoProduct::SLUG)->first();
 

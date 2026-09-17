@@ -4802,3 +4802,117 @@ that is not a fault to fix in code, it is the برند column in `/admin/catalog
 And the stepped sale now shows what is genuinely discounted rather than five
 seeded shoes with seeded cuts: «حراج پله ای کلا دستی تنظیم میشه» was the
 instruction, and its products are chosen in `/admin/front-page`.
+
+## «کالا وجود ندارد» — the address a retired shoe leaves behind
+
+ترب's support desk, 2026-09-15, in the ticket about the shop's feed:
+
+> نیازی به تنظیم مجدد در پنل ترب نیست. آدرس نمونهٔ
+> https://vikyplus.ir/products/golden-goose در حال حاضر صفحهٔ معتبر محصول را
+> باز نمی‌کند، درحالی‌که مدل‌های رنگی این کالا با آدرس‌های مستقیم و جداگانه در
+> اطلاعات محصولات سایت ارسال می‌شوند. … آدرس‌های قدیمی مانند نمونهٔ بالا خطای
+> «کالا وجود ندارد» ندهند.
+
+Two asks, and only one of them was a fault.
+
+**The feed's addresses were already right.** `page_url` in
+`TorobFeedController` is `storefront_route('product', $product)` over
+`Product::listable()` — the product's own address, built from the same route
+the site links to, at the moment of the request. There is no second list to
+drift. `RetiredProductPageTest::test_every_address_the_feed_sends_opens_a_
+product_page` now walks the whole feed and opens every URL in it, so the two
+cannot come apart quietly later.
+
+**`/products/golden-goose` was the fault, and it is one this repository
+caused on purpose.** `golden-goose` is one of `CatalogueSeeder`'s five setup
+shoes, and `2026_09_07_160000_take_the_five_setup_shoes_off_the_shop` archived
+it — correctly, at the client's instruction, and **retired rather than
+deleted**, so the row is still here and only the page went. ترب had the
+address from before that afternoon. It answered 404, and a 404 to an
+aggregator is «کالا وجود ندارد»: not "out of stock", not "one product gone" —
+grounds to question the shop's whole feed.
+
+Nothing here could see it. The suite renders pages for products it has just
+seeded, which are never retired; `TorobFeedTest` reads the feed, which
+correctly stops listing a retired shoe; `check-parity.js` and
+`check-overflow.js` open addresses that have products behind them. **The
+failure lives entirely in what an address does after the shop stops using
+it**, and no test asked that question.
+
+### The answer: the address keeps a page
+
+`ProductController` used to say, in its own docblock, that a product the shop
+does not sell is a 404 and that this is «the honest answer». For a slug
+somebody typed it still is. For the address of a shoe the shop sold last month
+it is not, because that address is not a guess — it is in ترب's index, in
+Google's, and in whatever a customer bookmarked.
+
+So a retired product now renders `shop/gone.blade.php`: the shoe's name, one
+sentence saying it is no longer sold, and four things the shop really has,
+drawn with the listing's own card. **200, with `X-Robots-Tag: noindex`** —
+the two are one decision. The 200 is for the shopper and for every catalogue
+that only asks whether the address answers; the header is for the search
+engines, which should stop indexing a shoe nobody can buy. A 410 is the
+tidier answer to Google alone and is exactly the answer that started this.
+
+Four things it deliberately does not do:
+
+- **It does not redirect.** The obvious move is a 301 to the nearest living
+  shoe, and it is wrong twice: nothing in this catalogue knows that two
+  products are the same shoe — the null `product_group_id` in
+  `TorobFeedController` is that same missing fact, written out at length there
+  — so the target would be a guess; and a 301 is the one kind of wrong that
+  cannot be taken back out of a crawler's index by fixing the code.
+- **It does not put the shoe back on the shop.** Retired stays retired: out of
+  the listing, out of `/sitemap.xml`, out of the feed. The test asserts all
+  three, because keeping an address alive must not quietly undo «این موارد
+  اوایل راه اندازی سایت قرار داده شدن».
+- **It does not change the franchise rule.** A shoe this *branch* does not
+  list is still a 404 — that shoe is on sale at central this minute, so «دیگر
+  عرضه نمی‌شود» would be false, and a branch that never listed it never handed
+  the address out. `CataloguePagesTest` already held that and still does.
+- **A slug that was never a product is still a 404.** The change is about
+  addresses the shop gave out, not about answering 200 to every string under
+  `/products`.
+
+The alternatives are three widening passes — the same brand, then the same
+sections, then whatever is newest — and **not** `related()`, which is built
+from the shoe's own price: a retired shoe's offer is inactive, `offerHere()`
+is null, and that band would come back empty. A band that empties itself
+silently is how the front page lost its hero (`HeroOutlivesTheSaleTest`);
+this one has a floor under it. The way out points at the brand's listing only
+when the brand still has something in it, or it is a dead end two clicks long
+instead of one.
+
+### What it cost elsewhere, and what it did not
+
+Five existing tests asserted «off the shop» by asserting a 404 on the page.
+All five now assert the retired page instead — in `DemoProductTest` (three),
+`NoDemoDataOnTheLivePanelTest` and `TheSetupShoesAreOffTheShopTest` — and each
+carries a line saying why, because "the address 404s" was a reasonable way to
+write "nobody can buy this" right up until the day it wasn't. What every one
+of them still asserts is the thing that matters: the record survives, the
+variant is not sellable, and the shoe is out of every listing.
+
+**No new class name.** Every class on the page — `.vp-shop-panel`,
+`.vp-empty`, `.vp-pdp-related`, the listing's grid — is already in the
+markup, so the three bought stylesheets did not have to be re-cut and
+`CssSubsetTest` is untouched. That was a constraint on the design and not an
+accident of it: a new name would have meant `make-css-subset.js`,
+`check-css-subset.js` and `sync-storefront-assets.js` before this page could
+be styled at all, and this page has nothing to say that the shop has not said
+somewhere else.
+
+Measured in Chromium at 390, 768, 1200 and 1920: no sideways scroll at any of
+them, the design gate reads `ok`, and the empty panel comes out 580px — the
+same number as the basket's, which is where the material came from.
+
+### What is still open
+
+`/products/golden-goose` is now a page. It is not a *product* page, and ترب
+asked for «صفحهٔ معتبر محصول». If they come back still unsatisfied, the honest
+next step is not a redirect invented here — it is telling them that address
+belongs to a shoe the shop stopped selling on 07 Sept and asking them to drop
+it, since the colourways they mention are in the feed with addresses of their
+own. The duplicate-titles half of their earlier ticket is still open too, and
+`product_group_id` is still null for the reason written in the feed.

@@ -8,6 +8,7 @@ use App\Models\Variant;
 use App\Support\Marketplace\Sellers;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -16,13 +17,42 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 /**
  * One shoe, at this branch.
  *
- * A product the branch does not sell is a 404 here, not a page with no price
- * on it. That is the honest answer: the shoe exists, but not in this shop, and
- * a page that renders anyway would be a listing for something nobody can buy.
+ * **An address that once showed a shoe never becomes a 404**, and that is a
+ * reversal of what this file used to say. It said a product the branch does
+ * not sell is a 404, «the honest answer», and for a shopper typing a slug it
+ * still would be. It is the wrong answer for the address of a shoe the shop
+ * sold last month, because that address is not a guess — it is in ترب's
+ * index, in Google's, and in whatever a customer bookmarked.
+ *
+ * ترب wrote on 2026-09-15: «آدرس نمونهٔ https://vikyplus.ir/products/
+ * golden-goose در حال حاضر صفحهٔ معتبر محصول را باز نمی‌کند … آدرس‌های قدیمی
+ * مانند نمونهٔ بالا خطای کالا وجود ندارد ندهند». `golden-goose` is one of the
+ * five shoes the shop opened with, retired on 2026-09-07 by
+ * `take_the_five_setup_shoes_off_the_shop` — retired and not deleted, so the
+ * row is still here and only the page went. Nothing went red: the migration
+ * did exactly what it was asked, the feed correctly stopped listing the shoe,
+ * and the address it had already handed out died quietly. An aggregator reads
+ * that 404 as «کالا وجود ندارد» and takes the shop's listing down with it.
+ *
+ * So the shoe's own page is replaced by `shop.gone` — the name, the sentence
+ * that it is no longer sold, and what the shop does have instead — at **200**,
+ * with `X-Robots-Tag: noindex`. The two are one decision: 200 is for the
+ * shopper and for every catalogue that only asks whether the address answers,
+ * and the header is for the search engines, which should stop indexing a shoe
+ * nobody can buy. A 410 would be the tidier answer to Google alone and is
+ * exactly the answer that started this.
+ *
+ * The retirement is still a retirement: the shoe is out of the feed, out of
+ * the sitemap and out of every listing. What is left is an address that says
+ * what happened.
+ *
+ * **A shoe that this branch does not sell is still a 404**, which is the rule
+ * this file always had and is a different question: that shoe is on sale, and
+ * at a franchise that never listed it there is no old address to keep alive.
  */
 class ProductController extends Controller
 {
-    public function __invoke(Product $product, Sellers $sellers): View
+    public function __invoke(Product $product, Sellers $sellers): View|Response
     {
         $customer = Auth::guard('customer')->user();
 
@@ -62,7 +92,18 @@ class ProductController extends Controller
          */
         $sold = $product->offerHere();
 
-        if ($product->status !== 'active' || ($bySize->isEmpty() && $sold === null)) {
+        // Retired: the shop sold this and has stopped. The address stays, and
+        // says so. See the note at the top of the class.
+        if ($product->status !== 'active') {
+            return $this->gone($product);
+        }
+
+        // Still a 404, and deliberately a different answer from the one above:
+        // this shoe is on sale, just not at the shop being asked. A franchise
+        // that never listed it never handed the address out, so nobody holds
+        // it — and «دیگر عرضه نمی‌شود» would be false, since central is selling
+        // it right now.
+        if ($bySize->isEmpty() && $sold === null) {
             throw new NotFoundHttpException('Nobody here sells that.');
         }
 
@@ -143,6 +184,122 @@ class ProductController extends Controller
                 ->where('customer_id', $customer->id)
                 ->first(),
         ]);
+    }
+
+    /**
+     * The page an address keeps once the shop has stopped selling the shoe.
+     *
+     * Not a redirect, and that is the decision worth defending. The obvious
+     * move is a 301 to whatever the shop sells that is closest, and it is
+     * wrong twice: nothing in this catalogue knows that two products are the
+     * same shoe — the null `product_group_id` in `TorobFeedController` is the
+     * same missing fact, written down at length there — so the target would be
+     * a guess, and a 301 is the one kind of wrong that cannot be taken back
+     * out of a crawler's index by fixing it here.
+     *
+     * A page that says «این محصول دیگر عرضه نمی‌شود», names the shoe, and puts
+     * four things the shop really has under it is true whatever the shoe was,
+     * and a shopper arriving from ترب on a retired listing reads it and keeps
+     * shopping. That is the whole difference between this and the 404: the
+     * 404's honesty stops at «not here», where the shopper is.
+     *
+     * `X-Robots-Tag` rather than a `<meta>`, because `partials/head.blade.php`
+     * is generated by `theme/make-blade.js` and may not be hand-edited — and a
+     * header is read by a crawler that never parses the body.
+     */
+    private function gone(Product $product): Response
+    {
+        return response()
+            ->view('shop.gone', [
+                'product' => $product,
+                'instead' => $this->instead($product),
+                // Where «دیدن بقیه محصولات» goes: the brand's own listing
+                // when the shop still has that brand — a retired Golden Goose
+                // very likely has living Golden Geese beside it, which is
+                // exactly ترب's «مدل‌های رنگی این کالا» — and the whole shop
+                // otherwise.
+                //
+                // The `exists()` is not belt and braces. The brand of a shoe
+                // that has just been retired may have nothing left at all, and
+                // then this link lands on «چیزی با این مشخصات پیدا نشد»: a
+                // dead end two clicks long instead of one. It is one query, on
+                // a page nobody's shopping goes through.
+                'out' => $product->brand && Product::query()->listable()
+                    ->where('brand_id', $product->brand_id)->exists()
+                        ? storefront_route('shop').'?brand='.$product->brand->slug
+                        : storefront_route('shop'),
+            ])
+            ->header('X-Robots-Tag', 'noindex');
+    }
+
+    /** How many shoes the gone page offers instead. One row of the listing's grid. */
+    private const INSTEAD = 4;
+
+    /**
+     * What the shop has instead of the shoe that has gone.
+     *
+     * Three passes, widening: the same brand, then the same sections, then
+     * whatever is newest. **Not `related()`** — that band is built from the
+     * shoe's own price, and a retired shoe's offer is inactive, so
+     * `offerHere()` is null and the budget it works from does not exist. A
+     * band that quietly comes back empty is how the front page lost its hero
+     * (see `HeroOutlivesTheSaleTest`); this one has a floor under it.
+     *
+     * `listable()`, so what is offered is what the shop is really selling, and
+     * `inStockFirst()`, so an empty shelf is not the consolation for an empty
+     * page.
+     *
+     * @return Collection<int, Product>
+     */
+    private function instead(Product $product): Collection
+    {
+        $found = collect();
+
+        if ($product->brand_id !== null) {
+            $found = $this->liveHere($product, $found)
+                ->where('brand_id', $product->brand_id)
+                ->limit(self::INSTEAD)
+                ->get();
+        }
+
+        $categories = $product->categories->pluck('id');
+
+        if ($found->count() < self::INSTEAD && $categories->isNotEmpty()) {
+            $found = $found->concat(
+                $this->liveHere($product, $found)
+                    ->whereHas('categories', fn (Builder $c) => $c->whereIn('categories.id', $categories))
+                    ->limit(self::INSTEAD - $found->count())
+                    ->get()
+            );
+        }
+
+        if ($found->count() < self::INSTEAD) {
+            $found = $found->concat(
+                $this->liveHere($product, $found)
+                    ->limit(self::INSTEAD - $found->count())
+                    ->get()
+            );
+        }
+
+        return $found;
+    }
+
+    /**
+     * Everything this branch is selling except the shoe that has gone and
+     * whatever an earlier pass already picked.
+     *
+     * @param  Collection<int, Product>  $already
+     */
+    private function liveHere(Product $product, Collection $already): Builder
+    {
+        return Product::query()
+            ->listable()
+            ->pricedHere()
+            ->whereKeyNot($product->id)
+            ->whereNotIn('products.id', $already->pluck('id'))
+            ->with(['brand', 'media', 'variants.offer', 'variants.stock', 'defaultVariant.offer'])
+            ->inStockFirst()
+            ->orderByDesc('published_at');
     }
 
     /**

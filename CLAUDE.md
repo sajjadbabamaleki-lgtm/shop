@@ -853,6 +853,28 @@ the client saw an old page and had no way to tell why. So, plainly:
   `page_uniques` fetch of the feed, not memory — and their own warning applies
   to this id once it starts being sent: «در صورت تغییر شناسه‌ی محصول، محصولات
   شما در ترب از دسترس خارج می‌شوند».
+- **A shoe the shop stops selling keeps its address, and a retired product page
+  is a 200 and not a 404.** ترب, 15 Sept: «آدرس نمونهٔ https://vikyplus.ir/
+  products/golden-goose … صفحهٔ معتبر محصول را باز نمی‌کند … آدرس‌های قدیمی مانند
+  نمونهٔ بالا خطای کالا وجود ندارد ندهند». `golden-goose` is one of the five
+  setup shoes, archived by `take_the_five_setup_shoes_off_the_shop` on 07 Sept
+  — retired and not deleted, so only the page went. **An aggregator reads that
+  404 as «کالا وجود ندارد» and questions the whole feed**, and nothing here
+  could see it: every test renders a product it has just seeded, and no check
+  asks what an address does after the shop stops using it.
+  `ProductController` renders `shop/gone.blade.php` for a retired product now —
+  the name, «دیگر در فروشگاه عرضه نمی‌شود», and four things the shop does have —
+  at 200 with `X-Robots-Tag: noindex`, which is the shopper and the crawler
+  answered separately. **Not a redirect**: nothing in this catalogue knows two
+  products are one shoe (same missing fact as `product_group_id`), so the
+  target would be a guess, and a 301 cannot be taken back out of an index.
+  Three things it does not touch, all asserted in `RetiredProductPageTest`:
+  the shoe stays out of the listing, the sitemap and the feed; **a shoe this
+  *branch* does not list is still a 404** (it is on sale at central, so «دیگر
+  عرضه نمی‌شود» would be false); and a slug that was never a product is still a
+  404. The feed's own addresses were never the fault — `page_url` is the
+  product's own route — and that test now opens every URL the feed sends.
+  Five tests that asserted «off the shop» *as* a 404 were changed with it.
 - **`/wholesale` and `/franchise` are the two things the shop advertises and
   had no way of hearing about.** «خرید تکی و عمده» has been on the front page's
   trust row and in the footer's strap since the template was dressed with no
