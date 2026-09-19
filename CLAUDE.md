@@ -1011,6 +1011,21 @@ the client saw an old page and had no way to tell why. So, plainly:
   it in behind somebody's back would make that impossible.
   `PanelCatalogueEditingTest` holds both halves — that a new product opens
   published, and that an emptied date still unpublishes.
+- **The shoes that fault had already stranded were put on the shop by
+  `2026_09_19_150000_put_the_unpublished_panel_products_on_the_shop`.** Fixing
+  the form fixes the next product, not the last one. **The fingerprint is
+  `status = 'active'` with no `published_at`, and it is precise rather than
+  convenient**: `basalam:import` stages an unpublished product as **`draft`**,
+  and the five setup shoes and the payment-test product were retired to
+  **`archived`** with their dates cleared — so none of those three decisions,
+  each made on purpose by somebody else, is swept up. Every one of them has a
+  test in `StrandedProductsGoOnTheShopTest` saying it stayed where it was.
+  **An unpublished product is not a 404**: `ProductController` asks for
+  `status` and a seller, and only `listable()`/`purchasable()` read
+  `published_at` — so such a shoe has a page that opens for anybody holding the
+  address, and is in no listing, no sitemap and no feed. That is what «فعال»
+  beside «منتشر نشده» actually means, and it is why the fault was invisible to
+  anybody who tested a link rather than searching the shop.
 - **A table cell that names itself keeps its own name on a phone.**
   `partials/admin-scripts.blade.php` labels every cell from its column heading
   so the panel's tables become cards below 992, and the price cell carries two

@@ -5269,3 +5269,38 @@ label between them. `data-label=""` on that cell is the fix —
 were built, and the script now leaves a cell that names itself alone.
 Measured at 390: no sideways scroll, both boxes full width, the button under
 them.
+
+### And the ones the fault had already stranded
+
+Fixing the form fixes the next product, not the last one. «اره بکن» —
+`2026_09_19_150000_put_the_unpublished_panel_products_on_the_shop`.
+
+**The fingerprint is `status = 'active'` with no `published_at`.** That pair is
+produced by nothing in this application except the panel's own create form, and
+each of the three things that look like it is a decision somebody made on
+purpose:
+
+- `basalam:import --publish=false` stages a product as **`draft`**, and its own
+  comment says a re-run must not put back a product a shopkeeper archived.
+- The five setup shoes and the payment-test product were retired to
+  **`archived`** with their dates cleared.
+- A shoe deliberately taken off the shop by emptying that date would match —
+  and until the form was fixed the box was empty on every new product, so
+  nobody had reason to find it. It is also the one case that is undone in one
+  click, from a field that now says what it does.
+
+Each has a test asserting it stayed where it was, which is most of what
+`StrandedProductsGoOnTheShopTest` is for.
+
+**What an unpublished product actually was, measured on the live site before
+the repair:** its page answered **200**. `ProductController` asks for
+`status === 'active'` and a seller; only `listable()` and `purchasable()` read
+`published_at`. So the shoe had a page for anybody holding the address and was
+in no listing, no sitemap and no feed — findable only if you already knew where
+it was. That is what «فعال» beside «منتشر نشده» meant, and it is why the fault
+survived: anybody checking the link saw a working page.
+
+The shop's other photographed product, «کفش», answered **404** both before and
+after, and correctly: it has no sizes and therefore no price, so nobody sells
+it. Publishing it changes its date and not its 404 — it needs a size with a
+price before it is a shoe the shop offers.
