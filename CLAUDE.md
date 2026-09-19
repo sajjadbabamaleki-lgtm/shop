@@ -1000,6 +1000,48 @@ the client saw an old page and had no way to tell why. So, plainly:
   sellable and `check-parity.js` prints zero the whole time. `--floor=0` there
   empties all eight sizes and collapses the home page. Never wire any of it
   into a seeder or into `liara_pre_start.sh`.
+- **`php artisan stock:add <pairs>` puts the same number of pairs on every size
+  the shop sells**, and it is the third thing in this application that may
+  write `branch_inventory`. «به کفش های موجود در فروشگاه برای هر کدام ده جفت
+  اضافه کن» — **the unit is the size**, agreed with the shop before it was
+  written: stock is stored per size, the size is what goes in a basket, and ten
+  pairs of a shoe with no size named is not a number this schema can hold. A
+  shoe with five sizes therefore takes fifty pairs.
+  `PlaceOrder` and `SettleOrder` still own the stock that belongs to *orders*
+  and nothing else may touch it; receiving goods is not that, it is the same
+  movement `/admin/inventory`'s count writes, and this is that screen's
+  `update()` in a loop with its transaction, its `lockForUpdate()` and its
+  `inventory_movements` row kept exactly as they are. Four things it will not
+  do: **open a shelf that does not exist** (a size priced here with no
+  `branch_inventory` row has never been stocked — those are named in the output
+  instead, because a silent skip is how a size stays at nought while everybody
+  believes it was filled); **touch a branch it was not pointed at** (a
+  franchise did not receive this delivery — central unless `--branch` says
+  otherwise); **stock the payment-test product** («کالای آزمایشی، لطفاً نخرید»
+  exists to be bought once and removed — `--everything` overrides); or **set a
+  number rather than add to one** (it re-reads each row under the lock and
+  adds, so a pair sold while it runs is not put back).
+  `--dry-run` prints what would move. On production it asks first, `--force`
+  means it, and **`2026_09_19_120000_put_ten_more_pairs_on_every_size` is how
+  the first ten reached the live shop** — nobody runs a command there, only a
+  migration reaches production. `AddStockTest` holds all of it.
+  **Two facts about the table that make this safe, and that a hand-written
+  update would get wrong:** `sellable_stock` is a **generated column**
+  (`stock_on_hand - stock_reserved`, worked out by Postgres) and writing it
+  throws; and there are three CHECK constraints — `stock_on_hand >= 0`,
+  `stock_reserved >= 0`, `stock_reserved <= stock_on_hand`. Adding a positive
+  number can violate none of them, which is what makes this safe to run from a
+  migration at boot at all, where a throw would stop the shop from starting.
+- **Restocking moves the home page, and that is data rather than markup.** The
+  daily deal prints the branch's real count — «فقط ۱ عدد باقی مانده» — so
+  taking every size from 1 to 11 redraws that line and the bar beside it:
+  measured at **exactly 628 pixels at every one of the four widths**, and
+  `check-parity.js` returns to its baseline to the pixel when the shelf is put
+  back. **A parity number that moves after a stock change is the shop, not a
+  regression** — check the shelf before reading it as one. The preview page is
+  a static copy carrying the seeder's numbers, which is the same reason
+  `theme/make-rtl-page.js` has to be told when `CatalogueSeeder`'s brand counts
+  change.
 - **The shop trades for real from 2026-09-07, and the pretend orders are off
   it.** «دیتاهای فیک از پنل ادمین حذف بشه … نباید با دیتای واقعی قاطی بشن» —
   `2026_09_07_090000_take_the_demo_data_off_the_live_panel` is the removal,

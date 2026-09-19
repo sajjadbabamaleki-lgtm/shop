@@ -5061,3 +5061,93 @@ this round: **no script is lost** by that bump — all six inline scripts are
 still present afterwards — so what is left is to understand the ordering and
 prove it with `check-parity.js` before shipping it. That is the next job, and
 it is worth doing: it is not only crawlers that block stylesheets.
+
+## Ten more pairs on every size
+
+«به کفش های موجود در فروشگاه برای هر کدام ده جفت اضافه کن.»
+
+### The one thing worth asking first
+
+Stock in this application is stored **per size** — `branch_inventory` has a row
+per variant per branch — and the size is the thing a customer puts in a basket.
+«ده جفت برای هر کدام» therefore has two readings that differ by a factor of the
+number of sizes a shoe has, and the shop confirmed the one that was meant:
+**ten pairs onto every size.** A shoe with five sizes takes fifty.
+
+The other reading is not merely smaller, it is unimplementable without
+inventing something: ten pairs spread across five sizes is two each, and
+nothing in the catalogue says that is how the delivery arrived. Asked rather
+than guessed, because this writes numbers a shop is held to — a shelf that
+claims stock the shop does not have is an order it cannot fill.
+
+### `php artisan stock:add <pairs>`
+
+The work is in a command and the migration calls it, which is the shape
+`2026_09_07_090000_take_the_demo_data_off_the_live_panel` established: nobody
+runs a command on the live site, so a migration is the only thing that reaches
+production, and a migration full of hand-written SQL is a second implementation
+of a rule that already exists somewhere.
+
+**It is the third writer of `branch_inventory`, and the only kind that may
+be.** `PlaceOrder` reserves and `SettleOrder` sells or releases; those two own
+the stock that belongs to *orders* and nothing else may touch it. Receiving
+goods is not that — it is the movement `/admin/inventory`'s count already
+writes — so this is that screen's `update()` in a loop, with its transaction,
+its `lockForUpdate()` and its `inventory_movements` row kept as they are. A
+shelf that changes with nothing on the record saying why is a shelf that cannot
+explain itself six weeks later, and `AddStockTest` asserts one movement per
+size.
+
+Four refusals, each of them a way to be wrong quietly:
+
+- **It never opens a shelf that does not exist.** A size with an active price
+  and no `branch_inventory` row has never been stocked here; creating one is
+  opening a shelf, not adding to it. Those sizes are counted and named in the
+  output instead — a silent skip is how a size sits at nought while everybody
+  believes it was filled. (Measured on the seeded shop: none.)
+- **It never touches a branch it was not pointed at.** `BranchOpener` copies
+  the catalogue to a franchise, so without this every run would restock the
+  whole chain from the central shop's paperwork. Central unless `--branch`.
+- **It leaves «کالای آزمایشی، لطفاً نخرید» alone.** That product exists to be
+  bought once with a real card and then removed. `--everything` includes it.
+- **It adds rather than sets.** Each row is re-read under the lock and added
+  to, so a pair sold between the list being gathered and the row being written
+  is not quietly put back — and `stock_reserved <= stock_on_hand` cannot be
+  tripped from this direction.
+
+`--dry-run` prints what would move and writes nothing. On production it asks
+first (`ConfirmableTrait`), and the migration passes `--force` because a deploy
+has nobody standing at a prompt.
+
+### Two facts about the table
+
+Both would be got wrong by a hand-written `UPDATE`, and both are why this is
+safe to run from a migration at boot:
+
+- **`sellable_stock` is a generated column** — `stock_on_hand - stock_reserved`,
+  worked out by Postgres. Writing it throws.
+- **Three CHECK constraints**: `stock_on_hand >= 0`, `stock_reserved >= 0`,
+  `stock_reserved <= stock_on_hand`. Adding a positive number can violate none
+  of them. That matters because `liara_pre_start.sh` runs `migrate --force`
+  under `set -eu`: a migration that throws does not fail a chore, it stops the
+  shop from starting. The migration catches anyway and logs with the same
+  prefix that script uses.
+
+### The home page moves, and it is the shop rather than a regression
+
+The daily deal prints the branch's real count — «فقط ۱ عدد باقی مانده» is a
+count and not a claim, which is what its own file says. Taking every size from
+1 to 11 redraws that line and the bar beside it: measured at **exactly 628
+pixels at every one of the four widths**, and `check-parity.js` returns to its
+baseline to the pixel (22,080 at 1440 and 25,714 at 1920) the moment the shelf
+is put back.
+
+So: **a parity number that moves after a stock change is the shop, not the
+markup** — look at the shelf before reading it as a fault. The preview page is
+a static copy carrying the seeder's numbers, the same reason
+`theme/make-rtl-page.js` has to be told when `CatalogueSeeder`'s brand counts
+change. Nothing in this round moves a pixel on a seeded database, which is what
+CI and a fresh checkout render.
+
+Production has held one of each size since it opened, so this takes every shelf
+from 1 to 11 and the daily deal's line from «فقط ۱ عدد» to «فقط ۱۱ عدد».
