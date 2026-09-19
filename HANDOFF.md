@@ -5366,3 +5366,39 @@ The box is a text input, not `type="number"`. A number input refuses «۲۰»
 outright — no message, nothing to press — and this panel is typed in Persian
 digits throughout. The controller folds them before the rule sees them, the
 same fold the price boxes on that screen already do.
+
+### Where the group is chosen
+
+«الان خب فیلد انتخاب اون گروهی که قراره قیمتش بره بالا کو؟»
+
+The brand select shipped in the page's search bar, between the search box and
+its button, and the bulk panel sat two cards below saying «روی ۸ قیمتی که همین
+الان فیلتر شده‌اند اعمال می‌شود». Rendered at 390 it reads as part of the search
+bar, and the panel that uses it has no visible way to choose anything. A
+control that exists on the page is not the same as one somebody can find.
+
+It is inside the panel now, first field, labelled «گروه» — and it is still the
+*same* control on the *same* form: the select carries
+`form="vp-pricing-filter"`, so the page keeps one idea of what the group is and
+only the select's position changed. Changing it submits that form, which is
+what makes the count, the button and the rows in the table below all true at
+once; `onchange="this.form.submit()"` is the same pattern the storefront's sort
+control has used since it was built, and without JavaScript the «جست‌وجو»
+button above submits the same form.
+
+Two more things went with it:
+
+- **The panel names the group in words**, beside the count: «الان انتخاب شده:
+  گلدن گوس، ۲ قیمت». The count answers «how many»; a screen that writes prices
+  has to answer «which» next to it. With nothing chosen it says «همه قیمت‌های
+  این فروشگاه» — bluntly, because that is the one group nobody should reach by
+  accident, and the `confirm()` repeats the name as well as the number.
+- **The panel is drawn even when the group is empty.** It used to be hidden on
+  a filter that matched nothing, which hid the only control that could choose a
+  different group and left somebody on a dead end with no way back but the
+  address bar. Now the selector stays and the apply button is what goes.
+
+`HouseTypographyTest` caught the first version of that sentence: it separated
+the group from the count with «—», and no panel screen prints one. Persian
+prose breaks with «،». Twenty-six strings had the same habit once; the test
+exists because nothing else would ever notice the twenty-seventh.

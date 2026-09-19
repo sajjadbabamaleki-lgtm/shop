@@ -14,23 +14,13 @@
     <p class="vp-adm-sub">{{ $branch->name }}، همه مبلغ‌ها به تومان</p>
 
     <div class="vp-adm-head-side">
-        <form class="vp-adm-filters" method="get" action="{{ route('admin.pricing') }}" role="search">
+        {{-- The brand select that belongs to this form is drawn inside the
+             bulk panel below, through its `form` attribute — see the note
+             there. It is one control and one form; only its position on the
+             page moved. --}}
+        <form id="vp-pricing-filter" class="vp-adm-filters" method="get" action="{{ route('admin.pricing') }}" role="search">
             <label class="visually-hidden" for="vp-pri-q">جست‌وجو</label>
             <input id="vp-pri-q" class="vp-adm-search" type="search" name="q" value="{{ $q }}" placeholder="نام کالا یا کد">
-
-            {{-- **The brand, by its own id and not by its name in the title.**
-                 «قیمت گلدن گوس هارو» is a question about a make, and a search
-                 for those words answers it with whatever happens to have them
-                 written in its name. This is the list the bulk change below
-                 counts, so it has to be the exact set. --}}
-            <label class="visually-hidden" for="vp-pri-brand">برند</label>
-            <select id="vp-pri-brand" name="brand">
-                <option value="">همه برندها</option>
-                @foreach ($brands as $option)
-                    <option value="{{ $option->slug }}" @selected($brand === $option->slug)>{{ $option->name }}</option>
-                @endforeach
-            </select>
-
             <button type="submit" class="vp-adm-apply">جست‌وجو</button>
             @if ($q !== '' || $brand !== '')
                 <a class="vp-adm-clear" href="{{ route('admin.pricing') }}">پاک کردن</a>
@@ -55,18 +45,48 @@
      `confirm()` is the panel's own way of asking before something
      irreversible, the same one the orders screen has used since it was
      written. --}}
-@if ($matched > 0)
-    <section class="vp-adm-card vp-adm-bulk">
-        <div class="vp-adm-card-head">
-            <h2 class="vp-adm-card-title">تغییر گروهی قیمت</h2>
-            <span class="vp-adm-card-more">
-                روی {{ fa_number($matched) }} قیمتی که همین الان فیلتر شده‌اند اعمال می‌شود، و به نزدیک‌ترین هزار تومان رند می‌شود
-            </span>
-        </div>
+<section class="vp-adm-card vp-adm-bulk">
+    <div class="vp-adm-card-head">
+        <h2 class="vp-adm-card-title">تغییر گروهی قیمت</h2>
+        <span class="vp-adm-card-more">قیمت‌ها به نزدیک‌ترین هزار تومان رند می‌شوند</span>
+    </div>
 
+    {{-- **The group is chosen here, in the panel that changes it.**
+
+         «فیلد انتخاب اون گروهی که قراره قیمتش بره بالا کو؟» — it was two
+         controls away, up in the search bar, looking like part of the search
+         box. A panel that says «روی ۸ قیمتِ فیلترشده» while the filter is
+         somewhere else is a panel whose group cannot be found.
+
+         It is still **one control and one form**: the select belongs to the
+         filter form above through its `form` attribute, so there is exactly
+         one idea on this page of what the group is. Only its position moved.
+         Changing it re-filters the page, which is what makes the count below
+         and the rows in the table true — and the same `onchange` the shop's
+         own sort control uses. Without JavaScript the «جست‌وجو» button above
+         submits the same form. --}}
+    <div class="vp-adm-form vp-adm-bulk-group">
+        <label for="vp-pri-brand">گروه</label>
+        <select id="vp-pri-brand" name="brand" form="vp-pricing-filter" onchange="this.form.submit()">
+            <option value="">همه برندها</option>
+            @foreach ($brands as $option)
+                <option value="{{ $option->slug }}" @selected($brand === $option->slug)>{{ $option->name }}</option>
+            @endforeach
+        </select>
+        {{-- «،» and not «—»: Persian prose does not break a line with an em
+             dash, and `HouseTypographyTest` renders every panel screen to say
+             so. It caught this sentence on the first full run. --}}
+        <span class="vp-adm-card-more">
+            الان انتخاب شده: {{ $group }}، {{ fa_number($matched) }} قیمت
+        </span>
+    </div>
+
+    @if ($matched === 0)
+        <p class="vp-adm-empty">این گروه هیچ قیمتی ندارد، پس چیزی برای تغییر نیست.</p>
+    @else
         <form class="vp-adm-form vp-adm-bulk-form" method="post"
               action="{{ route('admin.pricing.bulk', ['q' => $q, 'brand' => $brand]) }}"
-              onsubmit="return confirm('قیمت {{ fa_number($matched) }} مورد تغییر می‌کند. مطمئنی؟')">
+              onsubmit="return confirm('قیمت {{ fa_number($matched) }} مورد از «{{ $group }}» تغییر می‌کند. مطمئنی؟')">
             @csrf
 
             <label for="vp-bulk-dir">جهت</label>
@@ -84,8 +104,8 @@
 
             <button type="submit" class="vp-adm-apply">اعمال روی {{ fa_number($matched) }} قیمت</button>
         </form>
-    </section>
-@endif
+    @endif
+</section>
 
 <section class="vp-adm-card">
     @if ($offers->isEmpty())

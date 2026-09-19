@@ -56,8 +56,37 @@ class PricingController extends Controller
             // تا؟» is the one question a screen like this has to answer before
             // it is used and not after.
             'matched' => $this->matching($q, $brand)->count(),
+            // And the same answer in words. «فیلد انتخاب اون گروهی که قراره
+            // قیمتش بره بالا کو؟» was asked of a panel whose group was chosen
+            // two controls away at the top of the page — so the panel names
+            // its own group now, and the sentence has to be able to say «the
+            // whole shop» out loud, because that is the one case somebody must
+            // not press by accident.
+            'group' => $this->groupLabel($q, $brand),
             'branch' => $tenant->branch(),
         ]);
+    }
+
+    /**
+     * The group the bulk change would move, said in words.
+     *
+     * The count answers «how many»; this answers «which», and the two together
+     * are what somebody needs before pressing a button that writes prices. The
+     * unfiltered case is deliberately blunt: «همه قیمت‌های این فروشگاه» is the
+     * one group nobody should reach by accident.
+     */
+    private function groupLabel(string $q, string $brand): string
+    {
+        $name = $brand === ''
+            ? null
+            : Brand::where('slug', $brand)->value('name');
+
+        return match (true) {
+            $name !== null && $q !== '' => "{$name}، با جست‌وجوی «{$q}»",
+            $name !== null => $name,
+            $q !== '' => "هر کالایی که با «{$q}» پیدا شد",
+            default => 'همه قیمت‌های این فروشگاه',
+        };
     }
 
     /**

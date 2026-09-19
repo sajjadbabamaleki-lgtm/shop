@@ -286,6 +286,81 @@ class BulkPriceChangeTest extends TestCase
             ->assertSee('اعمال روی '.fa_number($expected).' قیمت', false);
     }
 
+    /**
+     * **The group is chosen in the panel that changes it.**
+     *
+     * «فیلد انتخاب اون گروهی که قراره قیمتش بره بالا کو؟» — it was up in the
+     * search bar, looking like part of the search box, while the panel two
+     * cards below said «روی ۸ قیمتِ فیلترشده». Asserted as «the select is
+     * inside `.vp-adm-bulk`», because a control that exists somewhere on the
+     * page is not the same as one somebody can find.
+     */
+    public function test_the_group_selector_is_inside_the_bulk_panel(): void
+    {
+        $html = $this->actingAs($this->staff)->get(route('admin.pricing'))->assertOk()->getContent();
+
+        $panel = mb_substr($html, (int) mb_strpos($html, 'vp-adm-bulk'));
+        $panel = mb_substr($panel, 0, (int) mb_strpos($panel, 'vp-adm-bulk-form'));
+
+        $this->assertStringContainsString('id="vp-pri-brand"', $panel, 'The group selector is not in the panel.');
+        $this->assertStringContainsString('form="vp-pricing-filter"', $panel,
+            'The selector is a second control rather than the filter\'s own, so the page now has two ideas of the group.');
+    }
+
+    /** Choosing a group narrows the list, the count and what would be written. */
+    public function test_choosing_a_group_narrows_the_count(): void
+    {
+        $all = $this->actingAs($this->staff)->get(route('admin.pricing'))->getContent();
+        $one = $this->actingAs($this->staff)->get(route('admin.pricing', ['brand' => 'golden-goose']))->getContent();
+
+        $geese = $this->offersOf('golden-goose')->count();
+
+        $this->assertStringContainsString('اعمال روی '.fa_number($geese).' قیمت', $one);
+        $this->assertStringNotContainsString('اعمال روی '.fa_number($geese).' قیمت', $all);
+    }
+
+    /**
+     * **The panel says which group, not only how many.**
+     *
+     * The count answers «how many»; a screen that writes prices has to answer
+     * «which» beside it.
+     */
+    public function test_the_panel_names_the_group(): void
+    {
+        $this->actingAs($this->staff)
+            ->get(route('admin.pricing', ['brand' => 'golden-goose']))
+            ->assertOk()
+            ->assertSee('گلدن گوس', false);
+    }
+
+    /**
+     * **And it says «the whole shop» out loud when nothing is chosen**, which
+     * is the one group nobody should reach by accident.
+     */
+    public function test_an_unfiltered_panel_says_it_would_move_the_whole_shop(): void
+    {
+        $this->actingAs($this->staff)
+            ->get(route('admin.pricing'))
+            ->assertOk()
+            ->assertSee('همه قیمت‌های این فروشگاه', false);
+    }
+
+    /**
+     * A group with nothing in it still shows the selector.
+     *
+     * The panel used to be hidden when the filter matched nothing — which hid
+     * the only control that could choose a different group, leaving somebody
+     * on a dead end with no way back but the address bar.
+     */
+    public function test_a_group_with_nothing_in_it_keeps_its_selector(): void
+    {
+        $this->actingAs($this->staff)
+            ->get(route('admin.pricing', ['q' => 'یک چیزی که در این فروشگاه نیست']))
+            ->assertOk()
+            ->assertSee('id="vp-pri-brand"', false)
+            ->assertDontSee('اعمال روی', false);
+    }
+
     /** And the brand list is there to be chosen from. */
     public function test_the_brand_filter_is_on_the_screen(): void
     {

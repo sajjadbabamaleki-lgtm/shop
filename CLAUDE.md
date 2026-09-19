@@ -1011,6 +1011,17 @@ the client saw an old page and had no way to tell why. So, plainly:
     written once for that reason, and the count is said twice — on the button
     and in the `confirm()` — because the number of rows is the only thing that
     distinguishes «the Golden Geese» from «the whole shop».
+  - **The group is chosen inside the panel that changes it.** It was in the
+    search bar at the top of the page first, looking like part of the search
+    box, and the answer to a panel that said «روی ۸ قیمتِ فیلترشده» two cards
+    below it was «فیلد انتخاب اون گروهی که قراره قیمتش بره بالا کو؟». It is
+    still **one control and one form** — the select carries
+    `form="vp-pricing-filter"`, so the page keeps a single idea of what the
+    group is and only the select's position moved. The panel also **names the
+    group in words** beside the count, and says «همه قیمت‌های این فروشگاه» out
+    loud when nothing is chosen, which is the one group nobody should reach by
+    accident. The panel is drawn even when the group is empty: hiding it hid
+    the only control that could choose a different one.
   - **Both numbers move together.** `compare_at_price` takes the same
     percentage, or a raise walks the pair into
     `branch_offers_compare_at_above_price` and, before it gets there, shows a
