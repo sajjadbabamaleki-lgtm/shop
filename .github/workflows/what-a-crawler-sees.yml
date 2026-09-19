@@ -1,0 +1,39 @@
+name: What a crawler sees
+
+# TEMPORARY. Deleted as soon as it has been read. No deploy job.
+
+on:
+  push:
+    branches: [claude/golden-goose-product-url-h3sxhd]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  look:
+    name: Count what the live shop publishes, after the repair
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - run: |
+          set +e
+          host=https://vikyplus.ir
+
+          curl -sS --max-time 60 "$host/sitemap.xml" -o /tmp/s.xml
+          echo "product URLs in the sitemap: $(grep -o '<loc>[^<]*/products/[^<]*</loc>' /tmp/s.xml | wc -l)   (was 144 before the repair)"
+
+          echo ""
+          echo "=== the two the client photographed ==="
+          for slug in ktony-znanh-nayk-mdl-air-force-1-sfyd kfsh; do
+            code=$(curl -sS --max-time 60 -o /tmp/p.html -w '%{http_code}' "$host/products/$slug")
+            insitemap=$(grep -c "/products/$slug<" /tmp/s.xml)
+            echo "$slug -> http $code, in sitemap: $insitemap"
+            echo "    $(grep -o '<title>[^<]*</title>' /tmp/p.html | head -1)"
+          done
+
+          echo ""
+          echo "=== and are they findable in the shop now? ==="
+          curl -sS --max-time 60 "$host/search?q=%D8%A7%DB%8C%D8%B1%20%D9%81%D9%88%D8%B1%D8%B3" -o /tmp/q.html
+          echo "«ایر فورس» in the listing: $(grep -c 'Air Force' /tmp/q.html) card mention(s)"
