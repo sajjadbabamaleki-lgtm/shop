@@ -159,6 +159,14 @@
 
                     if (span > 1) {
                         cell.setAttribute('data-vp-full', '');
+                    } else if (cell.hasAttribute('data-label')) {
+                        // **A cell that names itself keeps its own name.** The
+                        // product screen's price cell holds two labelled boxes
+                        // — the price and the one before the discount — so the
+                        // column's «قیمت اینجا» landed a third label between
+                        // them on a phone. `data-label=""` there, and the
+                        // stylesheet already draws no `::before` for an empty
+                        // one.
                     } else if (headings[column] !== undefined) {
                         cell.setAttribute('data-label', headings[column]);
                     }

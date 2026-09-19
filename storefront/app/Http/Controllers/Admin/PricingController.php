@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\BranchOffer;
+use App\Support\Catalogue\OfferPrice;
 use App\Support\Tenancy\TenantContext;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -56,37 +57,19 @@ class PricingController extends Controller
         // id belonging to another branch is not found, whoever posts it.
         $offer = BranchOffer::findOrFail($input['offer']);
 
-        $price = $this->rial($input['price']);
-        $compare = $this->rial($input['compare_at_price'] ?? null);
+        $price = OfferPrice::rial($input['price']);
+        $compare = OfferPrice::rial($input['compare_at_price'] ?? null);
 
-        if ($price === null || $price < 1) {
-            return $this->back($request, ['price' => 'قیمت را وارد کن.']);
+        // The rule lives in `OfferPrice` because the product screen writes a
+        // price too now, and a check enforced on one of the two screens is a
+        // check that depends on which page somebody opened.
+        if ($refusal = OfferPrice::refuse($price, $compare)) {
+            return $this->back($request, $refusal);
         }
 
-        // The database has this as a CHECK too. Saying it here means a person
-        // gets a sentence rather than a constraint violation.
-        if ($compare !== null && $compare < $price) {
-            return $this->back($request, ['compare_at_price' => 'قیمت قبل از تخفیف نمی‌تواند از قیمت فروش کمتر باشد.']);
-        }
-
-        $offer->update([
-            'price' => $price,
-            'compare_at_price' => $compare,
-            'status' => $input['status'],
-        ]);
+        OfferPrice::write($offer, $price, $compare, $input['status']);
 
         return $this->back($request)->with('status', 'قیمت ثبت شد.');
-    }
-
-    /**
-     * Toman in, Rial out. Persian digits fold first, and the thousands
-     * separators somebody types or pastes are thrown away.
-     */
-    private function rial(?string $value): ?int
-    {
-        $digits = preg_replace('/\D/', '', latin_digits((string) $value));
-
-        return $digits === '' ? null : (int) $digits * 10;
     }
 
     /** @param  array<string, string>  $errors */

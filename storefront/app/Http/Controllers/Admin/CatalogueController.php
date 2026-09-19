@@ -10,6 +10,7 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\Variant;
 use App\Models\VariantMedia;
+use App\Support\Catalogue\OfferPrice;
 use App\Support\Tenancy\TenantContext;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -51,10 +52,27 @@ class CatalogueController extends Controller
         ]);
     }
 
+    /**
+     * **A new product opens published, and that is a fix rather than a
+     * default.**
+     *
+     * «چرا وقتی یه محصول جدید از پنل ادمین اضافه میشه میزنه منتشر نشده؟» —
+     * because this built a `Product` with no `published_at`, so the date box
+     * came up empty, `store()` saved the null, and `purchasable()` wants a date
+     * in the past. The product was «فعال» in the panel and invisible on the
+     * site, and nothing anywhere said so: somebody adds a shoe, sees it in the
+     * catalogue list, and finds out it was never on the shop when a customer
+     * asks for it.
+     *
+     * Today's date, in the box, where it can be read and changed. Not a silent
+     * default in `store()`: the same field on an existing product means «take
+     * this off the shop» when it is cleared, and a store that filled in a date
+     * behind somebody's back would make that impossible to do.
+     */
     public function create(): View
     {
         return view('admin.product-edit', [
-            'product' => new Product(['status' => 'active']),
+            'product' => new Product(['status' => 'active', 'published_at' => now()]),
             'brands' => Brand::orderBy('name')->get(),
             'categories' => Category::orderBy('position')->get(),
         ]);
@@ -88,6 +106,65 @@ class CatalogueController extends Controller
         $product->categories()->sync($request->input('categories', []));
 
         return redirect()->route('admin.product.edit', $product)->with('status', 'ثبت شد.');
+    }
+
+    /**
+     * The price of one size, from the shoe's own screen.
+     *
+     * «چرا نمیشه از پنل ادمین قیمت های قبلیرو ادیت کرد؟؟؟؟» — it could, but
+     * only at `/admin/pricing`, which is a different screen with a different
+     * search box and no link from here. On this page the price was a line of
+     * text with nothing to press, so from where the shop was standing the
+     * answer was «you cannot». The row is a form now.
+     *
+     * **Both numbers**, because «قیمت قبلی» is the struck-through one as often
+     * as it is «the price I typed last week», and neither could be reached
+     * from here. Clearing the before-price box is how a sale is ended, so an
+     * empty box is a value and not an absence.
+     *
+     * **The offer's own status is not touched.** That column belongs to the
+     * pricing screen, which asks about it; a screen that does not ask must not
+     * decide. Turning a size off from here is «بازنشسته کن» beside it, which
+     * is a different thing and already exists.
+     *
+     * The parsing and the before-price rule are `OfferPrice`'s, shared with
+     * that screen — see the note there for why they cannot live in either
+     * controller.
+     */
+    public function updateVariantPrice(Request $request, Product $product, Variant $variant): RedirectResponse
+    {
+        $input = $request->validate([
+            'price' => ['required', 'string'],
+            'compare_at_price' => ['nullable', 'string'],
+        ], [], ['price' => 'قیمت']);
+
+        // Through the relation, so a variant id belonging to another product
+        // is simply not there, and the offer through the model so the branch
+        // scope decides which shop's price this is.
+        if (! $product->variants->contains($variant)) {
+            abort(404);
+        }
+
+        $offer = $variant->offer;
+
+        if (! $offer) {
+            return back()->withErrors([
+                'price' => 'این سایز در این شعبه برای فروش باز نشده، پس قیمتی ندارد که ویرایش شود.',
+            ]);
+        }
+
+        $price = OfferPrice::rial($input['price']);
+        $compare = OfferPrice::rial($input['compare_at_price'] ?? null);
+
+        if ($refusal = OfferPrice::refuse($price, $compare)) {
+            return back()->withErrors($refusal)->withInput();
+        }
+
+        OfferPrice::write($offer, $price, $compare);
+
+        return redirect()
+            ->route('admin.product.edit', $product)
+            ->with('status', 'قیمت ثبت شد.');
     }
 
     /**

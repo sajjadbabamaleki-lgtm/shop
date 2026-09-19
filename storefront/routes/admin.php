@@ -229,6 +229,17 @@ Route::middleware(['auth:web', ResolveAdminTenant::class])->group(function (): v
     Route::post('/catalogue/{product}/variants/{variant}', [CatalogueController::class, 'retireVariant'])
         ->middleware(RequirePlatformPermission::class.':catalogue.manage')
         ->name('product.variants.retire');
+    /*
+     * The price of one size, from the shoe's own screen.
+     *
+     * `/admin/pricing` could always do this and still can; what it could not do
+     * was be found by somebody standing on the product they wanted to reprice —
+     * «چرا نمیشه از پنل ادمین قیمت های قبلیرو ادیت کرد». Same permission as
+     * everything else on this screen: repricing is managing the catalogue.
+     */
+    Route::post('/catalogue/{product}/variants/{variant}/price', [CatalogueController::class, 'updateVariantPrice'])
+        ->middleware(RequirePlatformPermission::class.':catalogue.manage')
+        ->name('product.variants.price');
     Route::post('/catalogue/{product}/media', [CatalogueController::class, 'storeMedia'])
         ->middleware(RequirePlatformPermission::class.':catalogue.manage')
         ->name('product.media.store');

@@ -5199,3 +5199,73 @@ touched by this, and none of them should be.
   untouched baseline. The home page no longer moves when the shop restocks.
 - The bar is still two hand-picked widths in `tweaks.css`. If the number ever
   changes, the bar is the other half of the sentence and should change with it.
+
+## Two things the panel could not do
+
+«تمام چیزایی که برای این وبسایت ویکی پلاس ساختی افتضاحن … چرا نمیشه از پنل ادمین
+قیمت های قبلیرو ادیت کرد؟؟؟؟ چرا وقتی یه محصول جدید از پنل ادمین اضافه میشه
+میزنه منتشر نشده؟؟؟؟» — sent with a photograph of the catalogue list on a phone,
+showing a new shoe marked «فعال» and «منتشر نشده».
+
+Both were real. Neither could be seen from inside this repository, and the
+reason is the same in both cases: the suite tested that a product *can* be
+created and that a price *can* be changed on `/admin/pricing`, and no test ever
+asked whether the screen somebody is actually standing on can do either.
+
+### The price was a line of text
+
+It was editable — at `/admin/pricing`, a different page with its own search box
+and no link from the product being repriced. On the product's own screen the
+price column rendered `toman($variant->offer->price)` as plain text, and the
+only controls in the row were «بازنشسته کن» and the form that adds a *new*
+size. So the honest description of the panel was the shop's: you cannot edit a
+price from the product.
+
+The row is a form now, with both boxes — the price, and the struck-through one,
+which is how a sale is started and, by emptying it, ended. Two things it does
+not do:
+
+- **It does not touch the offer's `status`.** That column belongs to the
+  pricing screen, which asks about it. A screen that does not ask must not
+  decide, and turning a size off from here is «بازنشسته کن» beside it.
+- **It does not carry its own copy of the rule.** The moment two screens write
+  a price, «Toman in, Rial out» and the before-price check cannot live in
+  either of them: `App\Support\Catalogue\OfferPrice` is the one place, and
+  `PricingController` was rewritten onto it rather than left as the original.
+
+`refuse()` returns the **field** as well as the sentence. That is not
+decoration: folding the two checks together moved the error key from
+`compare_at_price` to `price`, which lights the wrong box on the pricing
+screen's form, and `BranchPanelTest` caught it on the first full run. It is in
+the signature now so it cannot drift again.
+
+### A new product was invisible and said «فعال»
+
+`create()` built `new Product(['status' => 'active'])` and nothing else, so the
+date box came up empty, `store()` saved `published_at => null`, and
+`Product::purchasable()` wants a date in the past. The shoe existed, was
+«فعال», appeared in the catalogue list, and was on no page of the shop.
+
+The list did print «منتشر نشده» — the client's own photograph shows it — but
+next to a green «فعال» that reads like a state of the same kind rather than
+«this is not on your website».
+
+`create()` now opens with today in the box, and the field carries «خالی
+بگذاری، روی سایت دیده نمی‌شود» under it.
+
+**Why the value is in the form and not a default in `store()`:** the same field
+on an existing product is how a shoe is taken *off* the shop, and a `store()`
+that quietly filled in a date whenever the box was empty would make that
+impossible to do. What the form offers is what gets saved, and both halves have
+a test.
+
+### And one thing found on the way
+
+The panel's tables become cards below 992 by labelling each cell from its
+column heading (`partials/admin-scripts.blade.php`). The new price cell carries
+two labelled boxes of its own, so the column's «قیمت اینجا» landed as a third
+label between them. `data-label=""` on that cell is the fix —
+`tweaks.css` has drawn no `::before` for an empty label since the phone cards
+were built, and the script now leaves a cell that names itself alone.
+Measured at 390: no sideways scroll, both boxes full width, the button under
+them.

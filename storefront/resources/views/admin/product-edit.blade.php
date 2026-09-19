@@ -99,9 +99,14 @@
                 <div class="vp-adm-form">
                     <label for="p-published">تاریخ انتشار</label>
                     {{-- Empty means unpublished: `purchasable()` asks for a date in
-                         the past, so a product with none never reaches the shop. --}}
+                         the past, so a product with none never reaches the shop.
+                         A new product opens with today already in the box — see
+                         `CatalogueController::create()` for why that is a fix and
+                         not a default — and this line is here because «فعال» next
+                         to an empty date reads like a shoe that is on the site. --}}
                     <input id="p-published" type="date" name="published_at"
                            value="{{ old('published_at', $product->published_at?->format('Y-m-d')) }}">
+                    <span class="vp-adm-card-more">خالی بگذاری، روی سایت دیده نمی‌شود</span>
                 </div>
             </div>
 
@@ -166,9 +171,37 @@
                             <td>{{ fa_number((int) $variant->size_value) }}</td>
                             <td>{{ $variant->display_color }}</td>
                             <td>{{ $variant->sku }}</td>
-                            <td>
+                            {{-- **The price is a field, not a sentence.**
+                                 «چرا نمیشه از پنل ادمین قیمت های قبلیرو ادیت
+                                 کرد» — it could, at /admin/pricing, which is
+                                 not where somebody repricing this shoe is
+                                 standing. Both boxes: the price, and the
+                                 struck-through one beside it, which is how a
+                                 sale is started and — by emptying it — ended.
+
+                                 Toman in both, like every other price box in
+                                 this panel; `OfferPrice` does the conversion
+                                 and the before-price check for this screen and
+                                 for the pricing screen alike. --}}
+                            {{-- `data-label=""` so the phone's card layout does
+                                 not add «قیمت اینجا» between this cell's own two
+                                 labels. See `partials/admin-scripts.blade.php`. --}}
+                            <td data-label="">
                                 @if ($variant->offer)
-                                    {{ toman($variant->offer->price) }}
+                                    <form class="vp-adm-form vp-adm-price-edit" method="post"
+                                          action="{{ route('admin.product.variants.price', [$product, $variant]) }}">
+                                        @csrf
+                                        <label for="price-{{ $variant->id }}">قیمت (تومان)</label>
+                                        <input id="price-{{ $variant->id }}" name="price" inputmode="numeric"
+                                               value="{{ fa_number((int) ($variant->offer->price / 10)) }}" required>
+
+                                        <label for="was-{{ $variant->id }}">قیمت قبل از تخفیف</label>
+                                        <input id="was-{{ $variant->id }}" name="compare_at_price" inputmode="numeric"
+                                               placeholder="خالی یعنی بدون تخفیف"
+                                               value="{{ $variant->offer->compare_at_price ? fa_number((int) ($variant->offer->compare_at_price / 10)) : '' }}">
+
+                                        <button type="submit" class="vp-adm-mini">ثبت قیمت</button>
+                                    </form>
                                 @else
                                     <span class="vp-adm-badge is-cancelled">فروخته نمی‌شود</span>
                                 @endif

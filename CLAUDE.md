@@ -981,6 +981,43 @@ the client saw an old page and had no way to tell why. So, plainly:
   plaintext, after which every sign-in 500s on `Hash::check`. That has
   happened; `BrokenPasswordTest` and `App\Support\Auth\Passwords` are what
   came of it.
+- **A price is edited on the shoe's own screen as well as on `/admin/pricing`,
+  and both write through `App\Support\Catalogue\OfferPrice`.** «چرا نمیشه از
+  پنل ادمین قیمت های قبلیرو ادیت کرد؟؟؟؟» — it could, on the pricing screen,
+  which is a different page with a different search box and no link from the
+  product. On the product screen the price was **a line of text with nothing to
+  press**, so from where the shop was standing the answer was «you cannot».
+  The variant row is a form now, with both boxes: the price and the
+  struck-through one, which is how a sale is started and — by emptying it —
+  ended. **The offer's `status` is not touched from there**: that column
+  belongs to the screen that asks about it, and turning a size off from the
+  product screen is «بازنشسته کن» beside it, which already exists.
+  `OfferPrice` holds the Toman→Rial parsing and the before-price check because
+  **the moment two screens write a price, the rule cannot live in one of
+  them** — and `refuse()` returns the *field* as well as the sentence, since an
+  error about the before-price hung on the price box lights the wrong field.
+  That last part is not hypothetical: folding the two checks together moved the
+  key and `BranchPanelTest` caught it.
+- **⛔ A product added in the panel used to be invisible on the site, and
+  nothing said so.** «چرا وقتی یه محصول جدید از پنل ادمین اضافه میشه میزنه
+  منتشر نشده؟؟؟؟» — `create()` built `new Product(['status' => 'active'])` with
+  no `published_at`, so the date box came up empty, `store()` saved the null,
+  and `purchasable()` wants a date in the past. The catalogue list then showed
+  **«فعال» beside «منتشر نشده»**, which reads like a shoe that is on the shop.
+  `create()` now opens with today's date in the box, and the field carries
+  «خالی بگذاری، روی سایت دیده نمی‌شود» under it. **The fix is a value in the
+  form and deliberately not a default in `store()`**: clearing that date on an
+  existing product is how a shoe is taken off the shop, and a store that filled
+  it in behind somebody's back would make that impossible.
+  `PanelCatalogueEditingTest` holds both halves — that a new product opens
+  published, and that an emptied date still unpublishes.
+- **A table cell that names itself keeps its own name on a phone.**
+  `partials/admin-scripts.blade.php` labels every cell from its column heading
+  so the panel's tables become cards below 992, and the price cell carries two
+  labelled boxes of its own — the column's «قیمت اینجا» landed a third label
+  between them. `data-label=""` on the cell is the answer, because
+  `tweaks.css` already draws no `::before` for an empty one. Nothing else can
+  see this: above 992 it is an ordinary table.
 - **`php artisan demo:orders` fills the panel with pretend orders**, one in
   every state the shop can produce — unconfirmed, confirmed, late, shipped,
   delivered, cancelled before payment, refunded after it — because against an
