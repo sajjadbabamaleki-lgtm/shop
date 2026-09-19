@@ -5304,3 +5304,65 @@ The shop's other photographed product, «کفش», answered **404** both before 
 after, and correctly: it has no sizes and therefore no price, so nobody sells
 it. Publishing it changes its date and not its 404 — it needs a size with a
 price before it is a shoe the shop offers.
+
+## Moving a whole make's prices at once
+
+«ببین تو پنل ادمین باید یه بخشی باشه که قیمتهارو بشه گروهی افزایش داد … مثلا من
+میخوام قیمت گلدن گوس هارو بالا ببرم همشونو ۲۰ درصد یا کم کنم ۲۰ درصد نباید دونه
+دونه همه رنگاشو برم جدا جدا قیمتشونو ببرم بالا.»
+
+The complaint is a fact about how this catalogue is shaped. `basalam:import`
+makes one product per supplier listing and the supplier lists each colourway
+separately, and each of those carries a `branch_offers` row per size — so
+«Golden Goose, up twenty percent» really was thirty forms.
+
+**It is on `/admin/pricing` and not a screen of its own.** That page already
+has the search box, the rows and the single-price form; a second screen would
+be a second place that writes a price and a second idea of what «all the Golden
+Geese» means. What was added is a **brand filter** beside the search, and a
+panel above the table that applies ±X% to whatever the filter is showing.
+
+### The four things that make it safe
+
+- **One query.** `matching()` builds the list, the count on the button and the
+  set that gets written. A bulk change that matched a different set from the
+  one on the screen would look right and be wrong in somebody's prices — the
+  worst shape a fault can have here. The count is printed twice, on the button
+  and inside the `confirm()`, because the number of rows is the only thing that
+  tells «the Golden Geese» apart from «the whole shop».
+- **Both numbers move together.** `compare_at_price` takes the same percentage
+  and the same rounding. Without that a raise walks the pair into
+  `branch_offers_compare_at_above_price`, and on the way there the shopper
+  watches a discount shrink while the shop believes it raised a price. A null
+  stays null: an offer with no sale does not grow one.
+- **The rounding is load-bearing.** `OfferPrice::scaled()` lands on the nearest
+  thousand Toman with a floor of one thousand. Every price in this application
+  is a whole number of Toman — `toman()` throws otherwise — and a percentage of
+  an arbitrary price is not one, so *some* rounding is compulsory; a thousand
+  is the step that also makes the result a number a shop would print. The floor
+  is there because a percentage of a small enough price rounds to nought, and a
+  shoe priced at nothing is an order the shop has to honour.
+  `test_every_result_is_a_price_this_application_can_hold` runs the whole grid
+  of percentages and prices through `toman()` for that reason.
+- **One write per row, through the model.** Slower than a single `UPDATE` with
+  an expression, and the point: `BranchOffer` carries `RecordsAudits`, so a
+  bulk change leaves a row per price saying what it was and who moved it. That
+  is the only way back from a percentage typed in the wrong direction, and §29
+  asks for it besides.
+
+### Two things worth telling the shop
+
+- **±20% is not a round trip.** Up twenty then down twenty is ×1.2×0.8 = 0.96,
+  and the rounding sits on top. Measured in the browser: 4,536,000 →
+  5,443,000 → 4,354,000.
+- **A franchise is not repriced by the central shop.** `BranchOffer` is
+  branch-scoped, so this reaches only the shop the person is signed in to.
+  That is the one property of this screen that nothing on the screen would
+  reveal, so there is a test for it.
+
+### And the percentage is typed in Persian
+
+The box is a text input, not `type="number"`. A number input refuses «۲۰»
+outright — no message, nothing to press — and this panel is typed in Persian
+digits throughout. The controller folds them before the rule sees them, the
+same fold the price boxes on that screen already do.

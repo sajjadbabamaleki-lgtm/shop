@@ -17,13 +17,75 @@
         <form class="vp-adm-filters" method="get" action="{{ route('admin.pricing') }}" role="search">
             <label class="visually-hidden" for="vp-pri-q">جست‌وجو</label>
             <input id="vp-pri-q" class="vp-adm-search" type="search" name="q" value="{{ $q }}" placeholder="نام کالا یا کد">
+
+            {{-- **The brand, by its own id and not by its name in the title.**
+                 «قیمت گلدن گوس هارو» is a question about a make, and a search
+                 for those words answers it with whatever happens to have them
+                 written in its name. This is the list the bulk change below
+                 counts, so it has to be the exact set. --}}
+            <label class="visually-hidden" for="vp-pri-brand">برند</label>
+            <select id="vp-pri-brand" name="brand">
+                <option value="">همه برندها</option>
+                @foreach ($brands as $option)
+                    <option value="{{ $option->slug }}" @selected($brand === $option->slug)>{{ $option->name }}</option>
+                @endforeach
+            </select>
+
             <button type="submit" class="vp-adm-apply">جست‌وجو</button>
-            @if ($q !== '')
+            @if ($q !== '' || $brand !== '')
                 <a class="vp-adm-clear" href="{{ route('admin.pricing') }}">پاک کردن</a>
             @endif
         </form>
     </div>
 </div>
+
+{{-- **Every price the filter above is showing, moved at once.**
+
+     «نباید دونه دونه همه رنگاشو برم جدا جدا قیمتشونو ببرم بالا» — this shop
+     imports a shoe one colourway per product and prices it one row per size,
+     so «Golden Goose, up twenty percent» was thirty forms filled in by hand.
+
+     What it changes is what the page is showing: the same filter builds the
+     list, the count on the button and the rows that are written. The count is
+     said twice — on the button and in the question the browser asks — because
+     the number of rows is the only thing that distinguishes «the Golden Geese»
+     from «the whole shop», and there is no undo on a price except the audit
+     trail.
+
+     `confirm()` is the panel's own way of asking before something
+     irreversible, the same one the orders screen has used since it was
+     written. --}}
+@if ($matched > 0)
+    <section class="vp-adm-card vp-adm-bulk">
+        <div class="vp-adm-card-head">
+            <h2 class="vp-adm-card-title">تغییر گروهی قیمت</h2>
+            <span class="vp-adm-card-more">
+                روی {{ fa_number($matched) }} قیمتی که همین الان فیلتر شده‌اند اعمال می‌شود، و به نزدیک‌ترین هزار تومان رند می‌شود
+            </span>
+        </div>
+
+        <form class="vp-adm-form vp-adm-bulk-form" method="post"
+              action="{{ route('admin.pricing.bulk', ['q' => $q, 'brand' => $brand]) }}"
+              onsubmit="return confirm('قیمت {{ fa_number($matched) }} مورد تغییر می‌کند. مطمئنی؟')">
+            @csrf
+
+            <label for="vp-bulk-dir">جهت</label>
+            <select id="vp-bulk-dir" name="direction">
+                <option value="up">افزایش</option>
+                <option value="down">کاهش</option>
+            </select>
+
+            {{-- A text box and not `type="number"`: this panel is typed in
+                 Persian digits and a number input refuses «۲۰» outright, with
+                 no message and nothing to press. The controller folds them,
+                 the same way the price boxes on this screen already do. --}}
+            <label for="vp-bulk-percent">درصد</label>
+            <input id="vp-bulk-percent" name="percent" value="{{ fa_number(20) }}" required inputmode="numeric" maxlength="4">
+
+            <button type="submit" class="vp-adm-apply">اعمال روی {{ fa_number($matched) }} قیمت</button>
+        </form>
+    </section>
+@endif
 
 <section class="vp-adm-card">
     @if ($offers->isEmpty())

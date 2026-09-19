@@ -71,6 +71,39 @@ class OfferPrice
     }
 
     /**
+     * What a price rounds to when the shop moves a whole shelf of them.
+     *
+     * A thousand Toman. Two reasons, and the first is not taste: every price
+     * in this application is a whole number of Toman — `toman()` throws
+     * otherwise — and a percentage of an arbitrary price is not. 20% of
+     * 5,586,000 Toman is 6,703,200, which is a number no shop would print, and
+     * some percentages land on a fraction of a Toman, which is a number no
+     * column here will hold.
+     */
+    public const ROUNDING = 1_000;
+
+    /**
+     * One price, moved by a percentage, landed on a number a shop would print.
+     *
+     * «مثلا من میخوام قیمت گلدن گوس هارو بالا ببرم همشونو ۲۰ درصد یا کم کنم ۲۰
+     * درصد» — the arithmetic of that, in one place, so the screen can show what
+     * it will do and the writer can do what it showed.
+     *
+     * **Rounded to the nearest thousand Toman**, which is what makes the result
+     * both printable and storable; see `ROUNDING`. **Never below one thousand
+     * Toman**, because a percentage applied to a small enough price rounds to
+     * nought, and a shoe priced at nothing is an order the shop has to honour.
+     */
+    public static function scaled(int $rial, int $percent, bool $up): int
+    {
+        $factor = $up ? 100 + $percent : 100 - $percent;
+
+        $step = self::ROUNDING * 10;
+
+        return max($step, (int) round($rial * $factor / 100 / $step) * $step);
+    }
+
+    /**
      * Write both numbers, and the offer's own status with them.
      *
      * `BranchOffer` carries `RecordsAudits`, so «who lowered this, from what,

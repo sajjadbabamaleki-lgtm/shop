@@ -998,6 +998,42 @@ the client saw an old page and had no way to tell why. So, plainly:
   error about the before-price hung on the price box lights the wrong field.
   That last part is not hypothetical: folding the two checks together moved the
   key and `BranchPanelTest` caught it.
+- **`/admin/pricing` moves a whole filter's prices by a percentage.** «قیمت
+  گلدن گوس هارو بالا ببرم همشونو ۲۰ درصد … نباید دونه دونه همه رنگاشو برم جدا
+  جدا قیمتشونو ببرم بالا» — a shoe reaches this shop one colourway per product
+  and is priced one row per size, so one make was thirty forms by hand. The
+  screen has a **brand** filter beside its search box now, and a panel that
+  applies ±X% to whatever the filter is showing.
+  Four things hold it together:
+  - **One query builds the list, the count on the button and the rows that get
+    written.** A bulk change that matched a different set from the one on the
+    screen would look right and be wrong in somebody's prices; `matching()` is
+    written once for that reason, and the count is said twice — on the button
+    and in the `confirm()` — because the number of rows is the only thing that
+    distinguishes «the Golden Geese» from «the whole shop».
+  - **Both numbers move together.** `compare_at_price` takes the same
+    percentage, or a raise walks the pair into
+    `branch_offers_compare_at_above_price` and, before it gets there, shows a
+    shopper a discount shrinking while the shop thinks it raised a price. A
+    null stays null.
+  - **`OfferPrice::scaled()` rounds to the nearest thousand Toman**, with a
+    floor of one thousand. That is not taste: every price here is a whole
+    number of Toman — `toman()` throws otherwise — and a percentage of an
+    arbitrary price is not one. The floor is there because a percentage of a
+    small enough price rounds to nought, and a shoe priced at nothing is an
+    order the shop has to honour. **±20% is not a round trip**: ×1.2×0.8 is
+    0.96, and the rounding is on top of that.
+  - **Every row is written through the model, one at a time**, not as one
+    `update` with an expression. It is slower on purpose: `BranchOffer` carries
+    `RecordsAudits`, so this leaves a row per price saying what it was and who
+    moved it, which is the only way back from a percentage typed in the wrong
+    direction.
+  Branch-scoped like everything else on that screen, so it can only ever reach
+  the shop the person is signed in to — `BulkPriceChangeTest` asserts a
+  franchise's prices survive a central bulk change, which is the one thing the
+  screen itself would never reveal. **The percentage is typed in Persian
+  digits**, so the box is a text input and the controller folds them: a
+  `type="number"` refuses «۲۰» outright, with no message and nothing to press.
 - **⛔ A product added in the panel used to be invisible on the site, and
   nothing said so.** «چرا وقتی یه محصول جدید از پنل ادمین اضافه میشه میزنه
   منتشر نشده؟؟؟؟» — `create()` built `new Product(['status' => 'active'])` with

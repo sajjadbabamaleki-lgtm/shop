@@ -187,6 +187,17 @@ Route::middleware(['auth:web', ResolveAdminTenant::class])->group(function (): v
     Route::post('/pricing', [PricingController::class, 'update'])
         ->middleware(RequirePermission::class.':branch.pricing.manage')
         ->name('pricing.update');
+    /*
+     * Every price the filter is showing, moved by a percentage.
+     *
+     * «نباید دونه دونه همه رنگاشو برم جدا جدا قیمتشونو ببرم بالا» — a shoe
+     * arrives here one colourway per product with a row per size, so putting
+     * one make up twenty percent was thirty forms. Same permission as the
+     * single-price form beside it: it is the same act, done to more rows.
+     */
+    Route::post('/pricing/bulk', [PricingController::class, 'bulk'])
+        ->middleware(RequirePermission::class.':branch.pricing.manage')
+        ->name('pricing.bulk');
 
     // A discount is pricing, so it needs the pricing permission.
     Route::get('/discounts', [DiscountController::class, 'index'])
