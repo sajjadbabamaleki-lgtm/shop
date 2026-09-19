@@ -1,0 +1,38 @@
+name: What a crawler sees
+
+# TEMPORARY. Deleted as soon as it has been read. No deploy job.
+
+on:
+  push:
+    branches: [claude/golden-goose-product-url-h3sxhd]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  look:
+    name: Read the banner and a shelf back off the live shop
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - run: |
+          set +e
+          host=https://vikyplus.ir
+
+          echo "=== the banner on the home page ==="
+          curl -sS --max-time 60 "$host/" -o /tmp/home.html
+          grep -o 'فقط [^<]* عدد باقی مانده' /tmp/home.html | head -2
+
+          echo ""
+          echo "=== and the real shelf, one click away, unchanged ==="
+          curl -sS --max-time 60 "$host/sitemap.xml" -o /tmp/s.xml
+          grep -o '<loc>[^<]*</loc>' /tmp/s.xml | sed 's/<[^>]*>//g' | grep '/products/' | sed -n '2,3p' > /tmp/u.txt
+          while read -r u; do
+            [ -n "$u" ] || continue
+            curl -sS --max-time 60 -o /tmp/p.html "$u"
+            echo "$(grep -o '<title>[^<]*</title>' /tmp/p.html | head -1 | sed 's/<[^>]*>//g')"
+            echo "   availability: $(grep -o 'schema.org/InStock\|schema.org/OutOfStock' /tmp/p.html | head -1)"
+            echo "   «ناموجود»:    $(grep -c 'ناموجود' /tmp/p.html)"
+          done < /tmp/u.txt
