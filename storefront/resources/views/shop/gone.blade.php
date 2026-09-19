@@ -16,7 +16,16 @@
     name reads as a broken site rather than as an answer.
 --}}
 
-@section('title', $product->title.' — '.config('app.name'))
+@section('title', $seoTitle)
+@section('description', $seoDescription)
+
+{{-- **The shop says «discontinued» in schema.org's own word as well as in
+     Persian.** An aggregator holding this address needs to be told, in a field
+     it reads, that the shoe is gone — the sentence in the panel below is for a
+     person, and ترب answered it with «فاقد محصول». --}}
+@section('meta')
+    @include('shop.meta', ['facts' => $facts, 'canonical' => $canonical])
+@endsection
 
 @section('content')
 <section class="vp-shop-section">

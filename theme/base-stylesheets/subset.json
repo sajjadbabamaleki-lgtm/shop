@@ -1,7 +1,7 @@
 {
   "note": "Written by theme/make-css-subset.js. Do not edit — re-run the script.",
-  "vocabulary": "1571249276bbd6986806ba6618300383b86cd1fe5d26586cab3d0e19272ae40c",
-  "words": 7507,
+  "vocabulary": "51a1639631cd3a4b85802a04954508a31e1011b7fe6dc7783cd42fe91f281929",
+  "words": 7562,
   "read": [
     "download-version/assets/js/gsap.min.js",
     "download-version/assets/js/main.js",
@@ -92,9 +92,11 @@
     "storefront/resources/views/shop/colors.blade.php",
     "storefront/resources/views/shop/filters.blade.php",
     "storefront/resources/views/shop/gallery.blade.php",
+    "storefront/resources/views/shop/gone.blade.php",
     "storefront/resources/views/shop/index.blade.php",
     "storefront/resources/views/shop/message.blade.php",
     "storefront/resources/views/shop/messages.blade.php",
+    "storefront/resources/views/shop/meta.blade.php",
     "storefront/resources/views/shop/order.blade.php",
     "storefront/resources/views/shop/pay/default.blade.php",
     "storefront/resources/views/shop/pay/snapppay.blade.php",

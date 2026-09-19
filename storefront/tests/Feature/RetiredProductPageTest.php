@@ -4,6 +4,8 @@ namespace Tests\Feature;
 
 use App\Http\Middleware\VerifyTorobToken;
 use App\Models\Branch;
+use App\Models\BranchInventory;
+use App\Models\BranchOffer;
 use App\Models\Product;
 use App\Support\Tenancy\TenantContext;
 use Database\Seeders\BranchSeeder;
@@ -67,6 +69,53 @@ class RetiredProductPageTest extends TestCase
         return $this->withoutMiddleware(VerifyTorobToken::class)
             ->postJson('/torob_api/v3/products', ['page' => 1, 'sort' => 'date_added_desc'])
             ->assertOk();
+    }
+
+    /**
+     * The same shoe as `$of`, on the shelf, under a longer name.
+     *
+     * This is the shape the live catalogue is really in: `basalam:import`
+     * makes one product per supplier listing and the supplier lists each
+     * colour separately, so the shop's seven Golden Geese are seven rows whose
+     * titles all begin with the retired one's.
+     */
+    private function aColourwayOf(Product $of, string $title): Product
+    {
+        $slug = 'colourway-'.mb_substr(md5($title), 0, 8);
+
+        $product = Product::create([
+            'slug' => $slug,
+            'title' => $title,
+            'short_title' => mb_substr($title, 0, 20),
+            'brand_id' => $of->brand_id,
+            'status' => 'active',
+            'published_at' => now(),
+        ]);
+
+        $variant = $product->variants()->create([
+            'sku' => 'VP-CW-'.strtoupper(mb_substr(md5($slug), 0, 8)),
+            'size_value' => '40',
+            'size_system' => 'EU',
+            'display_color' => 'صورتی',
+            'color_family' => 'other',
+            'status' => 'active',
+        ]);
+
+        BranchOffer::create([
+            'branch_id' => Branch::central()->id,
+            'variant_id' => $variant->id,
+            'price' => 4_000_000,
+            'status' => 'active',
+        ]);
+
+        BranchInventory::create([
+            'branch_id' => Branch::central()->id,
+            'variant_id' => $variant->id,
+            'stock_on_hand' => 3,
+            'stock_reserved' => 0,
+        ]);
+
+        return $product;
     }
 
     /**
@@ -136,9 +185,85 @@ class RetiredProductPageTest extends TestCase
     {
         $this->retire('golden-goose');
 
+        // The card's own link and not the bare address: the page names its
+        // own URL once more now, in `<link rel="canonical">`, which is
+        // correct and is the opposite of a card offering the shoe for sale.
         $this->get('/products/golden-goose')
             ->assertOk()
-            ->assertDontSee('href="'.url('/products/golden-goose').'"', false);
+            ->assertDontSee('vp-card-name" href="'.url('/products/golden-goose').'"', false);
+    }
+
+    /**
+     * **The shop still sells this shoe, so the address goes to it.**
+     *
+     * ترب's second ticket, 19 Sept: «لینک‌های ارسالی شما همچنان فاقد محصول
+     * می‌باشند», over a screenshot of `/products/golden-goose` showing the
+     * «دیگر عرضه نمی‌شود» panel — while the live shop lists seven Golden
+     * Geese, imported from the supplier one colourway at a time. The honest
+     * page was answering a question nobody asked: the shoe is not gone, the
+     * *row* is, and the shoe is on the shelf under a longer name.
+     */
+    public function test_it_goes_to_the_same_shoe_when_the_shop_still_sells_it(): void
+    {
+        $retired = $this->retire('golden-goose');
+
+        $colourway = $this->aColourwayOf($retired, 'کتونی گلدن گوس رنگ صورتی Golden Goose');
+
+        $this->get('/products/golden-goose')
+            ->assertRedirect(url('/products/'.$colourway->slug));
+    }
+
+    /**
+     * **302 and not 301**, because nothing here knows these two rows are one
+     * product for ever — and a permanent redirect is the one kind of wrong a
+     * crawler will not let the shop take back.
+     */
+    public function test_the_redirect_is_temporary(): void
+    {
+        $retired = $this->retire('golden-goose');
+        $this->aColourwayOf($retired, 'کتونی گلدن گوس رنگ صورتی Golden Goose');
+
+        $this->assertSame(302, $this->get('/products/golden-goose')->getStatusCode());
+    }
+
+    /**
+     * The live name has to contain the whole of the retired one.
+     *
+     * A sandal by the same maker is the same *brand*, not the same shoe, and
+     * sending somebody who asked for the trainer to it would be the loose
+     * matching `TorobFeedController` refuses for this catalogue in its
+     * `product_group_id` note. It gets the honest page instead.
+     */
+    public function test_another_shoe_of_the_same_brand_is_not_this_shoe(): void
+    {
+        $retired = $this->retire('golden-goose');
+
+        $this->aColourwayOf($retired, 'صندل مجلسی گلدن گوس رنگ طلایی');
+
+        $this->get('/products/golden-goose')
+            ->assertOk()
+            ->assertSee('دیگر در فروشگاه عرضه نمی‌شود', false);
+    }
+
+    /**
+     * Typed on another keyboard, it is still the same shoe.
+     *
+     * «ی» and «ي» are one letter to a reader and two to a database, and this
+     * catalogue is typed by several people — `fold_persian()` on both sides is
+     * what the rest of this application does with Persian and is what this
+     * does too.
+     */
+    public function test_the_two_spellings_of_persian_are_one_shoe(): void
+    {
+        $retired = $this->retire('golden-goose');
+
+        $colourway = $this->aColourwayOf(
+            $retired,
+            str_replace('ی', 'ي', 'کتونی گلدن گوس').' رنگ صورتی',
+        );
+
+        $this->get('/products/golden-goose')
+            ->assertRedirect(url('/products/'.$colourway->slug));
     }
 
     /**

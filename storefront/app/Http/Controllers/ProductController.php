@@ -6,8 +6,10 @@ use App\Models\Product;
 use App\Models\ProductComment;
 use App\Models\Variant;
 use App\Support\Marketplace\Sellers;
+use App\Support\Seo\PageFacts;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -52,7 +54,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  */
 class ProductController extends Controller
 {
-    public function __invoke(Product $product, Sellers $sellers): View|Response
+    public function __invoke(Product $product, Sellers $sellers): View|Response|RedirectResponse
     {
         $customer = Auth::guard('customer')->user();
 
@@ -92,10 +94,15 @@ class ProductController extends Controller
          */
         $sold = $product->offerHere();
 
-        // Retired: the shop sold this and has stopped. The address stays, and
-        // says so. See the note at the top of the class.
+        // Retired: the shop sold this and has stopped. The address stays —
+        // and where the shop still sells the same shoe, it takes the shopper
+        // to it. See the note at the top of the class.
         if ($product->status !== 'active') {
-            return $this->gone($product);
+            $stillSold = $this->sameShoeStillOnSale($product);
+
+            return $stillSold
+                ? redirect(storefront_route('product', $stillSold), 302)
+                : $this->gone($product);
         }
 
         // Still a 404, and deliberately a different answer from the one above:
@@ -114,6 +121,20 @@ class ProductController extends Controller
 
         return view('shop.product', [
             'product' => $product,
+            /*
+             * What a machine is told this page is about.
+             *
+             * Until 19 Sept every page on this site was called «VikyPlus» and
+             * carried the same one-sentence description, no canonical, no Open
+             * Graph and no JSON-LD — see `PageFacts` for the measurement and
+             * for ترب's two tickets about it. These three lines are the whole
+             * of what a crawler now finds, and the view does no thinking of
+             * its own about any of them.
+             */
+            'seoTitle' => PageFacts::title($product),
+            'seoDescription' => PageFacts::description($product, $sold),
+            'canonical' => $canonical = storefront_route('product', $product),
+            'facts' => PageFacts::product($product, $sold, $canonical),
             // The headline price is the cheapest anybody here charges, which
             // is not always the branch's. With nothing sellable it falls back
             // to the branch's own offer — the shoe still has a price, it is
@@ -187,6 +208,61 @@ class ProductController extends Controller
     }
 
     /**
+     * The same shoe, still on sale here, or nothing.
+     *
+     * **This is what ترب's second ticket was actually about.** They wrote
+     * «لینک‌های ارسالی شما همچنان فاقد محصول می‌باشند» over a screenshot of
+     * `/products/golden-goose` showing the «دیگر عرضه نمی‌شود» panel — and the
+     * shop sells seven Golden Geese. The retired row is `کتونی گلدن گوس`, one
+     * of the five setup shoes; the live ones are
+     * `کتونی گلدن گوس رنگ صورتی Golden Goose` and six more colours, imported
+     * from the supplier. Same shoe, different photographs. Telling somebody
+     * who asked for that shoe that it is gone, while it is on the shelf behind
+     * you, is the wrong answer to give either a shopper or an aggregator.
+     *
+     * **The rule is containment and nothing looser.** A live product matches
+     * when its folded title *contains the whole of* the retired one's — which
+     * is exactly «the same name with a colour added» and is how this supplier
+     * names a colourway. It is deliberately not the fuzzy matching that
+     * `TorobFeedController`'s `product_group_id` comment refuses for the same
+     * catalogue: that one has to decide two *different* names are one shoe,
+     * and this one only has to recognise its own name inside a longer one.
+     *
+     * **Same brand, so the containment cannot reach across the shop.** A
+     * retired product with no brand gets the gone page: without that fence a
+     * short retired name could swallow half the catalogue, and a wrong
+     * redirect is worse than an honest dead end.
+     *
+     * **302 and not 301.** A permanent redirect is a claim that these two rows
+     * are one product for ever, which nothing here knows — and it is the one
+     * kind of mistake a crawler will not let the shop take back. A temporary
+     * one says what is true: this is the closest thing the shop has *today*,
+     * and if the colour sells out the answer changes.
+     */
+    private function sameShoeStillOnSale(Product $product): ?Product
+    {
+        if ($product->brand_id === null) {
+            return null;
+        }
+
+        $name = fold_persian(trim($product->title));
+
+        if ($name === '') {
+            return null;
+        }
+
+        return Product::query()
+            ->listable()
+            ->where('brand_id', $product->brand_id)
+            ->whereKeyNot($product->id)
+            ->with(['variants.offer', 'variants.stock'])
+            ->inStockFirst()
+            ->orderBy('id')
+            ->get()
+            ->first(fn (Product $other) => str_contains(fold_persian($other->title), $name));
+    }
+
+    /**
      * The page an address keeps once the shop has stopped selling the shoe.
      *
      * Not a redirect, and that is the decision worth defending. The obvious
@@ -209,10 +285,18 @@ class ProductController extends Controller
      */
     private function gone(Product $product): Response
     {
+        $canonical = storefront_route('product', $product);
+
         return response()
             ->view('shop.gone', [
                 'product' => $product,
                 'instead' => $this->instead($product),
+                'seoTitle' => PageFacts::title($product),
+                'seoDescription' => $product->title.' دیگر در ویکی پلاس عرضه نمی‌شود.',
+                'canonical' => $canonical,
+                // Says «Discontinued» in the field an aggregator reads, which
+                // is the half of this page ترب could not see.
+                'facts' => PageFacts::discontinued($product, $canonical),
                 // Where «دیدن بقیه محصولات» goes: the brand's own listing
                 // when the shop still has that brand — a retired Golden Goose
                 // very likely has living Golden Geese beside it, which is

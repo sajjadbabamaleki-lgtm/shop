@@ -13,6 +13,13 @@
     disabled and labelled rather than dressed up as working.
 --}}
 
+@section('title', $seoTitle)
+@section('description', $seoDescription)
+
+@section('meta')
+    @include('shop.meta', ['facts' => $facts, 'canonical' => $canonical])
+@endsection
+
 @section('content')
 <section class="vp-shop-section">
     <div class="container th-container">

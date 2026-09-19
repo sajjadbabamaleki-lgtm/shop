@@ -875,6 +875,81 @@ the client saw an old page and had no way to tell why. So, plainly:
   404. The feed's own addresses were never the fault — `page_url` is the
   product's own route — and that test now opens every URL the feed sends.
   Five tests that asserted «off the shop» *as* a 404 were changed with it.
+- **⛔ A product page told a machine nothing about the product, and that is
+  what ترب's two tickets were really about.** «لینک‌های ارسالی شما همچنان فاقد
+  محصول می‌باشند و محتوای کالا در آن‌ها یافت نمی‌شود. این موارد مربوط به زیرساخت
+  سایت شماست.» Measured **from a GitHub runner** on 19 Sept, against a live,
+  in-stock, entirely ordinary product page — the runner trick works again, the
+  network path to Iran recovered some time before 17 Sept:
+
+  | field | what the live page sent |
+  | --- | --- |
+  | `<title>` | `VikyPlus` — on all 128 products |
+  | `<meta description>` | the same site-wide sentence on every page |
+  | `og:*` | none |
+  | `<link rel=canonical>` | none |
+  | JSON-LD | **0 blocks** |
+  | `itemprop` | **0** |
+
+  The shoe's name, its price and its stock were all on the page **as words for
+  a person and in not one field a program reads**, so «محتوای کالا یافت نمی‌شود»
+  was a literally accurate description of this site and had been since the
+  first product page was built. **Nothing here could fail on it**: every check
+  in this repository renders a page and counts pixels, which is a question
+  about what a *person* sees. `ProductPageIsLegibleToAMachineTest` asserts the
+  fields instead, and it is the only thing that can see this class of fault.
+  `App\Support\Seo\PageFacts` is the one place those facts are built, so the
+  head, the Open Graph tags and the JSON-LD cannot drift apart.
+  Three things to know: the hooks (`@yield('meta')`, and the per-page
+  description) are in **`layouts/storefront.blade.php`, which is hand-owned**,
+  because `partials/head.blade.php` is generated and a hand correction in it is
+  deleted the next time `make-blade.js` runs; the description is **swapped into
+  the tag that is already there** rather than added beside it, since a second
+  `<meta name="description">` does not replace the first and a page that
+  defines none renders the head byte for byte as the generator wrote it (that
+  is what keeps `check-parity.js` at zero — measured: identical pixel counts
+  with and without this change); and **prices are Rial declared as `IRR`**,
+  where `TorobFeedController` divides by ten because ترب's schema asks for
+  Toman. Same money, two schemas, and being wrong either way is a factor of
+  ten in public.
+- **A retired shoe's address goes to the same shoe when the shop still sells
+  it.** ترب's second ticket came with a screenshot of `/products/golden-goose`
+  showing the «دیگر عرضه نمی‌شود» panel — **while the live shop lists seven
+  Golden Geese.** `basalam:import` makes one product per supplier listing and
+  the supplier lists each colour separately, so the retired row is
+  «کتونی گلدن گوس» and the live ones are «کتونی گلدن گوس رنگ صورتی Golden Goose»
+  and six more. The shoe is not gone; the row is.
+  `ProductController::sameShoeStillOnSale()` is the rule and it is deliberately
+  the strict one: **same brand, and the live title must contain the whole of
+  the retired one folded** — «the same name with a colour added», which is how
+  this supplier names a colourway. That is not the fuzzy matching
+  `product_group_id` refuses for this same catalogue: that one has to decide
+  two *different* names are one shoe, this one only recognises its own name
+  inside a longer one. A retired product with no brand gets the gone page,
+  because without that fence a short name could swallow half the shop.
+  **302 and not 301**: a permanent redirect claims these two rows are one
+  product for ever, which nothing here knows, and it is the one kind of wrong a
+  crawler will not let the shop take back.
+- **⛔ The design gate hides the whole page from any crawler that does not load
+  stylesheets, and that is still true.** Measured both locally and against the
+  live site on 19 Sept: with `*.css` blocked, a product page renders
+  `visibility: hidden` and **82 characters of text** — «سایت در حال به‌روزرسانی
+  است» — instead of 1,512 characters of shoe. A bandwidth-saving crawler gets
+  the notice on *every* page of this site. It is not what ترب hit (their
+  screenshotter loads CSS, and the JSON-LD above is in the raw HTML and needs
+  neither CSS nor JavaScript), but it is real and it is next.
+  The fix is not a user-agent sniff: on the notice path, append the opaque
+  overlay **and then** reveal the document with `overflow:hidden`, so a person
+  still sees only the white notice and a text extractor sees the document under
+  it. **It is blocked on a landmine, not on the design**: `theme/make-blade.js`
+  **cannot run on a clean checkout** — it throws «expected 8 inline scripts
+  after main.js, found 9», so the gate, which lives in the generated
+  `partials/head.blade.php`, cannot be regenerated. Bumping the count to 9 is
+  not enough on its own: it also rewrites `partials/scripts.blade.php` (the
+  daily deal's countdown moves), and that drift has to be understood before it
+  is shipped. Verified during this round that **no script is lost** by the
+  bump — every one of the six inline scripts is still reachable afterwards —
+  so the remaining question is only ordering.
 - **`/wholesale` and `/franchise` are the two things the shop advertises and
   had no way of hearing about.** «خرید تکی و عمده» has been on the front page's
   trust row and in the footer's strap since the template was dressed with no
