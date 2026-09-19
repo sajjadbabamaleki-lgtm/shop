@@ -5151,3 +5151,51 @@ CI and a fresh checkout render.
 
 Production has held one of each size since it opened, so this takes every shelf
 from 1 to 11 and the daily deal's line from «فقط ۱ عدد» to «فقط ۱۱ عدد».
+
+### The banner's «فقط ۱ عدد باقی مانده» went back to being copy
+
+«نه اونی که تو صفحه اوله فقط یک جفت مانده باید باشه اون یدونرو نمیشه از دیتا
+نگیری؟ اخه اون حالت تبلیغاتی داره.»
+
+Restocking made the banner read «فقط ۵۰ عدد باقی مانده», and the shop asked for
+the one back. This is not a step away from the design — it is the design, read
+off the stylesheet's own comment:
+
+> The stock rail, at 30%. … It was 8%, picked so the bar would not contradict
+> the «فقط ۱ عدد باقی مانده» printed directly above it. **Neither number is read
+> from the catalogue; both are drawn.**
+
+Somebody later wired the *sentence* to `sellableStock()` and left the bar drawn
+by hand. With one pair on the shelf the two agreed and nothing looked wrong; the
+morning the shop had eleven, the banner claimed fifty over a bar eight percent
+full. Counting half of a pair of numbers is worse than drawing both or counting
+both.
+
+So it moved into `config/storefront.php`'s **Admitted placeholders** block,
+which exists for exactly this — «content on the page that is not real and is not
+pretending to be … seeding an invented number into the catalogue would make it
+indistinguishable from a measured one, and the whole point of this block is that
+the difference stays visible». `placeholders.daily_deal_units_left` is the
+number, and **`null` there puts the count back**, the same escape
+`colorway_shots` carries.
+
+What it claims is checkable one click away, and that is the reason to leave it at
+a number the shop is content to stand behind rather than to argue about: the
+product page prints the real sizes and the real shelf, `/products` marks what is
+out of stock, and the JSON-LD carries the real `availability`. None of those is
+touched by this, and none of them should be.
+
+**Three things a later session needs:**
+
+- The static preview spells the sentence out in `theme/make-rtl-page.js`'s
+  `LADDER_DEALS`. Change the config number and that file has to change with it.
+  `HomePageTest::test_the_preview_page_prints_the_same_number` fails in CI and
+  names the file, rather than leaving it to whoever next runs
+  `check-parity.js`.
+- Measured, and this is the point of the change: with the line counting, a full
+  shelf moved the home page by **628 pixels at every one of the four widths**.
+  With it drawn, `check-parity.js` returns **the same four figures with one pair
+  on the shelf and with eleven** — 24,939 / 13,355 / 22,080 / 25,714, the
+  untouched baseline. The home page no longer moves when the shop restocks.
+- The bar is still two hand-picked widths in `tweaks.css`. If the number ever
+  changes, the bar is the other half of the sentence and should change with it.

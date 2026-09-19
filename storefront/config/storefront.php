@@ -739,6 +739,42 @@ return [
     'placeholders' => [
 
         /*
+         | The daily deal's «فقط ۱ عدد باقی مانده».
+         |
+         | **This is copy on a banner, not a count**, at the shop's own
+         | instruction: «اونی که تو صفحه اوله فقط یک جفت مانده باید باشه … اخه
+         | اون حالت تبلیغاتی داره». It belongs in this block for the reason
+         | this block exists — a drawn number kept where it stays visibly
+         | different from a measured one.
+         |
+         | It was a count for a while and that is what made it wrong. The bar
+         | beside it has never been read from the catalogue: it is 8% on a
+         | desktop and 30% on a phone, both picked by hand, and `tweaks.css`
+         | says so above each of them — «Neither number is read from the
+         | catalogue; both are drawn». Wiring only the sentence to the shelf
+         | left the two disagreeing, and the day the shop put ten pairs on
+         | every size the banner read «فقط ۵۰ عدد باقی مانده» over a bar drawn
+         | eight percent full.
+         |
+         | **What it claims is checkable one click away**, which is the reason
+         | to keep it at a number the shop is content to stand behind: the
+         | product page prints the real sizes and the real shelf, and the
+         | structured data carries the real availability. Neither of those is
+         | touched by this.
+         |
+         | **Set it to `null` and the sentence goes back to counting** the
+         | branch's own stock — one number in one file, the same escape
+         | `colorway_shots` has.
+         |
+         | The static preview carries this sentence too, spelled out in
+         | `theme/make-rtl-page.js`'s `LADDER_DEALS`. Change the number here and
+         | that file has to be told, or `check-parity.js` reports the two copies
+         | of the home page as different — the same rule the brand strip's
+         | counts live under.
+         */
+        'daily_deal_units_left' => 1,
+
+        /*
          | The product page's colourway strip.
          |
          | The reference the client sent shows a row of square photographs under

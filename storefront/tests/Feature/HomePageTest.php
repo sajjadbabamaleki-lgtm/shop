@@ -284,15 +284,65 @@ class HomePageTest extends TestCase
     }
 
     /**
-     * «فقط ۱ عدد باقی مانده» is a count, not a claim: it follows the stock.
+     * **«فقط ۱ عدد باقی مانده» is copy on a banner, and stays put when the
+     * shelf moves.**
+     *
+     * It used to follow the stock, and that is what made it wrong: the bar
+     * drawn beside it has never been read from the catalogue — 8% on a
+     * desktop, 30% on a phone, both by hand and both documented as drawn in
+     * `tweaks.css` — so the day the shop put ten pairs on every size, the
+     * banner read «فقط ۵۰ عدد باقی مانده» over a bar eight percent full.
+     * «اون حالت تبلیغاتی داره» is the shop's own reading of that line, and
+     * `storefront.placeholders` is where this repository keeps a drawn number
+     * so that it stays visibly different from a measured one.
      */
-    public function test_the_daily_deal_counts_what_is_left(): void
+    public function test_the_daily_deals_stock_line_is_drawn_and_not_counted(): void
     {
         $this->get('/')->assertSee('فقط ۱ عدد باقی مانده', false);
 
         $this->restock('new-balance-530', 4);
 
+        $this->get('/')
+            ->assertSee('فقط ۱ عدد باقی مانده', false)
+            ->assertDontSee('فقط ۴ عدد باقی مانده', false);
+    }
+
+    /**
+     * And `null` puts the count back, which is the escape the placeholders
+     * block promises for every drawn number in it.
+     */
+    public function test_setting_it_to_null_counts_the_shelf_again(): void
+    {
+        config()->set('storefront.placeholders.daily_deal_units_left', null);
+
+        $this->restock('new-balance-530', 4);
+
         $this->get('/')->assertSee('فقط ۴ عدد باقی مانده', false);
+    }
+
+    /**
+     * **The two copies of the home page have to say the same sentence.**
+     *
+     * The static preview spells this number out in `theme/make-rtl-page.js`;
+     * the Laravel page reads it from config. `check-parity.js` compares them
+     * as pixels and would fail on a mismatch, but only if somebody runs it —
+     * this fails in CI, and names the file to change.
+     */
+    public function test_the_preview_page_prints_the_same_number(): void
+    {
+        $drawn = config('storefront.placeholders.daily_deal_units_left');
+
+        $this->assertNotNull($drawn, 'With the count switched back on, the preview cannot be expected to match.');
+
+        $preview = (string) file_get_contents(base_path('../download-version/shoe-shop-rtl.html'));
+
+        $this->assertStringContainsString(
+            'فقط '.fa_number($drawn).' عدد باقی مانده',
+            $preview,
+            'The static preview still prints a different number from the one config draws. '.
+            'It is spelled out in theme/make-rtl-page.js (LADDER_DEALS) — change it there and '.
+            're-run `node theme/make-rtl-page.js`, or the two copies of the home page come apart.',
+        );
     }
 
     /**

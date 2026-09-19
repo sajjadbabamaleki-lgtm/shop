@@ -53,8 +53,19 @@
                              is a whitespace text node, and the two copies of this
                              page have to render to the same pixel. --}}
                         <strong class="vp-daily-deal-price">@if ($offer->hasActivePromotion())<del>{{ toman($offer->compare_at_price) }}</del>@endif{{ toman($offer->price) }} <span>تومان</span></strong>
+                        {{-- **The number here is drawn, not counted** —
+                             «اون حالت تبلیغاتی داره». `storefront.placeholders`
+                             holds it and says why at length; the short version
+                             is that the bar beside it has never been read from
+                             the catalogue either (8% on a desktop, 30% on a
+                             phone, both by hand), so counting only the sentence
+                             left the two contradicting each other the moment
+                             the shop had more than a pair on the shelf.
+
+                             `null` there puts the count back. --}}
+                        @php($unitsLeft = config('storefront.placeholders.daily_deal_units_left'))
                         <div class="vp-daily-deal-stock">
-                            <span>فقط {{ fa_number($dailyDeal['product']->sellableStock()) }} عدد باقی مانده</span>
+                            <span>فقط {{ fa_number($unitsLeft ?? $dailyDeal['product']->sellableStock()) }} عدد باقی مانده</span>
                             <span class="vp-daily-deal-bar"><span class="vp-daily-deal-bar-fill"></span></span>
                         </div>
                         <ul class="counter-list vp-daily-deal-timer" data-offer-date="{{ $dailyDeal['ends_at'] }}">

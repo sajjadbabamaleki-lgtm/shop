@@ -1032,16 +1032,33 @@ the client saw an old page and had no way to tell why. So, plainly:
   `stock_reserved >= 0`, `stock_reserved <= stock_on_hand`. Adding a positive
   number can violate none of them, which is what makes this safe to run from a
   migration at boot at all, where a throw would stop the shop from starting.
-- **Restocking moves the home page, and that is data rather than markup.** The
-  daily deal prints the branch's real count — «فقط ۱ عدد باقی مانده» — so
-  taking every size from 1 to 11 redraws that line and the bar beside it:
-  measured at **exactly 628 pixels at every one of the four widths**, and
-  `check-parity.js` returns to its baseline to the pixel when the shelf is put
-  back. **A parity number that moves after a stock change is the shop, not a
-  regression** — check the shelf before reading it as one. The preview page is
-  a static copy carrying the seeder's numbers, which is the same reason
-  `theme/make-rtl-page.js` has to be told when `CatalogueSeeder`'s brand counts
-  change.
+- **The daily deal's «فقط ۱ عدد باقی مانده» is copy on a banner, not a count,
+  and it lives in `storefront.placeholders`.** «اونی که تو صفحه اوله فقط یک جفت
+  مانده باید باشه … اخه اون حالت تبلیغاتی داره.» It was wired to
+  `sellableStock()` for a while and that is what made it wrong: **the bar drawn
+  beside it has never been read from the catalogue** — 8% on a desktop, 30% on
+  a phone, both picked by hand, and `tweaks.css` says so above each of them
+  («Neither number is read from the catalogue; both are drawn»). Counting only
+  the sentence left the two contradicting each other, and the day the shop put
+  ten pairs on every size the banner read «فقط ۵۰ عدد باقی مانده» over a bar
+  eight percent full. `placeholders.daily_deal_units_left` is the number now,
+  **and `null` there puts the count back** — the same escape `colorway_shots`
+  has. What it claims stays checkable one click away: the product page prints
+  the real sizes and the real shelf, and the structured data carries the real
+  availability. Neither is touched by this.
+  **The static preview spells the same sentence out** in
+  `theme/make-rtl-page.js`'s `LADDER_DEALS`, so changing the number means
+  changing that file too — `HomePageTest` fails in CI and names it, rather than
+  leaving it to whoever next runs `check-parity.js`.
+- **A parity number that moves after a stock change is the shop, not a
+  regression** — check the shelf before reading it as one. Measured while the
+  line was still a count: a full shelf moved the home page by **exactly 628
+  pixels at every one of the four widths**, and it returns to the baseline to
+  the pixel when the shelf is put back. With the number drawn it no longer
+  moves at all: the same four figures with one pair on the shelf and with
+  eleven. The preview is a static copy carrying the seeder's numbers, which is
+  the same reason that file has to be told when `CatalogueSeeder`'s brand
+  counts change.
 - **The shop trades for real from 2026-09-07, and the pretend orders are off
   it.** «دیتاهای فیک از پنل ادمین حذف بشه … نباید با دیتای واقعی قاطی بشن» —
   `2026_09_07_090000_take_the_demo_data_off_the_live_panel` is the removal,
