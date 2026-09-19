@@ -1,0 +1,117 @@
+name: What a crawler sees
+
+# TEMPORARY. Delete after reading. It answers one question that can only be
+# answered on production: what does a machine asking for a product page
+# actually get back? Nothing in this container can reach vikyplus.ir.
+#
+# It deploys nothing: only the deploy job in deploy-liara.yml is gated on
+# main, and this workflow has no deploy job at all.
+
+on:
+  push:
+    branches: [claude/golden-goose-product-url-h3sxhd]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  look:
+    name: Ask the live site as a machine would
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: What the sitemap offers, and what those addresses answer
+        run: |
+          set +e
+          host=https://vikyplus.ir
+
+          echo "=== sitemap ==="
+          curl -sS --max-time 60 "$host/sitemap.xml" -o /tmp/sitemap.xml -w 'http %{http_code}  %{size_download} bytes\n'
+          grep -o '<loc>[^<]*</loc>' /tmp/sitemap.xml | sed 's/<[^>]*>//g' > /tmp/urls.txt
+          echo "urls in sitemap: $(wc -l < /tmp/urls.txt)"
+          echo "product urls:    $(grep -c '/products/' /tmp/urls.txt)"
+
+          grep '/products/' /tmp/urls.txt | head -3 > /tmp/three.txt
+          echo "--- the three being checked ---"
+          cat /tmp/three.txt
+
+          echo ""
+          echo "=== what each product address sends ==="
+          while read -r u; do
+            [ -n "$u" ] || continue
+            code=$(curl -sS --max-time 60 -o /tmp/page.html -w '%{http_code}' "$u")
+            echo "-------------------------------------------------------"
+            echo "$u  ->  $code  $(wc -c < /tmp/page.html) bytes"
+            echo "title:     $(grep -o '<title>[^<]*</title>' /tmp/page.html | head -1)"
+            echo "og:title:  $(grep -o 'property="og:title"[^>]*' /tmp/page.html | head -1)"
+            echo "json-ld:   $(grep -c 'application/ld+json' /tmp/page.html) blocks"
+            echo "itemprop:  $(grep -c 'itemprop' /tmp/page.html) attributes"
+            echo "canonical: $(grep -o '<link rel="canonical"[^>]*>' /tmp/page.html | head -1)"
+            echo "gate:      $(grep -c 'html{visibility:hidden}' /tmp/page.html) hold, $(grep -c 'vp-design' /tmp/page.html) signature mentions"
+            echo "price text on page: $(grep -c 'تومان' /tmp/page.html)"
+            echo "meta description: $(grep -o '<meta name="description"[^>]*>' /tmp/page.html | head -1 | cut -c1-160)"
+          done < /tmp/three.txt
+
+          echo ""
+          echo "=== the address ترب keeps asking about ==="
+          curl -sS --max-time 60 -o /tmp/gg.html -w 'http %{http_code}\n' "$host/products/golden-goose"
+          grep -o '<title>[^<]*</title>' /tmp/gg.html | head -1
+          grep -c 'عرضه نمی' /tmp/gg.html | sed 's/^/gone-sentence blocks: /'
+
+          echo ""
+          echo "=== does this shop still sell Golden Goose? ==="
+          curl -sS --max-time 60 -o /tmp/brand.html -w 'http %{http_code}\n' "$host/products?brand=golden-goose"
+          grep -o 'کالا' /tmp/brand.html | head -1
+          grep -o 'vp-card-name" href="[^"]*"' /tmp/brand.html | head -8
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Render one product page the way a crawler would
+        run: |
+          set +e
+          npm init -y >/dev/null 2>&1
+          npm i playwright@latest >/dev/null 2>&1
+          npx playwright install --with-deps chromium >/dev/null 2>&1
+          node - <<'JS'
+          const { chromium } = require('playwright');
+
+          (async () => {
+            const url = process.env.TARGET || 'https://vikyplus.ir/products/golden-goose';
+            const browser = await chromium.launch();
+
+            for (const blockCss of [false, true]) {
+              const ctx = await browser.newContext();
+              const page = await ctx.newPage();
+              if (blockCss) {
+                await page.route('**/*.css*', r => r.abort());
+              }
+              let out;
+              try {
+                await page.goto(url, { waitUntil: 'networkidle', timeout: 60000 });
+                await page.waitForTimeout(3500);
+                out = await page.evaluate(() => ({
+                  visibility: getComputedStyle(document.documentElement).visibility,
+                  design: getComputedStyle(document.documentElement).getPropertyValue('--vp-design').trim(),
+                  title: document.title,
+                  textLen: (document.body.innerText || '').trim().length,
+                  firstText: (document.body.innerText || '').trim().slice(0, 220).replace(/\s+/g, ' '),
+                }));
+              } catch (e) {
+                out = { error: String(e).slice(0, 200) };
+              }
+              console.log(blockCss ? '--- stylesheets BLOCKED (what a bandwidth-saving crawler does) ---'
+                                   : '--- stylesheets loaded (an ordinary browser) ---');
+              console.log(JSON.stringify(out, null, 2));
+              await ctx.close();
+            }
+            await browser.close();
+          })();
+          JS
+        env:
+          TARGET: https://vikyplus.ir/products/golden-goose
