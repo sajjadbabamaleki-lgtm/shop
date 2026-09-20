@@ -5062,6 +5062,105 @@ still present afterwards — so what is left is to understand the ordering and
 prove it with `check-parity.js` before shipping it. That is the next job, and
 it is worth doing: it is not only crawlers that block stylesheets.
 
+## «یافت نمی‌شود» — the feed was never told about the old address
+
+ترب, 2026-09-20, third ticket on the same shoe:
+
+> دریافت اطلاعات محصولات فروشگاه در حال حاضر برقرار است، اما محصول نمونه‌ای که
+> قبلاً با آدرس کوتاه «golden-goose» ثبت شده بود، هنوز در فهرست فعلی محصولات
+> ارسالی سایت یافت نمی‌شود … لطفاً … آدرس نهایی و عمومی همین محصول و سایر
+> محصولات مشابه را در اطلاعات ارسالی سایت قرار دهد و آدرس‌های قدیمی را اصلاح
+> کند.
+
+**Two previous rounds had already "fixed" this and the client said so —
+«۲ بار سعی کرد حل نشد».** Both fixed the product *page*: 15 Sept made
+`/products/golden-goose` a 200 «دیگر عرضه نمی‌شود» page instead of a 404, and
+19 Sept made it a 302 to the colourway the shop still sells. Neither touched
+`TorobFeedController`.
+
+**The feed is what ترب were reading, and the two words that say so are
+«اطلاعات ارسالی سایت» — the data the site *sends*, not the page it serves.**
+Asked for that address, the feed ran `catalogue()->whereIn('slug', …)`,
+`catalogue()` is `listable()`, a retired product is not listable, and the
+answer was `products: []`. **An empty list is not "no comment" in their
+schema — it is a statement**, and their own document spells it out: «در صورتی
+که محصولی از سایت حذف شود … در دریافت تک محصول باید لیست خالی برگردانده شود».
+So for five days the shop redirected a shopper to the pink Golden Goose and
+told ترب, about the same address in the same minute, that the shoe did not
+exist. The 19 Sept commit even asserted the silence as correct —
+«out of the listing, out of the sitemap and out of the feed».
+
+Measured before the change, with the new tests against the old code: asking
+`{"page_urls": ["https://vikyplus.ir/products/golden-goose"]}` returns **0
+products**. Eight of the new cases fail on the old code and pass on the new.
+
+### What was built
+
+`TorobFeedController::withSuccessors()`. An address or an id that belonged to a
+**retired** product is answered with the product the shop sells in its place,
+carrying that product's own `page_unique` and its own final, public
+`page_url` — their instruction read back.
+
+**`App\Support\Catalogue\SameShoe` is the rule, and it is now shared.** It was
+`ProductController::sameShoeStillOnSale()`, private, which is precisely why the
+feed did not have it: same brand, and the live title must contain the whole of
+the retired one folded — «the same name with a colour added», which is how this
+supplier names a colourway. A retired product with no brand gets no successor.
+Two copies of a rule that decides what one address means is how the page and
+the feed came apart, so there is one copy and both call it.
+
+Four things it deliberately does not do, each with a test:
+
+- **The retired row never enters the answer.** It is not a product any more,
+  and sending it would add a second entry for a shoe already in the feed under
+  its living name — the «چند عنوان تکراری» from the 13 Sept ticket.
+- **The correction never reaches the paged listing.** A successor is already
+  there on its own account. A retirement stays a retirement.
+- **It invents nothing.** A retired shoe with nothing like it on the shelf is
+  still an empty list, because that is then true.
+- **The old address and the new one together are one row.** Their index keys on
+  `page_unique`.
+
+### The rest of their v3 document, while the file was open
+
+The feed already answered `torob_api_v3` but predates half the shape:
+
+- **`next_cursor` is in every answer now**, null where there is none. Their
+  output format carries it whether or not the caller is paging by cursor, and a
+  key that appears only sometimes is a key a parser reads as missing.
+- **`sort: product_id_desc` — their cursor pagination — works.**
+  `{"sort": "product_id_desc"}` for the first page, `next_cursor` handed back
+  unchanged as `cursor` after that, and `page`/`limit`/`size` refused with a
+  400 in that shape because their document says those are not sent.
+- Worth having over `OFFSET` for a reason this catalogue really has: the panel
+  publishes and migrations retire *while* ترب walks the feed, and a numbered
+  page shifts under them — a shoe handed over twice, or never. The second is
+  invisible from here. `id < cursor` is the same set whatever arrives.
+- `current_page` is counted from the cursor and is a label only. `total` and
+  `max_pages` may be null by their schema; this shop sends the real figures,
+  which is the only thing letting them tell a crawl that finished from one that
+  stopped early.
+- `TorobFeedTest` walks a catalogue of **more than a hundred** products end to
+  end and fails if any product arrives twice or not at all. Nothing smaller
+  than a real second page can see an off-by-one in «is there another page».
+
+Measured: **1,090 tests pass**, Pint clean.
+
+### Still open, and it is the same gap as last time
+
+**`product_group_id` is still null**, and it is the other half of «سایر محصولات
+مشابه». Their schema uses it to collapse the colourways of one shoe into a
+single entry; this catalogue cannot fill it because nothing in it knows which
+products are one shoe — `basalam:import` makes one product per supplier
+listing, Basalam sends no group, and the only remaining signal is the title.
+`SameShoe` does **not** close this: it only recognises a retired name inside a
+longer live one, where grouping has to decide two *different* live names are
+one shoe. Getting that wrong in the loose direction merges two shoes into one
+ترب entry, which costs more than the duplicates do. Whoever writes it needs the
+live titles in front of them, from `/admin/catalogue` or a `page_uniques`
+fetch — not from memory — and their warning applies to that id once it starts
+being sent.
+
 ## Ten more pairs on every size
 
 «به کفش های موجود در فروشگاه برای هر کدام ده جفت اضافه کن.»

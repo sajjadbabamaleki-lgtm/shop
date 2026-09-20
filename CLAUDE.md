@@ -930,6 +930,61 @@ the client saw an old page and had no way to tell why. So, plainly:
   **302 and not 301**: a permanent redirect claims these two rows are one
   product for ever, which nothing here knows, and it is the one kind of wrong a
   crawler will not let the shop take back.
+- **⛔ Fixing that shoe's *page* twice did not fix it, because ترب were reading
+  the *feed*.** Their third ticket, 2026-09-20: «محصول نمونه‌ای که قبلاً با آدرس
+  کوتاه golden-goose ثبت شده بود، هنوز در فهرست فعلی محصولات ارسالی سایت یافت
+  نمی‌شود». Both earlier rounds — the gone page, then the 302 above — changed
+  what a *browser* gets at that address and neither touched
+  `TorobFeedController`, which had never heard of either. Asked for that
+  address the feed returned `products: []`, **and an empty list is exactly how
+  their schema spells «this product no longer exists»** («در دریافت تک محصول
+  باید لیست خالی برگردانده شود»). So for five days the shop redirected a
+  shopper to the pink Golden Goose and told ترب, about the same address in the
+  same minute, that a shoe it has seven of did not exist. **«اطلاعات ارسالی
+  سایت» is the feed, not the page** — read which of the two a ticket names
+  before fixing anything.
+  `withSuccessors()` is the fix: an address or an id that belonged to a retired
+  product is answered with the product the shop sells in its place, carrying
+  **that** product's `page_unique` and its final public `page_url`, which is
+  their instruction read back («آدرس نهایی و عمومی همین محصول … و آدرس‌های
+  قدیمی را اصلاح کند»). Four things hold it:
+  - **The rule is `App\Support\Catalogue\SameShoe` and it is shared with the
+    page's redirect, not copied.** Two rules deciding what one address means is
+    how the page and the feed came apart in the first place; it was a private
+    method on `ProductController` and is now the one place either asks.
+  - **The retired row itself never enters the answer**, and the correction
+    never reaches the paged listing. The successor is already in the feed on
+    its own account, so sending the retired row too would add a second entry
+    for one shoe — which is the «چند عنوان تکراری» they complained about
+    separately. A retirement stays a retirement: out of the listing, the
+    sitemap and the feed's own pages.
+  - **It does not invent a successor.** A retired shoe with nothing like it on
+    the shelf is still an empty list, because that is then true.
+  - **Asked for the old address and the new one together, they get one row.**
+    Their index keys on `page_unique`, so the same id twice in one answer is a
+    contradiction rather than a duplicate.
+  What is still **not** fixed by any of this is `product_group_id`, which is
+  the other half of «سایر محصولات مشابه» and is still null for the reasons in
+  its own comment — nothing in this catalogue knows which products are one
+  shoe, and whoever writes that rule needs the live titles in front of them.
+- **The feed speaks both of their pagination shapes now.** `date_added_desc`
+  and `date_updated_desc` are numbered pages; `product_id_desc` is their
+  cursor shape — `{"sort": "product_id_desc"}` for the first page, then
+  `next_cursor` handed straight back as `cursor`, with `page`, `limit` and
+  `size` not sent at all. **`next_cursor` is in every answer**, null in the
+  shapes that have none, because a key that appears only sometimes is a key
+  somebody's parser reads as missing. The cursor is worth having over an
+  `OFFSET` for a reason this catalogue really has: the panel publishes and
+  migrations retire *while* ترب is walking it, and a numbered page shifts under
+  them — a shoe handed over twice, or never, and the second is invisible from
+  here. `id < cursor` is the same set whatever else arrives.
+  `current_page` in that shape is counted from the cursor and is a label only;
+  `total` and `max_pages` may be null by their schema and this shop sends the
+  real figures, which is the only thing that lets them tell a crawl that
+  finished from one that stopped early. `TorobFeedTest` walks a catalogue of
+  more than a hundred products end to end and fails if any product arrives
+  twice or not at all — nothing smaller than a real second page can see an
+  off-by-one there.
 - **⛔ The design gate hides the whole page from any crawler that does not load
   stylesheets, and that is still true.** Measured both locally and against the
   live site on 19 Sept: with `*.css` blocked, a product page renders

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Branch;
 use App\Models\Product;
 use App\Models\Variant;
+use App\Support\Catalogue\SameShoe;
 use App\Support\Tenancy\TenantContext;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -38,6 +39,19 @@ use Illuminate\Support\Str;
  *    with an offer here — and not `purchasable()`, which additionally wants a
  *    size that can go in a basket today.
  *
+ * **An address the shop has stopped using is not silence.** ترب read an empty
+ * list for `/products/golden-goose` as «کالا وجود ندارد» three tickets
+ * running, because that is exactly what an empty list means in their schema.
+ * `withSuccessors()` is the answer and carries the full reasoning; the short
+ * version is that an old key is answered with the shoe that replaced it,
+ * sharing `SameShoe` with the redirect the product page does, so the two can
+ * never say different things about one address.
+ *
+ * **Two ways to walk the catalogue, and they are theirs.** `date_added_desc`
+ * and `date_updated_desc` are numbered pages; `product_id_desc` is their
+ * cursor shape, where `next_cursor` goes back unchanged as `cursor` and
+ * `page`, `limit` and `size` are not sent at all. See `byCursor()`.
+ *
  * The token is checked by `VerifyTorobToken`, not here.
  */
 class TorobFeedController extends Controller
@@ -65,18 +79,47 @@ class TorobFeedController extends Controller
             return $this->byUnique($body['page_uniques']);
         }
 
-        if (array_key_exists('page', $body) || array_key_exists('sort', $body)) {
-            return $this->page($body);
+        if (array_key_exists('page', $body) || array_key_exists('sort', $body) || array_key_exists('cursor', $body)) {
+            return $this->listing($body);
         }
 
-        return $this->fail('request body must carry page_urls, page_uniques, or both page and sort');
+        return $this->fail('request body must carry page_urls, page_uniques, both page and sort, or sort with a cursor');
     }
 
-    /** A page of the whole catalogue, in the order they asked for. */
-    private function page(array $body): JsonResponse
+    /**
+     * The whole catalogue, a page at a time.
+     *
+     * **Two shapes, and the sort decides which.** `date_added_desc` and
+     * `date_updated_desc` are numbered pages; `product_id_desc` is their
+     * cursor-based pagination, where `page`, `limit` and `size` are not sent
+     * at all and the place in the list is carried by `next_cursor`.
+     */
+    private function listing(array $body): JsonResponse
     {
         if (! array_key_exists('sort', $body)) {
             return $this->fail('sort parameter is not provided');
+        }
+
+        if ($body['sort'] === 'product_id_desc') {
+            return $this->byCursor($body);
+        }
+
+        // `date_updated_desc` is theirs to require of us and they have said it
+        // is not required — «برای فروشگاه‌های کوچک و متوسط اختیاری». It is
+        // implemented anyway: it costs one column in the order clause, and the
+        // alternative is being told to add it and shipping it under time
+        // pressure.
+        if (! in_array($body['sort'], ['date_added_desc', 'date_updated_desc'], true)) {
+            return $this->fail('sort must be date_added_desc, date_updated_desc or product_id_desc');
+        }
+
+        // A cursor means their cursor-based shape, and that shape is
+        // `product_id_desc` — «پارامتر sort: باید مقدار product_id_desc داشته
+        // باشد». Answering a numbered page to a request carrying a cursor
+        // would hand back the same hundred products for ever, and look like a
+        // crawl that simply never finishes.
+        if (array_key_exists('cursor', $body)) {
+            return $this->fail('cursor is only accepted with sort product_id_desc');
         }
 
         if (! array_key_exists('page', $body)) {
@@ -88,15 +131,6 @@ class TorobFeedController extends Controller
         // now rather than through products vanishing later.
         if (! is_int($body['page']) || $body['page'] < 1) {
             return $this->fail('page must be an integer of 1 or more');
-        }
-
-        // `date_updated_desc` is theirs to require of us and they have said it
-        // is not required — «برای فروشگاه‌های کوچک و متوسط اختیاری». It is
-        // implemented anyway: it costs one column in the order clause, and the
-        // alternative is being told to add it and shipping it under time
-        // pressure.
-        if (! in_array($body['sort'], ['date_added_desc', 'date_updated_desc'], true)) {
-            return $this->fail('sort must be date_added_desc or date_updated_desc');
         }
 
         $column = $body['sort'] === 'date_added_desc' ? 'created_at' : 'updated_at';
@@ -114,7 +148,107 @@ class TorobFeedController extends Controller
         return $this->answer($products, $body['page'], $total);
     }
 
-    /** The products behind a list of addresses. */
+    /**
+     * The whole catalogue again, walked by cursor rather than by page number.
+     *
+     * Their v3 document's second listing shape: `{"sort": "product_id_desc"}`
+     * asks for the first page, and every page after it hands `next_cursor`
+     * straight back as `cursor`. **The page size is theirs and fixed at a
+     * hundred**, and `page`, `limit` and `size` are not sent at all — «در این
+     * حالت پارامترهای page، limit و size ارسال نمی‌شوند».
+     *
+     * **Why it is worth having when numbered pages already work.** A numbered
+     * page is an `OFFSET`, and this catalogue changes while ترب is walking it
+     * — the panel publishes a shoe, a migration retires five. A product added
+     * between the request for page 1 and the request for page 2 shifts every
+     * later page along by one, so a shoe is handed over twice; one retired
+     * shifts them the other way, so a shoe is never handed over at all. The
+     * second failure is invisible from here and is the one this whole file is
+     * careful about. `id < cursor` cannot do either: it is the same set of
+     * products whatever else arrives meanwhile.
+     *
+     * **`next_cursor` is handed back, never parsed.** It is the last row's
+     * id, as a string, which is what their schema asks for and what they
+     * promise to return unchanged.
+     */
+    private function byCursor(array $body): JsonResponse
+    {
+        // Said rather than quietly worked around, so a caller mixing the two
+        // shapes finds out now. A `page` honoured here would silently contradict
+        // the cursor sitting beside it.
+        foreach (['page', 'limit', 'size'] as $numbered) {
+            if (array_key_exists($numbered, $body)) {
+                return $this->fail("{$numbered} is not sent with sort product_id_desc; page with cursor instead");
+            }
+        }
+
+        $cursor = null;
+
+        if (array_key_exists('cursor', $body)) {
+            // A string of digits, which is what this feed minted. Anything
+            // else is a caller that has invented a cursor rather than handing
+            // one back, and starting them silently from the top would look
+            // exactly like a working crawl.
+            if (! is_string($body['cursor']) || ! ctype_digit($body['cursor'])) {
+                return $this->fail('cursor must be the next_cursor string from the previous answer');
+            }
+
+            $cursor = (int) $body['cursor'];
+        }
+
+        $query = $this->catalogue()->orderByDesc('id');
+
+        if ($cursor !== null) {
+            $query->where('id', '<', $cursor);
+        }
+
+        // One more row than a page, so «is there another page» is a fact about
+        // these rows rather than a second count that can disagree with them.
+        $rows = $query->limit(self::PER_PAGE + 1)->get();
+
+        $products = $rows->take(self::PER_PAGE)->values();
+
+        return $this->answer(
+            $products,
+            $this->pageOfCursor($cursor),
+            // Their schema allows null for both here — «در cursor-based
+            // pagination می‌تواند null باشد» — and this shop sends the real
+            // figures instead. It is one count on a catalogue of a few
+            // hundred, and it is the only thing that lets them tell a crawl
+            // that finished from one that stopped early.
+            $this->catalogue()->count(),
+            // Null on the last page: «در آخرین صفحه مقدار آن null است».
+            $rows->count() > self::PER_PAGE ? (string) $products->last()->id : null,
+        );
+    }
+
+    /**
+     * Which page of a hundred a cursor is standing on.
+     *
+     * Their envelope asks for `current_page` in this shape too and a cursor
+     * does not carry one, so it is counted: the rows are ordered by descending
+     * id, so everything at or above the cursor is everything already handed
+     * over.
+     *
+     * Best-effort by nature — a shoe retired mid-crawl changes what is above
+     * the cursor — and that is acceptable because it is only ever a label on
+     * the answer. The cursor alone decides which products are *in* it.
+     */
+    private function pageOfCursor(?int $cursor): int
+    {
+        if ($cursor === null) {
+            return 1;
+        }
+
+        return intdiv($this->catalogue()->where('id', '>=', $cursor)->count(), self::PER_PAGE) + 1;
+    }
+
+    /**
+     * The products behind a list of addresses.
+     *
+     * An address the shop has stopped using is answered with the shoe that
+     * took its place, rather than with silence — see `withSuccessors()`.
+     */
     private function byUrl(mixed $urls): JsonResponse
     {
         if (! is_array($urls) || $urls === []) {
@@ -125,9 +259,13 @@ class TorobFeedController extends Controller
             ->filter(fn ($url) => is_string($url))
             ->map(fn (string $url) => rawurldecode(trim((string) parse_url($url, PHP_URL_PATH), '/')))
             ->map(fn (string $path) => Str::afterLast($path, '/'))
-            ->all();
+            ->filter(fn (string $slug) => $slug !== '')
+            ->unique()
+            ->values();
 
-        return $this->answer($this->catalogue()->whereIn('slug', $slugs)->get(), 1);
+        $found = $this->catalogue()->whereIn('slug', $slugs)->get();
+
+        return $this->answer($this->withSuccessors($found, 'slug', $slugs), 1);
     }
 
     /** The products behind a list of our own ids. */
@@ -137,9 +275,105 @@ class TorobFeedController extends Controller
             return $this->fail('page_uniques must be a non-empty list of product identifiers');
         }
 
-        $ids = collect($uniques)->filter(fn ($u) => is_string($u) || is_int($u))->all();
+        // **Digits only, because `page_unique` here is this shop's product id
+        // and the column is an integer.** Their own document's example id is
+        // «12412_1», and an id of that shape reaching the query is answered by
+        // whatever the driver decides a text comparison against a `bigint`
+        // means. Measured on Postgres 16: no rows and no error, which is
+        // already the right answer — so this filter is not fixing a fault, it
+        // is making that answer this file's decision rather than the driver's.
+        $ids = collect($uniques)
+            ->map(fn ($unique) => is_int($unique) ? (string) $unique : $unique)
+            ->filter(fn ($unique) => is_string($unique) && ctype_digit($unique))
+            ->unique()
+            ->values();
 
-        return $this->answer($this->catalogue()->whereIn('id', $ids)->get(), 1);
+        $found = $this->catalogue()->whereIn('id', $ids)->get();
+
+        return $this->answer($this->withSuccessors($found, 'id', $ids), 1);
+    }
+
+    /**
+     * The products asked for, plus the shoe that replaced any address that no
+     * longer has one.
+     *
+     * **This is ترب's third ticket about `golden-goose`, and neither of the
+     * first two fixes could have closed it.** Both worked on the product
+     * *page*: it answers 200 with «دیگر عرضه نمی‌شود» instead of a 404, and
+     * where the shop still sells the same shoe it redirects to it. Neither
+     * touched this file — and this file is what they were reading. «هنوز در
+     * فهرست فعلی محصولات ارسالی سایت یافت نمی‌شود»: asked for that address,
+     * the feed returned an empty list, and an empty list is precisely how
+     * their schema spells «this product no longer exists» («در دریافت تک محصول
+     * باید لیست خالی برگردانده شود»). The shop was answering them, correctly
+     * and in their own language, that a shoe it has seven of is gone.
+     *
+     * So an address or an id that belonged to a retired product is answered
+     * with the product the shop sells in its place — that product's own
+     * `page_unique`, and its own final, public `page_url`. Their instruction
+     * read back: «آدرس نهایی و عمومی همین محصول و سایر محصولات مشابه را در
+     * اطلاعات ارسالی سایت قرار دهد و آدرس‌های قدیمی را اصلاح کند».
+     *
+     * **The rule is `SameShoe`, shared with the page's redirect and not
+     * copied.** Two rules deciding what one address means is how the shop came
+     * to tell a shopper «this way to the pink one» and tell ترب, about the
+     * same address in the same minute, nothing at all.
+     *
+     * **Three things this deliberately does not do.**
+     *
+     * It does not put the retired row itself in the answer. That row is not a
+     * product any more, and sending it would add a second entry for a shoe
+     * already in the feed under its living name — which is the «چند عنوان
+     * تکراری» they complained about separately.
+     *
+     * It does not reach the listing. A successor is already in the paged feed
+     * on its own account; the correction belongs where an old key is *asked
+     * about*, and nowhere else. A retirement stays a retirement.
+     *
+     * It does not invent one. A retired shoe with nothing like it on the shelf
+     * is still answered with an empty list, because that is then true.
+     *
+     * @param  Collection<int, Product>  $found
+     * @param  Collection<int, string>  $asked
+     * @return Collection<int, Product>
+     */
+    private function withSuccessors(Collection $found, string $key, Collection $asked): Collection
+    {
+        $missing = $asked->diff($found->pluck($key));
+
+        if ($missing->isEmpty()) {
+            return $found;
+        }
+
+        $successors = Product::query()
+            ->whereIn($key, $missing)
+            // Retired, and only retired. An unpublished product is not a shoe
+            // the shop has replaced — it is one nobody has finished — and its
+            // own page opens for anybody holding the address. The same fence
+            // the page uses, so the two cannot come apart.
+            ->where('status', '!=', 'active')
+            ->with('brand')
+            ->get()
+            ->map(fn (Product $retired) => SameShoe::stillOnSale($retired))
+            ->filter()
+            ->pluck('id')
+            ->unique()
+            // Asked for both the old address and the new one, they get one
+            // row. Their schema keys on `page_unique`, and the same id twice
+            // in one answer is a contradiction rather than a duplicate.
+            ->diff($found->pluck('id'));
+
+        if ($successors->isEmpty()) {
+            return $found;
+        }
+
+        // Re-read through the catalogue query, so a successor arrives carrying
+        // the same eager loads as everything else in the answer: `row()` reads
+        // media, categories and offers, and a row assembled by another path is
+        // a row that can quietly differ.
+        return $found->concat($this->catalogue()->whereIn('id', $successors)->get())
+            ->unique('id')
+            ->values();
     }
 
     /**
@@ -154,9 +388,17 @@ class TorobFeedController extends Controller
             ->with(['media', 'brand', 'categories', 'variants.offer']);
     }
 
-    /** @param  Collection<int, Product>  $products */
-    private function answer(Collection $products, int $page, ?int $total = null): JsonResponse
-    {
+    /**
+     * Their envelope.
+     *
+     * @param  Collection<int, Product>  $products
+     */
+    private function answer(
+        Collection $products,
+        int $page,
+        ?int $total = null,
+        ?string $nextCursor = null,
+    ): JsonResponse {
         $total ??= $products->count();
 
         return response()->json([
@@ -168,6 +410,11 @@ class TorobFeedController extends Controller
             // still has a page, and their own example of an empty answer shows
             // `max_pages: 1`.
             'max_pages' => max(1, (int) ceil($total / self::PER_PAGE)),
+            // **Always present, and null in every shape but the cursor's.**
+            // Their v3 output format carries this field whether or not the
+            // caller is paging by cursor, and a key that appears only
+            // sometimes is a key somebody's parser reads as missing.
+            'next_cursor' => $nextCursor,
             'products' => $products->map(fn (Product $p) => $this->row($p))->values()->all(),
         ], 200, [], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     }

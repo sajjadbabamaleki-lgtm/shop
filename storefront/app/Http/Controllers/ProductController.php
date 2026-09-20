@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Models\ProductComment;
 use App\Models\Variant;
+use App\Support\Catalogue\SameShoe;
 use App\Support\Marketplace\Sellers;
 use App\Support\Seo\PageFacts;
 use Illuminate\Contracts\View\View;
@@ -213,25 +214,16 @@ class ProductController extends Controller
      * **This is what ترب's second ticket was actually about.** They wrote
      * «لینک‌های ارسالی شما همچنان فاقد محصول می‌باشند» over a screenshot of
      * `/products/golden-goose` showing the «دیگر عرضه نمی‌شود» panel — and the
-     * shop sells seven Golden Geese. The retired row is `کتونی گلدن گوس`, one
-     * of the five setup shoes; the live ones are
-     * `کتونی گلدن گوس رنگ صورتی Golden Goose` and six more colours, imported
-     * from the supplier. Same shoe, different photographs. Telling somebody
-     * who asked for that shoe that it is gone, while it is on the shelf behind
-     * you, is the wrong answer to give either a shopper or an aggregator.
+     * shop sells seven Golden Geese. Telling somebody who asked for that shoe
+     * that it is gone, while it is on the shelf behind you, is the wrong
+     * answer to give either a shopper or an aggregator.
      *
-     * **The rule is containment and nothing looser.** A live product matches
-     * when its folded title *contains the whole of* the retired one's — which
-     * is exactly «the same name with a colour added» and is how this supplier
-     * names a colourway. It is deliberately not the fuzzy matching that
-     * `TorobFeedController`'s `product_group_id` comment refuses for the same
-     * catalogue: that one has to decide two *different* names are one shoe,
-     * and this one only has to recognise its own name inside a longer one.
-     *
-     * **Same brand, so the containment cannot reach across the shop.** A
-     * retired product with no brand gets the gone page: without that fence a
-     * short retired name could swallow half the catalogue, and a wrong
-     * redirect is worse than an honest dead end.
+     * **The rule itself is `SameShoe`, and it is there rather than here
+     * because the feed has to give the same answer.** ترب asked again on
+     * 2026-09-20 — the old address was still «یافت نمی‌شود» in the data the
+     * shop sends them, because this redirect was the whole of the previous
+     * fix and `TorobFeedController` had never heard of it. Two copies of a
+     * rule that decides what an address means is how that happens twice.
      *
      * **302 and not 301.** A permanent redirect is a claim that these two rows
      * are one product for ever, which nothing here knows — and it is the one
@@ -241,25 +233,7 @@ class ProductController extends Controller
      */
     private function sameShoeStillOnSale(Product $product): ?Product
     {
-        if ($product->brand_id === null) {
-            return null;
-        }
-
-        $name = fold_persian(trim($product->title));
-
-        if ($name === '') {
-            return null;
-        }
-
-        return Product::query()
-            ->listable()
-            ->where('brand_id', $product->brand_id)
-            ->whereKeyNot($product->id)
-            ->with(['variants.offer', 'variants.stock'])
-            ->inStockFirst()
-            ->orderBy('id')
-            ->get()
-            ->first(fn (Product $other) => str_contains(fold_persian($other->title), $name));
+        return SameShoe::stillOnSale($product);
     }
 
     /**

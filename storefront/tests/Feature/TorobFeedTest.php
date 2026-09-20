@@ -14,6 +14,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Routing\Router;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Route;
+use Tests\Support\ARetiredShoe;
 use Tests\TestCase;
 
 /**
@@ -32,6 +33,7 @@ use Tests\TestCase;
  */
 class TorobFeedTest extends TestCase
 {
+    use ARetiredShoe;
     use RefreshDatabase;
 
     private const URL = '/torob_api/v3/products';
@@ -438,6 +440,291 @@ class TorobFeedTest extends TestCase
             rsort($sorted);
 
             $this->assertSame($sorted, $dates, "{$sort} did not order the answer.");
+        }
+    }
+
+    // ---- the address a shoe leaves behind ----------------------------------
+
+    /**
+     * **ترب's third ticket about `golden-goose`, and the one the first two
+     * fixes could not close.**
+     *
+     * 2026-09-20: «محصول نمونه‌ای که قبلاً با آدرس کوتاه golden-goose ثبت شده
+     * بود، هنوز در فهرست فعلی محصولات ارسالی سایت یافت نمی‌شود». Both earlier
+     * rounds worked on the product *page* — it stopped being a 404, then it
+     * started redirecting to the living colourway — and neither touched the
+     * feed, which is what «اطلاعات ارسالی سایت» means. Asked for that address,
+     * the feed answered with an empty list, which is exactly how their schema
+     * spells «this product no longer exists».
+     *
+     * Their instruction: «آدرس نهایی و عمومی همین محصول … را در اطلاعات ارسالی
+     * سایت قرار دهد و آدرس‌های قدیمی را اصلاح کند». So the old address is
+     * answered with the shoe that replaced it, carrying that shoe's own id and
+     * its own final, public address.
+     */
+    public function test_an_old_address_answers_with_the_shoe_that_replaced_it(): void
+    {
+        $retired = $this->retire('golden-goose');
+        $living = $this->aColourwayOf($retired, $retired->title.' رنگ صورتی Golden Goose');
+
+        $body = $this->ask(['page_urls' => [url('/products/golden-goose')]])->assertOk()->json();
+
+        $this->assertCount(1, $body['products'], 'The address ترب holds still answers with nothing.');
+        $this->assertSame((string) $living->id, $body['products'][0]['page_unique']);
+        $this->assertSame(storefront_route('product', $living), $body['products'][0]['page_url']);
+        $this->assertSame(1, $body['total']);
+    }
+
+    /** The same correction when they ask by the id they filed rather than the address. */
+    public function test_an_old_id_answers_with_the_shoe_that_replaced_it(): void
+    {
+        $retired = $this->retire('golden-goose');
+        $living = $this->aColourwayOf($retired, $retired->title.' رنگ صورتی Golden Goose');
+
+        $body = $this->ask(['page_uniques' => [(string) $retired->id]])->assertOk()->json();
+
+        $this->assertCount(1, $body['products']);
+        $this->assertSame((string) $living->id, $body['products'][0]['page_unique']);
+    }
+
+    /**
+     * Asked for the old address and the new one together, they get one row.
+     *
+     * Their index keys on `page_unique`; the same id twice in one answer is a
+     * contradiction rather than a duplicate, and duplicates are a thing they
+     * have already complained about on this shop.
+     */
+    public function test_the_old_address_and_the_new_one_are_one_row(): void
+    {
+        $retired = $this->retire('golden-goose');
+        $living = $this->aColourwayOf($retired, $retired->title.' رنگ صورتی Golden Goose');
+
+        $body = $this->ask(['page_urls' => [
+            url('/products/golden-goose'),
+            storefront_route('product', $living),
+        ]])->assertOk()->json();
+
+        $this->assertCount(1, $body['products']);
+        $this->assertSame((string) $living->id, $body['products'][0]['page_unique']);
+    }
+
+    /**
+     * The address the feed hands back opens on a real product page.
+     *
+     * The other half of «آدرس نهایی و عمومی»: a corrected address that lands
+     * on the «دیگر عرضه نمی‌شود» panel would be the same ticket again in a
+     * different place.
+     */
+    public function test_the_corrected_address_opens_a_real_product_page(): void
+    {
+        $retired = $this->retire('golden-goose');
+        $this->aColourwayOf($retired, $retired->title.' رنگ صورتی Golden Goose');
+
+        $row = $this->ask(['page_urls' => [url('/products/golden-goose')]])->assertOk()->json('products.0');
+
+        $this->get(parse_url($row['page_url'], PHP_URL_PATH))
+            ->assertOk()
+            ->assertDontSee('دیگر در فروشگاه عرضه نمی‌شود', false);
+    }
+
+    /**
+     * A retired shoe with nothing like it on the shelf is still an empty list.
+     *
+     * The correction is a correction, not a habit of always answering with
+     * *something*: where the shop really has stopped selling a shoe and has
+     * nothing in its place, «this is gone» is the true answer and the one
+     * their schema asks for.
+     */
+    public function test_a_retired_shoe_with_no_successor_is_still_an_empty_list(): void
+    {
+        $retired = $this->retire('golden-goose');
+
+        $body = $this->ask(['page_urls' => [url('/products/golden-goose')]])->assertOk()->json();
+
+        $this->assertSame([], $body['products']);
+        $this->assertSame(0, $body['total']);
+        $this->assertNull($body['products'][0]['page_unique'] ?? null);
+        $this->assertSame('archived', $retired->fresh()->status);
+    }
+
+    /**
+     * Correcting the old address does not put the retired shoe back in the shop.
+     *
+     * The listing must carry the living colourway and not the retired row —
+     * one entry for one shoe. Undoing the client's own retirement
+     * («این موارد اوایل راه اندازی سایت قرار داده شدن») would be a worse
+     * answer to ترب than the one being fixed.
+     */
+    public function test_the_retired_shoe_is_still_out_of_the_listing(): void
+    {
+        $retired = $this->retire('golden-goose');
+        $living = $this->aColourwayOf($retired, $retired->title.' رنگ صورتی Golden Goose');
+
+        $rows = $this->ask(['page' => 1, 'sort' => 'date_added_desc'])->assertOk()->json('products');
+
+        $uniques = array_column($rows, 'page_unique');
+
+        $this->assertNotContains((string) $retired->id, $uniques);
+        $this->assertSame([(string) $living->id], array_values(array_filter(
+            $uniques,
+            fn (string $unique) => $unique === (string) $living->id,
+        )));
+    }
+
+    /**
+     * Somebody else's id shape is an empty list, and stays one.
+     *
+     * `page_unique` here is this shop's product id and the column is an
+     * integer, while their own document's example id is «12412_1». Measured
+     * on Postgres 16, a text comparison against a `bigint` column answers
+     * with no rows rather than with an error, so this passed before the
+     * lookup was touched and is here to keep it passing: the shape of an id
+     * this shop did not mint must never become a 500, which their crawler
+     * would read as a broken shop.
+     */
+    public function test_an_id_that_is_not_a_number_is_an_empty_list(): void
+    {
+        $body = $this->ask(['page_uniques' => ['12412_1']])->assertOk()->json();
+
+        $this->assertSame([], $body['products']);
+        $this->assertSame(0, $body['total']);
+    }
+
+    // ---- their cursor-based pagination -------------------------------------
+
+    /** The envelope carries `next_cursor` in every shape, null where there is none. */
+    public function test_the_envelope_always_carries_next_cursor(): void
+    {
+        $page = $this->ask(['page' => 1, 'sort' => 'date_added_desc'])->assertOk()->json();
+
+        $this->assertArrayHasKey('next_cursor', $page);
+        $this->assertNull($page['next_cursor']);
+
+        $lookup = $this->ask(['page_uniques' => [(string) $this->aProduct()->id]])->assertOk()->json();
+
+        $this->assertArrayHasKey('next_cursor', $lookup);
+        $this->assertNull($lookup['next_cursor']);
+    }
+
+    /** Their first cursor page: sort alone, no page, no cursor. */
+    public function test_a_first_cursor_page_is_the_newest_ids_first(): void
+    {
+        $body = $this->ask(['sort' => 'product_id_desc'])->assertOk()->json();
+
+        $this->assertSame('torob_api_v3', $body['api_version']);
+        $this->assertSame(1, $body['current_page']);
+
+        $ids = array_map('intval', array_column($body['products'], 'page_unique'));
+        $sorted = $ids;
+        rsort($sorted);
+
+        $this->assertSame($sorted, $ids, 'product_id_desc did not order the answer by descending id.');
+        $this->assertNull($body['next_cursor'], 'A catalogue under a hundred is one page.');
+    }
+
+    /** A cursor really does exclude everything at or above it. */
+    public function test_a_cursor_starts_below_the_id_it_names(): void
+    {
+        $ids = array_map('intval', array_column(
+            $this->ask(['sort' => 'product_id_desc'])->assertOk()->json('products'),
+            'page_unique',
+        ));
+
+        $this->assertGreaterThan(1, count($ids), 'This needs more than one product to mean anything.');
+
+        $body = $this->ask(['cursor' => (string) $ids[0], 'sort' => 'product_id_desc'])->assertOk()->json();
+
+        $this->assertSame(
+            array_slice($ids, 1),
+            array_map('intval', array_column($body['products'], 'page_unique')),
+        );
+    }
+
+    /**
+     * **The whole catalogue, walked by cursor, arrives exactly once.**
+     *
+     * This is the case worth the hundred rows it costs to set up. A numbered
+     * page is an `OFFSET` and a catalogue that changes under it hands a shoe
+     * over twice or never; the cursor exists so that cannot happen, and an
+     * off-by-one in the «is there another page» test would lose exactly one
+     * product per page, invisibly. Nothing smaller than a real second page
+     * can see that.
+     */
+    public function test_the_cursor_walks_every_product_exactly_once(): void
+    {
+        $of = $this->aProduct();
+
+        for ($i = 0; $i < 100; $i++) {
+            $this->aColourwayOf($of, $of->title." شماره {$i}");
+        }
+
+        $total = Product::query()->listable()->count();
+        $this->assertGreaterThan(100, $total, 'The walk needs more than one page to test anything.');
+
+        $seen = [];
+        $body = ['sort' => 'product_id_desc'];
+        $pages = 0;
+
+        do {
+            $answer = $this->ask($body)->assertOk()->json();
+            $pages++;
+
+            $this->assertSame($pages, $answer['current_page']);
+            $this->assertSame($total, $answer['total']);
+            $this->assertLessThanOrEqual(100, count($answer['products']));
+
+            $seen = array_merge($seen, array_column($answer['products'], 'page_unique'));
+
+            $body = ['cursor' => $answer['next_cursor'], 'sort' => 'product_id_desc'];
+        } while ($answer['next_cursor'] !== null && $pages < 10);
+
+        $this->assertNull($answer['next_cursor'], 'The last page must end the walk.');
+        $this->assertCount($total, $seen, 'The walk did not hand over every product.');
+        $this->assertSame($seen, array_unique($seen), 'The walk handed a product over twice.');
+    }
+
+    /** Every page but the last holds exactly their hundred. */
+    public function test_a_full_cursor_page_holds_exactly_a_hundred(): void
+    {
+        $of = $this->aProduct();
+
+        for ($i = 0; $i < 100; $i++) {
+            $this->aColourwayOf($of, $of->title." شماره {$i}");
+        }
+
+        $body = $this->ask(['sort' => 'product_id_desc'])->assertOk()->json();
+
+        $this->assertCount(100, $body['products']);
+        $this->assertNotNull($body['next_cursor']);
+        $this->assertIsString($body['next_cursor']);
+        $this->assertSame(end($body['products'])['page_unique'], $body['next_cursor']);
+    }
+
+    /** `page`, `limit` and `size` are not sent with a cursor, and saying so beats guessing. */
+    public function test_a_numbered_page_beside_a_cursor_sort_is_a_400(): void
+    {
+        foreach (['page' => 2, 'limit' => 50, 'size' => 50] as $key => $value) {
+            $this->ask([$key => $value, 'sort' => 'product_id_desc'])
+                ->assertStatus(400)
+                ->assertJsonStructure(['error']);
+        }
+    }
+
+    /** A cursor on a dated sort is a caller mixing the two shapes. */
+    public function test_a_cursor_on_a_dated_sort_is_a_400(): void
+    {
+        $this->ask(['cursor' => '5', 'sort' => 'date_added_desc'])
+            ->assertStatus(400)
+            ->assertJsonStructure(['error']);
+    }
+
+    /** A cursor this feed did not mint is refused rather than silently restarting the crawl. */
+    public function test_a_cursor_that_is_not_one_of_ours_is_a_400(): void
+    {
+        foreach ([5, 'abc', ''] as $cursor) {
+            $this->ask(['cursor' => $cursor, 'sort' => 'product_id_desc'])
+                ->assertStatus(400)
+                ->assertJsonStructure(['error']);
         }
     }
 

@@ -4,14 +4,13 @@ namespace Tests\Feature;
 
 use App\Http\Middleware\VerifyTorobToken;
 use App\Models\Branch;
-use App\Models\BranchInventory;
-use App\Models\BranchOffer;
 use App\Models\Product;
 use App\Support\Tenancy\TenantContext;
 use Database\Seeders\BranchSeeder;
 use Database\Seeders\CatalogueSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Testing\TestResponse;
+use Tests\Support\ARetiredShoe;
 use Tests\TestCase;
 
 /**
@@ -32,6 +31,7 @@ use Tests\TestCase;
  */
 class RetiredProductPageTest extends TestCase
 {
+    use ARetiredShoe;
     use RefreshDatabase;
 
     private TenantContext $tenant;
@@ -43,16 +43,6 @@ class RetiredProductPageTest extends TestCase
         $this->seed([BranchSeeder::class, CatalogueSeeder::class]);
 
         $this->tenant = app(TenantContext::class);
-    }
-
-    /** Retire one shoe the way the panel and the migrations do: archived, unpublished. */
-    private function retire(string $slug): Product
-    {
-        $product = Product::where('slug', $slug)->firstOrFail();
-
-        $product->forceFill(['status' => 'archived', 'published_at' => null])->save();
-
-        return $product;
     }
 
     /**
@@ -69,53 +59,6 @@ class RetiredProductPageTest extends TestCase
         return $this->withoutMiddleware(VerifyTorobToken::class)
             ->postJson('/torob_api/v3/products', ['page' => 1, 'sort' => 'date_added_desc'])
             ->assertOk();
-    }
-
-    /**
-     * The same shoe as `$of`, on the shelf, under a longer name.
-     *
-     * This is the shape the live catalogue is really in: `basalam:import`
-     * makes one product per supplier listing and the supplier lists each
-     * colour separately, so the shop's seven Golden Geese are seven rows whose
-     * titles all begin with the retired one's.
-     */
-    private function aColourwayOf(Product $of, string $title): Product
-    {
-        $slug = 'colourway-'.mb_substr(md5($title), 0, 8);
-
-        $product = Product::create([
-            'slug' => $slug,
-            'title' => $title,
-            'short_title' => mb_substr($title, 0, 20),
-            'brand_id' => $of->brand_id,
-            'status' => 'active',
-            'published_at' => now(),
-        ]);
-
-        $variant = $product->variants()->create([
-            'sku' => 'VP-CW-'.strtoupper(mb_substr(md5($slug), 0, 8)),
-            'size_value' => '40',
-            'size_system' => 'EU',
-            'display_color' => 'صورتی',
-            'color_family' => 'other',
-            'status' => 'active',
-        ]);
-
-        BranchOffer::create([
-            'branch_id' => Branch::central()->id,
-            'variant_id' => $variant->id,
-            'price' => 4_000_000,
-            'status' => 'active',
-        ]);
-
-        BranchInventory::create([
-            'branch_id' => Branch::central()->id,
-            'variant_id' => $variant->id,
-            'stock_on_hand' => 3,
-            'stock_reserved' => 0,
-        ]);
-
-        return $product;
     }
 
     /**
