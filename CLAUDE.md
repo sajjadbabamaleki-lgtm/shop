@@ -111,7 +111,34 @@ the client saw an old page and had no way to tell why. So, plainly:
   three jobs (Tests, What the live site sends, Deploy to Liara) and report the
   conclusion of each. This container's proxy still answers 403 for
   vikyplus.liara.run and vikyplus.ir, so nothing here can curl the site.
-- **⛔ THE PROBE HAS BEEN BLIND SINCE 2026-09-07, AND IT DOES NOT GO RED.**
+- **✅ THE PROBE CAN SEE AGAIN, measured on run #824, 2026-09-20.** All
+  fifteen paths answered **200 on both hosts**, and the whole job took **37
+  seconds** rather than the 2h17m it used to spend in `curl`. The network path
+  recovered — which matches the note further down that a runner reached the
+  live site again on 19 Sept. **So the blackout described below is history,
+  not the current state**, and the timings under it *can* be refreshed from
+  here: re-run the probe rather than planning around the August table.
+  What it says now, from a runner (`wait` is one round trip plus the server's
+  own work; a static file on the same connection waits ~182ms):
+
+  | | wait | app | php | db | queries |
+  | --- | ---: | ---: | ---: | ---: | ---: |
+  | `/` | 1,053ms | 868ms | 588ms | 281ms | **41** |
+  | `/products` | 996ms | 812ms | 417ms | 395ms | 40 |
+  | `/cart` | 570ms | 384ms | 247ms | 137ms | 11 |
+
+  Two things in that table are not what this file says elsewhere: the home
+  page is **41 queries** where the note below records 35, and vikyplus.ir was
+  measurably slower than the Liara address on the same run (`/products` 1,894ms
+  against 996ms), which is one sample and not yet a finding. The conclusion
+  below — that it is the machine and not a code path — is untouched by any of
+  this and still stands.
+  The paragraphs that follow are kept because they are the only record of what
+  a blind probe looks like, and `continue-on-error: true` still means a future
+  blackout will hide behind a green tick exactly as this one did.
+
+- **⛔ IT WAS BLIND FROM 2026-09-07 TO SOME TIME BEFORE 2026-09-19, AND IT DID
+  NOT GO RED.**
   Read this before trusting anything below it or planning to "just re-run the
   probe". On the last two runs on `main` — #772 (07 Sept) and #776 (09 Sept) —
   **every one of the fifteen paths came back `http_code 000` on both hosts**,
