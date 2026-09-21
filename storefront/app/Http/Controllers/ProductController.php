@@ -253,7 +253,7 @@ class ProductController extends Controller
          * it is the surer of the two.
          */
         return SameShoe::stillOnSale($product)
-            ?? ProductByOldAddress::find($product->title);
+            ?? ProductByOldAddress::forRetired($product);
     }
 
     /**

@@ -355,12 +355,19 @@ class TorobFeedController extends Controller
             // the page uses, so the two cannot come apart.
             ->where('status', '!=', 'active')
             ->with('brand')
-            ->get()
+            ->get();
+
+        // Loaded once for the whole batch. ترب ask about many addresses in one
+        // POST, and `forRetired()` would otherwise read the catalogue back per
+        // retired row — on the live machine a query is ~10ms.
+        $catalogue = $successors->isEmpty() ? null : ProductByOldAddress::catalogue();
+
+        $successors = $successors
             // The same pair of rules the product page uses, in the same
             // order — containment, then the words. Two answers to «what does
             // this address mean» is the fault this whole file keeps paying for.
             ->map(fn (Product $retired) => SameShoe::stillOnSale($retired)
-                ?? ProductByOldAddress::find($retired->title))
+                ?? ProductByOldAddress::forRetired($retired, $catalogue))
             ->filter()
             ->pluck('id')
             ->unique()

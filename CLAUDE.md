@@ -1068,14 +1068,35 @@ the client saw an old page and had no way to tell why. So, plainly:
   a product leaves the feed are all innocent.
   `App\Support\Catalogue\ProductByOldAddress` is the answer and it is **one
   rule, not a list** — «نباید تک تک درست کنی … این مشکل باید ریشه ای حل بشه».
-  It scores a live product by how many of the address's words its title
-  carries. Four things make that safe:
-  - **A word no title on this shop uses is not counted at all.** This is the
-    line that makes it survive their addresses: `ai`, `jor`, `sa`, «مدل» and
-    «محصول» match nothing, so scored raw they drag a plainly-right shoe under
-    the threshold. It tightens the other way too — an address for a shoe this
-    shop does not sell keeps almost none of its words and is refused rather
-    than matched to whatever scored highest.
+  It scores a live product by how many of the address's words it carries.
+  Five things make that safe:
+  - **⛔ It scores the product's *slug* as well as its title, and the first
+    version did not — which is why it shipped green and answered 404 on every
+    one of those addresses for a day.** This shop's titles are terse and its
+    slugs carry the identity, because `basalam:import` writes them that way.
+    Read off the live sitemap and the live pages, 2026-09-21:
+
+        title  کتونی نایک وومرو                              ← all five colourways, identical
+        slug   کتونی-نایک-وومرو-Nike-Vomero-5-رنگ-قهوه-ای
+
+    Scored on titles the live vocabulary holds **no colour word, no Latin name
+    and no «۵»**, so most of an address's words count for nothing, `wanted`
+    falls under `SHORTEST` and the address is refused before it is ever
+    scored. Simulated against all 148 live slugs: nine of nine refused on
+    titles, nine of nine correct with the slug in. **The tests could not see
+    it** — they seeded shoes titled «کتونی نایک وومرو Nike Vomero 5 رنگ قهوه
+    ای», which is this shop's slug spelled with spaces and a title no product
+    here has ever had. `OldProductAddressTest` is built on real slugs now, and
+    13 of its 19 fail if the slug is taken back out. **Read the live
+    catalogue before writing a fixture for it**: `/sitemap.xml` from a runner
+    lists every slug in one request, and the two previous rounds of this bug
+    were both lost to inventing one.
+  - **A word no title or slug on this shop uses is not counted at all.** This
+    is the line that makes it survive their addresses: `ai`, `jor`, `sa`,
+    «مدل» and «محصول» match nothing, so scored raw they drag a plainly-right
+    shoe under the threshold. It tightens the other way too — an address for a
+    shoe this shop does not sell keeps almost none of its words and is refused
+    rather than matched to whatever scored highest.
   - **Ties are refused**, the rule `ReplacePhotos::theOneProductNamed()`
     follows.
   - **Except a tie broken by specificity**: two of their addresses are the same
@@ -1092,13 +1113,24 @@ the client saw an old page and had no way to tell why. So, plainly:
   `/products/{slug}` when no row has that slug (the route's `missing()`), and
   `TorobFeedController::withOldAddresses()`. **302, never 301** — the match
   rests on a title.
+  A retired product is asked through **`ProductByOldAddress::forRetired()`**,
+  which passes its title *and* its slug — one named constructor rather than
+  the same two lines in `ProductController` and `TorobFeedController`, because
+  those two disagreeing about one address is the fault this file has paid for
+  three times. On terse titles the slug is the half carrying the colour: «ونس
+  آدیداس سامبا» is three words and is what a dozen live shoes are called, so
+  asked on the title alone every retired row on this catalogue is refused for
+  being too short — a wrong answer dressed as a careful one.
   It is also the second rule behind a retired product, after `SameShoe`'s
   containment: the five setup shoes are named «کتونی جردن وان ایر» where the
   shop's own are «کتونی نایک مدل جردن وان ساق کوتاه …», so containment finds
   nothing and the shoe looked gone. **`/products/jordan-one-air` is still
-  refused on purpose** and still gets the retired page: three usable words and
-  **no colour named**, against a shop selling several Jordans — any answer
-  would be a guess about colour on an address an aggregator holds. If the
+  refused on purpose** and still gets the retired page: **no colour named**,
+  against a shop selling several Jordans, so any answer would be a guess about
+  colour on an address an aggregator holds. Measured on the live catalogue
+  with its slug scored too: it now clears `SHORTEST` and is refused **by the
+  tie** instead, several Jordans scoring it identically — the same answer, for
+  a better reason. If the
   catalogue ever carries a title with those words it starts redirecting on its
   own, which is the point of a rule over a list.
 - **⛔ The design gate hides the whole page from any crawler that does not load
