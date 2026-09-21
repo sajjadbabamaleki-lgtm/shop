@@ -1,26 +1,20 @@
 name: TEMP ask the live site
-on:
-  push:
-    branches:
-      - claude/torob-api-v3-implementation-7yuc5p
+
+on: push
+
 jobs:
   ask:
     runs-on: ubuntu-latest
     steps:
-      - name: The real titles behind the addresses that 404
+      - name: Every product slug the live shop publishes
         run: |
           set -u
           host=https://vikyplus.ir
-
-          titles() {
-            echo "--- $2 ---"
-            curl -s --max-time 40 "$host/search?q=$1" -o /tmp/s || true
-            grep -oE '/products/[^"?#]+' /tmp/s | sort -u | while read -r p; do
-              t="$(curl -s --max-time 30 "$host$p" | grep -o '<title>[^<]*' | head -1 | cut -c8-)"
-              printf '  %s\n' "$t"
-            done
-          }
-
-          titles "vomero" "vomero"
-          titles "%D8%B3%D8%A7%D9%85%D8%A8%D8%A7" "samba"
-          titles "%D8%AC%D8%B1%D8%AF%D9%86" "jordan"
+          curl -s --max-time 120 "$host/sitemap.xml" -o /tmp/sm || true
+          echo "sitemap bytes: $(wc -c < /tmp/sm)"
+          grep -oE '<loc>[^<]*/products/[^<]*</loc>' /tmp/sm \
+            | sed -e 's~<loc>~~' -e 's~</loc>~~' \
+            | sed -e 's~^.*/products/~~' \
+            | python3 -c 'import sys,urllib.parse
+for line in sys.stdin:
+    print(urllib.parse.unquote(line.strip()))'
