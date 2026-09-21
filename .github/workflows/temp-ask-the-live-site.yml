@@ -1,0 +1,40 @@
+name: TEMP ask the live site
+on:
+  push:
+    branches:
+      - claude/torob-api-v3-implementation-7yuc5p
+jobs:
+  ask:
+    runs-on: ubuntu-latest
+    steps:
+      - name: What the old addresses answer now
+        run: |
+          set -u
+          host=https://vikyplus.ir
+
+          ask() {
+            out="$(curl -s -o /tmp/b -w '%{http_code} %{redirect_url}' --max-time 40 "$1" || echo '000 -')"
+            code="${out%% *}"; where="${out#* }"
+            printf '%s  %s\n         -> %s\n' "$code" "$2" "${where:--}"
+            if [ "$code" = "200" ]; then
+              printf '         title: %s\n' "$(grep -o '<title>[^<]*' /tmp/b | head -1 | cut -c8-90)"
+            fi
+          }
+
+          echo "== the exact address in the client's screenshot =="
+          ask "$host/product/%DA%A9%D9%81%D8%B4/%DA%A9%D8%AA%D9%88%D9%86%DB%8C-%D9%86%D8%A7%DB%8C%DA%A9-%D9%85%D8%AF%D9%84-%D9%88%D9%88%D9%85%D8%B1%D9%88-%DB%B5-%D8%B1%D9%86%DA%AF-%D9%82%D9%87%D9%88%D9%87-%D8%A7%DB%8C-nike-vomero-5" "vomero brown, old scheme"
+
+          echo
+          echo "== the others they sent =="
+          ask "$host/product/%DA%A9%D9%81%D8%B4/%DA%A9%D8%AA%D9%88%D9%86%DB%8C-%D9%86%D8%A7%DB%8C%DA%A9-%D9%85%D8%AF%D9%84-%D9%88%D9%88%D9%85%D8%B1%D9%88-%DB%B5-%D8%B1%D9%86%DA%AF-%D9%85%D8%B4%DA%A9%DB%8C-nike-vomero-5" "vomero black"
+          ask "$host/product/%DA%A9%D9%81%D8%B4/%DA%A9%D8%AA%D9%88%D9%86%DB%8C-%D9%86%D8%A7%DB%8C%DA%A9-%D9%85%D8%AF%D9%84-%D8%AC%D8%B1%D8%AF%D9%86-%D9%88%D8%A7%D9%86-%D8%B3%D8%A7%D9%82-%DA%A9%D9%88%D8%AA%D8%A7%D9%87-%D8%B1%D9%86%DA%AF-%D8%B3%D9%81%DB%8C%D8%AF-air-jor" "jordan white, cut slug"
+          ask "$host/product/%DA%A9%D9%81%D8%B4/%D9%88%D9%86%D8%B3-%D8%A2%D8%AF%DB%8C%D8%AF%D8%A7%D8%B3-%D9%85%D8%AF%D9%84-%D8%B3%D8%A7%D9%85%D8%A8%D8%A7-%D8%B1%D9%86%DA%AF-%D9%82%D9%87%D9%88%D9%87-%D8%A7%DB%8C-adidas-samba" "samba brown"
+          ask "$host/products/golden-goose" "golden-goose (known good)"
+
+          echo
+          echo "== is the new route even deployed? a nonsense one under it should 404, not 500 =="
+          ask "$host/product/x/y" "nonsense old-scheme address"
+
+          echo
+          echo "== what the app reports as its commit, if anything =="
+          curl -s -I --max-time 30 "$host/" | grep -iE 'server-timing|x-|date' | head -8 || true
