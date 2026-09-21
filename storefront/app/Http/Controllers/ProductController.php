@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Models\ProductComment;
 use App\Models\Variant;
+use App\Support\Catalogue\ProductByOldAddress;
 use App\Support\Catalogue\SameShoe;
 use App\Support\Marketplace\Sellers;
 use App\Support\Seo\PageFacts;
@@ -233,7 +234,26 @@ class ProductController extends Controller
      */
     private function sameShoeStillOnSale(Product $product): ?Product
     {
-        return SameShoe::stillOnSale($product);
+        /*
+         * Two rules, narrowest first, and the second is why
+         * `/products/jordan-one-air` stopped being a dead end.
+         *
+         * `SameShoe` wants the live title to contain the retired one whole —
+         * «the same name with a colour added», which is how the supplier names
+         * a colourway. The five setup shoes were not named that way: the
+         * retired row is «کتونی جردن وان ایر» and the shop's own Jordans are
+         * «کتونی نایک مدل جردن وان ساق کوتاه …». Nothing contains anything, so
+         * containment finds nothing and the shoe looked gone while it was on
+         * the shelf — ترب listed both of those addresses among the ones out of
+         * reach on 2026-09-21.
+         *
+         * `ProductByOldAddress` scores the words instead, and has its own
+         * fences: it refuses a tie and refuses an address whose words this
+         * shop does not use. Containment stays first because when it answers,
+         * it is the surer of the two.
+         */
+        return SameShoe::stillOnSale($product)
+            ?? ProductByOldAddress::find($product->title);
     }
 
     /**

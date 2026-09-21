@@ -1048,6 +1048,59 @@ the client saw an old page and had no way to tell why. So, plainly:
   was added the three cut sheets come back **byte-identical** — verify with
   `md5sum` — and then only `subset.json`'s fingerprint has moved and
   `check-css-subset.js` has nothing new to look at.
+- **⛔ The previous website's product addresses were never served here, and
+  that is what «۳۸ تا از محصولات ما در دسترس نیستن» was.** ترب, 2026-09-21.
+  The old site addressed a product as **`/product/<category>/<slug>`** —
+  singular, section in the path — and this one serves `/products/{slug}`.
+  Measured from a runner against the live site, the example they sent:
+
+  | | |
+  | --- | --- |
+  | they hold | `/product/کفش/کتونی-نایک-مدل-وومرو-۵-رنگ-قهوه-ای-nike-vomero-5` → **404** |
+  | the same slug under `/products/`, either case | **404** |
+  | the shop | `/products/کتونی-نایک-وومرو-Nike-Vomero-5-رنگ-قهوه-ای` → on sale |
+
+  **Two things are different, not one**, and missing the second wastes the
+  round: the path *and* the slug. The old site wrote «مدل», spelled the five
+  «۵», put the Latin name last, and **cut long slugs mid-word** — three of the
+  addresses they sent end `-ai`, `-air-jor`, `-adidas-sa`. So nothing that
+  compares slugs can match them, folded or not, and the four ordinary reasons
+  a product leaves the feed are all innocent.
+  `App\Support\Catalogue\ProductByOldAddress` is the answer and it is **one
+  rule, not a list** — «نباید تک تک درست کنی … این مشکل باید ریشه ای حل بشه».
+  It scores a live product by how many of the address's words its title
+  carries. Four things make that safe:
+  - **A word no title on this shop uses is not counted at all.** This is the
+    line that makes it survive their addresses: `ai`, `jor`, `sa`, «مدل» and
+    «محصول» match nothing, so scored raw they drag a plainly-right shoe under
+    the threshold. It tightens the other way too — an address for a shoe this
+    shop does not sell keeps almost none of its words and is refused rather
+    than matched to whatever scored highest.
+  - **Ties are refused**, the rule `ReplacePhotos::theOneProductNamed()`
+    follows.
+  - **Except a tie broken by specificity**: two of their addresses are the same
+    shoe in white, one ending «رنگ-سفید-مشکی-ai» and one «رنگ-سفید-air-jor»,
+    and every word of the shorter is inside the longer title. Among shoes that
+    satisfy an address equally, the one saying least beyond it is the one the
+    address names; the longer title is reached by the address that says
+    «مشکی», which outscores it outright.
+  - **A short address is refused**: fewer than four usable words names a
+    section, not a shoe.
+  It answers in three places, all through the same rule, because the page and
+  the feed disagreeing about one address is the fault this repository has now
+  paid for three times: the old scheme (`OldAddressController`),
+  `/products/{slug}` when no row has that slug (the route's `missing()`), and
+  `TorobFeedController::withOldAddresses()`. **302, never 301** — the match
+  rests on a title.
+  It is also the second rule behind a retired product, after `SameShoe`'s
+  containment: the five setup shoes are named «کتونی جردن وان ایر» where the
+  shop's own are «کتونی نایک مدل جردن وان ساق کوتاه …», so containment finds
+  nothing and the shoe looked gone. **`/products/jordan-one-air` is still
+  refused on purpose** and still gets the retired page: three usable words and
+  **no colour named**, against a shop selling several Jordans — any answer
+  would be a guess about colour on an address an aggregator holds. If the
+  catalogue ever carries a title with those words it starts redirecting on its
+  own, which is the point of a rule over a list.
 - **⛔ The design gate hides the whole page from any crawler that does not load
   stylesheets, and that is still true.** Measured both locally and against the
   live site on 19 Sept: with `*.css` blocked, a product page renders

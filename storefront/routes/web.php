@@ -9,6 +9,7 @@ use App\Http\Controllers\EnquiryController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InstalmentsController;
 use App\Http\Controllers\MessageController;
+use App\Http\Controllers\OldAddressController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\PaymentController;
@@ -21,6 +22,7 @@ use App\Http\Controllers\VendorApplicationController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Middleware\ResolveTenant;
 use App\Models\Enquiry;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -60,7 +62,24 @@ $storefront = function (): void {
     Route::get('/search', ShopController::class)->name('search');
     Route::get('/categories/{category}', ShopController::class)->name('category');
 
-    Route::get('/products/{product}', ProductController::class)->name('product');
+    Route::get('/products/{product}', ProductController::class)->name('product')
+        // No row carries that slug — it is very likely an address from the
+        // previous website, whose slugs are different strings. See
+        // OldAddressController.
+        // A closure and not [Class, 'method']: Laravel calls a `missing`
+        // callable statically, which fatals on an instance method.
+        ->missing(fn (Request $request) => app(OldAddressController::class)->missing($request));
+
+    /*
+     * The previous website's product address: /product/<category>/<slug>,
+     * singular, with the section in the path. ترب still hold about thirty-
+     * eight of them and every one has been a 404 since this site went up.
+     * The wildcard takes any depth, because the old scheme's middle is a
+     * category path and this does not need to know its shape.
+     */
+    Route::get('/product/{address}', OldAddressController::class)
+        ->where('address', '.*')
+        ->name('product.old-address');
 
     /*
      * The sitemap, mounted here rather than at the site root only, so every

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Branch;
 use App\Models\Product;
 use App\Models\Variant;
+use App\Support\Catalogue\ProductByOldAddress;
 use App\Support\Catalogue\SameShoe;
 use App\Support\Tenancy\TenantContext;
 use Illuminate\Http\JsonResponse;
@@ -264,8 +265,9 @@ class TorobFeedController extends Controller
             ->values();
 
         $found = $this->catalogue()->whereIn('slug', $slugs)->get();
+        $found = $this->withSuccessors($found, 'slug', $slugs);
 
-        return $this->answer($this->withSuccessors($found, 'slug', $slugs), 1);
+        return $this->answer($this->withOldAddresses($found, $slugs), 1);
     }
 
     /** The products behind a list of our own ids. */
@@ -354,7 +356,11 @@ class TorobFeedController extends Controller
             ->where('status', '!=', 'active')
             ->with('brand')
             ->get()
-            ->map(fn (Product $retired) => SameShoe::stillOnSale($retired))
+            // The same pair of rules the product page uses, in the same
+            // order — containment, then the words. Two answers to «what does
+            // this address mean» is the fault this whole file keeps paying for.
+            ->map(fn (Product $retired) => SameShoe::stillOnSale($retired)
+                ?? ProductByOldAddress::find($retired->title))
             ->filter()
             ->pluck('id')
             ->unique()
@@ -372,6 +378,56 @@ class TorobFeedController extends Controller
         // media, categories and offers, and a row assembled by another path is
         // a row that can quietly differ.
         return $found->concat($this->catalogue()->whereIn('id', $successors)->get())
+            ->unique('id')
+            ->values();
+    }
+
+    /**
+     * The shoe behind an address this site has never served.
+     *
+     * **The other half of ترب's «۳۸ تا از محصولات ما در دسترس نیستن».** The
+     * addresses they hold for those are the previous website's —
+     * `/product/<category>/<slug>` — and its slugs are different *strings*
+     * from this shop's, not just a different path. So the lookup above finds
+     * nothing, no row is retired, and the feed answers an empty list: their
+     * schema's way of saying the product is gone, about a shoe on the shelf.
+     * Exactly the golden-goose failure again, from a different cause.
+     *
+     * A slug that matches **no row at all** — neither listed nor retired — is
+     * the fingerprint of an address from somewhere else, and only those are
+     * put to `ProductByOldAddress`. A slug that names a real row is already
+     * answered above, correctly, by whatever that row's state deserves.
+     *
+     * The catalogue is loaded once and handed down: ترب ask for many addresses
+     * in one request, and this would otherwise read the whole shop per
+     * address — about 10ms each on the live machine.
+     *
+     * @param  Collection<int, Product>  $found
+     * @param  Collection<int, string>  $slugs
+     * @return Collection<int, Product>
+     */
+    private function withOldAddresses(Collection $found, Collection $slugs): Collection
+    {
+        $unknown = $slugs->diff(Product::query()->whereIn('slug', $slugs)->pluck('slug'));
+
+        if ($unknown->isEmpty()) {
+            return $found;
+        }
+
+        $catalogue = ProductByOldAddress::catalogue();
+
+        $ids = $unknown
+            ->map(fn (string $slug) => ProductByOldAddress::find($slug, $catalogue))
+            ->filter()
+            ->pluck('id')
+            ->unique()
+            ->diff($found->pluck('id'));
+
+        if ($ids->isEmpty()) {
+            return $found;
+        }
+
+        return $found->concat($this->catalogue()->whereIn('id', $ids)->get())
             ->unique('id')
             ->values();
     }
