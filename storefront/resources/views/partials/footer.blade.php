@@ -8,6 +8,7 @@
                     <b class="vp-foot-m-name">ویکی پلاس</b>
                 </div>
                 <p class="vp-foot-m-strap">ارائه‌دهنده انواع کیف و کفش زنانه با تضمین کیفیت، ارسال سریع و امکان خرید تکی و عمده.</p>
+                <p class="vp-foot-m-line"><b class="vp-wholesale-only">آدرس حضوری فقط برای خرید عمده است</b></p>
                 <p class="vp-foot-m-line"><i class="fa-solid fa-location-dot" aria-hidden="true"></i><span>تهران، سعدی شمالی، روبه‌روی بانک ملی، پلاک ۵۶۵</span></p>
                 <p class="vp-foot-m-line"><i class="fa-solid fa-phone" aria-hidden="true"></i><a href="tel:02133983125">021-3398-3125</a></p>
                 <div class="vp-foot-m-social">
@@ -63,6 +64,7 @@
                                         </span>
                                     </a>
                                     <p class="vp-foot-d-strap">ارائه‌دهنده انواع کیف و کفش زنانه با تضمین کیفیت، ارسال سریع و امکان خرید تکی و عمده.</p>
+                                    <p class="vp-foot-d-line"><b class="vp-wholesale-only">آدرس حضوری فقط برای خرید عمده است</b></p>
                                     <p class="vp-foot-d-line"><i class="fa-solid fa-location-dot" aria-hidden="true"></i><span>تهران، سعدی شمالی، روبه‌روی بانک ملی، پلاک ۵۶۵</span></p>
                                     <p class="vp-foot-d-line"><i class="fa-solid fa-phone" aria-hidden="true"></i><a href="tel:02133983125">021-3398-3125</a></p>
                                 </div>

@@ -108,13 +108,31 @@
             </ul>
 
             <h2>ما کجاییم</h2>
+            {{-- The warning goes **above** the address rather than after it,
+                 which is where it used to sit. It was already true and already
+                 bold, and it was still being read second — «بالاش بولد بنویس».
+                 A qualification that arrives after the thing it qualifies is
+                 one the reader has already acted on. --}}
+            <p>
+                <strong class="vp-wholesale-only">آدرس حضوری فقط برای خرید عمده است.</strong>
+            </p>
             <p>
                 نشانی ویکی پلاس {{ config('storefront.contact.address') }} است.
             </p>
+            {{-- The detail stays underneath and still says «تنها برای خرید
+                 عمده» in full. `ContentPagesTest` asserts that phrase on this
+                 page and on `/wholesale`, and it is not a formality: «درباره ما»
+                 once invited retail customers to come and try shoes on, which
+                 is the opposite of «در فروش تکی اصلاً مورد حضوری نداریم». The
+                 line above is the warning; this is the explanation, and
+                 dropping either leaves the page saying less than it must. --}}
             <p>
-                <strong>مراجعهٔ حضوری تنها برای خرید عمده انجام می‌شود.</strong>
-                برای خرید تکی امکان مراجعهٔ حضوری وجود ندارد و سفارش‌ها از همین
-                سایت ثبت و به سراسر ایران ارسال می‌شود. برای خرید عمده،
+                برای خرید تکی امکان مراجعهٔ حضوری وجود ندارد و سفارش‌ها از
+                همین سایت ثبت و به سراسر ایران ارسال می‌شود؛ مراجعهٔ حضوری
+                {{-- kept whole on one line: ContentPagesTest matches this
+                     phrase literally, and a source wrap puts a newline and an
+                     indent inside it. --}}
+                تنها برای خرید عمده انجام می‌شود. برای خرید عمده،
                 <a href="{{ storefront_route('wholesale') }}">صفحهٔ خرید عمده</a>
                 راه‌های هماهنگی را دارد.
             </p>

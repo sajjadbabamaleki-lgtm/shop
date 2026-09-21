@@ -52,6 +52,17 @@
                     <span class="vp-contact-mark" aria-hidden="true"><i class="fa-solid fa-location-dot"></i></span>
                     <span class="vp-contact-what">
                         <b>نشانی فروشگاه</b>
+                        {{-- **Above the address and in bold, on every page that
+                             prints it.** «جایی که تو وبسایت آدرس حضوری زده شده
+                             بالاش بولد بنویس آدرس حضوری فقط برای خرید عمده
+                             است» — somebody who reads the address and stops
+                             reading is the one who crosses Tehran for a single
+                             pair. `<strong>` and not `<b>`: `.vp-contact-what b`
+                             is the faded label style this list uses for
+                             «نشانی فروشگاه» itself, so a `<b>` here would draw
+                             the warning as a second label at 0.65 opacity —
+                             quieter than the address rather than louder. --}}
+                        <strong class="vp-wholesale-only">آدرس حضوری فقط برای خرید عمده است</strong>
                         <span>{{ config('storefront.contact.address') }}</span>
                     </span>
                 </li>

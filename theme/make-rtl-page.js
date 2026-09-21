@@ -3851,6 +3851,20 @@ html = html.replace(
 // up with two.
 const FOOT_STRAP = 'ارائه\u200cدهنده انواع کیف و کفش زنانه با تضمین کیفیت، ارسال سریع و امکان خرید تکی و عمده.';
 const FOOT_ADDRESS = 'تهران، سعدی شمالی، روبه\u200cروی بانک ملی، پلاک ۵۶۵';
+// **The address is a wholesale counter, not a shop to walk into**, and it has
+// to say so where it is written. «جایی که تو وبسایت آدرس حضوری زده شده بالاش
+// بولد بنویس آدرس حضوری فقط برای خرید عمده است» — above the address and in
+// bold, because a visitor who reads the address and stops reading is the one
+// who drives across Tehran for a single pair. `/about` and `/wholesale` have
+// said this in their own prose since they were written; the footer is on every
+// page and said nothing, which made it the copy most people saw.
+//
+// It is drawn with the address's own `-line` class and no icon of its own: the
+// line's mark belongs to the address, and a second one above it would read as
+// a second address. Reusing the class also keeps this out of the stylesheets —
+// a new class here means re-cutting the CSS subset and re-running its guard
+// for one sentence of copy.
+const FOOT_ONLY_WHOLESALE = 'آدرس حضوری فقط برای خرید عمده است';
 const FOOT_PHONE = '021-3398-3125';
 const FOOT_TEL = '02133983125';
 
@@ -3966,6 +3980,7 @@ const FOOT_PHONE_HTML =
   '                    <b class="vp-foot-m-name">ویکی پلاس</b>\n' +
   '                </div>\n' +
   '                <p class="vp-foot-m-strap">' + FOOT_STRAP + '</p>\n' +
+  '                <p class="vp-foot-m-line"><b class="vp-wholesale-only">' + FOOT_ONLY_WHOLESALE + '</b></p>\n' +
   '                <p class="vp-foot-m-line"><i class="fa-solid fa-location-dot" aria-hidden="true"></i><span>' + FOOT_ADDRESS + '</span></p>\n' +
   '                <p class="vp-foot-m-line"><i class="fa-solid fa-phone" aria-hidden="true"></i><a href="tel:' + FOOT_TEL + '">' + FOOT_PHONE + '</a></p>\n' +
   '                <div class="vp-foot-m-social">' +
@@ -4028,6 +4043,7 @@ if (!html.includes('vp-foot-m-head')) {
   html = html.replace(at,
     '                                    </a>\n' +
     '                                    <p class="vp-foot-d-strap">' + FOOT_STRAP + '</p>\n' +
+    '                                    <p class="vp-foot-d-line"><b class="vp-wholesale-only">' + FOOT_ONLY_WHOLESALE + '</b></p>\n' +
     '                                    <p class="vp-foot-d-line"><i class="fa-solid fa-location-dot" aria-hidden="true"></i><span>' + FOOT_ADDRESS + '</span></p>\n' +
     '                                    <p class="vp-foot-d-line"><i class="fa-solid fa-phone" aria-hidden="true"></i><a href="tel:' + FOOT_TEL + '">' + FOOT_PHONE + '</a></p>\n' +
     '                                </div>');

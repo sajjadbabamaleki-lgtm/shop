@@ -13891,6 +13891,28 @@ body.shoe-shop {
   }
 }
 
+.vp-wholesale-only {
+  font-size: 1.15em;
+  animation: vp-wholesale-only-blink 1.5s ease-in-out infinite;
+}
+
+@keyframes vp-wholesale-only-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.3;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vp-wholesale-only {
+    animation: none;
+  }
+}
+
 :root {
   --vp-design: ok;
 }

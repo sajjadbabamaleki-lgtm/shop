@@ -1012,6 +1012,42 @@ the client saw an old page and had no way to tell why. So, plainly:
   more than a hundred products end to end and fails if any product arrives
   twice or not at all — nothing smaller than a real second page can see an
   off-by-one there.
+- **The footer says «آدرس حضوری فقط برای خرید عمده است» above the address, and
+  `footer.blade.php` was edited by hand to say it.** «جایی که تو وبسایت آدرس
+  حضوری زده شده بالاش بولد بنویس» — the counter is wholesale-only, `/about` and
+  `/wholesale` had said so in their own prose since they were written, and the
+  footer, which is on every page, said nothing. It is in `theme/make-rtl-page.js`
+  (`FOOT_ONLY_WHOLESALE`, both footers) **and** hand-applied identically to the
+  generated `storefront/resources/views/partials/footer.blade.php`, because
+  `make-blade.js` still cannot run on a clean checkout — the «expected 8 inline
+  scripts, found 9» landmine in the bullet above. Hand-editing a generated file
+  is normally forbidden and this is the exception that proves it: the generator
+  carries the same change, so whenever that landmine is cleared and
+  `make-blade.js` runs, it writes the identical markup and this hand edit
+  disappears without a diff. **Change one and you must change the other**, or
+  the next regeneration silently drops it.
+- **An always-on animation must be infinite and start on its visible frame, or
+  it breaks two checkers.** The note blinks, at the client's instruction —
+  «یذره بزرگتر بشه و حالت چشمک زن داشته باشه» — and `check-parity.js` and
+  `check-css-subset.js` both screenshot with `animations: 'disabled'`, which
+  **fast-forwards a finite animation to its end and cancels an infinite one to
+  its initial frame**. So `.vp-wholesale-only`'s keyframes put `opacity: 1` at
+  0% and the dip at 50%, and both checkers draw the same pixels every run:
+  measured identical at all four widths afterwards. A finite blink, or one
+  starting faded, lands each run on a different frame and reads exactly like
+  the countdown clock did — a convincing diff that is really a clock.
+  The size is `1.15em` and not a pixel count, because the sentence is printed
+  where the body text is 13px, 13.5px and 15px, and one fixed number would be
+  larger than its neighbours in the footer and smaller than them on `/contact`.
+- **Prose comments in a template change `CssSubsetTest`'s fingerprint.** The
+  vocabulary is `[A-Za-z_][A-Za-z0-9_-]+` over the whole file, so Persian copy
+  really is free — as the bullet above says — but **English words in a Blade or
+  JS comment are not**. Five words in one comment («faded», «louder»,
+  «qualification», «qualifies», «quieter») failed the suite. The fix is the
+  documented one and it is cheap: re-run `make-css-subset.js`. When no *class*
+  was added the three cut sheets come back **byte-identical** — verify with
+  `md5sum` — and then only `subset.json`'s fingerprint has moved and
+  `check-css-subset.js` has nothing new to look at.
 - **⛔ The design gate hides the whole page from any crawler that does not load
   stylesheets, and that is still true.** Measured both locally and against the
   live site on 19 Sept: with `*.css` blocked, a product page renders

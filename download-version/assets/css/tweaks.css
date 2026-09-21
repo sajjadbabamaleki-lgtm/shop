@@ -25066,6 +25066,59 @@ body.shoe-shop {
   }
 }
 
+/* «آدرس حضوری فقط برای خرید عمده است» — the line above the address, wherever
+   the address is printed.
+
+   **Bigger and blinking, at the client's own instruction**: «یذره بزرگتر بشه و
+   حالت چشمک زن داشته باشه». It is a warning that has to be read *before* the
+   address under it, and set at the address's own size it was being read after.
+
+   **The size is relative and not a number of pixels**, because this sentence is
+   printed in two places whose body sizes differ: the footer's lines are 13px on
+   a phone and 13.5px on a desktop, and the contact page's list is 15px. 1.15em
+   is one step above whichever of those it lands in — 14.95, 15.5 and 17.25 —
+   where a fixed 15px would have been *smaller* than the text around it on the
+   contact page while being larger in the footer.
+
+   **The blink is infinite and its first frame is the visible one, and both of
+   those are load-bearing.** `check-parity.js` and `check-css-subset.js` both
+   screenshot with `animations: 'disabled'`, which fast-forwards a finite
+   animation to its end and cancels an infinite one to its *initial* frame. So
+   an infinite animation that starts at full opacity draws the same pixels in
+   every run and both checkers keep printing zero. A finite blink, or one
+   starting faded, would put those two on a different frame each time and read
+   exactly like the countdown clock did — a convincing diff that is really a
+   clock. Measured after this was written: parity identical at all four widths.
+
+   It fades rather than switching off. A hard on/off at this size reads as a
+   rendering fault rather than as emphasis, and the dip stops at 0.3 so the
+   sentence is never actually absent from a page somebody is mid-way through
+   reading. */
+.vp-wholesale-only {
+  font-size: 1.15em;
+  animation: vp-wholesale-only-blink 1.5s ease-in-out infinite;
+}
+
+@keyframes vp-wholesale-only-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.3;
+  }
+}
+
+/* Somebody who has asked their device to stop animations still has to be able
+   to read this one — they get it at full strength, and it is still the larger
+   line above the address. */
+@media (prefers-reduced-motion: reduce) {
+  .vp-wholesale-only {
+    animation: none;
+  }
+}
+
 :root {
   --vp-design: ok;
 }
