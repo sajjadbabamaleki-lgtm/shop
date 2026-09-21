@@ -1097,16 +1097,38 @@ the client saw an old page and had no way to tell why. So, plainly:
     shoe under the threshold. It tightens the other way too — an address for a
     shoe this shop does not sell keeps almost none of its words and is refused
     rather than matched to whatever scored highest.
-  - **Ties are refused**, the rule `ReplacePhotos::theOneProductNamed()`
-    follows.
-  - **Except a tie broken by specificity**: two of their addresses are the same
-    shoe in white, one ending «رنگ-سفید-مشکی-ai» and one «رنگ-سفید-air-jor»,
-    and every word of the shorter is inside the longer title. Among shoes that
-    satisfy an address equally, the one saying least beyond it is the one the
-    address names; the longer title is reached by the address that says
-    «مشکی», which outscores it outright.
-  - **A short address is refused**: fewer than four usable words names a
-    section, not a shoe.
+  - **The words must name one shoe, and that is the fence.** Every candidate
+    at the top score has to carry the same title; two different shoes there
+    means the address never said which. This replaced «a tie is refused», and
+    that is what had kept `/products/nike-v2k-run` a 404 while the shop sold
+    eight V2Ks — the address names a make and no colour, so all eight tie and
+    there is nothing to separate. There was nothing to separate.
+    `SameShoe` has always picked the first of seven live Golden Geese for the
+    same reason, and the two rules contradicting each other over one address is
+    the fault this file keeps paying for. Among equals it uses `SameShoe`'s own
+    order — on the shelf first, then oldest — so two requests a second apart
+    agree. ترب asked for that address by name on 2026-09-21.
+  - **Still broken by specificity first**: two of their addresses are the same
+    shoe in white, one ending «رنگ-سفید-مشکی-ai» and one «رنگ-سفید-air-jor».
+    Among shoes that satisfy an address equally, the one saying least beyond it
+    is the one the address names.
+  - **The winner must carry every usable word** (`ENOUGH` is 1.0). Measured
+    against the live catalogue, all nine of ترب's addresses score 100% on their
+    winner, so the old 0.6 was buying nothing — and what it cost is exact: a
+    retired «کتونی گلدن گوس» matched a live «صندل مجلسی گلدن گوس رنگ طلایی» on
+    two words of three, and a sandal is not the trainer.
+  - **More than half the address must be words this shop uses** (`KNOWN`).
+    Dropping an unknown word is right one word at a time and wrong in bulk:
+    when most of an address is unknown, the missing words are the identifying
+    ones. «کتونی نایک وی۲کی ران» against a shop whose only Nike is an Air Max
+    keeps «کتونی» and «نایک», carries both, and would otherwise redirect.
+    Measured: addresses that should resolve run 57%–100% known, that case is
+    29%.
+  - **There is no minimum word count any more.** It was a proxy for the three
+    fences above and it was refusing `nike-v2k-run`. Taking it out without them
+    let the sandal and the Air Max through; each has its own case in
+    `RetiredProductPageTest` and `TheSetupShoesAreOffTheShopTest`, which is how
+    both were caught.
   It answers in three places, all through the same rule, because the page and
   the feed disagreeing about one address is the fault this repository has now
   paid for three times: the old scheme (`OldAddressController`),
@@ -1125,14 +1147,14 @@ the client saw an old page and had no way to tell why. So, plainly:
   containment: the five setup shoes are named «کتونی جردن وان ایر» where the
   shop's own are «کتونی نایک مدل جردن وان ساق کوتاه …», so containment finds
   nothing and the shoe looked gone. **`/products/jordan-one-air` is still
-  refused on purpose** and still gets the retired page: **no colour named**,
-  against a shop selling several Jordans, so any answer would be a guess about
-  colour on an address an aggregator holds. Measured on the live catalogue
-  with its slug scored too: it now clears `SHORTEST` and is refused **by the
-  tie** instead, several Jordans scoring it identically — the same answer, for
-  a better reason. If the
-  catalogue ever carries a title with those words it starts redirecting on its
-  own, which is the point of a rule over a list.
+  refused on purpose**, and since the row was deleted it is a **404** rather
+  than the retired page. The reason is now stated by the rule itself: the shop
+  sells Jordan One in «ساق کوتاه» and «ساق بلند», the address names neither,
+  and two different shoes at the top score is exactly what the one-shoe fence
+  refuses. That is the client's own decision reached without a list — a guess
+  about which model, on an address an aggregator holds, is worse than no
+  answer. If the catalogue ever carries one Jordan One where it now carries
+  two, it starts redirecting on its own.
 - **⛔ The design gate hides the whole page from any crawler that does not load
   stylesheets, and that is still true.** Measured both locally and against the
   live site on 19 Sept: with `*.css` blocked, a product page renders
@@ -1526,7 +1548,37 @@ the client saw an old page and had no way to tell why. So, plainly:
   plate and the bar together — and `theme/make-rtl-page.js` now carries the
   *seeder's* count (۱ per brand), so adding a shoe to `CatalogueSeeder` without
   telling that file turns four tiles red in `check-parity.js`.
-- **The five shoes the shop opened with are off the shop, since 2026-09-07.**
+- **⛔ The five shoes the shop opened with are DELETED, since 2026-09-21, and
+  the reason they were only retired for two weeks was a false belief about a
+  foreign key.** «اون پنج کفش راه اندازی لعنتیرو از سایت حذف کن جوری که انگار
+  هیچوقت وجود نداااااشتن» — said after a fourth ترب ticket about one of them.
+  `delete_the_five_setup_shoes_for_good` deletes the rows; everything that
+  points at a product or a variant is `cascadeOnDelete()`, so the categories,
+  variants, photographs, movements, offers, shelves, basket lines, wishlist
+  rows, placements, reviews and seller offers go with them.
+  **The receipt does not.** `order_items.variant_id` is
+  `nullable()->constrained()->nullOnDelete()` and the line carries its own
+  `product_title`, `sku`, `size_value`, `unit_price`, `quantity` and
+  `line_total`, with a CHECK tying the last three. So deleting a shoe nulls one
+  column on an invoice and takes nothing else — the schema was built for this
+  on day one. The 07 Sept migration's docblock says the opposite («a product
+  row that vanishes takes an invoice's line with it»), it was never measured,
+  and that one wrong sentence is why these sat on a trading shop for two weeks.
+  `TheSetupShoesAreGoneForGoodTest::test_an_invoice_that_bought_one_still_reads`
+  is the measurement; read it before trusting any other claim in this file
+  about what a delete costs.
+  **What goes with the rows is the «دیگر عرضه نمی‌شود» page**, which only
+  exists for a product that is still there. Those five are now ordinary unknown
+  slugs and `ProductByOldAddress` answers them: four reach the live shoe of
+  that make, and `jordan-one-air` is a **404** where it used to be a 200,
+  because this shop sells Jordan One in «ساق کوتاه» and «ساق بلند» and the
+  address names neither.
+  The guard is unchanged — it fires **only where the shop has a catalogue of
+  its own** — so `CatalogueSeeder` still builds all five, both copies of the
+  home page are still drawn from them, and the suite still renders against
+  them. The retirement below is what it replaced and is kept because it ran in
+  production first.
+- **The five shoes the shop opened with were retired on 2026-09-07.**
   «این موارد اوایل راه اندازی سایت قرار داده شدن برای اینکه سایت خالی نباشه» —
   `CatalogueSeeder`'s five, live since setup day, carrying seeded copy and
   prices nobody chose. `take_the_five_setup_shoes_off_the_shop` **retires**

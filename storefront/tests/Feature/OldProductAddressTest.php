@@ -186,17 +186,50 @@ class OldProductAddressTest extends TestCase
         $this->assertSame(storefront_route('product', $brown), $body['products'][0]['page_url']);
     }
 
-    /** Two shoes that answer equally well is the shop unable to tell them apart. */
-    public function test_a_tie_is_refused_rather_than_guessed(): void
+    /**
+     * **Two shoes that answer equally well is the shop unable to tell them
+     * apart — but two colourways of one shoe are not two shoes.**
+     *
+     * This used to refuse any tie at all, and that is what kept
+     * `/products/nike-v2k-run` a 404 while the shop sold eight V2Ks: the
+     * address names a make and no colour, so all eight score alike and there
+     * is nothing to separate them. There was nothing to separate, and
+     * `SameShoe` has always picked the first of seven live Golden Geese for
+     * exactly that reason. The two rules contradicting each other over one
+     * address is the fault this file keeps paying for.
+     *
+     * So the fence is what the candidates *are*, not whether they tie.
+     */
+    public function test_a_tie_between_two_different_shoes_is_refused(): void
     {
-        // Two rows the shop cannot tell apart: one title, and slugs made of
-        // the same words in a different order. This is not hypothetical —
-        // `basalam:import` makes one product per supplier listing and the
-        // supplier has listed the same colourway twice before.
-        $this->aShoe('کتونی نایک وومرو', 'کتونی-نایک-وومرو-Nike-Vomero-5-رنگ-قهوه-ای');
-        $this->aShoe('کتونی نایک وومرو', 'کتونی-نایک-وومرو-رنگ-قهوه-ای-Nike-Vomero-5');
+        $this->theShopTheySearched();
 
-        $this->get(self::THEIRS)->assertNotFound();
+        // «کتونی نایک» names a Vomero, a V2K and two Jordans equally well.
+        $this->get('/product/کفش/کتونی-نایک')->assertNotFound();
+    }
+
+    /** A tie between colourways of one shoe is answered, and answered stably. */
+    public function test_a_tie_between_colourways_of_one_shoe_is_answered(): void
+    {
+        $this->theShopTheySearched();
+
+        // Gone for good, the way `delete_the_five_setup_shoes_for_good` leaves
+        // it: an address with no row behind it, which is the shape ترب hold.
+        Product::query()->withoutGlobalScopes()->where('slug', 'nike-v2k-run')->delete();
+
+        $first = $this->get('/products/nike-v2k-run');
+
+        $first->assertRedirect();
+
+        $went = Product::query()
+            ->where('slug', urldecode(basename((string) $first->headers->get('Location'))))
+            ->firstOrFail();
+
+        $this->assertSame('کتونی نایک وی تو کی', $went->title);
+
+        // The same shoe on the next request: ترب and a shopper following the
+        // same address a second apart must not be sent to different colours.
+        $this->get('/products/nike-v2k-run')->assertRedirect(storefront_route('product', $went));
     }
 
     /** An address naming nothing the shop sells is still a 404. */

@@ -56,11 +56,40 @@ use Illuminate\Support\Collection;
  * Three fences, because a wrong answer here points an aggregator at the wrong
  * product, which is worse than the 404 it replaces:
  *
- *  - **The winner must be alone.** A tie returns nothing, the same rule
- *    `ReplacePhotos::theOneProductNamed()` follows. Measured on the address
- *    above against the live catalogue: the brown Vomero scores 8 of 8, the
- *    navy one 7, the mocha and the white 6 — the colour word is what
- *    separates them, which is exactly what should.
+ *  - **The words must name one shoe, and that is the whole fence.** Every
+ *    candidate scoring the maximum has to carry the same title; if two of
+ *    them are different shoes, the address has not said which and nothing is
+ *    returned. Measured on the address above against the live catalogue: the
+ *    brown Vomero scores 8 of 8, the navy one 7, the mocha and the white 6 —
+ *    the colour word separates them and only one is at the top.
+ *
+ *   **This replaced a count of words, and the count was a proxy for it.**
+ *    The rule used to refuse any address with fewer than four usable words,
+ *    on the reasoning that two or three words name a section rather than a
+ *    shoe. That is true of «کتونی نایک» and false of `nike-v2k-run`: `v2k`
+ *    appears on eight products and all eight are one shoe. Asking the
+ *    question directly answers both — «کتونی نایک» puts a Vomero, a V2K and
+ *    two Jordans at the top and is refused, `nike-v2k-run` puts eight
+ *    colourways of one shoe there and is answered. ترب asked for that second
+ *    address by name on 2026-09-21, and the count is what was refusing it.
+ *
+ *    **The count was doing two other jobs, and both are now done properly**,
+ *    by `ENOUGH` and `KNOWN` above. Taking it out without them let a retired
+ *    trainer match a sandal of the same make, and a V2K match an Air Max.
+ *    Each has its own case in `RetiredProductPageTest` and
+ *    `TheSetupShoesAreOffTheShopTest`, which is how both were caught.
+ *
+ *    **It is also what `SameShoe` has always done.** That rule picks the
+ *    first of seven live Golden Geese for a retired row rather than refusing,
+ *    and the two contradicting each other over one address is the fault this
+ *    file keeps paying for. A tie between colourways of one shoe is not the
+ *    shop failing to tell them apart; it is an address that never named a
+ *    colour.
+ *  - **Among equals, the same order `SameShoe` uses**: what is on the shelf
+ *    first, then the oldest of those, so two requests a second apart get the
+ *    same answer. `jordan-one-air` is still refused by the fence above and
+ *    not by this — the shop sells «ساق کوتاه» and «ساق بلند», which are two
+ *    shoes and not two colours.
  *  - **It must carry most of the address.** Below `ENOUGH` of the words, the
  *    match is a coincidence between two shoes of the same make.
  *  - **A short address is refused outright.** Two or three words name a
@@ -71,11 +100,34 @@ use Illuminate\Support\Collection;
  */
 final class ProductByOldAddress
 {
-    /** How much of the address's *usable* words the winner has to carry. */
-    private const ENOUGH = 0.6;
+    /**
+     * How much of the address's *usable* words the winner has to carry.
+     *
+     * All of them. Measured against the live catalogue, every one of the
+     * addresses ترب sent scores **100%** on its winner — the fraction was
+     * never buying anything, and what it cost is exact: a retired
+     * «کتونی گلدن گوس» matched a live «صندل مجلسی گلدن گوس رنگ طلایی» on two
+     * words out of three, and a sandal is not the trainer somebody asked for.
+     * A word this shop uses and the candidate lacks is a contradiction, not a
+     * near miss.
+     */
+    private const ENOUGH = 1.0;
 
-    /** Fewer usable words than this and the address does not name one shoe. */
-    private const SHORTEST = 4;
+    /**
+     * How much of the address has to be words this shop uses at all.
+     *
+     * The vocabulary filter below drops an unknown word on the grounds that it
+     * is not evidence about which shoe is meant. True of one word; false of
+     * most of them. When an address is mostly words this shop has never
+     * written, the ones missing are the identifying ones and the shop does not
+     * sell that shoe — «کتونی نایک وی۲کی ران» against a shop whose only Nike
+     * is an Air Max keeps «کتونی» and «نایک», carries both, and would
+     * otherwise send somebody asking for a V2K to an Air Max.
+     *
+     * Measured: the addresses that should resolve run 57%–100% known, and that
+     * V2K-against-Air-Max case is 29%. Half sits in the gap.
+     */
+    private const KNOWN = 0.5;
 
     /**
      * @param  string  $address  an old slug, or the title of a retired product
@@ -118,7 +170,7 @@ final class ProductByOldAddress
             fn (string $word) => $vocabulary->has($word),
         ));
 
-        if (count($wanted) < self::SHORTEST) {
+        if (count($wanted) <= count(self::words($address)) * self::KNOWN) {
             return null;
         }
 
@@ -155,18 +207,26 @@ final class ProductByOldAddress
             return null;
         }
 
-        // Alone, or nothing. Two shoes that match the same words *and* say the
-        // same amount besides is the shop unable to tell them apart, not a
-        // reason to pick one.
-        $runnerUp = $scored->get(1);
+        $top = $scored->where('score', $best['score']);
 
-        if ($runnerUp !== null
-            && $runnerUp['score'] === $best['score']
-            && $runnerUp['extras'] === $best['extras']) {
+        // One shoe, or nothing. Every candidate the address fits equally well
+        // has to be the same shoe; two different ones at the top means the
+        // address never said which, and picking either is a guess.
+        if ($top->pluck('product.title')->map(fn (string $title) => fold_persian($title))->unique()->count() > 1) {
             return null;
         }
 
-        return $best['product'];
+        // One shoe, several colourways, and the address named no colour. The
+        // most specific of them is already first; where even that ties, this
+        // is `SameShoe`'s order, so the page and the feed agree and so do two
+        // requests a second apart.
+        return $top->where('extras', $best['extras'])
+            ->sortBy([
+                fn (array $a, array $b) => ($b['product']->sellableStock() > 0 ? 1 : 0)
+                    <=> ($a['product']->sellableStock() > 0 ? 1 : 0),
+                fn (array $a, array $b) => $a['product']->id <=> $b['product']->id,
+            ])
+            ->first()['product'];
     }
 
     /**
