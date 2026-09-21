@@ -7,43 +7,20 @@ jobs:
   ask:
     runs-on: ubuntu-latest
     steps:
-      - name: What the old addresses answer now
+      - name: The real titles behind the addresses that 404
         run: |
           set -u
           host=https://vikyplus.ir
 
-          ask() {
-            out="$(curl -s -o /tmp/b -w '%{http_code} %{redirect_url}' --max-time 40 "$1" || echo '000 -')"
-            code="${out%% *}"; where="${out#* }"
-            printf '%s  %s\n         -> %s\n' "$code" "$2" "${where:--}"
-            if [ "$code" = "200" ]; then
-              printf '         title: %s\n' "$(grep -o '<title>[^<]*' /tmp/b | head -1 | cut -c8-90)"
-            fi
+          titles() {
+            echo "--- $2 ---"
+            curl -s --max-time 40 "$host/search?q=$1" -o /tmp/s || true
+            grep -oE '/products/[^"?#]+' /tmp/s | sort -u | while read -r p; do
+              t="$(curl -s --max-time 30 "$host$p" | grep -o '<title>[^<]*' | head -1 | cut -c8-)"
+              printf '  %s\n' "$t"
+            done
           }
 
-          echo "== IS THE ROUTE REACHED AT ALL? =="
-          # If OldAddressController runs, its first branch redirects any old
-          # address whose last segment IS a real slug. A 404 here means the
-          # route is not being matched; a 302 means it is, and the word rule
-          # is what refused the others.
-          ask "$host/product/anything/golden-goose" "old scheme, last segment is a real slug"
-          ask "$host/product/golden-goose" "old scheme, single segment"
-
-          echo
-          echo "== the exact address in the client's screenshot =="
-          ask "$host/product/%DA%A9%D9%81%D8%B4/%DA%A9%D8%AA%D9%88%D9%86%DB%8C-%D9%86%D8%A7%DB%8C%DA%A9-%D9%85%D8%AF%D9%84-%D9%88%D9%88%D9%85%D8%B1%D9%88-%DB%B5-%D8%B1%D9%86%DA%AF-%D9%82%D9%87%D9%88%D9%87-%D8%A7%DB%8C-nike-vomero-5" "vomero brown, old scheme"
-
-          echo
-          echo "== the others they sent =="
-          ask "$host/product/%DA%A9%D9%81%D8%B4/%DA%A9%D8%AA%D9%88%D9%86%DB%8C-%D9%86%D8%A7%DB%8C%DA%A9-%D9%85%D8%AF%D9%84-%D9%88%D9%88%D9%85%D8%B1%D9%88-%DB%B5-%D8%B1%D9%86%DA%AF-%D9%85%D8%B4%DA%A9%DB%8C-nike-vomero-5" "vomero black"
-          ask "$host/product/%DA%A9%D9%81%D8%B4/%DA%A9%D8%AA%D9%88%D9%86%DB%8C-%D9%86%D8%A7%DB%8C%DA%A9-%D9%85%D8%AF%D9%84-%D8%AC%D8%B1%D8%AF%D9%86-%D9%88%D8%A7%D9%86-%D8%B3%D8%A7%D9%82-%DA%A9%D9%88%D8%AA%D8%A7%D9%87-%D8%B1%D9%86%DA%AF-%D8%B3%D9%81%DB%8C%D8%AF-air-jor" "jordan white, cut slug"
-          ask "$host/product/%DA%A9%D9%81%D8%B4/%D9%88%D9%86%D8%B3-%D8%A2%D8%AF%DB%8C%D8%AF%D8%A7%D8%B3-%D9%85%D8%AF%D9%84-%D8%B3%D8%A7%D9%85%D8%A8%D8%A7-%D8%B1%D9%86%DA%AF-%D9%82%D9%87%D9%88%D9%87-%D8%A7%DB%8C-adidas-samba" "samba brown"
-          ask "$host/products/golden-goose" "golden-goose (known good)"
-
-          echo
-          echo "== is the new route even deployed? a nonsense one under it should 404, not 500 =="
-          ask "$host/product/x/y" "nonsense old-scheme address"
-
-          echo
-          echo "== what the app reports as its commit, if anything =="
-          curl -s -I --max-time 30 "$host/" | grep -iE 'server-timing|x-|date' | head -8 || true
+          titles "vomero" "vomero"
+          titles "%D8%B3%D8%A7%D9%85%D8%A8%D8%A7" "samba"
+          titles "%D8%AC%D8%B1%D8%AF%D9%86" "jordan"
