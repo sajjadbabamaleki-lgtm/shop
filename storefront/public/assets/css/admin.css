@@ -1558,10 +1558,79 @@ a.vp-adm-mini {
 
 .vp-adm-shot figcaption {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 6px;
   padding: 6px;
+}
+
+/* The number, which is the order the site draws them in — «شماره گذاری باشه
+   که عکس اول کدوم باشه عکس دوم کدوم».
+
+   On the photograph rather than under it: a grid of eight tiles is read by
+   sweeping across the pictures, and a number in the caption is below the
+   thing it numbers, which is where the eye is not. Its own dark plate,
+   because a number sitting on a photograph is a number on whatever that
+   photograph happens to be — a white sole, a shop floor, anything. */
+.vp-adm-shot {
+  position: relative;
+}
+
+.vp-adm-shot-no {
+  position: absolute;
+  inset-inline-start: 6px;
+  inset-block-start: 6px;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: rgba(16, 17, 17, 0.72);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* Number one is the main shot, so it wears the gold the frame already uses
+   rather than a second kind of marker for the same fact. */
+.vp-adm-shot.is-primary .vp-adm-shot-no {
+  background: var(--adm-gold-fill);
+  color: #fff;
+}
+
+/* A tile is picked up with a finger as well as a mouse, so the browser must
+   not start its own text selection or scroll when one is pressed. */
+.vp-adm-shot img {
+  touch-action: none;
+  user-select: none;
+  cursor: grab;
+}
+
+.vp-adm-shot.is-dragging {
+  opacity: 0.55;
+  cursor: grabbing;
+}
+
+/* The line under the file picker that says several may be chosen at once —
+   and, under the grid, what the drag's own save came back with. */
+.vp-adm-hint {
+  display: block;
+  margin-top: -2px;
+  color: var(--adm-ink-2);
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+/* A save that did not happen has to look different from one that did. The
+   grid on screen is already in the new order, so a silent failure would leave
+   it disagreeing with the shop and nothing saying which is true. */
+.vp-adm-hint.is-bad {
+  color: var(--adm-bad, #B42318);
+  font-weight: 600;
 }
 
 /* The row that adds a size. Six fields and a button; on a desktop they sit

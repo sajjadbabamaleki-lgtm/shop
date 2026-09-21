@@ -115,27 +115,46 @@
     </section>
 
     @if ($product->exists)
+        {{--
+            The photographs, numbered, and moved by dragging them.
+
+            «کادرها از یک تا ده شماره داشته باشن و بشه با دست همونجا ترکشون کرد
+            جابجاشون مثلا دستمو بزارم رو عکس شماره پنج بکشم ببرم بزارمش تو
+            جایگاه یک» — so a number on every tile and nothing else to learn.
+            An earlier pass put «جلوتر», «عقب‌تر» and «اصلی کن» on each one and
+            the answer was «جلوتر عقبتر چیه اصلی کن چیه»: three buttons asking
+            to be understood, where picking the thing up and putting it down
+            needs no explanation at all.
+
+            **Number one is the main photograph.** Dragging a shot into first
+            place is how it becomes the one on the card — there is no separate
+            switch to disagree with the order.
+
+            The order saves itself on drop, so there is no button for that
+            either. `data-vp-shots-save` is the address it posts to.
+
+            **What this costs, said plainly:** reordering now needs JavaScript,
+            where the arrows did not. Deleting still does not, and neither does
+            anything else on this screen.
+        --}}
         <section class="vp-adm-card">
             <div class="vp-adm-card-head">
                 <h2 class="vp-adm-card-title">عکس‌ها</h2>
+                <span class="vp-adm-card-more">شمارهٔ ۱ عکس اصلی است — برای جابه‌جایی، عکس را بکش و رها کن</span>
             </div>
 
             @if ($product->media->isEmpty())
                 <p class="vp-adm-empty">هنوز عکسی ندارد.</p>
             @else
-                <div class="vp-adm-shots">
+                <div class="vp-adm-shots"
+                     data-vp-shots
+                     data-vp-shots-save="{{ route('admin.product.media.order', $product) }}">
                     @foreach ($product->media as $shot)
-                        <figure @class(['vp-adm-shot', 'is-primary' => $shot->is_primary])>
-                            <img src="{{ asset($shot->path) }}" alt="">
+                        <figure @class(['vp-adm-shot', 'is-primary' => $loop->first])
+                                data-vp-shot="{{ $shot->id }}">
+                            <span class="vp-adm-shot-no">{{ fa_number($loop->iteration) }}</span>
+                            <img src="{{ asset($shot->path) }}" alt="" draggable="false">
                             <figcaption>
-                                @unless ($shot->is_primary)
-                                    <form method="post" action="{{ route('admin.product.media.primary', [$product, $shot]) }}">
-                                        @csrf
-                                        <button type="submit" class="vp-adm-mini is-quiet">اصلی کن</button>
-                                    </form>
-                                @else
-                                    <span class="vp-adm-badge is-delivered">اصلی</span>
-                                @endunless
                                 <form method="post" action="{{ route('admin.product.media.delete', [$product, $shot]) }}">
                                     @csrf
                                     <button type="submit" class="vp-adm-mini is-bad">حذف</button>
@@ -144,12 +163,17 @@
                         </figure>
                     @endforeach
                 </div>
+
+                <p class="vp-adm-hint" data-vp-shots-said aria-live="polite"></p>
             @endif
 
             <form class="vp-adm-form" method="post" action="{{ route('admin.product.media.store', $product) }}" enctype="multipart/form-data">
                 @csrf
-                <label for="p-photo">عکس تازه</label>
-                <input id="p-photo" type="file" name="photo" accept="image/*" required>
+                <label for="p-photo">عکس‌های تازه</label>
+                {{-- `multiple`: «باید بشه همشو باهم سلکت کرد آورد». The order
+                     they are picked in is the order they are numbered in. --}}
+                <input id="p-photo" type="file" name="photos[]" accept="image/*" multiple required>
+                <span class="vp-adm-hint">می‌توانی چند عکس را با هم انتخاب کنی؛ به ترتیبی که انتخاب می‌کنی شماره می‌خورند.</span>
                 <button type="submit" class="vp-adm-apply">بارگذاری</button>
             </form>
         </section>

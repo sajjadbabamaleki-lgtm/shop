@@ -160,11 +160,15 @@ class CatalogueAndStaffTest extends TestCase
 
         $admin = $this->admin();
 
-        foreach (['one.jpg', 'two.jpg'] as $name) {
-            $this->actingAs($admin)->post("/admin/catalogue/{$product->slug}/media", [
-                'photo' => UploadedFile::fake()->image($name, 800, 800),
-            ])->assertRedirect();
-        }
+        // One upload carrying both, which is what the picker posts since the
+        // panel stopped taking them one at a time. The order they are listed
+        // in is the order they are numbered in — see ProductPhotoOrderTest.
+        $this->actingAs($admin)->post("/admin/catalogue/{$product->slug}/media", [
+            'photos' => [
+                UploadedFile::fake()->image('one.jpg', 800, 800),
+                UploadedFile::fake()->image('two.jpg', 800, 800),
+            ],
+        ])->assertRedirect();
 
         $shots = $product->media()->orderBy('position')->get();
 
@@ -174,10 +178,15 @@ class CatalogueAndStaffTest extends TestCase
         $this->assertTrue($shots->first()->is_primary);
         $this->assertFalse($shots->last()->is_primary);
 
+        // «اصلی کن» now moves the shot to position one rather than setting a
+        // flag beside the order, because the number and the main shot are one
+        // fact. What this asserts is unchanged: the one asked for is primary
+        // and the other is not.
         $this->actingAs($admin)->post("/admin/catalogue/{$product->slug}/media/{$shots->last()->id}/primary");
 
         $this->assertTrue($shots->last()->fresh()->is_primary);
         $this->assertFalse($shots->first()->fresh()->is_primary);
+        $this->assertSame(1, $shots->last()->fresh()->position);
     }
 
     public function test_deleting_the_primary_photograph_promotes_another(): void
@@ -189,11 +198,12 @@ class CatalogueAndStaffTest extends TestCase
 
         $admin = $this->admin();
 
-        foreach (['one.jpg', 'two.jpg'] as $name) {
-            $this->actingAs($admin)->post("/admin/catalogue/{$product->slug}/media", [
-                'photo' => UploadedFile::fake()->image($name, 800, 800),
-            ]);
-        }
+        $this->actingAs($admin)->post("/admin/catalogue/{$product->slug}/media", [
+            'photos' => [
+                UploadedFile::fake()->image('one.jpg', 800, 800),
+                UploadedFile::fake()->image('two.jpg', 800, 800),
+            ],
+        ]);
 
         $primary = $product->media()->where('is_primary', true)->firstOrFail();
 

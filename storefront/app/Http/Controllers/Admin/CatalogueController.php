@@ -253,7 +253,17 @@ class CatalogueController extends Controller
     }
 
     /**
-     * A photograph.
+     * Photographs — as many at once as the shop has to hand.
+     *
+     * «نباید عکسهای محصول دونه دونه از گالری بیان باید بشه همشو باهم سلکت
+     * کرد» — it was one `<input type="file">` and one round trip per shot, so
+     * a shoe with six photographs was six uploads, six page loads, and the
+     * order they landed in decided the order the site drew them.
+     *
+     * **The order the file picker returns them in is kept.** A phone's gallery
+     * hands them over in the order they were tapped, so «عکس اول» is the first
+     * one chosen, which is the only arrangement that does not need correcting
+     * afterwards.
      *
      * Stored on the `public` disk. **On a container this is not permanent** —
      * a redeploy starts from a fresh filesystem — so a persistent disk has to
@@ -263,51 +273,141 @@ class CatalogueController extends Controller
     public function storeMedia(Request $request, Product $product): RedirectResponse
     {
         $request->validate([
-            'photo' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
-        ], [], ['photo' => 'عکس']);
+            'photos' => ['required', 'array', 'max:20'],
+            'photos.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+        ], [], ['photos' => 'عکس‌ها', 'photos.*' => 'عکس']);
 
-        $path = $request->file('photo')->store('products', 'public');
+        $position = (int) $product->media()->max('position');
+        $shopHadNone = $product->media()->count() === 0;
+        $added = 0;
 
-        $media = VariantMedia::create([
-            'product_id' => $product->id,
-            // Product-wide until colourways are real: media hangs off a
-            // colourway, and every variant here still says «نامشخص».
-            'display_color' => null,
-            'color_family' => null,
-            'path' => 'storage/'.$path,
-            'position' => (int) $product->media()->max('position') + 1,
-            'is_primary' => $product->media()->count() === 0,
-        ]);
+        foreach ($request->file('photos') as $file) {
+            $path = $file->store('products', 'public');
+
+            VariantMedia::create([
+                'product_id' => $product->id,
+                // Product-wide until colourways are real: media hangs off a
+                // colourway, and every variant here still says «نامشخص».
+                'display_color' => null,
+                'color_family' => null,
+                'path' => 'storage/'.$path,
+                'position' => ++$position,
+                'is_primary' => $shopHadNone && $added === 0,
+            ]);
+
+            $added++;
+        }
 
         return redirect()
             ->route('admin.product.edit', $product)
-            ->with('status', $media->is_primary ? 'عکس اصلی ثبت شد.' : 'عکس اضافه شد.');
+            ->with('status', $added === 1 ? 'عکس اضافه شد.' : fa_number($added).' عکس اضافه شد.');
     }
 
+    /**
+     * Put one photograph at the front.
+     *
+     * The button still says «اصلی کن», and it now moves the shot to position
+     * one rather than setting a flag beside the order. **Number one and «the
+     * main photograph» are the same thing here** — «شماره گذاری باشه که عکس
+     * اول کدوم باشه» — and two separate answers to «which is first?» is how a
+     * gallery ends up drawing one shot first and a card showing another.
+     *
+     * It is kept beside the arrows and the dragging because it is one press:
+     * on a phone, dragging a tile to the front of a six-photograph grid is
+     * the slowest way to say something this simple.
+     */
     public function primaryMedia(Product $product, VariantMedia $media): RedirectResponse
     {
         abort_unless($media->product_id === $product->id, 404);
 
-        DB::transaction(function () use ($product, $media) {
-            $product->media()->update(['is_primary' => false]);
-            $media->update(['is_primary' => true]);
-        });
+        $ids = $product->media()->orderBy('position')->pluck('id')->all();
+
+        $this->writeTheOrder(
+            $product,
+            array_merge([$media->id], array_values(array_diff($ids, [$media->id]))),
+        );
 
         return redirect()->route('admin.product.edit', $product)->with('status', 'عکس اصلی عوض شد.');
+    }
+
+    /**
+     * The order the photographs are drawn in.
+     *
+     * Posted by the grid when a tile is dropped — «دستمو بزارم رو عکس شماره
+     * پنج بکشم ببرم بزارمش تو جایگاه یک» — as the whole list, in the order
+     * wanted. There were arrows posting a single swap here too and they are
+     * gone with the buttons that sent them: «جلوتر عقبتر چیه».
+     */
+    public function orderMedia(Request $request, Product $product): RedirectResponse
+    {
+        $ids = $product->media()->orderBy('position')->pluck('id')->all();
+
+        if ($ids === []) {
+            return redirect()->route('admin.product.edit', $product);
+        }
+
+        $asked = collect(explode(',', (string) $request->string('order')))
+            ->map(fn (string $id) => (int) trim($id))
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
+        /*
+         * **The same photographs, rearranged — never a different set.**
+         *
+         * The list arrives from a field a browser filled in, so a tab left
+         * open while another deleted a shot would name one that is gone, or
+         * leave one out. Writing that as far as it goes would drop a
+         * photograph off the product and renumber the rest around the hole,
+         * with nothing on the screen to say so. An order that is not a
+         * permutation of what is here is refused whole.
+         */
+        $same = $asked;
+        $known = $ids;
+        sort($same);
+        sort($known);
+
+        if ($same !== $known) {
+            return redirect()->route('admin.product.edit', $product)
+                ->with('status', 'ترتیب عوض نشد: فهرست عکس‌ها تغییر کرده بود. صفحه تازه شد.');
+        }
+
+        $this->writeTheOrder($product, $asked);
+
+        return redirect()->route('admin.product.edit', $product)->with('status', 'ترتیب عکس‌ها ثبت شد.');
+    }
+
+    /**
+     * Number the photographs from one, and make the first one the main shot.
+     *
+     * @param  list<int>  $ids  every one of this product's media, in the order wanted
+     */
+    private function writeTheOrder(Product $product, array $ids): void
+    {
+        DB::transaction(function () use ($product, $ids) {
+            foreach ($ids as $index => $id) {
+                VariantMedia::query()
+                    ->where('product_id', $product->id)
+                    ->whereKey($id)
+                    ->update([
+                        'position' => $index + 1,
+                        'is_primary' => $index === 0,
+                    ]);
+            }
+        });
     }
 
     public function deleteMedia(Product $product, VariantMedia $media): RedirectResponse
     {
         abort_unless($media->product_id === $product->id, 404);
 
-        $wasPrimary = $media->is_primary;
         $media->delete();
 
-        // Something has to be the primary, or a card renders with no
-        // photograph at all.
-        if ($wasPrimary && $first = $product->media()->orderBy('position')->first()) {
-            $first->update(['is_primary' => true]);
-        }
+        // Renumber what is left, so the grid never shows a gap and the first
+        // one is the main shot again — something has to be, or a card renders
+        // with no photograph at all.
+        $this->writeTheOrder($product, $product->media()->orderBy('position')->pluck('id')->all());
 
         return redirect()->route('admin.product.edit', $product)->with('status', 'عکس حذف شد.');
     }

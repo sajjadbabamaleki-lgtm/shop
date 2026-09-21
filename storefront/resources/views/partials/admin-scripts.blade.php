@@ -226,3 +226,128 @@
         }
     }());
 </script>
+
+{{--
+    Dragging the photographs into order.
+
+    «بشه با دست همونجا ترکشون کرد جابجاشون مثلا دستمو بزارم رو عکس شماره پنج
+    بکشم ببرم بزارمش تو جایگاه یک» — pick a tile up, drop it where it belongs,
+    and the numbers follow. There is nothing else to press: the order posts
+    itself on drop.
+
+    **Pointer events and not HTML5 drag-and-drop.** `dragstart` never fires on
+    a touch screen, and this panel is used on a telephone — which is the only
+    place the instruction above describes.
+
+    **It saves with `fetch` rather than submitting a form**, because a page
+    that reloads under your hand while you are arranging six photographs is
+    the thing a save button existed to avoid. The line under the grid says
+    what happened, and says it in Persian, because a silent save is
+    indistinguishable from one that failed.
+--}}
+<script>
+    (function () {
+        var grid = document.querySelector('[data-vp-shots]');
+        if (!grid) return;
+
+        var url = grid.getAttribute('data-vp-shots-save');
+        var said = document.querySelector('[data-vp-shots-said]');
+        var token = document.querySelector('meta[name="csrf-token"]');
+        if (!url) return;
+
+        var dragging = null;
+        var faDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+
+        function fa(n) {
+            return String(n).replace(/[0-9]/g, function (d) { return faDigits[+d]; });
+        }
+
+        function tiles() {
+            return Array.prototype.slice.call(grid.querySelectorAll('[data-vp-shot]'));
+        }
+
+        // The numbers are drawn by the server; this is what keeps them reading
+        // 1..n the moment a tile moves, rather than after a round trip.
+        function renumber() {
+            var all = tiles();
+
+            for (var i = 0; i < all.length; i++) {
+                var no = all[i].querySelector('.vp-adm-shot-no');
+                if (no) no.textContent = fa(i + 1);
+                all[i].classList.toggle('is-primary', i === 0);
+            }
+
+            return all.map(function (t) { return t.getAttribute('data-vp-shot'); });
+        }
+
+        function say(text, bad) {
+            if (!said) return;
+            said.textContent = text;
+            said.classList.toggle('is-bad', !!bad);
+        }
+
+        function save(ids) {
+            say('در حال ثبت ترتیب…');
+
+            var body = new FormData();
+            body.append('order', ids.join(','));
+            if (token) body.append('_token', token.getAttribute('content'));
+
+            fetch(url, {
+                method: 'POST',
+                body: body,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                credentials: 'same-origin',
+                redirect: 'follow'
+            }).then(function (response) {
+                if (!response.ok) throw new Error(response.status);
+                say('ترتیب عکس‌ها ثبت شد.');
+            }).catch(function () {
+                // Never claim it saved when it did not: the grid on screen and
+                // the order on the shop would disagree with nothing to say so.
+                say('ترتیب ثبت نشد. صفحه را تازه کن و دوباره امتحان کن.', true);
+            });
+        }
+
+        grid.addEventListener('pointerdown', function (event) {
+            if (event.target.closest('button')) return;
+
+            var tile = event.target.closest('[data-vp-shot]');
+            if (!tile) return;
+
+            dragging = tile;
+            tile.classList.add('is-dragging');
+            tile.setPointerCapture(event.pointerId);
+        });
+
+        grid.addEventListener('pointermove', function (event) {
+            if (!dragging) return;
+
+            // Stops the page scrolling under a finger mid-drag.
+            event.preventDefault();
+
+            var under = document.elementFromPoint(event.clientX, event.clientY);
+            var over = under ? under.closest('[data-vp-shot]') : null;
+            if (!over || over === dragging) return;
+
+            var all = tiles();
+            var from = all.indexOf(dragging);
+            var to = all.indexOf(over);
+            if (from < 0 || to < 0) return;
+
+            grid.insertBefore(dragging, from < to ? over.nextSibling : over);
+            renumber();
+        });
+
+        function drop() {
+            if (!dragging) return;
+
+            dragging.classList.remove('is-dragging');
+            dragging = null;
+            save(renumber());
+        }
+
+        grid.addEventListener('pointerup', drop);
+        grid.addEventListener('pointercancel', drop);
+    })();
+</script>

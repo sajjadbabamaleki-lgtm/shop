@@ -33,6 +33,11 @@
 <html class="no-js" lang="fa" dir="rtl">
 
 <head>
+{{-- The token a script needs to post without a form. The photographs' order
+     saves itself over `fetch` when one is dragged, and without this the panel
+     would answer that with a 419 and the grid on screen would disagree with
+     the shop. --}}
+<meta name="csrf-token" content="{{ csrf_token() }}">
 {{-- **The theme is set before the first paint, and that is the whole reason
      it is inline and here rather than in a file at the foot of the page.**
      `data-theme` lives on `<html>`; put it on `<body>` and the browser paints

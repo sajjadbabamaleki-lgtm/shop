@@ -254,6 +254,10 @@ Route::middleware(['auth:web', ResolveAdminTenant::class])->group(function (): v
     Route::post('/catalogue/{product}/media', [CatalogueController::class, 'storeMedia'])
         ->middleware(RequirePlatformPermission::class.':catalogue.manage')
         ->name('product.media.store');
+    // The whole grid's order, from a drag or from one arrow. See orderMedia.
+    Route::post('/catalogue/{product}/media/order', [CatalogueController::class, 'orderMedia'])
+        ->middleware(RequirePlatformPermission::class.':catalogue.manage')
+        ->name('product.media.order');
     Route::post('/catalogue/{product}/media/{media}/primary', [CatalogueController::class, 'primaryMedia'])
         ->middleware(RequirePlatformPermission::class.':catalogue.manage')
         ->name('product.media.primary');

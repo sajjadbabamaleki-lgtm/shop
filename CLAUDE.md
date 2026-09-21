@@ -1244,6 +1244,46 @@ the client saw an old page and had no way to tell why. So, plainly:
   address, and is in no listing, no sitemap and no feed. That is what «فعال»
   beside «منتشر نشده» actually means, and it is why the fault was invisible to
   anybody who tested a link rather than searching the shop.
+- **A product's photographs are chosen all at once and ordered by dragging
+  them, and the number on the tile is the order.** «نباید عکسهای محصول دونه
+  دونه از گالری بیان باید بشه همشو باهم سلکت کرد آورد بعد همونجا شماره گذاری
+  باشه … و قابلت جابجای داشته باشه». It was one `<input type="file">` and one
+  round trip per shot, so a shoe with six photographs was six uploads, and the
+  order they happened to land in was the order the site drew them.
+  `photos[]` takes the lot in one post and keeps the order the picker returned
+  them in, which on a phone is the order they were tapped.
+  **Number one is the main photograph** — `position` and `is_primary` are one
+  fact now, written together by `writeTheOrder()`. Two answers to «which is
+  first?» is how a gallery leads with one shot while the card shows another.
+  **The first pass put «جلوتر», «عقب‌تر» and «اصلی کن» on every tile and was
+  rejected on sight**: «جلوتر عقبتر چیه اصلی کن چیه». Three buttons asking to
+  be understood, where picking the thing up and putting it down needs no
+  explanation. They are gone; so is the `move` branch that served them.
+  Four things hold the replacement up:
+  - **Pointer events, not HTML5 drag-and-drop.** `dragstart` never fires on a
+    touch screen, and the instruction describes a finger.
+  - **It saves itself with `fetch` on drop**, and there is no save button: a
+    page that reloads under your hand while you are arranging six photographs
+    is what the button existed to avoid. That needs a token, so
+    `layouts/admin.blade.php` carries `<meta name="csrf-token">` — without it
+    the save is a silent 419.
+  - **The line under the grid says what happened**, and turns red when it did
+    not. The grid on screen is already in the new order, so a silent failure
+    leaves it disagreeing with the shop with nothing to say which is true.
+  - **An order that is not a permutation of what is here is refused whole.**
+    The list comes from a browser, so a tab left open while another deleted a
+    shot would name one that is gone or leave one out; writing it as far as it
+    goes drops a photograph off the product and renumbers around the hole.
+  **Reordering is the one thing on this panel that needs JavaScript**, which
+  was the shop's own choice. Deleting and uploading still do not.
+  `ProductPhotoOrderTest` is the guard and these routes had **no test at all**
+  before it — the suite could create a product and price it and never asked
+  what happened to its photographs, which is the part the shop touches most
+  and where being wrong is silent.
+  **Measured, because a photo grid is visual:** at 390 and 1440 the tiles
+  number ۱..n with no sideways scroll, and dragging the fifth onto the first
+  reorders, renumbers, saves and persists — checked against the database, not
+  the screen.
 - **A table cell that names itself keeps its own name on a phone.**
   `partials/admin-scripts.blade.php` labels every cell from its column heading
   so the panel's tables become cards below 992, and the price cell carries two
