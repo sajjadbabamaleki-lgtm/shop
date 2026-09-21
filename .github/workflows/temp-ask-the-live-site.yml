@@ -12,9 +12,6 @@ jobs:
           host=https://vikyplus.ir
           curl -s --max-time 120 "$host/sitemap.xml" -o /tmp/sm || true
           echo "sitemap bytes: $(wc -c < /tmp/sm)"
-          grep -oE '<loc>[^<]*/products/[^<]*</loc>' /tmp/sm \
-            | sed -e 's~<loc>~~' -e 's~</loc>~~' \
-            | sed -e 's~^.*/products/~~' \
-            | python3 -c 'import sys,urllib.parse
-for line in sys.stdin:
-    print(urllib.parse.unquote(line.strip()))'
+          grep -oE '<loc>[^<]*/products/[^<]*</loc>' /tmp/sm | sed -e 's~<loc>~~' -e 's~</loc>~~' -e 's~^.*/products/~~' > /tmp/slugs
+          echo "slugs: $(wc -l < /tmp/slugs)"
+          printf '%b\n' "$(sed -e 's/+/ /g' -e 's/%/\\x/g' /tmp/slugs)"
