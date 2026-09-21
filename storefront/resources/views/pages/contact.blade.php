@@ -62,7 +62,7 @@
                              «نشانی فروشگاه» itself, so a `<b>` here would draw
                              the warning as a second label at 0.65 opacity —
                              quieter than the address rather than louder. --}}
-                        <strong class="vp-wholesale-only">آدرس حضوری فقط برای خرید عمده است</strong>
+                        <strong class="vp-wholesale-only">آدرس زیر فقط برای خرید عمده است</strong>
                         <span>{{ config('storefront.contact.address') }}</span>
                     </span>
                 </li>

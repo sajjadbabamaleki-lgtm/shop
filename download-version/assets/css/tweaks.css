@@ -25096,6 +25096,23 @@ body.shoe-shop {
    reading. */
 .vp-wholesale-only {
   font-size: 1.15em;
+  /* **Gold, and the ink gold rather than the fill.** «با رنگ طلایی» — and the
+     «گلد سبز» codename decides which one: a fill gold is for something you
+     press, and the dark golds are the ones whose lightness was solved to hold
+     a measured contrast as *text* on white. This is a sentence, so it takes
+     --vp-gold-ink.
+
+     Measured in Chromium against the footer's own background, which is pure
+     white: **4.65:1**, where --vp-gold-fill would have been **2.02:1** — far
+     under any readable floor, and the reason «make it gold» must not be read
+     as «use the bright gold».
+
+     Worth knowing and not hiding: the address under it reads 18.91:1, so this
+     line is now the *lower*-contrast of the two. It still passes AA for body
+     text at 4.65, and it carries the emphasis by being larger, heavier and
+     the only thing on the page that moves — but it is no longer louder by
+     contrast, which is the one thing colouring it cost. */
+  color: var(--vp-gold-ink);
   animation: vp-wholesale-only-blink 1.5s ease-in-out infinite;
 }
 

@@ -63,7 +63,10 @@ class CatalogueSeeder extends Seeder
         ['sneaker', 'ونس و کتونی', false],
         ['college', 'کالج', false],
         ['sandal', 'صندل', false],
-        ['boot', 'بوت و نیم‌بوت', true],
+        // Open since 2026-09-21: «چون محصول اد کردیم». The live shop was
+        // changed by open_the_boot_section_now_it_has_shoes; this keeps a
+        // fresh install saying the same thing.
+        ['boot', 'بوت و نیم‌بوت', false],
         ['bag-set', 'ست کیف و کفش', true],
         ['accessory', 'اکسسوری', true],
         ['sport-set', 'ست ورزشی', true],

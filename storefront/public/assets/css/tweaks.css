@@ -13893,6 +13893,8 @@ body.shoe-shop {
 
 .vp-wholesale-only {
   font-size: 1.15em;
+
+  color: var(--vp-gold-ink);
   animation: vp-wholesale-only-blink 1.5s ease-in-out infinite;
 }
 

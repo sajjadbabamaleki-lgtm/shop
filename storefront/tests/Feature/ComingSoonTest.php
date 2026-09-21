@@ -30,7 +30,15 @@ class ComingSoonTest extends TestCase
     use RefreshDatabase;
 
     /** The four, and the four that are open, by slug. */
-    private const SOON = ['boot', 'bag-set', 'accessory', 'sport-set'];
+    /**
+     * The sections still announced.
+     *
+     * «بوت و نیم‌بوت» left this list on 2026-09-21 — «باید از قسمت بوت و نیم
+     * بوت حذف بشه چون محصول اد کردیم» — and the live shop was changed by
+     * `open_the_boot_section_now_it_has_shoes`, because only a migration
+     * reaches production.
+     */
+    private const SOON = ['bag-set', 'accessory', 'sport-set'];
 
     private const OPEN = ['majlesi', 'sneaker', 'college', 'sandal'];
 

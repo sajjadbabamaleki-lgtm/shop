@@ -686,7 +686,8 @@ const CATEGORIES = [
   ['sneaker', 'ونس و کتونی', false],
   ['college', 'کالج', false],
   ['sandal', 'صندل', false],
-  ['boot', 'بوت و نیم‌بوت', true],
+  // Open since 2026-09-21 — the section has boots in it now.
+  ['boot', 'بوت و نیم‌بوت', false],
   ['bag-set', 'ست کیف و کفش', true],
   ['accessory', 'اکسسوری', true],
   ['sport-set', 'ست ورزشی', true],
@@ -3853,7 +3854,7 @@ const FOOT_STRAP = 'ارائه\u200cدهنده انواع کیف و کفش زن�
 const FOOT_ADDRESS = 'تهران، سعدی شمالی، روبه\u200cروی بانک ملی، پلاک ۵۶۵';
 // **The address is a wholesale counter, not a shop to walk into**, and it has
 // to say so where it is written. «جایی که تو وبسایت آدرس حضوری زده شده بالاش
-// بولد بنویس آدرس حضوری فقط برای خرید عمده است» — above the address and in
+// بولد بنویس آدرس زیر فقط برای خرید عمده است» — above the address and in
 // bold, because a visitor who reads the address and stops reading is the one
 // who drives across Tehran for a single pair. `/about` and `/wholesale` have
 // said this in their own prose since they were written; the footer is on every
@@ -3864,7 +3865,7 @@ const FOOT_ADDRESS = 'تهران، سعدی شمالی، روبه\u200cروی ب
 // a second address. Reusing the class also keeps this out of the stylesheets —
 // a new class here means re-cutting the CSS subset and re-running its guard
 // for one sentence of copy.
-const FOOT_ONLY_WHOLESALE = 'آدرس حضوری فقط برای خرید عمده است';
+const FOOT_ONLY_WHOLESALE = 'آدرس زیر فقط برای خرید عمده است';
 const FOOT_PHONE = '021-3398-3125';
 const FOOT_TEL = '02133983125';
 

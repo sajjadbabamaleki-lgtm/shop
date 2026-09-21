@@ -114,7 +114,7 @@
                  A qualification that arrives after the thing it qualifies is
                  one the reader has already acted on. --}}
             <p>
-                <strong class="vp-wholesale-only">آدرس حضوری فقط برای خرید عمده است.</strong>
+                <strong class="vp-wholesale-only">آدرس زیر فقط برای خرید عمده است.</strong>
             </p>
             <p>
                 نشانی ویکی پلاس {{ config('storefront.contact.address') }} است.
