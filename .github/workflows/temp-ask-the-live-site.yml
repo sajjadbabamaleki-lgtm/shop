@@ -1,0 +1,26 @@
+name: TEMP ask the live site
+
+on: push
+
+jobs:
+  ask:
+    runs-on: ubuntu-latest
+    steps:
+      - name: The titles behind the V2K and Jordan slugs
+        run: |
+          set -u
+          host=https://vikyplus.ir
+          title() {
+            t=$(curl -s --max-time 40 "$host/products/$1" | grep -o '<title>[^<]*' | head -1 | cut -c8-)
+            printf '  %s\n' "$t"
+          }
+          echo "--- what nike-v2k-run answers ---"
+          curl -s -o /dev/null -D /tmp/d -w 'code %{http_code}\n' --max-time 40 "$host/products/nike-v2k-run"
+          grep -i '^location:' /tmp/d || echo '  (no redirect)'
+          echo "--- V2K titles ---"
+          for c in "%D9%85%D8%B4%DA%A9%DB%8C" "%D9%85%D9%88%DA%A9%D8%A7" "%D9%82%D9%87%D9%88%D9%87-%D8%A7%DB%8C" "%D8%B3%D9%81%DB%8C%D8%AF-%D8%A2%D8%A8%DB%8C-%D8%B1%D9%88%D8%B4%D9%86"; do
+            title "%DA%A9%D8%AA%D9%88%D9%86%DB%8C-%D9%86%D8%A7%DB%8C%DA%A9-%D9%88%DB%8C-%D8%AA%D9%88-%DA%A9%DB%8C-Nike-V2K-%D8%B1%D9%86%DA%AF-$c"
+          done
+          echo "--- Jordan low vs high titles ---"
+          title "%DA%A9%D8%AA%D9%88%D9%86%DB%8C-%D9%86%D8%A7%DB%8C%DA%A9-%D8%AC%D8%B1%D8%AF%D9%86-%D9%88%D8%A7%D9%86-%D8%B3%D8%A7%D9%82-%DA%A9%D9%88%D8%AA%D8%A7%D9%87-Air-Jordan-1-Low-%D8%B1%D9%86%DA%AF-%D8%B3%D9%81%DB%8C%D8%AF"
+          title "%DA%A9%D8%AA%D9%88%D9%86%DB%8C-%D9%86%D8%A7%DB%8C%DA%A9-%D8%AC%D8%B1%D8%AF%D9%86-%D9%88%D8%A7%D9%86-%D8%B3%D8%A7%D9%82-%D8%A8%D9%84%D9%86%D8%AF-Air-Jordan-1-High-%D8%B1%D9%86%DA%AF-%D9%82%D8%B1%D9%85%D8%B2"
