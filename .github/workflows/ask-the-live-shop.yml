@@ -1,0 +1,108 @@
+name: TEMP — ask the live shop about the boot
+
+# ⛔ TEMPORARY. Delete this file once it has answered.
+#
+# The basket shows «بوت زنانه نیم ساق کشی دو متریال» at ۳٬۹۸۰٬۰۰۰ with no
+# warning on the line, and the checkout refuses it with «… در این شعبه فروخته
+# نمی‌شود». Read against the code, that refusal has exactly two possible
+# causes, and they are two different columns:
+#
+#     variants.status      != 'active'   — the size itself is retired
+#     branch_offers.status != 'active'   — the price row is switched off
+#
+# They can be told apart from outside the database, because the product page's
+# size chips are built by `Sellers::forMany()`, which asks the offer's status
+# and **not** the variant's:
+#
+#     size ۴ still has a radio chip  → the offer is active → variants.status
+#     size ۴ is drawn as `is-off`    → branch_offers.status
+#
+# Nothing in this container can reach an Iranian host — the proxy answers 403
+# for vikyplus.ir — and a GitHub runner can (CLAUDE.md, measured 19–20 Sept).
+# Only the deploy job is gated on `main`, so this runs and ships nothing.
+
+on:
+  push:
+    branches: [claude/bot-shop-error-wxric8]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ask:
+    name: What the live shop says about that boot
+    runs-on: ubuntu-latest
+    steps:
+      - name: Read the boot's page
+        run: |
+          python3 - <<'PY'
+          import gzip, io, re, sys, urllib.parse, urllib.request
+
+          BASE = "https://vikyplus.ir"
+
+          def get(url, timeout=60):
+              req = urllib.request.Request(url, headers={
+                  "User-Agent": "Mozilla/5.0 (probe; vikyplus repository)",
+                  "Accept-Encoding": "gzip",
+              })
+              with urllib.request.urlopen(req, timeout=timeout) as r:
+                  raw = r.read()
+                  if r.headers.get("Content-Encoding") == "gzip":
+                      raw = gzip.decompress(raw)
+                  return r.status, raw.decode("utf-8", "replace")
+
+          try:
+              status, sitemap = get(f"{BASE}/sitemap.xml")
+          except Exception as e:
+              print("sitemap unreachable:", e); sys.exit(0)
+          print(f"sitemap: http {status}, {len(sitemap)} chars")
+
+          locs = re.findall(r"<loc>([^<]+/products/[^<]+)</loc>", sitemap)
+          print(f"{len(locs)} product URLs in the sitemap")
+
+          boots = [u for u in locs if "بوت" in urllib.parse.unquote(u)]
+          print(f"{len(boots)} of them carry «بوت»:")
+          for u in boots:
+              print("   ", urllib.parse.unquote(u))
+
+          # The one being complained about, by the words that cannot be wrong.
+          WANTED = ("نیم", "ساق")
+          picked = [u for u in boots if all(w in urllib.parse.unquote(u) for w in WANTED)] or boots
+
+          for url in picked[:6]:
+              print("\n" + "=" * 70)
+              print(urllib.parse.unquote(url))
+              try:
+                  status, html = get(url)
+              except Exception as e:
+                  print("  unreachable:", e); continue
+              print(f"  http {status}, {len(html)} chars")
+
+              title = re.search(r"<title>([^<]*)</title>", html)
+              print("  <title>:", title.group(1).strip() if title else "—")
+
+              # Every chip, in the state the page drew it in.
+              chips = re.findall(
+                  r'<(label|a|span) class="vp-pick-size([^"]*)"(.*?)</\1>', html, re.S)
+              print(f"  {len(chips)} size chips:")
+              for tag, extra, body in chips:
+                  eu = re.search(r'vp-size-eu">([^<]*)<', body)
+                  digits = eu.group(1).strip() if eu else "?"
+                  radio = re.search(r'name="variant" value="(\d+)"', body)
+                  state = ("قابل انتخاب (radio " + radio.group(1) + ")") if radio else \
+                          ("is-off — این شوز این سایز را ندارد" if "is-off" in extra else
+                           "is-elsewhere — فروشندهٔ دیگر" if "is-elsewhere" in extra else tag + extra)
+                  print(f"      {digits or '?':>4}   {state}")
+
+              print("  «فعلاً موجود نیست» on the page:", "vp-pdp-out" in html)
+              print("  hidden single-size input:",
+                    re.findall(r'<input type="hidden" name="variant" value="(\d+)">', html))
+
+              for key in ("price", "availability", "priceCurrency"):
+                  for m in re.findall(r'"%s"\s*:\s*("[^"]*"|\d+)' % key, html):
+                      print(f"  JSON-LD {key}: {m}")
+
+              for m in sorted(set(re.findall(r"رنگ[^<\"]{0,30}", html)))[:10]:
+                  print("  colour words:", m.strip())
+          PY
