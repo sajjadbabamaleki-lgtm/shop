@@ -72,6 +72,46 @@ class Payment extends Model
         return $this->status === self::PAID;
     }
 
+    /**
+     * **Which provider took the money, in words.**
+     *
+     * «وقتی پرداختی صورت میگیره مشخص نیست که این پرداخت با اسنپ پی بوده یا با
+     * زرین پال» — and it was not: the panel printed `payment_status`
+     * (paid/unpaid) and `orders.payment_method` (online/at-the-door), and the
+     * gateway lived only in this column, which no screen read. Two providers
+     * take money for this shop and the shop could not tell one from the other
+     * on an order, which is also the one thing a reconciliation needs: a
+     * زرین‌پال line and an اسنپ‌پی line arrive on different statements.
+     *
+     * **Its own map rather than the `Gateways` registry**, and that is the
+     * point: a row naming a provider the shop has since disconnected still
+     * has to be named here. `Gateways::named()` answers null for exactly that
+     * case, by its own docblock, and an old order is not the place to find out
+     * that a variable changed.
+     *
+     * Falls back to the token so a provider added later is visible rather than
+     * blank — the same rule `Order::methodLabel()` follows.
+     *
+     * @return array<string, string>
+     */
+    public static function gatewayLabels(): array
+    {
+        return [
+            'zarinpal' => 'زرین‌پال',
+            'snapppay' => 'اسنپ‌پی (اقساطی)',
+            // Not a gateway: «پول را گرفتم» on the order screen writes this,
+            // and the money did not come through anybody's terminal.
+            'panel' => 'ثبت دستی در پنل',
+            'demo' => 'سفارش آزمایشی',
+            'at-the-door' => 'بدون درگاه',
+        ];
+    }
+
+    public function gatewayLabel(): string
+    {
+        return self::gatewayLabels()[$this->gateway] ?? (string) $this->gateway;
+    }
+
     public function statusLabel(): string
     {
         return match ($this->status) {

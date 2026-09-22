@@ -59,6 +59,14 @@ class OrderController extends Controller
         $range = $request->filled('range') ? DateRange::fromRequest($request) : null;
 
         $orders = $this->filtered($request, $range)
+            // **The provider that took the money, for the list's own badge.**
+            // Eager-loaded rather than asked per row: this page draws up to a
+            // hundred orders and the live machine costs about 10ms a query,
+            // so a lazy `->payments` here would be a second of database on one
+            // screen. Only the paid row is wanted — an order that was refused
+            // by a card and then paid by instalments has one of each, and the
+            // one that is the money is the one the badge is about.
+            ->with(['payments' => fn ($paid) => $paid->where('status', Payment::PAID)->latest('id')])
             ->paginate($this->perPage($request))
             ->withQueryString();
 
@@ -156,7 +164,11 @@ class OrderController extends Controller
         $settings = FulfilmentSettings::for($order->branch);
 
         return view('admin.order', [
-            'order' => $order->load('items', 'customer'),
+            // `items.variant.product.media` is for the photograph on each
+            // line — see `OrderItem::photoPath()`. Eager-loaded because
+            // `mediaFor()` reads the collection: asked per line it would be
+            // three queries a shoe on a machine where one costs about 10ms.
+            'order' => $order->load('items.variant.product.media', 'customer'),
 
             // §5's «Overdue» is derived, never stored: a stored flag needs
             // something to set it, and that something will not have run on the

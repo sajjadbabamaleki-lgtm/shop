@@ -2813,3 +2813,51 @@ a.vp-adm-mini {
   object-fit: cover;
   border-radius: 10px;
 }
+
+/* The shoe's own photograph, on an order's lines.
+
+   «چون ما عکس هامون از باسلام برداشته شده رنگشون مشخص نیست، پس تو پنل ادمین
+   باید با عکس خود کفش به ما نشون بده چه کفشی سفارش داده تا بفهمیم از رو عکس که
+   رنگش چیه.» The supplier's titles carry no colour anybody can pack from, and
+   every variant in this catalogue is still `color_family = unspecified`, so on
+   an order screen the picture is the only thing that answers it.
+
+   **64px, and that size is the whole point.** Smaller reads as an icon and a
+   navy is a black at 32px; this is big enough to tell «موکا» from «نسکافه‌ای»
+   at arm's length, and the cell is still a table cell. It is a link to the
+   shoe's own screen for the times it is not enough — that is where the gallery
+   is, and where a photograph that turns out to be the wrong colour is
+   replaced.
+
+   `object-fit: contain` and not `cover`: the supplier's shots are square and
+   whole, and cropping one is how a toe or a heel leaves the frame — the fault
+   the shop reported about the listing, which was the photograph's own edge and
+   not the tile's. Nothing here may add a second version of it.
+
+   Both colours are the panel's own tokens, so the dark theme needs no block of
+   its own. A storefront class here would have carried a literal #FFFFFF and
+   gone white in the ink theme, which this panel has been caught by twice. */
+.vp-adm-shot {
+  display: block;
+  width: 64px;
+  height: 64px;
+  border: 1px solid var(--adm-line);
+  border-radius: 10px;
+  background: var(--adm-sunk-2);
+  overflow: hidden;
+}
+
+.vp-adm-shot img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* A line whose shoe has been deleted, or has no photographs yet. It keeps the
+   column's width so the rows do not go ragged, and says nothing — an icon
+   there would be a picture of "no picture", which is noise on every row of an
+   order placed against a product somebody has since removed. */
+.vp-adm-shot.is-empty {
+  border-style: dashed;
+}

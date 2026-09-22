@@ -836,6 +836,45 @@ the client saw an old page and had no way to tell why. So, plainly:
   printed to the shopper on their own order page. All three are required, and
   the reason is the same each time: it is the one number this shop, the shopper
   and their lender all hold.
+- **An order says which provider took the money, and shows the shoe.** Two
+  things the panel could not tell anybody, reported together.
+  **«وقتی پرداختی صورت میگیره مشخص نیست که این پرداخت با اسنپ پی بوده یا با
+  زرین پال»** — and it was not on any screen. `payments.gateway` has held the
+  answer since the second provider was connected and nothing read it: the order
+  page printed `payment_status` (پرداخت‌شده/پرداخت‌نشده) and
+  `orders.payment_method` (اینترنتی/در محل), which are the same two words
+  whichever provider took the money. A day's takings are reconciled against two
+  different statements, so that is not an answer. `Payment::gatewayLabel()` is
+  the one place it is named — on the receipt, on **every attempt** (a card
+  refused and instalments accepted is the usual shape of «چرا دو بار پرداخت
+  شد», and it cannot be read when both rows say only «ناموفق»), and under the
+  badge in the orders list, where the paid row is **eager-loaded** because that
+  page draws up to a hundred orders. **It carries its own map rather than
+  asking `Gateways`**, and that is the point: a row naming a provider the shop
+  has since disconnected still has to be named, which is precisely the case
+  `Gateways::named()` answers null for. `panel` and `demo` are in the map too —
+  money taken by hand is not a gateway and must not be dressed as one.
+  **«چون ما عکس هامون از باسلام برداشته شده رنگشون مشخص نیست، پس تو پنل ادمین
+  باید با عکس خود کفش به ما نشون بده چه کفشی سفارش داده»** — the supplier's
+  titles carry no colour anybody can pack from and every variant here is still
+  `color_family = unspecified`, so the words on an order line cannot say which
+  shoe is in the box. `OrderItem::photoPath()` answers it, and **it is the one
+  thing on that model that deliberately reads through `variant_id`**: a
+  photograph is not a fact about the purchase — no money, no name, no number
+  comes off it — so it is live, it changes when the shop re-photographs the
+  shoe, and when the product has been deleted there is simply no picture while
+  every word of the receipt still reads. It takes the **colourway's** own
+  photographs first (`mediaFor()` on the line's stored `display_color`), and
+  the product-wide fallback is safe here for a stated reason: `basalam:import`
+  makes one product per supplier listing and a supplier lists each colour
+  separately, so a product on this shop *is* a colourway. 64px, `object-fit:
+  contain` (cropping one is how a toe leaves the frame — see the supplier's
+  photographs above), linking to the shoe's own panel screen where the gallery
+  is. `.vp-adm-shot` is in `admin.css` on the panel's own tokens, so the ink
+  theme needs no block of its own — a storefront class there would have carried
+  a literal `#FFFFFF`, which this panel has been caught by twice.
+  `AnOrderSaysWhoPaidAndShowsTheShoeTest` holds both, and nothing else here
+  could: no other check asks what the *panel* shows.
 - **The content pages are `/about`, `/contact`, `/size-guide`, `/faq`, `/terms`
   and `/privacy`** — `PageController`, one view each under `resources/views/pages/`,
   copy and no database. They exist because the footer had been linking to them
