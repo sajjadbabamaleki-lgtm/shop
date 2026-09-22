@@ -11,6 +11,8 @@ use App\Support\Admin\DateRange;
 use App\Support\Checkout\SettleOrder;
 use App\Support\Fulfilment\FulfilmentSettings;
 use App\Support\Fulfilment\Promise;
+use App\Support\Payments\Gateways;
+use App\Support\Payments\SnappPay;
 use App\Support\Search;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\View\View;
@@ -149,7 +151,7 @@ class OrderController extends Controller
         return in_array($per, self::PAGE_SIZES, true) ? $per : 20;
     }
 
-    public function show(Order $order, Promise $promise): View
+    public function show(Order $order, Promise $promise, Gateways $gateways): View
     {
         $settings = FulfilmentSettings::for($order->branch);
 
@@ -178,11 +180,20 @@ class OrderController extends Controller
             // gateway *and* status: an order that opened an اسنپ‌پی attempt and
             // was then paid by card has a row for each, and only one of them
             // is the money.
-            'instalment' => $order->payments()
+            'instalment' => $instalment = $order->payments()
                 ->where('gateway', 'snapppay')
                 ->where('status', Payment::PAID)
                 ->latest('id')
                 ->first(),
+
+            // **How long until SnappPay will take another `update`.** Their
+            // rule is «بین هر آپدیت حداقل ۳۰ ثانیه», and `ReturnsController`
+            // enforces it — but a member of staff finding that out by filling
+            // the form in and being refused is the screen keeping a rule to
+            // itself. Drawn instead, where the button is. Zero means now.
+            'instalmentWait' => $instalment !== null && ($lender = $gateways->named('snapppay')) instanceof SnappPay
+                ? $lender->secondsUntilAnotherUpdate($instalment)
+                : 0,
 
             'delaysEnabled' => (bool) ($settings['delays_enabled'] ?? true),
             'maxDelay' => (int) ($settings['max_delay_days'] ?? 7),

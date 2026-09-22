@@ -11,6 +11,8 @@ use App\Models\Role;
 use App\Models\User;
 use App\Models\Variant;
 use App\Support\Checkout\AfterReturns;
+use App\Support\Payments\Gateways;
+use App\Support\Payments\SnappPay;
 use App\Support\Tenancy\TenantContext;
 use Database\Seeders\BranchSeeder;
 use Database\Seeders\CatalogueSeeder;
@@ -211,6 +213,7 @@ class SnappPayReturnsTest extends TestCase
             ->post("/admin/orders/{$order->number}/return", [
                 'lines' => [$line->id => 1],
                 'reason' => 'سایز بزرگ بود',
+                'confirmed' => 1,
             ])
             ->assertRedirect()
             ->assertSessionHas('status');
@@ -262,6 +265,7 @@ class SnappPayReturnsTest extends TestCase
             ->post("/admin/orders/{$order->number}/return", [
                 'lines' => [$whole->id => 1],
                 'reason' => 'پشیمان شد',
+                'confirmed' => 1,
             ])
             ->assertRedirect()
             ->assertSessionHas('status');
@@ -281,7 +285,7 @@ class SnappPayReturnsTest extends TestCase
         $line = $order->items->first();
 
         $this->actingAs($this->admin())
-            ->post("/admin/orders/{$order->number}/return", ['lines' => [$line->id => 1], 'reason' => 'تعویض'])
+            ->post("/admin/orders/{$order->number}/return", ['lines' => [$line->id => 1], 'reason' => 'تعویض', 'confirmed' => 1])
             ->assertRedirect();
 
         $body = $this->sentTo('payment/v1/update');
@@ -303,6 +307,7 @@ class SnappPayReturnsTest extends TestCase
             ->post("/admin/orders/{$order->number}/return", [
                 'lines' => $order->items->mapWithKeys(fn ($item) => [$item->id => $item->quantity])->all(),
                 'reason' => 'همه را پس فرستاد',
+                'confirmed' => 1,
             ])
             ->assertRedirect()
             ->assertSessionHasErrors('reason');
@@ -321,13 +326,181 @@ class SnappPayReturnsTest extends TestCase
         $before = $this->onHand($line->variant_id);
 
         $this->actingAs($this->admin())
-            ->post("/admin/orders/{$order->number}/return", ['lines' => [$line->id => 9], 'reason' => 'اشتباه'])
+            ->post("/admin/orders/{$order->number}/return", ['lines' => [$line->id => 9], 'reason' => 'اشتباه', 'confirmed' => 1])
             ->assertRedirect()
             ->assertSessionHasErrors('reason');
 
         $this->assertSame(0, $line->fresh()->returned_quantity);
         $this->assertSame($before, $this->onHand($line->variant_id));
         Http::assertNotSent(fn ($request) => str_contains($request->url(), 'payment/v1/update'));
+    }
+
+    // --- the two rules that are about acting, not about a payload ---------
+
+    /**
+     * **Nothing happens on the first post.** «حتما هنگام بروزرسانی تأیید دو
+     * مرحله‌ای در پنل ادمین داشته باشید» — so the form on the order screen
+     * lands on a review, and SnappPay is not called, and the shelf does not
+     * move, until that review's own button is pressed.
+     *
+     * The `confirm()` in the markup cannot be this: it is one dialog, and on a
+     * browser with JavaScript off it is none. This is a post that returns a
+     * page rather than a redirect, which is what makes it a step.
+     */
+    public function test_the_first_post_only_shows_what_would_be_sent(): void
+    {
+        $this->fake();
+
+        $order = $this->order();
+        $line = $order->items->first();
+        $before = $this->onHand($line->variant_id);
+
+        $this->actingAs($this->admin())
+            ->post("/admin/orders/{$order->number}/return", [
+                'lines' => [$line->id => 1],
+                'reason' => 'سایز بزرگ بود',
+            ])
+            ->assertOk()
+            ->assertViewIs('admin.instalment-confirm')
+            // The numbers the second press will make true, on the screen
+            // before it is pressed: 1,400,000 of shoes less a 140,000 share of
+            // the discount, plus the delivery that is never returned.
+            ->assertSee(toman(1_360_000), false)
+            ->assertSee('V000000042', false);
+
+        Http::assertNotSent(fn ($request) => str_contains($request->url(), 'payment/v1/update'));
+        $this->assertSame(0, $line->fresh()->returned_quantity);
+        $this->assertSame($before, $this->onHand($line->variant_id));
+    }
+
+    /** The same two steps guard the cancel, which is the larger of the two. */
+    public function test_a_cancel_is_shown_before_it_is_sent(): void
+    {
+        $this->fake();
+
+        $order = $this->order();
+
+        $this->actingAs($this->admin())
+            ->post("/admin/orders/{$order->number}/instalments/cancel", ['reason' => 'مشتری منصرف شد'])
+            ->assertOk()
+            ->assertViewIs('admin.instalment-confirm');
+
+        Http::assertNotSent(fn ($request) => str_contains($request->url(), 'payment/v1/cancel'));
+        $this->assertSame(Order::PAID, $order->fresh()->status);
+    }
+
+    /**
+     * **Thirty seconds between updates**, which is their rule and the only one
+     * of theirs about time: «حتما هم بین هر آپدیت حداقل باید ۳۰ ثانیه صبر
+     * کنید».
+     *
+     * The refusal has to land **before** the shelf moves — a return written
+     * down here and never sent leaves the shop believing less is owed than the
+     * shopper is paying — so this asserts the stock as well as the silence.
+     */
+    public function test_a_second_update_within_thirty_seconds_is_refused_before_anything_moves(): void
+    {
+        $this->fake();
+
+        $order = $this->order();
+        [$first, $second] = [$order->items[0], $order->items[1]];
+
+        $this->actingAs($this->admin())
+            ->post("/admin/orders/{$order->number}/return", [
+                'lines' => [$first->id => 1], 'reason' => 'اولی', 'confirmed' => 1,
+            ])
+            ->assertSessionHas('status');
+
+        $shelf = $this->onHand($second->variant_id);
+        Http::fake();  // so a second update would be visible as a fresh call
+        $this->fake();
+
+        $this->actingAs($this->admin())
+            ->post("/admin/orders/{$order->number}/return", [
+                'lines' => [$second->id => 1], 'reason' => 'دومی', 'confirmed' => 1,
+            ])
+            ->assertRedirect()
+            ->assertSessionHasErrors('reason');
+
+        Http::assertNotSent(fn ($request) => str_contains($request->url(), 'payment/v1/update'));
+        $this->assertSame(0, $second->fresh()->returned_quantity, 'nothing may be written down');
+        $this->assertSame($shelf, $this->onHand($second->variant_id), 'and nothing may reach the shelf');
+    }
+
+    /** Past the thirty seconds it goes through, which is the other half. */
+    public function test_the_same_return_goes_through_once_the_gap_has_passed(): void
+    {
+        $this->fake();
+
+        $order = $this->order();
+        [$first, $second] = [$order->items[0], $order->items[1]];
+
+        $this->actingAs($this->admin())
+            ->post("/admin/orders/{$order->number}/return", [
+                'lines' => [$first->id => 1], 'reason' => 'اولی', 'confirmed' => 1,
+            ])
+            ->assertSessionHas('status');
+
+        $this->travel(31)->seconds();
+
+        $this->actingAs($this->admin())
+            ->post("/admin/orders/{$order->number}/return", [
+                'lines' => [$second->id => 1], 'reason' => 'دومی', 'confirmed' => 1,
+            ])
+            ->assertSessionHas('status');
+
+        $this->assertSame(1, $second->fresh()->returned_quantity);
+    }
+
+    /**
+     * The stamp is put on the attempt rather than on the success, because the
+     * rule spaces the *calls*: a refused update was still a call, and retrying
+     * it a second later is the thing being forbidden.
+     */
+    public function test_a_refused_update_still_starts_the_thirty_seconds(): void
+    {
+        $this->fake(update: ['successful' => false, 'errorData' => ['message' => 'نه']]);
+
+        $order = $this->order();
+        $line = $order->items->first();
+
+        $this->actingAs($this->admin())
+            ->post("/admin/orders/{$order->number}/return", [
+                'lines' => [$line->id => 1], 'reason' => 'اولی', 'confirmed' => 1,
+            ])
+            ->assertSessionHasErrors('reason');
+
+        $payment = $order->payments()->where('gateway', 'snapppay')->sole();
+
+        $this->assertNotNull($payment->gateway_updated_at, 'a call that failed was still a call');
+
+        // A range rather than the number: the stamp is `now()` and the read is
+        // a moment later, so the exact second is the test's own runtime.
+        $wait = app(Gateways::class)
+            ->named('snapppay')
+            ->secondsUntilAnotherUpdate($payment);
+
+        $this->assertGreaterThan(0, $wait, 'the clock started');
+        $this->assertLessThanOrEqual(SnappPay::UPDATE_GAP, $wait);
+    }
+
+    /** The screen says the wait rather than leaving it to be discovered. */
+    public function test_the_order_screen_draws_the_wait(): void
+    {
+        $this->fake();
+
+        $order = $this->order();
+
+        $this->actingAs($this->admin())
+            ->post("/admin/orders/{$order->number}/return", [
+                'lines' => [$order->items->first()->id => 1], 'reason' => 'اولی', 'confirmed' => 1,
+            ])
+            ->assertSessionHas('status');
+
+        $this->actingAs($this->admin())
+            ->get("/admin/orders/{$order->number}")
+            ->assertOk()
+            ->assertSee('۳۰ ثانیه فاصله می‌خواهد', false);
     }
 
     /** A card order has no instalments to reduce, so it is not offered this. */
@@ -342,6 +515,7 @@ class SnappPayReturnsTest extends TestCase
             ->post("/admin/orders/{$order->number}/return", [
                 'lines' => [$order->items->first()->id => 1],
                 'reason' => 'تعویض',
+                'confirmed' => 1,
             ])
             ->assertRedirect()
             ->assertSessionHasErrors('reason');
@@ -372,6 +546,7 @@ class SnappPayReturnsTest extends TestCase
             ->post("/admin/orders/{$order->number}/return", [
                 'lines' => [$order->items->first()->id => 1],
                 'reason' => 'تعویض',
+                'confirmed' => 1,
             ])
             ->assertRedirect()
             ->assertSessionHasErrorsIn('default', ['reason']);
@@ -392,7 +567,7 @@ class SnappPayReturnsTest extends TestCase
         $order = $this->order();
 
         $this->actingAs($this->admin())
-            ->post("/admin/orders/{$order->number}/instalments/cancel", ['reason' => 'مشتری منصرف شد'])
+            ->post("/admin/orders/{$order->number}/instalments/cancel", ['reason' => 'مشتری منصرف شد', 'confirmed' => 1])
             ->assertRedirect()
             ->assertSessionHas('status');
 
@@ -421,7 +596,7 @@ class SnappPayReturnsTest extends TestCase
         $order = $this->order();
 
         $this->actingAs($this->admin())
-            ->post("/admin/orders/{$order->number}/instalments/cancel", ['reason' => 'مشتری منصرف شد'])
+            ->post("/admin/orders/{$order->number}/instalments/cancel", ['reason' => 'مشتری منصرف شد', 'confirmed' => 1])
             ->assertRedirect()
             ->assertSessionHasErrors(['reason' => 'این تراکنش قابل لغو نیست.']);
 

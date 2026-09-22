@@ -91,6 +91,22 @@ class SnappPay implements Gateway
      */
     private const TIMEOUT = 30;
 
+    /**
+     * **The floor under how often `update` may be called about one payment.**
+     *
+     * «حتما هم بین هر آپدیت حداقل باید ۳۰ ثانیه صبر کنید» — their merchant
+     * instructions, and the only rule in them that is about *time* rather
+     * than about a payload. Two مرجوعی rows typed seconds apart would
+     * otherwise send two updates seconds apart, and which basket they end up
+     * holding is then a race rather than a decision.
+     *
+     * The same number as `TIMEOUT` by coincidence and not by derivation: one
+     * is how long to wait for an answer, this is how long to wait before
+     * asking again. They are written separately so that changing either does
+     * not silently change the other.
+     */
+    public const UPDATE_GAP = 30;
+
     public function __construct(
         private string $baseUrl,
         private string $clientId,
@@ -527,6 +543,26 @@ class SnappPay implements Gateway
      */
     public function update(Payment $payment, Order $order): void
     {
+        // **Their thirty seconds, as the last word.** `ReturnsController` asks
+        // the same question before it moves any stock, which is the gate that
+        // matters — by the time this runs the shop's own books have already
+        // changed, so refusing here is the bad direction and only exists so
+        // that no future caller can put two updates a second apart on their
+        // API. Same shape as the status checks `PlaceOrder` repeats inside its
+        // transaction: unreachable from the screen, and the reason it stays.
+        if (($wait = $this->secondsUntilAnotherUpdate($payment)) > 0) {
+            throw new PaymentFailed(
+                'اسنپ‌پی بین هر دو به‌روزرسانی ۳۰ ثانیه فاصله می‌خواهد؛ '
+                .fa_number($wait).' ثانیه دیگر صبر کن.'
+            );
+        }
+
+        // Stamped **before** the call and kept whatever the answer is. The
+        // rule spaces the calls, not the successes: a request that timed out
+        // was still made, and retrying it a second later is exactly what it
+        // forbids.
+        $payment->forceFill(['gateway_updated_at' => now()])->save();
+
         $answer = $this->attempt(self::UPDATE, [
             ...$this->basket($order),
             'paymentToken' => (string) $payment->gateway_token,
@@ -535,6 +571,25 @@ class SnappPay implements Gateway
         if (! $this->wentThrough($answer)) {
             $this->tellTheShop($payment, $answer, 'update');
         }
+    }
+
+    /**
+     * How long this payment still has to wait before another `update`, in
+     * whole seconds. Zero means it may go now.
+     *
+     * Public because the panel asks it twice — once to refuse a return that
+     * is too soon, before anything moves, and once to draw the wait on the
+     * screen rather than leaving a member of staff to find out by pressing.
+     */
+    public function secondsUntilAnotherUpdate(Payment $payment): int
+    {
+        if ($payment->gateway_updated_at === null) {
+            return 0;
+        }
+
+        $since = $payment->gateway_updated_at->diffInSeconds(now());
+
+        return (int) max(0, ceil(self::UPDATE_GAP - $since));
     }
 
     /**

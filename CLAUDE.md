@@ -800,9 +800,37 @@ the client saw an old page and had no way to tell why. So, plainly:
     a refused update leaves the shop believing less is owed than the shopper is
     paying, and that one says so on the screen with the transaction id in it
     and shouts in the log.
-  - **Both ask before they fire**, which their document requires of anything
-    irreversible, through the same `confirm()` the panel's own cancel has used
-    since it was written rather than a second kind of dialog for one screen.
+  - **Neither happens on the press, and a `confirm()` is not what makes that
+    true.** «حتما هنگام بروزرسانی تأیید دو مرحله‌ای در پنل ادمین داشته باشید»
+    — so both forms post to `admin/instalment-confirm.blade.php`, which prints
+    what is about to be sent (the lines, the units, what the shopper will owe
+    afterwards, the transaction id) and carries the only button that reaches
+    SnappPay. **Two posts, not two dialogs**: the `confirm()` that was there
+    on its own is one dialog, and on a browser with JavaScript off it is none
+    — which is not a thing to rest an irreversible call on. It is still on the
+    button, saying a review comes next. The screen's numbers come from
+    `AfterReturns`, which is also what builds the basket that goes, so what is
+    read there cannot be a second arithmetic that disagrees.
+  - **⛔ Thirty seconds between updates, and nothing could have honoured it.**
+    «حتما هم بین هر آپدیت حداقل باید ۳۰ ثانیه صبر کنید» is the only rule of
+    theirs about *time*, and until 22 Sept nothing in this application knew
+    when the last update went: two مرجوعی rows typed seconds apart sent two
+    updates seconds apart, and which basket they end up holding is then a race
+    rather than a decision. `payments.gateway_updated_at` is the record,
+    `SnappPay::UPDATE_GAP` is the number and
+    `SnappPay::secondsUntilAnotherUpdate()` is the question.
+    Three things about it, each one a way to get it wrong:
+    **it is stamped on the attempt and not on the success**, because the rule
+    spaces the calls — a request that timed out was still made, and retrying it
+    a second later is exactly what is forbidden; **`ReturnsController` asks it
+    before `SettleOrder::returned()` moves anything**, since refusing after the
+    shelf has moved leaves the shop believing less is owed than the shopper is
+    paying, which is the one direction that whole class is arranged to avoid
+    (`SnappPay::update()` asks again as its own last word, unreachable from the
+    screen and kept for the same reason `PlaceOrder` repeats its status checks
+    inside the transaction); and **the order screen draws the remaining
+    seconds** beside a disabled button, because a rule the panel keeps to
+    itself is one a member of staff discovers by filling in a form.
   The **transaction id** is on the panel's order screen, searchable in the
   orders list (`orWhereHas('payments', …)` on the folded `authority`) and
   printed to the shopper on their own order page. All three are required, and

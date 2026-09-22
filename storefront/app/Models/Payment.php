@@ -35,12 +35,16 @@ class Payment extends Model
 
     protected $fillable = [
         'order_id', 'gateway', 'authority', 'gateway_token', 'amount', 'status',
-        'ref_id', 'card_pan', 'failure', 'paid_at',
+        'ref_id', 'card_pan', 'failure', 'paid_at', 'gateway_updated_at',
     ];
 
     protected function casts(): array
     {
-        return ['paid_at' => 'datetime', 'amount' => 'integer'];
+        return [
+            'paid_at' => 'datetime',
+            'gateway_updated_at' => 'datetime',
+            'amount' => 'integer',
+        ];
     }
 
     public function order(): BelongsTo

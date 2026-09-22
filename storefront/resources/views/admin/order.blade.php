@@ -362,13 +362,18 @@
          order paid through اسنپ‌پی — see ReturnsController for why it is not
          offered on a card order.
 
-         Two separate irreversible things live in this card, which is why each
-         asks before it fires: a partial return tells SnappPay the basket
-         shrank, and a cancel unwinds the whole purchase. Their document asks
-         for the confirmation in as many words — «به دلیل برگشت‌ناپذیر بودن …
-         قبل از ارسال درخواست یک تاییدیه از ادمین گرفته شود» — and it is the
-         same `confirm()` the panel's own cancel has always used, rather than a
-         second kind of dialog for one screen. --}}
+         Two separate irreversible things live in this card, and **neither
+         happens on the press**: both post to a screen that prints what is
+         about to be sent — which lines, and what the customer will owe
+         afterwards — and only its own button reaches SnappPay. That is their
+         «تأیید دو مرحله‌ای», and it is two *posts* rather than two dialogs
+         because a `confirm()` does nothing at all on a browser with
+         JavaScript off. The dialog stays on top of it, saying that a review
+         comes next, so the press is never a surprise.
+
+         The other rule of theirs on this card is the thirty seconds between
+         updates. `ReturnsController` is what enforces it; the line below is so
+         that nobody finds out by filling the form in. --}}
     @if ($instalment && $order->status !== \App\Models\Order::CANCELLED)
         <section class="vp-adm-card vp-adm-span-2">
             <div class="vp-adm-card-head">
@@ -382,8 +387,15 @@
                 برگشت‌پذیر نیست.
             </p>
 
+            @if ($instalmentWait > 0)
+                <p class="vp-adm-note is-bad">
+                    اسنپ‌پی بین هر دو به‌روزرسانی ۳۰ ثانیه فاصله می‌خواهد.
+                    {{ fa_number($instalmentWait) }} ثانیه دیگر صفحه را تازه کن.
+                </p>
+            @endif
+
             <form class="vp-adm-form" method="post" action="{{ route('admin.order.return', $order) }}"
-                  onsubmit="return confirm('این اقلام مرجوع می‌شوند، به انبار برمی‌گردند و مبلغ اقساط مشتری نزد اسنپ‌پی کم می‌شود. برگشت‌پذیر نیست.')">
+                  onsubmit="return confirm('صفحهٔ بعد، قبل از ارسال به اسنپ‌پی، دقیقاً همین را نشان می‌دهد تا تأیید کنی.')">
                 @csrf
 
                 <table class="vp-admin-table">
@@ -413,7 +425,7 @@
                 <input id="return-why" type="text" name="reason" maxlength="200"
                        placeholder="مثلاً سایز بزرگ بود" value="{{ old('reason') }}" required>
 
-                <button type="submit" class="vp-adm-danger">ثبت مرجوعی</button>
+                <button type="submit" class="vp-adm-danger" @disabled($instalmentWait > 0)>ادامه به تأیید مرجوعی</button>
             </form>
 
             {{-- The whole basket back. A separate form because it is a
@@ -422,14 +434,14 @@
                  into the one above would put «everything» one mistyped number
                  away from «one». --}}
             <form class="vp-adm-form" method="post" action="{{ route('admin.order.instalments.cancel', $order) }}"
-                  onsubmit="return confirm('کل این سفارش نزد اسنپ‌پی لغو می‌شود، همهٔ اقساط مشتری برداشته می‌شود و موجودی برمی‌گردد. برگشت‌پذیر نیست.')">
+                  onsubmit="return confirm('صفحهٔ بعد، قبل از لغو نزد اسنپ‌پی، همه‌چیز را نشان می‌دهد تا تأیید کنی.')">
                 @csrf
 
                 <label for="instalment-cancel-why">علت لغو کامل</label>
                 <input id="instalment-cancel-why" type="text" name="reason" maxlength="200"
                        placeholder="مثلاً مشتری کل سفارش را پس فرستاد" required>
 
-                <button type="submit" class="vp-adm-danger">لغو کامل نزد اسنپ‌پی</button>
+                <button type="submit" class="vp-adm-danger">ادامه به تأیید لغو کامل</button>
             </form>
         </section>
     @endif

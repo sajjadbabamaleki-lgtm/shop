@@ -11,6 +11,7 @@ use App\Support\Checkout\SettleOrder;
 use App\Support\Payments\Gateways;
 use App\Support\Payments\PaymentFailed;
 use App\Support\Payments\SnappPay;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -39,6 +40,23 @@ use Illuminate\Support\Facades\Log;
  * instalments on them. The other direction — theirs done, ours not — is a
  * shopper charged *less* than the shop recorded, which is a line in the log
  * and not a person out of pocket.
+ *
+ * **Two of their merchant rules are about the acting rather than the payload,
+ * and both live here.**
+ *
+ * «حتما هنگام بروزرسانی تأیید دو مرحله‌ای در پنل ادمین داشته باشید» — so
+ * neither of these does anything on the first post. It renders back what it is
+ * about to send: which lines, how many units, what the order is worth
+ * afterwards, and the transaction id it will be sent against. Only a second
+ * post, from that screen, reaches SnappPay. A browser `confirm()` is still on
+ * the button and is not the two steps — it is one dialog, and on a browser
+ * with no JavaScript it is none, which is not a thing to rest an irreversible
+ * call on.
+ *
+ * «حتما هم بین هر آپدیت حداقل باید ۳۰ ثانیه صبر کنید» — the gap is checked
+ * **before the stock moves**, which is the only place checking it is any use:
+ * `SnappPay::update()` asks the same question as its own last word, and by the
+ * time that one runs the shop's books have already changed.
  */
 class ReturnsController extends Controller
 {
@@ -48,7 +66,7 @@ class ReturnsController extends Controller
      * The quantities arrive as `lines[<order item id>] = <units>`, which is
      * what the form on the order screen posts.
      */
-    public function store(Request $request, Order $order, SettleOrder $settle, Gateways $gateways): RedirectResponse
+    public function store(Request $request, Order $order, SettleOrder $settle, Gateways $gateways): RedirectResponse|View
     {
         $back = redirect()->route('admin.order', $order);
 
@@ -88,6 +106,29 @@ class ReturnsController extends Controller
 
         if ($after->everythingCameBack) {
             return $back->withErrors(['reason' => 'وقتی همهٔ اقلام برمی‌گردد، سفارش باید لغو شود نه به‌روزرسانی.']);
+        }
+
+        // **Their thirty seconds, asked before anything moves.** Refusing
+        // after `returned()` has written the units would leave the shop
+        // believing less is owed while the shopper keeps paying — the one
+        // direction this whole class is arranged to avoid.
+        if (($wait = $lender->secondsUntilAnotherUpdate($payment)) > 0) {
+            return $back->withErrors(['reason' => 'اسنپ‌پی بین هر دو به‌روزرسانی ۳۰ ثانیه فاصله می‌خواهد؛ '
+                .fa_number($wait).' ثانیه دیگر دوباره بزن.']);
+        }
+
+        // Step one of two. Nothing has happened yet and nothing will until
+        // this comes back with `confirmed`.
+        if (! $request->boolean('confirmed')) {
+            return view('admin.instalment-confirm', [
+                'order' => $order,
+                'payment' => $payment,
+                'kind' => 'return',
+                'lines' => $lines,
+                'reason' => $input['reason'],
+                'after' => $after,
+                'before' => AfterReturns::of($order->fresh('items')),
+            ]);
         }
 
         try {
@@ -132,7 +173,7 @@ class ReturnsController extends Controller
      * never called it would leave the shopper's instalments running against an
      * order nobody is going to send.
      */
-    public function cancel(Request $request, Order $order, SettleOrder $settle, Gateways $gateways): RedirectResponse
+    public function cancel(Request $request, Order $order, SettleOrder $settle, Gateways $gateways): RedirectResponse|View
     {
         $back = redirect()->route('admin.order', $order);
 
@@ -147,6 +188,21 @@ class ReturnsController extends Controller
 
         if ($order->status === Order::CANCELLED) {
             return $back->with('status', 'این سفارش از قبل لغو شده بود؛ چیزی تغییر نکرد.');
+        }
+
+        // Step one of two, the same as a return — and here the second step
+        // matters more, because this reverses the whole purchase and there is
+        // no smaller thing to undo it with.
+        if (! $request->boolean('confirmed')) {
+            return view('admin.instalment-confirm', [
+                'order' => $order,
+                'payment' => $payment,
+                'kind' => 'cancel',
+                'lines' => [],
+                'reason' => $input['reason'],
+                'after' => null,
+                'before' => AfterReturns::of($order->fresh('items')),
+            ]);
         }
 
         try {
