@@ -231,10 +231,23 @@
                                 @endif
                             </td>
                             <td>{{ $variant->stock ? fa_number($variant->stock->stock_on_hand) : 'ندارد' }}</td>
+                            {{-- **Two switches keep a size off the shop, and this
+                                 cell showed one of them.** «بازنشسته کن» in the
+                                 next column writes `variants.status`; the وضعیت
+                                 select on /admin/pricing writes the price row's
+                                 own `branch_offers.status`, and a size whose price
+                                 row was switched off was drawn here exactly like a
+                                 size on sale — «فعال», with a filled-in price box
+                                 beside it — while the site refused to sell it.
+                                 That is the half of the fault this screen could
+                                 have shown and did not. --}}
                             <td>
                                 <span class="vp-adm-badge is-{{ $variant->status === 'active' ? 'delivered' : 'cancelled' }}">
                                     {{ $variant->status === 'active' ? 'فعال' : 'بازنشسته' }}
                                 </span>
+                                @if ($variant->offer && $variant->offer->status !== 'active')
+                                    <span class="vp-adm-badge is-cancelled">قیمت غیرفعال</span>
+                                @endif
                             </td>
                             <td>
                                 <form method="post" action="{{ route('admin.product.variants.retire', [$product, $variant]) }}">

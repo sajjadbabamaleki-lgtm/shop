@@ -69,11 +69,21 @@ class VendorOffer extends Model
             ->whereHas('vendor', fn (Builder $v) => $v->selling());
     }
 
+    /**
+     * The vendor is **offering** it: their offer is active and they are
+     * approved. Whether they have one to send is the separate question below,
+     * for the reason given on `Variant::isListed()` — a basket says «دیگر
+     * فروخته نمی‌شود» for the first and «فقط ۰ عدد موجود است» for the second,
+     * and collapsing them tells a customer the wrong thing.
+     */
+    public function isListed(): bool
+    {
+        return $this->status === self::ACTIVE && ($this->vendor?->isApproved() ?? false);
+    }
+
     public function isSellable(): bool
     {
-        return $this->status === self::ACTIVE
-            && $this->sellable_stock > 0
-            && ($this->vendor?->isApproved() ?? false);
+        return $this->isListed() && $this->sellable_stock > 0;
     }
 
     /**

@@ -95,11 +95,28 @@ class Variant extends Model
             ->whereHas('stock', fn (Builder $stock) => $stock->sellable());
     }
 
+    /**
+     * This branch **lists** the size: the SKU is live and there is a price
+     * row here with its switch on.
+     *
+     * Listing and stock are two questions, and the shop answers them
+     * differently on purpose — a size it has run out of keeps its line in a
+     * basket and says «فقط ۰ عدد موجود است»; a size it has stopped selling
+     * loses its price and says «دیگر فروخته نمی‌شود». Anything that has to
+     * tell those two apart asks this one, and `isSellable()` is this plus
+     * something on the shelf.
+     *
+     * It reads `offer`, which is branch-scoped, so with no branch bound it is
+     * false — the same failing-closed as everywhere else.
+     */
+    public function isListed(): bool
+    {
+        return $this->status === 'active' && $this->offer?->status === 'active';
+    }
+
     public function isSellable(): bool
     {
-        return $this->status === 'active'
-            && $this->offer?->status === 'active'
-            && ($this->stock?->sellable_stock ?? 0) > 0;
+        return $this->isListed() && $this->sellableStock() > 0;
     }
 
     /**

@@ -81,9 +81,18 @@ class CartController extends Controller
         $added = $this->carts->add($variant, max(1, $request->integer('quantity', 1)), $vendor);
 
         if ($added === null) {
+            // Two reasons a size cannot be added and they are not the same
+            // news. «موجود نیست» sends the shop to the stock screen; a size
+            // that has been retired, or whose price row has been switched
+            // off, is not a stock question at all and saying so is the
+            // difference between one click and an afternoon. The page no
+            // longer offers a chip for either, so this is what a stale tab or
+            // a posted id lands on.
             return redirect()
                 ->to(storefront_route('cart'))
-                ->withErrors(['cart' => 'این سایز در این شعبه موجود نیست.']);
+                ->withErrors(['cart' => $vendor === null && ! $variant->isListed()
+                    ? 'این سایز دیگر در این شعبه فروخته نمی‌شود.'
+                    : 'این سایز در این شعبه موجود نیست.']);
         }
 
         // «خرید فوری» skips the basket. It is the same add — same stock check,

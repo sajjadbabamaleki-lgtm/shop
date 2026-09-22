@@ -191,6 +191,14 @@ class PlaceOrder
      * vendor's own. Both are locked the same way and checked under the lock,
      * and both have the same CHECK constraint behind them.
      *
+     * The status checks below are the same question `Sellers::offerFor()` now
+     * answers for the basket page, asked again here because this is the only
+     * place the answer is trustworthy — a size can be retired between the
+     * basket being drawn and this transaction running. They were once the
+     * *only* place it was asked, and that is what let a delisted size sit in a
+     * basket with a price on it until the customer pressed pay; the basket
+     * marks it now, and this stays as the last word rather than the first.
+     *
      * @return array{variant: Variant, quantity: int, line_total: int, attributes: array<string, mixed>}
      *
      * @throws CannotFulfil

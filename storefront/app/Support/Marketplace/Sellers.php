@@ -79,10 +79,17 @@ class Sellers
             ->mapWithKeys(function (Variant $variant) use ($vendorOffers): array {
                 $sellers = collect();
 
-                $branch = $variant->offer;
-
-                if ($branch && $branch->status === 'active' && $variant->sellableStock() > 0) {
-                    $sellers->push(['vendor' => null, 'offer' => $branch, 'available' => $variant->sellableStock()]);
+                // `isSellable()` and not the offer's status alone. The two
+                // are not the same question and the difference is what put a
+                // retired size back on a product page: «بازنشسته کن» writes
+                // `variants.status`, which this used to read straight past —
+                // so the chip stayed, the basket priced it, and only the
+                // checkout's transaction said «در این شعبه فروخته نمی‌شود»,
+                // after the customer had typed their address. Nothing here
+                // queries: `offer` and `stock` are eager-loaded by the caller,
+                // which is the whole reason this method exists.
+                if ($variant->isSellable()) {
+                    $sellers->push(['vendor' => null, 'offer' => $variant->offer, 'available' => $variant->sellableStock()]);
                 }
 
                 $vendorOffers->get($variant->id, collect())
@@ -97,28 +104,47 @@ class Sellers
     }
 
     /**
-     * The offer a basket line or an order line is priced from.
+     * The offer a basket line or an order line is priced from, and **null
+     * when that seller is not offering it**.
      *
      * One place that answers "who is selling this", so the basket, the
-     * checkout and the product page cannot disagree about it.
+     * checkout and the product page cannot disagree about it. They did:
+     * this used to hand back the row whatever its switch said, so a size
+     * whose variant had been retired — or whose price row had been turned off
+     * on `/admin/pricing` — still had a price in the basket, was still added
+     * into the total, and still got an «ادامه» button, while `PlaceOrder`
+     * refused it inside the transaction with «… در این شعبه فروخته نمی‌شود».
+     * The customer met that sentence after filling in their address, and the
+     * basket page, which has a mark for exactly this line, never drew it.
+     *
+     * Stock is deliberately **not** asked here: a seller who has run out is
+     * still the seller, and the basket has a different sentence for that.
+     * `availableFrom()` is the stock half.
      */
     public function offerFor(Variant $variant, ?int $vendorId): ?object
     {
         if ($vendorId === null) {
-            return $variant->offer;
+            return $variant->isListed() ? $variant->offer : null;
         }
 
-        return VendorOffer::query()
+        $offer = VendorOffer::query()
             ->with('vendor')
             ->where('variant_id', $variant->id)
             ->where('vendor_id', $vendorId)
             ->first();
+
+        return $offer?->isListed() ? $offer : null;
     }
 
+    /**
+     * How many that seller can supply, and none at all when they are not
+     * offering it — so a delisted size cannot be added, and the basket's
+     * stepper cannot raise one that is already there.
+     */
     public function availableFrom(Variant $variant, ?int $vendorId): int
     {
         if ($vendorId === null) {
-            return $variant->sellableStock();
+            return $variant->isListed() ? $variant->sellableStock() : 0;
         }
 
         $offer = $this->offerFor($variant, $vendorId);

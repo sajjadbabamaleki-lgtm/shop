@@ -473,6 +473,39 @@ the client saw an old page and had no way to tell why. So, plainly:
   `/admin/fulfilment` never restates an invoice already issued. The basket
   quotes no delivery figure at all any more; it cannot know one.
   `ShippingMethod::DEFAULTS` is what a new branch opens with.
+- **⛔ A size taken off the shop stayed on the shop, and only the checkout said
+  so.** «من دیروز این بوتو اد کردم الان تو فروشگاه میاد بالا ولی اون ارور
+  بالارو میده» — a photograph of the basket holding «بوت زنانه نیم ساق کشی دو
+  متریال» at ۳٬۹۸۰٬۰۰۰ تومان, with a total under it, an «ادامه» button, and
+  «… در این شعبه فروخته نمی‌شود» across the top of the same screen. Four things
+  this application drew about one line in one request.
+  **Two switches take a size off the shop, and there were two answers to what
+  they mean.** `PlaceOrder` read `variants.status` *and* `branch_offers.status`
+  inside its transaction; `Sellers` — which the product page's chips, the
+  basket's price, the basket's total and the basket's own «دیگر فروخته نمی‌شود»
+  mark all go through — read neither for the branch's own offer. So the shop
+  went on offering, pricing and adding up a size it had already decided to
+  refuse, and the customer met the refusal on the far side of the address form.
+  Measured from a runner against the live page, 2026-09-22: size ۴ of
+  `/products/bot-znanh-nym-sak-kshy-do-mtryal` was still a **selectable chip**
+  (`radio 690`) with `InStock` in its JSON-LD, so the price row and the shelf
+  were both live and the column refusing it was `variants.status` — «بازنشسته
+  کن» on the product screen, which had taken that size off nothing at all.
+  `Sellers::offerFor()` now answers null for a seller who is not offering it,
+  `availableFrom()` answers 0, and `forMany()` asks `Variant::isSellable()`
+  instead of the offer's status alone. **Listing and stock stay two separate
+  questions**: a size the branch still sells and has run out of keeps its price
+  and is told «فقط ۰ عدد موجود است», and its shoe stays in the listing —
+  «نمیشه کفشی که موجودیش ۰ هست بیاد تو لیست فقط موجودی بزنه ۰؟». That is why
+  `isListed()` exists beside `isSellable()` and why `offerFor()` does not ask
+  about stock; folding the two together is this same fault pointed backwards,
+  and `ADelistedSizeNeverReachesTheCheckoutTest` holds both directions.
+  **Nothing here could see it.** `CheckoutTest` covers the refusal and is
+  right; `check-parity.js` counts pixels on a healthy catalogue; and the
+  panel's own screen said «فعال» either way — its وضعیت cell showed
+  `variants.status` and not the price row's, so a size switched off on
+  `/admin/pricing` was drawn exactly like one on sale, price box and all. It
+  carries «قیمت غیرفعال» beside the badge now.
 - **Stock only ever moves in two places**: `PlaceOrder` reserves it and
   `SettleOrder` sells or releases it, both under `FOR UPDATE`. Anything else
   that writes `branch_inventory` is a bug waiting to be an oversell. Every
