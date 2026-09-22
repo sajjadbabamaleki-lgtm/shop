@@ -1,0 +1,81 @@
+name: TEMP — is the shop up, and did the fix land
+
+# ⛔ TEMPORARY. Delete once it has answered.
+#
+# The deploy for 5b779fd has sat in `liara deploy` for forty minutes where the
+# previous one took about ten, and nothing in this repository can see the live
+# site — the container's proxy answers 403 for vikyplus.ir. A runner can.
+#
+# Two questions, in order of what matters:
+#
+#   1. **Is the shop answering at all?** A deploy replaces the container, and
+#      the seconds either side of the swap are when a visitor gets nothing.
+#      Forty minutes of that is not a slow deploy, it is an outage.
+#   2. **Has the new code landed?** Size ۴ of the boot was a selectable radio
+#      chip before this change and must not be one after it. A chip that has
+#      gone is proof the deploy landed. A chip still there is *not* proof it
+#      did not — the shop may have pressed «برگردان» on that size in the
+#      panel, which legitimately puts it back. Read it that way round.
+
+on:
+  push:
+    branches: [claude/bot-shop-error-wxric8]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ask:
+    name: Ask the live shop
+    runs-on: ubuntu-latest
+    steps:
+      - name: Is it up, and what does the boot's page say
+        run: |
+          python3 - <<'PY'
+          import gzip, re, time, urllib.parse, urllib.request
+
+          BOOT = "/products/bot-znanh-nym-sak-kshy-do-mtryal"
+
+          def get(url, timeout=45):
+              req = urllib.request.Request(url, headers={
+                  "User-Agent": "Mozilla/5.0 (probe; vikyplus repository)",
+                  "Accept-Encoding": "gzip",
+              })
+              started = time.time()
+              try:
+                  with urllib.request.urlopen(req, timeout=timeout) as r:
+                      raw = r.read()
+                      if r.headers.get("Content-Encoding") == "gzip":
+                          raw = gzip.decompress(raw)
+                      return r.status, dict(r.headers), raw.decode("utf-8", "replace"), time.time() - started
+              except urllib.error.HTTPError as e:
+                  return e.code, dict(e.headers), "", time.time() - started
+              except Exception as e:
+                  return None, {}, str(e), time.time() - started
+
+          for host in ("https://vikyplus.ir", "https://vikyplus.liara.run"):
+              print("=" * 70)
+              print(host)
+              for path in ("/", "/products", BOOT):
+                  status, headers, body, took = get(host + path)
+                  print(f"  {path:<45} {str(status):>6}  {took:5.2f}s  {len(body):>7} chars")
+                  timing = headers.get("Server-Timing")
+                  if timing:
+                      print(f"      Server-Timing: {timing}")
+
+          print("\n" + "=" * 70)
+          print("The boot's size chips on vikyplus.ir")
+          status, _, html, _ = get("https://vikyplus.ir" + BOOT)
+          print(f"  http {status}")
+          if html:
+              for tag, extra, inner in re.findall(
+                      r'<(label|a|span) class="vp-pick-size([^"]*)"(.*?)</\1>', html, re.S):
+                  eu = re.search(r'vp-size-eu">([^<]*)<', inner)
+                  radio = re.search(r'name="variant" value="(\d+)"', inner)
+                  state = ("قابل انتخاب — radio " + radio.group(1)) if radio else \
+                          ("is-off" if "is-off" in extra else
+                           "is-elsewhere" if "is-elsewhere" in extra else tag + extra)
+                  print(f"      {(eu.group(1).strip() if eu else '?'):>4}   {state}")
+              print("\n  a radio for ۴ present:", 'value="690"' in html)
+          PY
