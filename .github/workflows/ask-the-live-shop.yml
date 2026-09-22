@@ -37,7 +37,7 @@ jobs:
       - name: Read the boot's page
         run: |
           python3 - <<'PY'
-          import gzip, io, re, sys, urllib.parse, urllib.request
+          import gzip, re, sys, urllib.parse, urllib.request
 
           BASE = "https://vikyplus.ir"
 
@@ -52,57 +52,65 @@ jobs:
                       raw = gzip.decompress(raw)
                   return r.status, raw.decode("utf-8", "replace")
 
-          try:
-              status, sitemap = get(f"{BASE}/sitemap.xml")
-          except Exception as e:
-              print("sitemap unreachable:", e); sys.exit(0)
-          print(f"sitemap: http {status}, {len(sitemap)} chars")
+          def chips(html):
+              """Every size chip, in the state the page drew it in."""
+              out = []
+              for tag, extra, body in re.findall(
+                      r'<(label|a|span) class="vp-pick-size([^"]*)"(.*?)</\1>', html, re.S):
+                  eu = re.search(r'vp-size-eu">([^<]*)<', body)
+                  radio = re.search(r'name="variant" value="(\d+)"', body)
+                  out.append((
+                      (eu.group(1).strip() if eu else "?"),
+                      ("قابل انتخاب — radio " + radio.group(1)) if radio else
+                      ("is-off — no such size here" if "is-off" in extra else
+                       "is-elsewhere — another seller" if "is-elsewhere" in extra
+                       else tag + extra),
+                  ))
+              return out
 
+          status, sitemap = get(f"{BASE}/sitemap.xml")
           locs = re.findall(r"<loc>([^<]+/products/[^<]+)</loc>", sitemap)
-          print(f"{len(locs)} product URLs in the sitemap")
+          print(f"sitemap: http {status}, {len(locs)} product URLs\n")
 
-          boots = [u for u in locs if "بوت" in urllib.parse.unquote(u)]
-          print(f"{len(boots)} of them carry «بوت»:")
-          for u in boots:
-              print("   ", urllib.parse.unquote(u))
+          print("=== every slug the sitemap lists ===")
+          for u in sorted(locs):
+              print("   ", urllib.parse.unquote(u).rsplit("/products/", 1)[-1])
 
-          # The one being complained about, by the words that cannot be wrong.
-          WANTED = ("نیم", "ساق")
-          picked = [u for u in boots if all(w in urllib.parse.unquote(u) for w in WANTED)] or boots
+          print("\n=== the shop's own search, for the words in the photograph ===")
+          found = []
+          for q in ("بوت", "نیم ساق", "دو متریال", "بوت زنانه"):
+              try:
+                  status, html = get(f"{BASE}/search?" + urllib.parse.urlencode({"q": q}))
+              except Exception as e:
+                  print(f"  {q!r}: unreachable — {e}"); continue
+              hits = sorted(set(re.findall(r'href="([^"]*/products/[^"?#]+)"', html)))
+              count = re.search(r"([۰-۹\d,]+)\s*کالا", html)
+              print(f"  {q!r}: http {status}, «{count.group(1) if count else '?'} کالا», "
+                    f"{len(hits)} links")
+              for h in hits:
+                  print("       ", urllib.parse.unquote(h))
+              found += hits
 
-          for url in picked[:6]:
-              print("\n" + "=" * 70)
-              print(urllib.parse.unquote(url))
+          print("\n=== and what each of those pages says ===")
+          for url in sorted(set(found)):
+              if url.startswith("/"):
+                  url = BASE + url
               try:
                   status, html = get(url)
               except Exception as e:
                   print("  unreachable:", e); continue
-              print(f"  http {status}, {len(html)} chars")
-
               title = re.search(r"<title>([^<]*)</title>", html)
-              print("  <title>:", title.group(1).strip() if title else "—")
-
-              # Every chip, in the state the page drew it in.
-              chips = re.findall(
-                  r'<(label|a|span) class="vp-pick-size([^"]*)"(.*?)</\1>', html, re.S)
-              print(f"  {len(chips)} size chips:")
-              for tag, extra, body in chips:
-                  eu = re.search(r'vp-size-eu">([^<]*)<', body)
-                  digits = eu.group(1).strip() if eu else "?"
-                  radio = re.search(r'name="variant" value="(\d+)"', body)
-                  state = ("قابل انتخاب (radio " + radio.group(1) + ")") if radio else \
-                          ("is-off — این شوز این سایز را ندارد" if "is-off" in extra else
-                           "is-elsewhere — فروشندهٔ دیگر" if "is-elsewhere" in extra else tag + extra)
-                  print(f"      {digits or '?':>4}   {state}")
-
-              print("  «فعلاً موجود نیست» on the page:", "vp-pdp-out" in html)
+              print("\n" + "=" * 70)
+              print(" ", urllib.parse.unquote(url))
+              print(f"  http {status}   <title> {title.group(1).strip() if title else '—'}")
+              cs = chips(html)
+              print(f"  {len(cs)} size chips:")
+              for digits, state in cs:
+                  print(f"      {digits:>4}   {state}")
+              print("  «فعلاً موجود نیست»:", "vp-pdp-out" in html)
               print("  hidden single-size input:",
                     re.findall(r'<input type="hidden" name="variant" value="(\d+)">', html))
-
-              for key in ("price", "availability", "priceCurrency"):
-                  for m in re.findall(r'"%s"\s*:\s*("[^"]*"|\d+)' % key, html):
+              for key in ("price", "availability"):
+                  for m in set(re.findall(r'"%s"\s*:\s*("[^"]*"|\d+)' % key, html)):
                       print(f"  JSON-LD {key}: {m}")
-
-              for m in sorted(set(re.findall(r"رنگ[^<\"]{0,30}", html)))[:10]:
-                  print("  colour words:", m.strip())
           PY
