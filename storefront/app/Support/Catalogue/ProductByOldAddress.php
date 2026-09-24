@@ -174,6 +174,35 @@ final class ProductByOldAddress
             return null;
         }
 
+        /*
+         * **A sandal is only ever a sandal.** The vocabulary above is the
+         * *listable* catalogue, so when a whole section leaves the shop its
+         * kind-word leaves the vocabulary with it: on 2026-09-24 every sandal
+         * was switched off for the winter, «صندل» stopped being a word this
+         * shop uses, and «صندل ادیداس سامبا …» was left as «ادیداس سامبا» plus
+         * a colour — every word of it carried by a Samba *trainer*. The page
+         * and the feed would both have answered a sandal with a sneaker.
+         *
+         * So when the address opens the way a section's names open, only
+         * shoes in that section can win it. An address whose opening names no
+         * section is scored as before.
+         */
+        $kinds = CategoriseByName::sectionsFor(
+            fold_persian(str_replace(['-', '_'], ' ', $address)),
+        );
+
+        if ($kinds !== []) {
+            $identities = $identities->filter(
+                fn (array $words, int $i) => array_intersect(
+                    CategoriseByName::sectionsFor(fold_persian($catalogue[$i]->title)),
+                    $kinds,
+                ) !== []
+            );
+            // Not `only()`: on an Eloquent collection that filters by model
+            // id, not by position.
+            $catalogue = $catalogue->filter(fn (Product $product, int $i) => $identities->has($i));
+        }
+
         $scored = $catalogue->values()
             ->map(fn (Product $product, int $i) => [
                 'product' => $product,

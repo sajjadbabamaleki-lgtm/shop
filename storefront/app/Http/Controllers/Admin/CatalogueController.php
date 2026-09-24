@@ -423,7 +423,10 @@ class CatalogueController extends Controller
             'material' => ['nullable', 'string', 'max:120'],
             'use_case' => ['nullable', 'string', 'max:120'],
             'care_instructions' => ['nullable', 'string', 'max:400'],
-            'status' => ['required', 'in:active,inactive'],
+            // «غیرفعال» is `archived`: `products.status` is an enum of
+            // draft/active/archived, and the `inactive` this used to accept
+            // is refused by its CHECK — the save was a 500, not a switch.
+            'status' => ['required', 'in:active,archived'],
             'published_at' => ['nullable', 'date'],
         ], [], ['title' => 'نام محصول']);
     }
