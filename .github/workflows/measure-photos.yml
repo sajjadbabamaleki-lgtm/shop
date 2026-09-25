@@ -1,0 +1,16 @@
+# TEMPORARY — measures how the live shop draws its photographs. Delete after.
+name: Measure live photos
+on:
+  push:
+    branches: [claude/admin-panel-invoices-products-4lixqt]
+    paths: ['.github/workflows/measure-photos.yml', '.github/measure-photos.mjs']
+jobs:
+  measure:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: npm i playwright@1.55.0 && npx playwright install --with-deps chromium
+      - run: node .github/measure-photos.mjs
