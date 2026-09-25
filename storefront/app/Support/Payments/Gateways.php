@@ -2,6 +2,8 @@
 
 namespace App\Support\Payments;
 
+use App\Models\Order;
+
 /**
  * Every way this shop can take money, in the order it offers them.
  *
@@ -59,6 +61,67 @@ class Gateways
             $this->drivers,
             fn (Gateway $gateway): bool => $gateway->takesMoneyOnline() && $gateway->canTake($amount)
         ));
+    }
+
+    /**
+     * The gateways that lend rather than take a card.
+     *
+     * Named here rather than asked of each driver, because the rule that reads
+     * it is the shop's and not the gateway's: «کد تخفیف فقط برای خرید نقدی
+     * باشه و در خرید قسطی امکان استفاده ازش نباشه».
+     */
+    public const LENDERS = ['snapppay'];
+
+    public static function lends(Gateway $gateway): bool
+    {
+        return in_array($gateway->name(), self::LENDERS, true);
+    }
+
+    /**
+     * The buttons *this order* should see: `offeredFor()` its total, less the
+     * lenders when a discount code is on it.
+     *
+     * **A discount code is for paying in cash, and only for that.** The code
+     * is typed at checkout, before the shopper chooses how to pay — so the
+     * rule cannot be enforced where the code is typed without asking a
+     * question the checkout does not ask. It is enforced here instead, where
+     * the choice is made: an order carrying a discount is offered the card
+     * and nothing else, and the pay route refuses the lender on the same
+     * test, because the page is a render and the post is what charges.
+     *
+     * @return array<int, Gateway>
+     */
+    public function offeredForOrder(Order $order): array
+    {
+        $offered = $this->offeredFor((int) $order->grand_total);
+
+        if (! self::discountBarsLending($order)) {
+            return $offered;
+        }
+
+        return array_values(array_filter($offered, fn (Gateway $gateway): bool => ! self::lends($gateway)));
+    }
+
+    /** Whether this order's discount keeps it off instalments. */
+    public static function discountBarsLending(Order $order): bool
+    {
+        return (int) $order->discount_total > 0;
+    }
+
+    /**
+     * Whether this shop could offer instalments at all — for the sentence
+     * beside the discount field, which is only worth saying where there is an
+     * instalment option to lose.
+     */
+    public function anyLender(): bool
+    {
+        foreach ($this->drivers as $driver) {
+            if (self::lends($driver) && $driver->takesMoneyOnline()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

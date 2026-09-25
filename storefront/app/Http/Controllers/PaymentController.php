@@ -85,6 +85,14 @@ class PaymentController extends Controller
                 ->withErrors(['payment' => 'این روش پرداخت برای این سفارش در دسترس نیست.']);
         }
 
+        // A discount code is for paying in cash — «در خرید قسطی امکان استفاده
+        // ازش نباشه». Hidden on the page by Gateways::offeredForOrder(), and
+        // refused here on the same test for the same reason as the amount.
+        if (Gateways::lends($driver) && Gateways::discountBarsLending($order)) {
+            return redirect()->to(storefront_route('order', $order))
+                ->withErrors(['payment' => 'کد تخفیف فقط برای پرداخت نقدی است و با آن نمی‌شود اقساطی خرید.']);
+        }
+
         if ($order->payment_status === 'paid') {
             return redirect()->to(storefront_route('order', $order))
                 ->with('status', 'این سفارش قبلاً پرداخت شده است.');

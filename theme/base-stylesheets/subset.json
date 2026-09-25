@@ -1,7 +1,7 @@
 {
   "note": "Written by theme/make-css-subset.js. Do not edit — re-run the script.",
-  "vocabulary": "348fee1ebd82641d217a057092f28f599becddeb4247d383ce5e485e35ff848e",
-  "words": 7634,
+  "vocabulary": "6d42f233fa9cd9cafa6756f69cee87e94750f008eefdad7224b68a2c865b0ae8",
+  "words": 7709,
   "read": [
     "download-version/assets/js/gsap.min.js",
     "download-version/assets/js/main.js",
@@ -26,6 +26,9 @@
     "storefront/resources/views/admin/orders.blade.php",
     "storefront/resources/views/admin/passwords.blade.php",
     "storefront/resources/views/admin/pricing.blade.php",
+    "storefront/resources/views/admin/print/invoice.blade.php",
+    "storefront/resources/views/admin/print/label.blade.php",
+    "storefront/resources/views/admin/print/sheet.blade.php",
     "storefront/resources/views/admin/product-edit.blade.php",
     "storefront/resources/views/admin/reports-platform.blade.php",
     "storefront/resources/views/admin/reports.blade.php",

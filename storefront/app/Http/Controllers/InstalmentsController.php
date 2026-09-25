@@ -57,6 +57,12 @@ class InstalmentsController extends Controller
             return response()->json(['eligible' => false]);
         }
 
+        // An order carrying a discount code is not offered instalments at all
+        // — the code is for paying in cash — so SnappPay is not even asked.
+        if (Gateways::discountBarsLending($order)) {
+            return response()->json(['eligible' => false]);
+        }
+
         $answer = $lender->eligibleFor((int) $order->grand_total);
 
         return response()->json([

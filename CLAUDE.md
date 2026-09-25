@@ -1256,6 +1256,50 @@ the client saw an old page and had no way to tell why. So, plainly:
   error about the before-price hung on the price box lights the wrong field.
   That last part is not hypothetical: folding the two checks together moved the
   key and `BranchPanelTest` caught it.
+- **An order prints two sheets: `/admin/orders/{order}/label` and
+  `/admin/orders/{order}/invoice`**, both `OrderController` and both a page of
+  their own under `admin/print/` on a shell that loads nothing but the Persian
+  face (a sheet of paper has no use for the panel's navigation or the design
+  gate). The label is «یک طرف ادرس خودمون، یک طرفم ادرس مشتری»: the sender is
+  the branch's own address, falling back to `storefront.contact.address` when
+  the branch row has none — central's may not — and a پس‌کرایه parcel says so
+  across the recipient's half. The invoice is every figure as the order stored
+  it, never recomputed, plus **نقدی/اقساطی** and, for an instalment purchase,
+  the down payment and each due date.
+  **The instalment schedule is typed, not received.** Nothing اسنپ‌پی sends
+  this shop carries it — `verify`/`status` say whether it went through, and the
+  plan's one sentence is the button's description, which nobody may compute —
+  so «برنامهٔ اقساط» on the order screen writes `orders.instalment_plan` (JSON,
+  Rial, `Y-m-d`) and the invoice prints exactly that, or says out loud that it
+  is missing. `Order::isInstalment()` is a settled اسنپ‌پی payment *or* a
+  written plan (an instalment agreed at the counter has no gateway).
+  `OrderPaperworkTest` holds all of it.
+- **Every order line in the panel shows the shoe's photograph**
+  (`OrderItem::photoPath()`: the line's colour, then the product's main shot).
+  «از اونجایی که در سفارش مشتری امکان انتخاب رنگ فعلا غیره فعال هست» — so the
+  **product page's colour row is off** (`placeholders.colors` is `[]`, and the
+  five swatches are in the comment above it to put back), and the photograph
+  is how the packer tells two identically-titled colourways apart.
+- **A discount code is for paying in cash only.** «کد تخفیف فقط برای خرید نقدی
+  باشه و در خرید قسطی امکان استفاده ازش نباشه». The code is typed at checkout
+  and the way to pay is chosen *after* the order is placed, so the rule lives
+  where the choice is: `Gateways::offeredForOrder()` drops every gateway in
+  `Gateways::LENDERS` from an order with `discount_total > 0`, the pay route
+  refuses one on the same test, and the eligibility endpoint answers no
+  without asking SnappPay. The checkout says so under the code field whenever
+  a lender is configured, so nobody finds out after placing the order.
+- **`/admin/catalogue` has a bulk bar**: move to a section (replaces every
+  section the product was in), add to a section (keeps them), onto the stepped
+  sale (`FrontPagePlacement` band `ladder`, room for five — what does not fit
+  is counted, and a product with no struck-through price is placed but will
+  not be drawn until it has one), and **«ناموجود کردن در این شعبه»**. That last
+  is the inventory screen's count in a loop — locked row, `adjustment`
+  movement, down to `stock_reserved` and no further — so it is **the one more
+  place that writes `branch_inventory`**, beside `PlaceOrder`, `SettleOrder`,
+  the inventory screen and `stock:add`. It needs `branch.inventory.manage` on
+  top of `catalogue.manage`. It is a stock change, not a retirement: the shoe
+  stays in the listing, search and filters with «ناموجود».
+  `CatalogueBulkActionsTest` holds all four.
 - **`/admin/pricing` moves a whole filter's prices by a percentage.** «قیمت
   گلدن گوس هارو بالا ببرم همشونو ۲۰ درصد … نباید دونه دونه همه رنگاشو برم جدا
   جدا قیمتشونو ببرم بالا» — a shoe reaches this shop one colourway per product

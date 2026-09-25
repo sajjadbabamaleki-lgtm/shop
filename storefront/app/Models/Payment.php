@@ -77,4 +77,20 @@ class Payment extends Model
             default => 'در انتظار پرداخت',
         };
     }
+
+    /**
+     * Which way the money came, in words — for the printed invoice, where
+     * «snapppay» in the middle of a Persian sheet is a word nobody at the
+     * counter reads. Falls back to the stored name so a gateway added later
+     * is visible rather than blank.
+     */
+    public function gatewayLabel(): string
+    {
+        return match ($this->gateway) {
+            'zarinpal' => 'کارت بانکی (زرین‌پال)',
+            'snapppay' => 'اقساطی (اسنپ‌پی)',
+            'panel' => 'ثبت‌شده در پنل',
+            default => (string) $this->gateway,
+        };
+    }
 }

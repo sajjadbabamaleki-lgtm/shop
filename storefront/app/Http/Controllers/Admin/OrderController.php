@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Audit;
+use App\Models\DiscountRedemption;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\ShippingMethod;
 use App\Support\Admin\DateRange;
+use App\Support\Catalogue\OfferPrice;
 use App\Support\Checkout\SettleOrder;
 use App\Support\Fulfilment\FulfilmentSettings;
 use App\Support\Fulfilment\Promise;
@@ -33,10 +35,11 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  * thing standing between it and somebody else's shop.
  *
  * **What §4 asks for and is not here**, so that nobody has to read the whole
- * file to find out: print invoice and shipping label, and a general
- * refund/exchange workflow. The first two are a print stylesheet and a view.
+ * file to find out: a general refund/exchange workflow. (The printed invoice
+ * and the shipping label were on this list too; they are `invoice()` and
+ * `label()` now, each a page of its own under `admin/print/`.)
  *
- * The third is no longer quite true and the change is worth knowing: there is
+ * That is no longer quite true either and the change is worth knowing: there is
  * now **one** return in the schema — `order_items.returned_quantity`, driven
  * by `ReturnsController`, and **only for orders paid through اسنپ‌پی**, whose
  * `update` service is what a return has to be told to. A card order still
@@ -154,7 +157,10 @@ class OrderController extends Controller
         $settings = FulfilmentSettings::for($order->branch);
 
         return view('admin.order', [
-            'order' => $order->load('items', 'customer'),
+            // The line's shoe and its photographs come with it: «باید عکس محصول
+            // سفارش داده شده … نمایش داده بشه تا بدونیم کدوم محصولو سفارش
+            // داده» — see OrderItem::photoPath().
+            'order' => $order->load('items.variant.product.media', 'customer'),
 
             // §5's «Overdue» is derived, never stored: a stored flag needs
             // something to set it, and that something will not have run on the
@@ -196,6 +202,125 @@ class OrderController extends Controller
                 ->limit(50)
                 ->get(),
         ]);
+    }
+
+    /**
+     * The address label — «یک طرف ادرس خودمون باشه، یک طرفم ادرس مشتری».
+     *
+     * A page of its own rather than a print stylesheet on the order screen:
+     * the screen is a working surface with a dozen forms on it, and what goes
+     * on the parcel is two addresses and a number. It prints itself when it
+     * opens, and reads the same whether or not the print dialog is taken.
+     *
+     * **The sender is the branch, falling back to the shop's own address.** A
+     * franchise posts from its own counter; central, whose row may carry no
+     * address, posts from the one on the contact page.
+     */
+    public function label(Order $order): View
+    {
+        return view('admin.print.label', [
+            'order' => $order,
+            'sender' => $this->sender($order),
+        ]);
+    }
+
+    /**
+     * The invoice the shop prints for itself — «یک خروجی فاکتور داشته باشیم
+     * برای پرینت گرفتن خودمون».
+     *
+     * Everything about the money on one sheet: what was bought and at what
+     * price, the discount, the delivery, the total, whether it was paid in
+     * one go or on instalments, and for an instalment purchase the amount
+     * paid up front and the date each instalment falls due. Plus every
+     * payment attempt's reference, because the sheet is what somebody
+     * reconciles a statement against.
+     */
+    public function invoice(Order $order): View
+    {
+        return view('admin.print.invoice', [
+            'order' => $order->load('items.variant.product.media', 'shippingMethod'),
+            'sender' => $this->sender($order),
+            'receipt' => $order->payments()->where('status', Payment::PAID)->latest('id')->first(),
+            'plan' => $order->instalmentPlan(),
+            'instalment' => $order->isInstalment(),
+            // The code by name, because «تخفیف ۲۰۰٬۰۰۰» on a sheet says how
+            // much and not why.
+            'code' => DiscountRedemption::where('order_id', $order->id)->with('code')->first()?->code?->code,
+        ]);
+    }
+
+    /**
+     * Write down how an instalment purchase is being repaid.
+     *
+     * Nothing the lender sends this shop carries the schedule — see the
+     * migration that made room for it — so it is typed here, off their panel
+     * or off the agreement at the counter, and the invoice prints it as typed.
+     * Money in Toman as everywhere else in the panel; dates are the panel's
+     * own date fields, which post `Y-m-d` under the Persian calendar drawn
+     * over them.
+     *
+     * Clearing every box removes the plan, which is how a plan written on the
+     * wrong order is taken back.
+     */
+    public function plan(Request $request, Order $order): RedirectResponse
+    {
+        $input = $request->validate([
+            'down_payment' => ['nullable', 'string', 'max:30'],
+            'instalments' => ['array', 'max:24'],
+            'instalments.*.due' => ['nullable', 'date'],
+            'instalments.*.amount' => ['nullable', 'string', 'max:30'],
+        ], [], ['instalments.*.due' => 'تاریخ سررسید', 'down_payment' => 'پیش‌پرداخت']);
+
+        $rows = [];
+
+        foreach ($input['instalments'] ?? [] as $i => $row) {
+            $due = $row['due'] ?? null;
+            $amount = OfferPrice::rial($row['amount'] ?? null);
+
+            if ($due === null && $amount === null) {
+                continue;
+            }
+
+            // Half a row is a mistake rather than a value: an instalment with
+            // no date cannot fall due, and one with no amount prints a blank
+            // where the money goes.
+            if ($due === null || $amount === null) {
+                return redirect()->route('admin.order', $order)
+                    ->withErrors(['instalments' => 'قسط '.fa_number($i + 1).' هم تاریخ می‌خواهد و هم مبلغ.'])
+                    ->withInput();
+            }
+
+            $rows[] = ['due' => CarbonImmutable::parse($due)->toDateString(), 'amount' => $amount];
+        }
+
+        $down = OfferPrice::rial($input['down_payment'] ?? null) ?? 0;
+
+        $order->forceFill([
+            'instalment_plan' => ($rows === [] && $down === 0)
+                ? null
+                : ['down_payment' => $down, 'instalments' => $rows],
+        ])->save();
+
+        return redirect()->route('admin.order', $order)
+            ->with('status', $rows === [] && $down === 0 ? 'برنامهٔ اقساط برداشته شد.' : 'برنامهٔ اقساط ثبت شد.');
+    }
+
+    /**
+     * Who the parcel is from: the branch's own counter, or the shop's.
+     *
+     * @return array{name: string, address: string, phone: string}
+     */
+    private function sender(Order $order): array
+    {
+        $branch = $order->branch;
+
+        return [
+            'name' => 'ویکی پلاس'.($branch && $branch->type !== 'central' && $branch->name ? ' — '.$branch->name : ''),
+            'address' => $branch?->address
+                ? collect([$branch->province, $branch->city, $branch->address])->filter()->implode('، ')
+                : (string) config('storefront.contact.address'),
+            'phone' => (string) ($branch?->phone ?: config('storefront.contact.phone')),
+        ];
     }
 
     /**

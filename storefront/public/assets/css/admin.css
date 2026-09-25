@@ -2813,3 +2813,72 @@ a.vp-adm-mini {
   object-fit: cover;
   border-radius: 10px;
 }
+
+/* The order screen's two printed sheets — «چاپ فاکتور» and «چاپ برچسب آدرس» —
+   sit above the lines they print, on the card's reading edge. */
+.vp-adm-print {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+/* The photograph of what was ordered, on each line. «تا بدونیم کدوم محصولو
+   سفارش داده» — a colourway's title is often its sibling's word for word, so
+   this is what the packer reads. Square, because the shop's own shots are. */
+.vp-adm-line-shot img {
+  display: block;
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: var(--adm-r-sm);
+  border: 1px solid var(--adm-line);
+  background: var(--adm-sunk);
+}
+
+/* The instalment plan folds shut on an order that is not on instalments, and
+   its summary is the card's own head so the folded card looks like every
+   other card on the screen. */
+.vp-adm-plan > summary {
+  cursor: pointer;
+  list-style: none;
+}
+
+.vp-adm-plan > summary::-webkit-details-marker {
+  display: none;
+}
+
+.vp-adm-plan > .vp-adm-empty {
+  margin-bottom: 12px;
+}
+
+.vp-adm-plan input[type="text"],
+.vp-adm-plan input[type="date"] {
+  width: 100%;
+  min-width: 0;
+}
+
+/* The catalogue's bulk bar: which products are ticked is the rows' business,
+   what happens to them is this bar's — a select of actions, and the section
+   the move actions need. */
+.vp-adm-bulk-go {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.vp-adm-bulk-go select {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.vp-adm-row-shot {
+  display: block;
+  width: 44px;
+  height: 44px;
+  object-fit: cover;
+  border-radius: var(--adm-r-sm);
+  border: 1px solid var(--adm-line);
+  background: var(--adm-sunk);
+}

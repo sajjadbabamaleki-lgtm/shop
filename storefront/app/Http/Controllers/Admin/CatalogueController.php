@@ -7,14 +7,18 @@ use App\Models\BranchInventory;
 use App\Models\BranchOffer;
 use App\Models\Brand;
 use App\Models\Category;
+use App\Models\FrontPagePlacement;
+use App\Models\InventoryMovement;
 use App\Models\Product;
 use App\Models\Variant;
 use App\Models\VariantMedia;
 use App\Support\Catalogue\OfferPrice;
+use App\Support\FrontPage;
 use App\Support\Tenancy\TenantContext;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -39,17 +43,215 @@ class CatalogueController extends Controller
     public function index(Request $request): View
     {
         $q = trim((string) $request->query('q'));
+        $section = (int) $request->query('category');
 
         return view('admin.catalogue', [
             'products' => Product::query()
-                ->with('brand')
+                ->with(['brand', 'categories', 'media'])
                 ->withCount('variants')
                 ->when($q !== '', fn ($query) => $query->where('title', 'ilike', "%{$q}%"))
+                // A section to narrow by, because a bulk move is almost always
+                // «everything in this section, somewhere else» and ticking
+                // thirty rows out of a hundred and fifty by eye is the job the
+                // filter saves.
+                ->when($section > 0, fn ($query) => $query->whereHas('categories', fn ($in) => $in->whereKey($section)))
                 ->orderByDesc('id')
-                ->paginate(20)
+                ->paginate(50)
                 ->withQueryString(),
             'q' => $q,
+            'section' => $section,
+            'categories' => Category::orderBy('position')->get(),
+            'ladderRoom' => FrontPage::BANDS['ladder']['max'] - FrontPagePlacement::where('band', 'ladder')->count(),
         ]);
+    }
+
+    /**
+     * Many products at once — «ب صورت دسته‌ای بتونیم انتقالشون بدیم به دسته
+     * بندی های دیگه مثل حراج پله ای، و ب صورت دسته‌ای هم بتونیم ناموجود
+     * کنیمشون».
+     *
+     * Four actions, each the same thing the single-product screens already do,
+     * done to every ticked row:
+     *
+     *  - **move** — the products leave every section they were in and land in
+     *    the one chosen. «انتقال» means that; a product in two sections after
+     *    being «moved» would be in the old one still.
+     *  - **add** — the chosen section is added and the others are kept, for a
+     *    shoe that belongs in two.
+     *  - **ladder** — onto the front page's stepped sale, which is not a
+     *    section but a band of `FrontPagePlacement` rows with room for five.
+     *    What fits goes in; what does not is counted in the answer rather than
+     *    silently dropped. A product with no struck-through price is placed
+     *    all the same, and the answer says it will not be drawn there until it
+     *    has one — the band only ever draws discounted shoes.
+     *  - **out** — «ناموجود»: every size's sellable stock at *this* branch goes
+     *    to nought. Not a retirement: the shoe stays in the listing, the search
+     *    and the filters with its price and «ناموجود», which is what was asked
+     *    for the last time this was done by hand («میخواستم موجودیشونو ۰ کنم
+     *    نمیخواستم کلا تو سرچ و فیلتر نشون داده نشن»). Pairs held by orders
+     *    already placed stay held — the CHECK on `branch_inventory` refuses
+     *    anything else, and those orders still have to be sent. Each shelf is
+     *    the same locked `adjustment` the inventory screen's count writes, so
+     *    it needs the same permission that screen does.
+     */
+    public function bulk(Request $request, TenantContext $tenant): RedirectResponse
+    {
+        $input = $request->validate([
+            'action' => ['required', Rule::in(['move', 'add', 'ladder', 'out'])],
+            'products' => ['required', 'array', 'max:200'],
+            'products.*' => ['integer'],
+            'category' => [Rule::requiredIf(in_array($request->input('action'), ['move', 'add'], true)), 'nullable', 'integer', 'exists:categories,id'],
+        ], [
+            'products.required' => 'هیچ محصولی انتخاب نشده.',
+            'category.required' => 'دسته‌ای که محصولات به آن بروند انتخاب نشده.',
+        ]);
+
+        $products = Product::whereIn('id', $input['products'])->get();
+        $back = redirect()->back();
+
+        if ($products->isEmpty()) {
+            return $back->withErrors(['products' => 'هیچ‌کدام از محصولات انتخاب‌شده پیدا نشد.']);
+        }
+
+        $count = fa_number($products->count());
+
+        switch ($input['action']) {
+            case 'move':
+            case 'add':
+                $section = Category::findOrFail($input['category']);
+
+                DB::transaction(function () use ($products, $section, $input): void {
+                    foreach ($products as $product) {
+                        $input['action'] === 'move'
+                            ? $product->categories()->sync([$section->id])
+                            : $product->categories()->syncWithoutDetaching([$section->id]);
+                    }
+                });
+
+                return $back->with('status', $input['action'] === 'move'
+                    ? "{$count} محصول به «{$section->name}» منتقل شد."
+                    : "{$count} محصول به «{$section->name}» هم اضافه شد.");
+
+            case 'ladder':
+                return $back->with('status', $this->ontoTheLadder($products));
+
+            default:
+                if (! $request->user()->hasPermissionToAt($tenant->branch(), 'branch.inventory.manage')) {
+                    return $back->withErrors(['action' => 'برای ناموجود کردن، دسترسی «موجودی» این شعبه را لازم داری.']);
+                }
+
+                $shelves = $this->emptyTheShelves($products, $request->user()->id, $tenant);
+
+                return $back->with('status', "{$count} محصول در این شعبه ناموجود شد ({$shelves} سایز صفر شد). در فهرست و جست‌وجو می‌مانند.");
+        }
+    }
+
+    /**
+     * As many of these as the stepped sale has room for, in the order ticked.
+     *
+     * @param  Collection<int, Product>  $products
+     */
+    private function ontoTheLadder($products): string
+    {
+        $band = 'ladder';
+        $max = FrontPage::BANDS[$band]['max'];
+
+        $placed = 0;
+        $already = 0;
+        $noRoom = 0;
+        $undiscounted = 0;
+
+        DB::transaction(function () use ($products, $band, $max, &$placed, &$already, &$noRoom, &$undiscounted): void {
+            foreach ($products as $product) {
+                if (FrontPagePlacement::where('band', $band)->where('product_id', $product->id)->exists()) {
+                    $already++;
+
+                    continue;
+                }
+
+                if (FrontPagePlacement::where('band', $band)->count() >= $max) {
+                    $noRoom++;
+
+                    continue;
+                }
+
+                FrontPagePlacement::create([
+                    'band' => $band,
+                    'product_id' => $product->id,
+                    'position' => (int) FrontPagePlacement::where('band', $band)->max('position') + 1,
+                ]);
+                $placed++;
+
+                $discounted = BranchOffer::query()
+                    ->whereIn('variant_id', $product->variants()->pluck('id'))
+                    ->whereNotNull('compare_at_price')
+                    ->whereColumn('compare_at_price', '>', 'price')
+                    ->exists();
+
+                if (! $discounted) {
+                    $undiscounted++;
+                }
+            }
+        });
+
+        $said = fa_number($placed).' محصول به حراج پله‌ای رفت.';
+
+        if ($already > 0) {
+            $said .= ' '.fa_number($already).' محصول از قبل آنجا بود.';
+        }
+
+        if ($noRoom > 0) {
+            $said .= ' '.fa_number($noRoom).' محصول جا نشد — حراج پله‌ای جا برای '.fa_number($max).' محصول دارد؛ از «مدیریت هوم» یکی را بردار.';
+        }
+
+        if ($undiscounted > 0) {
+            $said .= ' '.fa_number($undiscounted).' محصول قیمت قبل از تخفیف ندارد و تا وقتی نداشته باشد در حراج پله‌ای دیده نمی‌شود.';
+        }
+
+        return $said;
+    }
+
+    /**
+     * Every size of these products at this branch down to what orders hold.
+     *
+     * The inventory screen's count, in a loop: the row locked, the difference
+     * written as an `adjustment`, nothing touched where there was nothing to
+     * sell. Branch-scoped through the model, so another shop's shelf of the
+     * same shoe is never reached.
+     *
+     * @param  Collection<int, Product>  $products
+     */
+    private function emptyTheShelves($products, int $userId, TenantContext $tenant): string
+    {
+        $variants = Variant::whereIn('product_id', $products->pluck('id'))->pluck('id');
+        $zeroed = 0;
+
+        foreach (BranchInventory::whereIn('variant_id', $variants)->pluck('id') as $id) {
+            DB::transaction(function () use ($id, $userId, $tenant, &$zeroed): void {
+                $shelf = BranchInventory::whereKey($id)->lockForUpdate()->firstOrFail();
+                $removed = $shelf->stock_on_hand - $shelf->stock_reserved;
+
+                if ($removed <= 0) {
+                    return;
+                }
+
+                $shelf->stock_on_hand = $shelf->stock_reserved;
+                $shelf->save();
+
+                InventoryMovement::create([
+                    'branch_id' => $tenant->id(),
+                    'variant_id' => $shelf->variant_id,
+                    'type' => 'adjustment',
+                    'quantity' => -$removed,
+                    'user_id' => $userId,
+                    'note' => 'Marked out of stock in bulk from the catalogue.',
+                ]);
+
+                $zeroed++;
+            });
+        }
+
+        return fa_number($zeroed);
     }
 
     /**

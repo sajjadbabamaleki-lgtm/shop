@@ -91,6 +91,17 @@ Route::middleware(['auth:web', ResolveAdminTenant::class])->group(function (): v
         ->name('orders.bulk');
 
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('order');
+    /*
+     * The two sheets of paper an order produces: the label that goes on the
+     * parcel — «یک طرف ادرس خودمون باشه، یک طرفم ادرس مشتری» — and the
+     * invoice the shop keeps. Read-only, so no permission beyond seeing the
+     * order, which is the same as the screen they are printed from.
+     */
+    Route::get('/orders/{order}/label', [OrderController::class, 'label'])->name('order.label');
+    Route::get('/orders/{order}/invoice', [OrderController::class, 'invoice'])->name('order.invoice');
+    Route::post('/orders/{order}/plan', [OrderController::class, 'plan'])
+        ->middleware(RequirePermission::class.':branch.orders.manage')
+        ->name('order.plan');
     Route::post('/orders/{order}', [OrderController::class, 'update'])
         ->middleware(RequirePermission::class.':branch.orders.manage')
         ->name('order.update');
@@ -228,6 +239,12 @@ Route::middleware(['auth:web', ResolveAdminTenant::class])->group(function (): v
     Route::post('/catalogue', [CatalogueController::class, 'store'])
         ->middleware(RequirePlatformPermission::class.':catalogue.manage')
         ->name('product.store');
+    // Many products at once: into a section, onto the stepped sale, or out of
+    // stock here. Before `/catalogue/{product}`, whose POST would otherwise
+    // read «bulk» as a product's slug and 404.
+    Route::post('/catalogue/bulk', [CatalogueController::class, 'bulk'])
+        ->middleware(RequirePlatformPermission::class.':catalogue.manage')
+        ->name('catalogue.bulk');
     Route::get('/catalogue/{product}', [CatalogueController::class, 'edit'])
         ->middleware(RequirePlatformPermission::class.':catalogue.manage')
         ->name('product.edit');

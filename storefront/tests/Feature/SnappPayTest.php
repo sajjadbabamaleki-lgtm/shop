@@ -74,7 +74,14 @@ class SnappPayTest extends TestCase
      * number for a single item, so an order of one could never catch the
      * `amount`/`count` pair being read the wrong way round.
      */
-    private function order(int $unit = 600_000, int $quantity = 2, int $shipping = 100_000, int $discount = 50_000): Order
+    /*
+     * No discount by default, since 2026-09-25: «کد تخفیف فقط برای خرید نقدی
+     * باشه و در خرید قسطی امکان استفاده ازش نباشه», so a discounted order is
+     * refused at the pay route before SnappPay hears of it. The basket's
+     * discount arithmetic is still asserted, by asking the driver directly —
+     * see test_a_discount_is_still_named_beside_the_basket().
+     */
+    private function order(int $unit = 600_000, int $quantity = 2, int $shipping = 100_000, int $discount = 0): Order
     {
         // firstOrCreate rather than create: one test pays twice, and the
         // phone number is unique because it is the shopper's credential.
@@ -211,9 +218,10 @@ class SnappPayTest extends TestCase
         $body = $this->opening();
         $cart = $body['cartList'][0];
 
-        // 1,200,000 of shoes + 100,000 delivery − 50,000 off = 1,250,000.
-        $this->assertSame(1_250_000, $body['amount']);
-        $this->assertSame(50_000, $body['discountAmount']);
+        // 1,200,000 of shoes + 100,000 delivery = 1,300,000, and nothing off:
+        // a discounted order does not reach this gateway any more.
+        $this->assertSame(1_300_000, $body['amount']);
+        $this->assertSame(0, $body['discountAmount']);
         $this->assertSame(0, $body['externalSourceAmount']);
 
         $this->assertSame(1_300_000, $cart['totalAmount']);
@@ -246,6 +254,57 @@ class SnappPayTest extends TestCase
             $cart['totalAmount'],
             'the lines, the delivery and the cart total must agree'
         );
+    }
+
+    /**
+     * **A discount is still named beside the basket rather than taken out of
+     * it** — asked of the driver directly, because the shop no longer sends a
+     * discounted order to a lender at all (see the pay route). The arithmetic
+     * is kept under guard all the same: an order paid before that rule, or a
+     * rule that is one day relaxed, meets this code unchanged.
+     */
+    public function test_a_discount_is_still_named_beside_the_basket(): void
+    {
+        $this->fakeSnappPay();
+
+        $order = $this->order(discount: 50_000);
+        $payment = Payment::create([
+            'order_id' => $order->id,
+            'gateway' => 'snapppay',
+            'amount' => $order->grand_total,
+            'status' => Payment::PENDING,
+        ]);
+
+        app(Gateways::class)->named('snapppay')->start($payment);
+
+        $body = $this->opening();
+        $cart = $body['cartList'][0];
+
+        // 1,200,000 of shoes + 100,000 delivery − 50,000 off = 1,250,000.
+        $this->assertSame(1_250_000, $body['amount']);
+        $this->assertSame(50_000, $body['discountAmount']);
+        $this->assertSame(1_300_000, $cart['totalAmount']);
+        $this->assertSame(
+            $cart['totalAmount'] - $body['discountAmount'] - $body['externalSourceAmount'],
+            $body['amount'],
+        );
+    }
+
+    /**
+     * A discounted order is not sent to the lender at all.
+     */
+    public function test_a_discounted_order_is_refused_before_snapppay_hears_of_it(): void
+    {
+        $this->fakeSnappPay();
+
+        $order = $this->order(discount: 50_000);
+
+        $this->holding($order)
+            ->post("/orders/{$order->number}/pay/snapppay")
+            ->assertRedirect()
+            ->assertSessionHasErrors('payment');
+
+        Http::assertNothingSent();
     }
 
     /**
@@ -743,7 +802,7 @@ class SnappPayTest extends TestCase
 
         // Asked about this order's own total, in Rial.
         Http::assertSent(fn ($request) => str_contains($request->url(), 'offer/v1/eligible')
-            && str_contains($request->url(), 'amount=1250000'));
+            && str_contains($request->url(), 'amount=1300000'));
     }
 
     /** A refusal is a button that never appears. */

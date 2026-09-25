@@ -64,6 +64,31 @@ class OrderItem extends Model
         return $this->belongsTo(Vendor::class);
     }
 
+    /**
+     * The photograph of what was bought, or null.
+     *
+     * «از اونجایی که در سفارش مشتری امکان انتخاب رنگ فعلا غیره فعال هست باید
+     * عکس محصول سفارش داده شده … نمایش داده بشه تا بدونیم کدوم محصولو سفارش
+     * داده». The shop sells a shoe one colourway per product, and the titles
+     * of those colourways are often identical, so the picture is what tells
+     * the packer which box to take. The line's own colour first, then the
+     * product's main shot — the same order the product page draws them in.
+     *
+     * Null for a line whose size has since been deleted: the receipt keeps
+     * its words (`product_title`, `sku`, `size_value`) but the shoe is gone.
+     */
+    public function photoPath(): ?string
+    {
+        $product = $this->variant?->product;
+
+        if ($product === null) {
+            return null;
+        }
+
+        return $product->mediaFor($this->display_color ?: $this->variant->display_color)->first()?->path
+            ?? $product->primaryMedia()?->path;
+    }
+
     public function sellerName(): string
     {
         return $this->vendor?->name ?? 'ویکی پلاس';

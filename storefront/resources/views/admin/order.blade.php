@@ -41,11 +41,34 @@
             <span class="vp-adm-card-more">{{ $order->placed_at ? fa_date($order->placed_at, true) : 'ثبت نشده' }}</span>
         </div>
 
+        {{-- The two sheets this order prints — the invoice the shop keeps and
+             the label that goes on the parcel. New tabs, so the working
+             screen stays where it was. --}}
+        <div class="vp-adm-print">
+            <a class="vp-adm-mini" href="{{ route('admin.order.invoice', $order) }}" target="_blank" rel="noopener">چاپ فاکتور</a>
+            <a class="vp-adm-mini" href="{{ route('admin.order.label', $order) }}" target="_blank" rel="noopener">چاپ برچسب آدرس</a>
+        </div>
+
         <table class="vp-admin-table">
-            <thead><tr><th>کالا</th><th>کد</th><th>سایز</th><th>تعداد</th><th>واحد</th><th>جمع</th></tr></thead>
+            <thead><tr><th>عکس</th><th>کالا</th><th>کد</th><th>سایز</th><th>تعداد</th><th>واحد</th><th>جمع</th></tr></thead>
             <tbody>
             @foreach ($order->items as $item)
                 <tr>
+                    {{-- «باید عکس محصول سفارش داده شده … نمایش داده بشه تا
+                         بدونیم کدوم محصولو سفارش داده». Colour cannot be
+                         chosen on the shop for now, and a colourway's title is
+                         often word for word its sibling's, so the photograph is
+                         what says which box to take. It links to the product so
+                         the rest of its shots are one tap away. --}}
+                    <td class="vp-adm-line-shot">
+                        @if ($photo = $item->photoPath())
+                            <a href="{{ route('admin.product.edit', $item->variant->product_id) }}" target="_blank" rel="noopener">
+                                <img src="{{ asset($photo) }}" alt="{{ $item->product_title }}" loading="lazy">
+                            </a>
+                        @else
+                            <small>بدون عکس</small>
+                        @endif
+                    </td>
                     <td>{{ $item->product_title }}</td>
                     {{-- §26: «Technical identifiers such as SKUs may use LTR
                          isolation within RTL UI» — without it a code ending in
@@ -431,6 +454,63 @@
 
                 <button type="submit" class="vp-adm-danger">لغو کامل نزد اسنپ‌پی</button>
             </form>
+        </section>
+    @endif
+
+    {{-- --- how an instalment purchase is repaid -------------------------- --}}
+
+    {{-- «اگ قسطیه تاریخ سر رسید قسطاش چ زمانیه و پیش پرداخت چقد داده».
+         Nothing the lender sends this shop carries the schedule, so it is
+         typed here — off their panel, or off the agreement at the counter —
+         and the printed invoice shows it exactly as typed. Drawn open on an
+         اسنپ‌پی order or one that already has a plan; folded on any other,
+         where it is only there for an instalment agreed in person. --}}
+    @php
+        $plan = $order->instalmentPlan();
+        $planRows = collect($plan['instalments'] ?? [])
+            ->map(fn ($row) => ['due' => $row['due'], 'amount' => (string) intdiv($row['amount'], 10)])
+            ->all();
+        $planRows = old('instalments', $planRows);
+        $planRows = array_values($planRows) + array_fill(0, max(4, count($planRows) + 2), ['due' => '', 'amount' => '']);
+    @endphp
+    @if ($order->status !== \App\Models\Order::CANCELLED)
+        <section class="vp-adm-card vp-adm-span-2">
+            <details class="vp-adm-plan" @if ($instalment || $plan) open @endif>
+                <summary class="vp-adm-card-head">
+                    <h2 class="vp-adm-card-title">برنامهٔ اقساط</h2>
+                    <span class="vp-adm-card-more">
+                        {{ $plan ? fa_number(count($plan['instalments'])).' قسط ثبت شده' : ($instalment ? 'ثبت نشده' : 'فقط برای خرید اقساطی') }}
+                    </span>
+                </summary>
+
+                <p class="vp-adm-empty">
+                    پیش‌پرداخت و تاریخ سررسید هر قسط را همان‌طور که در پنل اسنپ‌پی یا قرارداد آمده بنویس
+                    (مبلغ به تومان). روی فاکتور چاپی همین‌ها چاپ می‌شود. همهٔ خانه‌ها را خالی کنی، برنامه برداشته می‌شود.
+                </p>
+
+                <form class="vp-adm-form" method="post" action="{{ route('admin.order.plan', $order) }}">
+                    @csrf
+
+                    <label for="plan-down">پیش‌پرداخت (تومان)</label>
+                    <input id="plan-down" type="text" name="down_payment" inputmode="numeric" maxlength="30"
+                           value="{{ old('down_payment', $plan ? intdiv($plan['down_payment'], 10) : '') }}">
+
+                    <table class="vp-admin-table">
+                        <thead><tr><th>قسط</th><th>تاریخ سررسید</th><th>مبلغ (تومان)</th></tr></thead>
+                        <tbody>
+                        @foreach ($planRows as $i => $row)
+                            <tr>
+                                <td>{{ fa_number($i + 1) }}</td>
+                                <td><input type="date" name="instalments[{{ $i }}][due]" value="{{ $row['due'] ?? '' }}" aria-label="تاریخ سررسید قسط {{ $i + 1 }}"></td>
+                                <td><input type="text" name="instalments[{{ $i }}][amount]" value="{{ $row['amount'] ?? '' }}" inputmode="numeric" maxlength="30" aria-label="مبلغ قسط {{ $i + 1 }}"></td>
+                            </tr>
+                        @endforeach
+                        </tbody>
+                    </table>
+
+                    <button type="submit" class="vp-adm-apply">ثبت برنامهٔ اقساط</button>
+                </form>
+            </details>
         </section>
     @endif
 
