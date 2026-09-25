@@ -106,7 +106,13 @@ class CatalogueController extends Controller
             'category.required' => 'دسته‌ای که محصولات به آن بروند انتخاب نشده.',
         ]);
 
-        $products = Product::whereIn('id', $input['products'])->get();
+        // In the order they were ticked, not the order the database happens
+        // to return them: the stepped sale fills its five places from the
+        // front of this list, and which five is the whole of that action.
+        $order = array_flip(array_map('intval', $input['products']));
+        $products = Product::whereIn('id', $input['products'])->get()
+            ->sortBy(fn (Product $product) => $order[$product->id] ?? PHP_INT_MAX)
+            ->values();
         $back = redirect()->back();
 
         if ($products->isEmpty()) {
