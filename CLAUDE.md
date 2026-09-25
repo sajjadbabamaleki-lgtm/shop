@@ -1280,6 +1280,16 @@ the client saw an old page and had no way to tell why. So, plainly:
   **product page's colour row is off** (`placeholders.colors` is `[]`, and the
   five swatches are in the comment above it to put back), and the photograph
   is how the packer tells two identically-titled colourways apart.
+- **Every payment attempt says which gateway it went to and what came of
+  it**, on the order screen, beside the badge in `/admin/orders` (with a
+  «درگاه» filter) and in the CSV. «مشخص باشه که مشتری … از طریق چه درگاهی
+  می‌خواسته پرداخت کنه … بفهمم مشکل از کجا بوده». `Payment::gatewayLabel()`
+  names the gateway (a later one by its driver's own `label()`),
+  `outcomeLabel()` tells the four stories apart — paid, refused by the
+  gateway, cancelled by the shopper, and «به درگاه رفت و برنگشت» for a
+  pending row older than twenty minutes — and `payments.failure` (the
+  gateway's own code and message, which every driver already wrote) is
+  printed verbatim. `Order::latestPayment()` is what the list reads.
 - **A discount code is for paying in cash only.** «کد تخفیف فقط برای خرید نقدی
   باشه و در خرید قسطی امکان استفاده ازش نباشه». The code is typed at checkout
   and the way to pay is chosen *after* the order is placed, so the rule lives

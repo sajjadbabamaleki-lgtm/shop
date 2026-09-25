@@ -119,6 +119,11 @@
             @if ($order->payment_method)
                 <li><span>روش پرداخت</span><b>{{ $order->methodLabel() }}</b></li>
             @endif
+            {{-- «از طریق چه درگاهی می‌خواسته سفارشش رو پرداخت کنه» — the
+                 gateway of the latest attempt, whatever came of it. --}}
+            @if ($attempts->isNotEmpty() && $attempts->first()->gateway !== 'panel')
+                <li><span>درگاه</span><b>{{ $attempts->first()->gatewayLabel() }}</b></li>
+            @endif
 
             {{-- The gateway's own reference, which is what a customer quotes
                  on the telephone and the only thing that ties this order to a
@@ -143,19 +148,34 @@
              سفارش دو بار پرداخت شد» has an answer only if the ones that did not
              work are on the record too. --}}
         @if ($attempts->isNotEmpty())
+            {{-- Every attempt, newest first: which gateway, how much, what
+                 came of it and — when the gateway refused — its own reason,
+                 verbatim. «اگر … تا مرحله پرداخت رفت ولی پرداختش نکرد …
+                 بفهمم مشکل از کجا بوده»: a refusal points at the gateway or
+                 its settings, a cancel at the shopper, and an attempt that
+                 never came back at a page that would not load or a tab that
+                 was closed. --}}
             <p class="vp-adm-form-label">تلاش‌های پرداخت</p>
-            <ul class="vp-adm-list">
+            <ol class="vp-adm-attempts">
                 @foreach ($attempts as $attempt)
                     <li>
-                        <span>{{ fa_date($attempt->created_at, true) }}</span>
-                        <b>
-                            <span class="vp-adm-badge is-{{ $attempt->isPaid() ? 'delivered' : ($attempt->status === \App\Models\Payment::FAILED ? 'cancelled' : 'placed') }}">
-                                {{ $attempt->statusLabel() }}
-                            </span>
-                        </b>
+                        <div class="vp-adm-attempt-head">
+                            <b>{{ $attempt->gatewayLabel() }}</b>
+                            <span class="vp-adm-badge is-{{ $attempt->outcomeTone() }}">{{ $attempt->outcomeLabel() }}</span>
+                        </div>
+                        <small>
+                            {{ fa_date($attempt->created_at, true) }}
+                            · {{ toman($attempt->amount) }} تومان
+                            @if ($attempt->authority && ! str_starts_with($attempt->authority, 'PANEL-'))
+                                · تراکنش <bdi dir="ltr">{{ $attempt->authority }}</bdi>
+                            @endif
+                        </small>
+                        @if ($attempt->failure)
+                            <small class="vp-adm-attempt-why">پاسخ درگاه: <bdi dir="ltr">{{ $attempt->failure }}</bdi></small>
+                        @endif
                     </li>
                 @endforeach
-            </ul>
+            </ol>
         @endif
 
         <p class="vp-adm-address">

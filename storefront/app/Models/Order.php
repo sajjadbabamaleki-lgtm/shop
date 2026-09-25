@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Str;
 
 /**
@@ -87,6 +88,20 @@ class Order extends Model
     public function items(): HasMany
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    /**
+     * The most recent attempt to pay, whichever gateway it went to.
+     *
+     * «مشخص باشه که مشتری من از طریق چه درگاهی … می‌خواسته سفارشش رو پرداخت
+     * کنه» — the orders list prints this beside the payment badge, so an
+     * order that reached a gateway and never came back paid says which one.
+     * The newest row by id: a second attempt after a failed first is the
+     * shopper's latest choice.
+     */
+    public function latestPayment(): HasOne
+    {
+        return $this->hasOne(Payment::class)->latestOfMany();
     }
 
     /**

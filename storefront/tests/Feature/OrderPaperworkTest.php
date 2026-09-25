@@ -173,7 +173,7 @@ class OrderPaperworkTest extends TestCase
             ->assertSee('نقدی')
             ->assertDontSee('برنامهٔ اقساط این خرید')
             ->assertSee(toman(1_300_000))
-            ->assertSee('کارت بانکی (زرین‌پال)')
+            ->assertSee('زرین‌پال (کارت بانکی)')
             ->assertSee('REF-555');
     }
 
@@ -318,5 +318,79 @@ class OrderPaperworkTest extends TestCase
             ->assertJson(['eligible' => false]);
 
         Http::assertNothingSent();
+    }
+
+    // --- which gateway the shopper went to ------------------------------
+
+    /**
+     * «مشخص باشه که مشتری من از طریق چه درگاهی … می‌خواسته سفارشش رو پرداخت
+     * کنه … اگر … تا مرحله پرداخت رفت ولی پرداختش نکرد».
+     */
+    private function attempt(Order $order, string $gateway, string $status, ?string $failure = null, int $minutesAgo = 0): Payment
+    {
+        $payment = Payment::create([
+            'order_id' => $order->id,
+            'gateway' => $gateway,
+            'authority' => 'V'.mt_rand(100000000, 999999999),
+            'amount' => $order->grand_total,
+            'status' => $status,
+            'failure' => $failure,
+        ]);
+
+        if ($minutesAgo > 0) {
+            $payment->forceFill(['created_at' => now()->subMinutes($minutesAgo)])->save();
+        }
+
+        return $payment;
+    }
+
+    public function test_the_order_screen_names_each_gateway_and_what_came_of_it(): void
+    {
+        $order = $this->order();
+        $this->attempt($order, 'snapppay', Payment::FAILED, 'snapppay 1003 Access Denied');
+        $this->attempt($order, 'zarinpal', Payment::CANCELLED);
+        $this->attempt($order, 'zarinpal', Payment::PENDING, minutesAgo: 60);
+
+        $this->actingAs($this->admin())
+            ->get("/admin/orders/{$order->number}")
+            ->assertOk()
+            ->assertSee('اسنپ‌پی (اقساطی)')
+            ->assertSee('درگاه نپذیرفت یا تأیید نشد')
+            ->assertSee('snapppay 1003 Access Denied')
+            ->assertSee('زرین‌پال (کارت بانکی)')
+            ->assertSee('مشتری در درگاه انصراف داد')
+            ->assertSee('به درگاه رفت و برنگشت');
+    }
+
+    public function test_the_list_says_where_an_unpaid_order_went_and_filters_by_it(): void
+    {
+        $toLender = $this->order();
+        $this->attempt($toLender, 'snapppay', Payment::FAILED, 'snapppay 1003 Access Denied');
+
+        $toCard = $this->order();
+        $this->attempt($toCard, 'zarinpal', Payment::CANCELLED);
+
+        $this->actingAs($this->admin())
+            ->get('/admin/orders')
+            ->assertOk()
+            ->assertSee('اسنپ‌پی (اقساطی) — درگاه نپذیرفت یا تأیید نشد')
+            ->assertSee('زرین‌پال (کارت بانکی) — مشتری در درگاه انصراف داد');
+
+        $this->actingAs($this->admin())
+            ->get('/admin/orders?gateway=snapppay')
+            ->assertOk()
+            ->assertSee($toLender->number)
+            ->assertDontSee($toCard->number);
+    }
+
+    public function test_the_export_carries_the_gateway_and_its_answer(): void
+    {
+        $order = $this->order();
+        $this->attempt($order, 'snapppay', Payment::FAILED, 'snapppay 1003 Access Denied');
+
+        $csv = $this->actingAs($this->admin())->get('/admin/orders/export')->streamedContent();
+
+        $this->assertStringContainsString('درگاه', $csv);
+        $this->assertStringContainsString('snapppay 1003 Access Denied', $csv);
     }
 }

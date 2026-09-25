@@ -2882,3 +2882,37 @@ a.vp-adm-mini {
   border: 1px solid var(--adm-line);
   background: var(--adm-sunk);
 }
+
+/* An order's payment attempts: which gateway, what came of it, and the
+   gateway's own words when it refused — so an unpaid order says where it
+   died. */
+.vp-adm-attempts {
+  list-style: none;
+  margin: 0 0 12px;
+  padding: 0;
+}
+
+.vp-adm-attempts li {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-block: 8px;
+  border-bottom: 1px solid var(--adm-line);
+}
+
+.vp-adm-attempts small {
+  color: var(--adm-ink-2);
+}
+
+.vp-adm-attempt-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.vp-adm-attempts .vp-adm-attempt-why {
+  color: var(--adm-bad);
+  overflow-wrap: anywhere;
+}

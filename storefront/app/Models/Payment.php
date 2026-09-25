@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\Payments\Gateways;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -79,18 +80,53 @@ class Payment extends Model
     }
 
     /**
-     * Which way the money came, in words — for the printed invoice, where
-     * «snapppay» in the middle of a Persian sheet is a word nobody at the
-     * counter reads. Falls back to the stored name so a gateway added later
-     * is visible rather than blank.
+     * Which gateway this attempt went to, in words — «از طریق چه درگاهی».
+     *
+     * The two this shop has are named here; a gateway connected later is
+     * named by its own driver's label, and a row whose driver has since been
+     * disconnected falls back to the stored name, so an attempt is never
+     * blank about where it went.
      */
     public function gatewayLabel(): string
     {
         return match ($this->gateway) {
-            'zarinpal' => 'کارت بانکی (زرین‌پال)',
-            'snapppay' => 'اقساطی (اسنپ‌پی)',
+            'zarinpal' => 'زرین‌پال (کارت بانکی)',
+            'snapppay' => 'اسنپ‌پی (اقساطی)',
             'panel' => 'ثبت‌شده در پنل',
-            default => (string) $this->gateway,
+            default => app(Gateways::class)->named($this->gateway)?->label() ?? (string) $this->gateway,
+        };
+    }
+
+    /**
+     * What happened to this attempt, said the way the shop needs to hear it
+     * when looking for a fault — «اگر سفارشی رو ثبت کرد و تا مرحله پرداخت رفت
+     * ولی پرداختش نکرد … بفهمم مشکل از کجا بوده».
+     *
+     * Four different stories, and they point at different culprits: a refusal
+     * is the gateway (or its settings), a cancel is the shopper, and an
+     * attempt still pending after a while is somebody who reached the gateway
+     * and never came back — a closed tab, a dropped connection, or a gateway
+     * page that would not load.
+     */
+    public function outcomeLabel(): string
+    {
+        return match ($this->status) {
+            self::PAID => 'پرداخت شد',
+            self::CANCELLED => 'مشتری در درگاه انصراف داد',
+            self::FAILED => 'درگاه نپذیرفت یا تأیید نشد',
+            default => $this->created_at && $this->created_at->lt(now()->subMinutes(20))
+                ? 'به درگاه رفت و برنگشت'
+                : 'در حال پرداخت',
+        };
+    }
+
+    /** The badge tone the panel uses for this outcome. */
+    public function outcomeTone(): string
+    {
+        return match ($this->status) {
+            self::PAID => 'delivered',
+            self::FAILED, self::CANCELLED => 'cancelled',
+            default => 'placed',
         };
     }
 }

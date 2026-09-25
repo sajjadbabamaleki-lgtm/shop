@@ -60,6 +60,7 @@ class OrderController extends Controller
         $range = $request->filled('range') ? DateRange::fromRequest($request) : null;
 
         $orders = $this->filtered($request, $range)
+            ->with('latestPayment')
             ->paginate($this->perPage($request))
             ->withQueryString();
 
@@ -71,11 +72,23 @@ class OrderController extends Controller
                 'q' => (string) $request->query('q', ''),
                 'status' => (string) $request->query('status', ''),
                 'payment' => (string) $request->query('payment', ''),
+                'gateway' => (string) $request->query('gateway', ''),
                 'sort' => $this->sort($request),
                 'dir' => $this->direction($request),
                 'per' => $this->perPage($request),
             ],
             'sizes' => self::PAGE_SIZES,
+            // Every gateway an order of this shop has ever been sent to, so
+            // the filter can find attempts at one that has since been
+            // switched off as well as at the ones that are live.
+            'gateways' => Payment::query()
+                ->whereIn('order_id', Order::query()->select('id'))
+                ->where('gateway', '!=', 'panel')
+                ->distinct()
+                ->orderBy('gateway')
+                ->pluck('gateway')
+                ->mapWithKeys(fn (string $name) => [$name => (new Payment(['gateway' => $name]))->gatewayLabel()])
+                ->all(),
             // What a bulk action may move an order to. The transitions
             // themselves are still checked one order at a time below.
             'bulkTargets' => [
@@ -99,6 +112,7 @@ class OrderController extends Controller
         $q = trim((string) $request->query('q', ''));
         $status = (string) $request->query('status', '');
         $payment = (string) $request->query('payment', '');
+        $gateway = (string) $request->query('gateway', '');
 
         return Order::query()
             ->when($q !== '', function (Builder $builder) use ($q): void {
@@ -128,6 +142,10 @@ class OrderController extends Controller
             // an order whose money had been given back could not be filtered
             // for at all — see Order::paymentLabels().
             ->when(in_array($payment, array_keys(Order::paymentLabels()), true), fn (Builder $b) => $b->where('payment_status', $payment))
+            // «از طریق چه درگاهی» — every order that was sent to this
+            // gateway at least once, paid or not, which is the set somebody
+            // looking for a gateway fault needs.
+            ->when($gateway !== '', fn (Builder $b) => $b->whereHas('payments', fn (Builder $paid) => $paid->where('gateway', $gateway)))
             ->when($range !== null, fn (Builder $b) => $b->whereBetween('placed_at', [$range->from, $range->to]))
             ->orderBy($this->sort($request), $this->direction($request));
     }
@@ -564,10 +582,12 @@ class OrderController extends Controller
 
             fwrite($out, "\xEF\xBB\xBF");
 
-            fputcsv($out, ['شماره', 'تاریخ', 'مشتری', 'تلفن', 'وضعیت', 'پرداخت', 'رهگیری', 'مبلغ']);
+            fputcsv($out, ['شماره', 'تاریخ', 'مشتری', 'تلفن', 'وضعیت', 'پرداخت', 'رهگیری', 'مبلغ', 'درگاه', 'نتیجه آخرین پرداخت', 'پاسخ درگاه']);
 
-            $query->chunk(500, function ($orders) use ($out): void {
+            $query->with('latestPayment')->chunk(500, function ($orders) use ($out): void {
                 foreach ($orders as $order) {
+                    $attempt = $order->latestPayment;
+
                     fputcsv($out, [
                         $order->number,
                         $order->placed_at?->format('Y-m-d H:i'),
@@ -577,6 +597,9 @@ class OrderController extends Controller
                         $order->payment_status,
                         $order->tracking_number,
                         $order->grand_total,
+                        $attempt?->gatewayLabel(),
+                        $attempt?->outcomeLabel(),
+                        $attempt?->failure,
                     ]);
                 }
             });
