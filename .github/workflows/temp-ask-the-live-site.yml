@@ -1,0 +1,24 @@
+name: TEMP ask the live site
+
+on: push
+
+jobs:
+  ask:
+    runs-on: ubuntu-latest
+    steps:
+      - name: How many products the live shop lists
+        run: |
+          set -u
+          host=https://vikyplus.ir
+          curl -s --max-time 120 "$host/sitemap.xml" -o /tmp/sm || true
+          echo "sitemap bytes: $(wc -c < /tmp/sm)"
+          grep -oE '<loc>[^<]*/products/[^<]*</loc>' /tmp/sm | sort -u > /tmp/p
+          echo "products in the sitemap: $(wc -l < /tmp/p)"
+          grep -oE '<loc>[^<]*/categories/[^<]*</loc>' /tmp/sm | sort -u | wc -l | xargs echo "sections:"
+          echo "--- what the listing page says ---"
+          curl -s --max-time 60 "$host/products" -o /tmp/l || true
+          grep -oE '[۰-۹0-9,٬]+ کالا' /tmp/l | head -3
+          echo "--- the five setup shoes ---"
+          for s in golden-goose on-cloudtilt new-balance-530 nike-v2k-run jordan-one-air; do
+            printf '  %-18s %s\n' "$s" "$(curl -s -o /dev/null -w '%{http_code}' --max-time 30 "$host/products/$s")"
+          done
