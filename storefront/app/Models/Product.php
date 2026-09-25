@@ -477,6 +477,19 @@ class Product extends Model
     }
 
     /**
+     * Whether this product's photographs fill their frame — see
+     * VariantMedia::isCutout(). Asked of the main photograph, which is the
+     * one every card and the first frame of the gallery draws. A product
+     * with no photograph yet has the placeholder, which is drawn fitted.
+     */
+    public function fillsFrame(): bool
+    {
+        $shot = $this->primaryMedia();
+
+        return $shot !== null && ! $shot->isCutout();
+    }
+
+    /**
      * A path there is always an image at.
      *
      * `primaryMedia()` returns null for a product whose photographs have not

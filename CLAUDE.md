@@ -1290,6 +1290,18 @@ the client saw an old page and had no way to tell why. So, plainly:
   pending row older than twenty minutes — and `payments.failure` (the
   gateway's own code and message, which every driver already wrote) is
   printed verbatim. `Order::latestPayment()` is what the list reads.
+- **A photograph fills its frame; only the design's own cut-outs are fitted.**
+  «عکس ها … کل قابشونو پوشش نداد … این مشکلو حل کن دیگه پیش نیاد». The
+  `is-supplied` class (card, product page, basket, mini basket) was decided by
+  `products.source`, which only `basalam:import` writes — so every shoe made in
+  the panel was framed as a cut-out, drawn at 80% inside a grey box. Measured
+  from a runner on the live listing, 2026-09-25: 143 imported cards covered
+  100% of their frame and all 11 panel-made ones covered **64%**, every file
+  square. It is decided by the photograph now: `VariantMedia::isCutout()` is
+  true only under `assets/img/hero/` (the seeded cut-outs), and
+  `Product::fillsFrame()` asks the main photograph. A new upload path is a
+  photograph by default, so this cannot recur for a new way of adding shoes.
+  `PhotographsFillTheirFrameTest` holds it.
 - **A discount code is for paying in cash only.** «کد تخفیف فقط برای خرید نقدی
   باشه و در خرید قسطی امکان استفاده ازش نباشه». The code is typed at checkout
   and the way to pay is chosen *after* the order is placed, so the rule lives
