@@ -1131,8 +1131,23 @@ the client saw an old page and had no way to tell why. So, plainly:
     shoe this shop does not sell keeps almost none of its words and is refused
     rather than matched to whatever scored highest.
   - **The words must name one shoe, and that is the fence.** Every candidate
-    at the top score has to carry the same title; two different shoes there
-    means the address never said which. This replaced «a tie is refused», and
+    at the top score has to be the same shoe; two different ones there means
+    the address never said which.
+    **⛔ "The same shoe" is not "the same title", and reading it that way is
+    what kept `/products/golden-goose` a 404 until 2026-09-26**, when ترب
+    closed a ticket on it — «در لینک ارسال شده شما محصولی نمیباشد». This
+    catalogue names a colourway **two different ways** and both are live:
+
+        کتونی آن رانینگ            ← six products, one title, colour in the slug
+        کتونی گلدن گوس رنگ صورتی   ← seven products, seven titles, colour in the title
+
+    So a title test passes the first family and fails the second, though each
+    is one shoe in several colours. `whatItIsBesidesTheColour()` is the rule:
+    strip the product's own `display_color` words from its identity and
+    compare what is left. It is the panel's own column, not a guessed list of
+    colour words, and it still tells «ساق کوتاه» from «ساق بلند», which is why
+    `jordan-one-air` is refused. **Do not compare titles on this shop for
+    anything** — measure the families first. This replaced «a tie is refused», and
     that is what had kept `/products/nike-v2k-run` a 404 while the shop sold
     eight V2Ks — the address names a make and no colour, so all eight tie and
     there is nothing to separate. There was nothing to separate.
@@ -1155,8 +1170,13 @@ the client saw an old page and had no way to tell why. So, plainly:
     when most of an address is unknown, the missing words are the identifying
     ones. «کتونی نایک وی۲کی ران» against a shop whose only Nike is an Air Max
     keeps «کتونی» and «نایک», carries both, and would otherwise redirect.
-    Measured: addresses that should resolve run 57%–100% known, that case is
-    29%.
+    Measured: addresses that should resolve run 50%–100% known, that case is
+    29%. **Exactly half passes** — `on-cloudtilt` is the reason: the shop
+    writes that model «کتونی آن رانینگ ON Running», so `cloudtilt` matches
+    nothing and `on`, which is on those six products and nowhere else in 154,
+    is all that survives. One word of two was refused, and that 404 is the
+    other half of the same ترب ticket. A rare word that survives is evidence;
+    this fence is against an address that is *mostly* foreign to the shop.
   - **There is no minimum word count any more.** It was a proxy for the three
     fences above and it was refusing `nike-v2k-run`. Taking it out without them
     let the sandal and the Air Max through; each has its own case in

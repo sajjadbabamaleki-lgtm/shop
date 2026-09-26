@@ -170,7 +170,7 @@ final class ProductByOldAddress
             fn (string $word) => $vocabulary->has($word),
         ));
 
-        if (count($wanted) <= count(self::words($address)) * self::KNOWN) {
+        if (count($wanted) < count(self::words($address)) * self::KNOWN) {
             return null;
         }
 
@@ -241,7 +241,7 @@ final class ProductByOldAddress
         // One shoe, or nothing. Every candidate the address fits equally well
         // has to be the same shoe; two different ones at the top means the
         // address never said which, and picking either is a guess.
-        if ($top->pluck('product.title')->map(fn (string $title) => fold_persian($title))->unique()->count() > 1) {
+        if ($top->map(fn (array $row) => self::whatItIsBesidesTheColour($row['product']))->unique()->count() > 1) {
             return null;
         }
 
@@ -284,6 +284,44 @@ final class ProductByOldAddress
     public static function forRetired(Product $retired, ?Collection $catalogue = null): ?Product
     {
         return self::find($retired->title.' '.$retired->slug, $catalogue);
+    }
+
+    /**
+     * What a product is, with its colour taken out — the test for "one shoe".
+     *
+     * **This replaced comparing titles, and the difference is the whole of why
+     * `/products/golden-goose` was a 404 while the shop sold seven of them.**
+     * How a colourway is named is not consistent on this catalogue, and both
+     * shapes are live. Measured 2026-09-26:
+     *
+     *     کتونی آن رانینگ            ← six products, one title, colour in the slug
+     *     کتونی گلدن گوس رنگ صورتی   ← seven products, seven titles, colour in the title
+     *
+     * So "the candidates all share a title" is true of the first family and
+     * false of the second, though both are one shoe in several colours. ترب
+     * closed a ticket on that 404 on 2026-09-26 — «در لینک ارسال شده شما
+     * محصولی نمیباشد».
+     *
+     * The colour is not guessed at from a list of words: it is the product's
+     * own `display_color`, which every variant carries and the panel writes.
+     * Strip those words from the identity and what remains is the shoe —
+     * identical across a colourway family, and different between «ساق کوتاه»
+     * and «ساق بلند», which is why `jordan-one-air` is still refused.
+     */
+    private static function whatItIsBesidesTheColour(Product $product): string
+    {
+        $colours = $product->variants
+            ->pluck('display_color')
+            ->filter()
+            ->flatMap(fn (string $colour) => self::words($colour))
+            ->unique()
+            ->all();
+
+        $rest = array_diff(self::words($product->title.' '.$product->slug), $colours);
+
+        sort($rest);
+
+        return implode(' ', $rest);
     }
 
     /** Everything this branch is selling, for a caller resolving one address. */
