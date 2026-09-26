@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Somebody asking to buy in bulk, to open a branch, or simply asking.
@@ -89,6 +90,14 @@ class Enquiry extends Model
     public function statusLabel(): string
     {
         return self::statusLabels()[$this->status] ?? $this->status;
+    }
+
+    /**
+     * What the shop has answered, oldest first — read as a conversation.
+     */
+    public function replies(): HasMany
+    {
+        return $this->hasMany(EnquiryReply::class)->oldest()->orderBy('id');
     }
 
     public function handler(): BelongsTo

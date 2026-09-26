@@ -1245,6 +1245,20 @@ the client saw an old page and had no way to tell why. So, plainly:
   the mini basket's *throws* when no branch is bound — which is exactly the state
   a 404 for an unmatched route is in, so rendering the ordinary shell there turns
   a 404 into a 500. `ErrorPagesTest` asks for one with the tenant forgotten.
+- **An enquiry is answered from `/admin/enquiries`, by text message, and the
+  answer stays under it.** «چرا هیچ قسمتی برای پاسخ دادن به پیام نداریم تو
+  پنل ادمین؟» — the screen could read and mark, and every answer left the panel
+  as a phone call nobody wrote down. `enquiry_replies` holds what was said, who
+  said it and whether it left (`sent_at`, or `failure` verbatim); the message
+  goes to the number the enquiry was left with through `Sender::REPLY`. On this
+  shop's own line that is the sentence and needs nothing; **a pattern line
+  needs `SMS_PATTERN_REPLY` and deliberately does not fall back** to the code's
+  pattern, which would put a paragraph in a six-digit blank — without it the
+  reply is stored and the screen says «پیامک فرستاده نشد». A «جدید» enquiry
+  moves to «تماس گرفته شد» when answered; a closed one stays closed.
+  **The screen is one card per enquiry and must not go back to a table**:
+  below 992 every panel table turns its rows into bordered cards, so a table in
+  a card was «کادر تو کادر» on a phone. `EnquiryReplyTest` holds both.
 - **`.vp-page` is one link in the paginator**, not a page. It carries
   `display: grid; height: 38px`, and a panel that wore the name came out 64px
   tall with its whole content spilling out under the footer. The content pages

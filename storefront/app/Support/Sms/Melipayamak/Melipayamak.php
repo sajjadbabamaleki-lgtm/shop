@@ -154,6 +154,13 @@ abstract class Melipayamak implements Sender
      */
     protected function pattern(string $purpose): string
     {
+        // A reply is a paragraph, and the code's pattern has one blank sized
+        // for six digits. No fallback: without its own pattern this throws,
+        // and the panel says the message did not leave.
+        if ($purpose === self::REPLY) {
+            return $this->required('pattern_reply');
+        }
+
         if ($purpose === self::ALERT) {
             $alert = config('services.sms.pattern_alert');
 

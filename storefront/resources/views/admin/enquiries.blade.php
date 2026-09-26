@@ -32,8 +32,15 @@
     </div>
 </div>
 
-<section class="vp-adm-card">
-    @if ($enquiries->isEmpty())
+{{--
+    One card per enquiry, and nothing boxed inside it. This was a table, and
+    below 992 every table in the panel turns its rows into bordered cards — so
+    on a phone it was a card of cards («کادر تو کادر»). A list of messages is
+    not tabular data in the first place: it is read one at a time, answered,
+    and put away, which is what a card per message is for.
+--}}
+@if ($enquiries->isEmpty())
+    <section class="vp-adm-card">
         <p class="vp-adm-empty">
             @if ($kind === null)
                 هنوز درخواستی ثبت نشده.
@@ -41,60 +48,80 @@
                 درخواستی از این نوع ثبت نشده.
             @endif
         </p>
-    @else
-        <table class="vp-admin-table">
-            <thead>
-                <tr>
-                    <th>نوع</th><th>نام</th><th>تماس</th><th>توضیح</th>
-                    <th>تاریخ</th><th>وضعیت</th><th></th>
-                </tr>
-            </thead>
-            <tbody>
-            @foreach ($enquiries as $enquiry)
-                <tr>
-                    <td>{{ $enquiry->kindLabel() }}</td>
-                    <td>
-                        {{ $enquiry->name }}
-                        @if ($enquiry->organisation)
-                            <span class="vp-adm-sub">{{ $enquiry->organisation }}</span>
-                        @endif
-                    </td>
-                    <td>
-                        {{-- A telephone number is read left to right whatever
-                             the page's direction. --}}
-                        <a href="tel:{{ $enquiry->phone }}"><bdi dir="ltr">{{ $enquiry->phone }}</bdi></a>
-                        @if ($enquiry->city)
-                            <span class="vp-adm-sub">{{ $enquiry->city }}</span>
-                        @endif
-                    </td>
-                    <td class="vp-admin-said">{{ $enquiry->message }}</td>
-                    <td>{{ fa_date($enquiry->created_at) }}</td>
-                    <td>
-                        <span class="vp-adm-badge is-{{ $enquiry->status === 'new' ? 'placed' : ($enquiry->status === 'closed' ? 'delivered' : 'paid') }}">
-                            {{ $enquiry->statusLabel() }}
-                        </span>
-                        @if ($enquiry->handler)
-                            <span class="vp-adm-sub">{{ $enquiry->handler->name }}</span>
-                        @endif
-                    </td>
-                    <td>
-                        <div class="vp-adm-inline">
-                            @foreach (\App\Models\Enquiry::statusLabels() as $to => $label)
-                                @continue($enquiry->status === $to)
-                                <form method="post" action="{{ route('admin.enquiry.status', $enquiry) }}">
-                                    @csrf
-                                    <input type="hidden" name="status" value="{{ $to }}">
-                                    <button type="submit" class="vp-adm-mini is-quiet">{{ $label }}</button>
-                                </form>
-                            @endforeach
-                        </div>
-                    </td>
-                </tr>
-            @endforeach
-            </tbody>
-        </table>
+    </section>
+@else
+    <div class="vp-adm-enqs">
+    @foreach ($enquiries as $enquiry)
+        <article class="vp-adm-card vp-adm-enq" id="enquiry-{{ $enquiry->id }}">
+            <header class="vp-adm-enq-head">
+                <div class="vp-adm-enq-who">
+                    <b>{{ $enquiry->name }}</b>
+                    @if ($enquiry->organisation)
+                        <span class="vp-adm-sub">{{ $enquiry->organisation }}</span>
+                    @endif
+                </div>
+                <span class="vp-adm-badge is-{{ $enquiry->status === 'new' ? 'placed' : ($enquiry->status === 'closed' ? 'delivered' : 'paid') }}">
+                    {{ $enquiry->statusLabel() }}
+                </span>
+            </header>
 
-        <div class="vp-adm-pager">{{ $enquiries->links('pagination.vikyplus') }}</div>
-    @endif
-</section>
+            <p class="vp-adm-enq-facts">
+                <span>{{ $enquiry->kindLabel() }}</span>
+                {{-- A telephone number is read left to right whatever the
+                     page's direction. --}}
+                <a href="tel:{{ $enquiry->phone }}"><bdi dir="ltr">{{ $enquiry->phone }}</bdi></a>
+                @if ($enquiry->city)
+                    <span>{{ $enquiry->city }}</span>
+                @endif
+                <span>{{ fa_date($enquiry->created_at, true) }}</span>
+            </p>
+
+            @if ($enquiry->message)
+                <p class="vp-adm-enq-said">{{ $enquiry->message }}</p>
+            @endif
+
+            @foreach ($enquiry->replies as $reply)
+                <div class="vp-adm-enq-reply{{ $reply->sent_at ? '' : ' is-unsent' }}">
+                    <p>{{ $reply->body }}</p>
+                    <span class="vp-adm-sub">
+                        {{ $reply->author?->name ?? 'کارمند حذف‌شده' }}
+                        — {{ fa_date($reply->created_at, true) }}
+                        — {{ $reply->sent_at ? 'با پیامک فرستاده شد' : 'پیامک فرستاده نشد' }}
+                    </span>
+                </div>
+            @endforeach
+
+            <form class="vp-adm-enq-answer" method="post" action="{{ route('admin.enquiry.reply', $enquiry) }}">
+                @csrf
+                <label class="vp-adm-sub" for="enq-{{ $enquiry->id }}">پاسخ — با پیامک به <bdi dir="ltr">{{ $enquiry->phone }}</bdi> فرستاده می‌شود</label>
+                <textarea id="enq-{{ $enquiry->id }}" name="body" rows="3" maxlength="500" required
+                          placeholder="پاسخ خود را بنویسید…"></textarea>
+                <div class="vp-adm-enq-acts">
+                    <button type="submit" class="vp-adm-mini">ارسال پاسخ</button>
+                    @foreach (\App\Models\Enquiry::statusLabels() as $to => $label)
+                        @continue($enquiry->status === $to)
+                        <button type="submit" class="vp-adm-mini is-quiet" formnovalidate
+                                form="enq-status-{{ $enquiry->id }}-{{ $to }}">{{ $label }}</button>
+                    @endforeach
+                    @if ($enquiry->handler)
+                        <span class="vp-adm-sub">رسیدگی: {{ $enquiry->handler->name }}</span>
+                    @endif
+                </div>
+            </form>
+
+            {{-- The status buttons sit in the reply form's row but post their
+                 own forms: a form cannot be nested in another. --}}
+            @foreach (\App\Models\Enquiry::statusLabels() as $to => $label)
+                @continue($enquiry->status === $to)
+                <form id="enq-status-{{ $enquiry->id }}-{{ $to }}" method="post" action="{{ route('admin.enquiry.status', $enquiry) }}" hidden>
+                    @csrf
+                    <input type="hidden" name="status" value="{{ $to }}">
+                </form>
+            @endforeach
+        </article>
+    @endforeach
+    </div>
+
+    <div class="vp-adm-pager">{{ $enquiries->links('pagination.vikyplus') }}</div>
+@endif
 @endsection

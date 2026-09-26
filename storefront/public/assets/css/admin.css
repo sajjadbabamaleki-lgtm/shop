@@ -2916,3 +2916,131 @@ a.vp-adm-mini {
   color: var(--adm-bad);
   overflow-wrap: anywhere;
 }
+
+/* --- the enquiries: one card per message ----------------------------------
+   «چرا این قسمت از پنل هنوز اینجوری کادر تو کادره؟» — it was a table in a
+   card, and below 992 every table row becomes a bordered card of its own, so
+   a phone drew a box of boxes. Each enquiry is its own card now, and inside
+   it nothing has a border: the customer's words and the shop's answers are
+   told apart by a wash, as a conversation is, and the reply box is the only
+   drawn edge because it is the one thing to type in. */
+.vp-adm-enqs {
+  display: grid;
+  gap: 12px;
+}
+
+.vp-adm-enq {
+  display: grid;
+  gap: 10px;
+}
+
+.vp-adm-enq-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.vp-adm-enq-who {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.vp-adm-enq-who b {
+  font-size: 15px;
+  line-height: 22px;
+}
+
+.vp-adm-enq-facts {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--adm-ink-2);
+}
+
+.vp-adm-enq-facts a {
+  color: var(--adm-gold-ink);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.vp-adm-enq-said,
+.vp-adm-enq-reply {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--adm-r-md);
+  line-height: 1.9;
+  overflow-wrap: anywhere;
+}
+
+/* Line breaks the customer or the shop typed are kept; the Blade's own
+   indentation around the byline is not. */
+.vp-adm-enq-said,
+.vp-adm-enq-reply p {
+  white-space: pre-line;
+}
+
+.vp-adm-enq-said {
+  background: var(--adm-sunk);
+  color: var(--adm-ink);
+}
+
+/* The shop's side, indented from the reading edge the way a reply is. */
+.vp-adm-enq-reply {
+  margin-inline-start: 24px;
+  display: grid;
+  gap: 4px;
+  background: var(--adm-gold-wash);
+}
+
+.vp-adm-enq-reply p {
+  margin: 0;
+}
+
+.vp-adm-enq-reply .vp-adm-sub {
+  line-height: 18px;
+}
+
+.vp-adm-enq-reply.is-unsent {
+  background: var(--adm-bad-wash);
+}
+
+.vp-adm-enq-reply.is-unsent .vp-adm-sub {
+  color: var(--adm-bad);
+}
+
+.vp-adm-enq-answer {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding-top: 10px;
+  border-top: 1px solid var(--adm-line);
+}
+
+.vp-adm-enq-answer textarea {
+  width: 100%;
+  min-height: 72px;
+  padding: 8px 10px;
+  border: 1px solid var(--adm-line);
+  border-radius: var(--adm-r-sm);
+  background: var(--adm-surface);
+  color: var(--adm-ink);
+  font: inherit;
+  resize: vertical;
+}
+
+.vp-adm-enq-answer textarea:focus {
+  outline: 2px solid var(--adm-gold-fill);
+  outline-offset: -1px;
+}
+
+.vp-adm-enq-acts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}

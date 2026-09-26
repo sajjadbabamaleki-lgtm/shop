@@ -422,6 +422,9 @@ Route::middleware('auth:web')->group(function (): void {
     Route::post('/enquiries/{enquiry}', [EnquiryController::class, 'update'])
         ->middleware(RequirePlatformPermission::class.':platform.enquiry.manage')
         ->name('enquiry.status');
+    Route::post('/enquiries/{enquiry}/reply', [EnquiryController::class, 'reply'])
+        ->middleware(RequirePlatformPermission::class.':platform.enquiry.manage')
+        ->name('enquiry.reply');
 
     /*
      * The comment queue. Platform-scoped for the same reason the table has no
