@@ -24,11 +24,30 @@ class ApiKeySender extends Melipayamak
 {
     private const ENDPOINT = 'https://console.melipayamak.com/api/send/shared/';
 
+    /** The same host's free-text door, from the shop's own line. */
+    private const TEXT_ENDPOINT = 'https://console.melipayamak.com/api/send/simple/';
+
     /**
      * @param  list<string>  $args
      */
     protected function dispatch(string $phone, string $message, array $args, string $purpose): Response
     {
+        // An answer to an enquiry is a paragraph somebody typed, and no
+        // pattern can be approved in advance for words not yet written. This
+        // account also has a line of its own (`SMS_FROM`), and a line the
+        // company owns may carry free text — so without a reply pattern the
+        // answer goes as the sentence itself, through the same host and key.
+        // Measured on the live app, 2026-09-27: the driver is this one, with
+        // SMS_FROM set and no SMS_PATTERN_REPLY — every reply was refused
+        // before it left the server.
+        if ($purpose === self::REPLY && blank(config('services.sms.pattern_reply'))) {
+            return $this->request()->asJson()->post(self::TEXT_ENDPOINT.$this->required('key'), [
+                'from' => $this->required('from'),
+                'to' => $phone,
+                'text' => $message,
+            ]);
+        }
+
         return $this->request()->asJson()->post(self::ENDPOINT.$this->required('key'), [
             'bodyId' => (int) $this->pattern($purpose),
             'to' => $phone,

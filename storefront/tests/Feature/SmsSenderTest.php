@@ -402,4 +402,54 @@ class SmsSenderTest extends TestCase
 
         Http::assertSent(fn ($request) => $request['bodyId'] === 100);
     }
+
+    /**
+     * «چرا میزنه پیامک فرستاده نشد؟؟» — the live app is this driver, with its
+     * own line in SMS_FROM and no reply pattern, and every answer from
+     * /admin/enquiries was refused before it left. It goes as the sentence
+     * itself, from the shop's own line, on the same host and key.
+     */
+    public function test_a_reply_on_the_pattern_driver_goes_as_text_from_the_shops_line(): void
+    {
+        $this->configure('melipayamak');
+        config(['services.sms.from' => '50002710012345', 'services.sms.pattern_reply' => null]);
+        Http::fake(['*' => $this->reply(['recId' => 77, 'status' => 'ارسال موفق بود'])]);
+
+        $this->app->make(Sender::class)->send('09123456789', "سلام، ارسال شد\nویکی پلاس", ['سلام، ارسال شد'], Sender::REPLY);
+
+        Http::assertSent(fn (Request $request): bool => $request->url() === 'https://console.melipayamak.com/api/send/simple/the-secret'
+            && $request['from'] === '50002710012345'
+            && $request['to'] === '09123456789'
+            && str_contains($request['text'], 'سلام، ارسال شد'));
+    }
+
+    /** With a reply pattern of its own, the pattern is still what is sent. */
+    public function test_a_reply_pattern_when_there_is_one_is_used(): void
+    {
+        $this->configure('melipayamak');
+        config(['services.sms.from' => '50002710012345', 'services.sms.pattern_reply' => '4242']);
+        Http::fake(['*' => $this->reply(['recId' => 77])]);
+
+        $this->app->make(Sender::class)->send('09123456789', 'متن', ['متن'], Sender::REPLY);
+
+        Http::assertSent(fn (Request $request): bool => str_contains($request->url(), '/api/send/shared/')
+            && $request['bodyId'] === 4242);
+    }
+
+    /**
+     * A reply the provider refuses is reported, not swallowed: the panel is
+     * the one screen that must never say «فرستاده شد» over a refusal. The
+     * sign-in code keeps its old contract — see the test above.
+     */
+    public function test_a_refused_reply_throws_so_the_panel_can_say_so(): void
+    {
+        $this->configure('melipayamak');
+        config(['services.sms.from' => '50002710012345']);
+        Http::fake(['*' => $this->reply(['recId' => 0, 'status' => 'شماره فرستنده معتبر نیست'])]);
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('شماره فرستنده معتبر نیست');
+
+        $this->app->make(Sender::class)->send('09123456789', 'متن', ['متن'], Sender::REPLY);
+    }
 }

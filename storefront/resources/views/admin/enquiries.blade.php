@@ -88,6 +88,11 @@
                         — {{ fa_date($reply->created_at, true) }}
                         — {{ $reply->sent_at ? 'با پیامک فرستاده شد' : 'پیامک فرستاده نشد' }}
                     </span>
+                    @if (! $reply->sent_at && $reply->failure)
+                        {{-- Why, verbatim: «فرستاده نشد» with no reason is a
+                             question somebody then has to ask a developer. --}}
+                        <span class="vp-adm-sub" dir="auto">علت: {{ $reply->failure }}</span>
+                    @endif
                 </div>
             @endforeach
 

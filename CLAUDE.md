@@ -583,7 +583,12 @@ the client saw an old page and had no way to tell why. So, plainly:
   `DRIVERS` map — the interface is one method. **Melipayamak is already written**
   in four doors, and picking the wrong one wastes an evening. Two axes: which
   host the account's key belongs to, and whether the line is the shop's own.
-  **This shop is `melipayamak.panel.simple`** — the older
+  **⛔ Measured on the live app 2026-09-27 (Liara API, names only): the
+  driver is `melipayamak`** — the console host's pattern door — with
+  `SMS_PATTERN`, `SMS_PATTERN_ALERT`, `SMS_USER` and `SMS_FROM` set and no
+  `SMS_PATTERN_REPLY`. The sentence below said otherwise and cost a round:
+  read the app's settings before reasoning about which door is live.
+  **This shop was once written up as `melipayamak.panel.simple`** — the older
   `rest.payamak-panel.com` host, `SMS_USER` plus the key standing in for the
   password, its own line in `SMS_FROM`, free text, **no pattern**. The key on
   the panel's «تنظیمات وبسرویس» page is a *panel* key, which its own help text
@@ -1250,11 +1255,15 @@ the client saw an old page and had no way to tell why. So, plainly:
   پنل ادمین؟» — the screen could read and mark, and every answer left the panel
   as a phone call nobody wrote down. `enquiry_replies` holds what was said, who
   said it and whether it left (`sent_at`, or `failure` verbatim); the message
-  goes to the number the enquiry was left with through `Sender::REPLY`. On this
-  shop's own line that is the sentence and needs nothing; **a pattern line
-  needs `SMS_PATTERN_REPLY` and deliberately does not fall back** to the code's
-  pattern, which would put a paragraph in a six-digit blank — without it the
-  reply is stored and the screen says «پیامک فرستاده نشد». A «جدید» enquiry
+  goes to the number the enquiry was left with through `Sender::REPLY`. It
+  **never** falls back to the code's pattern, which would put a paragraph in a
+  six-digit blank. On the live `melipayamak` driver with no
+  `SMS_PATTERN_REPLY`, `ApiKeySender` sends it as free text from `SMS_FROM`
+  through the same host's `/api/send/simple/` — the first version threw there
+  instead, and every reply read «پیامک فرستاده نشد» («چرا میزنه پیامک فرستاده
+  نشد؟؟»). **A reply, unlike a code, throws on a refusal**, so the panel stores
+  the provider's own words under it («علت: …») rather than saying «فرستاده
+  شد» over a message that never left. A «جدید» enquiry
   moves to «تماس گرفته شد» when answered; a closed one stays closed.
   **The screen is one card per enquiry and must not go back to a table**:
   below 992 every panel table turns its rows into bordered cards, so a table in
