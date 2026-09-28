@@ -4,11 +4,14 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Enquiry;
+use App\Support\Sms\Sender;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
+use Throwable;
 
 /**
  * Where the wholesale and franchise enquiries are read.
@@ -35,7 +38,7 @@ class EnquiryController extends Controller
         return view('admin.enquiries', [
             'enquiries' => Enquiry::query()
                 ->when(array_key_exists((string) $kind, Enquiry::kinds()), fn ($query) => $query->where('kind', $kind))
-                ->with('handler')
+                ->with(['handler', 'replies.author'])
                 ->workList()
                 ->paginate(25)
                 ->withQueryString(),
@@ -60,5 +63,58 @@ class EnquiryController extends Controller
         ]);
 
         return back()->with('status', 'وضعیت درخواست به‌روز شد.');
+    }
+
+    /**
+     * «چرا هیچ قسمتی برای پاسخ دادن به پیام نداریم»
+     *
+     * The answer goes to the number the enquiry was left with, as a text
+     * message, and is kept under the enquiry so the next person to open it
+     * sees what was already said. An enquiry still marked «جدید» moves to
+     * «تماس گرفته شد» with it — it has been answered.
+     *
+     * **A message that could not leave is still stored, and says so.** The
+     * sender swallows a provider's refusal by contract, but a pattern line
+     * with no reply pattern throws, and so can a timeout; either way the
+     * person who typed the answer is told on the screen rather than believing
+     * it went.
+     */
+    public function reply(Request $request, Enquiry $enquiry, Sender $sms): RedirectResponse
+    {
+        $input = $request->validate([
+            'body' => ['required', 'string', 'max:500'],
+        ], [
+            'body.required' => 'متن پاسخ را بنویس.',
+            'body.max' => 'پاسخ از ۵۰۰ نویسه بلندتر است.',
+        ]);
+
+        $body = trim($input['body']);
+        $failure = null;
+
+        try {
+            $sms->send($enquiry->phone, $body."\nویکی پلاس", [$body], Sender::REPLY);
+        } catch (Throwable $e) {
+            $failure = mb_substr($e->getMessage(), 0, 500);
+            Log::error("The reply to enquiry {$enquiry->id} was not sent: {$e->getMessage()}");
+        }
+
+        $enquiry->replies()->create([
+            'user_id' => Auth::id(),
+            'body' => $body,
+            'sent_at' => $failure === null ? now() : null,
+            'failure' => $failure,
+        ]);
+
+        if ($enquiry->status === Enquiry::NEW) {
+            $enquiry->update([
+                'status' => Enquiry::CONTACTED,
+                'handled_by' => Auth::id(),
+                'handled_at' => now(),
+            ]);
+        }
+
+        return $failure === null
+            ? back()->with('status', 'پاسخ با پیامک برای '.$enquiry->name.' فرستاده شد.')
+            : back()->withErrors(['body' => 'پاسخ ذخیره شد اما پیامک فرستاده نشد: '.$failure]);
     }
 }

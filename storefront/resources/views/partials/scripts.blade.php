@@ -267,11 +267,10 @@
                 box.appendChild(take);
                 card.appendChild(box);
 
-                var use = document.createElement('a');
-                use.className = 'vp-prize-go';
-                use.href = shop;
-                use.textContent = 'استفاده از تخفیف';
-                card.appendChild(use);
+                var cash = document.createElement('p');
+                cash.className = 'vp-prize-cash';
+                cash.textContent = 'این کد تخفیف فقط برای خرید نقدی قابل استفاده است';
+                card.appendChild(cash);
 
                 var when = document.createElement('p');
                 when.className = 'vp-prize-when';

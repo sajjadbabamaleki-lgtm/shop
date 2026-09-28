@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\Payments\Gateways;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -72,46 +73,6 @@ class Payment extends Model
         return $this->status === self::PAID;
     }
 
-    /**
-     * **Which provider took the money, in words.**
-     *
-     * «وقتی پرداختی صورت میگیره مشخص نیست که این پرداخت با اسنپ پی بوده یا با
-     * زرین پال» — and it was not: the panel printed `payment_status`
-     * (paid/unpaid) and `orders.payment_method` (online/at-the-door), and the
-     * gateway lived only in this column, which no screen read. Two providers
-     * take money for this shop and the shop could not tell one from the other
-     * on an order, which is also the one thing a reconciliation needs: a
-     * زرین‌پال line and an اسنپ‌پی line arrive on different statements.
-     *
-     * **Its own map rather than the `Gateways` registry**, and that is the
-     * point: a row naming a provider the shop has since disconnected still
-     * has to be named here. `Gateways::named()` answers null for exactly that
-     * case, by its own docblock, and an old order is not the place to find out
-     * that a variable changed.
-     *
-     * Falls back to the token so a provider added later is visible rather than
-     * blank — the same rule `Order::methodLabel()` follows.
-     *
-     * @return array<string, string>
-     */
-    public static function gatewayLabels(): array
-    {
-        return [
-            'zarinpal' => 'زرین‌پال',
-            'snapppay' => 'اسنپ‌پی (اقساطی)',
-            // Not a gateway: «پول را گرفتم» on the order screen writes this,
-            // and the money did not come through anybody's terminal.
-            'panel' => 'ثبت دستی در پنل',
-            'demo' => 'سفارش آزمایشی',
-            'at-the-door' => 'بدون درگاه',
-        ];
-    }
-
-    public function gatewayLabel(): string
-    {
-        return self::gatewayLabels()[$this->gateway] ?? (string) $this->gateway;
-    }
-
     public function statusLabel(): string
     {
         return match ($this->status) {
@@ -119,6 +80,57 @@ class Payment extends Model
             self::FAILED => 'ناموفق',
             self::CANCELLED => 'لغو شد',
             default => 'در انتظار پرداخت',
+        };
+    }
+
+    /**
+     * Which gateway this attempt went to, in words — «از طریق چه درگاهی».
+     *
+     * The two this shop has are named here; a gateway connected later is
+     * named by its own driver's label, and a row whose driver has since been
+     * disconnected falls back to the stored name, so an attempt is never
+     * blank about where it went.
+     */
+    public function gatewayLabel(): string
+    {
+        return match ($this->gateway) {
+            'zarinpal' => 'زرین‌پال (کارت بانکی)',
+            'snapppay' => 'اسنپ‌پی (اقساطی)',
+            'panel' => 'ثبت‌شده در پنل',
+            default => app(Gateways::class)->named($this->gateway)?->label() ?? (string) $this->gateway,
+        };
+    }
+
+    /**
+     * What happened to this attempt, said the way the shop needs to hear it
+     * when looking for a fault — «اگر سفارشی رو ثبت کرد و تا مرحله پرداخت رفت
+     * ولی پرداختش نکرد … بفهمم مشکل از کجا بوده».
+     *
+     * Four different stories, and they point at different culprits: a refusal
+     * is the gateway (or its settings), a cancel is the shopper, and an
+     * attempt still pending after a while is somebody who reached the gateway
+     * and never came back — a closed tab, a dropped connection, or a gateway
+     * page that would not load.
+     */
+    public function outcomeLabel(): string
+    {
+        return match ($this->status) {
+            self::PAID => 'پرداخت شد',
+            self::CANCELLED => 'مشتری در درگاه انصراف داد',
+            self::FAILED => 'درگاه نپذیرفت یا تأیید نشد',
+            default => $this->created_at && $this->created_at->lt(now()->subMinutes(20))
+                ? 'به درگاه رفت و برنگشت'
+                : 'در حال پرداخت',
+        };
+    }
+
+    /** The badge tone the panel uses for this outcome. */
+    public function outcomeTone(): string
+    {
+        return match ($this->status) {
+            self::PAID => 'delivered',
+            self::FAILED, self::CANCELLED => 'cancelled',
+            default => 'placed',
         };
     }
 }

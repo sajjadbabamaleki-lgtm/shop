@@ -43,6 +43,14 @@ interface Sender
     public const ALERT = 'alert';
 
     /**
+     * The shop's answer to an enquiry from `/admin/enquiries`. One value: the
+     * answer as typed. It is free text, so a pattern line needs a pattern of
+     * its own with one blank (`SMS_PATTERN_REPLY`) — there is no falling back
+     * to the code's, which would put a paragraph where a code goes.
+     */
+    public const REPLY = 'reply';
+
+    /**
      * **`$purpose` exists because a pattern is per-message, not per-shop.**
      *
      * A provider approves a *sentence* with numbered blanks in it, and this
@@ -56,8 +64,8 @@ interface Sender
      *
      * @param  list<string>  $args  the message's own values, in the order the
      *                              provider's approved pattern expects them
-     * @param  self::CODE|self::ALERT  $purpose  which of the shop's messages
-     *                                           this is
+     * @param  self::CODE|self::ALERT|self::REPLY  $purpose  which of the shop's messages
+     *                                                       this is
      */
     public function send(string $phone, string $message, array $args = [], string $purpose = self::CODE): void;
 }

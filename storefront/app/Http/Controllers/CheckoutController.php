@@ -8,6 +8,7 @@ use App\Support\Checkout\CannotFulfil;
 use App\Support\Checkout\CartManager;
 use App\Support\Checkout\Discounts;
 use App\Support\Checkout\PlaceOrder;
+use App\Support\Payments\Gateways;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -54,6 +55,10 @@ class CheckoutController extends Controller
             'cart' => $cart,
             'discount' => $this->discounts->on($cart),
             'methods' => $this->methods(),
+            // Whether the shop offers instalments at all, which is when the
+            // sentence «a code is for paying in cash» is worth printing under
+            // the code field — see Gateways::offeredForOrder().
+            'lenderOffered' => app(Gateways::class)->anyLender(),
         ]);
     }
 

@@ -814,8 +814,15 @@ return [
          | which is the point of them being here rather than in the database.
          |
          | Set it to [] to leave the row out entirely.
+         |
+         | **It is [] from 2026-09-25**: «در وبسایت اصلی انتخاب رنگ لاینش فعلا
+         | هاید بشه». Colour cannot be chosen in an order yet, so a row of
+         | swatches was offering a choice the basket does not carry — the panel
+         | shows each order line's photograph instead, which is how the shop
+         | tells colourways apart. The five that were here, to put back:
+         | '#3F4147', '#D98F6B', '#E4C378', '#8FA8B8', '#C9C2BA'.
          */
-        'colors' => ['#3F4147', '#D98F6B', '#E4C378', '#8FA8B8', '#C9C2BA'],
+        'colors' => [],
 
         /*
          | How many of those are in stock — «توش نوشته باشه ۳ رنگ موجود».

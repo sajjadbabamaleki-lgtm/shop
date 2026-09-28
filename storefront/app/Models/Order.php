@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Str;
 
 /**
@@ -57,6 +58,9 @@ class Order extends Model
         'confirmed_at', 'estimated_ship_by', 'actual_shipped_at',
         'estimated_delivery_from', 'estimated_delivery_to', 'actual_delivered_at',
         'is_delayed', 'delay_reason', 'carrier', 'shipping_method_id', 'promise_basis',
+        // What an instalment purchase was paid up front and when each
+        // instalment falls due — written from the panel, see instalmentPlan().
+        'instalment_plan',
     ];
 
     protected function casts(): array
@@ -70,6 +74,7 @@ class Order extends Model
             'actual_delivered_at' => 'datetime',
             'is_delayed' => 'boolean',
             'promise_basis' => 'array',
+            'instalment_plan' => 'array',
             'subtotal' => 'integer',
             'discount_total' => 'integer',
             'shipping_total' => 'integer',
@@ -83,6 +88,20 @@ class Order extends Model
     public function items(): HasMany
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    /**
+     * The most recent attempt to pay, whichever gateway it went to.
+     *
+     * «مشخص باشه که مشتری من از طریق چه درگاهی … می‌خواسته سفارشش رو پرداخت
+     * کنه» — the orders list prints this beside the payment badge, so an
+     * order that reached a gateway and never came back paid says which one.
+     * The newest row by id: a second attempt after a failed first is the
+     * shopper's latest choice.
+     */
+    public function latestPayment(): HasOne
+    {
+        return $this->hasOne(Payment::class)->latestOfMany();
     }
 
     /**
@@ -241,6 +260,66 @@ class Order extends Model
             'refunded' => 'cancelled',
             default => 'placed',
         };
+    }
+
+    /**
+     * Whether this purchase is on instalments rather than paid in one go.
+     *
+     * «قسطی یا نقدی بوده» is the first question the printed invoice answers,
+     * and there are two ways an order comes to be one: the money arrived
+     * through اسنپ‌پی, or the shop wrote a plan against it on the order's own
+     * screen (an instalment agreed at the counter has no gateway behind it).
+     * Asked of the settled payment, not of an attempt — an order that opened
+     * an اسنپ‌پی attempt and was then paid by card is a cash order.
+     */
+    public function isInstalment(): bool
+    {
+        if ($this->instalmentPlan() !== null) {
+            return true;
+        }
+
+        return $this->payments()
+            ->where('gateway', 'snapppay')
+            ->where('status', Payment::PAID)
+            ->exists();
+    }
+
+    public function purchaseKindLabel(): string
+    {
+        return $this->isInstalment() ? 'اقساطی' : 'نقدی';
+    }
+
+    /**
+     * The plan as it was written, cleaned to one shape: the amount paid up
+     * front and the instalments in date order. Null when none was written.
+     *
+     * Amounts are Rial like every other money column here; dates are
+     * `Y-m-d`, which is what the panel's date fields post.
+     *
+     * @return array{down_payment: int, instalments: list<array{due: string, amount: int}>}|null
+     */
+    public function instalmentPlan(): ?array
+    {
+        $plan = $this->instalment_plan;
+
+        if (! is_array($plan)) {
+            return null;
+        }
+
+        $rows = collect($plan['instalments'] ?? [])
+            ->filter(fn ($row) => is_array($row) && ! empty($row['due']))
+            ->map(fn (array $row) => ['due' => (string) $row['due'], 'amount' => (int) ($row['amount'] ?? 0)])
+            ->sortBy('due')
+            ->values()
+            ->all();
+
+        $down = (int) ($plan['down_payment'] ?? 0);
+
+        if ($rows === [] && $down === 0) {
+            return null;
+        }
+
+        return ['down_payment' => $down, 'instalments' => $rows];
     }
 
     public function shippingMethod(): BelongsTo

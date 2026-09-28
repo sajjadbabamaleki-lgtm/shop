@@ -843,7 +843,7 @@ class CataloguePagesTest extends TestCase
 
         foreach (['shop/cart.blade.php', 'partials/mini-cart.blade.php'] as $view) {
             $this->assertStringContainsString(
-                "'is-supplied' => \$variant->product?->source",
+                "'is-supplied' => \$variant->product?->fillsFrame()",
                 file_get_contents(resource_path('views/'.$view)),
                 "{$view} does not mark a supplied photograph, so the rule above has nothing to bind to.",
             );

@@ -44,7 +44,14 @@ class OrderController extends Controller
             // The amount is part of the question because an instalment
             // provider lends between a floor and a ceiling: an order outside
             // that range would otherwise show a button certain to be refused.
-            'gateways' => $gateways->offeredFor((int) $order->grand_total),
+            //
+            // And less the instalments when a discount code is on the order —
+            // «کد تخفیف فقط برای خرید نقدی باشه». See offeredForOrder().
+            'gateways' => $gateways->offeredForOrder($order),
+
+            // Whether a lender was taken off this order's buttons by its
+            // discount, so the page can say why rather than simply not show it.
+            'lendingBarred' => Gateways::discountBarsLending($order) && $gateways->anyLender(),
 
             // The receipt, if the money arrived. Read here so the page does
             // not have to know that a payment is a row.

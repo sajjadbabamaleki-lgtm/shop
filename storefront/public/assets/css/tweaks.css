@@ -11812,18 +11812,21 @@ body.vp-soon-open .vp-whatsapp {
   cursor: pointer;
 }
 
-.vp-prize-go {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 54px;
-  border-radius: 14px;
+.vp-prize-cash {
 
-  background: linear-gradient(90deg, var(--vp-gold-ramp-top) 0%, var(--vp-gold-ramp-foot) 100%);
+  margin: 0;
+  padding: 14px 16px;
+  border: 1px solid rgba(160, 129, 25, 0.45);
+  border-radius: 14px;
+  background: rgba(218, 178, 38, 0.12);
   color: #101111;
-  font-size: 17px;
-  font-weight: 720;
-  text-decoration: none;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.7;
+  text-align: center;
+
+  white-space: nowrap;
+  font-size: clamp(10.5px, calc((100vw - 92px) * 0.0455), 15px);
 }
 
 .vp-prize-when {
@@ -11914,9 +11917,8 @@ body.vp-soon-open .vp-whatsapp {
     letter-spacing: 0.04em;
   }
 
-  .vp-prize-go {
-    min-height: 48px;
-    font-size: 16px;
+  .vp-prize-cash {
+    padding: 12px 8px;
   }
 }
 

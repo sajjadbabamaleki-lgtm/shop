@@ -230,4 +230,32 @@ class PanelCatalogueEditingTest extends TestCase
 
         $this->assertNull($product->fresh()->published_at);
     }
+
+    /**
+     * «غیرفعال» is a switch that works, in both directions.
+     *
+     * It used to post `inactive`, which `products.status` refuses — a CHECK
+     * violation, so choosing it was a 500. It is how the sandals retired on
+     * 2026-09-24 come back, one at a time, so both halves are held here.
+     */
+    public function test_the_status_select_takes_a_product_off_and_puts_it_back(): void
+    {
+        $product = Product::where('slug', 'new-balance-530')->firstOrFail();
+        $published = $product->published_at->toDateString();
+
+        foreach (['archived', 'active'] as $status) {
+            $this->actingAs($this->staff)->post(route('admin.product.update', $product), [
+                'title' => $product->title,
+                'status' => $status,
+                'published_at' => $published,
+            ])->assertRedirect()->assertSessionHasNoErrors();
+
+            $this->assertSame($status, $product->fresh()->status);
+        }
+
+        $this->actingAs($this->staff)->get(route('admin.product.edit', $product))
+            ->assertOk()
+            ->assertSee('<option value="archived"', false)
+            ->assertDontSee('value="inactive"', false);
+    }
 }

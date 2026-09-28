@@ -54,7 +54,7 @@
              eat that margin». A supplier's photograph is whatever the seller
              uploaded, and the first one imported came out with its bottom
              sliced off inside the tile's `overflow: hidden`. --}}
-        <a class="vp-card-shot{{ $product->source ? ' is-supplied' : '' }}" href="{{ storefront_route('product', $product) }}">
+        <a class="vp-card-shot{{ $product->fillsFrame() ? ' is-supplied' : '' }}" href="{{ storefront_route('product', $product) }}">
             <img src="{{ asset($shot) }}"{!! photo_srcset($shot) !!} alt="{{ $product->title }}" loading="lazy">
             {{-- «کلا کلمه جدید پاک بشه با دکمش». There was a «جدید» chip in
                  this corner and it is gone, badge and word together; what is

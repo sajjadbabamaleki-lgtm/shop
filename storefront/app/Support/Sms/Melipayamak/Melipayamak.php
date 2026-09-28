@@ -97,6 +97,14 @@ abstract class Melipayamak implements Sender
         try {
             $response = $this->dispatch($phone, $message, $args, $purpose);
         } catch (ConnectionException $e) {
+            // A reply is typed by a person in the panel, not waited on by a
+            // shopper, and «فرستاده شد» over a message that never left is the
+            // one thing that screen must not say. So for a reply, failure is
+            // reported — the controller catches it and stores the reason.
+            if ($purpose === self::REPLY) {
+                throw new RuntimeException("Melipayamak did not answer: {$e->getMessage()}", 0, $e);
+            }
+
             // The provider being unreachable is an ordinary bad afternoon, not
             // a bug in the shop. Sign-in is on the other side of this call and
             // a 500 in front of somebody trying to buy shoes is worse than a
@@ -105,6 +113,12 @@ abstract class Melipayamak implements Sender
             Log::error("SMS to {$phone} did not reach Melipayamak: {$e->getMessage()}");
 
             return;
+        }
+
+        if (! $this->accepted($response) && $purpose === self::REPLY) {
+            throw new RuntimeException(
+                "Melipayamak refused the message (HTTP {$response->status()}): ".mb_substr($response->body(), 0, 300)
+            );
         }
 
         if (! $this->accepted($response)) {
@@ -154,6 +168,13 @@ abstract class Melipayamak implements Sender
      */
     protected function pattern(string $purpose): string
     {
+        // A reply is a paragraph, and the code's pattern has one blank sized
+        // for six digits. No fallback: without its own pattern this throws,
+        // and the panel says the message did not leave.
+        if ($purpose === self::REPLY) {
+            return $this->required('pattern_reply');
+        }
+
         if ($purpose === self::ALERT) {
             $alert = config('services.sms.pattern_alert');
 

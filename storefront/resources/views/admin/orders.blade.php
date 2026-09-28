@@ -21,6 +21,7 @@
         'q' => $filters['q'],
         'status' => $filters['status'],
         'payment' => $filters['payment'],
+        'gateway' => $filters['gateway'],
         'per' => $filters['per'] === 20 ? null : $filters['per'],
     ] + ($range?->carry() ?? []), fn ($v) => $v !== null && $v !== '');
 
@@ -62,6 +63,16 @@
         <option value="unpaid" @selected($filters['payment'] === 'unpaid')>پرداخت‌نشده</option>
         <option value="refunded" @selected($filters['payment'] === 'refunded')>برگشت‌خورده</option>
     </select>
+
+    @if ($gateways !== [])
+        <label class="visually-hidden" for="vp-gateway">درگاه</label>
+        <select id="vp-gateway" name="gateway">
+            <option value="">درگاه: همه</option>
+            @foreach ($gateways as $key => $label)
+                <option value="{{ $key }}" @selected($filters['gateway'] === $key)>{{ $label }}</option>
+            @endforeach
+        </select>
+    @endif
 
     <label class="visually-hidden" for="vp-range">بازه</label>
     <select id="vp-range" name="range">
@@ -151,20 +162,15 @@
                         <td>{{ $order->placed_at ? fa_date($order->placed_at) : 'ثبت نشده' }}</td>
                         <td>{{ $order->contact_name }}<br><small><bdi dir="ltr">{{ $order->contact_phone }}</bdi></small></td>
                         <td><span class="vp-adm-badge is-{{ $order->status }}">{{ $order->statusLabel() }}</span></td>
-                        {{-- The badge says whether it is paid; the line under
-                             it says who took the money. Two providers were one
-                             word on this screen until «وقتی پرداختی صورت میگیره
-                             مشخص نیست که این پرداخت با اسنپ پی بوده یا با زرین
-                             پال» — and this is the column somebody scans when
-                             they are reconciling a day's takings against two
-                             statements. Blank for an order nobody has paid for,
-                             which is what the badge beside it already says. --}}
                         <td>
                             <span class="vp-adm-badge is-{{ $order->paymentTone() }}">
                                 {{ $order->paymentLabel() }}
                             </span>
-                            @if ($paid = $order->payments->first())
-                                <br><small>{{ $paid->gatewayLabel() }}</small>
+                            {{-- Which gateway the shopper last went to, and
+                                 what came of it — so an unpaid order says
+                                 whether it died at اسنپ‌پی or at زرین‌پال. --}}
+                            @if ($order->latestPayment && $order->latestPayment->gateway !== 'panel')
+                                <br><small>{{ $order->latestPayment->gatewayLabel() }} — {{ $order->latestPayment->outcomeLabel() }}</small>
                             @endif
                         </td>
                         <td>{{ toman($order->grand_total) }}</td>

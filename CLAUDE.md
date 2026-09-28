@@ -583,7 +583,12 @@ the client saw an old page and had no way to tell why. So, plainly:
   `DRIVERS` map — the interface is one method. **Melipayamak is already written**
   in four doors, and picking the wrong one wastes an evening. Two axes: which
   host the account's key belongs to, and whether the line is the shop's own.
-  **This shop is `melipayamak.panel.simple`** — the older
+  **⛔ Measured on the live app 2026-09-27 (Liara API, names only): the
+  driver is `melipayamak`** — the console host's pattern door — with
+  `SMS_PATTERN`, `SMS_PATTERN_ALERT`, `SMS_USER` and `SMS_FROM` set and no
+  `SMS_PATTERN_REPLY`. The sentence below said otherwise and cost a round:
+  read the app's settings before reasoning about which door is live.
+  **This shop was once written up as `melipayamak.panel.simple`** — the older
   `rest.payamak-panel.com` host, `SMS_USER` plus the key standing in for the
   password, its own line in `SMS_FROM`, free text, **no pattern**. The key on
   the panel's «تنظیمات وبسرویس» page is a *panel* key, which its own help text
@@ -836,45 +841,6 @@ the client saw an old page and had no way to tell why. So, plainly:
   printed to the shopper on their own order page. All three are required, and
   the reason is the same each time: it is the one number this shop, the shopper
   and their lender all hold.
-- **An order says which provider took the money, and shows the shoe.** Two
-  things the panel could not tell anybody, reported together.
-  **«وقتی پرداختی صورت میگیره مشخص نیست که این پرداخت با اسنپ پی بوده یا با
-  زرین پال»** — and it was not on any screen. `payments.gateway` has held the
-  answer since the second provider was connected and nothing read it: the order
-  page printed `payment_status` (پرداخت‌شده/پرداخت‌نشده) and
-  `orders.payment_method` (اینترنتی/در محل), which are the same two words
-  whichever provider took the money. A day's takings are reconciled against two
-  different statements, so that is not an answer. `Payment::gatewayLabel()` is
-  the one place it is named — on the receipt, on **every attempt** (a card
-  refused and instalments accepted is the usual shape of «چرا دو بار پرداخت
-  شد», and it cannot be read when both rows say only «ناموفق»), and under the
-  badge in the orders list, where the paid row is **eager-loaded** because that
-  page draws up to a hundred orders. **It carries its own map rather than
-  asking `Gateways`**, and that is the point: a row naming a provider the shop
-  has since disconnected still has to be named, which is precisely the case
-  `Gateways::named()` answers null for. `panel` and `demo` are in the map too —
-  money taken by hand is not a gateway and must not be dressed as one.
-  **«چون ما عکس هامون از باسلام برداشته شده رنگشون مشخص نیست، پس تو پنل ادمین
-  باید با عکس خود کفش به ما نشون بده چه کفشی سفارش داده»** — the supplier's
-  titles carry no colour anybody can pack from and every variant here is still
-  `color_family = unspecified`, so the words on an order line cannot say which
-  shoe is in the box. `OrderItem::photoPath()` answers it, and **it is the one
-  thing on that model that deliberately reads through `variant_id`**: a
-  photograph is not a fact about the purchase — no money, no name, no number
-  comes off it — so it is live, it changes when the shop re-photographs the
-  shoe, and when the product has been deleted there is simply no picture while
-  every word of the receipt still reads. It takes the **colourway's** own
-  photographs first (`mediaFor()` on the line's stored `display_color`), and
-  the product-wide fallback is safe here for a stated reason: `basalam:import`
-  makes one product per supplier listing and a supplier lists each colour
-  separately, so a product on this shop *is* a colourway. 64px, `object-fit:
-  contain` (cropping one is how a toe leaves the frame — see the supplier's
-  photographs above), linking to the shoe's own panel screen where the gallery
-  is. `.vp-adm-shot` is in `admin.css` on the panel's own tokens, so the ink
-  theme needs no block of its own — a storefront class there would have carried
-  a literal `#FFFFFF`, which this panel has been caught by twice.
-  `AnOrderSaysWhoPaidAndShowsTheShoeTest` holds both, and nothing else here
-  could: no other check asks what the *panel* shows.
 - **The content pages are `/about`, `/contact`, `/size-guide`, `/faq`, `/terms`
   and `/privacy`** — `PageController`, one view each under `resources/views/pages/`,
   copy and no database. They exist because the footer had been linking to them
@@ -1198,8 +1164,23 @@ the client saw an old page and had no way to tell why. So, plainly:
     shoe this shop does not sell keeps almost none of its words and is refused
     rather than matched to whatever scored highest.
   - **The words must name one shoe, and that is the fence.** Every candidate
-    at the top score has to carry the same title; two different shoes there
-    means the address never said which. This replaced «a tie is refused», and
+    at the top score has to be the same shoe; two different ones there means
+    the address never said which.
+    **⛔ "The same shoe" is not "the same title", and reading it that way is
+    what kept `/products/golden-goose` a 404 until 2026-09-26**, when ترب
+    closed a ticket on it — «در لینک ارسال شده شما محصولی نمیباشد». This
+    catalogue names a colourway **two different ways** and both are live:
+
+        کتونی آن رانینگ            ← six products, one title, colour in the slug
+        کتونی گلدن گوس رنگ صورتی   ← seven products, seven titles, colour in the title
+
+    So a title test passes the first family and fails the second, though each
+    is one shoe in several colours. `whatItIsBesidesTheColour()` is the rule:
+    strip the product's own `display_color` words from its identity and
+    compare what is left. It is the panel's own column, not a guessed list of
+    colour words, and it still tells «ساق کوتاه» from «ساق بلند», which is why
+    `jordan-one-air` is refused. **Do not compare titles on this shop for
+    anything** — measure the families first. This replaced «a tie is refused», and
     that is what had kept `/products/nike-v2k-run` a 404 while the shop sold
     eight V2Ks — the address names a make and no colour, so all eight tie and
     there is nothing to separate. There was nothing to separate.
@@ -1222,8 +1203,13 @@ the client saw an old page and had no way to tell why. So, plainly:
     when most of an address is unknown, the missing words are the identifying
     ones. «کتونی نایک وی۲کی ران» against a shop whose only Nike is an Air Max
     keeps «کتونی» and «نایک», carries both, and would otherwise redirect.
-    Measured: addresses that should resolve run 57%–100% known, that case is
-    29%.
+    Measured: addresses that should resolve run 50%–100% known, that case is
+    29%. **Exactly half passes** — `on-cloudtilt` is the reason: the shop
+    writes that model «کتونی آن رانینگ ON Running», so `cloudtilt` matches
+    nothing and `on`, which is on those six products and nowhere else in 154,
+    is all that survives. One word of two was refused, and that 404 is the
+    other half of the same ترب ticket. A rare word that survives is evidence;
+    this fence is against an address that is *mostly* foreign to the shop.
   - **There is no minimum word count any more.** It was a proxy for the three
     fences above and it was refusing `nike-v2k-run`. Taking it out without them
     let the sandal and the Air Max through; each has its own case in
@@ -1292,6 +1278,24 @@ the client saw an old page and had no way to tell why. So, plainly:
   the mini basket's *throws* when no branch is bound — which is exactly the state
   a 404 for an unmatched route is in, so rendering the ordinary shell there turns
   a 404 into a 500. `ErrorPagesTest` asks for one with the tenant forgotten.
+- **An enquiry is answered from `/admin/enquiries`, by text message, and the
+  answer stays under it.** «چرا هیچ قسمتی برای پاسخ دادن به پیام نداریم تو
+  پنل ادمین؟» — the screen could read and mark, and every answer left the panel
+  as a phone call nobody wrote down. `enquiry_replies` holds what was said, who
+  said it and whether it left (`sent_at`, or `failure` verbatim); the message
+  goes to the number the enquiry was left with through `Sender::REPLY`. It
+  **never** falls back to the code's pattern, which would put a paragraph in a
+  six-digit blank. On the live `melipayamak` driver with no
+  `SMS_PATTERN_REPLY`, `ApiKeySender` sends it as free text from `SMS_FROM`
+  through the same host's `/api/send/simple/` — the first version threw there
+  instead, and every reply read «پیامک فرستاده نشد» («چرا میزنه پیامک فرستاده
+  نشد؟؟»). **A reply, unlike a code, throws on a refusal**, so the panel stores
+  the provider's own words under it («علت: …») rather than saying «فرستاده
+  شد» over a message that never left. A «جدید» enquiry
+  moves to «تماس گرفته شد» when answered; a closed one stays closed.
+  **The screen is one card per enquiry and must not go back to a table**:
+  below 992 every panel table turns its rows into bordered cards, so a table in
+  a card was «کادر تو کادر» on a phone. `EnquiryReplyTest` holds both.
 - **`.vp-page` is one link in the paginator**, not a page. It carries
   `display: grid; height: 38px`, and a panel that wore the name came out 64px
   tall with its whole content spilling out under the footer. The content pages
@@ -1323,6 +1327,72 @@ the client saw an old page and had no way to tell why. So, plainly:
   error about the before-price hung on the price box lights the wrong field.
   That last part is not hypothetical: folding the two checks together moved the
   key and `BranchPanelTest` caught it.
+- **An order prints two sheets: `/admin/orders/{order}/label` and
+  `/admin/orders/{order}/invoice`**, both `OrderController` and both a page of
+  their own under `admin/print/` on a shell that loads nothing but the Persian
+  face (a sheet of paper has no use for the panel's navigation or the design
+  gate). The label is «یک طرف ادرس خودمون، یک طرفم ادرس مشتری»: the sender is
+  the branch's own address, falling back to `storefront.contact.address` when
+  the branch row has none — central's may not — and a پس‌کرایه parcel says so
+  across the recipient's half. The invoice is every figure as the order stored
+  it, never recomputed, plus **نقدی/اقساطی** and, for an instalment purchase,
+  the down payment and each due date.
+  **The instalment schedule is typed, not received.** Nothing اسنپ‌پی sends
+  this shop carries it — `verify`/`status` say whether it went through, and the
+  plan's one sentence is the button's description, which nobody may compute —
+  so «برنامهٔ اقساط» on the order screen writes `orders.instalment_plan` (JSON,
+  Rial, `Y-m-d`) and the invoice prints exactly that, or says out loud that it
+  is missing. `Order::isInstalment()` is a settled اسنپ‌پی payment *or* a
+  written plan (an instalment agreed at the counter has no gateway).
+  `OrderPaperworkTest` holds all of it.
+- **Every order line in the panel shows the shoe's photograph**
+  (`OrderItem::photoPath()`: the line's colour, then the product's main shot).
+  «از اونجایی که در سفارش مشتری امکان انتخاب رنگ فعلا غیره فعال هست» — so the
+  **product page's colour row is off** (`placeholders.colors` is `[]`, and the
+  five swatches are in the comment above it to put back), and the photograph
+  is how the packer tells two identically-titled colourways apart.
+- **Every payment attempt says which gateway it went to and what came of
+  it**, on the order screen, beside the badge in `/admin/orders` (with a
+  «درگاه» filter) and in the CSV. «مشخص باشه که مشتری … از طریق چه درگاهی
+  می‌خواسته پرداخت کنه … بفهمم مشکل از کجا بوده». `Payment::gatewayLabel()`
+  names the gateway (a later one by its driver's own `label()`),
+  `outcomeLabel()` tells the four stories apart — paid, refused by the
+  gateway, cancelled by the shopper, and «به درگاه رفت و برنگشت» for a
+  pending row older than twenty minutes — and `payments.failure` (the
+  gateway's own code and message, which every driver already wrote) is
+  printed verbatim. `Order::latestPayment()` is what the list reads.
+- **A photograph fills its frame; only the design's own cut-outs are fitted.**
+  «عکس ها … کل قابشونو پوشش نداد … این مشکلو حل کن دیگه پیش نیاد». The
+  `is-supplied` class (card, product page, basket, mini basket) was decided by
+  `products.source`, which only `basalam:import` writes — so every shoe made in
+  the panel was framed as a cut-out, drawn at 80% inside a grey box. Measured
+  from a runner on the live listing, 2026-09-25: 143 imported cards covered
+  100% of their frame and all 11 panel-made ones covered **64%**, every file
+  square. It is decided by the photograph now: `VariantMedia::isCutout()` is
+  true only under `assets/img/hero/` (the seeded cut-outs), and
+  `Product::fillsFrame()` asks the main photograph. A new upload path is a
+  photograph by default, so this cannot recur for a new way of adding shoes.
+  `PhotographsFillTheirFrameTest` holds it.
+- **A discount code is for paying in cash only.** «کد تخفیف فقط برای خرید نقدی
+  باشه و در خرید قسطی امکان استفاده ازش نباشه». The code is typed at checkout
+  and the way to pay is chosen *after* the order is placed, so the rule lives
+  where the choice is: `Gateways::offeredForOrder()` drops every gateway in
+  `Gateways::LENDERS` from an order with `discount_total > 0`, the pay route
+  refuses one on the same test, and the eligibility endpoint answers no
+  without asking SnappPay. The checkout says so under the code field whenever
+  a lender is configured, so nobody finds out after placing the order.
+- **`/admin/catalogue` has a bulk bar**: move to a section (replaces every
+  section the product was in), add to a section (keeps them), onto the stepped
+  sale (`FrontPagePlacement` band `ladder`, room for five — what does not fit
+  is counted, and a product with no struck-through price is placed but will
+  not be drawn until it has one), and **«ناموجود کردن در این شعبه»**. That last
+  is the inventory screen's count in a loop — locked row, `adjustment`
+  movement, down to `stock_reserved` and no further — so it is **the one more
+  place that writes `branch_inventory`**, beside `PlaceOrder`, `SettleOrder`,
+  the inventory screen and `stock:add`. It needs `branch.inventory.manage` on
+  top of `catalogue.manage`. It is a stock change, not a retirement: the shoe
+  stays in the listing, search and filters with «ناموجود».
+  `CatalogueBulkActionsTest` holds all four.
 - **`/admin/pricing` moves a whole filter's prices by a percentage.** «قیمت
   گلدن گوس هارو بالا ببرم همشونو ۲۰ درصد … نباید دونه دونه همه رنگاشو برم جدا
   جدا قیمتشونو ببرم بالا» — a shoe reaches this shop one colourway per product

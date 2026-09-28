@@ -51,6 +51,12 @@
                 @if ($gateways !== [])
                     <p class="vp-note">سفارشت ثبت شد و کالاها برایت کنار گذاشته شده. برای نهایی شدن، مبلغ را پرداخت کن.</p>
 
+                    {{-- Why there is no instalment button: the order carries a
+                         discount code, and a code is for paying in cash. --}}
+                    @if ($lendingBarred ?? false)
+                        <p class="vp-note">این سفارش کد تخفیف دارد و کد تخفیف فقط برای پرداخت نقدی است؛ پرداخت اقساطی برایش در دسترس نیست.</p>
+                    @endif
+
                     {{-- One form per gateway the shop can take this order
                          through, in the order `Gateways` offers them: the card
                          first, the instalments after it.

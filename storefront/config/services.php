@@ -112,6 +112,13 @@ return [
          */
         'pattern_alert' => env('SMS_PATTERN_ALERT'),
         /*
+         | The pattern an answer to an enquiry goes out through, one blank for
+         | the whole answer. Only a pattern line needs it; this shop's own line
+         | sends the sentence and ignores it. Unset on a pattern line means the
+         | panel stores the answer and says it was not sent.
+         */
+        'pattern_reply' => env('SMS_PATTERN_REPLY'),
+        /*
          | Where the «somebody signed in to the panel» message goes.
          |
          | Not a secret — it is the shop's own number — so it has a default

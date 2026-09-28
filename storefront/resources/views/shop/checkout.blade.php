@@ -150,6 +150,15 @@
                         <button type="submit">اعمال</button>
                     </form>
 
+                    {{-- «کد تخفیف فقط برای خرید نقدی باشه و در خرید قسطی امکان
+                         استفاده ازش نباشه». Said here, where the code is typed,
+                         because the choice of how to pay comes on the next page
+                         and a shopper who wanted instalments has to know before
+                         the order is placed with the code on it. --}}
+                    @if ($lenderOffered ?? false)
+                        <p class="vp-code-note">کد تخفیف فقط برای پرداخت نقدی است؛ سفارشی که کد تخفیف دارد را نمی‌شود اقساطی پرداخت کرد.</p>
+                    @endif
+
                     @if ($discount['problem'])
                         <p class="vp-code-note">{{ $discount['problem'] }}</p>
                     @elseif ($off > 0)

@@ -93,7 +93,7 @@
                     <label for="p-status">وضعیت</label>
                     <select id="p-status" name="status">
                         <option value="active" @selected(old('status', $product->status) === 'active')>فعال</option>
-                        <option value="inactive" @selected(old('status', $product->status) === 'inactive')>غیرفعال</option>
+                        <option value="archived" @selected(old('status', $product->status) === 'archived')>غیرفعال</option>
                     </select>
                 </div>
                 <div class="vp-adm-form">

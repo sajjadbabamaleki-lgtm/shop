@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Audit;
+use App\Models\DiscountRedemption;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\ShippingMethod;
 use App\Support\Admin\DateRange;
+use App\Support\Catalogue\OfferPrice;
 use App\Support\Checkout\SettleOrder;
 use App\Support\Fulfilment\FulfilmentSettings;
 use App\Support\Fulfilment\Promise;
@@ -35,10 +37,11 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  * thing standing between it and somebody else's shop.
  *
  * **What §4 asks for and is not here**, so that nobody has to read the whole
- * file to find out: print invoice and shipping label, and a general
- * refund/exchange workflow. The first two are a print stylesheet and a view.
+ * file to find out: a general refund/exchange workflow. (The printed invoice
+ * and the shipping label were on this list too; they are `invoice()` and
+ * `label()` now, each a page of its own under `admin/print/`.)
  *
- * The third is no longer quite true and the change is worth knowing: there is
+ * That is no longer quite true either and the change is worth knowing: there is
  * now **one** return in the schema — `order_items.returned_quantity`, driven
  * by `ReturnsController`, and **only for orders paid through اسنپ‌پی**, whose
  * `update` service is what a return has to be told to. A card order still
@@ -59,14 +62,7 @@ class OrderController extends Controller
         $range = $request->filled('range') ? DateRange::fromRequest($request) : null;
 
         $orders = $this->filtered($request, $range)
-            // **The provider that took the money, for the list's own badge.**
-            // Eager-loaded rather than asked per row: this page draws up to a
-            // hundred orders and the live machine costs about 10ms a query,
-            // so a lazy `->payments` here would be a second of database on one
-            // screen. Only the paid row is wanted — an order that was refused
-            // by a card and then paid by instalments has one of each, and the
-            // one that is the money is the one the badge is about.
-            ->with(['payments' => fn ($paid) => $paid->where('status', Payment::PAID)->latest('id')])
+            ->with('latestPayment')
             ->paginate($this->perPage($request))
             ->withQueryString();
 
@@ -78,11 +74,23 @@ class OrderController extends Controller
                 'q' => (string) $request->query('q', ''),
                 'status' => (string) $request->query('status', ''),
                 'payment' => (string) $request->query('payment', ''),
+                'gateway' => (string) $request->query('gateway', ''),
                 'sort' => $this->sort($request),
                 'dir' => $this->direction($request),
                 'per' => $this->perPage($request),
             ],
             'sizes' => self::PAGE_SIZES,
+            // Every gateway an order of this shop has ever been sent to, so
+            // the filter can find attempts at one that has since been
+            // switched off as well as at the ones that are live.
+            'gateways' => Payment::query()
+                ->whereIn('order_id', Order::query()->select('id'))
+                ->where('gateway', '!=', 'panel')
+                ->distinct()
+                ->orderBy('gateway')
+                ->pluck('gateway')
+                ->mapWithKeys(fn (string $name) => [$name => (new Payment(['gateway' => $name]))->gatewayLabel()])
+                ->all(),
             // What a bulk action may move an order to. The transitions
             // themselves are still checked one order at a time below.
             'bulkTargets' => [
@@ -106,6 +114,7 @@ class OrderController extends Controller
         $q = trim((string) $request->query('q', ''));
         $status = (string) $request->query('status', '');
         $payment = (string) $request->query('payment', '');
+        $gateway = (string) $request->query('gateway', '');
 
         return Order::query()
             ->when($q !== '', function (Builder $builder) use ($q): void {
@@ -135,6 +144,10 @@ class OrderController extends Controller
             // an order whose money had been given back could not be filtered
             // for at all — see Order::paymentLabels().
             ->when(in_array($payment, array_keys(Order::paymentLabels()), true), fn (Builder $b) => $b->where('payment_status', $payment))
+            // «از طریق چه درگاهی» — every order that was sent to this
+            // gateway at least once, paid or not, which is the set somebody
+            // looking for a gateway fault needs.
+            ->when($gateway !== '', fn (Builder $b) => $b->whereHas('payments', fn (Builder $paid) => $paid->where('gateway', $gateway)))
             ->when($range !== null, fn (Builder $b) => $b->whereBetween('placed_at', [$range->from, $range->to]))
             ->orderBy($this->sort($request), $this->direction($request));
     }
@@ -164,10 +177,9 @@ class OrderController extends Controller
         $settings = FulfilmentSettings::for($order->branch);
 
         return view('admin.order', [
-            // `items.variant.product.media` is for the photograph on each
-            // line — see `OrderItem::photoPath()`. Eager-loaded because
-            // `mediaFor()` reads the collection: asked per line it would be
-            // three queries a shoe on a machine where one costs about 10ms.
+            // The line's shoe and its photographs come with it: «باید عکس محصول
+            // سفارش داده شده … نمایش داده بشه تا بدونیم کدوم محصولو سفارش
+            // داده» — see OrderItem::photoPath().
             'order' => $order->load('items.variant.product.media', 'customer'),
 
             // §5's «Overdue» is derived, never stored: a stored flag needs
@@ -219,6 +231,125 @@ class OrderController extends Controller
                 ->limit(50)
                 ->get(),
         ]);
+    }
+
+    /**
+     * The address label — «یک طرف ادرس خودمون باشه، یک طرفم ادرس مشتری».
+     *
+     * A page of its own rather than a print stylesheet on the order screen:
+     * the screen is a working surface with a dozen forms on it, and what goes
+     * on the parcel is two addresses and a number. It prints itself when it
+     * opens, and reads the same whether or not the print dialog is taken.
+     *
+     * **The sender is the branch, falling back to the shop's own address.** A
+     * franchise posts from its own counter; central, whose row may carry no
+     * address, posts from the one on the contact page.
+     */
+    public function label(Order $order): View
+    {
+        return view('admin.print.label', [
+            'order' => $order,
+            'sender' => $this->sender($order),
+        ]);
+    }
+
+    /**
+     * The invoice the shop prints for itself — «یک خروجی فاکتور داشته باشیم
+     * برای پرینت گرفتن خودمون».
+     *
+     * Everything about the money on one sheet: what was bought and at what
+     * price, the discount, the delivery, the total, whether it was paid in
+     * one go or on instalments, and for an instalment purchase the amount
+     * paid up front and the date each instalment falls due. Plus every
+     * payment attempt's reference, because the sheet is what somebody
+     * reconciles a statement against.
+     */
+    public function invoice(Order $order): View
+    {
+        return view('admin.print.invoice', [
+            'order' => $order->load('items.variant.product.media', 'shippingMethod'),
+            'sender' => $this->sender($order),
+            'receipt' => $order->payments()->where('status', Payment::PAID)->latest('id')->first(),
+            'plan' => $order->instalmentPlan(),
+            'instalment' => $order->isInstalment(),
+            // The code by name, because «تخفیف ۲۰۰٬۰۰۰» on a sheet says how
+            // much and not why.
+            'code' => DiscountRedemption::where('order_id', $order->id)->with('code')->first()?->code?->code,
+        ]);
+    }
+
+    /**
+     * Write down how an instalment purchase is being repaid.
+     *
+     * Nothing the lender sends this shop carries the schedule — see the
+     * migration that made room for it — so it is typed here, off their panel
+     * or off the agreement at the counter, and the invoice prints it as typed.
+     * Money in Toman as everywhere else in the panel; dates are the panel's
+     * own date fields, which post `Y-m-d` under the Persian calendar drawn
+     * over them.
+     *
+     * Clearing every box removes the plan, which is how a plan written on the
+     * wrong order is taken back.
+     */
+    public function plan(Request $request, Order $order): RedirectResponse
+    {
+        $input = $request->validate([
+            'down_payment' => ['nullable', 'string', 'max:30'],
+            'instalments' => ['array', 'max:24'],
+            'instalments.*.due' => ['nullable', 'date'],
+            'instalments.*.amount' => ['nullable', 'string', 'max:30'],
+        ], [], ['instalments.*.due' => 'تاریخ سررسید', 'down_payment' => 'پیش‌پرداخت']);
+
+        $rows = [];
+
+        foreach ($input['instalments'] ?? [] as $i => $row) {
+            $due = $row['due'] ?? null;
+            $amount = OfferPrice::rial($row['amount'] ?? null);
+
+            if ($due === null && $amount === null) {
+                continue;
+            }
+
+            // Half a row is a mistake rather than a value: an instalment with
+            // no date cannot fall due, and one with no amount prints a blank
+            // where the money goes.
+            if ($due === null || $amount === null) {
+                return redirect()->route('admin.order', $order)
+                    ->withErrors(['instalments' => 'قسط '.fa_number($i + 1).' هم تاریخ می‌خواهد و هم مبلغ.'])
+                    ->withInput();
+            }
+
+            $rows[] = ['due' => CarbonImmutable::parse($due)->toDateString(), 'amount' => $amount];
+        }
+
+        $down = OfferPrice::rial($input['down_payment'] ?? null) ?? 0;
+
+        $order->forceFill([
+            'instalment_plan' => ($rows === [] && $down === 0)
+                ? null
+                : ['down_payment' => $down, 'instalments' => $rows],
+        ])->save();
+
+        return redirect()->route('admin.order', $order)
+            ->with('status', $rows === [] && $down === 0 ? 'برنامهٔ اقساط برداشته شد.' : 'برنامهٔ اقساط ثبت شد.');
+    }
+
+    /**
+     * Who the parcel is from: the branch's own counter, or the shop's.
+     *
+     * @return array{name: string, address: string, phone: string}
+     */
+    private function sender(Order $order): array
+    {
+        $branch = $order->branch;
+
+        return [
+            'name' => 'ویکی پلاس'.($branch && $branch->type !== 'central' && $branch->name ? ' — '.$branch->name : ''),
+            'address' => $branch?->address
+                ? collect([$branch->province, $branch->city, $branch->address])->filter()->implode('، ')
+                : (string) config('storefront.contact.address'),
+            'phone' => (string) ($branch?->phone ?: config('storefront.contact.phone')),
+        ];
     }
 
     /**
@@ -462,10 +593,12 @@ class OrderController extends Controller
 
             fwrite($out, "\xEF\xBB\xBF");
 
-            fputcsv($out, ['شماره', 'تاریخ', 'مشتری', 'تلفن', 'وضعیت', 'پرداخت', 'رهگیری', 'مبلغ']);
+            fputcsv($out, ['شماره', 'تاریخ', 'مشتری', 'تلفن', 'وضعیت', 'پرداخت', 'رهگیری', 'مبلغ', 'درگاه', 'نتیجه آخرین پرداخت', 'پاسخ درگاه']);
 
-            $query->chunk(500, function ($orders) use ($out): void {
+            $query->with('latestPayment')->chunk(500, function ($orders) use ($out): void {
                 foreach ($orders as $order) {
+                    $attempt = $order->latestPayment;
+
                     fputcsv($out, [
                         $order->number,
                         $order->placed_at?->format('Y-m-d H:i'),
@@ -475,6 +608,9 @@ class OrderController extends Controller
                         $order->payment_status,
                         $order->tracking_number,
                         $order->grand_total,
+                        $attempt?->gatewayLabel(),
+                        $attempt?->outcomeLabel(),
+                        $attempt?->failure,
                     ]);
                 }
             });

@@ -22012,18 +22012,32 @@ body.vp-soon-open .vp-whatsapp {
   cursor: pointer;
 }
 
-.vp-prize-go {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 54px;
+.vp-prize-cash {
+  /* «تو اون دکمه گلد بجای استفاده از کد تخفیف یه کادر باشه که نوشته بشه
+     این کد تخفیف فقط برای خرید نقدی قابل استفاده است». The gold button that
+     sent the winner to the listing is gone: a code that cannot be used on
+     instalments has to say so before the shopper builds a basket around it,
+     and the checkout refuses a lender on a discounted order either way.
+     A box and not a button — nothing here is pressed. The code's own tint and
+     radius, a solid edge where the code has a dashed one, so the two read as
+     one card and not two offers. */
+  margin: 0;
+  padding: 14px 16px;
+  border: 1px solid rgba(160, 129, 25, 0.45);
   border-radius: 14px;
-  /* The page's own button ramp, and its ink type with it — see the badge. */
-  background: linear-gradient(90deg, var(--vp-gold-ramp-top) 0%, var(--vp-gold-ramp-foot) 100%);
+  background: rgba(218, 178, 38, 0.12);
   color: #101111;
-  font-size: 17px;
-  font-weight: 720;
-  text-decoration: none;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.7;
+  text-align: center;
+  /* **One line, always** — «نباید ۲ خطی باشه». Measured: the sentence is
+     325px wide at 15px, and the box has 372px inside on a desktop card but
+     290 at 390, 275 at 375 and 260 at 360. So the size follows the screen
+     (the card is the viewport less 76px, the box that less 16 of padding)
+     and stops at 15px, and the line is not allowed to break. */
+  white-space: nowrap;
+  font-size: clamp(10.5px, calc((100vw - 92px) * 0.0455), 15px);
 }
 
 .vp-prize-when {
@@ -22133,9 +22147,8 @@ body.vp-soon-open .vp-whatsapp {
     letter-spacing: 0.04em;
   }
 
-  .vp-prize-go {
-    min-height: 48px;
-    font-size: 16px;
+  .vp-prize-cash {
+    padding: 12px 8px;
   }
 }
 

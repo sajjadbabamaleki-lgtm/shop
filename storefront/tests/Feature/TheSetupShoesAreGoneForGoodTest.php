@@ -60,7 +60,7 @@ class TheSetupShoesAreGoneForGoodTest extends TestCase
      * the other is what made the first old-address fix ship green and answer
      * 404 on the live site.
      */
-    private function theShopsOwnShoe(string $title, ?string $slug = null): Product
+    private function theShopsOwnShoe(string $title, ?string $slug = null, ?string $colour = null): Product
     {
         $product = Product::create([
             'slug' => $slug ?? trim(preg_replace('~[^\p{L}\p{N}]+~u', '-', $title) ?? '', '-'),
@@ -74,7 +74,7 @@ class TheSetupShoesAreGoneForGoodTest extends TestCase
             'sku' => 'VP-OWN-'.strtoupper(mb_substr(md5($product->slug), 0, 8)),
             'size_value' => '41',
             'size_system' => 'EU',
-            'display_color' => 'مشکی',
+            'display_color' => $colour ?? 'مشکی',
             'color_family' => 'black',
             'status' => 'active',
         ]);
@@ -220,50 +220,74 @@ class TheSetupShoesAreGoneForGoodTest extends TestCase
      */
     public function test_the_addresses_they_leave_behind_reach_the_live_shoe(): void
     {
-        // Slugs as the live shop really writes them, read off its sitemap on
-        // 2026-09-21: one terse title per shoe, the colour only in the slug.
+        // The live shop, read off it on 2026-09-26, and **both shapes of
+        // colourway naming are here on purpose**: the ON Runnings share one
+        // terse title and carry the colour only in the slug, the Golden Geese
+        // carry it in the title and so have seven different ones. A rule that
+        // tests "same title" passes the first and fails the second, which is
+        // exactly the 404 ترب closed a ticket on.
         $shop = [
-            'کتونی نایک وی تو کی' => [
-                'کتونی-نایک-وی-تو-کی-Nike-V2K-رنگ-مشکی',
-                'کتونی-نایک-وی-تو-کی-Nike-V2K-رنگ-موکا',
-                'کتونی-نایک-وی-تو-کی-Nike-V2K-رنگ-قهوه-ای',
-            ],
-            'کتونی گلدن گوس' => [
-                'کتونی-گلدن-گوس-رنگ-صورتی-Golden-Goose',
-                'کتونی-گلدن-گوس-رنگ-مشکی-Golden-Goose',
-            ],
-            'کتونی نیوبالانس' => [
-                'کتونی-نیوبالانس-New-balance-530-رنگ-سفید',
-                'کتونی-نیوبالانس-New-balance-530-رنگ-مشکی',
-            ],
+            ['کتونی نایک وی تو کی', 'کتونی-نایک-وی-تو-کی-Nike-V2K-رنگ-مشکی', 'مشکی'],
+            ['کتونی نایک وی تو کی', 'کتونی-نایک-وی-تو-کی-Nike-V2K-رنگ-موکا', 'موکا'],
+            ['کتونی آن رانینگ', 'کتونی-آن-رانینگ-ON-Running-رنگ-مشکی', 'مشکی'],
+            ['کتونی آن رانینگ', 'کتونی-آن-رانینگ-ON-Running-رنگ-آبی', 'آبی'],
+            ['کتونی آن رانینگ', 'کتونی-آن-رانینگ-ON-Running-رنگ-کرم', 'کرم'],
+            ['کتونی گلدن گوس رنگ صورتی', 'کتونی-گلدن-گوس-رنگ-صورتی-Golden-Goose', 'صورتی'],
+            ['کتونی گلدن گوس رنگ مشکی', 'کتونی-گلدن-گوس-رنگ-مشکی-Golden-Goose', 'مشکی'],
+            ['کتونی گلدن گوس رنگ نسکافه ای', 'کتونی-گلدن-گوس-رنگ-نسکافه-ای-Golden-Goose', 'نسکافه ای'],
+            ['کتونی نیوبالانس', 'کتونی-نیوبالانس-New-balance-530-رنگ-سفید', 'سفید'],
+            ['کتونی نیوبالانس', 'کتونی-نیوبالانس-New-balance-530-رنگ-مشکی', 'مشکی'],
         ];
 
-        foreach ($shop as $title => $slugs) {
-            foreach ($slugs as $slug) {
-                $this->theShopsOwnShoe($title, $slug);
-            }
+        foreach ($shop as [$title, $slug, $colour]) {
+            $this->theShopsOwnShoe($title, $slug, $colour);
         }
 
         $this->migration()->up();
 
-        // Each old address names a make and no colour, and every candidate at
-        // the top is that one shoe — so it is answered rather than refused,
-        // and answered with the same shoe on every request.
-        foreach (['nike-v2k-run' => 'کتونی نایک وی تو کی',
+        foreach ([
+            'nike-v2k-run' => 'کتونی نایک وی تو کی',
+            'on-cloudtilt' => 'کتونی آن رانینگ',
             'golden-goose' => 'کتونی گلدن گوس',
-            'new-balance-530' => 'کتونی نیوبالانس'] as $old => $title) {
+            'new-balance-530' => 'کتونی نیوبالانس',
+        ] as $old => $family) {
             $first = $this->get('/products/'.$old);
 
             $first->assertRedirect();
 
-            $went = Product::query()->where('slug', urldecode(basename((string) $first->headers->get('Location'))))->firstOrFail();
+            $went = Product::query()
+                ->where('slug', urldecode(basename((string) $first->headers->get('Location'))))
+                ->firstOrFail();
 
-            $this->assertSame($title, $went->title, "{$old} landed on the wrong shoe");
+            $this->assertStringStartsWith($family, $went->title, "{$old} landed on the wrong shoe");
 
-            // Stable: a second request must not pick a different colourway,
-            // or ترب and a shopper are told two different things.
+            // Stable: a second request must not pick a different colourway, or
+            // ترب and a shopper are told two different things.
             $this->get('/products/'.$old)->assertRedirect(storefront_route('product', $went));
         }
+    }
+
+    /**
+     * **One shoe is decided by what it is besides its colour, not by its
+     * title**, because this catalogue names a colourway both ways.
+     *
+     * The seven live Golden Geese have seven titles and are one shoe; the six
+     * ON Runnings share one title and are also one shoe. Comparing titles got
+     * the second right and the first wrong.
+     */
+    public function test_a_family_that_names_its_colour_in_the_title_is_still_one_shoe(): void
+    {
+        foreach ([
+            ['کتونی گلدن گوس رنگ صورتی', 'کتونی-گلدن-گوس-رنگ-صورتی-Golden-Goose', 'صورتی'],
+            ['کتونی گلدن گوس رنگ طوسی', 'کتونی-گلدن-گوس-رنگ-طوسی-Golden-Goose', 'طوسی'],
+            ['کتونی گلدن گوس رنگ قرمز', 'کتونی-گلدن-گوس-رنگ-قرمز-Golden-Goose', 'قرمز'],
+        ] as [$title, $slug, $colour]) {
+            $this->theShopsOwnShoe($title, $slug, $colour);
+        }
+
+        $this->migration()->up();
+
+        $this->get('/products/golden-goose')->assertRedirect();
     }
 
     /**

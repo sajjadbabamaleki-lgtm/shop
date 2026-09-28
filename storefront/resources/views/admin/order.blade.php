@@ -41,46 +41,35 @@
             <span class="vp-adm-card-more">{{ $order->placed_at ? fa_date($order->placed_at, true) : 'ثبت نشده' }}</span>
         </div>
 
-        {{-- **The photograph is the colour.** «چون ما عکس هامون از باسلام
-             برداشته شده رنگشون مشخص نیست، پس تو پنل ادمین باید با عکس خود کفش
-             به ما نشون بده چه کفشی سفارش داده تا بفهمیم از رو عکس که رنگش
-             چیه.» The supplier's titles do not carry a colour anybody can
-             pack from, and every variant in this catalogue is still
-             `color_family = unspecified`, so the words on this line cannot
-             answer it and the picture can. `OrderItem::photoPath()` is where
-             it comes from and why. --}}
+        {{-- The two sheets this order prints — the invoice the shop keeps and
+             the label that goes on the parcel. New tabs, so the working
+             screen stays where it was. --}}
+        <div class="vp-adm-print">
+            <a class="vp-adm-mini" href="{{ route('admin.order.invoice', $order) }}" target="_blank" rel="noopener">چاپ فاکتور</a>
+            <a class="vp-adm-mini" href="{{ route('admin.order.label', $order) }}" target="_blank" rel="noopener">چاپ برچسب آدرس</a>
+        </div>
+
         <table class="vp-admin-table">
             <thead><tr><th>عکس</th><th>کالا</th><th>کد</th><th>سایز</th><th>تعداد</th><th>واحد</th><th>جمع</th></tr></thead>
             <tbody>
             @foreach ($order->items as $item)
-                @php $shot = $item->photoPath(); @endphp
                 <tr>
-                    {{-- `data-label=""` so the phone's card layout does not put
-                         «عکس» above a picture that says what it is. See
-                         `partials/admin-scripts.blade.php`. --}}
-                    <td data-label="">
-                        @if ($shot)
-                            {{-- To the shoe's own screen in the panel, which is
-                                 where the whole gallery is and where a wrong
-                                 photograph gets replaced. --}}
-                            <a class="vp-adm-shot" href="{{ $item->variant?->product ? route('admin.product.edit', $item->variant->product) : '#' }}">
-                                <img src="{{ asset($shot) }}"{!! photo_srcset($shot) !!} alt="" loading="lazy" width="64" height="64">
+                    {{-- «باید عکس محصول سفارش داده شده … نمایش داده بشه تا
+                         بدونیم کدوم محصولو سفارش داده». Colour cannot be
+                         chosen on the shop for now, and a colourway's title is
+                         often word for word its sibling's, so the photograph is
+                         what says which box to take. It links to the product so
+                         the rest of its shots are one tap away. --}}
+                    <td class="vp-adm-line-shot">
+                        @if ($photo = $item->photoPath())
+                            <a href="{{ route('admin.product.edit', $item->variant->product_id) }}" target="_blank" rel="noopener">
+                                <img src="{{ asset($photo) }}" alt="{{ $item->product_title }}" loading="lazy">
                             </a>
                         @else
-                            <span class="vp-adm-shot is-empty" aria-hidden="true"></span>
+                            <small>بدون عکس</small>
                         @endif
                     </td>
-                    <td>
-                        {{ $item->product_title }}
-                        {{-- The colour in words under the name. It reads
-                             «نامشخص» on most of this catalogue, which is the
-                             whole reason the photograph is beside it — but
-                             where somebody has typed one it is the quickest
-                             thing on the row to read. --}}
-                        @if ($item->display_color)
-                            <br><small>رنگ: {{ $item->display_color }}</small>
-                        @endif
-                    </td>
+                    <td>{{ $item->product_title }}</td>
                     {{-- §26: «Technical identifiers such as SKUs may use LTR
                          isolation within RTL UI» — without it a code ending in
                          digits reorders itself against the Persian around it. --}}
@@ -130,20 +119,16 @@
             @if ($order->payment_method)
                 <li><span>روش پرداخت</span><b>{{ $order->methodLabel() }}</b></li>
             @endif
+            {{-- «از طریق چه درگاهی می‌خواسته سفارشش رو پرداخت کنه» — the
+                 gateway of the latest attempt, whatever came of it. --}}
+            @if ($attempts->isNotEmpty() && $attempts->first()->gateway !== 'panel')
+                <li><span>درگاه</span><b>{{ $attempts->first()->gatewayLabel() }}</b></li>
+            @endif
 
             {{-- The gateway's own reference, which is what a customer quotes
                  on the telephone and the only thing that ties this order to a
                  line on the shop's ZarinPal statement. --}}
             @if ($receipt)
-                {{-- **Which provider took the money.** «وقتی پرداختی صورت
-                     میگیره مشخص نیست که این پرداخت با اسنپ پی بوده یا با زرین
-                     پال» — and it was not on this screen at all: «پرداخت» is
-                     paid/unpaid and «روش پرداخت» is online/at-the-door, so two
-                     providers were one word. It is the first thing here now,
-                     because it decides what every line under it means: a
-                     پیگیری from زرین‌پال and one from اسنپ‌پی are looked up on
-                     two different panels. --}}
-                <li><span>درگاه</span><b>{{ $receipt->gatewayLabel() }}</b></li>
                 <li><span>شماره پیگیری</span><b><bdi dir="ltr">{{ $receipt->ref_id }}</bdi></b></li>
                 @if ($receipt->card_pan)
                     <li><span>کارت</span><b><bdi dir="ltr">{{ $receipt->card_pan }}</bdi></b></li>
@@ -163,24 +148,34 @@
              سفارش دو بار پرداخت شد» has an answer only if the ones that did not
              work are on the record too. --}}
         @if ($attempts->isNotEmpty())
+            {{-- Every attempt, newest first: which gateway, how much, what
+                 came of it and — when the gateway refused — its own reason,
+                 verbatim. «اگر … تا مرحله پرداخت رفت ولی پرداختش نکرد …
+                 بفهمم مشکل از کجا بوده»: a refusal points at the gateway or
+                 its settings, a cancel at the shopper, and an attempt that
+                 never came back at a page that would not load or a tab that
+                 was closed. --}}
             <p class="vp-adm-form-label">تلاش‌های پرداخت</p>
-            <ul class="vp-adm-list">
+            <ol class="vp-adm-attempts">
                 @foreach ($attempts as $attempt)
                     <li>
-                        {{-- The provider on each attempt too, not only on the
-                             one that worked: «چرا این سفارش دو بار پرداخت شد»
-                             is usually a card that was refused and instalments
-                             that were not, and that sentence is unreadable
-                             when both attempts say only «ناموفق». --}}
-                        <span>{{ fa_date($attempt->created_at, true) }} — {{ $attempt->gatewayLabel() }}</span>
-                        <b>
-                            <span class="vp-adm-badge is-{{ $attempt->isPaid() ? 'delivered' : ($attempt->status === \App\Models\Payment::FAILED ? 'cancelled' : 'placed') }}">
-                                {{ $attempt->statusLabel() }}
-                            </span>
-                        </b>
+                        <div class="vp-adm-attempt-head">
+                            <b>{{ $attempt->gatewayLabel() }}</b>
+                            <span class="vp-adm-badge is-{{ $attempt->outcomeTone() }}">{{ $attempt->outcomeLabel() }}</span>
+                        </div>
+                        <small>
+                            {{ fa_date($attempt->created_at, true) }}
+                            · {{ toman($attempt->amount) }} تومان
+                            @if ($attempt->authority && ! str_starts_with($attempt->authority, 'PANEL-'))
+                                · تراکنش <bdi dir="ltr">{{ $attempt->authority }}</bdi>
+                            @endif
+                        </small>
+                        @if ($attempt->failure)
+                            <small class="vp-adm-attempt-why">پاسخ درگاه: <bdi dir="ltr">{{ $attempt->failure }}</bdi></small>
+                        @endif
                     </li>
                 @endforeach
-            </ul>
+            </ol>
         @endif
 
         <p class="vp-adm-address">
@@ -491,6 +486,63 @@
 
                 <button type="submit" class="vp-adm-danger">ادامه به تأیید لغو کامل</button>
             </form>
+        </section>
+    @endif
+
+    {{-- --- how an instalment purchase is repaid -------------------------- --}}
+
+    {{-- «اگ قسطیه تاریخ سر رسید قسطاش چ زمانیه و پیش پرداخت چقد داده».
+         Nothing the lender sends this shop carries the schedule, so it is
+         typed here — off their panel, or off the agreement at the counter —
+         and the printed invoice shows it exactly as typed. Drawn open on an
+         اسنپ‌پی order or one that already has a plan; folded on any other,
+         where it is only there for an instalment agreed in person. --}}
+    @php
+        $plan = $order->instalmentPlan();
+        $planRows = collect($plan['instalments'] ?? [])
+            ->map(fn ($row) => ['due' => $row['due'], 'amount' => (string) intdiv($row['amount'], 10)])
+            ->all();
+        $planRows = old('instalments', $planRows);
+        $planRows = array_values($planRows) + array_fill(0, max(4, count($planRows) + 2), ['due' => '', 'amount' => '']);
+    @endphp
+    @if ($order->status !== \App\Models\Order::CANCELLED)
+        <section class="vp-adm-card vp-adm-span-2">
+            <details class="vp-adm-plan" @if ($instalment || $plan) open @endif>
+                <summary class="vp-adm-card-head">
+                    <h2 class="vp-adm-card-title">برنامهٔ اقساط</h2>
+                    <span class="vp-adm-card-more">
+                        {{ $plan ? fa_number(count($plan['instalments'])).' قسط ثبت شده' : ($instalment ? 'ثبت نشده' : 'فقط برای خرید اقساطی') }}
+                    </span>
+                </summary>
+
+                <p class="vp-adm-empty">
+                    پیش‌پرداخت و تاریخ سررسید هر قسط را همان‌طور که در پنل اسنپ‌پی یا قرارداد آمده بنویس
+                    (مبلغ به تومان). روی فاکتور چاپی همین‌ها چاپ می‌شود. همهٔ خانه‌ها را خالی کنی، برنامه برداشته می‌شود.
+                </p>
+
+                <form class="vp-adm-form" method="post" action="{{ route('admin.order.plan', $order) }}">
+                    @csrf
+
+                    <label for="plan-down">پیش‌پرداخت (تومان)</label>
+                    <input id="plan-down" type="text" name="down_payment" inputmode="numeric" maxlength="30"
+                           value="{{ old('down_payment', $plan ? intdiv($plan['down_payment'], 10) : '') }}">
+
+                    <table class="vp-admin-table">
+                        <thead><tr><th>قسط</th><th>تاریخ سررسید</th><th>مبلغ (تومان)</th></tr></thead>
+                        <tbody>
+                        @foreach ($planRows as $i => $row)
+                            <tr>
+                                <td>{{ fa_number($i + 1) }}</td>
+                                <td><input type="date" name="instalments[{{ $i }}][due]" value="{{ $row['due'] ?? '' }}" aria-label="تاریخ سررسید قسط {{ $i + 1 }}"></td>
+                                <td><input type="text" name="instalments[{{ $i }}][amount]" value="{{ $row['amount'] ?? '' }}" inputmode="numeric" maxlength="30" aria-label="مبلغ قسط {{ $i + 1 }}"></td>
+                            </tr>
+                        @endforeach
+                        </tbody>
+                    </table>
+
+                    <button type="submit" class="vp-adm-apply">ثبت برنامهٔ اقساط</button>
+                </form>
+            </details>
         </section>
     @endif
 

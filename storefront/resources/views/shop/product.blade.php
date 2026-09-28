@@ -66,7 +66,7 @@
                          framing below — 76% of the tile, fitted — is measured
                          for this shop's cut-outs, and a supplier's photograph
                          has its own margin already in it. --}}
-                    <div class="vp-pdp-shot{{ $product->source ? ' is-supplied' : '' }}">
+                    <div class="vp-pdp-shot{{ $product->fillsFrame() ? ' is-supplied' : '' }}">
                         {{-- The brand's name used to sit behind the shoe here,
                              very faint, the way the reference screen has it.
                              «اون نوشته پشت کفش که نوشته گلدن گوس باید پاک بشه
