@@ -7,14 +7,21 @@ use App\Models\Branch;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\Product;
+use App\Models\Role;
 use App\Models\ShippingMethod;
+use App\Models\User;
 use App\Models\Variant;
 use App\Support\Checkout\ExpireUnpaidOrders;
+use App\Support\Checkout\SettleOrder;
+use App\Support\Payments\Gateway;
+use App\Support\Payments\Gateways;
 use App\Support\Tenancy\TenantContext;
 use Database\Seeders\BranchSeeder;
 use Database\Seeders\CatalogueSeeder;
+use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 /**
@@ -163,11 +170,11 @@ class UnpaidOrdersLetGoTest extends TestCase
             'services.payment.zarinpal.merchant_id' => str_repeat('a', 36),
             'services.payment.zarinpal.sandbox' => true,
         ]);
-        $this->app->forgetInstance(\App\Support\Payments\Gateways::class);
-        $this->app->forgetInstance(\App\Support\Payments\Gateway::class);
+        $this->app->forgetInstance(Gateways::class);
+        $this->app->forgetInstance(Gateway::class);
         // Nothing may reach ZarinPal: a lapsed order is never verified.
-        \Illuminate\Support\Facades\Http::fake();
-        \Illuminate\Support\Facades\Http::preventStrayRequests();
+        Http::fake();
+        Http::preventStrayRequests();
 
         $this->get('/checkout/callback?Authority=A000000000000000000000000000000LATE&Status=OK')
             ->assertRedirect()
@@ -175,7 +182,7 @@ class UnpaidOrdersLetGoTest extends TestCase
 
         $this->assertSame(Payment::CANCELLED, $payment->fresh()->status);
         $this->assertTrue($order->fresh()->reservationLapsed());
-        \Illuminate\Support\Facades\Http::assertNothingSent();
+        Http::assertNothingSent();
     }
 
     public function test_the_middleware_is_on_the_web_group(): void
@@ -193,9 +200,9 @@ class UnpaidOrdersLetGoTest extends TestCase
         $this->travel(16)->minutes();
         app(ExpireUnpaidOrders::class)->run();
 
-        $owner = \App\Models\User::factory()->create();
-        $this->seed(\Database\Seeders\RolesAndPermissionsSeeder::class);
-        $owner->roles()->attach(\App\Models\Role::where('slug', \App\Models\Role::OWNER)->sole());
+        $owner = User::factory()->create();
+        $this->seed(RolesAndPermissionsSeeder::class);
+        $owner->roles()->attach(Role::where('slug', Role::OWNER)->sole());
 
         $this->actingAs($owner, 'web')->get('/admin')->assertOk()->assertSee($order->number);
         $this->actingAs($owner, 'web')->get('/admin/orders/'.$order->number)
@@ -223,7 +230,7 @@ class UnpaidOrdersLetGoTest extends TestCase
         app(ExpireUnpaidOrders::class)->run();
         $onHand = (int) $this->variant->stock()->first()->stock_on_hand;
 
-        app(\App\Support\Checkout\SettleOrder::class)->paid($order->fresh());
+        app(SettleOrder::class)->paid($order->fresh());
 
         $this->assertSame(Order::PAID, $order->fresh()->status);
         $this->assertNull($order->fresh()->reservation_released_at);
@@ -238,7 +245,7 @@ class UnpaidOrdersLetGoTest extends TestCase
     public function test_the_orders_the_first_version_cancelled_are_put_back(): void
     {
         $swept = $this->place();
-        $settle = app(\App\Support\Checkout\SettleOrder::class);
+        $settle = app(SettleOrder::class);
         $settle->cancelled($swept->fresh(), ExpireUnpaidOrders::NOTE);
         $swept->fresh()->forceFill(['reservation_released_at' => null])->save();
 
