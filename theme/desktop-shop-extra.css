@@ -91,3 +91,19 @@
 .vp-listing-panel .vp-card:hover .vp-card-shot img {
   transform: scale(1.03);
 }
+
+/* The five stories side by side, not spread across the row.
+
+   «اون استوری ها رو به هم نزدیک کنی پنج تاش کنار هم قرار بگیرن نه اینجوری به
+   صورت باز باشن». On a phone each story is a fifth of the screen, which puts
+   the rings a few pixels apart; carried to a 760px row the same fifths left
+   ninety pixels of air between them. On a desktop each takes its own width and
+   the five sit together in the middle, at the phone's spacing. */
+.vp-listing-panel .vp-stories-row {
+  justify-content: center;
+  gap: 14px;
+}
+
+.vp-listing-panel .vp-story {
+  flex: none;
+}

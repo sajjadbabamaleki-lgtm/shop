@@ -14803,6 +14803,15 @@ body.shoe-shop {
     transform: scale(1.03);
   }
 
+  .vp-listing-panel .vp-stories-row {
+    justify-content: center;
+    gap: 14px;
+  }
+
+  .vp-listing-panel .vp-story {
+    flex: none;
+  }
+
 }
 
 @media (min-width: 1400px) {
