@@ -352,31 +352,48 @@ class CustomerAccountTest extends TestCase
     }
 
     /**
-     * One code out at a time. Two live codes means the older SMS still works,
-     * which is a second door for as long as it lives.
+     * «این محدودیتو هم بردار که میگه کد تازه ارسال شد تا یک دقیقه دیگر امکان
+     * ارسال کد نیست» — a second code is sent straight away.
      */
-    public function test_a_second_code_inside_the_wait_is_refused(): void
+    public function test_a_second_code_is_sent_without_waiting(): void
     {
         $this->codeSentTo('09123456789');
 
-        $this->post('/account/code')->assertSessionHasErrors('phone');
+        $this->post('/account/code')
+            ->assertRedirect(route('account.enter'))
+            ->assertSessionHasNoErrors();
 
-        $this->assertSame(1, LoginCode::count());
+        $this->assertSame(2, LoginCode::count());
     }
 
-    public function test_a_later_code_spends_the_one_before_it(): void
+    /**
+     * Two codes out at once, and either works: SMS arrive out of order, and
+     * the one that arrived first is the one somebody types.
+     */
+    public function test_an_earlier_code_still_works_after_a_later_one_is_sent(): void
     {
         $first = $this->codeSentTo('09123456789');
-
-        $this->travel(LoginCode::RESEND_AFTER_SECONDS + 1)->seconds();
 
         $box = $this->catchSms();
         $this->post('/account/code')->assertRedirect(route('account.enter'));
         $second = $this->readCode($box);
 
         $this->assertNotSame($first, $second);
-        $this->assertSame(1, LoginCode::live()->count());
-        $this->assertTrue(LoginCode::live()->sole()->matches($second));
+        $this->assertSame(2, LoginCode::live()->count());
+
+        $this->post('/account/verify', ['code' => $first, 'name' => 'سجاد', 'password' => 'x'])
+            ->assertRedirect(route('account'));
+    }
+
+    /** «حداقل … ۲ دقیقه»: a code typed at two and a half minutes still works. */
+    public function test_a_code_is_good_for_more_than_two_minutes(): void
+    {
+        $code = $this->codeSentTo('09123456789');
+
+        $this->travel(150)->seconds();
+
+        $this->post('/account/verify', ['code' => $code, 'name' => 'سجاد', 'password' => 'x'])
+            ->assertRedirect(route('account'));
     }
 
     // --- the code, and what it makes --------------------------------------
@@ -899,5 +916,36 @@ class CustomerAccountTest extends TestCase
         // Order tracking, now the footer's «سفارش‌های من» as well as a chip in
         // the phone drawer.
         $this->assertStringContainsString(route('orders.track'), $page);
+    }
+
+    /**
+     * «وقتی هم میخوام با موبایل تو سایت ثبت نام کنم نمیشه یه ارور ۵۰۰ میاد».
+     * The live pattern variable was misnamed, the sender threw while sending,
+     * and nothing caught it. A sender that throws is a sentence on the form,
+     * and the code that never left is not left lying about.
+     */
+    public function test_a_sender_that_throws_while_sending_is_not_a_500(): void
+    {
+        $this->app->instance(Sender::class, new class implements Sender
+        {
+            public function send(string $phone, string $message, array $args = [], string $purpose = self::CODE): void
+            {
+                throw new RuntimeException('SMS_PATTERN is empty');
+            }
+        });
+
+        $this->post('/account/start', ['phone' => '09123456789'])
+            ->assertRedirect()
+            ->assertSessionHasErrors('phone');
+
+        $this->assertSame(0, LoginCode::count());
+    }
+
+    /** The misnamed variable on the live app («SMS_PATTERN ») is read too. */
+    public function test_the_pattern_is_read_from_the_misnamed_variable(): void
+    {
+        $config = file_get_contents(config_path('services.php'));
+
+        $this->assertStringContainsString("env('SMS_PATTERN ')", $config);
     }
 }

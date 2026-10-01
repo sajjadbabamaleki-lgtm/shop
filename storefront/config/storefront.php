@@ -3,6 +3,13 @@
 return [
 
     /*
+     | Whether an unpaid order's fifteen-minute reservation is swept back onto
+     | the shelf after a page is sent (ExpireUnpaidOrdersAfterResponse). Off in
+     | the test suite only.
+     */
+    'sweep_unpaid_orders' => env('SWEEP_UNPAID_ORDERS', true),
+
+    /*
     |--------------------------------------------------------------------------
     | Template pages
     |--------------------------------------------------------------------------

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use App\Models\Payment;
+use App\Support\Checkout\ExpireUnpaidOrders;
 use App\Support\Checkout\SettleOrder;
 use App\Support\Payments\Gateways;
 use App\Support\Payments\PaymentFailed;
@@ -92,6 +93,12 @@ class PaymentController extends Controller
             return redirect()->to(storefront_route('order', $order))
                 ->withErrors(['payment' => 'کد تخفیف فقط برای پرداخت نقدی است و با آن نمی‌شود اقساطی خرید.']);
         }
+
+        // A reservation that ran out while nobody was sweeping is let go
+        // now, before an attempt is opened against shoes that are back on
+        // the shelf.
+        app(ExpireUnpaidOrders::class)->run();
+        $order->refresh();
 
         if ($order->payment_status === 'paid') {
             return redirect()->to(storefront_route('order', $order))
@@ -197,6 +204,18 @@ class PaymentController extends Controller
         // money actually is. A provider disconnected while somebody was
         // paying leaves nothing to ask, which is a sentence and a log line —
         // never a stack trace in front of somebody whose money has moved.
+        // The order was cancelled while the customer was at the gateway —
+        // usually because its fifteen minutes ran out and the shoes went back
+        // on the shelf. It must not be verified: verifying takes the money,
+        // and there is no reservation left to sell from. Unverified, زرین‌پال
+        // hands the money back by itself and اسنپ‌پی reverts an unsettled
+        // purchase, so declining here is what leaves the customer whole.
+        if ($order->status === Order::CANCELLED) {
+            $payment->update(['status' => Payment::CANCELLED]);
+
+            return $back->withErrors(['payment' => 'مهلت پرداخت این سفارش تمام شده و سفارش لغو شد. اگر مبلغی از حسابت کم شده، خودکار برمی‌گردد. می‌توانی دوباره سفارش بدهی.']);
+        }
+
         $verifier = $this->gateways->named($payment->gateway);
 
         if ($verifier === null) {

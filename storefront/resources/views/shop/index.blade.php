@@ -555,6 +555,23 @@
 @push('scripts')
 <script>
     (function () {
+        // A size is a radio, and a radio cannot be unticked — so the ticked
+        // one used to carry an empty value, which is how «پاک کردن» was
+        // spelled. The cost was that applying *any other* filter with a size
+        // ticked posted that empty value and dropped the size: «فیلترهاش کار
+        // نمیکنه». Every size now posts itself, and pressing the ticked one
+        // again unticks it here instead.
+        document.addEventListener("click", function (e) {
+            var label = e.target && e.target.closest ? e.target.closest(".vp-size") : null;
+            var input = label ? label.querySelector("input[data-vp-toggle]") : null;
+            // Only the press on the chip itself: the label's click is followed
+            // by the browser's own click on the input, and answering that one
+            // too undid every first tick.
+            if (!input || e.target === input || !input.checked) return;
+            e.preventDefault();
+            input.checked = false;
+        });
+
         // Delegated from the document: the sheets are <details>, so a chip can
         // be in a panel that has never been opened, and binding per-element on
         // load would still work — but this also survives anything that

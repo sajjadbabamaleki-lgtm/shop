@@ -117,6 +117,12 @@
                         <label class="visually-hidden" for="in-code">کد</label>
                     </div>
 
+                    {{-- How long the code is still good for, counted down. The
+                         number is the server's; the script only ticks it. --}}
+                    <p class="vp-enter-timer" data-vp-left="{{ $codeLeft }}" aria-live="polite">
+                        اعتبار کد: <b dir="ltr">{{ fa_number(intdiv($codeLeft, 60)) }}:{{ fa_number(str_pad((string) ($codeLeft % 60), 2, '0', STR_PAD_LEFT)) }}</b>
+                    </p>
+
                     @if ($needsName)
                         {{-- Only for a number that has never bought here. A
                              customer checkout made already has a name on it,
@@ -204,6 +210,29 @@
                         return;
                     }
                     button.textContent = 'ارسال دوباره تا ' + fa(left) + ' ثانیه دیگر';
+                }, 1000);
+            }
+
+            // The code's own clock.
+            var timer = document.querySelector('[data-vp-left]');
+            if (timer) {
+                var faT = function (n) {
+                    return String(n).replace(/[0-9]/g, function (d) { return '۰۱۲۳۴۵۶۷۸۹'[+d]; });
+                };
+                var leftT = parseInt(timer.getAttribute('data-vp-left'), 10) || 0;
+                var shownT = timer.querySelector('b');
+                var paint = function () {
+                    if (leftT <= 0) {
+                        timer.textContent = 'کد منقضی شد؛ «کد را دوباره بفرست» را بزن.';
+                        timer.classList.add('is-out');
+                        return false;
+                    }
+                    shownT.textContent = faT(Math.floor(leftT / 60)) + ':' + faT(String(leftT % 60).padStart(2, '0'));
+                    return true;
+                };
+                var clock = setInterval(function () {
+                    leftT -= 1;
+                    if (!paint()) clearInterval(clock);
                 }, 1000);
             }
 

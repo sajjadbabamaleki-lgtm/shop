@@ -97,7 +97,12 @@ return [
         // line sends the sentence itself and needs no approved pattern; the
         // shared «۹۹۹۹» lines do, which is what SMS_PATTERN is for.
         'from' => env('SMS_FROM'),
-        'pattern' => env('SMS_PATTERN'),
+        // The live app's variable is named «SMS_PATTERN » — with a trailing
+        // space, typed into the Liara panel that way — so env('SMS_PATTERN')
+        // was null there and every sign-in code for a new number threw before
+        // it was sent: «با موبایل … ثبت نام کنم … ارور ۵۰۰». Read either
+        // spelling; renaming the variable in the panel makes this moot.
+        'pattern' => filled(env('SMS_PATTERN')) ? env('SMS_PATTERN') : env('SMS_PATTERN '),
         /*
          | The sign-in alert's own pattern.
          |

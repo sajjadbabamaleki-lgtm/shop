@@ -12,7 +12,6 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
@@ -87,6 +86,8 @@ class AccountController extends Controller
             'needsName' => (bool) $request->session()->get('login.needs_name'),
             'needsPassword' => (bool) $request->session()->get('login.needs_password'),
             'resendIn' => $this->resendIn($phone),
+            // Seconds the code on screen is still good for, counted down there.
+            'codeLeft' => max(0, (int) $request->session()->get('login.sent_at', 0) + LoginCode::LIVES_FOR_SECONDS - now()->timestamp),
         ]);
     }
 
@@ -190,7 +191,12 @@ class AccountController extends Controller
             'password' => ['nullable', 'string', 'max:72'],
         ], [], ['code' => 'کد', 'name' => 'نام', 'password' => 'رمز عبور']);
 
-        $live = LoginCode::where('phone', $phone)->live()->latest('id')->first();
+        // Any code still live for this number will do — with no wait between
+        // codes, two can be out at once, and the one that arrived first is
+        // the one somebody types.
+        $codes = LoginCode::where('phone', $phone)->live()->latest('id')->get();
+        $typed = trim(latin_digits($input['code']));
+        $live = $codes->first(fn (LoginCode $c) => $c->matches($typed)) ?? $codes->first();
 
         if ($live === null) {
             $this->forgetCode($request);
@@ -200,7 +206,7 @@ class AccountController extends Controller
             ]);
         }
 
-        if (! $live->matches(trim(latin_digits($input['code'])))) {
+        if (! $live->matches($typed)) {
             $live->increment('attempts');
 
             throw ValidationException::withMessages([
@@ -453,31 +459,44 @@ class AccountController extends Controller
             ]);
         }
 
-        // One code out at a time per number. Without this, asking twice leaves
-        // two live codes and the older SMS still works — a second door for as
-        // long as it lives.
-        if ($at = LoginCode::nextSendAllowedAt($phone)) {
-            throw ValidationException::withMessages([
-                'phone' => 'کد فرستاده شده. '.fa_number((int) ceil(now()->diffInSeconds($at))).' ثانیه دیگر می‌توانی دوباره بخواهی.',
-            ]);
-        }
-
+        // No wait between codes any more — «این محدودیتو هم بردار که میگه کد
+        // تازه ارسال شد تا یک دقیقه دیگر امکان ارسال کد نیست». An earlier
+        // code is **not** cancelled by a new one: SMS arrive out of order, and
+        // cancelling the first would make whichever arrived first useless.
+        // Every code stays good for its own lifetime, and the route's hourly
+        // throttle is what stands between this and an SMS bill.
         $code = LoginCode::freshCode();
 
-        DB::transaction(function () use ($phone, $code, $request): void {
-            LoginCode::where('phone', $phone)->whereNull('consumed_at')->update(['consumed_at' => now()]);
-
-            LoginCode::create([
-                'phone' => $phone,
-                'code_hash' => Hash::make($code),
-                'expires_at' => now()->addSeconds(LoginCode::LIVES_FOR_SECONDS),
-                'ip' => $request->ip(),
-            ]);
-        });
+        $issued = LoginCode::create([
+            'phone' => $phone,
+            'code_hash' => Hash::make($code),
+            'expires_at' => now()->addSeconds(LoginCode::LIVES_FOR_SECONDS),
+            'ip' => $request->ip(),
+        ]);
 
         // Twice: the sentence for a sender that posts text, the code on its own
         // for one that names an approved pattern and fills it. See Sender.
-        $sms->send($phone, "کد ورود شما به ویکی پلاس: {$code}", [$code]);
+        //
+        // **Caught, not left to become a 500.** A missing setting throws from
+        // inside the sender — on 2026-10-01 the live app's pattern variable
+        // was named with a trailing space, every new number hit it, and the
+        // shopper saw a server error. The code that was never sent is taken
+        // back so it cannot be guessed, and the shopper is told in a sentence.
+        try {
+            $sms->send($phone, "کد ورود شما به ویکی پلاس: {$code}", [$code]);
+        } catch (Throwable $e) {
+            $issued->delete();
+
+            Log::error('A sign-in code could not be sent.', [
+                'driver' => config('services.sms.driver'),
+                'error' => $e->getMessage(),
+            ]);
+
+            throw ValidationException::withMessages([
+                'phone' => 'ارسال کد یکبار مصرف موقتاً در دسترس نیست. '
+                    .'اگر روی این شماره رمز عبور داری با رمز وارد شو؛ در غیر این صورت با پشتیبانی تماس بگیر.',
+            ]);
+        }
 
         $customer = Customer::where('phone', $phone)->first();
 

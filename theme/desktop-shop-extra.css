@@ -1,0 +1,93 @@
+
+/* --- the desktop's own adjustments, on top of the phone's rules ---------- */
+
+/* The old desktop furniture: the heading, the sidebar rail and the count-and-
+   sort bar. Every one of them has a counterpart above — the search pill, the
+   filter popup and the tab row — so keeping both would be two controls for
+   one thing on one screen. The rail's markup stays: it is the same include the
+   filter popup carries. */
+.vp-listing-panel .vp-shop-head,
+.vp-listing-panel .vp-shop-rail-desktop,
+.vp-listing-panel .vp-shop-bar {
+  display: none;
+}
+
+.vp-listing-panel .vp-shop-body {
+  display: block;
+}
+
+/* The page's width. The phone takes the screen edge to edge at 12px; a
+   desktop centres the same column at the container's width, with the side
+   padding the header island uses, so the shop lines up under the header. */
+.vp-listing-panel {
+  max-width: 1320px;
+  margin-inline: auto;
+  padding-inline: 24px;
+}
+
+/* The controls stay at a reading width. A search pill 1270px long is a
+   rule, not a field; 720 keeps it, the filter button and the tab row the size
+   they are on a phone relative to what they hold, centred over the grid. */
+.vp-listing-panel .vp-stories,
+.vp-listing-panel .vp-shop-top,
+.vp-listing-panel .vp-shop-tabs,
+.vp-listing-panel .vp-shop-strip {
+  max-width: 760px;
+  margin-inline: auto;
+}
+
+.vp-listing-panel .vp-shop-tabs,
+.vp-listing-panel .vp-shop-strip {
+  justify-content: center;
+  flex-wrap: wrap;
+  overflow: visible;
+}
+
+/* The grid: the phone's two columns become four, and five on a wide screen.
+   The cards are the phone's cards at a desktop size — the same picture tile,
+   heart, name, price, cut and pill — with a desktop gutter. */
+.vp-listing-panel .vp-shop-grid {
+  --bs-gutter-x: 24px;
+  --bs-gutter-y: 28px;
+}
+
+.vp-listing-panel .vp-shop-grid > .col {
+  flex: 0 0 auto;
+  width: 25%;
+}
+
+/* The popups. On a phone they span the screen less 12px each side; on a
+   desktop that is a sheet a metre wide. Same sheet, its own width, centred. */
+.vp-listing-panel .vp-sheet,
+.vp-listing-panel .vp-shop-filter-panel {
+  inset-inline: 0;
+  margin-inline: auto;
+  width: 460px;
+  max-height: calc(100vh - 80px);
+  transform: none;
+}
+
+/* A pointer is not a finger: things that are pressed say so on hover. */
+/* **Not with `filter`.** The price and brand sheets are `position: fixed`
+   *inside* their tab, and a `filter` on an ancestor makes it the containing
+   block of a fixed descendant — the first version dimmed the tab on hover,
+   and the sheet opened pinned to the tab, half under the cards, because the
+   pointer was still on the tab that had just been clicked. A ring changes
+   nothing about positioning. */
+.vp-listing-panel .vp-shop-tab,
+.vp-listing-panel .vp-shop-filter-btn {
+  transition: box-shadow 0.18s ease;
+}
+
+.vp-listing-panel .vp-shop-tab:not(.is-on):hover,
+.vp-listing-panel .vp-shop-filter-btn:hover {
+  box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.28);
+}
+
+.vp-listing-panel .vp-card-shot img {
+  transition: transform 0.3s ease;
+}
+
+.vp-listing-panel .vp-card:hover .vp-card-shot img {
+  transform: scale(1.03);
+}

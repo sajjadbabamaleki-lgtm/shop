@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\ExpireUnpaidOrdersAfterResponse;
 use App\Http\Middleware\ReportServerTiming;
 use App\Http\Middleware\ResolveAdminTenant;
 use App\Http\Middleware\ResolveTenant;
@@ -62,6 +63,11 @@ return Application::configure(basePath: dirname(__DIR__))
         // middleware: the live site spends about 915ms of its own on the home
         // page, and this is what says where that goes.
         $middleware->prepend(ReportServerTiming::class);
+
+        // An unpaid order's reservation lapses after fifteen minutes; this
+        // sweeps them back onto the shelf after a page has been sent. See the
+        // middleware for why it is not left to a cron alone.
+        $middleware->web(append: [ExpireUnpaidOrdersAfterResponse::class]);
 
         /*
          * The tenant has to be resolved before route model binding, not after.

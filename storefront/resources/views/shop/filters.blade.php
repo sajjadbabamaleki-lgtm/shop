@@ -65,7 +65,7 @@
                         <label class="vp-size{{ $filters['size'] === $size ? ' is-on' : '' }}">
                             {{-- Clicking the size already chosen clears it, which is what
                                  a pressed button that stays pressed should do. --}}
-                            <input type="radio" name="size" value="{{ $filters['size'] === $size ? '' : $size }}" @checked($filters['size'] === $size)>
+                            <input type="radio" name="size" value="{{ $size }}" data-vp-toggle @checked($filters['size'] === $size)>
                             <span>{{ fa_number((int) $size) }}</span>
                         </label>
                     @endforeach

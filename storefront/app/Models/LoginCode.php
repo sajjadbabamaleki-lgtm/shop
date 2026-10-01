@@ -19,11 +19,19 @@ class LoginCode extends Model
     /** Digits in a code. Five is what Iranian shops send and what fits a glance. */
     public const LENGTH = 5;
 
-    /** How long a code is good for. */
-    public const LIVES_FOR_SECONDS = 120;
+    /**
+     * How long a code is good for. «حداقل زمان وارد کردن کد … باید ۲ دقیقه
+     * باشه» — three, so that two are still left after an SMS that took its
+     * time arriving. The code step counts it down on screen.
+     */
+    public const LIVES_FOR_SECONDS = 180;
 
-    /** How long before the same number may ask for another. */
-    public const RESEND_AFTER_SECONDS = 90;
+    /**
+     * How long before the same number may ask for another: not at all, at the
+     * shop's instruction. Kept as a constant so the screen and the server
+     * still read one number.
+     */
+    public const RESEND_AFTER_SECONDS = 0;
 
     /** Wrong guesses before a code is spent. */
     public const MAX_ATTEMPTS = 5;
@@ -82,6 +90,10 @@ class LoginCode extends Model
      */
     public static function nextSendAllowedAt(string $phone): ?Carbon
     {
+        if (self::RESEND_AFTER_SECONDS === 0) {
+            return null;
+        }
+
         $last = self::where('phone', $phone)->latest('id')->first();
 
         if ($last === null) {

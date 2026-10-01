@@ -1296,6 +1296,64 @@ the client saw an old page and had no way to tell why. So, plainly:
   **The screen is one card per enquiry and must not go back to a table**:
   below 992 every panel table turns its rows into bordered cards, so a table in
   a card was «کادر تو کادر» on a phone. `EnquiryReplyTest` holds both.
+- **⛔ An unpaid order gives its shoes back after fifteen minutes, and for
+  three weeks nothing did.** «۲ بار کالای تستیرو … تا مرحله پرداخت با اسنپ
+  پی رفتم پرداخت نشد … دیگه اون کالا ها تو فروشگاه نبود». `PlaceOrder`
+  reserves at placing, and **no code anywhere released a reservation** except a
+  cancel by hand, so every abandoned checkout took a size off the shop for good.
+  `App\Support\Checkout\ExpireUnpaidOrders` cancels, through
+  `SettleOrder::cancelled()`, any `placed` order paid `online`, never confirmed
+  by staff, whose last activity — placing it, or opening a payment attempt — is
+  fifteen minutes old; the attempt clause is so nobody is cut off while still
+  on اسنپ‌پی's pages. **The Liara app has no cron**, so what runs it is
+  `ExpireUnpaidOrdersAfterResponse`, on the `web` group, which sweeps in
+  `terminate()` at most once a minute (`Cache::add`) after the page has gone;
+  `orders:expire` is the same sweep by hand and is scheduled for the day a cron
+  exists. `pay()` sweeps first too. **A gateway return for an order that
+  expired is not verified** — verifying takes money for shoes already back on
+  the shelf; unverified, زرین‌پال refunds by itself and اسنپ‌پی reverts an
+  unsettled purchase. It is off in the suite (`SWEEP_UNPAID_ORDERS=false` in
+  phpunit.xml) and `UnpaidOrdersLetGoTest` turns it on where it is the subject.
+- **⛔ The live app's SMS pattern variable is named «SMS_PATTERN » — with a
+  trailing space.** Read off the Liara API on 2026-10-01: `env('SMS_PATTERN')`
+  was null there, so on the `melipayamak` pattern driver every sign-in code for
+  a number with no password threw inside `send()`, uncaught, and a shopper
+  registering saw «ارور ۵۰۰». `config/services.php` reads both spellings, and
+  `AccountController` now catches a sender that throws, deletes the code that
+  never left and says so on the form. **Rename it in the panel** and the
+  fallback becomes moot. The same API listing showed three variables named
+  after console commands («php artisan config» …) — typed into the wrong box,
+  harmless, worth deleting.
+- **The sign-in code lives three minutes and there is no wait between codes.**
+  «حداقل زمان … ۲ دقیقه» and «این محدودیتو هم بردار که میگه کد تازه ارسال شد
+  تا یک دقیقه دیگر امکان ارسال کد نیست». `LoginCode::LIVES_FOR_SECONDS` is 180
+  and the code step counts it down (`.vp-enter-timer`); `RESEND_AFTER_SECONDS`
+  is 0. A new code no longer cancels the one before it — SMS arrive out of
+  order — so `verify()` accepts any live code for the number. The route's
+  hourly throttle (10) is the only brake on an SMS bill now.
+- **⛔ The desktop shop is the phone's shop, generated, and the phone must not
+  move a pixel.** «نسخه دستاپ فروشگاهش … هیچ شباهتی به نسخه موبایل نداره …
+  اصلا نمیخوام نسخه موبایل حتی یک پیکسل تغییر». Above 992 the listing was a
+  framed panel with a radio sidebar while the phone had grown stories, a search
+  pill with a filter popup, a tab row with price and brand sheets, a category
+  strip and its own cards. **`theme/make-desktop-shop.js` copies every
+  phone-only rule for those parts, scopes it under `.vp-listing-panel`, and
+  re-issues it at min-width 992** (the block «⛔ The desktop shop speaks the
+  phone's language.» before the signature), then appends
+  `theme/desktop-shop-extra.css` — the width, four columns and five from 1400,
+  sheets at 460px, hover rings. Nothing below 992 is written: measured, the
+  listing at 390 is byte-identical before and after. **Change a phone rule for
+  the listing, re-run it**, then `sync-storefront-assets.js`. Two traps it
+  already sprang: a hover `filter` on a tab made it the containing block of its
+  own `position: fixed` sheet, which then opened pinned under the cards — the
+  hover is a ring for that reason; and the stories' animations exist only in
+  phone media, so their desktop copies are written **before** the stories'
+  reduced-motion guard with a scoped guard of their own (`StoriesTest` holds
+  the order). The sidebar's markup stays because the filter popup includes the
+  same partial. **The size filter dropped itself**: the ticked size posted an
+  empty value (its way of offering «untick»), so applying any other filter
+  lost it, on the phone's popup too. Every size posts itself now and a script
+  unticks a second press. `DesktopShopSpeaksThePhonesLanguageTest` holds both.
 - **`.vp-page` is one link in the paginator**, not a page. It carries
   `display: grid; height: 38px`, and a panel that wore the name came out 64px
   tall with its whole content spilling out under the footer. The content pages
