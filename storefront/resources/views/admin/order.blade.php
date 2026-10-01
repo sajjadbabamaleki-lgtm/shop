@@ -115,6 +115,11 @@
             <li><span>نام</span><b>{{ $order->contact_name }}</b></li>
             <li><span>تلفن</span><b><bdi dir="ltr">{{ $order->contact_phone }}</bdi></b></li>
             <li><span>وضعیت</span><b><span class="vp-adm-badge is-{{ $order->status }}">{{ $order->statusLabel() }}</span></b></li>
+            @if ($order->reservationLapsed())
+                {{-- The order is kept whole; only the hold on the shelf went,
+                     fifteen minutes after the last thing the customer did. --}}
+                <li><span>رزرو آزاد شد</span><b>{{ fa_date($order->reservation_released_at, true) }} — ۱۵ دقیقه بدون پرداخت</b></li>
+            @endif
             <li><span>پرداخت</span><b>{{ $order->paymentLabel() }}</b></li>
             @if ($order->payment_method)
                 <li><span>روش پرداخت</span><b>{{ $order->methodLabel() }}</b></li>

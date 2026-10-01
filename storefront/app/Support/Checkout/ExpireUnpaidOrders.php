@@ -29,8 +29,13 @@ use Throwable;
  * has confirmed by hand, or one recorded as paid some other way at the
  * counter, is a decision a person made, and a timer does not overrule it.
  *
- * It goes through `SettleOrder::cancelled()`, which is where stock is allowed
- * to move — this is a reason to cancel, not a third writer of the shelf.
+ * **It lets go of the shoes and nothing else.** The first version cancelled
+ * the order, and the panel lost sight of every abandoned checkout: «تا ۱۵
+ * دقیقه نگه دار منظورم فقط توی سایت بود تو پنل ادمین باید کل اطلاعات بمونه».
+ * The order stays «ثبت شد» and unpaid, with its customer, lines and attempts;
+ * `SettleOrder::lapsed()` returns the stock and stamps
+ * `reservation_released_at`, and that is all. Stock still moves only inside
+ * `SettleOrder`.
  *
  * What runs it is `ExpireUnpaidOrdersAfterResponse`, which sweeps at most
  * once a minute after a page has already been sent — so it needs no cron, and
@@ -40,6 +45,9 @@ use Throwable;
 class ExpireUnpaidOrders
 {
     public const MINUTES = 15;
+
+    /** The note on the shelf's release, which is also how the 01 Oct restore found its orders. */
+    public const NOTE = 'رزرو پس از ۱۵ دقیقه بدون پرداخت آزاد شد.';
 
     public function __construct(private SettleOrder $settle, private TenantContext $tenant) {}
 
@@ -55,6 +63,7 @@ class ExpireUnpaidOrders
             ->where('status', Order::PLACED)
             ->where('payment_method', 'online')
             ->whereNull('confirmed_at')
+            ->whereNull('reservation_released_at')
             ->where('placed_at', '<', $cutoff)
             // A recent attempt keeps the hold alive for its own fifteen
             // minutes; an old one does not.
@@ -72,18 +81,7 @@ class ExpireUnpaidOrders
 
         foreach ($stale as $order) {
             try {
-                $this->tenant->forBranch($order->branch, function () use ($order) {
-                    $this->settle->cancelled(
-                        $order,
-                        'رزرو پس از '.self::MINUTES.' دقیقه بدون پرداخت آزاد شد.'
-                    );
-
-                    // An attempt left open would otherwise read «در حال
-                    // پرداخت» for ever on the panel.
-                    $order->payments()
-                        ->where('status', Payment::PENDING)
-                        ->update(['status' => Payment::CANCELLED]);
-                });
+                $this->tenant->forBranch($order->branch, fn () => $this->settle->lapsed($order));
 
                 $expired++;
             } catch (Throwable $e) {

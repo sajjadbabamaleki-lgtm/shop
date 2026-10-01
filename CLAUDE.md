@@ -1301,10 +1301,10 @@ the client saw an old page and had no way to tell why. So, plainly:
   پی رفتم پرداخت نشد … دیگه اون کالا ها تو فروشگاه نبود». `PlaceOrder`
   reserves at placing, and **no code anywhere released a reservation** except a
   cancel by hand, so every abandoned checkout took a size off the shop for good.
-  `App\Support\Checkout\ExpireUnpaidOrders` cancels, through
-  `SettleOrder::cancelled()`, any `placed` order paid `online`, never confirmed
-  by staff, whose last activity — placing it, or opening a payment attempt — is
-  fifteen minutes old; the attempt clause is so nobody is cut off while still
+  `App\Support\Checkout\ExpireUnpaidOrders` lets go of the shoes of any
+  `placed` order paid `online`, never confirmed by staff, whose last activity
+  — placing it, or opening a payment attempt — is fifteen minutes old; the
+  attempt clause is so nobody is cut off while still
   on اسنپ‌پی's pages. **The Liara app has no cron**, so what runs it is
   `ExpireUnpaidOrdersAfterResponse`, on the `web` group, which sweeps in
   `terminate()` at most once a minute (`Cache::add`) after the page has gone;
@@ -1314,6 +1314,23 @@ the client saw an old page and had no way to tell why. So, plainly:
   the shelf; unverified, زرین‌پال refunds by itself and اسنپ‌پی reverts an
   unsettled purchase. It is off in the suite (`SWEEP_UNPAID_ORDERS=false` in
   phpunit.xml) and `UnpaidOrdersLetGoTest` turns it on where it is the subject.
+  **⛔ It releases the stock and changes nothing else about the order — it is
+  not a cancel.** The first version (01 Oct) went through
+  `SettleOrder::cancelled()`, and every abandoned checkout turned into «لغو
+  شد», fell out of the dashboard's «نیاز به رسیدگی» and the unpaid total, and
+  read as gone: «تا ۱۵ دقیقه نگه دار منظورم فقط توی سایت بود تو پنل ادمین باید
+  کل اطلاعات بمونه … اطلاعات رو اگه میتونی برگردون». Nothing had been deleted,
+  but to the shop it had. Now `SettleOrder::lapsed()` releases and stamps
+  `orders.reservation_released_at`; the order stays `placed` and unpaid with
+  its lines and attempts, `Order::reservationLapsed()` is the question and
+  `statusLabel()` says «پرداخت نشد، رزرو آزاد شد». `holdsStock()` is false for
+  it, so a later cancel releases nothing twice; the shop's pay route refuses
+  it; and `paid()` from the panel sells it out of what is free on the shelf
+  *now*, or refuses with `CannotFulfil` if that has sold.
+  `keep_lapsed_orders_in_the_panel` put back the orders the first version had
+  cancelled — found by the release note `ExpireUnpaidOrders::NOTE` and by an
+  audit row with no staff member, never one somebody cancelled on purpose —
+  and did **not** re-reserve their stock.
 - **⛔ The live app's SMS pattern variable is named «SMS_PATTERN » — with a
   trailing space.** Read off the Liara API on 2026-10-01: `env('SMS_PATTERN')`
   was null there, so on the `melipayamak` pattern driver every sign-in code for

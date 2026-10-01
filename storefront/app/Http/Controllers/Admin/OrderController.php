@@ -10,6 +10,7 @@ use App\Models\Payment;
 use App\Models\ShippingMethod;
 use App\Support\Admin\DateRange;
 use App\Support\Catalogue\OfferPrice;
+use App\Support\Checkout\CannotFulfil;
 use App\Support\Checkout\SettleOrder;
 use App\Support\Fulfilment\FulfilmentSettings;
 use App\Support\Fulfilment\Promise;
@@ -416,26 +417,32 @@ class OrderController extends Controller
         // `FulfilmentController::ship`, which learned it first.
         $input += ['reference' => null];
 
-        DB::transaction(function () use ($order, $input, $settle): void {
-            $settle->paid($order);
+        try {
+            DB::transaction(function () use ($order, $input, $settle): void {
+                $settle->paid($order);
 
-            $order->forceFill(['payment_method' => $input['method']])->save();
+                $order->forceFill(['payment_method' => $input['method']])->save();
 
-            Payment::create([
-                'order_id' => $order->id,
-                // Not a gateway — this money did not come through one, and
-                // saying «zarinpal» here would be a lie in the one table the
-                // shop reconciles against.
-                'gateway' => 'panel',
-                'authority' => 'PANEL-'.Str::upper(Str::random(26)),
-                'amount' => $order->grand_total,
-                'status' => Payment::PAID,
-                'ref_id' => $input['reference'] ?: null,
-                'paid_at' => now(),
-            ]);
-        });
+                Payment::create([
+                    'order_id' => $order->id,
+                    // Not a gateway — this money did not come through one, and
+                    // saying «zarinpal» here would be a lie in the one table the
+                    // shop reconciles against.
+                    'gateway' => 'panel',
+                    'authority' => 'PANEL-'.Str::upper(Str::random(26)),
+                    'amount' => $order->grand_total,
+                    'status' => Payment::PAID,
+                    'ref_id' => $input['reference'] ?: null,
+                    'paid_at' => now(),
+                ]);
+            });
+        } catch (CannotFulfil $e) {
+            // A lapsed order sells out of what is on the shelf now, and the
+            // shelf may no longer have it.
+            return $back->withErrors(['status' => 'رزرو این سفارش آزاد شده بود و حالا موجودی کافی نیست: '.$e->getMessage()]);
+        }
 
-        return $back->with('status', 'پرداخت ثبت شد و موجودی رزروشده فروخته شد.');
+        return $back->with('status', 'پرداخت ثبت شد و موجودی فروخته شد.');
     }
 
     /**
@@ -559,7 +566,15 @@ class OrderController extends Controller
                 continue;
             }
 
-            $this->move($order, $input['status'], $settle, $request->user()->name);
+            try {
+                $this->move($order, $input['status'], $settle, $request->user()->name);
+            } catch (CannotFulfil) {
+                // A lapsed order whose shoes have since sold: left as it was.
+                $skipped++;
+
+                continue;
+            }
+
             $moved++;
         }
 

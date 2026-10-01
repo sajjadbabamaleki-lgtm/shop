@@ -41,21 +41,27 @@ class SettleOrder
             return $order;
         }
 
-        if (! $order->holdsStock()) {
+        // A lapsed reservation can still be paid for — a customer who paid by
+        // card-to-card after the fifteen minutes, recorded from the panel —
+        // but only out of what is on the shelf now, since the hold is gone.
+        $lapsed = $order->reservationLapsed();
+
+        if (! $order->holdsStock() && ! $lapsed) {
             throw new RuntimeException("Order {$order->number} is {$order->status} and is not holding stock to sell.");
         }
 
-        return DB::transaction(function () use ($order) {
+        return DB::transaction(function () use ($order, $lapsed) {
             foreach ($order->items as $item) {
                 $item->vendor_id === null
-                    ? $this->sellFromBranch($order, $item)
-                    : $this->sellFromVendor($order, $item);
+                    ? $this->sellFromBranch($order, $item, $lapsed)
+                    : $this->sellFromVendor($order, $item, $lapsed);
             }
 
             $order->update([
                 'status' => Order::PAID,
                 'payment_status' => 'paid',
                 'paid_at' => now(),
+                'reservation_released_at' => null,
             ]);
 
             return $order;
@@ -150,6 +156,35 @@ class SettleOrder
     }
 
     /**
+     * The fifteen minutes ran out with nothing paid: the shoes go back on the
+     * shop, and **nothing else about the order changes**.
+     *
+     * Not `cancelled()`. That was the first version, and it turned every
+     * abandoned checkout into «لغو شد» — out of the dashboard's «نیاز به
+     * رسیدگی», out of the unpaid total, reading as a decision somebody made —
+     * when the shop wanted to keep seeing who came close to buying what: «تو
+     * پنل ادمین باید کل اطلاعات بمونه که چه کسی رفته خرید کرده یا خرید نکرده».
+     * So the order stays «ثبت شد» and unpaid, with its lines and its attempts,
+     * and `reservation_released_at` is the one thing written.
+     */
+    public function lapsed(Order $order): Order
+    {
+        if (! $order->holdsStock()) {
+            return $order;
+        }
+
+        return DB::transaction(function () use ($order) {
+            foreach ($order->items as $item) {
+                $this->release($order, $item, ExpireUnpaidOrders::NOTE);
+            }
+
+            $order->forceFill(['reservation_released_at' => now()])->save();
+
+            return $order;
+        });
+    }
+
+    /**
      * The order is off. Everything it was holding goes back, and anything
      * already credited is reversed.
      */
@@ -182,11 +217,28 @@ class SettleOrder
 
     // --- the branch's shelf ------------------------------------------------
 
-    private function sellFromBranch(Order $order, OrderItem $item): void
+    private function sellFromBranch(Order $order, OrderItem $item, bool $lapsed = false): void
     {
         $inventory = $this->lockBranch($order, $item);
 
         if ($inventory === null) {
+            return;
+        }
+
+        // A lapsed order holds nothing, so it sells out of what is free, and
+        // only if enough of it is.
+        if ($lapsed) {
+            $free = $inventory->stock_on_hand - $inventory->stock_reserved;
+
+            if ($free < $item->quantity) {
+                throw CannotFulfil::soldOut($item->variant, $item->quantity, max(0, $free));
+            }
+
+            $inventory->stock_on_hand -= $item->quantity;
+            $inventory->save();
+
+            $this->record($order, $item, 'sale', -$item->quantity, "Sold on order {$order->number}.");
+
             return;
         }
 
@@ -239,7 +291,7 @@ class SettleOrder
 
     // --- a vendor's shelf and a vendor's account ---------------------------
 
-    private function sellFromVendor(Order $order, OrderItem $item): void
+    private function sellFromVendor(Order $order, OrderItem $item, bool $lapsed = false): void
     {
         $offer = $this->lockVendorOffer($item);
 
@@ -247,7 +299,14 @@ class SettleOrder
             return;
         }
 
-        $offer->stock_reserved -= $item->quantity;
+        if ($lapsed) {
+            if ($offer->stock_on_hand - $offer->stock_reserved < $item->quantity) {
+                throw CannotFulfil::soldOut($item->variant, $item->quantity, max(0, $offer->stock_on_hand - $offer->stock_reserved));
+            }
+        } else {
+            $offer->stock_reserved -= $item->quantity;
+        }
+
         $offer->stock_on_hand -= $item->quantity;
         $offer->save();
 

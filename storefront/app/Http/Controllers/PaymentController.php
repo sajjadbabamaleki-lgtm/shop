@@ -110,6 +110,11 @@ class PaymentController extends Controller
                 ->withErrors(['payment' => 'این سفارش لغو شده و قابل پرداخت نیست.']);
         }
 
+        if ($order->reservationLapsed()) {
+            return redirect()->to(storefront_route('order', $order))
+                ->withErrors(['payment' => 'مهلت ۱۵ دقیقه‌ای پرداخت این سفارش تمام شده و کالاها به فروشگاه برگشته‌اند. لطفاً دوباره سفارش بده.']);
+        }
+
         $payment = Payment::create([
             'order_id' => $order->id,
             // The row records which gateway opened it, and that is what the
@@ -210,10 +215,10 @@ class PaymentController extends Controller
         // and there is no reservation left to sell from. Unverified, زرین‌پال
         // hands the money back by itself and اسنپ‌پی reverts an unsettled
         // purchase, so declining here is what leaves the customer whole.
-        if ($order->status === Order::CANCELLED) {
+        if ($order->status === Order::CANCELLED || $order->reservationLapsed()) {
             $payment->update(['status' => Payment::CANCELLED]);
 
-            return $back->withErrors(['payment' => 'مهلت پرداخت این سفارش تمام شده و سفارش لغو شد. اگر مبلغی از حسابت کم شده، خودکار برمی‌گردد. می‌توانی دوباره سفارش بدهی.']);
+            return $back->withErrors(['payment' => 'مهلت پرداخت این سفارش تمام شده و کالاها به فروشگاه برگشته‌اند. اگر مبلغی از حسابت کم شده، خودکار برمی‌گردد. می‌توانی دوباره سفارش بدهی.']);
         }
 
         $verifier = $this->gateways->named($payment->gateway);

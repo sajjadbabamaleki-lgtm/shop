@@ -51,6 +51,7 @@ class Order extends Model
         'payment_method', 'payment_status', 'tracking_number',
         'contact_name', 'contact_phone', 'province', 'city', 'address',
         'postal_code', 'note', 'staff_note', 'placed_at', 'paid_at', 'cancelled_at',
+        'reservation_released_at',
         // The fulfilment promise — §2 of the order-management addendum. An
         // estimate and an event are separate columns on purpose: sharing one
         // makes «when we said it would go» and «when it went» the same number,
@@ -67,6 +68,7 @@ class Order extends Model
     {
         return [
             'confirmed_at' => 'datetime',
+            'reservation_released_at' => 'datetime',
             'estimated_ship_by' => 'date',
             'actual_shipped_at' => 'datetime',
             'estimated_delivery_from' => 'date',
@@ -150,7 +152,22 @@ class Order extends Model
 
     public function holdsStock(): bool
     {
-        return in_array($this->status, self::HOLDS_STOCK, true);
+        return in_array($this->status, self::HOLDS_STOCK, true) && ! $this->reservationLapsed();
+    }
+
+    /**
+     * Whether this unpaid order's fifteen minutes ran out and its shoes went
+     * back on the shop.
+     *
+     * «تا ۱۵ دقیقه نگه دار منظورم فقط توی سایت بود تو پنل ادمین باید کل
+     * اطلاعات بمونه». The order itself is untouched — still «ثبت شد», still
+     * unpaid, with its customer, its lines and its attempts — because the shop
+     * wants to see who came close to buying what. Only the hold on the shelf
+     * is gone. See ExpireUnpaidOrders.
+     */
+    public function reservationLapsed(): bool
+    {
+        return $this->status === self::PLACED && $this->reservation_released_at !== null;
     }
 
     /**
@@ -171,6 +188,10 @@ class Order extends Model
 
     public function statusLabel(): string
     {
+        if ($this->reservationLapsed()) {
+            return 'پرداخت نشد، رزرو آزاد شد';
+        }
+
         return self::statusLabels()[$this->status] ?? $this->status;
     }
 

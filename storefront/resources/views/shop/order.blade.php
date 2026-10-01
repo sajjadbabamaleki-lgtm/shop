@@ -40,7 +40,13 @@
                  inviting somebody to pay a courier the shop is not expecting.
                  `Order::methodLabels()` keeps «پرداخت در محل» for the panel,
                  because orders that really were paid that way still exist. --}}
-            @if ($order->status === \App\Models\Order::PLACED)
+            @if ($order->reservationLapsed())
+                {{-- Fifteen minutes passed with nothing paid, so the shoes went
+                     back on the shop. The order is kept — the shop still sees
+                     it — but it cannot be paid for: what it named may have
+                     been sold since. --}}
+                <p class="vp-note is-bad">مهلت ۱۵ دقیقه‌ای پرداخت این سفارش تمام شد و کالاها به فروشگاه برگشتند. اگر هنوز می‌خواهی‌شان، دوباره به سبد اضافه کن و سفارش بده.</p>
+            @elseif ($order->status === \App\Models\Order::PLACED)
                 {{-- **The list, not a flag.** It is empty for both of the
                      reasons the sentence below covers: a shop with no gateway
                      connected at all, and an order no connected gateway will
