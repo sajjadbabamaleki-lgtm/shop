@@ -1,0 +1,440 @@
+{
+ "seq": 29,
+ "at": 64116,
+ "done": 10,
+ "returns": [
+  "1"
+ ],
+ "url": "https://vikyplus.ir/cart",
+ "title": "VikyPlus",
+ "tabs": [
+  {
+   "idx": 0,
+   "url": "https://vikyplus.ir/cart"
+  }
+ ],
+ "text": "سبد خرید\n\n۳ کالا\n\nادامه خرید\nکالای آزمایشی ۱، لطفاً نخرید\n۱۷۰٬۰۰۰ تومان\nهر عدد ۸۵٬۰۰۰\nسایز: ۴۰\nرنگ: آزمایشی\n−\n۲\n+\nکالای آزمایشی ۲ (تخفیف‌دار)، لطفاً نخرید\n۸۵٬۰۰۰ تومان\nسایز: ۴۰\nرنگ: آزمایشی\n−\n۱\n+\nجمع کالاها\n۲۵۵٬۰۰۰ تومان\nتخفیف\n۰ تومان\nمبلغ قابل پرداخت\n۲۵۵٬۰۰۰ تومان\nادامه (۲۵۵٬۰۰۰ تومان)\n\nروش ارسال و هزینه‌اش را در مرحلهٔ بعد انتخاب می‌کنید.\n\nویکی پلاس\nفروشگاه کیف و کفش زنانه\n\nارائه‌دهنده انواع کیف و کفش زنانه با تضمین کیفیت، ارسال سریع و امکان خرید تکی و عمده.\n\nآدرس زیر فقط برای خرید عمده است\n\nتهران، سعدی شمالی، روبه‌روی بانک ملی، پلاک ۵۶۵\n\n021-3398-3125\n\nویکی پلاس\nفروشنده شوید\nفروش عمده\nحریم خصوصی\nاخذ نمایندگی\nخدمات پس از فروش\nدرباره ما\nمقالات\nپشتیبانی\nراهنما\nراهنمای سایز\nتماس با ما\nگزارش تخلف\nثبت شکایت\nقوانین\nخرید اینترنتی\nدسته‌ها\nکفش زنانه\nکیف زنانه\nپرفروش‌ترین‌ها\nتخفیف‌دارها\nحراج پله‌ای\nحساب کاربری\nحساب کاربری\nسفارش‌های من\nسبد خرید\nتعویض و مرجوعی\nپشتیبانی\nعلاقه‌مندی‌ها\nویکی پلاس روی موبایل\n\nبرای دسترسی سریع‌تر، ویکی پلاس را از منوی مرورگرتان به صفحه اصلی گوشی اضافه کنید.\n\nتمامی حقوق این وب‌سایت متعلق به ویکی پلاس است.",
+ "controls": [
+  {
+   "tag": "button",
+   "type": "button",
+   "cls": "closeButton sideMenuCls",
+   "text": "بستن سبد خرید"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-cart-shot",
+   "href": "https://vikyplus.ir/products/vp-test-item-a"
+  },
+  {
+   "tag": "button",
+   "type": "submit",
+   "cls": "vp-cart-less",
+   "text": "یکی کمتر"
+  },
+  {
+   "tag": "button",
+   "type": "submit",
+   "cls": "vp-cart-more",
+   "text": "یکی بیشتر"
+  },
+  {
+   "tag": "button",
+   "type": "button",
+   "cls": "vp-cart-compare",
+   "text": "مقایسه کالای آزمایشی ۱، لطفاً نخرید"
+  },
+  {
+   "tag": "button",
+   "type": "submit",
+   "cls": "vp-cart-drop",
+   "text": "حذف کالای آزمایشی ۱، لطفاً نخرید"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-cart-shot",
+   "href": "https://vikyplus.ir/products/vp-test-item-b"
+  },
+  {
+   "tag": "button",
+   "type": "submit",
+   "cls": "vp-cart-less",
+   "text": "یکی کمتر",
+   "disabled": true
+  },
+  {
+   "tag": "button",
+   "type": "submit",
+   "cls": "vp-cart-more",
+   "text": "یکی بیشتر"
+  },
+  {
+   "tag": "button",
+   "type": "button",
+   "cls": "vp-cart-compare",
+   "text": "مقایسه کالای آزمایشی ۲ (تخفیف‌دار)، لطفاً نخرید"
+  },
+  {
+   "tag": "button",
+   "type": "submit",
+   "cls": "vp-cart-drop",
+   "text": "حذف کالای آزمایشی ۲ (تخفیف‌دار)، لطفاً نخرید"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-logo vp-logo-drawer",
+   "href": "https://vikyplus.ir"
+  },
+  {
+   "tag": "button",
+   "type": "button",
+   "cls": "th-menu-toggle",
+   "text": "بستن منو"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-quick is-lit",
+   "href": "https://vikyplus.ir/articles"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-quick",
+   "href": "https://vikyplus.ir/products?sort=newest"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-quick",
+   "href": "https://vikyplus.ir/products?sort=bestselling"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-drawer-all",
+   "href": "https://vikyplus.ir/products"
+  },
+  {
+   "tag": "a",
+   "href": "https://vikyplus.ir/categories/majlesi"
+  },
+  {
+   "tag": "a",
+   "href": "https://vikyplus.ir/categories/sneaker"
+  },
+  {
+   "tag": "a",
+   "href": "https://vikyplus.ir/categories/college"
+  },
+  {
+   "tag": "a",
+   "href": "https://vikyplus.ir/categories/sandal"
+  },
+  {
+   "tag": "a",
+   "href": "https://vikyplus.ir/categories/boot"
+  },
+  {
+   "tag": "a",
+   "href": "https://vikyplus.ir/categories/bag-set"
+  },
+  {
+   "tag": "a",
+   "href": "https://vikyplus.ir/categories/sport-set"
+  },
+  {
+   "tag": "a",
+   "href": "https://vikyplus.ir/wholesale"
+  },
+  {
+   "tag": "a",
+   "href": "https://vikyplus.ir/vendors/apply"
+  },
+  {
+   "tag": "a",
+   "href": "https://vikyplus.ir/orders"
+  },
+  {
+   "tag": "a",
+   "href": "https://vikyplus.ir/size-guide"
+  },
+  {
+   "tag": "a",
+   "href": "https://vikyplus.ir/about"
+  },
+  {
+   "tag": "a",
+   "href": "https://vikyplus.ir/terms"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-drawer-cta",
+   "href": "https://vikyplus.ir/account/enter"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-cart-keep",
+   "text": "ادامه خرید",
+   "href": "https://vikyplus.ir/products"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-cart-shot",
+   "href": "https://vikyplus.ir/products/vp-test-item-a"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-cart-name",
+   "text": "کالای آزمایشی ۱، لطفاً نخرید",
+   "href": "https://vikyplus.ir/products/vp-test-item-a"
+  },
+  {
+   "tag": "button",
+   "type": "submit",
+   "cls": "vp-cart-less",
+   "text": "−"
+  },
+  {
+   "tag": "button",
+   "type": "submit",
+   "cls": "vp-cart-more",
+   "text": "+"
+  },
+  {
+   "tag": "button",
+   "type": "button",
+   "cls": "vp-cart-compare",
+   "text": "مقایسه کالای آزمایشی ۱، لطفاً نخرید"
+  },
+  {
+   "tag": "button",
+   "type": "submit",
+   "cls": "vp-cart-drop",
+   "text": "حذف کالای آزمایشی ۱، لطفاً نخرید"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-cart-shot",
+   "href": "https://vikyplus.ir/products/vp-test-item-b"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-cart-name",
+   "text": "کالای آزمایشی ۲ (تخفیف‌دار)، لطفاً نخرید",
+   "href": "https://vikyplus.ir/products/vp-test-item-b"
+  },
+  {
+   "tag": "button",
+   "type": "submit",
+   "cls": "vp-cart-less",
+   "text": "−",
+   "disabled": true
+  },
+  {
+   "tag": "button",
+   "type": "submit",
+   "cls": "vp-cart-more",
+   "text": "+"
+  },
+  {
+   "tag": "button",
+   "type": "button",
+   "cls": "vp-cart-compare",
+   "text": "مقایسه کالای آزمایشی ۲ (تخفیف‌دار)، لطفاً نخرید"
+  },
+  {
+   "tag": "button",
+   "type": "submit",
+   "cls": "vp-cart-drop",
+   "text": "حذف کالای آزمایشی ۲ (تخفیف‌دار)، لطفاً نخرید"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-filter-apply vp-cart-go",
+   "text": "ادامه (۲۵۵٬۰۰۰ تومان)",
+   "href": "https://vikyplus.ir/checkout"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-logo vp-logo-foot",
+   "text": "ویکی پلاس\nفروشگاه کیف و کفش زنانه",
+   "href": "https://vikyplus.ir"
+  },
+  {
+   "tag": "a",
+   "text": "021-3398-3125",
+   "href": "tel:02133983125"
+  },
+  {
+   "tag": "a",
+   "text": "فروشنده شوید",
+   "href": "https://vikyplus.ir/vendors/apply"
+  },
+  {
+   "tag": "a",
+   "text": "فروش عمده",
+   "href": "https://vikyplus.ir/wholesale"
+  },
+  {
+   "tag": "a",
+   "text": "حریم خصوصی",
+   "href": "https://vikyplus.ir/privacy"
+  },
+  {
+   "tag": "a",
+   "text": "اخذ نمایندگی",
+   "href": "https://vikyplus.ir/franchise"
+  },
+  {
+   "tag": "a",
+   "text": "خدمات پس از فروش",
+   "href": "https://vikyplus.ir/faq"
+  },
+  {
+   "tag": "a",
+   "text": "درباره ما",
+   "href": "https://vikyplus.ir/about"
+  },
+  {
+   "tag": "a",
+   "text": "مقالات",
+   "href": "https://vikyplus.ir/articles"
+  },
+  {
+   "tag": "a",
+   "text": "راهنما",
+   "href": "https://vikyplus.ir/faq"
+  },
+  {
+   "tag": "a",
+   "text": "راهنمای سایز",
+   "href": "https://vikyplus.ir/size-guide"
+  },
+  {
+   "tag": "a",
+   "text": "تماس با ما",
+   "href": "https://vikyplus.ir/contact"
+  },
+  {
+   "tag": "a",
+   "text": "گزارش تخلف",
+   "href": "https://vikyplus.ir/contact"
+  },
+  {
+   "tag": "a",
+   "text": "ثبت شکایت",
+   "href": "https://vikyplus.ir/contact"
+  },
+  {
+   "tag": "a",
+   "text": "قوانین",
+   "href": "https://vikyplus.ir/terms"
+  },
+  {
+   "tag": "a",
+   "text": "خرید اینترنتی",
+   "href": "https://vikyplus.ir/faq"
+  },
+  {
+   "tag": "a",
+   "text": "کفش زنانه",
+   "href": "https://vikyplus.ir/products"
+  },
+  {
+   "tag": "a",
+   "text": "کیف زنانه",
+   "href": "https://vikyplus.ir/products"
+  },
+  {
+   "tag": "a",
+   "text": "پرفروش‌ترین‌ها",
+   "href": "https://vikyplus.ir/products"
+  },
+  {
+   "tag": "a",
+   "text": "تخفیف‌دارها",
+   "href": "https://vikyplus.ir/products"
+  },
+  {
+   "tag": "a",
+   "text": "حراج پله‌ای",
+   "href": "https://vikyplus.ir/stepped-sale"
+  },
+  {
+   "tag": "a",
+   "text": "حساب کاربری",
+   "href": "https://vikyplus.ir/account/enter"
+  },
+  {
+   "tag": "a",
+   "text": "سفارش‌های من",
+   "href": "https://vikyplus.ir/orders"
+  },
+  {
+   "tag": "a",
+   "text": "سبد خرید",
+   "href": "https://vikyplus.ir/cart"
+  },
+  {
+   "tag": "a",
+   "text": "تعویض و مرجوعی",
+   "href": "https://vikyplus.ir/faq"
+  },
+  {
+   "tag": "a",
+   "text": "پشتیبانی",
+   "href": "https://vikyplus.ir/support"
+  },
+  {
+   "tag": "a",
+   "text": "علاقه‌مندی‌ها",
+   "href": "https://vikyplus.ir/account/wishlist"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-foot-m-soc is-instagram",
+   "text": "Instagram",
+   "href": "#"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-foot-m-soc is-telegram",
+   "text": "تلگرام",
+   "href": "#"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-foot-m-soc is-whatsapp",
+   "text": "واتساپ",
+   "href": "https://wa.me/989366659224"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-foot-m-soc is-bale",
+   "text": "بله",
+   "href": "#"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-foot-m-soc is-rubika",
+   "text": "روبیکا",
+   "href": "#"
+  },
+  {
+   "tag": "a",
+   "href": "https://trustseal.enamad.ir/?id=696411&Code=oyQ6picRwm2lLEPobQWLuNSW37WIf7mV"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-support-fab",
+   "text": "پشتیبانی ۲۴ ساعته",
+   "href": "https://vikyplus.ir/support"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-whatsapp",
+   "text": "گفتگو در واتساپ",
+   "href": "https://wa.me/989366659224"
+  }
+ ],
+ "frames": [
+  "https://vikyplus.ir/cart"
+ ]
+}
