@@ -1,1 +1,1 @@
-{"seq": 7, "steps": [{"do": "click", "sel": ".vp-checkout button[type=submit]"}, {"do": "load"}, {"do": "wait", "ms": 3000}, {"do": "waitFor", "sel": ".vp-snapp-form:not([hidden])", "timeout": 30000}, {"do": "scrollTo", "sel": ".vp-snapp-form"}, {"do": "wait", "ms": 4000}]}
+{"seq": 8, "steps": [{"do": "click", "sel": "text=متوجه شدم"}, {"do": "wait", "ms": 1200}, {"do": "scrollTo", "sel": ".vp-snapp-form"}, {"do": "wait", "ms": 5000}]}
