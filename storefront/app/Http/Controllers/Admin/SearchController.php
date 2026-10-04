@@ -81,7 +81,22 @@ class SearchController extends Controller
                     $q->where(Search::fold('number'), 'ilike', $needle)
                         ->orWhere(Search::fold('contact_name'), 'ilike', $needle)
                         ->orWhere(Search::fold('contact_phone'), 'ilike', $needle)
-                        ->orWhere(Search::fold('tracking_number'), 'ilike', $needle);
+                        ->orWhere(Search::fold('tracking_number'), 'ilike', $needle)
+                        // ⛔ **The transaction id, because this box and the
+                        // orders list are two search boxes with two different
+                        // answers, and this is the one that looks like «the»
+                        // search.** The orders screen learned the payment's
+                        // `authority` when اسنپ‌پی asked for it — «آیدی ارسال
+                        // شده توسط پذیرنده … قابلیت جستجو … داشته باشد» — and
+                        // this box, the magnifier in the panel's own header,
+                        // did not. Measured by the shop: searching
+                        // «V000000115» here answered «چیزی پیدا نشد» for an
+                        // order that exists, while the same string on
+                        // /admin/orders found it. A search that is right in
+                        // one of two places is worse than one that is wrong in
+                        // both, because it teaches the wrong lesson about the
+                        // data.
+                        ->orWhereHas('payments', fn (Builder $paid) => $paid->where(Search::fold('authority'), 'ilike', $needle));
                 })
                 ->latest('placed_at')
                 ->limit(self::PER_GROUP)

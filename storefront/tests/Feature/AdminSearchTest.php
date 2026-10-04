@@ -6,6 +6,7 @@ use App\Models\Branch;
 use App\Models\Customer;
 use App\Models\DiscountCode;
 use App\Models\Order;
+use App\Models\Payment;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\Variant;
@@ -103,6 +104,34 @@ class AdminSearchTest extends TestCase
         $this->order($this->branch, 'VP-771101', phone: '09121234567');
 
         $this->assertContains('VP-771101', $this->found('09121234567'));
+    }
+
+    /**
+     * ⛔ **The transaction id, which this box did not know and the orders list
+     * did.**
+     *
+     * اسنپ‌پی require a merchant's panel to find a purchase by the id the two
+     * of them share, and the orders screen was taught it when they asked. This
+     * box — the magnifier in the panel's own header, which is what anybody
+     * reaches for — was not, so the shop searched «V000000115» for an order
+     * that exists and read «چیزی پیدا نشد».
+     *
+     * Two search boxes with two different answers is worse than one wrong box,
+     * because the wrong one teaches that the data is not there.
+     */
+    public function test_an_order_is_found_by_its_payment_transaction_id(): void
+    {
+        $order = $this->order($this->branch, 'VP-771102');
+
+        $order->payments()->create([
+            'gateway' => 'snapppay',
+            'authority' => 'V000000115',
+            'amount' => $order->grand_total,
+            'status' => Payment::PAID,
+            'paid_at' => now(),
+        ]);
+
+        $this->assertContains('VP-771102', $this->found('V000000115'));
     }
 
     public function test_a_product_is_found_by_its_sku(): void
