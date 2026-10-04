@@ -1,1 +1,1 @@
-{"seq": 9, "steps": [{"do": "click", "sel": ".vp-snapp"}, {"do": "waitUrl", "re": "^(?!https://vikyplus\\.ir)", "timeout": 60000}, {"do": "load"}, {"do": "wait", "ms": 4000}]}
+{"seq": 10, "steps": [{"do": "wait", "ms": 1500}, {"do": "click", "sel": "button:has-text(\"ادامه\")"}, {"do": "wait", "ms": 5000}]}
