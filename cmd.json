@@ -1,1 +1,1 @@
-{"seq": 1, "steps": [{"do": "goto", "url": "https://vikyplus.ir/products/vp-test-item-a"}, {"do": "load"}, {"do": "wait", "ms": 2500}]}
+{"seq": 2, "steps": [{"do": "scrollTo", "sel": ".vp-pick"}, {"do": "wait", "ms": 1000}, {"do": "click", "sel": ".vp-pick .quantity-plus"}, {"do": "wait", "ms": 1200}, {"do": "eval", "js": "document.querySelector(\".vp-pick .qty-input\").value"}, {"do": "click", "sel": ".vp-pick .vp-pick-go"}, {"do": "load"}, {"do": "wait", "ms": 2500}]}
