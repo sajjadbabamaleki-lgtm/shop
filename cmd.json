@@ -1,1 +1,1 @@
-{"seq": 24, "steps": [{"do": "click", "sel": "button:has-text(\"بله، به اسنپ‌پی اعلام کن\")"}, {"do": "load"}, {"do": "wait", "ms": 3000}]}
+{"seq": 25, "steps": [{"do": "scrollTo", "sel": "h2:has-text(\"مرجوعی اقساطی\")"}, {"do": "wait", "ms": 32000}, {"do": "type", "sel": "#instalment-cancel-why", "value": "مشتری کل سفارش را پس فرستاد", "delay": 60}, {"do": "wait", "ms": 1200}, {"do": "click", "sel": "button:has-text(\"ادامه به تأیید لغو کامل\")"}, {"do": "load"}, {"do": "wait", "ms": 2500}]}
