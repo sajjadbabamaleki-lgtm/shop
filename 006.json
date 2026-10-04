@@ -1,0 +1,399 @@
+{
+ "seq": 6,
+ "at": 296114,
+ "done": 10,
+ "returns": [],
+ "url": "https://vikyplus.ir/checkout",
+ "title": "VikyPlus",
+ "tabs": [
+  {
+   "idx": 0,
+   "url": "https://vikyplus.ir/checkout"
+  }
+ ],
+ "text": "ویکی پلاس\nفروشگاه کیف و کفش زنانه\n۳\nنام و نام خانوادگی\nشماره موبایل\nاستان\nشهر\nنشانی\nکد پستی\nتوضیح برای پیک\nروش ارسال\nپست پیشتاز\nپس‌کرایه\nتیپاکس\nپس‌کرایه\nپست معمولی\n۲۰۰٬۰۰۰ تومان\n\n«پس‌کرایه» یعنی هزینهٔ ارسال را هنگام تحویل به شرکت حمل می‌پردازید.\n\nروش پرداخت\n\nپرداخت اینترنتی. بعد از ثبت سفارش به درگاه بانکی می‌روید.\n\nثبت سفارش\nسفارش تو\nکالای آزمایشی ۱، لطفاً نخرید × ۲\n۱۷۰٬۰۰۰\nکالای آزمایشی ۲ (تخفیف‌دار)، لطفاً نخرید × ۱\n۸۵٬۰۰۰\nکد تخفیف\nاعمال\n\nکد تخفیف فقط برای پرداخت نقدی است؛ سفارشی که کد تخفیف دارد را نمی‌شود اقساطی پرداخت کرد.\n\nجمع کالاها\n۲۵۵٬۰۰۰ تومان\nهزینه ارسال\n۲۰۰٬۰۰۰ تومان\nقابل پرداخت\n۴۵۵٬۰۰۰ تومان\nویکی پلاس\n\nارائه‌دهنده انواع کیف و کفش زنانه با تضمین کیفیت، ارسال سریع و امکان خرید تکی و عمده.\n\nآدرس زیر فقط برای خرید عمده است\n\nتهران، سعدی شمالی، روبه‌روی بانک ملی، پلاک ۵۶۵\n\n021-3398-3125\n\nلینک‌ها\nفروشگاه\nدرباره ما\nمقالات\nارتباط با ما\nراهنمای سایز\nخدمات\nحریم خصوصی\nقوانین و مقررات\nسوالات متداول\nپشتیبانی\nحراج پله‌ای\nدسته‌ها\nکفش زنانه\nکیف زنانه\nپرفروش‌ترین‌ها\nجدیدترین‌ها\nتخفیف‌دارها\n\nتمامی حقوق این وب‌سایت متعلق به ویکی پلاس است.",
+ "controls": [
+  {
+   "tag": "button",
+   "type": "button",
+   "cls": "closeButton sideMenuCls",
+   "text": "بستن سبد خرید"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-cart-shot",
+   "href": "https://vikyplus.ir/products/vp-test-item-a"
+  },
+  {
+   "tag": "button",
+   "type": "submit",
+   "cls": "vp-cart-less",
+   "text": "یکی کمتر"
+  },
+  {
+   "tag": "button",
+   "type": "submit",
+   "cls": "vp-cart-more",
+   "text": "یکی بیشتر"
+  },
+  {
+   "tag": "button",
+   "type": "button",
+   "cls": "vp-cart-compare",
+   "text": "مقایسه کالای آزمایشی ۱، لطفاً نخرید"
+  },
+  {
+   "tag": "button",
+   "type": "submit",
+   "cls": "vp-cart-drop",
+   "text": "حذف کالای آزمایشی ۱، لطفاً نخرید"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-cart-shot",
+   "href": "https://vikyplus.ir/products/vp-test-item-b"
+  },
+  {
+   "tag": "button",
+   "type": "submit",
+   "cls": "vp-cart-less",
+   "text": "یکی کمتر",
+   "disabled": true
+  },
+  {
+   "tag": "button",
+   "type": "submit",
+   "cls": "vp-cart-more",
+   "text": "یکی بیشتر"
+  },
+  {
+   "tag": "button",
+   "type": "button",
+   "cls": "vp-cart-compare",
+   "text": "مقایسه کالای آزمایشی ۲ (تخفیف‌دار)، لطفاً نخرید"
+  },
+  {
+   "tag": "button",
+   "type": "submit",
+   "cls": "vp-cart-drop",
+   "text": "حذف کالای آزمایشی ۲ (تخفیف‌دار)، لطفاً نخرید"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-logo vp-logo-drawer",
+   "href": "https://vikyplus.ir"
+  },
+  {
+   "tag": "button",
+   "type": "button",
+   "cls": "th-menu-toggle",
+   "text": "بستن منو"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-quick is-lit",
+   "href": "https://vikyplus.ir/articles"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-quick",
+   "href": "https://vikyplus.ir/products?sort=newest"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-quick",
+   "href": "https://vikyplus.ir/products?sort=bestselling"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-drawer-all",
+   "href": "https://vikyplus.ir/products"
+  },
+  {
+   "tag": "a",
+   "href": "https://vikyplus.ir/categories/majlesi"
+  },
+  {
+   "tag": "a",
+   "href": "https://vikyplus.ir/categories/sneaker"
+  },
+  {
+   "tag": "a",
+   "href": "https://vikyplus.ir/categories/college"
+  },
+  {
+   "tag": "a",
+   "href": "https://vikyplus.ir/categories/sandal"
+  },
+  {
+   "tag": "a",
+   "href": "https://vikyplus.ir/categories/boot"
+  },
+  {
+   "tag": "a",
+   "href": "https://vikyplus.ir/categories/bag-set"
+  },
+  {
+   "tag": "a",
+   "href": "https://vikyplus.ir/categories/sport-set"
+  },
+  {
+   "tag": "a",
+   "href": "https://vikyplus.ir/wholesale"
+  },
+  {
+   "tag": "a",
+   "href": "https://vikyplus.ir/vendors/apply"
+  },
+  {
+   "tag": "a",
+   "href": "https://vikyplus.ir/orders"
+  },
+  {
+   "tag": "a",
+   "href": "https://vikyplus.ir/size-guide"
+  },
+  {
+   "tag": "a",
+   "href": "https://vikyplus.ir/about"
+  },
+  {
+   "tag": "a",
+   "href": "https://vikyplus.ir/terms"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-drawer-cta",
+   "href": "https://vikyplus.ir/account/enter"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-logo",
+   "text": "ویکی پلاس\nفروشگاه کیف و کفش زنانه",
+   "href": "https://vikyplus.ir"
+  },
+  {
+   "tag": "a",
+   "cls": "icon-btn vp-search-btn d-lg-none",
+   "text": "جستجو",
+   "href": "https://vikyplus.ir/search"
+  },
+  {
+   "tag": "button",
+   "type": "button",
+   "cls": "icon-btn sideMenuToggler",
+   "text": "۳"
+  },
+  {
+   "tag": "button",
+   "type": "button",
+   "cls": "th-menu-toggle d-block d-lg-none",
+   "text": "باز کردن منو"
+  },
+  {
+   "tag": "input",
+   "id": "co-name",
+   "name": "name",
+   "text": "علی رضایی"
+  },
+  {
+   "tag": "input",
+   "id": "co-phone",
+   "name": "phone",
+   "text": "09121161311"
+  },
+  {
+   "tag": "input",
+   "id": "co-province",
+   "name": "province",
+   "text": "تهران"
+  },
+  {
+   "tag": "input",
+   "id": "co-city",
+   "name": "city",
+   "text": "تهران"
+  },
+  {
+   "tag": "textarea",
+   "id": "co-address",
+   "name": "address",
+   "text": "خیابان ولیعصر، کوچه یاس، پلاک ۱۲، واحد ۳"
+  },
+  {
+   "tag": "input",
+   "id": "co-postal",
+   "name": "postal_code",
+   "text": "1966713111"
+  },
+  {
+   "tag": "input",
+   "id": "co-note",
+   "name": "note"
+  },
+  {
+   "tag": "input",
+   "id": "co-ship-1",
+   "name": "shipping_method_id",
+   "type": "radio",
+   "text": "1"
+  },
+  {
+   "tag": "input",
+   "id": "co-ship-2",
+   "name": "shipping_method_id",
+   "type": "radio",
+   "text": "2"
+  },
+  {
+   "tag": "input",
+   "id": "co-ship-3",
+   "name": "shipping_method_id",
+   "type": "radio",
+   "text": "3",
+   "checked": true
+  },
+  {
+   "tag": "button",
+   "type": "submit",
+   "cls": "vp-filter-apply vp-cart-go",
+   "text": "ثبت سفارش"
+  },
+  {
+   "tag": "input",
+   "id": "vp-code",
+   "name": "code",
+   "text": "کد تخفیف"
+  },
+  {
+   "tag": "button",
+   "type": "submit",
+   "text": "اعمال"
+  },
+  {
+   "tag": "a",
+   "text": "021-3398-3125",
+   "href": "tel:02133983125"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-foot-m-soc is-instagram",
+   "text": "Instagram",
+   "href": "#"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-foot-m-soc is-telegram",
+   "text": "تلگرام",
+   "href": "#"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-foot-m-soc is-whatsapp",
+   "text": "واتساپ",
+   "href": "https://wa.me/989366659224"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-foot-m-soc is-bale",
+   "text": "بله",
+   "href": "#"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-foot-m-soc is-rubika",
+   "text": "روبیکا",
+   "href": "#"
+  },
+  {
+   "tag": "a",
+   "text": "فروشگاه",
+   "href": "https://vikyplus.ir/products"
+  },
+  {
+   "tag": "a",
+   "text": "درباره ما",
+   "href": "https://vikyplus.ir/about"
+  },
+  {
+   "tag": "a",
+   "text": "مقالات",
+   "href": "https://vikyplus.ir/articles"
+  },
+  {
+   "tag": "a",
+   "text": "ارتباط با ما",
+   "href": "https://vikyplus.ir/contact"
+  },
+  {
+   "tag": "a",
+   "text": "راهنمای سایز",
+   "href": "https://vikyplus.ir/size-guide"
+  },
+  {
+   "tag": "a",
+   "text": "حریم خصوصی",
+   "href": "https://vikyplus.ir/privacy"
+  },
+  {
+   "tag": "a",
+   "text": "قوانین و مقررات",
+   "href": "https://vikyplus.ir/terms"
+  },
+  {
+   "tag": "a",
+   "text": "سوالات متداول",
+   "href": "https://vikyplus.ir/faq"
+  },
+  {
+   "tag": "a",
+   "text": "پشتیبانی",
+   "href": "https://vikyplus.ir/support"
+  },
+  {
+   "tag": "a",
+   "text": "حراج پله‌ای",
+   "href": "https://vikyplus.ir/stepped-sale"
+  },
+  {
+   "tag": "a",
+   "text": "کفش زنانه",
+   "href": "https://vikyplus.ir/products"
+  },
+  {
+   "tag": "a",
+   "text": "کیف زنانه",
+   "href": "https://vikyplus.ir/products"
+  },
+  {
+   "tag": "a",
+   "text": "پرفروش‌ترین‌ها",
+   "href": "https://vikyplus.ir/products"
+  },
+  {
+   "tag": "a",
+   "text": "جدیدترین‌ها",
+   "href": "https://vikyplus.ir/products?sort=newest"
+  },
+  {
+   "tag": "a",
+   "text": "تخفیف‌دارها",
+   "href": "https://vikyplus.ir/products"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-support-fab",
+   "text": "پشتیبانی ۲۴ ساعته",
+   "href": "https://vikyplus.ir/support"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-whatsapp",
+   "text": "گفتگو در واتساپ",
+   "href": "https://wa.me/989366659224"
+  }
+ ],
+ "frames": [
+  "https://vikyplus.ir/checkout"
+ ]
+}
