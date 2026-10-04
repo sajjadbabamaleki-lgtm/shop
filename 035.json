@@ -1,0 +1,63 @@
+{
+ "seq": 35,
+ "at": 236640,
+ "done": 5,
+ "returns": [
+  1,
+  [
+   [
+    "https://analytics.google.com/g/collect?v=2&tid=G-5KH2DJK8BN&gtm=45je69u2v875139192z8832541542za200zd875139192xf1&_p=1791",
+    0,
+    ""
+   ],
+   [
+    "https://mc.yandex.com/clmap/99657649?page-url=https%3A%2F%2Flive-test-develop-merchant-growth.apps.public.okd4.teh-1.sna",
+    200,
+    "GIF89a\u0001\u0000\u0001\u0000�\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000!�\u0004\u0001\u0000\u0000\u0000\u0000,\u0000\u0000\u0000\u0000\u0001\u0000\u0001\u0000\u0000\u0002\u0002D\u0001\u0000;"
+   ],
+   [
+    "https://mc.yandex.com/clmap/94213363?page-url=https%3A%2F%2Flive-test-develop-merchant-growth.apps.public.okd4.teh-1.sna",
+    200,
+    "GIF89a\u0001\u0000\u0001\u0000�\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000!�\u0004\u0001\u0000\u0000\u0000\u0000,\u0000\u0000\u0000\u0000\u0001\u0000\u0001\u0000\u0000\u0002\u0002D\u0001\u0000;"
+   ],
+   [
+    "/codegen/api/v1/otp/send",
+    500,
+    "{\n  \"successful\" : false,\n  \"error_data\" : {\n    \"error_code\" : 5500,\n    \"message\" : \"در دریافت اطلاعات مشکلی پیش آمده است. لطفاً دوباره تلاش کنید.\"\n  }\n}"
+   ],
+   [
+    "https://web-cdn.snapp.ir/fintech/merchant-growth/icons/info.svg",
+    200,
+    "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n    <path d=\"M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoi"
+   ]
+  ]
+ ],
+ "url": "https://live-test-develop-merchant-growth.apps.public.okd4.teh-1.snappcloud.io/insert-mobile-number",
+ "title": "اسنپ پی | پرداخت اقساطی",
+ "tabs": [
+  {
+   "idx": 0,
+   "url": "https://live-test-develop-merchant-growth.apps.public.okd4.teh-1.snappcloud.io/insert-mobile-number"
+  }
+ ],
+ "text": "خرید از\n\nویکی پلاس\n\nمبلغ کل خرید\n\n455,000تومان\n\nورود | ثبت‌نام\n\nشمارهٔ موبایلی که با آن عضو اسنپ شده‌اید را وارد کنید.\n\nشمارهٔ موبایل\n\nادامه",
+ "controls": [
+  {
+   "tag": "input",
+   "id": "input-1791142538485",
+   "type": "text",
+   "cls": "inputBase-0-1-51 innerTag-0-1-43 innerTag-d0-0-1-47 lineHeig",
+   "text": "09121161311"
+  },
+  {
+   "tag": "button",
+   "type": "button",
+   "cls": "buttonBase-0-1-71 buttonBase-d0-0-1-72 button-0-1-67 button-",
+   "text": "ادامه"
+  }
+ ],
+ "frames": [
+  "https://live-test-develop-merchant-growth.apps.public.okd4.teh-1.snappcloud.io/insert-mobile-number",
+  "https://z47b6574d.webengage.co/storage-frame-1.18.htm?cdn=y&cbf=webengage-engagement-callback-frame&lc=~47b6574d"
+ ]
+}
