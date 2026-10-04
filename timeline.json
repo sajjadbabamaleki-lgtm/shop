@@ -1,0 +1,48 @@
+{
+ "timeline": [
+  {
+   "start": 2135,
+   "end": 13801
+  },
+  {
+   "start": 24474,
+   "end": 50399
+  },
+  {
+   "start": 65542,
+   "end": 77513
+  },
+  {
+   "start": 95247,
+   "end": 110182
+  },
+  {
+   "start": 124955,
+   "end": 139648
+  },
+  {
+   "start": 156903,
+   "end": 171653
+  },
+  {
+   "start": 183469,
+   "end": 200992
+  },
+  {
+   "start": 207372,
+   "end": 227823
+  },
+  {
+   "start": 238086,
+   "end": 5639652
+  }
+ ],
+ "pages": [
+  {
+   "idx": 0,
+   "created": 973,
+   "closedAt": 5639669,
+   "video": "/home/runner/work/_temp/rc/video/ad409a306df124dc1453acc01419934e.webm"
+  }
+ ]
+}
