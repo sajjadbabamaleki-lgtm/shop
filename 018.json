@@ -1,0 +1,376 @@
+{
+ "seq": 18,
+ "at": 777222,
+ "done": 7,
+ "returns": [],
+ "url": "https://vikyplus.ir/admin/orders?sort=placed_at&dir=desc&q=V000000117&status=&payment=&gateway=&range=&per=20",
+ "title": "سفارش‌ها",
+ "tabs": [
+  {
+   "idx": 0,
+   "url": "https://vikyplus.ir/admin/orders?sort=placed_at&dir=desc&q=V000000117&status=&payment=&gateway=&range=&per=20"
+  }
+ ],
+ "text": "ویکی پلاس\nخانه\n\nفروش\n\nسفارش‌ها\nپیام‌ها\nتخفیف‌ها\n\nکالا\n\nمحصولات\nصفحه اصلی\nموجودی\nقیمت‌ها\n\nبازارگاه\n\nفروشندگان\n\nمحتوا\n\nمقاله‌ها\n\nگزارش\n\nگزارش شعبه\nگزارش پلتفرم\n\nپشتیبانی\n\nدرخواست‌ها\nنظرها\n\nتنظیمات\n\nپردازش و ارسال\nکارکنان\nتنظیمات\nخروج\nسفارش‌ها\n۱۷\nجستجو\nوضعیت\nهمه وضعیت‌ها\nثبت شد\nپرداخت شد\nارسال شد\nتحویل شد\nلغو شد\nپرداخت\nپرداخت: همه\nپرداخت‌شده\nپرداخت‌نشده\nبرگشت‌خورده\nدرگاه\nدرگاه: همه\nاسنپ‌پی (اقساطی)\nزرین‌پال (کارت بانکی)\nبازه\nهر زمان\nامروز\nدیروز\n۷ روز\n۳۰ روز\n۹۰ روز\nتعداد در صفحه\n۲۰ ردیف\n۵۰ ردیف\n۱۰۰ ردیف\nاعمال\nپاک کردن\nخروجی CSV\nانتخاب همه این صفحه\nوضعیت تازه\nپرداخت شد\nارسال شد\nتحویل شد\nلغو شد\nاعمال روی انتخاب‌شده‌ها\nانتخاب سفارش VP-G2RBDYHP\nVP-G2RBDYHP\n۱۲ مهر ۱۴۰۵\nعلی رضایی\n\n09121161311\nپرداخت شد\nپرداخت‌شده\n\n\nاسنپ‌پی (اقساطی) — پرداخت شد\n۴۵۵٬۰۰۰\nدیدن\nخانه\nسفارش‌ها\nصفحه اصلی\nبیشتر\n\nافزودن\n\nمحصول تازه\nکد تخفیف\n\nهمه بخش‌ها\n\nخانه\nسفارش‌ها\nپیام‌ها\nتخفیف‌ها\nمحصولات\nصفحه اصلی\nموجودی\nقیمت‌ها\nفروشندگان\nمقاله‌ها\nگزارش شعبه\nگزارش پلتفرم\nدرخواست‌ها\nنظرها\nپردازش و ارسال\nکارکنان\nتنظیمات",
+ "controls": [
+  {
+   "tag": "a",
+   "cls": "vp-adm-mark",
+   "text": "ویکی پلاس",
+   "href": "https://vikyplus.ir/admin"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-adm-link",
+   "text": "خانه",
+   "href": "https://vikyplus.ir/admin"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-adm-link is-on",
+   "text": "سفارش‌ها",
+   "href": "https://vikyplus.ir/admin/orders"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-adm-link",
+   "text": "پیام‌ها",
+   "href": "https://vikyplus.ir/admin/inbox"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-adm-link",
+   "text": "تخفیف‌ها",
+   "href": "https://vikyplus.ir/admin/discounts"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-adm-link",
+   "text": "محصولات",
+   "href": "https://vikyplus.ir/admin/catalogue"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-adm-link",
+   "text": "صفحه اصلی",
+   "href": "https://vikyplus.ir/admin/front-page"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-adm-link",
+   "text": "موجودی",
+   "href": "https://vikyplus.ir/admin/inventory"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-adm-link",
+   "text": "قیمت‌ها",
+   "href": "https://vikyplus.ir/admin/pricing"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-adm-link",
+   "text": "فروشندگان",
+   "href": "https://vikyplus.ir/admin/vendors"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-adm-link",
+   "text": "مقاله‌ها",
+   "href": "https://vikyplus.ir/admin/articles"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-adm-link",
+   "text": "گزارش شعبه",
+   "href": "https://vikyplus.ir/admin/reports"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-adm-link",
+   "text": "گزارش پلتفرم",
+   "href": "https://vikyplus.ir/admin/reports/platform"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-adm-link",
+   "text": "درخواست‌ها",
+   "href": "https://vikyplus.ir/admin/enquiries"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-adm-link",
+   "text": "نظرها",
+   "href": "https://vikyplus.ir/admin/comments"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-adm-link",
+   "text": "پردازش و ارسال",
+   "href": "https://vikyplus.ir/admin/fulfilment"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-adm-link",
+   "text": "کارکنان",
+   "href": "https://vikyplus.ir/admin/staff"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-adm-link",
+   "text": "تنظیمات",
+   "href": "https://vikyplus.ir/admin/settings"
+  },
+  {
+   "tag": "button",
+   "type": "submit",
+   "cls": "vp-adm-out",
+   "text": "خروج"
+  },
+  {
+   "tag": "button",
+   "type": "button",
+   "cls": "vp-adm-icon-btn vp-adm-drawer-btn",
+   "text": "منوی پنل"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-adm-icon-btn vp-adm-find-small",
+   "text": "جست‌وجو",
+   "href": "https://vikyplus.ir/admin/search"
+  },
+  {
+   "tag": "a",
+   "href": "https://vikyplus.ir/admin/orders?status=paid"
+  },
+  {
+   "tag": "a",
+   "href": "https://vikyplus.ir/admin/orders?status=placed"
+  },
+  {
+   "tag": "button",
+   "type": "button",
+   "cls": "vp-adm-icon-btn vp-adm-lamp",
+   "text": "حالت روشن و تاریک"
+  },
+  {
+   "tag": "input",
+   "id": "vp-q",
+   "name": "q",
+   "type": "search",
+   "cls": "vp-adm-search",
+   "text": "V000000117"
+  },
+  {
+   "tag": "select",
+   "id": "vp-status",
+   "name": "status",
+   "text": "همه وضعیت‌ها\nثبت شد\nپرداخت شد\nارسال شد\nتحویل شد\nلغو شد"
+  },
+  {
+   "tag": "select",
+   "id": "vp-payment",
+   "name": "payment",
+   "text": "پرداخت: همه\nپرداخت‌شده\nپرداخت‌نشده\nبرگشت‌خورده"
+  },
+  {
+   "tag": "select",
+   "id": "vp-gateway",
+   "name": "gateway",
+   "text": "درگاه: همه\nاسنپ‌پی (اقساطی)\nزرین‌پال (کارت بانکی)"
+  },
+  {
+   "tag": "select",
+   "id": "vp-range",
+   "name": "range",
+   "text": "هر زمان\nامروز\nدیروز\n۷ روز\n۳۰ روز\n۹۰ روز"
+  },
+  {
+   "tag": "select",
+   "id": "vp-per",
+   "name": "per",
+   "text": "۲۰ ردیف\n۵۰ ردیف\n۱۰۰ ردیف"
+  },
+  {
+   "tag": "button",
+   "type": "submit",
+   "cls": "vp-adm-apply",
+   "text": "اعمال"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-adm-clear",
+   "text": "پاک کردن",
+   "href": "https://vikyplus.ir/admin/orders"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-adm-clear",
+   "text": "خروجی CSV",
+   "href": "https://vikyplus.ir/admin/orders/export?q=V000000117&sort=placed_at&dir=desc"
+  },
+  {
+   "tag": "input",
+   "type": "checkbox",
+   "text": "on"
+  },
+  {
+   "tag": "select",
+   "id": "vp-bulk-status",
+   "name": "status",
+   "text": "پرداخت شد\nارسال شد\nتحویل شد\nلغو شد"
+  },
+  {
+   "tag": "button",
+   "type": "submit",
+   "cls": "vp-adm-apply",
+   "text": "اعمال روی انتخاب‌شده‌ها"
+  },
+  {
+   "tag": "input",
+   "id": "vp-o-67",
+   "name": "orders[]",
+   "type": "checkbox",
+   "text": "67"
+  },
+  {
+   "tag": "a",
+   "text": "VP-G2RBDYHP",
+   "href": "https://vikyplus.ir/admin/orders/VP-G2RBDYHP"
+  },
+  {
+   "tag": "a",
+   "text": "دیدن",
+   "href": "https://vikyplus.ir/admin/orders/VP-G2RBDYHP"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-adm-tab",
+   "text": "خانه",
+   "href": "https://vikyplus.ir/admin"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-adm-tab is-on",
+   "text": "سفارش‌ها",
+   "href": "https://vikyplus.ir/admin/orders"
+  },
+  {
+   "tag": "button",
+   "type": "button",
+   "cls": "vp-adm-add",
+   "text": "افزودن"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-adm-tab",
+   "text": "صفحه اصلی",
+   "href": "https://vikyplus.ir/admin/front-page"
+  },
+  {
+   "tag": "button",
+   "type": "button",
+   "cls": "vp-adm-tab",
+   "text": "بیشتر"
+  },
+  {
+   "tag": "a",
+   "text": "محصول تازه",
+   "href": "https://vikyplus.ir/admin/catalogue/new"
+  },
+  {
+   "tag": "a",
+   "text": "کد تخفیف",
+   "href": "https://vikyplus.ir/admin/discounts"
+  },
+  {
+   "tag": "a",
+   "text": "خانه",
+   "href": "https://vikyplus.ir/admin"
+  },
+  {
+   "tag": "a",
+   "cls": "is-on",
+   "text": "سفارش‌ها",
+   "href": "https://vikyplus.ir/admin/orders"
+  },
+  {
+   "tag": "a",
+   "text": "پیام‌ها",
+   "href": "https://vikyplus.ir/admin/inbox"
+  },
+  {
+   "tag": "a",
+   "text": "تخفیف‌ها",
+   "href": "https://vikyplus.ir/admin/discounts"
+  },
+  {
+   "tag": "a",
+   "text": "محصولات",
+   "href": "https://vikyplus.ir/admin/catalogue"
+  },
+  {
+   "tag": "a",
+   "text": "صفحه اصلی",
+   "href": "https://vikyplus.ir/admin/front-page"
+  },
+  {
+   "tag": "a",
+   "text": "موجودی",
+   "href": "https://vikyplus.ir/admin/inventory"
+  },
+  {
+   "tag": "a",
+   "text": "قیمت‌ها",
+   "href": "https://vikyplus.ir/admin/pricing"
+  },
+  {
+   "tag": "a",
+   "text": "فروشندگان",
+   "href": "https://vikyplus.ir/admin/vendors"
+  },
+  {
+   "tag": "a",
+   "text": "مقاله‌ها",
+   "href": "https://vikyplus.ir/admin/articles"
+  },
+  {
+   "tag": "a",
+   "text": "گزارش شعبه",
+   "href": "https://vikyplus.ir/admin/reports"
+  },
+  {
+   "tag": "a",
+   "text": "گزارش پلتفرم",
+   "href": "https://vikyplus.ir/admin/reports/platform"
+  },
+  {
+   "tag": "a",
+   "text": "درخواست‌ها",
+   "href": "https://vikyplus.ir/admin/enquiries"
+  },
+  {
+   "tag": "a",
+   "text": "نظرها",
+   "href": "https://vikyplus.ir/admin/comments"
+  },
+  {
+   "tag": "a",
+   "text": "پردازش و ارسال",
+   "href": "https://vikyplus.ir/admin/fulfilment"
+  },
+  {
+   "tag": "a",
+   "text": "کارکنان",
+   "href": "https://vikyplus.ir/admin/staff"
+  },
+  {
+   "tag": "a",
+   "text": "تنظیمات",
+   "href": "https://vikyplus.ir/admin/settings"
+  }
+ ],
+ "frames": [
+  "https://vikyplus.ir/admin/orders?sort=placed_at&dir=desc&q=V000000117&status=&payment=&gateway=&range=&per=20"
+ ]
+}
