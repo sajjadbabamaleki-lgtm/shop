@@ -1,1 +1,1 @@
-{"seq": 13, "steps": [{"do": "wait", "ms": 3000}, {"do": "scroll", "y": 400}, {"do": "wait", "ms": 2000}]}
+{"seq": 14, "steps": [{"do": "click", "sel": "button:has-text(\"پرداخت\")"}, {"do": "waitUrl", "re": "^(?!https://live-test-develop)", "timeout": 60000}, {"do": "load"}, {"do": "wait", "ms": 5000}]}
