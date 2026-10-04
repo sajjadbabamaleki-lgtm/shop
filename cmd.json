@@ -1,1 +1,1 @@
-{"seq": 8, "steps": [{"do": "click", "sel": "text=متوجه شدم"}, {"do": "wait", "ms": 1200}, {"do": "scrollTo", "sel": ".vp-snapp-form"}, {"do": "wait", "ms": 5000}]}
+{"seq": 9, "steps": [{"do": "click", "sel": ".vp-snapp"}, {"do": "waitUrl", "re": "^(?!https://vikyplus\\.ir)", "timeout": 60000}, {"do": "load"}, {"do": "wait", "ms": 4000}]}
