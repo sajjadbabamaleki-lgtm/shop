@@ -1,1 +1,1 @@
-{"seq": 14, "steps": [{"do": "click", "sel": "button:has-text(\"پرداخت\")"}, {"do": "waitUrl", "re": "^(?!https://live-test-develop)", "timeout": 60000}, {"do": "load"}, {"do": "wait", "ms": 5000}]}
+{"seq": 15, "steps": [{"do": "wait", "ms": 2000}, {"do": "click", "sel": "button:has-text(\"ثبت روند تراکنش\")"}, {"do": "waitUrl", "re": "^https://vikyplus\\.ir", "timeout": 120000}, {"do": "load"}, {"do": "wait", "ms": 4000}]}
