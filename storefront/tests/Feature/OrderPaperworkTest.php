@@ -126,6 +126,28 @@ class OrderPaperworkTest extends TestCase
             ->assertSee(route('admin.order.label', $order), false);
     }
 
+    /**
+     * **The photograph opens the shoe on the shop, not in the panel.**
+     *
+     * «روش میزنیم بره رو همون محصول تو فروشگاه» — what the person packing an
+     * order wants is the listing the customer saw: every photograph, the
+     * sizes, the published price. The panel's own edit screen is still reached
+     * from the title beside it, so the change adds a destination rather than
+     * moving one, and both are asserted here because a view that quietly loses
+     * one of them looks identical.
+     */
+    public function test_the_line_opens_the_shoe_on_the_shop_and_the_title_opens_it_in_the_panel(): void
+    {
+        $order = $this->order();
+        $shoe = $order->items()->first()->variant->product;
+
+        $this->actingAs($this->admin())
+            ->get("/admin/orders/{$order->number}")
+            ->assertOk()
+            ->assertSee(storefront_route('product', $shoe), false)
+            ->assertSee(route('admin.product.edit', $shoe->id), false);
+    }
+
     public function test_a_line_whose_size_was_deleted_still_renders(): void
     {
         $order = $this->order();
@@ -134,7 +156,11 @@ class OrderPaperworkTest extends TestCase
         $this->actingAs($this->admin())
             ->get("/admin/orders/{$order->number}")
             ->assertOk()
-            ->assertSee('بدون عکس');
+            ->assertSee('بدون عکس')
+            // And it links nowhere rather than at a product that is gone:
+            // `variant_id` is nullOnDelete(), so the line keeps its own title
+            // and price and has nothing left to point at.
+            ->assertDontSee('در فروشگاه', false);
     }
 
     // --- the label -----------------------------------------------------

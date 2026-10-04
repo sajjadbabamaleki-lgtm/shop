@@ -2836,6 +2836,65 @@ a.vp-adm-mini {
   background: var(--adm-sunk);
 }
 
+/* The whole thing is one card and one link, and it opens the shoe on the
+   shop — «روش میزنیم بره رو همون محصول تو فروشگاه».
+
+   Built from the panel's own tokens and not from the storefront's card
+   classes, deliberately: a storefront class carries a literal #FFFFFF and
+   black-alpha hairlines written before this panel had a second theme, so an
+   admin screen built out of them is white in the ink theme and nothing
+   automated notices. See the .vp-shop-panel block further down, which is that
+   mistake being repaired. */
+.vp-adm-line-card {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 6px;
+  border: 1px solid var(--adm-line);
+  border-radius: var(--adm-r-sm);
+  background: var(--adm-surface);
+  text-decoration: none;
+  color: inherit;
+}
+
+.vp-adm-line-card:hover {
+  border-color: var(--adm-gold-fill);
+  background: var(--adm-sunk);
+}
+
+/* A line whose photograph is missing still has to be the same size, or the
+   rows either side of it jump. */
+.vp-adm-line-noshot {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: var(--adm-r-sm);
+  border: 1px dashed var(--adm-line);
+  background: var(--adm-sunk);
+  font-size: 11px;
+  color: var(--adm-ink-2);
+}
+
+.vp-adm-line-go {
+  font-size: 11px;
+  line-height: 1.2;
+  white-space: nowrap;
+  color: var(--adm-ink-2);
+}
+
+/* An identifier with no spaces in it pushes the whole page sideways.
+   Measured on the order screen at 1280, before this and with the panel
+   otherwise untouched: a 36-character tracking number in a <bdi> sat at
+   left -21px and the document scrolled 21px sideways. A real order reaches
+   the same length — a payment recorded by hand carries «PANEL-» plus 26
+   characters — so this is not only demo data. An identifier is allowed to
+   break anywhere, because nothing about where it breaks carries meaning. */
+.vp-adm bdi[dir="ltr"] {
+  overflow-wrap: anywhere;
+}
+
 /* The instalment plan folds shut on an order that is not on instalments, and
    its summary is the card's own head so the folded card looks like every
    other card on the screen. */

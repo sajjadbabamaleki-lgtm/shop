@@ -58,18 +58,43 @@
                          بدونیم کدوم محصولو سفارش داده». Colour cannot be
                          chosen on the shop for now, and a colourway's title is
                          often word for word its sibling's, so the photograph is
-                         what says which box to take. It links to the product so
-                         the rest of its shots are one tap away. --}}
-                    <td class="vp-adm-line-shot">
-                        @if ($photo = $item->photoPath())
-                            <a href="{{ route('admin.product.edit', $item->variant->product_id) }}" target="_blank" rel="noopener">
-                                <img src="{{ asset($photo) }}" alt="{{ $item->product_title }}" loading="lazy">
+                         what says which box to take.
+
+                         **It opens the shoe on the shop, not in the panel** —
+                         «روش میزنیم بره رو همون محصول تو فروشگاه». What the
+                         person packing an order wants to see is the listing a
+                         customer saw: every photograph, the sizes, the price as
+                         it is published. The panel's own edit screen is still
+                         one tap away, on the title beside it, so neither is
+                         lost.
+
+                         A line whose product has been deleted has no variant —
+                         `variant_id` is nullOnDelete() and the line keeps its
+                         own title and price — so there is nothing to link to
+                         and the cell says so rather than pointing at a 404. --}}
+                    <td class="vp-adm-line-shot" data-label="">
+                        @if ($shoe = $item->variant?->product)
+                            <a class="vp-adm-line-card" href="{{ storefront_route('product', $shoe) }}"
+                               target="_blank" rel="noopener">
+                                @if ($photo = $item->photoPath())
+                                    <img src="{{ asset($photo) }}" alt="{{ $item->product_title }}" loading="lazy">
+                                @else
+                                    <span class="vp-adm-line-noshot">بدون عکس</span>
+                                @endif
+                                <span class="vp-adm-line-go">در فروشگاه ↗</span>
                             </a>
                         @else
                             <small>بدون عکس</small>
                         @endif
                     </td>
-                    <td>{{ $item->product_title }}</td>
+                    <td>
+                        @if ($item->variant?->product_id)
+                            <a href="{{ route('admin.product.edit', $item->variant->product_id) }}"
+                               target="_blank" rel="noopener">{{ $item->product_title }}</a>
+                        @else
+                            {{ $item->product_title }}
+                        @endif
+                    </td>
                     {{-- §26: «Technical identifiers such as SKUs may use LTR
                          isolation within RTL UI» — without it a code ending in
                          digits reorders itself against the Persian around it. --}}
