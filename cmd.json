@@ -1,1 +1,1 @@
-{"seq": 4, "steps": [{"do": "click", "sel": ".vp-pick .vp-pick-go"}, {"do": "load"}, {"do": "wait", "ms": 4000}, {"do": "scroll", "y": 300}, {"do": "wait", "ms": 1500}, {"do": "top"}, {"do": "wait", "ms": 800}]}
+{"seq": 5, "steps": [{"do": "click", "sel": "text=ادامه (۲۵۵٬۰۰۰ تومان)"}, {"do": "load"}, {"do": "wait", "ms": 2000}, {"do": "eval", "js": "[...document.querySelectorAll(\"input[name=shipping_method_id]\")].map(r=>r.id+\"|\"+(r.closest(\"label\")||r.parentElement).innerText.replace(/\\s+/g,\" \")+\"|\"+r.checked)"}]}
