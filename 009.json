@@ -1,0 +1,34 @@
+{
+ "seq": 9,
+ "at": 376252,
+ "done": 4,
+ "returns": [],
+ "url": "https://live-test-develop-merchant-growth.apps.public.okd4.teh-1.snappcloud.io/insert-mobile-number",
+ "title": "اسنپ پی | پرداخت اقساطی",
+ "tabs": [
+  {
+   "idx": 0,
+   "url": "https://live-test-develop-merchant-growth.apps.public.okd4.teh-1.snappcloud.io/insert-mobile-number"
+  }
+ ],
+ "text": "خرید از\n\nویکی پلاس\n\nمبلغ کل خرید\n\n455,000تومان\n\nورود | ثبت‌نام\n\nشمارهٔ موبایلی که با آن عضو اسنپ شده‌اید را وارد کنید.\n\nشمارهٔ موبایل\nادامه",
+ "controls": [
+  {
+   "tag": "input",
+   "id": "input-1791140150230",
+   "type": "text",
+   "cls": "inputBase-0-1-51 innerTag-0-1-43 innerTag-d0-0-1-47 lineHeig",
+   "text": "09121161311"
+  },
+  {
+   "tag": "button",
+   "type": "button",
+   "cls": "buttonBase-0-1-71 buttonBase-d0-0-1-72 button-0-1-67 button-",
+   "text": "ادامه"
+  }
+ ],
+ "frames": [
+  "https://live-test-develop-merchant-growth.apps.public.okd4.teh-1.snappcloud.io/insert-mobile-number",
+  "https://z47b6574d.webengage.co/storage-frame-1.18.htm?cdn=y&cbf=webengage-engagement-callback-frame&lc=~47b6574d"
+ ]
+}
