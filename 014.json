@@ -1,0 +1,79 @@
+{
+ "seq": 14,
+ "at": 615539,
+ "done": 4,
+ "returns": [],
+ "url": "https://sandbox.banktest.ir/saman/sep.shaparak.ir/MobilePG/MobilePayment",
+ "title": "درگاه تست بانک سامان",
+ "tabs": [
+  {
+   "idx": 0,
+   "url": "https://sandbox.banktest.ir/saman/sep.shaparak.ir/MobilePG/MobilePayment"
+  }
+ ],
+ "text": "بانک تست.\nباز کردن فهرست\nدرگاه تست بانک سامان\nلطفا ادامه روند «تراکنش پرداخت» مورد نظر خود را تنظیم نموده و در انتها دکمه ثبت روند تراکنش را بزنید.\nمبلغ این تراکنش : 4,491,407 ریال\nشماره کارت فرضی پرداخت کننده تراکنش\nمرحله بازگشت به سایت پذیرنده (CALLBACK)\nبدون مشکل : تراکنش روال عادی را سپری کند - OK\nکاربر انصراف داده است - CanceledByUser\nپذیرنده فروشگاهی نامعتبر است - Failed\nکاربر در بازه زمانی تعیین شده پاسخی ارسال نکرده است - SessionIsNull\nاز انجام تراکنش صرفنظر شد - InvalidParameters\nبا تشخیص هویت دارنده کارت تراکنش موفق می باشد - MerchantIpAddressIsInvalid\nتوکن ارسال شده یافت نشد - TokenNotFound\nبا این شماره ترمینال فقط تراکنش های توکنی قابل پرداخت هستند - TokenRequired\nتراکنش م نامعتبر است - TerminalNotFound\nمرحله تایید تراکنش (VERIFY)\nبدون مشکل : تراکنش روال عادی را سپری کند\nتراکنش یافت نشد\nDatabase Exception\nبیش از نیم ساعت از زمان اجرای تراکنش گذشته است\nرسيد ديجيتالي تهي است.\nطول ورودي‌ها بيشتر از حد مجاز است.\nرسيد ديجيتالي به صورت Base64 نيست (حاوي کارکترهاي غيرمجاز است).\nطول ورودي‌ها کمتر از حد مجاز است.\nچنين تراکنشي تعريف نشده است.\nدرخواست تکراری می باشد.\nتراکنش برگشت خورده می باشد\nترمینال ارسالی در سیستم موجود نمی باشد\nترمینال ارسالی غیرفعال می باشد\nآدرس آی پی درخواستی غیر مجاز می باشد\nIP Address فروشنده نا معتبر است.\n** دریافت خطای Exception\n** دریافت تایم اوت 65 ثانیه ای\nمرحله برگشت زدن تراکنش (REVERSE)\nبدون مشکل : تراکنش روال عادی را سپری کند\nتراکنش یافت نشد\nDatabase Exception\nبیش از نیم ساعت از زمان اجرای تراکنش گذشته است\nرسيد ديجيتالي تهي است.\nطول ورودي‌ها بيشتر از حد مجاز است.\nرسيد ديجيتالي به صورت Base64 نيست (حاوي کارکترهاي غيرمجاز است).\nطول ورودي‌ها کمتر از حد مجاز است.\nچنين تراکنشي تعريف نشده است.\nدرخواست تکراری می باشد.\nتراکنش برگشت خورده می باشد\nترمینال ارسالی در سیستم موجود نمی باشد\nترمینال ارسالی غیرفعال می باشد\nآدرس آی پی درخواستی غیر مجاز می باشد\nIP Address فروشنده نا معتبر است.\n** دریافت خطای Exception\n** دریافت تایم اوت 65 ثانیه ای\nثبت روند تراکنش\n© بانک تست · شبیه‌ساز درگاه‌های پرداخت ایران\nDeveloped by\nAboozar Ghaffari",
+ "controls": [
+  {
+   "tag": "a",
+   "cls": "app-brand",
+   "text": "بانک تست.",
+   "href": "https://banktest.ir/"
+  },
+  {
+   "tag": "button",
+   "type": "button",
+   "cls": "app-menu-toggle",
+   "text": "باز کردن فهرست"
+  },
+  {
+   "tag": "button",
+   "type": "button",
+   "cls": "app-theme-toggle",
+   "text": "حالت روشن"
+  },
+  {
+   "tag": "input",
+   "id": "paid_card_no",
+   "name": "paid_card_no",
+   "type": "text",
+   "cls": "appearance-none block w-full\nbg-white dark:bg-siah-900\ntext-",
+   "text": "5022291067782928"
+  },
+  {
+   "tag": "select",
+   "id": "redirect_step",
+   "name": "redirect_step",
+   "cls": "form-select block w-full pl-3 pr-10 py-2 rounded-md border-s",
+   "text": "بدون مشکل : تراکنش روال عادی را سپری کند - OK\nکاربر انصراف د"
+  },
+  {
+   "tag": "select",
+   "id": "verify_step",
+   "name": "verify_step",
+   "cls": "form-select block w-full pl-3 pr-10 py-2 rounded-md border-s",
+   "text": "بدون مشکل : تراکنش روال عادی را سپری کند\nتراکنش یافت نشد\nDat"
+  },
+  {
+   "tag": "select",
+   "id": "reverse_step",
+   "name": "reverse_step",
+   "cls": "form-select block w-full pl-3 pr-10 py-2 rounded-md border-s",
+   "text": "بدون مشکل : تراکنش روال عادی را سپری کند\nتراکنش یافت نشد\nDat"
+  },
+  {
+   "tag": "button",
+   "type": "submit",
+   "cls": "inline-flex items-center px-6 py-2 bg-bt-blue border-bt-prim",
+   "text": "ثبت روند تراکنش"
+  },
+  {
+   "tag": "a",
+   "cls": "animated-name",
+   "text": "Aboozar Ghaffari",
+   "href": "https://www.linkedin.com/in/aboozarghaffari/"
+  }
+ ],
+ "frames": [
+  "https://sandbox.banktest.ir/saman/sep.shaparak.ir/MobilePG/MobilePayment"
+ ]
+}
