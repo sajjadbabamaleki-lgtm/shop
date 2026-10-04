@@ -120,6 +120,43 @@ class PaymentTestCommandTest extends TestCase
         });
     }
 
+    /**
+     * ⛔ **The default amount must clear زرین‌پال's own floor.**
+     *
+     * It did not, for as long as this command existed: the default was 10,000
+     * Rial and زرین‌پال refuse anything under 15,000 with `-9`. So every run
+     * against a perfectly healthy gateway printed a red «✗ درخواست را
+     * نپذیرفت», and the one screen written to explain a refusal was
+     * manufacturing one. Measured on the live app, 2026-10-04.
+     */
+    public function test_the_default_amount_clears_the_gateways_own_minimum(): void
+    {
+        $this->fake(['data' => ['code' => 100, 'authority' => 'A0000000000000000000000000000000005'], 'errors' => []]);
+
+        $this->artisan('payment:test')->assertSuccessful();
+
+        Http::assertSent(function ($request): bool {
+            if (! str_contains($request->url(), 'payment/request.json')) {
+                return false;
+            }
+
+            return $request['amount'] >= 15000;
+        });
+    }
+
+    /**
+     * And when somebody asks below it anyway, the answer says whose fault the
+     * figure is.
+     */
+    public function test_a_refusal_about_the_floor_is_not_reported_as_a_broken_gateway(): void
+    {
+        $this->fake(['data' => [], 'errors' => ['code' => -9, 'message' => 'The amount must be at least 15000']]);
+
+        $this->artisan('payment:test', ['--amount' => 10000])
+            ->expectsOutputToContain('این ایرادِ درگاه نیست')
+            ->assertFailed();
+    }
+
     /** And it leaves nothing behind. */
     public function test_it_writes_no_payment_row(): void
     {

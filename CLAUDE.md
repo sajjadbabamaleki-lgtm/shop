@@ -586,7 +586,15 @@ the client saw an old page and had no way to tell why. So, plainly:
   **⛔ Measured on the live app 2026-09-27 (Liara API, names only): the
   driver is `melipayamak`** — the console host's pattern door — with
   `SMS_PATTERN`, `SMS_PATTERN_ALERT`, `SMS_USER` and `SMS_FROM` set and no
-  `SMS_PATTERN_REPLY`. The sentence below said otherwise and cost a round:
+  `SMS_PATTERN_REPLY`.
+  **⛔ And `SMS_PATTERN`'s key has a trailing space on the live app**, read
+  back from the Liara API on 2026-10-04 as `'SMS_PATTERN '`. A key is matched
+  exactly, so `env('SMS_PATTERN')` sees nothing and the sign-in code's pattern
+  is, as far as this application is concerned, unset — while the panel shows a
+  variable that looks set. Nothing here can see it: the suite sets its own
+  config, and a pattern that is missing fails at the provider, which `Sender`
+  swallows on purpose. **Quote the keys when listing them** — an unquoted
+  listing is where this hid. The sentence below said otherwise and cost a round:
   read the app's settings before reasoning about which door is live.
   **This shop was once written up as `melipayamak.panel.simple`** — the older
   `rest.payamak-panel.com` host, `SMS_USER` plus the key standing in for the
@@ -734,6 +742,18 @@ the client saw an old page and had no way to tell why. So, plainly:
     instalment button quietly stops appearing, and nothing goes red: the card
     gateway is untouched, the suite is green, and the site looks well.
     `payment:test` is the one thing that says so in a sentence.
+    **⛔ IT HAS ALREADY MOVED. Measured on the live container 2026-10-04: the
+    outgoing address is now `62.60.220.6`, not the 185.x above.** SnappPay's
+    **staging** host accepts it — the token call answered
+    `{"successful":true,…}` on that run, which is the whole proof that the four
+    credentials and the sender are all recognised — so either staging does not
+    enforce the list or the new address was added. **Production is a separate
+    list and has not been measured**, so before the gateway goes live
+    `62.60.220.6` has to be confirmed whitelisted there, by asking them. The
+    185.x is kept above because it is the record of what was asked for on
+    14 Sept and of why; it is not the current address and must not be sent
+    anywhere as one. Re-read it from `payment:test` rather than from here —
+    this line will go stale the same way.
     The `returnURL`'s **domain** is whitelisted separately, and `vikyplus.ir`
     and `www.vikyplus.ir` are two domains to them — the same trap as ZarinPal's
     `-14`, written down this time.

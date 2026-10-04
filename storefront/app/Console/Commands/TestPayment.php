@@ -51,8 +51,31 @@ use Throwable;
  */
 class TestPayment extends Command
 {
+    /**
+     * ⛔ **The default amount is a real basket, because the small one made this
+     * command lie about a healthy shop.**
+     *
+     * It used to ask for 10,000 Rial — a thousand Toman — which is below
+     * *both* gateways' floors, so a shop with nothing whatever wrong with it
+     * got two refusals in one run: زرین‌پال answered `-9 The amount must be at
+     * least 15000`, printed under a red «✗ درخواست را نپذیرفت», and اسنپ‌پی
+     * answered `eligible: false`, printed as «دکمهٔ اقساطی برای این مبلغ نباید
+     * نمایش داده شود». Measured on the live app, 2026-10-04: both, on a
+     * connection that was working perfectly.
+     *
+     * That is the worst thing a diagnostic can do. This command exists so that
+     * «پرداخت کار نمی‌کند» has one screen that answers it, and its own default
+     * was manufacturing the symptom it was called to explain.
+     *
+     * 2,550,000 Rial is 255,000 Toman: above زرین‌پال's 15,000 Rial minimum,
+     * and the size of an ordinary small order here rather than a number nobody
+     * would ever pay. `--amount` is still how a particular basket is asked
+     * about — which is the right question before a recording, since the
+     * instalment button appears only for an amount اسنپ‌پی will actually lend
+     * against.
+     */
     protected $signature = 'payment:test
-        {--amount=10000 : the amount to ask for, in Rial (10,000 Rial = 1,000 Toman)}';
+        {--amount=2550000 : the amount to ask for, in Rial (2,550,000 Rial = 255,000 Toman)}';
 
     protected $description = 'Ask the payment gateway to open one payment and report exactly what it answered';
 
@@ -178,9 +201,22 @@ class TestPayment extends Command
             return self::SUCCESS;
         }
 
+        $message = (string) data_get($answer, 'errors.message', '—');
+
+        // A refusal about the floor is about the figure this command chose,
+        // not about the shop — and saying so here is the difference between
+        // «the gateway is broken» and «ask again with a real basket».
+        if ($code === -9 && str_contains(mb_strtolower($message), 'at least')) {
+            $this->warn('✗ مبلغ آزمایشی از حداقل خود زرین‌پال کمتر بود؛ این ایرادِ درگاه نیست.');
+            $this->line('پیام: '.$message);
+            $this->line('دوباره با مبلغ بزرگ‌تر بپرسید: php artisan payment:test --amount=2550000');
+
+            return self::FAILURE;
+        }
+
         $this->error('✗ زرین‌پال درخواست را نپذیرفت.');
         $this->line('کد خطا: '.$code);
-        $this->line('پیام: '.(string) data_get($answer, 'errors.message', '—'));
+        $this->line('پیام: '.$message);
         $this->newLine();
         $this->line($this->explain($code));
 
@@ -255,6 +291,17 @@ class TestPayment extends Command
             false => 'خیر — دکمهٔ اقساطی برای این مبلغ نباید نمایش داده شود',
             default => 'نامشخص',
         });
+
+        // **A «no» here is about the amount and almost never about the
+        // connection**, and the two read identically on this screen. The line
+        // above it has already said the credentials were accepted, which is
+        // the only thing this command can settle; the range is theirs, it
+        // moves, and the shop is forbidden from guessing it. So: name the
+        // figure that was asked about, and the way to ask about another.
+        if ($eligible === false) {
+            $this->line('این جواب دربارهٔ همین '.number_format($amount).' ریال است، نه دربارهٔ اتصال.');
+            $this->line('برای سبد واقعی دوباره بپرسید: php artisan payment:test --amount=<مبلغ به ریال>');
+        }
 
         foreach (['title_message' => 'عنوان', 'description' => 'توضیح'] as $key => $word) {
             $line = trim((string) data_get($answer, 'response.'.$key, ''));
