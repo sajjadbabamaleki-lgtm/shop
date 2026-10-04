@@ -1,0 +1,47 @@
+# Temporary: a recorded browser on a runner, driven step by step from a Claude
+# session that cannot reach vikyplus.ir itself, for SnappPay's test-purchase
+# recording. Commands arrive on claude/snapppay-rc, results go back on
+# claude/snapppay-rc-desktop-out. Delete this file, .github/snapppay-recorder/ and
+# both branches afterwards. Deploys nothing.
+name: tmp snapppay recorder
+on:
+  push:
+    branches: [claude/bot-shop-error-wxric8]
+    paths: [.github/snapppay-recorder/start]
+permissions:
+  contents: write
+jobs:
+  record:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 1 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Playwright and ffmpeg
+        run: |
+          mkdir -p /tmp/pw && cd /tmp/pw && npm init -y >/dev/null && npm i --no-save playwright@1.56.1 >/dev/null
+          npx playwright install --with-deps chromium >/dev/null
+          sudo apt-get install -y -qq ffmpeg fonts-noto-core >/dev/null
+      - name: Drive and record
+        env:
+          GIT_MODE: '1'
+          CMD_BRANCH: claude/snapppay-rc
+          OUT_BRANCH: claude/snapppay-rc-desktop-out
+          PW_PATH: /tmp/pw/node_modules/playwright
+          WORK: ${{ runner.temp }}/rc
+          IDLE_LIMIT_MS: '5400000'
+          VP_ADMIN_EMAIL: ${{ secrets.VP_ADMIN_EMAIL }}
+          VP_ADMIN_PASSWORD: ${{ secrets.VP_ADMIN_PASSWORD }}
+        run: node .github/snapppay-recorder/driver.js
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: snapppay-recording-desktop
+          path: |
+            ${{ runner.temp }}/rc/*.mp4
+            ${{ runner.temp }}/rc/video/
+            ${{ runner.temp }}/rc/out/
+            ${{ runner.temp }}/rc/*.json
+          retention-days: 14
