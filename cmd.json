@@ -1,1 +1,1 @@
-{"seq":0,"steps":[]}
+{"seq": 1, "steps": [{"do": "goto", "url": "https://vikyplus.ir/products/vp-test-item-a"}, {"do": "load"}, {"do": "wait", "ms": 2500}]}
