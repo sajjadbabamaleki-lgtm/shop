@@ -1,1 +1,1 @@
-{"seq": 17, "steps": [{"do": "type", "sel": "#lg-email", "value": "recording@vikyplus.ir", "delay": 50}, {"do": "type", "sel": "#lg-pass", "value": "Mp9Mry4nLKmCg8", "delay": 50}, {"do": "click", "sel": ".vp-adm-apply"}, {"do": "load"}, {"do": "wait", "ms": 2500}]}
+{"seq": 18, "steps": [{"do": "type", "sel": "#vp-q", "value": "V000000117", "delay": 90}, {"do": "wait", "ms": 600}, {"do": "click", "sel": ".vp-adm-filters .vp-adm-apply"}, {"do": "load"}, {"do": "wait", "ms": 2000}, {"do": "scrollTo", "sel": "input[data-adm-row]"}, {"do": "wait", "ms": 4000}]}
