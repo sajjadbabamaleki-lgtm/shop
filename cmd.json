@@ -1,1 +1,1 @@
-{"seq": 32, "steps": [{"do": "click", "sel": ".vp-snapp"}, {"do": "waitUrl", "re": "^(?!https://vikyplus\\.ir)", "timeout": 60000}, {"do": "load"}, {"do": "wait", "ms": 4000}, {"do": "eval", "js": "document.querySelector(\"input\") && document.querySelector(\"input\").value"}, {"do": "click", "sel": "button:has-text(\"ادامه\")"}, {"do": "wait", "ms": 5000}]}
+{"seq": 33, "steps": [{"do": "wait", "ms": 4000}, {"do": "click", "sel": "button:has-text(\"ادامه\")"}, {"do": "wait", "ms": 6000}]}
