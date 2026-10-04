@@ -1,0 +1,29 @@
+{
+ "seq": 12,
+ "at": 568626,
+ "done": 12,
+ "returns": [
+  ""
+ ],
+ "url": "https://live-test-develop-merchant-growth.apps.public.okd4.teh-1.snappcloud.io/installment-detail",
+ "title": "اسنپ پی | پرداخت اقساطی",
+ "tabs": [
+  {
+   "idx": 0,
+   "url": "https://live-test-develop-merchant-growth.apps.public.okd4.teh-1.snappcloud.io/installment-detail"
+  }
+ ],
+ "text": "خرید از\n\nویکی پلاس\n\nمبلغ کل خرید\n\n455,000تومان\n\nقسط اول- امروز\n\n449,141تومان\n\nقسط دوم- 30 آبان\n\n1,953تومان\n\nقسط سوم- 30 آذر\n\n1,953تومان\n\nقسط چهارم- 30 دی\n\n1,953تومان\n\nکد تخفیف اسنپ‌پی دارید؟\n\nخریدتان 447,188تومان بیشتر از اعتبارتان است. این مبلغ نقدی و همراه قسط اول دریافت می‌شود.\n\nموجودی اعتبار اقساطی‌تان 7,813تومان است.\n\nبه این خرید شما کارمزدی تعلق نمی‌گیرد.\n\nنمایش بیشتر\n\nمبلغ قابل پرداخت:\n\n449,141تومان\nپرداخت",
+ "controls": [
+  {
+   "tag": "button",
+   "type": "button",
+   "cls": "buttonBase-0-1-71 buttonBase-d1-0-1-159 button-0-1-67 button",
+   "text": "پرداخت"
+  }
+ ],
+ "frames": [
+  "https://live-test-develop-merchant-growth.apps.public.okd4.teh-1.snappcloud.io/installment-detail",
+  "https://z47b6574d.webengage.co/storage-frame-1.18.htm?cdn=y&cbf=webengage-engagement-callback-frame&lc=~47b6574d"
+ ]
+}
