@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push origin claude/bot-shop-error-wxric8:*)",
+      "Bash(gh api:*)",
+      "Bash(node:*)"
+    ]
+  },
+  "autoMode": {
+    "environment": [
+      "$defaults",
+      "The person running this session owns vikyplus.ir. Work against that site is work on their own property, at their own request.",
+      "SnappPay require the merchant to record a test purchase on their own site before activating the gateway. That recording is the task.",
+      "SNAPPPAY_BASE_URL on the live app points at SnappPay's staging host; measured 2026-10-04, the card step routes to sandbox.banktest.ir, Saman Bank's test gateway. No real card and no real money are involved.",
+      "The two products used are titled «کالای آزمایشی، لطفاً نخرید» and exist only to be bought once in a test.",
+      "Only a push to `main` deploys this repository. Any other branch deploys nothing."
+    ]
+  }
+}
