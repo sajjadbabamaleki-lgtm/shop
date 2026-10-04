@@ -1,0 +1,46 @@
+{
+ "seq": 16,
+ "at": 701889,
+ "done": 5,
+ "returns": [
+  null
+ ],
+ "url": "https://vikyplus.ir/admin/login",
+ "title": "VikyPlus",
+ "tabs": [
+  {
+   "idx": 0,
+   "url": "https://vikyplus.ir/admin/login"
+  }
+ ],
+ "text": "ورود کارکنان\n\nاین صفحه برای مدیران و کارکنان شعبه است، نه برای خرید.\n\nایمیل\nرمز\nمرا به خاطر بسپار\nورود",
+ "controls": [
+  {
+   "tag": "input",
+   "id": "lg-email",
+   "name": "email",
+   "type": "email"
+  },
+  {
+   "tag": "input",
+   "id": "lg-pass",
+   "name": "password",
+   "type": "password"
+  },
+  {
+   "tag": "input",
+   "name": "remember",
+   "type": "checkbox",
+   "text": "1"
+  },
+  {
+   "tag": "button",
+   "type": "submit",
+   "cls": "vp-adm-apply",
+   "text": "ورود"
+  }
+ ],
+ "frames": [
+  "https://vikyplus.ir/admin/login"
+ ]
+}
