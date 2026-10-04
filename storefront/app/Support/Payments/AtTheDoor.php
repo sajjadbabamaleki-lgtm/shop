@@ -48,12 +48,18 @@ class AtTheDoor implements Gateway
 
     public function start(Payment $payment): string
     {
-        throw new PaymentFailed('پرداخت اینترنتی همین حالا در دسترس نیست؛ برای هماهنگی با پشتیبانی تماس بگیر.');
+        throw new PaymentFailed(
+            'پرداخت اینترنتی همین حالا در دسترس نیست؛ برای هماهنگی با پشتیبانی تماس بگیر.',
+            'at-the-door no online gateway configured',
+        );
     }
 
     public function verify(Payment $payment): Receipt
     {
-        throw new PaymentFailed('پرداخت اینترنتی برای این فروشگاه فعال نیست.');
+        throw new PaymentFailed(
+            'پرداخت اینترنتی برای این فروشگاه فعال نیست.',
+            'at-the-door no online gateway configured',
+        );
     }
 
     public function attemptKey(Request $request): string

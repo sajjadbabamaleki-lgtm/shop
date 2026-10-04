@@ -740,7 +740,10 @@ class SnappPay implements Gateway
         } catch (ConnectionException $e) {
             Log::warning('SnappPay did not answer.', ['path' => $path, 'error' => $e->getMessage()]);
 
-            throw new PaymentFailed('ارتباط با اسنپ‌پی برقرار نشد. چند دقیقه دیگر دوباره امتحان کن.');
+            throw new PaymentFailed(
+                'ارتباط با اسنپ‌پی برقرار نشد. چند دقیقه دیگر دوباره امتحان کن.',
+                "snapppay unreachable {$path} {$e->getMessage()}",
+            );
         }
 
         return (array) $response->json();
@@ -800,7 +803,10 @@ class SnappPay implements Gateway
         } catch (ConnectionException $e) {
             Log::warning('SnappPay would not issue a token.', ['error' => $e->getMessage()]);
 
-            throw new PaymentFailed('ارتباط با اسنپ‌پی برقرار نشد. چند دقیقه دیگر دوباره امتحان کن.');
+            throw new PaymentFailed(
+                'ارتباط با اسنپ‌پی برقرار نشد. چند دقیقه دیگر دوباره امتحان کن.',
+                "snapppay token unreachable {$e->getMessage()}",
+            );
         }
 
         $token = (string) data_get($answer, 'access_token', '');
@@ -808,7 +814,22 @@ class SnappPay implements Gateway
         if ($token === '') {
             Log::warning('SnappPay refused the merchant credentials.', ['answer' => $answer]);
 
-            throw new PaymentFailed('اتصال فروشگاه به اسنپ‌پی برقرار نیست؛ با پشتیبانی تماس بگیر.');
+            // **Their own words matter here more than anywhere else in this
+            // file**, because this one door refuses for two unrelated reasons
+            // that look identical from the shop: a wrong credential answers
+            // `invalid_grant`, and a server SnappPay has not whitelisted
+            // answers `Access Denied` — one is a variable to retype and the
+            // other is a message to their support desk. Both are in the body
+            // and neither was being kept.
+            $said = trim(implode(' ', array_filter([
+                (string) data_get($answer, 'error', ''),
+                (string) data_get($answer, 'error_description', data_get($answer, 'message', '')),
+            ])));
+
+            throw new PaymentFailed(
+                'اتصال فروشگاه به اسنپ‌پی برقرار نیست؛ با پشتیبانی تماس بگیر.',
+                trim('snapppay credentials refused '.$said),
+            );
         }
 
         return $token;

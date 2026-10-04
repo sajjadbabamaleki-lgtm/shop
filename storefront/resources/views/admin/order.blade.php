@@ -176,7 +176,11 @@
                             @endif
                         </small>
                         @if ($attempt->failure)
-                            <small class="vp-adm-attempt-why">پاسخ درگاه: <bdi dir="ltr">{{ $attempt->failure }}</bdi></small>
+                            {{-- «علت» and not «پاسخ درگاه», because this line
+                                 now also carries the failures where no gateway
+                                 answered at all: a timeout, a refused
+                                 credential, a shop with nothing connected. --}}
+                            <small class="vp-adm-attempt-why">علت: <bdi dir="ltr">{{ $attempt->failure }}</bdi></small>
                         @endif
                     </li>
                 @endforeach

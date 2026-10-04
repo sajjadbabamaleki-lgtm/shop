@@ -608,7 +608,7 @@ class OrderController extends Controller
 
             fwrite($out, "\xEF\xBB\xBF");
 
-            fputcsv($out, ['شماره', 'تاریخ', 'مشتری', 'تلفن', 'وضعیت', 'پرداخت', 'رهگیری', 'مبلغ', 'درگاه', 'نتیجه آخرین پرداخت', 'پاسخ درگاه']);
+            fputcsv($out, ['شماره', 'تاریخ', 'مشتری', 'تلفن', 'وضعیت', 'پرداخت', 'رهگیری', 'مبلغ', 'درگاه', 'نتیجه آخرین پرداخت', 'علت']);
 
             $query->with('latestPayment')->chunk(500, function ($orders) use ($out): void {
                 foreach ($orders as $order) {

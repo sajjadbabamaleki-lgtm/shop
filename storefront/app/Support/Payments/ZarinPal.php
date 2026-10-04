@@ -206,7 +206,10 @@ class ZarinPal implements Gateway
         } catch (ConnectionException $e) {
             Log::warning('ZarinPal did not answer.', ['path' => $path, 'error' => $e->getMessage()]);
 
-            throw new PaymentFailed('ارتباط با درگاه پرداخت برقرار نشد. چند دقیقه دیگر دوباره امتحان کن.');
+            throw new PaymentFailed(
+                'ارتباط با درگاه پرداخت برقرار نشد. چند دقیقه دیگر دوباره امتحان کن.',
+                "zarinpal unreachable {$path} {$e->getMessage()}",
+            );
         }
 
         return (array) $response->json();

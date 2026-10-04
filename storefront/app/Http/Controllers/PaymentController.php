@@ -131,6 +131,8 @@ class PaymentController extends Controller
         try {
             $to = $driver->start($payment);
         } catch (PaymentFailed $e) {
+            $this->sayWhyOnTheRow($payment, $e, decided: true);
+
             return redirect()->to(storefront_route('order', $order))
                 ->withErrors(['payment' => $e->getMessage()]);
         }
@@ -246,12 +248,58 @@ class PaymentController extends Controller
         try {
             $receipt = $verifier->verify($payment);
         } catch (PaymentFailed $e) {
+            $this->sayWhyOnTheRow($payment, $e, decided: false);
+
             return $back->withErrors(['payment' => $e->getMessage()]);
         }
 
         $this->record($payment, $order, $receipt->reference, $receipt->cardPan, $settle);
 
         return $back->with('status', 'پرداخت با موفقیت انجام شد. شماره پیگیری: '.$receipt->reference);
+    }
+
+    /**
+     * Put the reason on the attempt, so the panel can say what went wrong.
+     *
+     * **A refusal from the gateway already wrote itself** — every driver's own
+     * `refuse()` stamps the code and the message, and the order screen prints
+     * them verbatim. What never wrote anything is everything that fails
+     * *before* the shopper reaches the gateway: a timeout, a credential the
+     * provider would not accept, a server the provider does not know, a shop
+     * with no online gateway configured at all. Those rows stayed `pending`
+     * and empty, so twenty minutes later `Payment::outcomeLabel()` called them
+     * «به درگاه رفت و برنگشت» — the one story that is certainly not what
+     * happened — and the shop, reading the panel to find out why a payment did
+     * not go through, learned nothing.
+     *
+     * Three guards, each one deliberate. **A row the driver already wrote is
+     * left alone**, because its own words are better than anything known here.
+     * **A paid row is never touched.** And **`$decided` is why this is not one
+     * rule for both callers**: an attempt that could not even be opened never
+     * sent the shopper anywhere, so it is finished and says so. One that fails
+     * on the way *back* may be a payment that went through and whose answer
+     * was lost — اسنپ‌پی recover that by asking `status`, and this shop stops
+     * re-verifying a row it has marked failed, so declaring one failed on a
+     * timeout would turn a lost answer into a payment nobody ever collects.
+     * The reason is still written there; only the verdict is withheld.
+     */
+    private function sayWhyOnTheRow(Payment $payment, PaymentFailed $e, bool $decided): void
+    {
+        $reason = $e->reason();
+
+        if ($reason === '') {
+            return;
+        }
+
+        $payment->refresh();
+
+        if ($payment->status === Payment::PAID || (string) $payment->failure !== '') {
+            return;
+        }
+
+        $payment->update($decided
+            ? ['status' => Payment::FAILED, 'failure' => $reason]
+            : ['failure' => $reason]);
     }
 
     /**
