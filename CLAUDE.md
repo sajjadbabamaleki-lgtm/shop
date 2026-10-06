@@ -660,14 +660,14 @@ the client saw an old page and had no way to tell why. So, plainly:
     `count` is how many** — the two readings give the same number for an order
     of one item and differ only where somebody bought two of a shoe, so the
     mistake would have looked correct until the first customer bought a pair.
-    **The flags say what is inside the item lines, not what is inside the
-    total**: a false is what asks for the figure beside it to be added, and
-    this shop's unit prices carry no delivery, so `isShipmentIncluded` is
-    **false** even though the total it sends does contain the delivery charge.
-    Sending true while also adding `shippingAmount` claims both, and the two
-    sides disagree by exactly the delivery. (That was the shape this shipped
-    in on 14 Sept, corrected the same day, before the gateway was ever
-    switched on.) And this shop stores
+    **Both flags, `isShipmentIncluded` and `isTaxIncluded`, are always
+    true** — SnappPay's own instruction after reviewing the recorded test
+    purchase on 2026-10-06 («همیشه true ارسال بفرمایید»). This shop used to
+    send false, reading the flags as describing the item lines; they describe
+    the cart's `totalAmount`, which always carries the delivery here, and the
+    figures beside them did not change. Their instruction is the
+    specification, and the false-reading is not to be brought back. And this
+    shop stores
     `grand_total = subtotal − discount + shipping`, so the cart total is the
     basket *before* the discount. A basket that does not add up is refused
     with a validation code that names no number, which is why

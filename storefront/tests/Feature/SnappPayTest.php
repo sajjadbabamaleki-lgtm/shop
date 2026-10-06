@@ -228,15 +228,12 @@ class SnappPayTest extends TestCase
         $this->assertSame(100_000, $cart['shippingAmount']);
         $this->assertSame(0, $cart['taxAmount']);
 
-        // **The flags say what is inside the item lines, not what is inside
-        // the total.** SnappPay's own arithmetic is «count × item amount +
-        // shipment (if not included) + tax (if not included) = totalAmount»,
-        // so false is what asks for delivery to be added — and this shop's
-        // unit prices carry none. Sending true here while also adding
-        // `shippingAmount` claims both, and the two sides of their equation
-        // then disagree by exactly the delivery charge.
-        $this->assertFalse($cart['isShipmentIncluded'], 'delivery is not inside the item prices, so it is added');
-        $this->assertFalse($cart['isTaxIncluded']);
+        // **Always true, at SnappPay's own instruction** after reviewing the
+        // recorded test purchase: «isShipmentIncluded و isTaxIncluded رو همیشه
+        // true ارسال بفرمایید». `totalAmount` carries the delivery, and the
+        // figures beside the flags are unchanged by them.
+        $this->assertTrue($cart['isShipmentIncluded'], 'SnappPay asked for true on every request');
+        $this->assertTrue($cart['isTaxIncluded'], 'SnappPay asked for true on every request');
 
         // Their second equation, verbatim: amount = Σ totalAmount − (discount
         // + external source).

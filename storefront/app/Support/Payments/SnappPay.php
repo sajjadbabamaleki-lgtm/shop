@@ -446,24 +446,18 @@ class SnappPay implements Gateway
      * construction, and `assertTheSumIsRight()` says so out loud rather than
      * letting a future change to the order's totals drift silently.
      *
-     * **`isShipmentIncluded` is false, and it is the one field here that was
-     * wrong before SnappPay stated their arithmetic.** Their formula is
+     * **Both inclusion flags are always true, because SnappPay said so.**
+     * Their review of the recorded test purchase, 2026-10-06: «لطفا مقدار
+     * پارامترهای isShipmentIncluded و isTaxIncluded رو همیشه true ارسال
+     * بفرمایید». This file used to send false, on a reading of their formula
      *
      *     totalAmount = count × item amount + shipment (if not included)
      *                                       + tax      (if not included)
-     *     amount      = Σ totalAmount − (discountAmount + externalSourceAmount)
      *
-     * so the flags say whether each of those is **already inside the item
-     * lines**, and a false is what asks for the figure beside it to be added.
-     * This shop's unit prices carry no delivery, so delivery is added — which
-     * makes it *not included*, however natural it reads to say that a total
-     * with the shipping in it «includes» shipping. Sending true while also
-     * adding `shippingAmount` claims both, and the two sides of the equation
-     * then disagree by exactly the delivery charge.
-     *
-     * That failure is loud — a refusal when the payment is opened, before
-     * anybody is sent anywhere and before any money moves — which is the only
-     * reason it is safe to be less than certain here.
+     * in which the flags describe the item lines. They describe the cart's
+     * `totalAmount`, which here always carries the delivery (and there is no
+     * tax), so true is the honest answer and the numbers beside it do not
+     * change. Their instruction is the specification; the reading was ours.
      *
      * `externalSourceAmount` is for a wallet or a gift card paying part of the
      * basket, which this shop has none of.
@@ -515,10 +509,11 @@ class SnappPay implements Gateway
                 'cartId' => (int) $order->id,
                 'totalAmount' => $left->subtotal + $left->shipping,
                 'shippingAmount' => $left->shipping,
-                // False means «not in the item prices — add it». See above.
-                'isShipmentIncluded' => false,
+                // Always true, at SnappPay's instruction: `totalAmount` above
+                // already carries the delivery. See openingBody().
+                'isShipmentIncluded' => true,
                 'taxAmount' => 0,
-                'isTaxIncluded' => false,
+                'isTaxIncluded' => true,
                 'cartItems' => $this->cartItems($order),
             ]],
         ];
