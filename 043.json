@@ -1,0 +1,26 @@
+{
+ "seq": 43,
+ "at": 604799,
+ "done": 10,
+ "returns": [],
+ "url": "https://live-test-develop-merchant-growth.apps.public.okd4.teh-1.snappcloud.io/otp",
+ "title": "اسنپ پی | پرداخت اقساطی",
+ "tabs": [
+  {
+   "idx": 0,
+   "url": "https://live-test-develop-merchant-growth.apps.public.okd4.teh-1.snappcloud.io/otp"
+  }
+ ],
+ "text": "خرید از\n\nویکی پلاس\n\nمبلغ کل خرید\n\n472,250تومان\n\nکد فعال‌سازی\n\nکد ارسال شده به شمارهٔ 09121161311 را وارد کنید.\n\nتغییر شمارهٔ موبایل\n\nکد فعال‌سازی دوباره ارسال شد.",
+ "controls": [
+  {
+   "tag": "input",
+   "type": "tel",
+   "cls": "input-0-1-94"
+  }
+ ],
+ "frames": [
+  "https://live-test-develop-merchant-growth.apps.public.okd4.teh-1.snappcloud.io/otp",
+  "https://z47b6574d.webengage.co/storage-frame-1.18.htm?cdn=y&cbf=webengage-engagement-callback-frame&lc=~47b6574d"
+ ]
+}
