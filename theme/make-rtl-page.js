@@ -1068,7 +1068,7 @@ const DICE_BAND =
   DIE_FACE(5) +
   '\n                </div>' +
   '\n                <button type="button" class="vp-dice-go" data-dice-go>شروع بازی</button>' +
-  '\n                <p class="vp-dice-foot">هر کاربر ۲ بار شانس داره</p>' +
+  '\n                <p class="vp-dice-foot">هر کاربر ۵ بار شانس داره</p>' +
   '\n            </div>' +
   '\n        </div>' +
   '\n    </section>';

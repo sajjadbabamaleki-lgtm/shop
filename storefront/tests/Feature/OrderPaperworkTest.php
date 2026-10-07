@@ -293,7 +293,12 @@ class OrderPaperworkTest extends TestCase
         $this->app->forgetInstance(Gateway::class);
     }
 
-    public function test_an_order_with_a_discount_is_not_offered_instalments(): void
+    /**
+     * **A discount code does not take instalments off an order.** It used to
+     * («کد تخفیف فقط برای خرید نقدی باشه»), and SnappPay's review refused that
+     * on 2026-10-07 as treating cash and instalment buyers differently.
+     */
+    public function test_an_order_with_a_discount_is_offered_instalments_too(): void
     {
         $this->withBothGateways();
         $order = $this->order(discount: 100_000);
@@ -302,8 +307,8 @@ class OrderPaperworkTest extends TestCase
             ->get("/orders/{$order->number}")
             ->assertOk()
             ->assertSee("/orders/{$order->number}/pay/zarinpal", false)
-            ->assertDontSee("/orders/{$order->number}/pay/snapppay", false)
-            ->assertSee('کد تخفیف فقط برای پرداخت نقدی است');
+            ->assertSee("/orders/{$order->number}/pay/snapppay", false)
+            ->assertDontSee('کد تخفیف فقط برای پرداخت نقدی است');
     }
 
     public function test_an_order_without_a_discount_still_is(): void
@@ -317,33 +322,26 @@ class OrderPaperworkTest extends TestCase
             ->assertSee("/orders/{$order->number}/pay/snapppay", false);
     }
 
-    public function test_the_pay_route_refuses_instalments_on_a_discounted_order(): void
+    public function test_the_eligibility_check_asks_the_lender_for_a_discounted_order(): void
     {
         $this->withBothGateways();
-        Http::fake();
-        $order = $this->order(discount: 100_000);
-
-        $this->withSession(["order.{$order->number}" => true])
-            ->post("/orders/{$order->number}/pay/snapppay")
-            ->assertRedirect()
-            ->assertSessionHasErrors('payment');
-
-        $this->assertSame(0, Payment::where('order_id', $order->id)->count());
-        Http::assertNothingSent();
-    }
-
-    public function test_the_eligibility_check_says_no_without_asking_the_lender(): void
-    {
-        $this->withBothGateways();
-        Http::fake();
+        Http::fake([
+            '*/api/online/v1/oauth/token' => Http::response(['access_token' => 'bearer-1', 'expires_in' => 3600]),
+            '*/api/online/offer/v1/eligible*' => Http::response([
+                'successful' => true,
+                'response' => ['eligible' => true, 'title_message' => 'پرداخت اقساطی', 'description' => '۴ قسط'],
+            ]),
+        ]);
         $order = $this->order(discount: 100_000);
 
         $this->withSession(["order.{$order->number}" => true])
             ->getJson("/orders/{$order->number}/instalments")
             ->assertOk()
-            ->assertJson(['eligible' => false]);
+            ->assertJson(['eligible' => true]);
 
-        Http::assertNothingSent();
+        // Asked with what the shopper actually owes, the discount already off.
+        Http::assertSent(fn ($request) => str_contains($request->url(), 'offer/v1/eligible')
+            && str_contains($request->url(), 'amount='.$order->grand_total));
     }
 
     // --- which gateway the shopper went to ------------------------------

@@ -50,10 +50,10 @@ class DiceGameTest extends TestCase
 
         config([
             'storefront.game.enabled' => true,
-            // Honest dice unless a test says otherwise. `rig_attempt` is a
+            // Honest dice unless a test says otherwise. `rig_cycle` is a
             // live switch in config and a suite that silently inherited it
             // would stop testing the game and start testing the rig.
-            'storefront.game.rig_attempt' => null,
+            'storefront.game.rig_cycle' => [],
         ]);
     }
 
@@ -171,58 +171,63 @@ class DiceGameTest extends TestCase
     }
 
     /**
-     * The rig: a throw that wins on purpose.
+     * The rig: each player's own throw wins on purpose, in a cycle.
      *
-     * Temporary and asked for in those words — «فعلا دفعه دوم تستو جفت شیش
-     * بزار برای همه». It is tested rather than left to a hand-check because
-     * of what it costs while it is on: with `rig_attempt = 2`, *every* player
-     * who throws twice takes 30% off, so the day it is meant to come back off
-     * this test is what proves the switch actually turns it off.
+     * «نفر اول … سومین باری ک میزنه بده بش، نفر دوم رو پنجمین باری ک میزنه،
+     * و نفر سوم رو چهارمین باری ک میزنه … و این برا ۳ نفر بعدی و... هم تکرار
+     * شه». Four players, so the fourth proves the cycle wraps. Their earlier
+     * throws are written rather than thrown, so the test always reaches the
+     * throw it is about — an honest double six on the way would end a game
+     * before the rigged throw and make this a test that sometimes skips.
      */
-    public function test_a_rigged_throw_wins_for_everybody(): void
+    public function test_each_player_wins_on_their_own_throw_of_the_cycle(): void
     {
-        config(['storefront.game.rig_attempt' => 2]);
+        config(['storefront.game.rig_cycle' => [3, 5, 4], 'storefront.game.tries' => 5]);
 
-        // The first throw is written rather than thrown, so this test always
-        // reaches the thing it is about. It used to throw honestly and skip
-        // itself when that came up a double six — 1 in 36 — which is a test
-        // that silently does not run, on a switch that is giving away 30%.
-        $key = 's:'.str_repeat('r', 32);
+        $players = ['s:'.str_repeat('a', 32) => 3, 's:'.str_repeat('b', 32) => 5, 's:'.str_repeat('c', 32) => 4, 's:'.str_repeat('d', 32) => 3];
 
-        DicePlay::create([
-            'player_key' => $key,
-            'attempt' => 1,
-            'first_die' => 1,
-            'second_die' => 2,
-            'won' => false,
-        ]);
+        // Every player's first throw lands before anybody's second, so the
+        // order they are counted in is the order of this array.
+        foreach (array_keys($players) as $key) {
+            DicePlay::create(['player_key' => $key, 'attempt' => 1, 'first_die' => 1, 'second_die' => 2, 'won' => false]);
+        }
 
-        $second = $this->withSession(['game.dice.key' => $key])
-            ->postJson('/game/dice')->assertOk()->json();
+        foreach ($players as $key => $wins) {
+            $this->assertSame($wins, $this->game()->riggedAttemptFor($key));
 
-        $this->assertSame([6, 6], $second['dice']);
-        $this->assertTrue($second['won']);
-        $this->assertNotNull($second['code'], 'A rigged win has to issue a real code.');
-        $this->assertSame(0, $second['left']);
+            for ($attempt = 2; $attempt < $wins; $attempt++) {
+                DicePlay::create(['player_key' => $key, 'attempt' => $attempt, 'first_die' => 1, 'second_die' => 2, 'won' => false]);
+            }
+
+            $answer = $this->withSession(['game.dice.key' => $key])
+                ->postJson('/game/dice')->assertOk()->json();
+
+            $this->assertSame([6, 6], $answer['dice'], "Player winning on throw {$wins} did not win on it.");
+            $this->assertTrue($answer['won']);
+            $this->assertNotNull($answer['code'], 'A rigged win has to issue a real code.');
+            $this->assertSame(0, $answer['left'], 'Winning ends the game.');
+        }
     }
 
     public function test_turning_the_rig_off_gives_the_dice_back(): void
     {
-        config(['storefront.game.rig_attempt' => null]);
+        config(['storefront.game.rig_cycle' => []]);
 
-        $this->assertNull($this->game()->riggedAttempt());
+        $this->assertNull($this->game()->riggedAttemptFor('s:anybody'));
 
-        // Fifty second throws by fifty different people. Rigged, every one is
-        // a double six; honest, all fifty together are about a 4% chance.
+        // Fifty third throws by fifty different people. Rigged, the first of
+        // them is a double six by construction; honest, all fifty together
+        // winning is beyond any chance.
         $wins = 0;
 
         for ($i = 0; $i < 50; $i++) {
             $key = 's:honest'.$i;
             $this->game()->play($key);
+            $this->game()->play($key);
             $wins += $this->game()->play($key)->won ? 1 : 0;
         }
 
-        $this->assertLessThan(50, $wins, 'Every second throw won — the rig is still on.');
+        $this->assertLessThan(50, $wins, 'Every third throw won — the rig is still on.');
     }
 
     public function test_winning_ends_the_game_even_with_a_throw_in_hand(): void

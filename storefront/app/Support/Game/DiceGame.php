@@ -27,10 +27,9 @@ use Illuminate\Support\Str;
  * The card looks the same either way; only the letters differ. Say so if the
  * client wants the shared one back, because it is their money.
  *
- * **Two throws, and winning ends it.** «کاربر هم ۲ شانس داشته باشه نه یک
- * شانس» — so `tries` is 2, and a person who wins on the first does not throw
- * again: the prize is the prize. Two throws at 1 in 36 apiece is about 5 or 6
- * winners in a hundred rather than 3.
+ * **Several throws, and winning ends it.** `tries` is how many; a person
+ * who wins early does not throw again: the prize is the prize. Which throw
+ * is fixed to win for whom is `rig_cycle` — see riggedAttemptFor().
  *
  * Every number that decides anything is in `config('storefront.game')` and
  * none of them are in here.
@@ -105,11 +104,11 @@ class DiceGame
         $first = random_int(1, 6);
         $second = random_int(1, 6);
 
-        // …unless this throw is the rigged one. See `rig_attempt` in
-        // config/storefront.php: it is a deliberate, temporary switch that
-        // hands *every* player the prize on a given throw, and the comment
-        // there says what it costs.
-        if ($this->riggedAttempt() === $attempt) {
+        // …unless this throw is this player's rigged one. See `rig_cycle` in
+        // config/storefront.php: it is a deliberate switch that hands every
+        // player the prize on a throw of their own, and the comment there
+        // says what it costs.
+        if ($this->riggedAttemptFor($playerKey) === $attempt) {
             $first = 6;
             $second = 6;
         }
@@ -149,12 +148,35 @@ class DiceGame
         }
     }
 
-    /** Which throw, if any, is fixed to win. Null when the dice are honest. */
-    public function riggedAttempt(): ?int
+    /**
+     * Which of this player's throws is fixed to win. Null when the dice are
+     * honest.
+     *
+     * Players are counted in the order of their **first** throw — the one
+     * row per player with `attempt = 1`, which the unique key guarantees —
+     * and the nth player gets the nth entry of the cycle, wrapping round:
+     * with 3,5,4 the first wins on their third throw, the second on their
+     * fifth, the third on their fourth, the fourth on their third again. It
+     * is read off rows already written, so asking twice gives one answer.
+     */
+    public function riggedAttemptFor(string $playerKey): ?int
     {
-        $attempt = (int) config('storefront.game.rig_attempt', 0);
+        $cycle = array_values(array_filter(
+            (array) config('storefront.game.rig_cycle', []),
+            fn ($attempt): bool => (int) $attempt > 0,
+        ));
 
-        return $attempt > 0 ? $attempt : null;
+        if ($cycle === []) {
+            return null;
+        }
+
+        $first = DicePlay::where('player_key', $playerKey)->where('attempt', 1)->first();
+
+        $ordinal = $first !== null
+            ? DicePlay::where('attempt', 1)->where('id', '<=', $first->id)->count()
+            : DicePlay::where('attempt', 1)->count() + 1;
+
+        return (int) $cycle[($ordinal - 1) % count($cycle)];
     }
 
     /**

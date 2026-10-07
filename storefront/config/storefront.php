@@ -41,28 +41,30 @@ return [
     | other amount in this application; `max_discount_rial` of 0 means no
     | ceiling.
     |
-    | `tries` is how many throws one person gets — «کاربر هم ۲ شانس داشته باشه
-    | نه یک شانس». It is enforced by the unique key on
-    | (branch, player, attempt), not by a count in PHP, so two taps arriving
-    | together cannot buy a third. Two throws at 1 in 36 each is about 5 or 6
-    | winners in every hundred players, against 3 for one throw. The band's own
-    | footnote reads this number, so raising it changes what the page promises
-    | in the same breath.
+    | `tries` is how many throws one person gets — five since 2026-10-07 (it
+    | was two: «کاربر هم ۲ شانس داشته باشه نه یک شانس»). It is enforced by the
+    | unique key on (branch, player, attempt), not by a count in PHP, so two
+    | taps arriving together cannot buy an extra one. The band's own footnote
+    | reads this number, so raising it changes what the page promises in the
+    | same breath — and `theme/make-rtl-page.js`'s DICE_BAND spells it out for
+    | the static preview, so the two have to change together.
     |
-    | **`rig_attempt` makes a throw win on purpose, and it is not a toy.**
-    | Set to a throw number, every player's throw of that number comes up a
-    | double six — so with 2, *everybody* who throws twice wins whatever
-    | `percent` is. That is the shop paying it on effectively every order
-    | somebody bothers to play for, not on the 5 or 6 in a hundred the honest
-    | dice cost. (It was 30 and is 10 now, which makes that cheaper and does
-    | not make it free.) It is here
-    | because it was asked for in those words — «فعلا دفعه دوم تستو جفت شیش
-    | بزار برای همه» — and «فعلا» is the important word: it is meant to come
-    | back off.
+    | **`rig_cycle` makes a throw win on purpose, and it is not a toy.** The
+    | shop's instruction, 2026-10-07: «نفر اول … سومین باری ک میزنه بده بش،
+    | نفر دوم رو پنجمین باری ک میزنه، و نفر سوم رو چهارمین باری ک میزنه … و
+    | این برا ۳ نفر بعدی و... هم تکرار شه». So players are counted in the order
+    | they first throw, and player n's winning throw is the nth entry of the
+    | cycle, round and round: 3, 5, 4, 3, 5, 4… Every player who keeps
+    | throwing wins `percent`; that is the shop paying it on effectively every
+    | order somebody bothers to play for, not on the few in a hundred honest
+    | dice would cost. A real double six before the rigged throw still wins,
+    | and winning still ends the game.
     |
-    | It reads `GAME_DICE_RIG` from the environment, so it can be turned off on
-    | the Liara panel without waiting for a deploy: set GAME_DICE_RIG=0 and
-    | restart. Null or 0 means honest dice.
+    | It reads `GAME_DICE_RIG_CYCLE` from the environment — comma-separated
+    | throw numbers, "3,5,4" by default — so it can be changed or switched off
+    | on the Liara panel without a deploy: set it to 0 and restart for honest
+    | dice. The older `GAME_DICE_RIG` (a single throw for everybody) is no
+    | longer read.
     |
     | `enabled` switches the whole band off, markup included. A game nobody is
     | running should not be a button that does nothing.
@@ -71,9 +73,12 @@ return [
 
     'game' => [
         'enabled' => env('GAME_DICE', true),
-        'tries' => 2,
-        'rig_attempt' => (int) env('GAME_DICE_RIG', 2) ?: null,
-        'percent' => 10,
+        'tries' => 5,
+        'rig_cycle' => array_values(array_filter(array_map(
+            'intval',
+            explode(',', (string) env('GAME_DICE_RIG_CYCLE', '3,5,4'))
+        ))),
+        'percent' => 5,
         'hours' => 24,
         'min_subtotal_rial' => 0,
         'max_discount_rial' => 0,

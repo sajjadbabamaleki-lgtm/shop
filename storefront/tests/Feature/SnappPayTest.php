@@ -75,11 +75,9 @@ class SnappPayTest extends TestCase
      * `amount`/`count` pair being read the wrong way round.
      */
     /*
-     * No discount by default, since 2026-09-25: «کد تخفیف فقط برای خرید نقدی
-     * باشه و در خرید قسطی امکان استفاده ازش نباشه», so a discounted order is
-     * refused at the pay route before SnappPay hears of it. The basket's
-     * discount arithmetic is still asserted, by asking the driver directly —
-     * see test_a_discount_is_still_named_beside_the_basket().
+     * No discount by default; the discounted cases pass one. A discount code
+     * reaches SnappPay like any other order since 2026-10-07 — their review
+     * refused the shop keeping codes to cash purchases.
      */
     private function order(int $unit = 600_000, int $quantity = 2, int $shipping = 100_000, int $discount = 0): Order
     {
@@ -254,13 +252,11 @@ class SnappPayTest extends TestCase
     }
 
     /**
-     * **A discount is still named beside the basket rather than taken out of
-     * it** — asked of the driver directly, because the shop no longer sends a
-     * discounted order to a lender at all (see the pay route). The arithmetic
-     * is kept under guard all the same: an order paid before that rule, or a
-     * rule that is one day relaxed, meets this code unchanged.
+     * **A discount is named beside the basket rather than taken out of it**:
+     * the lines keep their prices, `discountAmount` says what came off, and
+     * `amount` is what is financed.
      */
-    public function test_a_discount_is_still_named_beside_the_basket(): void
+    public function test_a_discount_is_named_beside_the_basket(): void
     {
         $this->fakeSnappPay();
 
@@ -288,9 +284,12 @@ class SnappPayTest extends TestCase
     }
 
     /**
-     * A discounted order is not sent to the lender at all.
+     * **A discounted order goes to SnappPay through the pay route.** «اینکه
+     * کد تخفیف فقط روی خرید نقدی قابل استفاده باشه، مصداق تمایز بین خرید نقدی
+     * و اقساطی هست» — their review, 2026-10-07. Through the route rather than
+     * the driver, because the route is where the old refusal lived.
      */
-    public function test_a_discounted_order_is_refused_before_snapppay_hears_of_it(): void
+    public function test_a_discounted_order_is_sent_to_snapppay(): void
     {
         $this->fakeSnappPay();
 
@@ -298,10 +297,11 @@ class SnappPayTest extends TestCase
 
         $this->holding($order)
             ->post("/orders/{$order->number}/pay/snapppay")
-            ->assertRedirect()
-            ->assertSessionHasErrors('payment');
+            ->assertRedirect();
 
-        Http::assertNothingSent();
+        $body = $this->opening();
+        $this->assertSame(50_000, $body['discountAmount']);
+        $this->assertSame(1_250_000, $body['amount']);
     }
 
     /**

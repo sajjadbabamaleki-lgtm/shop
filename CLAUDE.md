@@ -1468,14 +1468,27 @@ the client saw an old page and had no way to tell why. So, plainly:
   `Product::fillsFrame()` asks the main photograph. A new upload path is a
   photograph by default, so this cannot recur for a new way of adding shoes.
   `PhotographsFillTheirFrameTest` holds it.
-- **A discount code is for paying in cash only.** «کد تخفیف فقط برای خرید نقدی
-  باشه و در خرید قسطی امکان استفاده ازش نباشه». The code is typed at checkout
-  and the way to pay is chosen *after* the order is placed, so the rule lives
-  where the choice is: `Gateways::offeredForOrder()` drops every gateway in
-  `Gateways::LENDERS` from an order with `discount_total > 0`, the pay route
-  refuses one on the same test, and the eligibility endpoint answers no
-  without asking SnappPay. The checkout says so under the code field whenever
-  a lender is configured, so nobody finds out after placing the order.
+- **A discount code works the same for cash and for instalments.** From
+  2026-09-25 to 2026-10-07 it was cash only («کد تخفیف فقط برای خرید نقدی
+  باشه»), and SnappPay's review refused that: «مصداق تمایز بین خرید نقدی و
+  اقساطی هست و لازمه که امکان استفاده از کد تخفیف رو روی خرید درگاه اسنپ‌پی
+  هم فعال کنید». The shop answered by lowering the dice prize to 5% rather
+  than by keeping the rule. So `Gateways::offeredForOrder()` no longer drops
+  a lender for a discounted order, the pay route and the eligibility endpoint
+  no longer refuse one, and the checkout no longer says codes are cash only.
+  The discount reaches SnappPay as `discountAmount` beside the basket, and
+  `AfterReturns` apportions it on a return. **Do not bring the distinction
+  back in another shape** — a smaller percentage for instalments is the same
+  distinction, and it is a condition of the gateway, not a preference.
+- **The dice game («تاس شانس») gives five throws and wins
+  on a cycle.** `config('storefront.game')`: `tries` 5, `percent` 5, and
+  `rig_cycle` 3,5,4 — the first player to throw wins on their third throw,
+  the second on their fifth, the third on their fourth, then round again
+  («… و این برا ۳ نفر بعدی و... هم تکرار شه»). `GAME_DICE_RIG_CYCLE=0` on
+  Liara makes the dice honest; the older `GAME_DICE_RIG` is no longer read.
+  The footnote «هر کاربر ۵ بار شانس داره» reads `tries`, and
+  `theme/make-rtl-page.js`'s DICE_BAND spells the same number for the static
+  preview — change both or `check-parity.js` notices.
 - **`/admin/catalogue` has a bulk bar**: move to a section (replaces every
   section the product was in), add to a section (keeps them), onto the stepped
   sale (`FrontPagePlacement` band `ladder`, room for five — what does not fit

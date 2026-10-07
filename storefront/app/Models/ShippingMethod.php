@@ -46,7 +46,7 @@ class ShippingMethod extends Model
     public const DEFAULTS = [
         ['name' => 'پست پیشتاز', 'carrier' => 'شرکت ملی پست', 'transit_min_days' => 2, 'transit_max_days' => 4, 'price' => 0, 'charge' => self::COLLECT],
         ['name' => 'تیپاکس', 'carrier' => 'تیپاکس', 'transit_min_days' => 2, 'transit_max_days' => 5, 'price' => 0, 'charge' => self::COLLECT],
-        ['name' => 'پست معمولی', 'carrier' => 'شرکت ملی پست', 'transit_min_days' => 4, 'transit_max_days' => 8, 'price' => 2_000_000, 'charge' => self::PREPAID],
+        ['name' => 'پست معمولی', 'carrier' => 'شرکت ملی پست', 'transit_min_days' => 4, 'transit_max_days' => 8, 'price' => 2_300_000, 'charge' => self::PREPAID],
     ];
 
     protected function casts(): array
