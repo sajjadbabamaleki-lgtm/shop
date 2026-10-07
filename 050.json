@@ -1,0 +1,300 @@
+{
+ "seq": 50,
+ "at": 934562,
+ "done": 15,
+ "returns": [
+  null
+ ],
+ "url": "https://vikyplus.ir/admin/orders/VP-2K4CM4WU/return",
+ "title": "تأیید مرجوعی — سفارش VP-2K4CM4WU",
+ "tabs": [
+  {
+   "idx": 0,
+   "url": "https://vikyplus.ir/admin/orders/VP-2K4CM4WU/return"
+  }
+ ],
+ "text": "ویکی پلاس\nخانه\n\nفروش\n\nسفارش‌ها\nپیام‌ها\nتخفیف‌ها\n\nکالا\n\nمحصولات\nصفحه اصلی\nموجودی\nقیمت‌ها\n\nبازارگاه\n\nفروشندگان\n\nمحتوا\n\nمقاله‌ها\n\nگزارش\n\nگزارش شعبه\nگزارش پلتفرم\n\nپشتیبانی\n\nدرخواست‌ها\nنظرها\n\nتنظیمات\n\nپردازش و ارسال\nکارکنان\nتنظیمات\nخروج\nتأیید مرجوعی — سفارش VP-2K4CM4WU\n۲۱\nتأیید مرجوعی اقساطی\nسفارش VP-2K4CM4WU · اسنپ‌پی · V000000129\n\nهنوز چیزی ارسال نشده و هیچ‌چیز تغییر نکرده است. با زدن دکمهٔ پایین، اقلام زیر به انبار برمی‌گردند و همان لحظه به اسنپ‌پی اعلام می‌شود. این کار برگشت‌پذیر نیست.\n\nکالای آزمایشی ۲ (تخفیف‌دار)، لطفاً نخرید\n40\n۱\n۰\nجمع کالاها\n۱۷۰٬۰۰۰ تومان\n۸۵٬۰۰۰ تومان\nتخفیف\n۸٬۵۰۰ تومان\n۴٬۲۵۰ تومان\nهزینهٔ ارسال\n۲۳۰٬۰۰۰ تومان\n۲۳۰٬۰۰۰ تومان\nمبلغی که مشتری قسط می‌دهد\n۳۹۱٬۵۰۰ تومان\n۳۱۰٬۷۵۰ تومان\n\nعلت ثبت‌شده: کالای دوم کامل پس فرستاده شد\n\nبله، به اسنپ‌پی اعلام کن\nانصراف، برگرد به سفارش\nخانه\nسفارش‌ها\nصفحه اصلی\nبیشتر\n\nافزودن\n\nمحصول تازه\nکد تخفیف\n\nهمه بخش‌ها\n\nخانه\nسفارش‌ها\nپیام‌ها\nتخفیف‌ها\nمحصولات\nصفحه اصلی\nموجودی\nقیمت‌ها\nفروشندگان\nمقاله‌ها\nگزارش شعبه\nگزارش پلتفرم\nدرخواست‌ها\nنظرها\nپردازش و ارسال\nکارکنان\nتنظیمات",
+ "controls": [
+  {
+   "tag": "a",
+   "cls": "vp-adm-mark",
+   "text": "ویکی پلاس",
+   "href": "https://vikyplus.ir/admin"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-adm-link",
+   "text": "خانه",
+   "href": "https://vikyplus.ir/admin"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-adm-link is-on",
+   "text": "سفارش‌ها",
+   "href": "https://vikyplus.ir/admin/orders"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-adm-link",
+   "text": "پیام‌ها",
+   "href": "https://vikyplus.ir/admin/inbox"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-adm-link",
+   "text": "تخفیف‌ها",
+   "href": "https://vikyplus.ir/admin/discounts"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-adm-link",
+   "text": "محصولات",
+   "href": "https://vikyplus.ir/admin/catalogue"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-adm-link",
+   "text": "صفحه اصلی",
+   "href": "https://vikyplus.ir/admin/front-page"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-adm-link",
+   "text": "موجودی",
+   "href": "https://vikyplus.ir/admin/inventory"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-adm-link",
+   "text": "قیمت‌ها",
+   "href": "https://vikyplus.ir/admin/pricing"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-adm-link",
+   "text": "فروشندگان",
+   "href": "https://vikyplus.ir/admin/vendors"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-adm-link",
+   "text": "مقاله‌ها",
+   "href": "https://vikyplus.ir/admin/articles"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-adm-link",
+   "text": "گزارش شعبه",
+   "href": "https://vikyplus.ir/admin/reports"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-adm-link",
+   "text": "گزارش پلتفرم",
+   "href": "https://vikyplus.ir/admin/reports/platform"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-adm-link",
+   "text": "درخواست‌ها",
+   "href": "https://vikyplus.ir/admin/enquiries"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-adm-link",
+   "text": "نظرها",
+   "href": "https://vikyplus.ir/admin/comments"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-adm-link",
+   "text": "پردازش و ارسال",
+   "href": "https://vikyplus.ir/admin/fulfilment"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-adm-link",
+   "text": "کارکنان",
+   "href": "https://vikyplus.ir/admin/staff"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-adm-link",
+   "text": "تنظیمات",
+   "href": "https://vikyplus.ir/admin/settings"
+  },
+  {
+   "tag": "button",
+   "type": "submit",
+   "cls": "vp-adm-out",
+   "text": "خروج"
+  },
+  {
+   "tag": "button",
+   "type": "button",
+   "cls": "vp-adm-icon-btn vp-adm-drawer-btn",
+   "text": "منوی پنل"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-adm-icon-btn vp-adm-find-small",
+   "text": "جست‌وجو",
+   "href": "https://vikyplus.ir/admin/search"
+  },
+  {
+   "tag": "a",
+   "href": "https://vikyplus.ir/admin/orders?status=paid"
+  },
+  {
+   "tag": "a",
+   "href": "https://vikyplus.ir/admin/orders?status=placed"
+  },
+  {
+   "tag": "button",
+   "type": "button",
+   "cls": "vp-adm-icon-btn vp-adm-lamp",
+   "text": "حالت روشن و تاریک"
+  },
+  {
+   "tag": "button",
+   "type": "submit",
+   "cls": "vp-adm-danger",
+   "text": "بله، به اسنپ‌پی اعلام کن"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-adm-mini is-quiet",
+   "text": "انصراف، برگرد به سفارش",
+   "href": "https://vikyplus.ir/admin/orders/VP-2K4CM4WU"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-adm-tab",
+   "text": "خانه",
+   "href": "https://vikyplus.ir/admin"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-adm-tab is-on",
+   "text": "سفارش‌ها",
+   "href": "https://vikyplus.ir/admin/orders"
+  },
+  {
+   "tag": "button",
+   "type": "button",
+   "cls": "vp-adm-add",
+   "text": "افزودن"
+  },
+  {
+   "tag": "a",
+   "cls": "vp-adm-tab",
+   "text": "صفحه اصلی",
+   "href": "https://vikyplus.ir/admin/front-page"
+  },
+  {
+   "tag": "button",
+   "type": "button",
+   "cls": "vp-adm-tab",
+   "text": "بیشتر"
+  },
+  {
+   "tag": "a",
+   "text": "محصول تازه",
+   "href": "https://vikyplus.ir/admin/catalogue/new"
+  },
+  {
+   "tag": "a",
+   "text": "کد تخفیف",
+   "href": "https://vikyplus.ir/admin/discounts"
+  },
+  {
+   "tag": "a",
+   "text": "خانه",
+   "href": "https://vikyplus.ir/admin"
+  },
+  {
+   "tag": "a",
+   "cls": "is-on",
+   "text": "سفارش‌ها",
+   "href": "https://vikyplus.ir/admin/orders"
+  },
+  {
+   "tag": "a",
+   "text": "پیام‌ها",
+   "href": "https://vikyplus.ir/admin/inbox"
+  },
+  {
+   "tag": "a",
+   "text": "تخفیف‌ها",
+   "href": "https://vikyplus.ir/admin/discounts"
+  },
+  {
+   "tag": "a",
+   "text": "محصولات",
+   "href": "https://vikyplus.ir/admin/catalogue"
+  },
+  {
+   "tag": "a",
+   "text": "صفحه اصلی",
+   "href": "https://vikyplus.ir/admin/front-page"
+  },
+  {
+   "tag": "a",
+   "text": "موجودی",
+   "href": "https://vikyplus.ir/admin/inventory"
+  },
+  {
+   "tag": "a",
+   "text": "قیمت‌ها",
+   "href": "https://vikyplus.ir/admin/pricing"
+  },
+  {
+   "tag": "a",
+   "text": "فروشندگان",
+   "href": "https://vikyplus.ir/admin/vendors"
+  },
+  {
+   "tag": "a",
+   "text": "مقاله‌ها",
+   "href": "https://vikyplus.ir/admin/articles"
+  },
+  {
+   "tag": "a",
+   "text": "گزارش شعبه",
+   "href": "https://vikyplus.ir/admin/reports"
+  },
+  {
+   "tag": "a",
+   "text": "گزارش پلتفرم",
+   "href": "https://vikyplus.ir/admin/reports/platform"
+  },
+  {
+   "tag": "a",
+   "text": "درخواست‌ها",
+   "href": "https://vikyplus.ir/admin/enquiries"
+  },
+  {
+   "tag": "a",
+   "text": "نظرها",
+   "href": "https://vikyplus.ir/admin/comments"
+  },
+  {
+   "tag": "a",
+   "text": "پردازش و ارسال",
+   "href": "https://vikyplus.ir/admin/fulfilment"
+  },
+  {
+   "tag": "a",
+   "text": "کارکنان",
+   "href": "https://vikyplus.ir/admin/staff"
+  },
+  {
+   "tag": "a",
+   "text": "تنظیمات",
+   "href": "https://vikyplus.ir/admin/settings"
+  }
+ ],
+ "frames": [
+  "https://vikyplus.ir/admin/orders/VP-2K4CM4WU/return"
+ ]
+}
