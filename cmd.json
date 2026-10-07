@@ -1,1 +1,1 @@
-{"seq": 42, "steps": [{"do": "type", "sel": "input[type=tel]", "value": "677857", "delay": 150}, {"do": "wait", "ms": 7000}]}
+{"seq": 43, "steps": [{"do": "click", "sel": "input[type=tel]"}, {"do": "press", "key": "End"}, {"do": "press", "key": "Backspace"}, {"do": "press", "key": "Backspace"}, {"do": "press", "key": "Backspace"}, {"do": "press", "key": "Backspace"}, {"do": "press", "key": "Backspace"}, {"do": "press", "key": "Backspace"}, {"do": "click", "sel": "text=ارسال دوباره"}, {"do": "wait", "ms": 4000}]}
