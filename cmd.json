@@ -1,1 +1,1 @@
-{"seq": 52, "steps": [{"do": "click", "sel": "button:has-text(\"بله، نزد اسنپ‌پی لغو کن\")"}, {"do": "load"}, {"do": "wait", "ms": 2500}, {"do": "top"}, {"do": "wait", "ms": 3000}, {"do": "scrollTo", "sel": "text=برگشت‌خورده"}, {"do": "wait", "ms": 5000}]}
+{"seq": 53, "steps": [{"do": "end"}]}
