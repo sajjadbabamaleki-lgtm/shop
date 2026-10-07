@@ -1,1 +1,1 @@
-{"seq": 41, "steps": [{"do": "click", "sel": ".vp-snapp"}, {"do": "waitUrl", "re": "^(?!https://vikyplus\\.ir)", "timeout": 60000}, {"do": "load"}, {"do": "wait", "ms": 4000}, {"do": "click", "sel": "button:has-text(\"ادامه\")"}, {"do": "wait", "ms": 6000}]}
+{"seq": 42, "steps": [{"do": "type", "sel": "input[type=tel]", "value": "677857", "delay": 150}, {"do": "wait", "ms": 7000}]}
