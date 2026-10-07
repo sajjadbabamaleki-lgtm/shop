@@ -1,0 +1,53 @@
+{
+ "seq": 47,
+ "at": 775007,
+ "done": 5,
+ "returns": [],
+ "error": {
+  "step": {
+   "do": "type",
+   "sel": "#vp-q",
+   "value": "V000000129",
+   "delay": 90
+  },
+  "message": "locator.scrollIntoViewIfNeeded: Timeout 20000ms exceeded.\nCall log:\n  - waiting for locator('#vp-q').first()\n"
+ },
+ "url": "https://vikyplus.ir/admin/login",
+ "title": "VikyPlus",
+ "tabs": [
+  {
+   "idx": 0,
+   "url": "https://vikyplus.ir/admin/login"
+  }
+ ],
+ "text": "ورود کارکنان\n\nاین صفحه برای مدیران و کارکنان شعبه است، نه برای خرید.\n\nایمیل\nرمز\nمرا به خاطر بسپار\nورود",
+ "controls": [
+  {
+   "tag": "input",
+   "id": "lg-email",
+   "name": "email",
+   "type": "email"
+  },
+  {
+   "tag": "input",
+   "id": "lg-pass",
+   "name": "password",
+   "type": "password"
+  },
+  {
+   "tag": "input",
+   "name": "remember",
+   "type": "checkbox",
+   "text": "1"
+  },
+  {
+   "tag": "button",
+   "type": "submit",
+   "cls": "vp-adm-apply",
+   "text": "ورود"
+  }
+ ],
+ "frames": [
+  "https://vikyplus.ir/admin/login"
+ ]
+}
