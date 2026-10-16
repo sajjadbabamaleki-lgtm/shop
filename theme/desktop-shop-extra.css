@@ -84,6 +84,15 @@
   box-shadow: inset 0 0 0 1px rgba(16, 17, 17, 0.28);
 }
 
+/* A photograph fills its frame here too. «چرا در نسخه فروشگاه بالای عکس ها
+   قاب عکسو پر نکرده؟؟!!» — the phone's 15px nudge for a cut-out is copied up
+   with the rest, scoped `.vp-listing-panel .vp-card-shot img`, and that is
+   the same weight as `.vp-card-shot.is-supplied img` and later, so every
+   photograph on a desktop sat 15px low with a grey band across its top. */
+.vp-listing-panel .vp-card-shot.is-supplied img {
+  transform: none;
+}
+
 .vp-listing-panel .vp-card-shot img {
   transition: transform 0.3s ease;
 }
