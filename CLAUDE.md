@@ -1391,6 +1391,16 @@ the client saw an old page and had no way to tell why. So, plainly:
   empty value (its way of offering «untick»), so applying any other filter
   lost it, on the phone's popup too. Every size posts itself now and a script
   unticks a second press. `DesktopShopSpeaksThePhonesLanguageTest` holds both.
+- **The home page has the shop on it, above the stepped sale** —
+  `home/shop-window.blade.php`, «فروشگاه»: the listing's search, a «فیلتر»
+  link to `/products?filter=open` (the listing opens its popup for that), the
+  category strip and eight `shop.card`s, 2×4 below 992 and 4×2 above. The
+  cards are `ShopController::opening()` — the listing's first page in its own
+  order, **less any shoe with no photograph**, because the payment-test items
+  were the newest and led it as grey boxes («چیین این کالاهای تستی»). The
+  wrapper carries `vp-listing-panel` so the generated desktop rules dress its
+  parts. Not in the static preview; `check-parity.js` hides it like the
+  reviews. `HomeShopWindowTest` holds the order, the count and the photo rule.
 - **`.vp-page` is one link in the paginator**, not a page. It carries
   `display: grid; height: 38px`, and a panel that wore the name came out 64px
   tall with its whole content spilling out under the footer. The content pages
