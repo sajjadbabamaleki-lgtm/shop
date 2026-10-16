@@ -212,6 +212,11 @@ class ShopController extends Controller
      * newest products in the shop and have no picture, so the band opened on
      * two grey boxes. A card without a photograph has nothing to show on a
      * front page; the listing still carries it.
+     *
+     * **And only what can be bought today.** The listing shows a sold-out
+     * shoe marked «ناموجود»; the front page's bands exist to sell, and every
+     * one of them drops a shoe that sells out — the rule `purchasable()`'s
+     * own docblock states. The band is one of those bands.
      */
     public static function opening(int $count): Collection
     {
@@ -219,6 +224,7 @@ class ShopController extends Controller
 
         return self::shelf()
             ->whereHas('media')
+            ->whereHas('variants', fn (Builder $v) => $v->sellable())
             ->orderBy($column, $direction)
             ->orderBy('products.id')
             ->limit($count)

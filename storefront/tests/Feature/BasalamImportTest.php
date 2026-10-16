@@ -194,7 +194,13 @@ class BasalamImportTest extends TestCase
 
         $this->assertSame($storiesBefore, $this->storyTitles());
 
-        $home = $this->get('/')->assertOk()->getContent();
+        // The «فروشگاه» band is the listing's own first page, so a new shoe
+        // is meant to appear there; the curated bands are what stay put.
+        $home = preg_replace(
+            '~<section class="vp-homeshop-area".*?</section>~s',
+            '',
+            $this->get('/')->assertOk()->getContent(),
+        );
         $this->assertStringNotContainsString('کتونی زنانه ویکی', $home);
         $this->assertStringNotContainsString('کیف دستی ویکی', $home);
     }
