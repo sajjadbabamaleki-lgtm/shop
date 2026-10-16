@@ -10,6 +10,7 @@ jobs:
         env:
           T: ${{ secrets.LIARA_API_TOKEN }}
         run: |
+          echo "::warning title=token::length ${#T}, starts $(printf %s "$T" | cut -c1-6 | sed 's/./x/g4')"
           H="Authorization: Bearer $T"
           for u in \
             "https://api.iran.liara.ir/v1/projects/vikyplus" \
