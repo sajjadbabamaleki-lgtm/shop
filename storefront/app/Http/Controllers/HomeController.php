@@ -74,6 +74,15 @@ class HomeController extends Controller
              * note in `theme/make-rtl-page.js`. `check-parity.js` hides both
              * before it shoots, for the same reason.
              */
+            /*
+             * «یه مینی فروشگاه تو خود صفحه هوم» — the shop's own first page,
+             * eight cards of it, above the stepped sale. The shoes and their
+             * order are the listing's (`ShopController::opening()`) and the
+             * count on its button is the listing's own query, so the band and
+             * the page it opens cannot say different things.
+             */
+            'shopWindow' => ShopController::opening(8),
+            'shopCount' => Product::query()->listable()->count(),
             'reviews' => $this->reviews(),
             'articles' => Article::published()->latest('published_at')->limit(3)->get(),
         ]);

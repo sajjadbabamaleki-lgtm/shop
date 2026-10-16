@@ -78,7 +78,11 @@ async function shoot(browser, url, width, file) {
     //
     // Hidden on *both* pages, so the check still notices if one of them ever
     // grows a band the other has not.
-    document.querySelectorAll('.vp-home-reviews, .vp-home-arts')
+    //
+    // «فروشگاه» above the stepped sale is the third, and for the same reason:
+    // its eight cards are the live catalogue, and a static copy of them would
+    // be a catalogue invented for the preview.
+    document.querySelectorAll('.vp-home-reviews, .vp-home-arts, .vp-homeshop-area')
         .forEach((el) => { el.style.display = 'none'; });
 
     // **The daily deal's countdown, stopped and zeroed on both pages.**

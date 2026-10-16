@@ -84,6 +84,9 @@ class ShopController extends Controller
      */
     public const TABS = ['popular', 'newest', 'bestselling'];
 
+    /** What the listing is sorted by when the visitor has not said. */
+    private const DEFAULT_SORT = 'newest';
+
     public const PRICE_TABS = ['cheapest', 'dearest'];
 
     public function __invoke(Request $request, ?Category $category = null): View
@@ -154,7 +157,7 @@ class ShopController extends Controller
                 : null,
             'sort' => array_key_exists((string) $request->query('sort'), self::SORTS)
                 ? (string) $request->query('sort')
-                : 'newest',
+                : self::DEFAULT_SORT,
             'q' => $this->trimmedOrNull($request->query('q')),
         ];
     }
@@ -196,22 +199,56 @@ class ShopController extends Controller
      * @param  array<string, mixed>  $filters
      * @return LengthAwarePaginator<int, Product>
      */
-    private function products(array $filters): LengthAwarePaginator
+    /**
+     * The shop's first page with nothing asked of it: the default sort, no
+     * filter, the first `$count` cards.
+     *
+     * The home page's «فروشگاه» band reads this, so the shoes it draws are
+     * in the order the listing opens with — one rule for what the shop leads
+     * with, not a second one that could drift from the first.
+     *
+     * **Only shoes with a photograph.** «مگه مرض داری از کالاهای اصلی استفاده
+     * نمیکنی چیین این کالاهای تستی» — the two payment-test items are the
+     * newest products in the shop and have no picture, so the band opened on
+     * two grey boxes. A card without a photograph has nothing to show on a
+     * front page; the listing still carries it.
+     */
+    public static function opening(int $count): Collection
     {
-        [, $column, $direction] = self::SORTS[$filters['sort']];
+        [, $column, $direction] = self::SORTS[self::DEFAULT_SORT];
 
-        /*
-         * `listable()`, not `purchasable()`: the shop shows what it sells and
-         * marks what it has run out of, rather than hiding it. `inStockFirst()`
-         * keeps the empty shelves at the back, whatever the shopper sorted by.
-         */
-        $query = Product::query()
+        return self::shelf()
+            ->whereHas('media')
+            ->orderBy($column, $direction)
+            ->orderBy('products.id')
+            ->limit($count)
+            ->get();
+    }
+
+    /**
+     * Everything the listing draws, before any filter or sort is applied.
+     *
+     * `listable()`, not `purchasable()`: the shop shows what it sells and
+     * marks what it has run out of, rather than hiding it. `inStockFirst()`
+     * keeps the empty shelves at the back, whatever the shopper sorted by.
+     * The eager loads are everything `shop/card.blade.php` reads.
+     */
+    private static function shelf(): Builder
+    {
+        return Product::query()
             ->listable()
             ->inStockFirst()
             ->pricedHere()
             ->countingSales()
             ->countingRecentSales()
             ->with(['brand', 'media', 'variants.offer', 'variants.stock', 'defaultVariant.offer', 'defaultVariant.stock']);
+    }
+
+    private function products(array $filters): LengthAwarePaginator
+    {
+        [, $column, $direction] = self::SORTS[$filters['sort']];
+
+        $query = self::shelf();
 
         if ($filters['category']) {
             $query->whereHas('categories', fn (Builder $c) => $c->whereKey($filters['category']->id));

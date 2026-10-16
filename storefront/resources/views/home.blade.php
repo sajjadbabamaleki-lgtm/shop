@@ -13,6 +13,8 @@
     @include('home.hero')
     @include('home.categories')
     @include('home.dice')
+    {{-- «بالای بخش حراج پله ای» --}}
+    @include('home.shop-window')
     @include('home.ladder')
     @include('home.best-sellers')
     @include('home.offer-banner')

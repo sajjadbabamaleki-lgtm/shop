@@ -97,7 +97,10 @@
                      and it does not care which of the three sheets it is in.
                      Without script the scrim is still just a div and the
                      <summary> still toggles, which is how this closed before. --}}
-                <details class="vp-shop-filter">
+                {{-- `?filter=open` arrives from the home page's «فروشگاه» band,
+                     whose «فیلتر» is a link here rather than a second copy of
+                     the rail: the shopper lands with this popup already open. --}}
+                <details class="vp-shop-filter"@if (request()->query('filter') === 'open') open @endif>
                     <summary class="vp-shop-filter-btn"><i class="fa-solid fa-sliders" aria-hidden="true"></i>فیلتر</summary>
                     <div class="vp-sheet-scrim" data-vp-sheet-close></div>
                     <div class="vp-shop-filter-panel">
