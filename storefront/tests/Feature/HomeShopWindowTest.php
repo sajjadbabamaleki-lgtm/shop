@@ -34,12 +34,14 @@ class HomeShopWindowTest extends TestCase
         app(TenantContext::class)->set(Branch::central());
     }
 
-    private function aShoe(int $n): Product
+    private function aShoe(int $n, ?string $title = null): Product
     {
+        $title ??= 'کفش ویترین '.$n;
+
         $product = Product::create([
             'slug' => 'window-shoe-'.$n,
-            'title' => 'کفش ویترین '.$n,
-            'short_title' => 'کفش ویترین '.$n,
+            'title' => $title,
+            'short_title' => $title,
             'status' => 'active',
             'published_at' => now()->subMinutes(100 - $n),
         ]);
@@ -120,6 +122,38 @@ class HomeShopWindowTest extends TestCase
 
         $this->assertCount(8, $shown, 'eight cards: four rows of two, two rows of four');
         $this->assertSame(array_slice($listing, 0, 8), $shown);
+    }
+
+    /**
+     * «باید از ۸ مدل متفاوت باشن» — eight colourways of one model are one
+     * card, and the band reaches further down the shop for the other seven.
+     */
+    public function test_it_shows_one_shoe_per_model(): void
+    {
+        foreach (range(1, 6) as $n) {
+            $this->aShoe($n, $n % 2 ? 'گلدن استار' : 'گلدن استار ساق بلند')->media()->create([
+                'path' => 'assets/img/hero/vikyplus-hero-jordan.webp',
+                'is_primary' => true,
+                'position' => 1,
+            ]);
+        }
+
+        // Five seeded models and the Golden Star make six; two more make the
+        // eight a full band needs without a second colourway.
+        foreach ([7 => 'کتونی نایک وومرو', 8 => 'کتونی آدیداس سامبا'] as $n => $title) {
+            $this->aShoe($n, $title)->media()->create([
+                'path' => 'assets/img/hero/vikyplus-hero-jordan.webp',
+                'is_primary' => true,
+                'position' => 1,
+            ]);
+        }
+
+        $shown = $this->links($this->band());
+
+        $golden = array_filter($shown, fn (string $slug) => in_array($slug, array_map(fn ($n) => 'window-shoe-'.$n, range(1, 6)), true));
+        $this->assertCount(1, $golden, 'one Golden Star, not six');
+        $this->assertContains('window-shoe-6', $shown, 'the newest of the model is the one drawn');
+        $this->assertCount(8, $shown);
     }
 
     /**

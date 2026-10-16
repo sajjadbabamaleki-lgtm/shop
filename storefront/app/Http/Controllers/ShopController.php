@@ -7,6 +7,7 @@ use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\Variant;
+use App\Support\Catalogue\ShoeModel;
 use App\Support\Search;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
@@ -213,6 +214,8 @@ class ShopController extends Controller
      * two grey boxes. A card without a photograph has nothing to show on a
      * front page; the listing still carries it.
      *
+     * **And one shoe per model** — see `ShoeModel`.
+     *
      * **And only what can be bought today.** The listing shows a sold-out
      * shoe marked «ناموجود»; the front page's bands exist to sell, and every
      * one of them drops a shoe that sells out — the rule `purchasable()`'s
@@ -222,13 +225,30 @@ class ShopController extends Controller
     {
         [, $column, $direction] = self::SORTS[self::DEFAULT_SORT];
 
-        return self::shelf()
+        $candidates = self::shelf()
+            ->setEagerLoads([])
             ->whereHas('media')
             ->whereHas('variants', fn (Builder $v) => $v->sellable())
             ->orderBy($column, $direction)
             ->orderBy('products.id')
-            ->limit($count)
             ->get();
+
+        // One shoe per model, newest first — «باید از ۸ مدل متفاوت باشن».
+        // A supplier lists every colourway as its own product, so the eight
+        // newest are often one model eight times. Only if the shop has fewer
+        // than eight models does a second colourway fill a gap.
+        $picked = $candidates->unique(fn (Product $p) => ShoeModel::key($p->title))->take($count);
+        if ($picked->count() < $count) {
+            $picked = $picked->concat($candidates->diff($picked))->take($count);
+        }
+
+        $ids = $picked->pluck('id')->all();
+
+        return self::shelf()
+            ->whereKey($ids)
+            ->get()
+            ->sortBy(fn (Product $p) => array_search($p->id, $ids, true))
+            ->values();
     }
 
     /**
