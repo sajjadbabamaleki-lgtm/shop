@@ -32,6 +32,12 @@ class HomeShopWindowTest extends TestCase
         $this->seed([BranchSeeder::class, CatalogueSeeder::class]);
 
         app(TenantContext::class)->set(Branch::central());
+
+        // The seeded shoes carry the design's cut-outs, which the band does
+        // not take; give them the studio's folder so there is a band to read.
+        foreach (Product::with('media')->get() as $product) {
+            $product->media->each(fn ($m) => $m->update(['path' => 'storage/basalam/seed-'.$m->id.'.jpg']));
+        }
     }
 
     private function aShoe(int $n, ?string $title = null): Product
@@ -111,7 +117,7 @@ class HomeShopWindowTest extends TestCase
 
         foreach (range(1, 6) as $n) {
             Product::where('slug', 'window-shoe-'.$n)->first()->media()->create([
-                'path' => 'assets/img/hero/vikyplus-hero-jordan.webp',
+                'path' => 'storage/basalam/window.jpg',
                 'is_primary' => true,
                 'position' => 1,
             ]);
@@ -132,7 +138,7 @@ class HomeShopWindowTest extends TestCase
     {
         foreach (range(1, 6) as $n) {
             $this->aShoe($n, $n % 2 ? 'گلدن استار' : 'گلدن استار ساق بلند')->media()->create([
-                'path' => 'assets/img/hero/vikyplus-hero-jordan.webp',
+                'path' => 'storage/basalam/window.jpg',
                 'is_primary' => true,
                 'position' => 1,
             ]);
@@ -142,7 +148,7 @@ class HomeShopWindowTest extends TestCase
         // eight a full band needs without a second colourway.
         foreach ([7 => 'کتونی نایک وومرو', 8 => 'کتونی آدیداس سامبا'] as $n => $title) {
             $this->aShoe($n, $title)->media()->create([
-                'path' => 'assets/img/hero/vikyplus-hero-jordan.webp',
+                'path' => 'storage/basalam/window.jpg',
                 'is_primary' => true,
                 'position' => 1,
             ]);
@@ -154,6 +160,26 @@ class HomeShopWindowTest extends TestCase
         $this->assertCount(1, $golden, 'one Golden Star, not six');
         $this->assertContains('window-shoe-6', $shown, 'the newest of the model is the one drawn');
         $this->assertCount(8, $shown);
+    }
+
+    /**
+     * «هر ۸ مدل باید عکسشون از بغل باشه رنگ بکگراند شبیه اون نیو بالانس» —
+     * a photograph uploaded in the panel is white or a pair; only the
+     * studio's own folders reach the band.
+     */
+    public function test_only_studio_photographs_reach_the_band(): void
+    {
+        $panel = $this->aShoe(70, 'کتونی زنانه نایک مدل ایرفورس');
+        $panel->media()->create(['path' => 'storage/products/pair.png', 'is_primary' => true, 'position' => 1]);
+
+        $own = $this->aShoe(71, 'صندل ادیداس سامبا چسبی');
+        $own->media()->create(['path' => 'assets/img/product/samba-sandal-black/1.jpg', 'is_primary' => true, 'position' => 1]);
+
+        $shown = $this->links($this->band());
+
+        $this->assertNotContains($panel->slug, $shown);
+        $this->assertContains($own->slug, $shown);
+        $this->assertContains($panel->slug, $this->links($this->get('/products')->getContent()));
     }
 
     /**

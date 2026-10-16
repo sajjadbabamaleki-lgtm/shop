@@ -85,6 +85,11 @@ class ShopController extends Controller
      */
     public const TABS = ['popular', 'newest', 'bestselling'];
 
+    /** Where the shop's own studio photographs live — see `opening()`. */
+    private const STUDIO_BASALAM = 'storage/basalam/';
+
+    private const STUDIO_OWN = 'assets/img/product/';
+
     /** What the listing is sorted by when the visitor has not said. */
     private const DEFAULT_SORT = 'newest';
 
@@ -214,6 +219,16 @@ class ShopController extends Controller
      * two grey boxes. A card without a photograph has nothing to show on a
      * front page; the listing still carries it.
      *
+     * **Only the studio's side shot, on the studio's ground.** «هر ۸ مدل باید
+     * عکسشون از بغل باشه رنگ بکگراند شبیه اون نیو بالانس». Measured on all
+     * 166 live cards (2026-10-16): the shop's own studio shots — imported from
+     * Basalam (`storage/basalam/`) or cut by `make-product-photos.js`
+     * (`assets/img/product/`) — sit on one warm grey ground, 150–200 in every
+     * channel with red highest, and lead with the side profile. What is
+     * uploaded in the panel (`storage/products/`) is white or pale grey, 240
+     * and above, and sometimes a pair. The folder is the fact that tells them
+     * apart, so the folder is what is asked; the listing keeps the rest.
+     *
      * **And one shoe per model** — see `ShoeModel`.
      *
      * **And only what can be bought today.** The listing shows a sold-out
@@ -227,7 +242,11 @@ class ShopController extends Controller
 
         $candidates = self::shelf()
             ->setEagerLoads([])
-            ->whereHas('media')
+            ->whereHas('media', fn (Builder $m) => $m
+                ->where('is_primary', true)
+                ->where(fn (Builder $q) => $q
+                    ->where('path', 'like', self::STUDIO_BASALAM.'%')
+                    ->orWhere('path', 'like', self::STUDIO_OWN.'%')))
             ->whereHas('variants', fn (Builder $v) => $v->sellable())
             ->orderBy($column, $direction)
             ->orderBy('products.id')
