@@ -1397,7 +1397,10 @@ the client saw an old page and had no way to tell why. So, plainly:
   category strip and eight `shop.card`s, 2×4 below 992 and 4×2 above. The
   cards are `ShopController::opening()` — the listing's first page in its own
   order, **less any shoe with no photograph**, because the payment-test items
-  were the newest and led it as grey boxes («چیین این کالاهای تستی»). The
+  were the newest and led it as grey boxes («چیین این کالاهای تستی»), and less
+  anything sold out, which every front-page band drops (the listing keeps it
+  as «ناموجود»). `BasalamImportTest` cuts this band out before asserting an
+  import changed no band — a new shoe is meant to appear in it. The
   wrapper carries `vp-listing-panel` so the generated desktop rules dress its
   parts. Not in the static preview; `check-parity.js` hides it like the
   reviews. `HomeShopWindowTest` holds the order, the count and the photo rule.
