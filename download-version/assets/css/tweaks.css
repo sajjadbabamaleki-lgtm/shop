@@ -26232,6 +26232,65 @@ body.shoe-shop {
   }
 }
 
+/* --- the home page's ground, phone: white, grey, white, grey ---------------
+
+   «بکگراند سایت از بالا … تا پشت این قسمت گیم باید سفید ۱۰۰ درصد باشه بعد کم
+   کم تغییر کنه به رنگ فعلی و دوباره قبل رسیدن به حراج پله ای کم کم به رنگ
+   سفید تغییر کنه و نرسیده به کارت های حراج پله ای دوباره به رنگ فعلی تغییر
+   کنه تا آخر وبسایت». The «current colour» is the 240 the body fades to below
+   992 (the block that quotes «۹۴٪» above); the desktop's page is white and
+   nothing there was asked.
+
+   The ramps belong to the sections they sit behind, not to the body. The body
+   gradient is measured in page pixels, and the band above the stepped sale is
+   eight cards of live catalogue whose height no stylesheet knows; a ramp
+   written into the body would land in the wrong place the first time the shop
+   changed. So:
+
+   - the body is white to 1230px and 240 below it, a hard step. 1230 is inside
+     the dice band (1005–1448 at 390), which paints itself white, so the step
+     is never on screen and survives ±200px of movement above it;
+   - the «فروشگاه» band fades white → 240 over its first 200px and back to
+     white over its last 220px;
+   - the stepped sale holds white for its first 180px and is 240 by 460px — its
+     cards start 479px down at 390 — and the body's 240 carries on beneath it
+     to the foot of the page. */
+@media (max-width: 991.98px) {
+  body.shoe-shop {
+    background-image: linear-gradient(
+      to bottom,
+      #FFFFFF 0,
+      #FFFFFF 1230px,
+      #F0F0F0 1230px,
+      #F0F0F0 100%
+    );
+  }
+
+  .vp-dice-area {
+    background: #FFFFFF;
+  }
+
+  .vp-homeshop-area {
+    background: linear-gradient(
+      to bottom,
+      #FFFFFF 0,
+      #F0F0F0 200px,
+      #F0F0F0 calc(100% - 220px),
+      #FFFFFF 100%
+    );
+  }
+
+  .vp-ladder-area {
+    background: linear-gradient(
+      to bottom,
+      #FFFFFF 0,
+      #FFFFFF 180px,
+      #F0F0F0 460px,
+      #F0F0F0 100%
+    );
+  }
+}
+
 :root {
   --vp-design: ok;
 }

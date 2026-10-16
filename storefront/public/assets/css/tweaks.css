@@ -14922,6 +14922,42 @@ body.shoe-shop {
   }
 }
 
+@media (max-width: 991.98px) {
+  body.shoe-shop {
+    background-image: linear-gradient(
+      to bottom,
+      #FFFFFF 0,
+      #FFFFFF 1230px,
+      #F0F0F0 1230px,
+      #F0F0F0 100%
+    );
+  }
+
+  .vp-dice-area {
+    background: #FFFFFF;
+  }
+
+  .vp-homeshop-area {
+    background: linear-gradient(
+      to bottom,
+      #FFFFFF 0,
+      #F0F0F0 200px,
+      #F0F0F0 calc(100% - 220px),
+      #FFFFFF 100%
+    );
+  }
+
+  .vp-ladder-area {
+    background: linear-gradient(
+      to bottom,
+      #FFFFFF 0,
+      #FFFFFF 180px,
+      #F0F0F0 460px,
+      #F0F0F0 100%
+    );
+  }
+}
+
 :root {
   --vp-design: ok;
 }
