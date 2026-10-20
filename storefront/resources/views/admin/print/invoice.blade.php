@@ -2,8 +2,8 @@
 
 @section('title', 'فاکتور '.$order->number)
 
-{{-- «یه فاکتور شیک طراحی کن» — A4, the ink band and the gold rule; see
-     print-sheet.css under «the invoice». --}}
+{{-- A5, black and white, «قاب» at 40% black — see print-sheet.css under
+     «the invoice». --}}
 @section('sheet_class', 'is-invoice')
 
 {{--

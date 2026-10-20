@@ -70,77 +70,74 @@ bdi[dir="ltr"] { unicode-bidi: isolate; }
 }
 
 /* --- the invoice ---
-   «اخه این چه فاکتوریه یه فاکتور شیک طراحی کن». A4, its own named page, and
-   the shop's materials: the ink band the header island is drawn in, a gold
-   rule under it in the buttons' gradient, soft cards and one dark total.
-   `print-color-adjust: exact`, or a browser prints the band and the total as
-   white on white to save toner. */
-@page invoice { size: A4 portrait; margin: 12mm; }
-.is-invoice .vp-sheet { max-width: 210mm; page: invoice; }
-.vp-inv { --gold: #DAB226; --gold-lit: #EFC94F; --gold-ink: #8B7217; --paper: #F6F5F1;
+   «باید سیاه سفید باشه و مینیمال» — of three black-and-white designs, the
+   second, «قاب»: every part in a hairline box, the table's head and the total
+   filled. Then «سیاهشم خیلی سیاهه، سیاه ۴۰ درصد باشه» — so the fills and the
+   rules are 40% black (#999999), the type stays black, and white is used only
+   on the two filled bars, in bold. And «مجبور نیستی کل A5 پر کنی»: the sheet
+   is A5 and as tall as its content, nothing stretched to the page's foot.
+   `print-color-adjust: exact`, or a browser drops the two fills to save toner. */
+@page invoice { size: A5 portrait; margin: 8mm; }
+.is-invoice .vp-sheet { max-width: 148mm; page: invoice; }
+.vp-inv { --grey: #999999; --hair: #CCCCCC; font-size: 11px;
     -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 .vp-inv p { margin: 0; }
-.vp-inv-band { display: flex; justify-content: space-between; align-items: center; gap: 16px;
-    background: var(--ink); color: #FFFFFF; border-radius: 16px 16px 0 0; padding: 18px 22px; }
-.vp-inv-brand { display: flex; align-items: center; gap: 12px; }
-.vp-inv-logo { width: 48px; height: 48px; border-radius: 12px; background: #FFFFFF; padding: 5px; object-fit: contain; }
-.vp-inv-shop { font-size: 19px; font-weight: 800; line-height: 1.3; }
-.vp-inv-strap { font-size: 12px; color: rgba(255, 255, 255, 0.66); }
+.vp-inv-band { display: flex; justify-content: space-between; align-items: center; gap: 12px;
+    border: 1px solid var(--grey); border-radius: 8px; padding: 10px 12px; }
+.vp-inv-brand { display: flex; align-items: center; gap: 8px; }
+.vp-inv-logo { width: 32px; height: 32px; border: 1px solid var(--grey); border-radius: 7px; padding: 3px; object-fit: contain; filter: grayscale(1); }
+.vp-inv-shop { font-size: 14px; font-weight: 800; line-height: 1.3; }
+.vp-inv-strap { font-size: 9.5px; color: #555555; }
 .vp-inv-title { text-align: end; }
-.vp-inv-title h1 { font-size: 22px; font-weight: 800; color: var(--gold-lit); line-height: 1.3; }
-.vp-inv-title p { font-size: 13px; letter-spacing: 0.5px; color: rgba(255, 255, 255, 0.8); }
-.vp-inv-rule { height: 5px; background: linear-gradient(90deg, var(--gold), var(--gold-lit)); border-radius: 0 0 4px 4px; }
-.vp-inv-chips { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; margin-block: 16px; }
-.vp-inv-chips div { background: var(--paper); border-radius: 12px; padding: 8px 12px; }
-.vp-inv-chips span { display: block; font-size: 11px; color: var(--soft); }
-.vp-inv-chips b { font-size: 13px; font-weight: 800; }
-.vp-inv-kind { color: var(--gold-ink); }
-.vp-inv-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.vp-inv-party, .vp-inv-card { border: 1px solid #E6E3DA; border-radius: 14px; padding: 12px 14px; }
-.vp-inv h3 { font-size: 11px; font-weight: 800; color: var(--gold-ink); margin: 0 0 6px; }
-.vp-inv-who { font-size: 15px; font-weight: 800; }
-.vp-inv-party p:not(.vp-inv-who) { font-size: 12.5px; color: #333536; }
-.vp-inv-dot { color: var(--soft); margin-inline: 4px; }
-.vp-inv-lines { margin-block-start: 16px; border-collapse: separate; border-spacing: 0; }
-.vp-inv-lines th { background: var(--paper); color: #333536; font-size: 11.5px; padding: 9px 10px; border: 0; }
-.vp-inv-lines th:first-child { border-start-start-radius: 10px; border-end-start-radius: 10px; }
-.vp-inv-lines th:last-child { border-start-end-radius: 10px; border-end-end-radius: 10px; }
-.vp-inv-lines td { padding: 10px; border-block-end: 1px solid #ECEAE3; font-size: 13px; }
+.vp-inv-title h1 { font-size: 16px; font-weight: 800; line-height: 1.3; }
+.vp-inv-title p { font-size: 10px; color: #555555; letter-spacing: 0.4px; }
+.vp-inv-rule { display: none; }
+.vp-inv-chips { display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 6px; margin-block: 8px; }
+.vp-inv-chips div { border: 1px solid var(--grey); border-radius: 6px; padding: 4px 8px; }
+.vp-inv-chips span { display: block; font-size: 9px; color: #555555; }
+.vp-inv-chips b { font-size: 10.5px; font-weight: 800; }
+.vp-inv-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.vp-inv-party, .vp-inv-card { border: 1px solid var(--grey); border-radius: 8px; padding: 8px 10px; }
+.vp-inv h3 { font-size: 9.5px; font-weight: 800; margin: 0 0 3px; }
+.vp-inv-who { font-size: 12px; font-weight: 800; }
+.vp-inv-party p:not(.vp-inv-who) { font-size: 10px; color: #222222; }
+.vp-inv-dot { color: #777777; margin-inline: 3px; }
+.vp-inv-lines { margin-block-start: 8px; border: 1px solid var(--grey); border-radius: 8px; border-collapse: separate; border-spacing: 0; overflow: hidden; }
+.vp-inv-lines th { background: var(--grey); color: #FFFFFF; font-size: 9.5px; font-weight: 800; padding: 5px 7px; border: 0; }
+.vp-inv-lines td { padding: 6px 7px; border-block-end: 1px solid var(--hair); font-size: 10.5px; }
 .vp-inv-lines tbody tr:last-child td { border-block-end: 0; }
-.vp-inv-n { width: 34px; text-align: center; color: var(--soft); }
-.vp-inv-item { display: flex; align-items: center; gap: 10px; }
-.vp-inv-shot { width: 46px; height: 46px; object-fit: cover; border-radius: 10px; background: var(--paper); display: block; flex: none; }
+.vp-inv-n { width: 22px; text-align: center; color: #555555; }
+.vp-inv-item { display: flex; align-items: center; gap: 7px; }
+.vp-inv-shot { width: 30px; height: 30px; object-fit: cover; border: 1px solid var(--hair); border-radius: 6px; display: block; flex: none; filter: grayscale(1); }
 .vp-inv-item-name { font-weight: 700; }
-.vp-inv-item-sub { font-size: 11px; color: var(--soft); }
+.vp-inv-item-sub { font-size: 9px; color: #555555; }
 .vp-inv-num { white-space: nowrap; text-align: end; }
-.vp-inv-money { display: grid; grid-template-columns: 1.15fr 1fr; gap: 12px; margin-block-start: 14px; align-items: start; }
-.vp-inv-facts { margin: 0; display: grid; gap: 2px 18px; }
+.vp-inv-money { display: grid; grid-template-columns: 1.15fr 1fr; gap: 6px; margin-block-start: 8px; align-items: start; }
+.vp-inv-facts { margin: 0; display: grid; gap: 0 12px; }
 .vp-inv-facts.is-four { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.vp-inv-facts div { display: flex; justify-content: space-between; gap: 10px; padding-block: 4px; border-block-end: 1px dashed #E6E3DA; font-size: 12.5px; }
+.vp-inv-facts div { display: flex; justify-content: space-between; gap: 8px; padding-block: 2px; border-block-end: 1px dashed var(--hair); font-size: 10px; }
 .vp-inv-facts div:last-child { border-block-end: 0; }
-.vp-inv-facts dt { color: var(--soft); font-weight: 400; }
-.vp-inv-facts dd { margin: 0; font-weight: 700; text-align: end; }
-.vp-inv-sums { padding: 6px 0 0; overflow: hidden; }
-.vp-inv-sum { display: flex; justify-content: space-between; gap: 10px; padding: 6px 14px; font-size: 13px; }
-.vp-inv-total { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-block-start: 6px;
-    background: var(--ink); color: #FFFFFF; padding: 12px 14px; font-weight: 800; }
-.vp-inv-total span:last-child { font-size: 19px; color: var(--gold-lit); }
-.vp-inv-total small { font-size: 11px; color: rgba(255, 255, 255, 0.7); font-weight: 600; }
-.vp-inv-instal, .vp-inv > .vp-inv-card { margin-block-start: 12px; }
-.vp-inv-plan { margin-block-start: 10px; }
-.vp-inv-warn { border: 1px dashed var(--gold-ink); border-radius: 10px; padding: 8px 12px; font-size: 12.5px; }
-.vp-inv-sign { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-block-start: 34px; }
-.vp-inv-sign div { border: 1px dashed #CFCBBF; border-radius: 12px; height: 72px; display: flex; align-items: flex-end; justify-content: center;
-    padding-block-end: 8px; color: var(--soft); font-size: 12px; }
-.vp-inv-foot { margin-block-start: 22px; padding-block-start: 12px; border-block-start: 1px solid #ECEAE3; text-align: center; font-size: 12px; color: var(--soft); }
-.vp-inv-thanks { font-size: 14px; font-weight: 800; color: var(--gold-ink); margin-block-end: 2px; }
-@media (max-width: 640px) {
+.vp-inv-facts dt { color: #555555; font-weight: 400; white-space: nowrap; }
+.vp-inv-facts dd { margin: 0; font-weight: 700; text-align: end; word-break: break-all; }
+.vp-inv-sums { padding: 4px 0 0; overflow: hidden; }
+.vp-inv-sum { display: flex; justify-content: space-between; gap: 8px; padding: 3px 10px; font-size: 10.5px; }
+.vp-inv-total { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-block-start: 4px;
+    background: var(--grey); color: #FFFFFF; padding: 7px 10px; font-weight: 800; }
+.vp-inv-total span:last-child { font-size: 14px; }
+.vp-inv-total small { font-size: 9px; font-weight: 700; }
+.vp-inv-instal, .vp-inv > .vp-inv-card { margin-block-start: 8px; }
+.vp-inv-plan { margin-block-start: 6px; }
+.vp-inv-warn { border: 1px dashed var(--grey); border-radius: 6px; padding: 5px 8px; font-size: 10px; }
+.vp-inv-sign { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-block-start: 12px; }
+.vp-inv-sign div { border: 1px solid var(--grey); border-radius: 8px; height: 44px; display: flex; align-items: flex-end; justify-content: center;
+    padding-block-end: 4px; color: #555555; font-size: 9.5px; }
+.vp-inv-foot { margin-block-start: 8px; padding-block-start: 6px; border-block-start: 1px solid var(--hair); text-align: center; font-size: 9.5px; color: #555555; }
+.vp-inv-thanks { font-size: 11px; font-weight: 800; color: #000000; }
+@media (max-width: 480px) {
     .vp-inv-parties, .vp-inv-money, .vp-inv-facts.is-four { grid-template-columns: 1fr; }
-    .vp-inv-band { flex-direction: column; align-items: flex-start; }
-    .vp-inv-title { text-align: start; }
 }
 /* A wide table scrolls on a phone screen rather than pushing the page sideways;
    on paper it is the page's width. */
 .vp-inv-scroll { overflow-x: auto; }
-.vp-inv-scroll table { min-width: 560px; }
+.vp-inv-scroll table { min-width: 420px; }
 @media print { .vp-inv-scroll { overflow: visible; } .vp-inv-scroll table { min-width: 0; } }
