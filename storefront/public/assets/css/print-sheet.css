@@ -69,31 +69,78 @@ bdi[dir="ltr"] { unicode-bidi: isolate; }
     .vp-label-half + .vp-label-half { border-inline-start: 0; border-block-start: 2px dashed var(--ink); }
 }
 
-/* --- the invoice --- */
-.vp-inv-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; padding-block-end: 12px; border-block-end: 2px solid var(--ink); }
-.vp-inv-meta { display: grid; grid-template-columns: auto auto; gap: 2px 14px; font-size: 12px; }
-.vp-inv-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-block-start: 14px; }
-.vp-inv-party { border: 1px solid var(--rule); border-radius: 8px; padding: 10px 12px; }
-.vp-inv-party h3 { font-size: 12px; color: var(--soft); margin-block-end: 4px; }
-.vp-inv-shot { width: 44px; height: 44px; object-fit: cover; border-radius: 6px; border: 1px solid var(--rule); display: block; }
+/* --- the invoice ---
+   «اخه این چه فاکتوریه یه فاکتور شیک طراحی کن». A4, its own named page, and
+   the shop's materials: the ink band the header island is drawn in, a gold
+   rule under it in the buttons' gradient, soft cards and one dark total.
+   `print-color-adjust: exact`, or a browser prints the band and the total as
+   white on white to save toner. */
+@page invoice { size: A4 portrait; margin: 12mm; }
+.is-invoice .vp-sheet { max-width: 210mm; page: invoice; }
+.vp-inv { --gold: #DAB226; --gold-lit: #EFC94F; --gold-ink: #8B7217; --paper: #F6F5F1;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.vp-inv p { margin: 0; }
+.vp-inv-band { display: flex; justify-content: space-between; align-items: center; gap: 16px;
+    background: var(--ink); color: #FFFFFF; border-radius: 16px 16px 0 0; padding: 18px 22px; }
+.vp-inv-brand { display: flex; align-items: center; gap: 12px; }
+.vp-inv-logo { width: 48px; height: 48px; border-radius: 12px; background: #FFFFFF; padding: 5px; object-fit: contain; }
+.vp-inv-shop { font-size: 19px; font-weight: 800; line-height: 1.3; }
+.vp-inv-strap { font-size: 12px; color: rgba(255, 255, 255, 0.66); }
+.vp-inv-title { text-align: end; }
+.vp-inv-title h1 { font-size: 22px; font-weight: 800; color: var(--gold-lit); line-height: 1.3; }
+.vp-inv-title p { font-size: 13px; letter-spacing: 0.5px; color: rgba(255, 255, 255, 0.8); }
+.vp-inv-rule { height: 5px; background: linear-gradient(90deg, var(--gold), var(--gold-lit)); border-radius: 0 0 4px 4px; }
+.vp-inv-chips { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; margin-block: 16px; }
+.vp-inv-chips div { background: var(--paper); border-radius: 12px; padding: 8px 12px; }
+.vp-inv-chips span { display: block; font-size: 11px; color: var(--soft); }
+.vp-inv-chips b { font-size: 13px; font-weight: 800; }
+.vp-inv-kind { color: var(--gold-ink); }
+.vp-inv-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.vp-inv-party, .vp-inv-card { border: 1px solid #E6E3DA; border-radius: 14px; padding: 12px 14px; }
+.vp-inv h3 { font-size: 11px; font-weight: 800; color: var(--gold-ink); margin: 0 0 6px; }
+.vp-inv-who { font-size: 15px; font-weight: 800; }
+.vp-inv-party p:not(.vp-inv-who) { font-size: 12.5px; color: #333536; }
+.vp-inv-dot { color: var(--soft); margin-inline: 4px; }
+.vp-inv-lines { margin-block-start: 16px; border-collapse: separate; border-spacing: 0; }
+.vp-inv-lines th { background: var(--paper); color: #333536; font-size: 11.5px; padding: 9px 10px; border: 0; }
+.vp-inv-lines th:first-child { border-start-start-radius: 10px; border-end-start-radius: 10px; }
+.vp-inv-lines th:last-child { border-start-end-radius: 10px; border-end-end-radius: 10px; }
+.vp-inv-lines td { padding: 10px; border-block-end: 1px solid #ECEAE3; font-size: 13px; }
+.vp-inv-lines tbody tr:last-child td { border-block-end: 0; }
+.vp-inv-n { width: 34px; text-align: center; color: var(--soft); }
+.vp-inv-item { display: flex; align-items: center; gap: 10px; }
+.vp-inv-shot { width: 46px; height: 46px; object-fit: cover; border-radius: 10px; background: var(--paper); display: block; flex: none; }
+.vp-inv-item-name { font-weight: 700; }
+.vp-inv-item-sub { font-size: 11px; color: var(--soft); }
 .vp-inv-num { white-space: nowrap; text-align: end; }
-.vp-inv-sums { width: auto; min-width: 280px; margin-inline-start: auto; margin-block-start: 8px; }
-.vp-inv-sums td { border: 0; padding: 3px 8px; }
-.vp-inv-sums tr.is-total td { border-block-start: 2px solid var(--ink); font-weight: 800; font-size: 15px; padding-block-start: 6px; }
-.vp-inv-kind { display: inline-block; border: 2px solid var(--ink); border-radius: 6px; padding: 0 10px; font-weight: 800; }
-.vp-inv-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 24px; }
-.vp-inv-facts div { display: flex; justify-content: space-between; gap: 12px; border-block-end: 1px dotted var(--rule); padding-block: 3px; }
-.vp-inv-warn { border: 1px dashed var(--ink); border-radius: 8px; padding: 8px 12px; }
-.vp-inv-sign { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-block-start: 36px; }
-.vp-inv-sign div { border-block-start: 1px solid var(--ink); padding-block-start: 6px; text-align: center; color: var(--soft); }
-@media (max-width: 560px) {
-    .vp-inv-parties, .vp-inv-facts { grid-template-columns: 1fr; }
-    .vp-inv-sums { min-width: 0; width: 100%; }
-}
+.vp-inv-money { display: grid; grid-template-columns: 1.15fr 1fr; gap: 12px; margin-block-start: 14px; align-items: start; }
+.vp-inv-facts { margin: 0; display: grid; gap: 2px 18px; }
+.vp-inv-facts.is-four { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.vp-inv-facts div { display: flex; justify-content: space-between; gap: 10px; padding-block: 4px; border-block-end: 1px dashed #E6E3DA; font-size: 12.5px; }
+.vp-inv-facts div:last-child { border-block-end: 0; }
+.vp-inv-facts dt { color: var(--soft); font-weight: 400; }
+.vp-inv-facts dd { margin: 0; font-weight: 700; text-align: end; }
+.vp-inv-sums { padding: 6px 0 0; overflow: hidden; }
+.vp-inv-sum { display: flex; justify-content: space-between; gap: 10px; padding: 6px 14px; font-size: 13px; }
+.vp-inv-total { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-block-start: 6px;
+    background: var(--ink); color: #FFFFFF; padding: 12px 14px; font-weight: 800; }
+.vp-inv-total span:last-child { font-size: 19px; color: var(--gold-lit); }
+.vp-inv-total small { font-size: 11px; color: rgba(255, 255, 255, 0.7); font-weight: 600; }
+.vp-inv-instal, .vp-inv > .vp-inv-card { margin-block-start: 12px; }
 .vp-inv-plan { margin-block-start: 10px; }
-
-/* Seven columns do not fit a telephone: the lines scroll inside their own box
-   rather than carrying the whole sheet sideways. Paper is wide enough. */
+.vp-inv-warn { border: 1px dashed var(--gold-ink); border-radius: 10px; padding: 8px 12px; font-size: 12.5px; }
+.vp-inv-sign { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-block-start: 34px; }
+.vp-inv-sign div { border: 1px dashed #CFCBBF; border-radius: 12px; height: 72px; display: flex; align-items: flex-end; justify-content: center;
+    padding-block-end: 8px; color: var(--soft); font-size: 12px; }
+.vp-inv-foot { margin-block-start: 22px; padding-block-start: 12px; border-block-start: 1px solid #ECEAE3; text-align: center; font-size: 12px; color: var(--soft); }
+.vp-inv-thanks { font-size: 14px; font-weight: 800; color: var(--gold-ink); margin-block-end: 2px; }
+@media (max-width: 640px) {
+    .vp-inv-parties, .vp-inv-money, .vp-inv-facts.is-four { grid-template-columns: 1fr; }
+    .vp-inv-band { flex-direction: column; align-items: flex-start; }
+    .vp-inv-title { text-align: start; }
+}
+/* A wide table scrolls on a phone screen rather than pushing the page sideways;
+   on paper it is the page's width. */
 .vp-inv-scroll { overflow-x: auto; }
 .vp-inv-scroll table { min-width: 560px; }
 @media print { .vp-inv-scroll { overflow: visible; } .vp-inv-scroll table { min-width: 0; } }
