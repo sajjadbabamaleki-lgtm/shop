@@ -74,7 +74,8 @@ bdi[dir="ltr"] { unicode-bidi: isolate; }
    second, «قاب»: every part in a hairline box, the table's head and the total
    filled. Then «سیاهشم خیلی سیاهه، سیاه ۴۰ درصد باشه» — so the fills and the
    rules are 40% black (#999999), the type stays black, and white is used only
-   on the two filled bars, in bold. And «مجبور نیستی کل A5 پر کنی»: the sheet
+   on the two filled bars, in bold. The signatures went for the shop's stamp,
+   under the sums. And «مجبور نیستی کل A5 پر کنی»: the sheet
    is A5 and as tall as its content, nothing stretched to the page's foot.
    `print-color-adjust: exact`, or a browser drops the two fills to save toner. */
 @page invoice { size: A5 portrait; margin: 8mm; }
@@ -112,7 +113,10 @@ bdi[dir="ltr"] { unicode-bidi: isolate; }
 .vp-inv-item-name { font-weight: 700; }
 .vp-inv-item-sub { font-size: 9px; color: #555555; }
 .vp-inv-num { white-space: nowrap; text-align: end; }
-.vp-inv-money { display: grid; grid-template-columns: 1.15fr 1fr; gap: 6px; margin-block-start: 8px; align-items: start; }
+.vp-inv-money { display: grid; grid-template-columns: 1.15fr 1fr; gap: 6px; margin-block-start: 8px; align-items: stretch; }
+.vp-inv-side { display: flex; flex-direction: column; gap: 6px; }
+.vp-inv-seal { flex: 1; display: flex; flex-direction: column; }
+.vp-stamp { display: block; width: 104px; height: 104px; margin: auto; color: var(--grey); transform: rotate(-8deg); font-family: 'Vazirmatn', Tahoma, sans-serif; }
 .vp-inv-facts { margin: 0; display: grid; gap: 0 12px; }
 .vp-inv-facts.is-four { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .vp-inv-facts div { display: flex; justify-content: space-between; gap: 8px; padding-block: 2px; border-block-end: 1px dashed var(--hair); font-size: 10px; }

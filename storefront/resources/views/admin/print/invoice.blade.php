@@ -138,14 +138,25 @@
             </dl>
         </section>
 
-        <section class="vp-inv-card vp-inv-sums">
-            <div class="vp-inv-sum"><span>جمع کالاها</span><span>{{ toman($order->subtotal) }} تومان</span></div>
-            @if ($order->discount_total > 0)
-                <div class="vp-inv-sum"><span>تخفیف{{ $code ? ' (کد '.$code.')' : '' }}</span><span>− {{ toman($order->discount_total) }} تومان</span></div>
-            @endif
-            <div class="vp-inv-sum"><span>ارسال{{ $order->shippingMethod ? ' — '.$order->shippingMethod->name : '' }}</span><span>{{ $order->shippingLabel() }}</span></div>
-            <div class="vp-inv-total"><span>مبلغ کل</span><span>{{ toman($order->grand_total) }} <small>تومان</small></span></div>
-        </section>
+        {{-- The column under the sums carries the shop's stamp — «مهر
+             فروشگاه … بیاری زیر اون قسمتی که سمت چپ خالی مونده» — and
+             stretches with the payment card beside it, so the two end on
+             the same line. --}}
+        <div class="vp-inv-side">
+            <section class="vp-inv-card vp-inv-sums">
+                <div class="vp-inv-sum"><span>جمع کالاها</span><span>{{ toman($order->subtotal) }} تومان</span></div>
+                @if ($order->discount_total > 0)
+                    <div class="vp-inv-sum"><span>تخفیف{{ $code ? ' (کد '.$code.')' : '' }}</span><span>− {{ toman($order->discount_total) }} تومان</span></div>
+                @endif
+                <div class="vp-inv-sum"><span>ارسال{{ $order->shippingMethod ? ' — '.$order->shippingMethod->name : '' }}</span><span>{{ $order->shippingLabel() }}</span></div>
+                <div class="vp-inv-total"><span>مبلغ کل</span><span>{{ toman($order->grand_total) }} <small>تومان</small></span></div>
+            </section>
+
+            <section class="vp-inv-card vp-inv-seal">
+                <h3>مهر فروشگاه</h3>
+                @include('admin.print.stamp')
+            </section>
+        </div>
     </div>
 
     @if ($instalment)
@@ -189,11 +200,6 @@
             <p>{{ $order->note }}</p>
         </section>
     @endif
-
-    <div class="vp-inv-sign">
-        <div>مهر و امضای فروشنده</div>
-        <div>امضای خریدار</div>
-    </div>
 
     <footer class="vp-inv-foot">
         <p class="vp-inv-thanks">از خرید شما سپاسگزاریم</p>
