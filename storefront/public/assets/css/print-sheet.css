@@ -116,7 +116,15 @@ bdi[dir="ltr"] { unicode-bidi: isolate; }
 .vp-inv-money { display: grid; grid-template-columns: 1.15fr 1fr; gap: 6px; margin-block-start: 8px; align-items: stretch; }
 .vp-inv-side { display: flex; flex-direction: column; gap: 6px; }
 .vp-inv-seal { flex: 1; display: flex; flex-direction: column; }
-.vp-stamp { display: block; width: 104px; height: 104px; margin: auto; color: var(--grey); transform: rotate(-8deg); font-family: 'Vazirmatn', Tahoma, sans-serif; }
+.vp-stamp { position: relative; display: flex; align-items: center; gap: 9px; width: fit-content; margin: 10px auto;
+    padding: 9px 12px; border: 2.5px solid var(--grey); border-radius: 3px; color: var(--grey);
+    transform: rotate(-3deg); filter: url(#vp-ink); }
+.vp-stamp::before { content: ""; position: absolute; inset: 3px; border: 1px solid var(--grey); border-radius: 1px; pointer-events: none; }
+.vp-stamp-mark { width: 38px; height: 38px; object-fit: contain; filter: grayscale(1) contrast(1.15) brightness(1.08); opacity: 0.75; }
+.vp-stamp-words { display: flex; flex-direction: column; line-height: 1.3; }
+.vp-stamp-words b { font-size: 14px; font-weight: 800; }
+.vp-stamp-words small { font-size: 8.5px; }
+.vp-stamp-words i { font-style: normal; font-size: 8px; letter-spacing: 1px; direction: ltr; text-align: end; }
 .vp-inv-facts { margin: 0; display: grid; gap: 0 12px; }
 .vp-inv-facts.is-four { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .vp-inv-facts div { display: flex; justify-content: space-between; gap: 8px; padding-block: 2px; border-block-end: 1px dashed var(--hair); font-size: 10px; }
