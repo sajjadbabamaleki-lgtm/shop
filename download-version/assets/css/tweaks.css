@@ -26291,6 +26291,123 @@ body.shoe-shop {
   }
 }
 
+/* --- the birth date: three Persian selects --------------------------------
+
+   «تاریخ تولدشو بپرسیم که بزنه». Day, month and year as three selects in the
+   input's own material — 46px, 15px corners, the 1.5px inset hairline — so on
+   the sign-up step it reads as one more field rather than a different kind of
+   form. The year is widest because it carries four digits and the month name
+   «اردیبهشت». */
+.vp-birth {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.vp-birth-legend {
+  float: none;
+  width: auto;
+  margin: 0 0 6px;
+  padding: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(16, 17, 17, 0.62);
+}
+
+.vp-birth-row {
+  display: grid;
+  grid-template-columns: 0.8fr 1.3fr 1fr;
+  gap: 8px;
+}
+
+.vp-birth select {
+  min-width: 0;
+  height: 46px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 15px;
+  background-color: #FFFFFF;
+  box-shadow: inset 0 0 0 1.5px rgba(16, 17, 17, 0.12);
+  font-size: 14px;
+  color: #101111;
+}
+
+.vp-birth select:focus {
+  outline: none;
+  box-shadow: inset 0 0 0 1.5px rgba(164, 127, 37, 0.55);
+}
+
+/* --- an order's progress, and the invitation to an account ----------------
+
+   «ببینه الان ما در حال آماده‌سازی هستیم، در حال ارسالیم، کد رهگیری» — four
+   steps in a row: done steps in the fill gold, the current one ringed, the
+   rest grey. The bar under each label is the step; nothing is animated. The
+   invitation is the page's own note with a gold button, which is what every
+   pressable here wears («گلد سبز»). */
+.vp-trail {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  margin: 0 0 10px;
+  padding: 0;
+  list-style: none;
+}
+
+.vp-trail li {
+  padding-block-start: 10px;
+  border-block-start: 4px solid rgba(16, 17, 17, 0.1);
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: rgba(16, 17, 17, 0.5);
+  text-align: center;
+}
+
+.vp-trail li.is-done {
+  border-color: var(--vp-gold-fill);
+  color: #101111;
+}
+
+.vp-trail li.is-now {
+  border-color: var(--vp-gold-fill);
+  color: #101111;
+  font-weight: 800;
+}
+
+.vp-trail-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  margin: 0 0 14px;
+  font-size: 13.5px;
+}
+
+.vp-join {
+  display: grid;
+  gap: 10px;
+}
+
+.vp-join p {
+  margin: 0;
+  line-height: 1.9;
+}
+
+.vp-join-go {
+  justify-self: start;
+  padding: 9px 18px;
+  border-radius: 12px;
+  background: linear-gradient(90deg, var(--vp-gold-fill), var(--vp-gold-lit));
+  color: #FFFFFF;
+  font-weight: 800;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.vp-join-go:hover {
+  color: #FFFFFF;
+  filter: brightness(1.04);
+}
+
 :root {
   --vp-design: ok;
 }

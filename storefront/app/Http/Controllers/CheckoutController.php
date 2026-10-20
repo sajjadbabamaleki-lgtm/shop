@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Customer;
 use App\Models\ShippingMethod;
+use App\Rules\PersianName;
 use App\Support\Checkout\CannotFulfil;
 use App\Support\Checkout\CartManager;
 use App\Support\Checkout\Discounts;
@@ -78,7 +79,7 @@ class CheckoutController extends Controller
 
         $input = $request->validate([
             'shipping_method_id' => ['required', Rule::in($methods->pluck('id')->all())],
-            'name' => ['required', 'string', 'max:120'],
+            'name' => ['required', 'string', 'max:120', new PersianName],
             'phone' => ['required', 'string', 'max:20', $this->iranianMobile()],
             'province' => ['nullable', 'string', 'max:60'],
             'city' => ['nullable', 'string', 'max:60'],

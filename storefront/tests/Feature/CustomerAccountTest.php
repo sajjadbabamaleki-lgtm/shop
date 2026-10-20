@@ -11,6 +11,7 @@ use App\Models\Role;
 use App\Models\User;
 use App\Models\WishlistItem;
 use App\Providers\SmsServiceProvider;
+use App\Rules\PersianName;
 use App\Support\Branches\BranchOpener;
 use App\Support\Messaging\Thread;
 use App\Support\Sms\Sender;
@@ -108,6 +109,20 @@ class CustomerAccountTest extends TestCase
      * Walk step one for a number with no password, which sends a code, and read
      * it back the way a phone would.
      */
+    /**
+     * Registration asks for a birth date now; every post to the code step that
+     * does not say otherwise carries one, so the tests about codes and
+     * passwords keep testing codes and passwords.
+     */
+    public function post($uri, array $data = [], array $headers = [])
+    {
+        if ($uri === '/account/verify' && ! array_key_exists('birth_year', $data)) {
+            $data += ['birth_day' => 15, 'birth_month' => 6, 'birth_year' => 1370];
+        }
+
+        return parent::post($uri, $data, $headers);
+    }
+
     private function codeSentTo(string $phone): string
     {
         $box = $this->catchSms();
@@ -420,15 +435,18 @@ class CustomerAccountTest extends TestCase
      * the code is what proves the number belongs to whoever is typing — which
      * is the whole reason a password may not simply be set on one of these.
      */
-    public function test_a_number_checkout_already_knows_is_not_asked_for_a_name(): void
+    public function test_a_number_checkout_already_knows_is_offered_its_own_name(): void
     {
         $guest = Customer::create(['name' => 'مریم', 'phone' => '09123456789']);
         $this->orderFor($guest);
 
         $code = $this->codeSentTo('09123456789');
 
+        // «زمانی که مشتری رفت حساب کاربری تشکیل بده اسم … و تاریخ تولدشو
+        // بپرسیم» — asked, with the name checkout already has filled in.
         $this->get('/account/enter')->assertOk()
-            ->assertDontSee('نام و نام خانوادگی', false)
+            ->assertSee('value="مریم"', false)
+            ->assertSee('name="birth_year"', false)
             ->assertSee('یک رمز برای دفعه‌های بعد', false);
 
         $this->post('/account/verify', ['code' => $code, 'password' => 'گل'])
@@ -437,6 +455,34 @@ class CustomerAccountTest extends TestCase
         $this->assertSame($guest->id, Auth::guard('customer')->id());
         $this->assertSame(1, Customer::count());
         $this->assertTrue(Hash::check('گل', $guest->fresh()->password));
+    }
+
+    public function test_registration_asks_for_a_birth_date_and_keeps_it(): void
+    {
+        $code = $this->codeSentTo('09123456789');
+
+        $this->post('/account/verify', ['code' => $code, 'name' => 'مریم', 'password' => 'گل', 'birth_day' => '', 'birth_month' => '', 'birth_year' => ''])
+            ->assertSessionHasErrors('birth_date');
+        $this->assertGuest('customer');
+
+        $this->post('/account/verify', ['code' => $code, 'name' => 'مریم', 'password' => 'گل', 'birth_day' => 30, 'birth_month' => 12, 'birth_year' => 1402])
+            ->assertSessionHasErrors('birth_date');
+
+        $this->post('/account/verify', ['code' => $code, 'name' => 'مریم', 'password' => 'گل', 'birth_day' => 1, 'birth_month' => 1, 'birth_year' => 1370])
+            ->assertRedirect(route('account'));
+
+        // ۱ فروردین ۱۳۷۰ is 21 March 1991.
+        $this->assertSame('1991-03-21', Customer::sole()->birth_date->toDateString());
+    }
+
+    public function test_a_name_in_latin_letters_is_refused(): void
+    {
+        $code = $this->codeSentTo('09123456789');
+
+        $this->post('/account/verify', ['code' => $code, 'name' => 'Maryam', 'password' => 'گل'])
+            ->assertSessionHasErrors(['name' => PersianName::MESSAGE]);
+
+        $this->assertSame(0, Customer::count());
     }
 
     public function test_a_number_with_no_name_yet_is_asked_for_one(): void

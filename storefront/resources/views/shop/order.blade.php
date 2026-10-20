@@ -29,6 +29,50 @@
                 <p class="vp-note is-bad">{{ $error }}</p>
             @endforeach
 
+            {{-- Where the parcel is. «ببینه الان ما در حال آماده‌سازی هستیم،
+                 در حال ارسالیم، کد رهگیری» — four steps read off the order's
+                 own status, with the delivery method and the tracking number
+                 under them once the parcel has gone. Not drawn for an order
+                 that was cancelled or never paid: there is no parcel. --}}
+            @php
+                $steps = [
+                    \App\Models\Order::PLACED => 'ثبت سفارش',
+                    \App\Models\Order::PAID => 'در حال آماده‌سازی',
+                    \App\Models\Order::SHIPPED => 'ارسال شد',
+                    \App\Models\Order::DELIVERED => 'تحویل شد',
+                ];
+                $reached = array_search($order->status, array_keys($steps), true);
+            @endphp
+            @if ($reached !== false && ! $order->reservationLapsed() && $order->status !== \App\Models\Order::PLACED)
+                <ol class="vp-trail" aria-label="وضعیت ارسال">
+                    @foreach (array_values($steps) as $i => $label)
+                        <li class="{{ $i < $reached ? 'is-done' : ($i === $reached ? 'is-now' : '') }}">{{ $label }}</li>
+                    @endforeach
+                </ol>
+                @if ($order->shippingMethod || $order->tracking_number)
+                    <p class="vp-trail-facts">
+                        @if ($order->shippingMethod)
+                            <span>روش ارسال: <b>{{ $order->shippingMethod->name }}</b></span>
+                        @endif
+                        @if ($order->tracking_number)
+                            <span>کد رهگیری: <b><bdi dir="ltr">{{ $order->tracking_number }}</bdi></b></span>
+                        @endif
+                    </p>
+                @endif
+            @endif
+
+            {{-- «زمانی که مشتری سفارش میده بهش گفته بشه اگر حساب کاربری تشکیل
+                 بده میتونه ارسالش رو از طریق ما ببینه». Said to anybody not
+                 signed in to an account — which is every checkout, since
+                 checkout asks for no password. The account is made on the
+                 same number, so this order is already in it. --}}
+            @unless (auth('customer')->user()?->password)
+                <div class="vp-note vp-join">
+                    <p>با ساختن حساب کاربری روی همین شماره، مراحل سفارشت را همیشه می‌بینی: کی آماده‌سازی می‌شود، کی ارسال می‌شود، کد رهگیری‌اش و اینکه کی به دستت می‌رسد.</p>
+                    <a class="vp-join-go" href="{{ storefront_route('account.enter') }}">ساخت حساب کاربری</a>
+                </div>
+            @endunless
+
             {{-- What the shop is actually waiting for.
 
                  **The shop no longer offers paying at the door**, at the

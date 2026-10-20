@@ -17,7 +17,7 @@ class Customer extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-    protected $fillable = ['name', 'phone', 'email', 'password', 'is_active'];
+    protected $fillable = ['name', 'phone', 'email', 'birth_date', 'password', 'is_active'];
 
     protected $hidden = ['password', 'remember_token'];
 
@@ -28,6 +28,7 @@ class Customer extends Authenticatable
             'phone_verified_at' => 'datetime',
             'email_verified_at' => 'datetime',
             'is_active' => 'boolean',
+            'birth_date' => 'immutable_date',
         ];
     }
 

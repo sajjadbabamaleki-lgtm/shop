@@ -90,6 +90,7 @@ class Navigation
         [
             'group' => 'پشتیبانی',
             'items' => [
+                ['route' => 'admin.customers', 'label' => 'مشتریان', 'icon' => 'users', 'match' => 'admin.customers*', 'permission' => 'platform.customer.view'],
                 ['route' => 'admin.enquiries', 'label' => 'درخواست‌ها', 'icon' => 'inbox', 'match' => 'admin.enquir*', 'permission' => 'platform.enquiry.manage'],
                 // The comment queue. Platform-wide like the enquiries above it
                 // and for the same reason: a comment is about the shoe, and

@@ -84,6 +84,10 @@ class RolesAndPermissionsSeeder extends Seeder
             // «مقالات». Its own permission for the same reason: what the shop
             // sells and what the shop says are two jobs.
             'platform.article.manage' => 'نوشتن و انتشار مقاله‌ها',
+            // «تمام افرادی که از ما سفارش میدن شماره‌هاشون همراه اسمشون و
+            // تاریخ تولدشون بره اونجا» — a list of telephone numbers, so its
+            // own permission: nobody reaches it by holding something else.
+            'platform.customer.view' => 'دیدن و دریافت فهرست مشتریان',
         ],
     ];
 
@@ -127,6 +131,7 @@ class RolesAndPermissionsSeeder extends Seeder
                 'order.view', 'order.manage', 'order.refund',
                 'report.view', 'platform.audit.view', 'platform.enquiry.manage',
                 'platform.comment.manage', 'platform.article.manage',
+                'platform.customer.view',
             ],
         ],
         Role::MARKETPLACE_MANAGER => [

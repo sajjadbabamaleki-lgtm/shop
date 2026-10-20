@@ -20,7 +20,7 @@
 <link rel="stylesheet" href="{{ asset('assets/css/print-sheet.css').(is_file($sheetCss) ? '?v='.substr(md5_file($sheetCss), 0, 10) : '') }}">
 
 </head>
-<body>
+<body class="@yield('sheet_class')">
 <main class="vp-sheet">
     <div class="vp-sheet-tools">
         <button type="button" onclick="window.print()">چاپ</button>

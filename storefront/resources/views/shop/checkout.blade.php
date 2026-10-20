@@ -36,7 +36,7 @@
 
                     <div class="vp-field">
                         <label for="co-name">نام و نام خانوادگی</label>
-                        <input id="co-name" name="name" value="{{ old('name') }}" required maxlength="120" autocomplete="name">
+                        <input id="co-name" name="name" value="{{ old('name') }}" required maxlength="120" autocomplete="name" pattern="{{ \App\Rules\PersianName::HTML_PATTERN }}" title="{{ \App\Rules\PersianName::MESSAGE }}">
                     </div>
 
                     <div class="vp-field">

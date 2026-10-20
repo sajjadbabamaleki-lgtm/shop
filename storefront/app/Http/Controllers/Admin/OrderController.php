@@ -249,7 +249,7 @@ class OrderController extends Controller
     public function label(Order $order): View
     {
         return view('admin.print.label', [
-            'order' => $order,
+            'order' => $order->load('items', 'shippingMethod'),
             'sender' => $this->sender($order),
         ]);
     }

@@ -200,10 +200,17 @@
                     <div class="vp-inp">
                         <i class="fa-solid fa-user" aria-hidden="true"></i>
                         <input id="in-name" name="name" value="{{ old('name', $customer->name) }}"
-                               required maxlength="80" autocomplete="name" placeholder="نام و نام خانوادگی">
+                               required maxlength="80" autocomplete="name" placeholder="نام و نام خانوادگی"
+                               pattern="{{ \App\Rules\PersianName::HTML_PATTERN }}" title="{{ \App\Rules\PersianName::MESSAGE }}">
                     </div>
 
                     @error('name')
+                        <p class="vp-acct-err">{{ $message }}</p>
+                    @enderror
+
+                    @include('shop.birth-date', ['birth' => $customer->birth_date])
+
+                    @error('birth_date')
                         <p class="vp-acct-err">{{ $message }}</p>
                     @enderror
 

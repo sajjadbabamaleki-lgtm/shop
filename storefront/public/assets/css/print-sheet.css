@@ -35,6 +35,24 @@ bdi[dir="ltr"] { unicode-bidi: isolate; }
     .vp-sheet-tools { display: none; }
 }
 
+/* --- the label on A5 ---
+   «سایز خروجی آدرس به A5 تبدیل بشه». A named page, so only the label's sheet
+   is A5 and the invoice keeps the printer's default. 148mm less 8mm a side
+   leaves 132mm, too narrow for two halves side by side, so on A5 they stack:
+   sender, recipient, then what is in the parcel and how it travels. */
+@page a5label { size: A5 portrait; margin: 8mm; }
+.is-a5 .vp-sheet { max-width: 148mm; page: a5label; }
+.is-a5 .vp-label { grid-template-columns: 1fr; }
+.is-a5 .vp-label-half + .vp-label-half { border-inline-start: 0; border-block-start: 2px dashed var(--ink); }
+.vp-label-order { grid-column: 1 / -1; border-block-start: 2px dashed var(--ink); }
+.vp-label-ship { display: flex; align-items: baseline; gap: 10px; margin-block-end: 10px; }
+.vp-label-ship .vp-label-tag { margin: 0; }
+.vp-label-ship b { font-size: 22px; font-weight: 800; }
+.vp-label-items { list-style: none; margin: 0; padding: 0; }
+.vp-label-items li { display: flex; justify-content: space-between; gap: 12px; padding-block: 4px; border-block-end: 1px solid var(--rule); font-size: 14px; }
+.vp-label-items li:last-child { border-block-end: 0; }
+.vp-label-items b { white-space: nowrap; }
+
 /* --- the label --- */
 .vp-label { display: grid; grid-template-columns: 2fr 3fr; border: 2px solid var(--ink); border-radius: 10px; overflow: hidden; }
 .vp-label-half { padding: 14px 16px; }

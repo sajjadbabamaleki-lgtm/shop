@@ -32,7 +32,7 @@ class OrderController extends Controller
         $this->mustBeTheirs($request, $order);
 
         return view('shop.order', [
-            'order' => $order->load('items'),
+            'order' => $order->load('items', 'shippingMethod'),
 
             // **One button per gateway that would take this order**, in the
             // order the shop offers them — the card first, the instalments
@@ -104,6 +104,16 @@ class OrderController extends Controller
      */
     private function mustBeTheirs(Request $request, Order $order): void
     {
+        // The signed-in owner too. The account lists its orders and links each
+        // one here — «ارسالش رو … تو حساب کاربریش ببینه» — and that link
+        // answered 403 to the person whose order it was, because only checkout
+        // and the tracking form had ever put the number in the session.
+        $owner = $request->user('customer');
+
+        if ($owner !== null && $order->customer_id === $owner->id) {
+            return;
+        }
+
         if (! $request->session()->get("order.{$order->number}")) {
             throw new AccessDeniedHttpException('برای دیدن این سفارش باید شماره موبایل ثبت‌شده روی آن را وارد کنی.');
         }

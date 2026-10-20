@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\ArticleController;
 use App\Http\Controllers\Admin\CatalogueController;
 use App\Http\Controllers\Admin\CommentController;
+use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DiscountController;
 use App\Http\Controllers\Admin\EnquiryController;
@@ -416,6 +417,18 @@ Route::middleware('auth:web')->group(function (): void {
      * permission — it is neither, and borrowing one of theirs would put this
      * screen in front of whoever happened to hold it.
      */
+    /*
+     * «مشتریان» — everybody who has ordered: name, telephone, birth date, and
+     * a CSV of the same for an SMS panel. Platform-scoped: a customer is the
+     * shop's, not a branch's.
+     */
+    Route::get('/customers', [CustomerController::class, 'index'])
+        ->middleware(RequirePlatformPermission::class.':platform.customer.view')
+        ->name('customers');
+    Route::get('/customers/export', [CustomerController::class, 'export'])
+        ->middleware(RequirePlatformPermission::class.':platform.customer.view')
+        ->name('customers.export');
+
     Route::get('/enquiries', [EnquiryController::class, 'index'])
         ->middleware(RequirePlatformPermission::class.':platform.enquiry.manage')
         ->name('enquiries');

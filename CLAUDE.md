@@ -1404,6 +1404,25 @@ the client saw an old page and had no way to tell why. So, plainly:
   wrapper carries `vp-listing-panel` so the generated desktop rules dress its
   parts. Not in the static preview; `check-parity.js` hides it like the
   reviews. `HomeShopWindowTest` holds the order, the count and the photo rule.
+- **Names are Persian letters only; a customer has a birth date; the panel
+  lists who ordered.** 2026-10-20. `App\Rules\PersianName` (checkout, the
+  code step, `/account`) refuses Latin letters and digits, server-side and in
+  the input's `pattern`. `customers.birth_date` is asked **at registration
+  only** — the code step for a number with no password — as three Persian
+  selects (`shop/birth-date.blade.php`, read back by
+  `App\Support\Calendar\BirthDate` through ICU's persian calendar in
+  `Jalali`, which refuses ۳۰ اسفند of a common year), and is editable on
+  `/account`. `/admin/customers` («مشتریان», `platform.customer.view`, granted
+  to `admin`) is name, telephone and birth date of everyone with an order, plus
+  a CSV with a BOM for an SMS panel; «who ordered» reads the `orders` table
+  directly because `Order`'s branch scope returns nothing on a platform screen.
+  The label prints on **A5** (a named `@page` in `print-sheet.css`, so the
+  invoice keeps its size), stacked, with «نوع ارسال» and the order's lines. The
+  order page draws a four-step trail and the tracking number, and invites
+  anybody without a password to make an account. **An order now opens for its
+  signed-in owner**: `mustBeTheirs()` used to accept only the session key
+  checkout and the tracking form set, so every order link on `/account`
+  answered 403. `CustomersAndParcelsTest` holds all of it.
 - **`.vp-page` is one link in the paginator**, not a page. It carries
   `display: grid; height: 38px`, and a panel that wore the name came out 64px
   tall with its whole content spilling out under the footer. The content pages

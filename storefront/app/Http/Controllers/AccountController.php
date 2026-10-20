@@ -6,7 +6,9 @@ use App\Models\Conversation;
 use App\Models\Customer;
 use App\Models\LoginCode;
 use App\Models\Order;
+use App\Rules\PersianName;
 use App\Support\Auth\Passwords;
+use App\Support\Calendar\BirthDate;
 use App\Support\Sms\Sender;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -85,6 +87,10 @@ class AccountController extends Controller
             // decides both again for real, from the database.
             'needsName' => (bool) $request->session()->get('login.needs_name'),
             'needsPassword' => (bool) $request->session()->get('login.needs_password'),
+            'needsBirth' => (bool) $request->session()->get('login.needs_birth'),
+            // The name checkout already wrote, offered back at registration so
+            // it is confirmed rather than typed twice.
+            'knownName' => $phone ? Customer::where('phone', $phone)->value('name') : null,
             'resendIn' => $this->resendIn($phone),
             // Seconds the code on screen is still good for, counted down there.
             'codeLeft' => max(0, (int) $request->session()->get('login.sent_at', 0) + LoginCode::LIVES_FOR_SECONDS - now()->timestamp),
@@ -105,7 +111,7 @@ class AccountController extends Controller
         $customer = Customer::where('phone', $phone)->first();
 
         $request->session()->put('login.phone', $phone);
-        $request->session()->forget(['login.sent_at', 'login.needs_name', 'login.needs_password']);
+        $request->session()->forget(['login.sent_at', 'login.needs_name', 'login.needs_password', 'login.needs_birth']);
 
         if ($customer?->password !== null) {
             return redirect()->to(storefront_route('account.enter'));
@@ -187,7 +193,7 @@ class AccountController extends Controller
 
         $input = $request->validate([
             'code' => ['required', 'string', 'max:12'],
-            'name' => ['nullable', 'string', 'max:80'],
+            'name' => ['nullable', 'string', 'max:80', new PersianName],
             'password' => ['nullable', 'string', 'max:72'],
         ], [], ['code' => 'کد', 'name' => 'نام', 'password' => 'رمز عبور']);
 
@@ -221,10 +227,14 @@ class AccountController extends Controller
         $name = trim((string) ($input['name'] ?? ''));
         $password = (string) ($input['password'] ?? '');
 
-        if ($customer === null || $customer->name === null) {
-            if ($name === '') {
-                throw ValidationException::withMessages(['name' => 'نامت را بنویس.']);
-            }
+        // Registration is a number with no password yet. «زمانی که مشتری رفت
+        // حساب کاربری تشکیل بده اسم شماره تلفن و تاریخ تولدشو بپرسیم» — the
+        // number is the step before this one; the name and the birth date are
+        // asked here, and both are required.
+        $registering = $customer?->password === null;
+
+        if ($customer?->name === null && $name === '') {
+            throw ValidationException::withMessages(['name' => 'نامت را بنویس.']);
         }
 
         if ($customer?->password === null && $password === '') {
@@ -232,6 +242,10 @@ class AccountController extends Controller
                 'password' => 'یک رمز برای دفعه‌های بعد بگذار.',
             ]);
         }
+
+        $birth = $registering && $customer?->birth_date === null
+            ? BirthDate::fromRequest($request, required: true)
+            : null;
 
         if (! ($customer?->is_active ?? true)) {
             $this->forgetCode($request);
@@ -255,8 +269,12 @@ class AccountController extends Controller
         // request and turn a brand-new account into «غیرفعال».
         $customer ??= new Customer(['phone' => $phone, 'is_active' => true]);
 
-        if ($customer->name === null) {
+        if ($customer->name === null || ($registering && $name !== '')) {
             $customer->name = $name;
+        }
+
+        if ($birth !== null) {
+            $customer->birth_date = $birth;
         }
 
         if ($customer->password === null) {
@@ -278,7 +296,7 @@ class AccountController extends Controller
             LoginCode::where('phone', $phone)->whereNull('consumed_at')->update(['consumed_at' => now()]);
         }
 
-        $request->session()->forget(['login.phone', 'login.sent_at', 'login.needs_name', 'login.needs_password']);
+        $request->session()->forget(['login.phone', 'login.sent_at', 'login.needs_name', 'login.needs_password', 'login.needs_birth']);
 
         return redirect()->to(storefront_route('account.enter'));
     }
@@ -352,15 +370,16 @@ class AccountController extends Controller
         $customer = Auth::guard('customer')->user();
 
         $input = $request->validate(
-            ['name' => ['required', 'string', 'max:80']],
+            ['name' => ['required', 'string', 'max:80', new PersianName]],
             [],
             ['name' => 'نام'],
         );
 
         $customer->name = $input['name'];
+        $customer->birth_date = BirthDate::fromRequest($request, required: false) ?? $customer->birth_date;
         $customer->save();
 
-        return redirect()->to(storefront_route('account'))->with('status', 'نامت ذخیره شد.');
+        return redirect()->to(storefront_route('account'))->with('status', 'اطلاعاتت ذخیره شد.');
     }
 
     /**
@@ -504,6 +523,7 @@ class AccountController extends Controller
         $request->session()->put('login.sent_at', now()->timestamp);
         $request->session()->put('login.needs_name', $customer?->name === null);
         $request->session()->put('login.needs_password', $customer?->password === null);
+        $request->session()->put('login.needs_birth', $customer?->password === null && $customer?->birth_date === null);
 
         return redirect()->to(storefront_route('account.enter'));
     }
@@ -518,7 +538,7 @@ class AccountController extends Controller
 
         Auth::guard('customer')->login($customer, true);
         $request->session()->regenerate();
-        $request->session()->forget(['login.phone', 'login.sent_at', 'login.needs_name', 'login.needs_password']);
+        $request->session()->forget(['login.phone', 'login.sent_at', 'login.needs_name', 'login.needs_password', 'login.needs_birth']);
 
         return redirect()->to(storefront_route('account'));
     }
@@ -567,6 +587,6 @@ class AccountController extends Controller
 
     private function forgetCode(Request $request): void
     {
-        $request->session()->forget(['login.sent_at', 'login.needs_name', 'login.needs_password']);
+        $request->session()->forget(['login.sent_at', 'login.needs_name', 'login.needs_password', 'login.needs_birth']);
     }
 }

@@ -2,6 +2,10 @@
 
 @section('title', 'برچسب '.$order->number)
 
+{{-- «سایز خروجی آدرس به A5 تبدیل بشه» — the page size and the stacked
+     layout live in print-sheet.css under `.is-a5`. --}}
+@section('sheet_class', 'is-a5')
+
 {{--
     The address label — «یک طرف ادرس خودمون باشه، یک طرفم ادرس مشتری».
 
@@ -45,13 +49,32 @@
 
         <div class="vp-label-foot">
             <span>سفارش <b><bdi dir="ltr">{{ $order->number }}</bdi></b></span>
-            @if ($order->shippingMethod)
-                <span>{{ $order->shippingMethod->name }}</span>
-            @endif
             @if ($order->tracking_number)
                 <span>رهگیری <bdi dir="ltr">{{ $order->tracking_number }}</bdi></span>
             @endif
         </div>
+    </div>
+
+    {{-- «در خروجی آدرس اسم سفارش و نوع ارسالش که پیک بوده تیپاکس و... بوده هم
+         بخوره» — what is in the parcel and how it goes, in type a packer reads
+         across a table. The lines are the order's own words, never the
+         catalogue's, so a product renamed since does not relabel a parcel. --}}
+    <div class="vp-label-half vp-label-order">
+        <p class="vp-label-ship">
+            <span class="vp-label-tag">نوع ارسال</span>
+            <b>{{ $order->shippingMethod?->name ?? '—' }}</b>
+        </p>
+
+        <p class="vp-label-tag">سفارش</p>
+        <ul class="vp-label-items">
+            @foreach ($order->items as $item)
+                @continue($item->remaining() < 1)
+                <li>
+                    <span>{{ $item->product_title }}@if ($item->size_value) — سایز {{ $item->size_value }}@endif</span>
+                    <b>{{ fa_number($item->remaining()) }} عدد</b>
+                </li>
+            @endforeach
+        </ul>
     </div>
 </section>
 @endsection

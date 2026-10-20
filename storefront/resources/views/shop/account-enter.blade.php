@@ -123,17 +123,24 @@
                         اعتبار کد: <b dir="ltr">{{ fa_number(intdiv($codeLeft, 60)) }}:{{ fa_number(str_pad((string) ($codeLeft % 60), 2, '0', STR_PAD_LEFT)) }}</b>
                     </p>
 
-                    @if ($needsName)
+                    @if ($needsName || $needsPassword)
                         {{-- Only for a number that has never bought here. A
                              customer checkout made already has a name on it,
                              and asking again would be the shop forgetting
                              somebody it has already met. --}}
                         <div class="vp-inp">
                             <i class="fa-solid fa-user" aria-hidden="true"></i>
-                            <input id="in-name" name="name" value="{{ old('name') }}" required maxlength="80"
+                            <input id="in-name" name="name" value="{{ old('name', $knownName) }}" required maxlength="80" pattern="{{ \App\Rules\PersianName::HTML_PATTERN }}" title="{{ \App\Rules\PersianName::MESSAGE }}"
                                    autocomplete="name" placeholder="نام و نام خانوادگی">
                             <label class="visually-hidden" for="in-name">نام</label>
                         </div>
+                    @endif
+
+                    @if ($needsBirth)
+                        {{-- «تاریخ تولدشو بپرسیم که بزنه» — asked once, at
+                             registration. Three Persian selects; see the
+                             partial. --}}
+                        @include('shop.birth-date', ['birth' => null, 'birthRequired' => true])
                     @endif
 
                     @if ($needsPassword)

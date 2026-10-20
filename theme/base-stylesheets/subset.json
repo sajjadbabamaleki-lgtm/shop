@@ -1,7 +1,7 @@
 {
   "note": "Written by theme/make-css-subset.js. Do not edit — re-run the script.",
-  "vocabulary": "fd88bdb4887bc9454145b73d0a4ed54af7ed31e3be55525346b7b2bf12501cfa",
-  "words": 7791,
+  "vocabulary": "1221b3a0cd3f6e0de5853869ca70e0de3cbe6da2e4db2a0b4e7c4eb0cae04b7f",
+  "words": 7836,
   "read": [
     "download-version/assets/js/gsap.min.js",
     "download-version/assets/js/main.js",
@@ -14,6 +14,7 @@
     "storefront/resources/views/admin/comments.blade.php",
     "storefront/resources/views/admin/commissions.blade.php",
     "storefront/resources/views/admin/conversation.blade.php",
+    "storefront/resources/views/admin/customers.blade.php",
     "storefront/resources/views/admin/dashboard.blade.php",
     "storefront/resources/views/admin/discounts.blade.php",
     "storefront/resources/views/admin/enquiries.blade.php",
@@ -91,6 +92,7 @@
     "storefront/resources/views/partials/whatsapp.blade.php",
     "storefront/resources/views/shop/account-enter.blade.php",
     "storefront/resources/views/shop/account.blade.php",
+    "storefront/resources/views/shop/birth-date.blade.php",
     "storefront/resources/views/shop/card.blade.php",
     "storefront/resources/views/shop/cart.blade.php",
     "storefront/resources/views/shop/checkout.blade.php",
