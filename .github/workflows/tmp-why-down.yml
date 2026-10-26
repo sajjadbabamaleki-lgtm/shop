@@ -1,0 +1,38 @@
+name: TEMP why is the site down
+# Temporary. Delete once it has answered.
+on:
+  workflow_dispatch:
+  push:
+    branches: [claude/funny-lovelace-lb204u]
+permissions:
+  contents: read
+jobs:
+  ask:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Is it our address or Liara's whole edge
+        run: |
+          for ip in 62.60.220.6 62.60.220.7 62.60.220.5 62.60.220.8 185.208.181.154 185.208.181.175; do
+            timeout 8 bash -c "</dev/tcp/$ip/443" 2>/dev/null && echo "$ip:443 open" || echo "$ip:443 CLOSED"
+          done
+          for h in https://liara.run https://app.liara.run https://status.liara.ir https://vikyplus.ir; do
+            echo "$h $(curl -s -o /tmp/b -m 15 -w 'http=%{http_code} ip=%{remote_ip}' "$h/"; echo " rc=$?") $(head -c 150 /tmp/b 2>/dev/null|tr '\n' ' ')"
+          done
+      - name: Ask Liara
+        env:
+          T: ${{ secrets.LIARA_API_TOKEN }}
+        run: |
+          H="Authorization: Bearer $T"
+          A=https://api.iran.liara.ir
+          now=$(date +%s); since=$((now-43200))
+          echo "--- domains"
+          curl -s -m 30 -H "$H" "$A/v1/domains?project=vikyplus" | jq -c '.domains[]? | {name, status, certificatesStatus, type}' || true
+          echo "--- logs (API)"
+          curl -s -m 40 -H "$H" "$A/v2/projects/vikyplus/logs?since=$since" | head -c 200; echo
+          curl -s -m 40 -H "$H" "$A/v2/projects/vikyplus/logs?since=$since" | jq -r '.[]? | "\(.datetime // .ts // "") \(.message // .log // .)"' 2>/dev/null | tail -60 || true
+          echo "--- logs v1"
+          curl -s -m 40 -H "$H" "$A/v1/projects/vikyplus/logs?since=$since" | head -c 4000; echo
+          echo "--- releases v2"
+          curl -s -m 30 -H "$H" "$A/v2/projects/vikyplus/releases?page=1&count=3" | head -c 1500; echo
+          echo "--- metrics summary"
+          curl -s -m 30 -H "$H" "$A/v1/projects/vikyplus/metrics/summary" | head -c 1500; echo
