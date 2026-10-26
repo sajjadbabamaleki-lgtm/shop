@@ -1,6 +1,7 @@
 name: TEMP why is the site down
 # Temporary. Delete once it has answered.
 on:
+  workflow_dispatch:
   push:
     branches: [claude/funny-lovelace-lb204u]
 permissions:
