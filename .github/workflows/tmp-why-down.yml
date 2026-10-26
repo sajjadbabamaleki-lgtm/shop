@@ -1,0 +1,47 @@
+name: TEMP why is the site down
+# Temporary. Delete once it has answered.
+on:
+  push:
+    branches: [claude/funny-lovelace-lb204u]
+permissions:
+  contents: read
+jobs:
+  ask:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe both hosts
+        run: |
+          for h in https://vikyplus.ir https://www.vikyplus.ir https://vikyplus.liara.run; do
+            for p in / /products /robots.txt; do
+              echo "$h$p  $(curl -s -o /tmp/b -m 40 -w '%{http_code} dns=%{time_namelookup} tcp=%{time_connect} tls=%{time_appconnect} total=%{time_total}' "$h$p")  $(head -c 300 /tmp/b | tr '\n' ' ')"
+            done
+          done
+      - name: Ask Liara
+        env:
+          T: ${{ secrets.LIARA_API_TOKEN }}
+        run: |
+          H="Authorization: Bearer $T"
+          A=https://api.iran.liara.ir
+          echo "--- project"
+          curl -s -m 30 -H "$H" "$A/v1/projects/vikyplus" | jq 'del(.project.envs) | .project | {status: .status, scale: .scale, planID: .planID, isDeployed: .isDeployed, network: .network, created: .created_at, bundlePlanID: .bundlePlanID, hourlyPrice: .hourlyPrice, reservedDisks: .reservedDisks}' || true
+          curl -s -m 30 -H "$H" "$A/v1/projects/vikyplus" | jq -c 'del(.project.envs)' | cut -c1-3000
+          echo "--- account (balance only)"
+          curl -s -m 30 -H "$H" "$A/v1/me" | jq '{balance: .user.balance, credit: .user.credit, debt: .user.debt, status: .user.status, maxAppsCount: .user.maxAppsCount}' || true
+          echo "--- releases"
+          curl -s -m 30 -H "$H" "$A/v2/projects/vikyplus/releases?page=1&count=3" | jq -c '.releases[] | {state, createdAt, finishedAt, tag}' || true
+          echo "--- domains"
+          curl -s -m 30 -H "$H" "$A/v1/domains?project=vikyplus" | jq -c '.domains[]? | {name, status, certificatesStatus, redirectTo}' || true
+          echo "--- databases"
+          curl -s -m 30 -H "$H" "$A/v1/databases" | jq -c '.databases[]? | {hostname, status, type, planID, scale}' || true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: App log, last 6 hours
+        env:
+          LIARA_TOKEN: ${{ secrets.LIARA_API_TOKEN }}
+        run: |
+          npm install -g @liara/cli@9 >/dev/null 2>&1
+          (timeout 60 liara logs --app vikyplus --api-token "$LIARA_TOKEN" --since 21600 2>&1 || true) > logs.txt
+          wc -l logs.txt
+          grep -n "ERROR\|Exception\|SQLSTATE\|fatal\|Killed\|OOM\|exited\|refused" logs.txt | tail -40 || true
+          echo "--- tail"; tail -40 logs.txt
