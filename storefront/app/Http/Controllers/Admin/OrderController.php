@@ -205,11 +205,7 @@ class OrderController extends Controller
             // gateway *and* status: an order that opened an اسنپ‌پی attempt and
             // was then paid by card has a row for each, and only one of them
             // is the money.
-            'instalment' => $instalment = $order->payments()
-                ->where('gateway', 'snapppay')
-                ->where('status', Payment::PAID)
-                ->latest('id')
-                ->first(),
+            'instalment' => $instalment = $order->settledInstalment(),
 
             // **How long until SnappPay will take another `update`.** Their
             // rule is «بین هر آپدیت حداقل ۳۰ ثانیه», and `ReturnsController`
@@ -372,6 +368,10 @@ class OrderController extends Controller
             return $back->withErrors(['status' => "از «{$order->statusLabel()}» نمی‌شود به این وضعیت رفت."]);
         }
 
+        if ($this->needsTheLender($order, $to)) {
+            return $back->withErrors(['status' => 'این سفارش اقساطی اسنپ‌پی است؛ از کارت «لغو سفارش» لغو کن تا به اسنپ‌پی هم اعلام شود.']);
+        }
+
         $this->move($order, $to, $settle, $request->user()->name);
 
         return $back->with('status', 'وضعیت سفارش به‌روز شد.');
@@ -454,7 +454,7 @@ class OrderController extends Controller
      * here for that one purpose: it is the only part of a cancellation nobody
      * can reconstruct afterwards.
      */
-    public function cancel(Request $request, Order $order, SettleOrder $settle): RedirectResponse
+    public function cancel(Request $request, Order $order, SettleOrder $settle): RedirectResponse|View
     {
         $back = redirect()->route('admin.order', $order);
 
@@ -464,6 +464,16 @@ class OrderController extends Controller
 
         if (! $this->allowed($order, Order::CANCELLED)) {
             return $back->withErrors(['reason' => "سفارشی که «{$order->statusLabel()}» است را از اینجا نمی‌شود لغو کرد."]);
+        }
+
+        // **An instalment order is cancelled at اسنپ‌پی first, or not at all.**
+        // This button used to cancel it here only — stock back, «لغو شد» — and
+        // SnappPay never heard, so the shopper's instalments kept running; it
+        // is what their certification failed the shop on. It is the button
+        // anybody presses, so it hands over to the one that tells them,
+        // two-step confirmation and all, rather than refusing.
+        if ($order->settledInstalment() !== null) {
+            return app()->call([app(ReturnsController::class), 'cancel'], ['order' => $order]);
         }
 
         $input = $request->validate([
@@ -560,7 +570,9 @@ class OrderController extends Controller
         $skipped = 0;
 
         foreach ($orders as $order) {
-            if (! $this->allowed($order, $input['status'])) {
+            // An instalment order is never cancelled in bulk: its cancel is a
+            // call to اسنپ‌پی with a confirmation screen of its own.
+            if (! $this->allowed($order, $input['status']) || $this->needsTheLender($order, $input['status'])) {
                 $skipped++;
 
                 continue;
@@ -642,6 +654,12 @@ class OrderController extends Controller
             Order::CANCELLED => $settle->cancelled($order, "Cancelled in the panel by {$by}."),
             default => $order->update(['status' => $to]),
         };
+    }
+
+    /** A cancel that only اسنپ‌پی's `cancel` may make — see `cancel()`. */
+    private function needsTheLender(Order $order, string $to): bool
+    {
+        return $to === Order::CANCELLED && $order->settledInstalment() !== null;
     }
 
     /**

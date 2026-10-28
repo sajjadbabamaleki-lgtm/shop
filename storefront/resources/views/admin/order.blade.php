@@ -409,16 +409,26 @@
                 <h2 class="vp-adm-card-title">لغو سفارش</h2>
             </div>
 
+            {{-- An اسنپ‌پی order is cancelled at اسنپ‌پی first. This card used
+                 to cancel it on this side only, and their certification
+                 failed the shop for it — so for such an order it posts to the
+                 call that tells them, through its confirmation screen. --}}
             <p class="vp-adm-empty">
-                @if ($order->status === \App\Models\Order::PAID)
+                @if ($instalment)
+                    اول به اسنپ‌پی اعلام می‌شود تا اقساط مشتری برداشته شود، بعد موجودی برمی‌گردد.
+                    صفحهٔ بعد، قبل از ارسال، همه‌چیز را نشان می‌دهد. برگشت‌پذیر نیست.
+                @elseif ($order->status === \App\Models\Order::PAID)
                     موجودی برمی‌گردد و پرداخت «برگشت‌خورده» ثبت می‌شود. برگشت‌پذیر نیست.
                 @else
                     موجودی رزروشده به انبار برمی‌گردد. برگشت‌پذیر نیست.
                 @endif
             </p>
 
-            <form class="vp-adm-form" method="post" action="{{ route('admin.order.cancel', $order) }}"
-                  onsubmit="return confirm('این سفارش لغو می‌شود و موجودی رزروشده به انبار برمی‌گردد. برگشت‌پذیر نیست.')">
+            <form class="vp-adm-form" method="post"
+                  action="{{ $instalment ? route('admin.order.instalments.cancel', $order) : route('admin.order.cancel', $order) }}"
+                  onsubmit="return confirm('{{ $instalment
+                      ? 'صفحهٔ بعد، قبل از لغو نزد اسنپ‌پی، همه‌چیز را نشان می‌دهد تا تأیید کنی.'
+                      : 'این سفارش لغو می‌شود و موجودی رزروشده به انبار برمی‌گردد. برگشت‌پذیر نیست.' }}')">
                 @csrf
 
                 {{-- Required, and it is the only part of a cancellation nobody
@@ -509,7 +519,10 @@
                  different call to SnappPay — after a settle, `cancel` is the
                  only thing that reverses a purchase — and because mixing it
                  into the one above would put «everything» one mistyped number
-                 away from «one». --}}
+                 away from «one». Only once the parcel has left: before that
+                 the «لغو سفارش» card is this same call, and two cancel buttons
+                 on one screen is a question nobody should have to answer. --}}
+            @if (! in_array($order->status, [\App\Models\Order::PLACED, \App\Models\Order::PAID], true))
             <form class="vp-adm-form" method="post" action="{{ route('admin.order.instalments.cancel', $order) }}"
                   onsubmit="return confirm('صفحهٔ بعد، قبل از لغو نزد اسنپ‌پی، همه‌چیز را نشان می‌دهد تا تأیید کنی.')">
                 @csrf
@@ -519,6 +532,38 @@
                        placeholder="مثلاً مشتری کل سفارش را پس فرستاد" required>
 
                 <button type="submit" class="vp-adm-danger">ادامه به تأیید لغو کامل</button>
+            </form>
+            @endif
+        </section>
+    @endif
+
+    {{-- **Cancelled here, never told there.** What the ordinary cancel did to
+         an اسنپ‌پی order before it learned to hand over: the shop's side is
+         done and the shopper's instalments are still running. The one thing
+         left is their `cancel`, and this is where it is sent from.
+         ReturnsController asks their `status` first, so an order that was in
+         fact cancelled there is recorded rather than cancelled twice. --}}
+    @if ($instalment && $instalment->gateway_cancelled_at === null && $order->status === \App\Models\Order::CANCELLED)
+        <section class="vp-adm-card vp-adm-span-2">
+            <div class="vp-adm-card-head">
+                <h2 class="vp-adm-card-title">لغو به اسنپ‌پی اعلام نشده</h2>
+                <span class="vp-adm-card-more">اسنپ‌پی · <bdi dir="ltr">{{ $instalment->authority }}</bdi></span>
+            </div>
+
+            <p class="vp-adm-note is-bad">
+                این سفارش در فروشگاه لغو شده، ولی ثبت نشده که اسنپ‌پی هم از لغوش باخبر شده باشد —
+                یعنی ممکن است اقساط مشتری هنوز برقرار باشد.
+            </p>
+
+            <form class="vp-adm-form" method="post" action="{{ route('admin.order.instalments.cancel', $order) }}"
+                  onsubmit="return confirm('صفحهٔ بعد، قبل از لغو نزد اسنپ‌پی، همه‌چیز را نشان می‌دهد تا تأیید کنی.')">
+                @csrf
+
+                <label for="lender-cancel-why">علت لغو</label>
+                <input id="lender-cancel-why" type="text" name="reason" maxlength="200"
+                       placeholder="مثلاً مشتری منصرف شد" required>
+
+                <button type="submit" class="vp-adm-danger">ادامه به اعلام لغو به اسنپ‌پی</button>
             </form>
         </section>
     @endif

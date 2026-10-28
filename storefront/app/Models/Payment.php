@@ -37,6 +37,7 @@ class Payment extends Model
     protected $fillable = [
         'order_id', 'gateway', 'authority', 'gateway_token', 'amount', 'status',
         'ref_id', 'card_pan', 'failure', 'paid_at', 'gateway_updated_at',
+        'gateway_cancelled_at',
     ];
 
     protected function casts(): array
@@ -44,6 +45,7 @@ class Payment extends Model
         return [
             'paid_at' => 'datetime',
             'gateway_updated_at' => 'datetime',
+            'gateway_cancelled_at' => 'datetime',
             'amount' => 'integer',
         ];
     }
@@ -75,6 +77,10 @@ class Payment extends Model
 
     public function statusLabel(): string
     {
+        if ($this->status === self::PAID && $this->gateway_cancelled_at !== null) {
+            return 'پرداخت شد، سپس نزد درگاه لغو شد';
+        }
+
         return match ($this->status) {
             self::PAID => 'پرداخت شد',
             self::FAILED => 'ناموفق',
@@ -114,6 +120,10 @@ class Payment extends Model
      */
     public function outcomeLabel(): string
     {
+        if ($this->status === self::PAID && $this->gateway_cancelled_at !== null) {
+            return 'پرداخت شد، سپس نزد درگاه لغو شد';
+        }
+
         return match ($this->status) {
             self::PAID => 'پرداخت شد',
             self::CANCELLED => 'مشتری در درگاه انصراف داد',

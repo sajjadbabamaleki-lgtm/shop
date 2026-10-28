@@ -11,6 +11,7 @@ use App\Models\Role;
 use App\Models\User;
 use App\Models\Variant;
 use App\Support\Checkout\AfterReturns;
+use App\Support\Checkout\SettleOrder;
 use App\Support\Payments\Gateways;
 use App\Support\Payments\SnappPay;
 use App\Support\Tenancy\TenantContext;
@@ -95,10 +96,17 @@ class SnappPayReturnsTest extends TestCase
             ->stock_on_hand;
     }
 
-    private function fake(array $update = [], array $cancel = []): void
+    private function fake(array $update = [], array $cancel = [], string $state = 'SETTLE'): void
     {
+        // Strays refused: a call this test did not stub is a call to a real
+        // host, and the cancel now asks `status` before it acts.
+        Http::preventStrayRequests();
+
         Http::fake([
             '*/api/online/v1/oauth/token' => Http::response(['access_token' => 'bearer-1', 'expires_in' => 3600]),
+            '*/api/online/payment/v1/status*' => Http::response([
+                'successful' => true, 'response' => ['status' => $state],
+            ]),
             '*/api/online/payment/v1/update' => Http::response($update ?: [
                 'successful' => true, 'response' => ['transactionId' => 'SNP-777'],
             ]),
@@ -601,6 +609,124 @@ class SnappPayReturnsTest extends TestCase
             ->assertSessionHasErrors(['reason' => 'این تراکنش قابل لغو نیست.']);
 
         $this->assertSame(Order::PAID, $order->fresh()->status);
+    }
+
+    // --- every cancel in the panel reaches them -----------------------------
+
+    /**
+     * **The ordinary «لغو سفارش» tells اسنپ‌پی.** It cancelled an instalment
+     * order on this side only, and that is what their certification failed
+     * the shop on: the shopper's instalments kept running. It now hands over
+     * to the lender's cancel, confirmation screen first.
+     */
+    public function test_the_ordinary_cancel_button_tells_snapppay(): void
+    {
+        $this->fake();
+
+        $order = $this->order();
+        $admin = $this->admin();
+
+        $this->actingAs($admin)
+            ->post("/admin/orders/{$order->number}/cancel", ['reason' => 'مشتری منصرف شد'])
+            ->assertOk()
+            ->assertSee('لغو کامل سفارش نزد اسنپ‌پی');
+
+        Http::assertNotSent(fn ($request): bool => str_contains($request->url(), 'payment/v1/cancel'));
+        $this->assertSame(Order::PAID, $order->fresh()->status);
+
+        $this->actingAs($admin)
+            ->post("/admin/orders/{$order->number}/cancel", ['reason' => 'مشتری منصرف شد', 'confirmed' => 1])
+            ->assertRedirect()
+            ->assertSessionHas('status');
+
+        $this->assertSame('PT-000111', $this->sentTo('payment/v1/cancel')['paymentToken']);
+        $this->assertSame(Order::CANCELLED, $order->fresh()->status);
+        $this->assertNotNull(Payment::where('order_id', $order->id)->sole()->gateway_cancelled_at);
+    }
+
+    /** The order screen's own cancel card posts to the call that tells them. */
+    public function test_the_order_screens_cancel_card_points_at_snapppay(): void
+    {
+        $this->fake();
+
+        $order = $this->order();
+
+        $this->actingAs($this->admin())
+            ->get("/admin/orders/{$order->number}")
+            ->assertOk()
+            ->assertSee(route('admin.order.instalments.cancel', $order), false)
+            ->assertDontSee(route('admin.order.cancel', $order).'"', false);
+    }
+
+    /** Neither the status move nor the bulk bar can cancel one quietly. */
+    public function test_a_status_move_or_a_bulk_cancel_cannot_bypass_snapppay(): void
+    {
+        $this->fake();
+
+        $order = $this->order();
+        $admin = $this->admin();
+
+        $this->actingAs($admin)
+            ->post("/admin/orders/{$order->number}", ['status' => Order::CANCELLED])
+            ->assertSessionHasErrors('status');
+
+        $this->actingAs($admin)
+            ->post('/admin/orders/bulk', ['status' => Order::CANCELLED, 'orders' => [$order->id]]);
+
+        $this->assertSame(Order::PAID, $order->fresh()->status);
+        Http::assertNotSent(fn ($request): bool => str_contains($request->url(), 'payment/v1/cancel'));
+    }
+
+    /**
+     * **An order already cancelled here and never told there** — the state the
+     * old button left behind — is flagged, and the lender can still be told,
+     * without the shelf moving a second time.
+     */
+    public function test_an_order_cancelled_only_here_can_still_be_cancelled_there(): void
+    {
+        $this->fake();
+
+        $order = $this->order();
+        $variant = $order->items->first()->variant_id;
+
+        app(SettleOrder::class)->cancelled($order, 'لغو قدیمی');
+        $shelf = $this->onHand($variant);
+
+        $admin = $this->admin();
+
+        $this->actingAs($admin)
+            ->get("/admin/orders/{$order->number}")
+            ->assertSee('لغو به اسنپ‌پی اعلام نشده');
+
+        $this->actingAs($admin)
+            ->post("/admin/orders/{$order->number}/instalments/cancel", ['reason' => 'اعلام لغو', 'confirmed' => 1])
+            ->assertRedirect()
+            ->assertSessionHas('status');
+
+        $this->assertSame('PT-000111', $this->sentTo('payment/v1/cancel')['paymentToken']);
+        $this->assertSame($shelf, $this->onHand($variant));
+        $this->assertNotNull(Payment::where('order_id', $order->id)->sole()->gateway_cancelled_at);
+
+        $this->actingAs($admin)
+            ->get("/admin/orders/{$order->number}")
+            ->assertDontSee('لغو به اسنپ‌پی اعلام نشده');
+    }
+
+    /** One that their `status` already reads CANCEL is recorded, not cancelled twice. */
+    public function test_a_purchase_already_cancelled_there_is_not_cancelled_twice(): void
+    {
+        $this->fake(state: 'CANCEL');
+
+        $order = $this->order();
+        app(SettleOrder::class)->cancelled($order, 'لغو قدیمی');
+
+        $this->actingAs($this->admin())
+            ->post("/admin/orders/{$order->number}/instalments/cancel", ['reason' => 'اعلام لغو', 'confirmed' => 1])
+            ->assertRedirect()
+            ->assertSessionHas('status');
+
+        Http::assertNotSent(fn ($request): bool => str_contains($request->url(), 'payment/v1/cancel'));
+        $this->assertNotNull(Payment::where('order_id', $order->id)->sole()->gateway_cancelled_at);
     }
 
     // --- the number everybody quotes ---------------------------------------

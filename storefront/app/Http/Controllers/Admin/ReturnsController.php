@@ -186,9 +186,15 @@ class ReturnsController extends Controller
             return $back->withErrors(['reason' => 'این سفارش اقساطی نیست؛ از دکمهٔ لغو معمولی استفاده کن.']);
         }
 
-        if ($order->status === Order::CANCELLED) {
-            return $back->with('status', 'این سفارش از قبل لغو شده بود؛ چیزی تغییر نکرد.');
+        // Told already: nothing left to do on either side.
+        if ($payment->gateway_cancelled_at !== null) {
+            return $back->with('status', 'این سفارش از قبل نزد اسنپ‌پی لغو شده بود؛ چیزی تغییر نکرد.');
         }
+
+        // **Cancelled here and never told there** — what the panel's ordinary
+        // cancel used to do to an instalment order. The shop's side is done;
+        // only SnappPay's is owed, and this is how it is paid.
+        $onlyTheLender = $order->status === Order::CANCELLED;
 
         // Step one of two, the same as a return — and here the second step
         // matters more, because this reverses the whole purchase and there is
@@ -205,12 +211,24 @@ class ReturnsController extends Controller
             ]);
         }
 
-        try {
-            $lender->cancel($payment);
-        } catch (PaymentFailed $e) {
-            // Nothing has moved on this side, which is the point of the order
-            // these two are called in: the shop and the lender still agree.
-            return $back->withErrors(['reason' => $e->getMessage()]);
+        // Asked first, because an order cancelled before this was recorded may
+        // already be cancelled there, and a second cancel is a refusal that
+        // reads like a fault.
+        if ($lender->state($payment) !== 'CANCEL') {
+            try {
+                $lender->cancel($payment);
+            } catch (PaymentFailed $e) {
+                // Nothing has moved on this side, which is the point of the
+                // order these two are called in: the shop and the lender still
+                // agree.
+                return $back->withErrors(['reason' => $e->getMessage()]);
+            }
+        }
+
+        $payment->forceFill(['gateway_cancelled_at' => now()])->save();
+
+        if ($onlyTheLender) {
+            return $back->with('status', 'لغو این سفارش به اسنپ‌پی اعلام شد و اقساط مشتری برداشته شد.');
         }
 
         $settle->cancelled($order, $input['reason']);
@@ -222,20 +240,10 @@ class ReturnsController extends Controller
         return $back->with('status', 'سفارش نزد اسنپ‌پی لغو شد، اقساط مشتری برداشته شد و موجودی برگشت.');
     }
 
-    /**
-     * The settled instalment payment behind this order, if there is one.
-     *
-     * Paid *and* through this gateway: an order that opened an اسنپ‌پی attempt
-     * and was then paid by card has a row for each, and only one of them is
-     * the money.
-     */
+    /** See `Order::settledInstalment()`, which every cancel in the panel asks. */
     private function instalmentPayment(Order $order): ?Payment
     {
-        return $order->payments()
-            ->where('gateway', 'snapppay')
-            ->where('status', Payment::PAID)
-            ->latest('id')
-            ->first();
+        return $order->settledInstalment();
     }
 
     /**

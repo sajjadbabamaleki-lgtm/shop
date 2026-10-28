@@ -118,6 +118,25 @@ class Order extends Model
         return $this->hasMany(Payment::class);
     }
 
+    /**
+     * The settled اسنپ‌پی payment behind this order, if there is one.
+     *
+     * Paid *and* through that gateway: an order that opened an اسنپ‌پی attempt
+     * and was then paid by card has a row for each, and only one of them is
+     * the money. **An order that has one must not be cancelled on this side
+     * alone** — after a settle only their `cancel` reverses the purchase, and
+     * a cancel that never reaches them leaves the shopper paying instalments
+     * on an order nobody is sending. Every cancel in the panel asks this.
+     */
+    public function settledInstalment(): ?Payment
+    {
+        return $this->payments()
+            ->where('gateway', 'snapppay')
+            ->where('status', Payment::PAID)
+            ->latest('id')
+            ->first();
+    }
+
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);
