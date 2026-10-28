@@ -599,6 +599,50 @@ class SnappPayTest extends TestCase
     }
 
     /**
+     * **Settle refused, `status` still VERIFY: settle again.** The third line of
+     * SnappPay's own procedure, restated after the 2 Aban review: «اگر سرویس
+     * ستل … فالس برگردوند یا ریسپانس نداد استتوس را کال کنید و اگر وریفای
+     * برگشت مجدد ستل کنید». A verified payment that is never settled is
+     * reverted, so this second settle is what stands between a lost answer and
+     * a shop paid nothing.
+     */
+    public function test_a_refused_settle_is_retried_when_the_status_says_verify(): void
+    {
+        $settles = 0;
+
+        // Written out rather than through fakeSnappPay(): the first stub that
+        // matches a URL wins, so a second fake could not replace its settle.
+        Http::fake([
+            '*/api/online/v1/oauth/token' => Http::response(['access_token' => 'bearer-1', 'expires_in' => 3600]),
+            '*/api/online/payment/v1/status*' => Http::response([
+                'successful' => true,
+                'response' => ['transactionId' => 'SNP-777', 'status' => 'VERIFY', 'amount' => 1_250_000],
+            ]),
+            '*/api/online/payment/v1/token' => Http::response([
+                'successful' => true,
+                'response' => ['paymentToken' => 'PT-000111', 'paymentPageUrl' => 'https://snapppay.test/pay/PT-000111'],
+            ]),
+            '*/api/online/payment/v1/verify' => Http::response(['successful' => true, 'response' => ['transactionId' => 'SNP-777']]),
+            '*/api/online/payment/v1/settle' => function () use (&$settles) {
+                $settles++;
+
+                return $settles === 1
+                    ? Http::response(['successful' => false, 'errorData' => ['errorCode' => '500', 'message' => 'خطا']])
+                    : Http::response(['successful' => true, 'response' => ['transactionId' => 'SNP-777']]);
+            },
+        ]);
+
+        $order = $this->order();
+        $payment = $this->payFor($order);
+
+        $this->comeBackFrom($payment)->assertRedirect()->assertSessionHas('status');
+
+        $this->assertSame(2, $settles);
+        $this->assertSame('paid', $order->fresh()->payment_status);
+        Http::assertSent(fn ($request) => str_contains($request->url(), 'payment/v1/status'));
+    }
+
+    /**
      * `state=FAILED` is the purchase that did not happen, and nothing is asked.
      *
      * Asking `verify` about it produces a refusal that reads like a fault on

@@ -246,6 +246,13 @@ class SnappPay implements Gateway
     {
         $handle = ['paymentToken' => (string) $payment->gateway_token];
 
+        // **Finish what is started, whoever leaves.** Verify, status and settle
+        // can take up to thirty seconds each, and a shopper who closes the tab
+        // in that time must not stop this between a verify and its settle —
+        // a verified payment that is never settled is reverted, and the shop
+        // is paid nothing for an order it then believes unpaid.
+        ignore_user_abort(true);
+
         // **Verify is called once**, whatever happens — «پذیرنده صرفاً یک بار
         // سرویس verify را فراخوانی کند (حتی اگر استثنائاً فراخوانی آدرس
         // بازگشتی پذیرنده چندین بار رخ داده باشد)». Everything below recovers
