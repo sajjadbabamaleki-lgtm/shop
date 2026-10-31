@@ -26408,6 +26408,75 @@ body.shoe-shop {
   filter: brightness(1.04);
 }
 
+/* --------------------------------------------------------------------------
+   The hero, square — on a phone only.
+
+   «بالای سایت که هیرو میخوام مربع بشه فقط در نسخه موبایل». The card was 370
+   wide and 437 tall at 390, and 437 at every phone width, because its height
+   is its contents: the shot's column (235) and the copy (202). Square means
+   the contents fit inside the width, which at 360 is 340.
+
+   Three ways were rendered and put in front of the client; this is the one
+   chosen — the shoe stays near its size and the copy closes up — with two
+   corrections of theirs on top: «۵٪ کفش کوچیک‌تر بشه، یه ذره بره بالاتر که
+   اون دکمه ها و اینا نچسبه به پایین».
+
+   - `aspect-ratio: 1` and nothing else sets the height. Contents shorter than
+     the width leave the remainder under the button, which is the air asked
+     for; contents taller would grow the card rather than clip it.
+   - The name goes on one line: the `<br>` is hidden (both copies of the page
+     carry a space after it so the two words do not run together), 30.15 →
+     24px with its line box, and the copy's gaps close up.
+   - The shoe 299 → 284, five per cent, and its downward nudge 20 → 6, which
+     lifts it 14 without moving anything in the flow.
+
+   Below 768 only. Between 768 and 991 the card is up to 748 wide and a square
+   there would be taller than it is now; that band and the desktop are not
+   touched by any line here. */
+@media (max-width: 767.98px) {
+  .heroSlide6 .hero-inner {
+    aspect-ratio: 1 / 1;
+    align-items: flex-start;
+  }
+
+  .heroSlide6 .hero-inner .row > .col-lg-6:last-child {
+    margin-bottom: var(--vp-hero-sq-pull, -14px);
+  }
+
+  .heroSlide6 .hero-inner .hero-title br {
+    display: none;
+  }
+
+  .heroSlide6 .hero-inner .hero-title {
+    font-size: 24px;
+    line-height: 28px;
+    margin-bottom: 10px;
+  }
+
+  .heroSlide6 .hero-style6 {
+    padding-block: 4px 10px;
+  }
+
+  .heroSlide6 .hero-inner .sub-title {
+    margin-bottom: 8px;
+  }
+
+  .heroSlide6 .hero-img > img {
+    width: calc(100vw * 284 / 390);
+    --vp-hero-shot-shift: -6px;
+  }
+}
+
+/* Between 576 and 767 — a phone on its side, a small tablet — the square is
+   up to 747 tall while the type stays phone-sized, so the room left under the
+   button reached 214. There the contents sit on the card's centre instead and
+   that room is shared above and below. */
+@media (min-width: 576px) and (max-width: 767.98px) {
+  .heroSlide6 .hero-inner {
+    align-items: center;
+  }
+}
+
 :root {
   --vp-design: ok;
 }

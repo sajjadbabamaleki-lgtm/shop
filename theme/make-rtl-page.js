@@ -488,7 +488,10 @@ const HERO_EYEBROWS = {
 // measure.
 const heroHeading = (name) => {
   const [kind, ...model] = name.split(' ');
-  return kind + '<br>' + model.join('\u00A0');
+  // The space after the break is for the phone, where the break is hidden
+  // and the name sits on one line (tweaks.css, «the hero, square»). On a wide
+  // screen a space at the start of a line is not drawn.
+  return kind + '<br> ' + model.join('\u00A0');
 };
 
 // The slide's photograph, which is not the product's card photograph: a hero

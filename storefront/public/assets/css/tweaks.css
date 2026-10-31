@@ -15061,6 +15061,46 @@ body.shoe-shop {
   filter: brightness(1.04);
 }
 
+@media (max-width: 767.98px) {
+  .heroSlide6 .hero-inner {
+    aspect-ratio: 1 / 1;
+    align-items: flex-start;
+  }
+
+  .heroSlide6 .hero-inner .row > .col-lg-6:last-child {
+    margin-bottom: var(--vp-hero-sq-pull, -14px);
+  }
+
+  .heroSlide6 .hero-inner .hero-title br {
+    display: none;
+  }
+
+  .heroSlide6 .hero-inner .hero-title {
+    font-size: 24px;
+    line-height: 28px;
+    margin-bottom: 10px;
+  }
+
+  .heroSlide6 .hero-style6 {
+    padding-block: 4px 10px;
+  }
+
+  .heroSlide6 .hero-inner .sub-title {
+    margin-bottom: 8px;
+  }
+
+  .heroSlide6 .hero-img > img {
+    width: calc(100vw * 284 / 390);
+    --vp-hero-shot-shift: -6px;
+  }
+}
+
+@media (min-width: 576px) and (max-width: 767.98px) {
+  .heroSlide6 .hero-inner {
+    align-items: center;
+  }
+}
+
 :root {
   --vp-design: ok;
 }

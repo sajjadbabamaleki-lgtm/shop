@@ -29,7 +29,7 @@
                                         <div class="hero-style6">
                                             <span class="sub-title" data-ani="slideinleft" data-ani-delay="0.2s">{{ $slide['eyebrow'] }}</span>
                                             <h1 class="hero-title" data-ani="slideinleft" data-ani-delay="0.4s">
-                                                {{ $slide['kind'] }}<br>{{ $slide['model'] }} </h1>
+                                                {{ $slide['kind'] }}<br> {{ $slide['model'] }} </h1>
                                             {{-- **The slide's own shoe, not the listing.** «کارتهای هیرو
                                                  لینک میشن به فروشگاه، این اشتباهه، باید لینک بشن
                                                  به همون محصول» — the button said «خرید محصول» and
