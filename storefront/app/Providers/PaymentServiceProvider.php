@@ -6,6 +6,7 @@ use App\Support\Payments\AtTheDoor;
 use App\Support\Payments\Gateway;
 use App\Support\Payments\Gateways;
 use App\Support\Payments\SnappPay;
+use App\Support\Payments\TorobPay;
 use App\Support\Payments\ZarinPal;
 use Illuminate\Support\ServiceProvider;
 use RuntimeException;
@@ -47,6 +48,7 @@ class PaymentServiceProvider extends ServiceProvider
     /** The instalment providers. None of them can take a card. */
     private const LENDERS = [
         'snapppay' => SnappPay::class,
+        'torobpay' => TorobPay::class,
     ];
 
     public function register(): void
@@ -71,7 +73,7 @@ class PaymentServiceProvider extends ServiceProvider
         // changes the driver mid-run does, and what a shop switching provider
         // on a running container would do.
         $this->app->bind(Gateways::class, function (): Gateways {
-            $lender = $this->lender();
+            $lenders = $this->lenders();
 
             // The card first — it is the ordinary way to pay, and the order
             // page draws these in the order they arrive. `at-the-door` is in
@@ -79,7 +81,7 @@ class PaymentServiceProvider extends ServiceProvider
             // `takesMoneyOnline()`, which is where that decision belongs, and
             // it is what the bare callback address has to resolve to on a shop
             // with no card gateway.
-            return new Gateways(...array_filter([$this->app->make(Gateway::class), $lender]));
+            return new Gateways($this->app->make(Gateway::class), ...$lenders);
         });
     }
 
@@ -105,23 +107,33 @@ class PaymentServiceProvider extends ServiceProvider
         );
     }
 
-    /** The instalment gateway, if the shop has one. */
-    private function lender(): ?Gateway
+    /**
+     * The instalment gateways, in the order `PAYMENT_INSTALMENTS` names them.
+     *
+     * **A comma-separated list since ترب‌پی joined اسنپ‌پی** —
+     * `PAYMENT_INSTALMENTS=snapppay,torobpay`. A single name still means what
+     * it always meant, so the live app's «snapppay» needs no change. The order
+     * is the order the buttons are drawn in, after the card.
+     *
+     * @return array<int, Gateway>
+     */
+    private function lenders(): array
     {
-        $driver = (string) config('services.payment.instalments', '');
+        $names = array_values(array_unique(array_filter(array_map(
+            'trim',
+            explode(',', (string) config('services.payment.instalments', ''))
+        ))));
 
-        if ($driver === '') {
-            return null;
-        }
+        return array_map(function (string $driver): Gateway {
+            if (! array_key_exists($driver, self::LENDERS)) {
+                throw new RuntimeException(
+                    "PAYMENT_INSTALMENTS is «{$driver}», which nothing implements. Known providers: "
+                    .implode(', ', array_keys(self::LENDERS)).'.'
+                );
+            }
 
-        if (! array_key_exists($driver, self::LENDERS)) {
-            throw new RuntimeException(
-                "PAYMENT_INSTALMENTS is «{$driver}», which nothing implements. Known providers: "
-                .implode(', ', array_keys(self::LENDERS)).'.'
-            );
-        }
-
-        return $this->snapppay();
+            return $driver === 'torobpay' ? $this->torobpay() : $this->snapppay();
+        }, $names);
     }
 
     private function snapppay(): SnappPay
@@ -154,6 +166,40 @@ class PaymentServiceProvider extends ServiceProvider
             username: (string) $settings['username'],
             password: (string) $settings['password'],
             commissionType: (int) ($settings['commission_type'] ?? 100),
+        );
+    }
+
+    /**
+     * ترب‌پی — the same four credentials in the same two pairs as اسنپ‌پی,
+     * and the same rule: all four or the shop refuses to boot the gateway,
+     * because three of them would put a button on every order page that
+     * refuses everybody who presses it.
+     */
+    private function torobpay(): TorobPay
+    {
+        $settings = (array) config('services.payment.torobpay', []);
+
+        $missing = array_values(array_filter(
+            ['client_id', 'client_secret', 'username', 'password'],
+            fn (string $key): bool => (string) ($settings[$key] ?? '') === ''
+        ));
+
+        if ($missing !== []) {
+            throw new RuntimeException(
+                'PAYMENT_INSTALMENTS names «torobpay» but these are empty: '
+                .implode(', ', array_map(fn (string $k): string => 'TOROBPAY_'.strtoupper($k), $missing))
+                .'. They come from ترب‌پی when the merchant account is opened '
+                .'and are set as environment variables on the Liara app — see config/services.php.'
+            );
+        }
+
+        return new TorobPay(
+            baseUrl: rtrim((string) ($settings['base_url'] ?? ''), '/') ?: 'https://cpg.torobpay.com',
+            clientId: (string) $settings['client_id'],
+            clientSecret: (string) $settings['client_secret'],
+            username: (string) $settings['username'],
+            password: (string) $settings['password'],
+            commissionType: (int) ($settings['commission_type'] ?? 0),
         );
     }
 }

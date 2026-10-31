@@ -190,7 +190,7 @@
                          and their lender all hold, so it is what any of the
                          three can start a question with. The panel prints the
                          same one and can be searched by it. --}}
-                    @if ($receipt->gateway === 'snapppay')
+                    @if (in_array($receipt->gateway, \App\Models\Payment::INSTALMENT_GATEWAYS, true))
                         · شمارهٔ تراکنش <bdi dir="ltr">{{ $receipt->authority }}</bdi>
                     @endif
                 </p>

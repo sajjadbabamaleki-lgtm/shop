@@ -415,7 +415,7 @@
                  call that tells them, through its confirmation screen. --}}
             <p class="vp-adm-empty">
                 @if ($instalment)
-                    اول به اسنپ‌پی اعلام می‌شود تا اقساط مشتری برداشته شود، بعد موجودی برمی‌گردد.
+                    اول به {{ $instalment->lenderName() }} اعلام می‌شود تا اقساط مشتری برداشته شود، بعد موجودی برمی‌گردد.
                     صفحهٔ بعد، قبل از ارسال، همه‌چیز را نشان می‌دهد. برگشت‌پذیر نیست.
                 @elseif ($order->status === \App\Models\Order::PAID)
                     موجودی برمی‌گردد و پرداخت «برگشت‌خورده» ثبت می‌شود. برگشت‌پذیر نیست.
@@ -427,7 +427,7 @@
             <form class="vp-adm-form" method="post"
                   action="{{ $instalment ? route('admin.order.instalments.cancel', $order) : route('admin.order.cancel', $order) }}"
                   onsubmit="return confirm('{{ $instalment
-                      ? 'صفحهٔ بعد، قبل از لغو نزد اسنپ‌پی، همه‌چیز را نشان می‌دهد تا تأیید کنی.'
+                      ? 'صفحهٔ بعد، قبل از لغو نزد '.$instalment->lenderName().'، همه‌چیز را نشان می‌دهد تا تأیید کنی.'
                       : 'این سفارش لغو می‌شود و موجودی رزروشده به انبار برمی‌گردد. برگشت‌پذیر نیست.' }}')">
                 @csrf
 
@@ -465,24 +465,30 @@
         <section class="vp-adm-card vp-adm-span-2">
             <div class="vp-adm-card-head">
                 <h2 class="vp-adm-card-title">مرجوعی اقساطی</h2>
-                <span class="vp-adm-card-more">اسنپ‌پی · <bdi dir="ltr">{{ $instalment->authority }}</bdi></span>
+                <span class="vp-adm-card-more">{{ $instalment->lenderName() }} · <bdi dir="ltr">{{ $instalment->authority }}</bdi></span>
             </div>
 
             <p class="vp-adm-empty">
-                هرچه اینجا مرجوع شود، به انبار برمی‌گردد و همان لحظه به اسنپ‌پی هم اعلام می‌شود
+                هرچه اینجا مرجوع شود، به انبار برمی‌گردد و همان لحظه به {{ $instalment->lenderName() }} هم اعلام می‌شود
                 تا اقساط مشتری کم شود. تخفیف — اگر کد تخفیف خورده باشد — به‌نسبت کم می‌شود.
                 برگشت‌پذیر نیست.
             </p>
 
+            {{-- ترب‌پی will not update an order that carried a discount code,
+                 so its return form would only ever be refused; said here. --}}
+            @if ($instalmentRefusesUpdate)
+                <p class="vp-adm-note is-bad">{{ $instalmentRefusesUpdate }}</p>
+            @endif
+
             @if ($instalmentWait > 0)
                 <p class="vp-adm-note is-bad">
-                    اسنپ‌پی بین هر دو به‌روزرسانی ۳۰ ثانیه فاصله می‌خواهد.
+                    {{ $instalment->lenderName() }} بین هر دو به‌روزرسانی ۳۰ ثانیه فاصله می‌خواهد.
                     {{ fa_number($instalmentWait) }} ثانیه دیگر صفحه را تازه کن.
                 </p>
             @endif
 
             <form class="vp-adm-form" method="post" action="{{ route('admin.order.return', $order) }}"
-                  onsubmit="return confirm('صفحهٔ بعد، قبل از ارسال به اسنپ‌پی، دقیقاً همین را نشان می‌دهد تا تأیید کنی.')">
+                  onsubmit="return confirm('صفحهٔ بعد، قبل از ارسال به {{ $instalment->lenderName() }}، دقیقاً همین را نشان می‌دهد تا تأیید کنی.')">
                 @csrf
 
                 <table class="vp-admin-table">
@@ -512,7 +518,7 @@
                 <input id="return-why" type="text" name="reason" maxlength="200"
                        placeholder="مثلاً سایز بزرگ بود" value="{{ old('reason') }}" required>
 
-                <button type="submit" class="vp-adm-danger" @disabled($instalmentWait > 0)>ادامه به تأیید مرجوعی</button>
+                <button type="submit" class="vp-adm-danger" @disabled($instalmentWait > 0 || $instalmentRefusesUpdate)>ادامه به تأیید مرجوعی</button>
             </form>
 
             {{-- The whole basket back. A separate form because it is a
@@ -524,7 +530,7 @@
                  on one screen is a question nobody should have to answer. --}}
             @if (! in_array($order->status, [\App\Models\Order::PLACED, \App\Models\Order::PAID], true))
             <form class="vp-adm-form" method="post" action="{{ route('admin.order.instalments.cancel', $order) }}"
-                  onsubmit="return confirm('صفحهٔ بعد، قبل از لغو نزد اسنپ‌پی، همه‌چیز را نشان می‌دهد تا تأیید کنی.')">
+                  onsubmit="return confirm('صفحهٔ بعد، قبل از لغو نزد {{ $instalment->lenderName() }}، همه‌چیز را نشان می‌دهد تا تأیید کنی.')">
                 @csrf
 
                 <label for="instalment-cancel-why">علت لغو کامل</label>
@@ -546,24 +552,24 @@
     @if ($instalment && $instalment->gateway_cancelled_at === null && $order->status === \App\Models\Order::CANCELLED)
         <section class="vp-adm-card vp-adm-span-2">
             <div class="vp-adm-card-head">
-                <h2 class="vp-adm-card-title">لغو به اسنپ‌پی اعلام نشده</h2>
-                <span class="vp-adm-card-more">اسنپ‌پی · <bdi dir="ltr">{{ $instalment->authority }}</bdi></span>
+                <h2 class="vp-adm-card-title">لغو به {{ $instalment->lenderName() }} اعلام نشده</h2>
+                <span class="vp-adm-card-more">{{ $instalment->lenderName() }} · <bdi dir="ltr">{{ $instalment->authority }}</bdi></span>
             </div>
 
             <p class="vp-adm-note is-bad">
-                این سفارش در فروشگاه لغو شده، ولی ثبت نشده که اسنپ‌پی هم از لغوش باخبر شده باشد —
+                این سفارش در فروشگاه لغو شده، ولی ثبت نشده که {{ $instalment->lenderName() }} هم از لغوش باخبر شده باشد —
                 یعنی ممکن است اقساط مشتری هنوز برقرار باشد.
             </p>
 
             <form class="vp-adm-form" method="post" action="{{ route('admin.order.instalments.cancel', $order) }}"
-                  onsubmit="return confirm('صفحهٔ بعد، قبل از لغو نزد اسنپ‌پی، همه‌چیز را نشان می‌دهد تا تأیید کنی.')">
+                  onsubmit="return confirm('صفحهٔ بعد، قبل از لغو نزد {{ $instalment->lenderName() }}، همه‌چیز را نشان می‌دهد تا تأیید کنی.')">
                 @csrf
 
                 <label for="lender-cancel-why">علت لغو</label>
                 <input id="lender-cancel-why" type="text" name="reason" maxlength="200"
                        placeholder="مثلاً مشتری منصرف شد" required>
 
-                <button type="submit" class="vp-adm-danger">ادامه به اعلام لغو به اسنپ‌پی</button>
+                <button type="submit" class="vp-adm-danger">ادامه به اعلام لغو به {{ $instalment->lenderName() }}</button>
             </form>
         </section>
     @endif
@@ -595,7 +601,7 @@
                 </summary>
 
                 <p class="vp-adm-empty">
-                    پیش‌پرداخت و تاریخ سررسید هر قسط را همان‌طور که در پنل اسنپ‌پی یا قرارداد آمده بنویس
+                    پیش‌پرداخت و تاریخ سررسید هر قسط را همان‌طور که در پنل درگاه اقساطی یا قرارداد آمده بنویس
                     (مبلغ به تومان). روی فاکتور چاپی همین‌ها چاپ می‌شود. همهٔ خانه‌ها را خالی کنی، برنامه برداشته می‌شود.
                 </p>
 

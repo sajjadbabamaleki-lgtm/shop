@@ -27,6 +27,13 @@ class Payment extends Model
 {
     public const PENDING = 'pending';
 
+    /**
+     * The gateways that lend rather than take a card. An order paid through
+     * any of these is an instalment order, and is cancelled or partly returned
+     * at that provider first — see `Order::settledInstalment()`.
+     */
+    public const INSTALMENT_GATEWAYS = ['snapppay', 'torobpay'];
+
     public const PAID = 'paid';
 
     public const FAILED = 'failed';
@@ -97,11 +104,26 @@ class Payment extends Model
      * disconnected falls back to the stored name, so an attempt is never
      * blank about where it went.
      */
+    /**
+     * The lender's own name for the panel's sentences — «اسنپ‌پی», «ترب‌پی».
+     * Written here rather than asked of the driver so a row whose provider has
+     * since been disconnected still reads correctly.
+     */
+    public function lenderName(): string
+    {
+        return match ($this->gateway) {
+            'torobpay' => 'ترب‌پی',
+            'snapppay' => 'اسنپ‌پی',
+            default => (string) $this->gateway,
+        };
+    }
+
     public function gatewayLabel(): string
     {
         return match ($this->gateway) {
             'zarinpal' => 'زرین‌پال (کارت بانکی)',
             'snapppay' => 'اسنپ‌پی (اقساطی)',
+            'torobpay' => 'ترب‌پی (اقساطی)',
             'panel' => 'ثبت‌شده در پنل',
             default => app(Gateways::class)->named($this->gateway)?->label() ?? (string) $this->gateway,
         };

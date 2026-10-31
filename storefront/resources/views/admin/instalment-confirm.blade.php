@@ -27,20 +27,20 @@
     <section class="vp-adm-card vp-adm-span-2">
         <div class="vp-adm-card-head">
             <h2 class="vp-adm-card-title">
-                {{ $kind === 'cancel' ? 'لغو کامل سفارش نزد اسنپ‌پی' : 'تأیید مرجوعی اقساطی' }}
+                {{ $kind === 'cancel' ? 'لغو کامل سفارش نزد '.$payment->lenderName() : 'تأیید مرجوعی اقساطی' }}
             </h2>
             <span class="vp-adm-card-more">
-                سفارش {{ $order->number }} · اسنپ‌پی · <bdi dir="ltr">{{ $payment->authority }}</bdi>
+                سفارش {{ $order->number }} · {{ $payment->lenderName() }} · <bdi dir="ltr">{{ $payment->authority }}</bdi>
             </span>
         </div>
 
         <p class="vp-adm-empty">
             هنوز چیزی ارسال نشده و هیچ‌چیز تغییر نکرده است. با زدن دکمهٔ پایین،
             @if ($kind === 'cancel')
-                کل این سفارش نزد اسنپ‌پی لغو می‌شود، همهٔ اقساط مشتری برداشته می‌شود
+                کل این سفارش نزد {{ $payment->lenderName() }} لغو می‌شود، همهٔ اقساط مشتری برداشته می‌شود
                 و موجودی به انبار برمی‌گردد.
             @else
-                اقلام زیر به انبار برمی‌گردند و همان لحظه به اسنپ‌پی اعلام می‌شود.
+                اقلام زیر به انبار برمی‌گردند و همان لحظه به {{ $payment->lenderName() }} اعلام می‌شود.
             @endif
             <b>این کار برگشت‌پذیر نیست.</b>
         </p>
@@ -108,7 +108,7 @@
             @endforeach
 
             <button type="submit" class="vp-adm-danger">
-                {{ $kind === 'cancel' ? 'بله، نزد اسنپ‌پی لغو کن' : 'بله، به اسنپ‌پی اعلام کن' }}
+                {{ $kind === 'cancel' ? 'بله، نزد '.$payment->lenderName().' لغو کن' : 'بله، به '.$payment->lenderName().' اعلام کن' }}
             </button>
         </form>
 

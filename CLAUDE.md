@@ -790,6 +790,28 @@ the client saw an old page and had no way to tell why. So, plainly:
   against it**, which is where every correction above came from. What it also
   lists is what SnappPay certify before giving production access, and all of it
   is now here — `revert` is the one service the document says need not be.
+- **ترب‌پی is the third gateway and the second lender** (2026-10-31), from
+  «مستندات درگاه خرید اعتباری (CPG) ترب‌پی» v1.3.31. `PAYMENT_INSTALMENTS` is
+  now a **comma list** — `snapppay,torobpay`, drawn in that order after the
+  card; a single name still means what it did — plus `TOROBPAY_CLIENT_ID`,
+  `_CLIENT_SECRET`, `_USERNAME`, `_PASSWORD` (and `TOROBPAY_BASE_URL`, default
+  `https://cpg.torobpay.com`). `App\Support\Payments\TorobPay` is its own class
+  and **not** a subclass of `SnappPay`: same paths and lifecycle, but the token
+  call is JSON behind Basic, opening needs `paymentMethodTypeDto: ONLINE_CREDIT`
+  plus the checkout's address/postal code/city/province/name/registration
+  phone, ids are strings, `commissionType` is 0, refusals are
+  `error.{code,message,user_message}`, a **discounted order cannot be updated**
+  (1016 — refused in `refusesUpdate()` before the shelf moves), and a cancelled
+  order's status reads `REVERT`. **Every caller now asks the payment's own
+  gateway through the `Lender` interface** — `$gateways->named($payment->gateway)
+  instanceof Lender` — never `named('snapppay')`: with two lenders, asking the
+  first one configured cancels a ترب‌پی order at اسنپ‌پی. The button reuses the
+  `.vp-snapp` card **without a logo** until ترب‌پی supply the file; the shared
+  `shop/pay/ask-lender` script asks `/orders/{order}/instalments/{gateway}`.
+  Province, city and postal code are optional at this shop's checkout and
+  required by their document, so an order without them sends empty strings —
+  if their staging refuses that (1003), those three fields have to become
+  required at checkout. `TorobPayTest` holds all of it.
 - **The shop has a partial return now, and only اسنپ‌پی orders have it.** It is
   the first anywhere in this application: `admin/OrderController` used to say
   in its own docblock that there is «no refund and no return anywhere in the

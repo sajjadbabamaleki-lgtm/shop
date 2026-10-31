@@ -10,7 +10,7 @@ use App\Support\Checkout\CannotFulfil;
 use App\Support\Checkout\SettleOrder;
 use App\Support\Payments\Gateways;
 use App\Support\Payments\PaymentFailed;
-use App\Support\Payments\SnappPay;
+use App\Support\Payments\Lender;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -85,13 +85,23 @@ class ReturnsController extends Controller
         $payment = $this->instalmentPayment($order);
 
         if ($payment === null) {
-            return $back->withErrors(['reason' => 'این سفارش اقساطی نیست؛ مرجوعی جزئی فعلاً فقط برای سفارش‌های اسنپ‌پی است.']);
+            return $back->withErrors(['reason' => 'این سفارش اقساطی نیست؛ مرجوعی جزئی فعلاً فقط برای سفارش‌های اقساطی (اسنپ‌پی و ترب‌پی) است.']);
         }
 
-        $lender = $gateways->named('snapppay');
+        // **The lender that was paid**, read off the payment — not the first
+        // one configured. Two lenders means telling the wrong one is possible,
+        // and that would leave the shopper paying the right one in full.
+        $lender = $gateways->named($payment->gateway);
+        $brand = $payment->lenderName();
 
-        if (! $lender instanceof SnappPay) {
-            return $back->withErrors(['reason' => 'درگاه اقساطی تنظیم نیست، پس نمی‌شود به اسنپ‌پی خبر داد.']);
+        if (! $lender instanceof Lender) {
+            return $back->withErrors(['reason' => "درگاه {$brand} تنظیم نیست، پس نمی‌شود به {$brand} خبر داد."]);
+        }
+
+        // A rule about the order itself rather than the lines — ترب‌پی will
+        // not update a discounted order — asked before anything moves.
+        if (($why = $lender->refusesUpdate($order)) !== null) {
+            return $back->withErrors(['reason' => $why]);
         }
 
         // What the order would be worth afterwards, computed before anything
@@ -113,7 +123,7 @@ class ReturnsController extends Controller
         // believing less is owed while the shopper keeps paying — the one
         // direction this whole class is arranged to avoid.
         if (($wait = $lender->secondsUntilAnotherUpdate($payment)) > 0) {
-            return $back->withErrors(['reason' => 'اسنپ‌پی بین هر دو به‌روزرسانی ۳۰ ثانیه فاصله می‌خواهد؛ '
+            return $back->withErrors(['reason' => "{$brand} بین هر دو به‌روزرسانی ۳۰ ثانیه فاصله می‌خواهد؛ "
                 .fa_number($wait).' ثانیه دیگر دوباره بزن.']);
         }
 
@@ -148,7 +158,8 @@ class ReturnsController extends Controller
             // one direction worth shouting about — and undoing the stock here
             // would mean moving it a fourth time on a failure path nobody can
             // test. It is said instead, on the screen and in the log.
-            Log::error('A return was recorded and SnappPay was not told.', [
+            Log::error('A return was recorded and the lender was not told.', [
+                'gateway' => $payment->gateway,
                 'order' => $order->number,
                 'payment' => $payment->id,
                 'transaction' => $payment->authority,
@@ -156,12 +167,12 @@ class ReturnsController extends Controller
             ]);
 
             return $back->withErrors([
-                'reason' => 'مرجوعی ثبت شد ولی اسنپ‌پی آن را نپذیرفت: '.$e->getMessage()
-                    .' — با پشتیبانی اسنپ‌پی تماس بگیر و شمارهٔ تراکنش '.$payment->authority.' را بده.',
+                'reason' => "مرجوعی ثبت شد ولی {$brand} آن را نپذیرفت: ".$e->getMessage()
+                    ." — با پشتیبانی {$brand} تماس بگیر و شمارهٔ تراکنش ".$payment->authority.' را بده.',
             ]);
         }
 
-        return $back->with('status', 'مرجوعی ثبت شد، موجودی برگشت و مبلغ اقساط در اسنپ‌پی کم شد.');
+        return $back->with('status', "مرجوعی ثبت شد، موجودی برگشت و مبلغ اقساط در {$brand} کم شد.");
     }
 
     /**
@@ -180,15 +191,16 @@ class ReturnsController extends Controller
         $input = $request->validate(['reason' => ['required', 'string', 'max:200']]);
 
         $payment = $this->instalmentPayment($order);
-        $lender = $gateways->named('snapppay');
+        $lender = $payment !== null ? $gateways->named($payment->gateway) : null;
+        $brand = $payment?->lenderName() ?? '';
 
-        if ($payment === null || ! $lender instanceof SnappPay) {
+        if ($payment === null || ! $lender instanceof Lender) {
             return $back->withErrors(['reason' => 'این سفارش اقساطی نیست؛ از دکمهٔ لغو معمولی استفاده کن.']);
         }
 
         // Told already: nothing left to do on either side.
         if ($payment->gateway_cancelled_at !== null) {
-            return $back->with('status', 'این سفارش از قبل نزد اسنپ‌پی لغو شده بود؛ چیزی تغییر نکرد.');
+            return $back->with('status', "این سفارش از قبل نزد {$brand} لغو شده بود؛ چیزی تغییر نکرد.");
         }
 
         // **Cancelled here and never told there** — what the panel's ordinary
@@ -214,7 +226,7 @@ class ReturnsController extends Controller
         // Asked first, because an order cancelled before this was recorded may
         // already be cancelled there, and a second cancel is a refusal that
         // reads like a fault.
-        if ($lender->state($payment) !== 'CANCEL') {
+        if (! $lender->alreadyCancelled($payment)) {
             try {
                 $lender->cancel($payment);
             } catch (PaymentFailed $e) {
@@ -228,7 +240,7 @@ class ReturnsController extends Controller
         $payment->forceFill(['gateway_cancelled_at' => now()])->save();
 
         if ($onlyTheLender) {
-            return $back->with('status', 'لغو این سفارش به اسنپ‌پی اعلام شد و اقساط مشتری برداشته شد.');
+            return $back->with('status', "لغو این سفارش به {$brand} اعلام شد و اقساط مشتری برداشته شد.");
         }
 
         $settle->cancelled($order, $input['reason']);
@@ -237,7 +249,7 @@ class ReturnsController extends Controller
             'staff_note' => trim($order->staff_note."\nعلت لغو: ".$input['reason']),
         ])->save();
 
-        return $back->with('status', 'سفارش نزد اسنپ‌پی لغو شد، اقساط مشتری برداشته شد و موجودی برگشت.');
+        return $back->with('status', "سفارش نزد {$brand} لغو شد، اقساط مشتری برداشته شد و موجودی برگشت.");
     }
 
     /** See `Order::settledInstalment()`, which every cancel in the panel asks. */

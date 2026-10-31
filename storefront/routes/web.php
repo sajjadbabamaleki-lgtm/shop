@@ -307,7 +307,7 @@ $storefront = function (): void {
      * اسنپ‌پی's `eligible` is a round trip to Tehran and the page is already
      * the slowest thing this shop serves. See InstalmentsController.
      */
-    Route::get('/orders/{order}/instalments', [InstalmentsController::class, 'show'])
+    Route::get('/orders/{order}/instalments/{gateway?}', [InstalmentsController::class, 'show'])
         ->middleware('throttle:60,1')->name('order.instalments');
 
     Route::post('/orders/{order}/pay/{gateway?}', [PaymentController::class, 'pay'])

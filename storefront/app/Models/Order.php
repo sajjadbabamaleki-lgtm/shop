@@ -119,7 +119,7 @@ class Order extends Model
     }
 
     /**
-     * The settled اسنپ‌پی payment behind this order, if there is one.
+     * The settled instalment payment (اسنپ‌پی or ترب‌پی) behind this order, if there is one.
      *
      * Paid *and* through that gateway: an order that opened an اسنپ‌پی attempt
      * and was then paid by card has a row for each, and only one of them is
@@ -131,7 +131,7 @@ class Order extends Model
     public function settledInstalment(): ?Payment
     {
         return $this->payments()
-            ->where('gateway', 'snapppay')
+            ->whereIn('gateway', Payment::INSTALMENT_GATEWAYS)
             ->where('status', Payment::PAID)
             ->latest('id')
             ->first();
@@ -319,7 +319,7 @@ class Order extends Model
         }
 
         return $this->payments()
-            ->where('gateway', 'snapppay')
+            ->whereIn('gateway', Payment::INSTALMENT_GATEWAYS)
             ->where('status', Payment::PAID)
             ->exists();
     }

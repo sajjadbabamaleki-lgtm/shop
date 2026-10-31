@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use App\Support\Payments\Gateways;
-use App\Support\Payments\SnappPay;
+use App\Support\Payments\Lender;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -42,18 +42,21 @@ class InstalmentsController extends Controller
      * asked about, so an open endpoint would let anybody read what any order
      * is worth.
      */
-    public function show(Request $request, Order $order, Gateways $gateways): JsonResponse
+    public function show(Request $request, Order $order, Gateways $gateways, ?string $gateway = null): JsonResponse
     {
         if (! $request->session()->get("order.{$order->number}")) {
             throw new AccessDeniedHttpException('این سفارش برای این نشست نیست.');
         }
 
-        $lender = $gateways->named('snapppay');
+        // **Which lender is named by the address**, since ترب‌پی joined
+        // اسنپ‌پی: each button asks about itself. No name is اسنپ‌پی, which
+        // is what a page drawn before the change asks.
+        $lender = $gateways->named($gateway ?? 'snapppay');
 
-        // A shop with no instalment gateway configured answers the same way a
-        // refused amount does: no button. The page asks either way, because
-        // whether the shop has one is not the page's business.
-        if (! $lender instanceof SnappPay) {
+        // A shop with no such instalment gateway configured answers the same
+        // way a refused amount does: no button. The page asks either way,
+        // because whether the shop has one is not the page's business.
+        if (! $lender instanceof Lender) {
             return response()->json(['eligible' => false]);
         }
 

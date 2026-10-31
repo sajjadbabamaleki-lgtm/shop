@@ -15,7 +15,7 @@ use App\Support\Checkout\SettleOrder;
 use App\Support\Fulfilment\FulfilmentSettings;
 use App\Support\Fulfilment\Promise;
 use App\Support\Payments\Gateways;
-use App\Support\Payments\SnappPay;
+use App\Support\Payments\Lender;
 use App\Support\Search;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\View\View;
@@ -212,9 +212,16 @@ class OrderController extends Controller
             // enforces it — but a member of staff finding that out by filling
             // the form in and being refused is the screen keeping a rule to
             // itself. Drawn instead, where the button is. Zero means now.
-            'instalmentWait' => $instalment !== null && ($lender = $gateways->named('snapppay')) instanceof SnappPay
+            'instalmentWait' => $instalment !== null && ($lender = $gateways->named($instalment->gateway)) instanceof Lender
                 ? $lender->secondsUntilAnotherUpdate($instalment)
                 : 0,
+
+            // Whether this lender will take a partial return of this order at
+            // all — ترب‌پی will not update a discounted one — said on the card
+            // rather than discovered by filling the form in.
+            'instalmentRefusesUpdate' => $instalment !== null && ($lender = $gateways->named($instalment->gateway)) instanceof Lender
+                ? $lender->refusesUpdate($order)
+                : null,
 
             'delaysEnabled' => (bool) ($settings['delays_enabled'] ?? true),
             'maxDelay' => (int) ($settings['max_delay_days'] ?? 7),

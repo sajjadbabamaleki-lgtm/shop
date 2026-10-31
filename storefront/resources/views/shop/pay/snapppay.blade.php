@@ -39,37 +39,4 @@
     </button>
 </form>
 
-<script>
-    // Next to the form rather than in the shared script file, for the same
-    // reason the VPN dialog's is: that one is generated from the static page
-    // and runs at the foot of the document, and this has to be armed the
-    // moment the element exists.
-    //
-    // **Nothing here writes a sentence.** The two lines are printed exactly as
-    // SnappPay sent them — «تایتل و دیسکریپشن که در جواب بازگردانده می‌شود
-    // بدون هیچ‌گونه تغییری نمایش داده شود» — and if they send none, the button
-    // stays hidden rather than opening empty. Every other failure is silent on
-    // purpose: this button not appearing costs a shopper nothing, because the
-    // card button beside it is untouched.
-    (function () {
-        var forms = document.querySelectorAll('.vp-snapp-form[data-vp-instalments]');
-
-        Array.prototype.forEach.call(forms, function (form) {
-            fetch(form.getAttribute('data-vp-instalments'), {
-                headers: { Accept: 'application/json' },
-                credentials: 'same-origin'
-            })
-                .then(function (answer) { return answer.ok ? answer.json() : null; })
-                .then(function (said) {
-                    if (!said || said.eligible !== true || !said.title) {
-                        return;
-                    }
-
-                    form.querySelector('.vp-snapp-title').textContent = said.title;
-                    form.querySelector('.vp-snapp-say').textContent = said.description || '';
-                    form.hidden = false;
-                })
-                .catch(function () {});
-        });
-    }());
-</script>
+@include('shop.pay.ask-lender')

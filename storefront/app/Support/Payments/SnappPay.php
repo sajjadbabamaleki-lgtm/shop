@@ -49,7 +49,7 @@ use Illuminate\Support\Facades\Log;
  * anywhere would notice a Toman figure being sent, so it is never converted
  * here and never should be.
  */
-class SnappPay implements Gateway
+class SnappPay implements Lender
 {
     /** Their own paths, under whichever host the merchant account belongs to. */
     private const TOKEN = '/api/online/v1/oauth/token';
@@ -131,9 +131,30 @@ class SnappPay implements Gateway
         return 'خرید اقساطی با اسنپ‌پی';
     }
 
+    public function brand(): string
+    {
+        return 'اسنپ‌پی';
+    }
+
     public function takesMoneyOnline(): bool
     {
         return true;
+    }
+
+    /** After their `cancel`, `status` answers CANCEL. */
+    public function alreadyCancelled(Payment $payment): bool
+    {
+        return $this->state($payment) === 'CANCEL';
+    }
+
+    /**
+     * SnappPay updates a discounted basket — `discountAmount` travels beside
+     * it and `AfterReturns` apportions it — so nothing about the order itself
+     * stops an update. Their thirty seconds is `secondsUntilAnotherUpdate()`.
+     */
+    public function refusesUpdate(Order $order): ?string
+    {
+        return null;
     }
 
     /**

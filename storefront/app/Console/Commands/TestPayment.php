@@ -5,7 +5,7 @@ namespace App\Console\Commands;
 use App\Support\Payments\AtTheDoor;
 use App\Support\Payments\Gateway;
 use App\Support\Payments\Gateways;
-use App\Support\Payments\SnappPay;
+use App\Support\Payments\Lender;
 use App\Support\Payments\ZarinPal;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
@@ -112,23 +112,24 @@ class TestPayment extends Command
         // which variable is missing — which is the answer, and it should not
         // be waiting behind a network call to somebody else.
         try {
-            $instalments = app(Gateways::class)->named($lender !== '' ? $lender : null);
+            $instalments = array_values(array_filter(
+                app(Gateways::class)->all(),
+                fn ($g): bool => $g instanceof Lender
+            ));
         } catch (Throwable $e) {
             $this->error($e->getMessage());
 
             return self::FAILURE;
         }
 
-        $instalments = $instalments instanceof SnappPay ? $instalments : null;
-
-        // A shop lending through اسنپ‌پی with no card gateway is a real
-        // arrangement, so the «nothing is configured» screen below only stands
-        // when there is nothing at all.
-        if ($gateway instanceof AtTheDoor && $instalments !== null) {
+        // A shop lending with no card gateway is a real arrangement, so the
+        // «nothing is configured» screen below only stands when there is
+        // nothing at all.
+        if ($gateway instanceof AtTheDoor && $instalments !== []) {
             $this->newLine();
-            $this->warn('درگاه کارت تنظیم نشده است؛ فقط اسنپ‌پی آزمایش می‌شود.');
+            $this->warn('درگاه کارت تنظیم نشده است؛ فقط درگاه‌های اقساطی آزمایش می‌شوند.');
 
-            return $this->snapppay($instalments);
+            return $this->lenders($instalments);
         }
 
         if ($gateway instanceof AtTheDoor) {
@@ -150,15 +151,34 @@ class TestPayment extends Command
 
         $card = $this->zarinpal($gateway);
 
-        if ($instalments === null) {
+        if ($instalments === []) {
             return $card;
         }
 
-        // Both, and the run is green only if both were. A shop that has
-        // connected two gateways has two ways of being half broken.
-        return $this->snapppay($instalments) === self::SUCCESS && $card === self::SUCCESS
+        // All of them, and the run is green only if all were. A shop that has
+        // connected three gateways has three ways of being half broken.
+        return $this->lenders($instalments) === self::SUCCESS && $card === self::SUCCESS
             ? self::SUCCESS
             : self::FAILURE;
+    }
+
+    /**
+     * Every instalment gateway in turn — each asked even when one before it
+     * failed, because «پرداخت اقساطی کار نمی‌کند» never says which.
+     *
+     * @param  array<int, Lender>  $lenders
+     */
+    private function lenders(array $lenders): int
+    {
+        $result = self::SUCCESS;
+
+        foreach ($lenders as $lender) {
+            if ($this->lender($lender) !== self::SUCCESS) {
+                $result = self::FAILURE;
+            }
+        }
+
+        return $result;
     }
 
     /** زرین‌پال: open one payment and read the answer. */
@@ -240,15 +260,17 @@ class TestPayment extends Command
      * mean a particular basket will be financed — only a real payment can say
      * that, and its refusal reaches the shopper in SnappPay's own words.
      */
-    private function snapppay(SnappPay $gateway): int
+    private function lender(Lender $gateway): int
     {
-        $this->newLine();
-        $this->line('── اسنپ‌پی ──');
+        $brand = $gateway->brand();
 
-        $this->describeSnappPayCredentials();
+        $this->newLine();
+        $this->line('── '.$brand.' ──');
+
+        $this->describeLenderCredentials($gateway->name());
 
         $this->line('آدرس سرویس: '.$gateway->host());
-        $this->line('آدرس بازگشت: '.rtrim((string) config('app.url'), '/').'/checkout/callback/snapppay/<کلید>');
+        $this->line('آدرس بازگشت: '.rtrim((string) config('app.url'), '/').'/checkout/callback/'.$gateway->name());
         $this->line('IP این سرور: '.$this->outboundIp());
 
         $amount = max(1000, (int) $this->option('amount'));
@@ -258,26 +280,26 @@ class TestPayment extends Command
         try {
             $answer = $gateway->probe($amount);
         } catch (Throwable $e) {
-            $this->error('درخواست به اسنپ‌پی نرسید: '.$e->getMessage());
+            $this->error('درخواست به '.$brand.' نرسید: '.$e->getMessage());
 
             return self::FAILURE;
         }
 
-        $this->line('پاسخ اسنپ‌پی: '.json_encode($answer, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+        $this->line('پاسخ '.$brand.': '.json_encode($answer, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
 
         if (data_get($answer, 'successful') !== true) {
-            $this->error('✗ اسنپ‌پی این درخواست را نپذیرفت.');
-            $this->line('کد: '.(string) data_get($answer, 'errorData.errorCode', '—'));
-            $this->line('پیام: '.(string) data_get($answer, 'errorData.message', '—'));
+            $this->error('✗ '.$brand.' این درخواست را نپذیرفت.');
+            $this->line('کد: '.(string) data_get($answer, 'errorData.errorCode', data_get($answer, 'error.code', '—')));
+            $this->line('پیام: '.(string) data_get($answer, 'errorData.message', data_get($answer, 'error.message', '—')));
             $this->newLine();
-            $this->line('۱. چهار متغیر SNAPPPAY_* را با سند اتصالی که اسنپ‌پی فرستاده مقایسه کنید.');
+            $this->line('۱. چهار متغیر '.strtoupper($gateway->name()).'_* را با اطلاعات اتصالی که '.$brand.' فرستاده مقایسه کنید.');
             $this->line('۲. آدرس سرویس بالا باید همان هاستی باشد که آن سند می‌گوید (استیجینگ و اصلی یکی نیستند).');
             $this->line('۳. اگر روی حساب محدودیت IP هست، IP بالا باید در آن باشد.');
 
             return self::FAILURE;
         }
 
-        $this->info('✓ اسنپ‌پی پاسخ داد و اعتبارنامه‌ها پذیرفته شد.');
+        $this->info('✓ '.$brand.' پاسخ داد و اعتبارنامه‌ها پذیرفته شد.');
 
         // What `eligible` actually answers: whether *this amount* can be paid
         // in instalments, and the two sentences to print beside the button.
@@ -315,26 +337,27 @@ class TestPayment extends Command
     }
 
     /**
-     * The four SnappPay credentials, described without being printed.
+     * A lender's four credentials, described without being printed.
      *
      * Two pairs with two different jobs, and the commonest way this is wrong
      * is that they have been swapped — the merchant account put in the client
      * fields, or the other way about. Lengths and a first character are enough
      * to see that by eye against the integration document.
      */
-    private function describeSnappPayCredentials(): void
+    private function describeLenderCredentials(string $name): void
     {
         foreach ([
             'client_id' => 'CLIENT_ID',
             'client_secret' => 'CLIENT_SECRET',
             'username' => 'USERNAME',
             'password' => 'PASSWORD',
-        ] as $key => $name) {
-            $value = (string) config('services.payment.snapppay.'.$key, '');
+        ] as $key => $suffix) {
+            $value = (string) config('services.payment.'.$name.'.'.$key, '');
 
             $this->line(sprintf(
-                'SNAPPPAY_%s: %s (%d کاراکتر)',
-                $name,
+                '%s_%s: %s (%d کاراکتر)',
+                strtoupper($name),
+                $suffix,
                 $value === '' ? '— خالی —' : mb_substr($value, 0, 2).str_repeat('•', max(0, mb_strlen($value) - 2)),
                 mb_strlen($value)
             ));

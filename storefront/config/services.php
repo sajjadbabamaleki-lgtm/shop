@@ -184,7 +184,8 @@ return [
         | instead of it.** Empty is «this shop does not sell in instalments»,
         | which is what it was until اسنپ‌پی was connected.
         |
-        |   PAYMENT_INSTALMENTS=snapppay
+        |   PAYMENT_INSTALMENTS=snapppay            (one lender)
+        |   PAYMENT_INSTALMENTS=snapppay,torobpay   (both, in this order)
         |
         | A second variable rather than a list because the two are not
         | interchangeable: one takes a card, the other lends against the
@@ -243,6 +244,28 @@ return [
             'username' => env('SNAPPPAY_USERNAME'),
             'password' => env('SNAPPPAY_PASSWORD'),
             'commission_type' => env('SNAPPPAY_COMMISSION_TYPE', 100),
+        ],
+
+        /*
+        | **ترب‌پی — the second lender, written against «مستندات درگاه خرید
+        | اعتباری (CPG) ترب‌پی» v1.3.31.** Switched on by adding its name to the
+        | list: PAYMENT_INSTALMENTS=snapppay,torobpay (the order is the order
+        | the buttons are drawn in).
+        |
+        |   TOROBPAY_CLIENT_ID / TOROBPAY_CLIENT_SECRET   HTTP Basic on the token call
+        |   TOROBPAY_USERNAME  / TOROBPAY_PASSWORD        the merchant account, in its body
+        |   TOROBPAY_BASE_URL         https://cpg.torobpay.com unless they say otherwise
+        |   TOROBPAY_COMMISSION_TYPE  «مقدار مجاز: 0» in their document
+        |
+        | Rial, no currency field — the same warning as SnappPay's above.
+        */
+        'torobpay' => [
+            'base_url' => env('TOROBPAY_BASE_URL', 'https://cpg.torobpay.com'),
+            'client_id' => env('TOROBPAY_CLIENT_ID'),
+            'client_secret' => env('TOROBPAY_CLIENT_SECRET'),
+            'username' => env('TOROBPAY_USERNAME'),
+            'password' => env('TOROBPAY_PASSWORD'),
+            'commission_type' => env('TOROBPAY_COMMISSION_TYPE', 0),
         ],
     ],
 
