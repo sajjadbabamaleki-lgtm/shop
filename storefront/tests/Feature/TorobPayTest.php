@@ -89,10 +89,13 @@ class TorobPayTest extends TestCase
         return app(TenantContext::class)->forBranch($this->branch, function () use ($customer, $discount, $status): Order {
             $variants = Variant::whereHas('product', fn ($q) => $q->whereNotNull('published_at'))->take(2)->get();
 
-            foreach ($variants as $variant) {
+            // A placed order holds its units the way `PlaceOrder` leaves
+            // them — reserved — so settling it sells out of the reservation
+            // rather than below nothing. A paid one has already sold them.
+            foreach ($variants as $i => $variant) {
                 BranchInventory::updateOrCreate(
                     ['branch_id' => $this->branch->id, 'variant_id' => $variant->id],
-                    ['stock_on_hand' => 5, 'stock_reserved' => 0]
+                    ['stock_on_hand' => 5, 'stock_reserved' => $status === Order::PLACED ? [2, 1][$i] : 0]
                 );
             }
 
