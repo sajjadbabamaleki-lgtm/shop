@@ -1,4 +1,4 @@
-// TEMPORARY (run 4). SnappPay's merchant test, recorded at 1440x900 on the live site.
+// TEMPORARY (run 5). SnappPay's merchant test, recorded at 1440x900 on the live site.
 // Scripted where the shop's own pages are known; remote-controlled through
 // commits where they are not (SnappPay's pages, the card page, the panel).
 const { chromium } = require('playwright');
@@ -180,12 +180,15 @@ async function remote(prefix) {
     await page.locator('form.vp-checkout button[type="submit"]').click(); await page.waitForLoadState('domcontentloaded');
     await page.waitForSelector('.vp-snapp-form:not([hidden])', { timeout: 20000 }).catch(() => log('snapp button did not appear'));
     await sleep(4000);
-    clip('02-order'); await shot('02-order'); push('snapp test: 02 order');
-    await waitFor('go-2', 12);
+    // The site's own «turn the VPN off» notice opens over the payment page.
+    await page.getByText('متوجه شدم').first().click({ timeout: 8000 }).catch(() => log('no VPN notice'));
+    await sleep(3000);
+    await shot('02-order'); push('snapp test: 02 order');
 
-    // 3 — SnappPay and everything after it, step by step.
+    // 3 — SnappPay, straight on (the order lets go of its stock after 15
+    // minutes), then step by step from here.
     await page.locator('.vp-snapp-form button[type="submit"]').first().click();
-    await sleep(6000);
+    await sleep(7000);
     await remote('03');
   } catch (e) {
     log('FAILED', e.message);
