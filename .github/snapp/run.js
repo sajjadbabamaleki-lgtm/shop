@@ -108,7 +108,22 @@ async function remote(prefix) {
     // 1 — the shop, two different products, one discounted, into the basket.
     await page.goto(SITE + '/', { waitUntil: 'domcontentloaded' });
     await sleep(3500);
-    await page.mouse.wheel(0, 500); await sleep(1500);
+
+    // 0 — the dice game, for the discount code. The answer is read off the
+    // game's own JSON rather than the card's text.
+    let code = null;
+    page.on('response', async (r) => {
+      if (r.url().includes('/game/dice')) { try { const j = await r.json(); if (j.code) code = j.code; } catch {} }
+    });
+    await page.locator('#vp-dice').scrollIntoViewIfNeeded(); await sleep(1500);
+    for (let i = 0; i < 6 && !code; i++) {
+      await page.locator('[data-dice-go]').click();
+      await sleep(4500);
+    }
+    log('dice code', code);
+    if (!code) throw new Error('the dice game gave no code in its throws');
+    await sleep(4000);
+    await page.locator('.vp-prize-shut').click().catch(() => {}); await sleep(1500);
     await page.goto(SITE + '/products?sort=cheapest', { waitUntil: 'domcontentloaded' });
     await sleep(2500);
     const cardsHere = () => page.evaluate(() => [...document.querySelectorAll('article.vp-card')]
@@ -135,6 +150,11 @@ async function remote(prefix) {
 
     // 2 — checkout, the order, the instalment button.
     await page.locator('a.vp-cart-go').first().click(); await page.waitForLoadState('domcontentloaded'); await sleep(1500);
+    // The code first: its form reloads the page, so it goes in before the
+    // address does.
+    await page.locator('#vp-code').click(); await page.locator('#vp-code').pressSequentially(code, { delay: 90 });
+    await sleep(800);
+    await page.locator('form.vp-code button[type="submit"]').click(); await page.waitForLoadState('domcontentloaded'); await sleep(3000);
     const type = async (sel, v) => { await page.locator(sel).click(); await page.locator(sel).pressSequentially(v, { delay: 70 }); };
     await type('#co-name', 'تست اسنپ پی');
     await type('#co-phone', '09121161311');
