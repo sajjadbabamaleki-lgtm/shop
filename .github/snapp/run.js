@@ -1,4 +1,4 @@
-// TEMPORARY (run 3). SnappPay's merchant test, recorded at 1440x900 on the live site.
+// TEMPORARY (run 4). SnappPay's merchant test, recorded at 1440x900 on the live site.
 // Scripted where the shop's own pages are known; remote-controlled through
 // commits where they are not (SnappPay's pages, the card page, the panel).
 const { chromium } = require('playwright');
@@ -124,26 +124,40 @@ async function remote(prefix) {
     if (!code) throw new Error('the dice game gave no code in its throws');
     await sleep(4000);
     await page.locator('.vp-prize-shut').click().catch(() => {}); await sleep(1500);
-    await page.goto(SITE + '/products?sort=cheapest', { waitUntil: 'domcontentloaded' });
-    await sleep(2500);
-    const cardsHere = () => page.evaluate(() => [...document.querySelectorAll('article.vp-card')]
-      .filter((c) => !c.querySelector('.vp-card-out') && !/آزمایشی/.test(c.innerText))
-      .map((c) => ({ href: c.querySelector('a.vp-card-name').href, off: !!c.querySelector('.vp-card-was'), name: c.querySelector('a.vp-card-name').innerText.trim() })));
-    const plain = (await cardsHere()).find((c) => !c.off);
-    // The discounted one from the stepped-sale tab, the listing's own way of
-    // showing only what has a struck-through price.
-    await page.goto(SITE + '/products?sale=1&sort=cheapest', { waitUntil: 'domcontentloaded' });
-    await sleep(2500);
-    const off = (await cardsHere()).find((c) => c.off && (!plain || c.href !== plain.href));
-    const picks = { plain, off };
-    log('picks', JSON.stringify(picks));
-    if (!picks.plain || !picks.off) throw new Error('could not find a plain and a discounted product');
+    // Only the shop's test products, and a basket of 300,000-500,000 toman:
+    // the listing's own price filter, then the items named «آزمایشی».
+    await page.goto(SITE + '/products?max=500000&sort=cheapest', { waitUntil: 'domcontentloaded' });
+    await sleep(3000);
+    const items = await page.evaluate(() => {
+      const num = (t) => Number((t || '').replace(/[۰-۹]/g, (d) => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/[^0-9]/g, '')) || 0;
+      return [...document.querySelectorAll('article.vp-card')]
+        .filter((c) => !c.querySelector('.vp-card-out') && /آزمایشی/.test(c.innerText))
+        .map((c) => ({ href: c.querySelector('a.vp-card-name').href, name: c.querySelector('a.vp-card-name').innerText.trim(), price: num(c.querySelector('.vp-card-price')?.innerText), off: !!c.querySelector('.vp-card-was') }));
+    });
+    log('test items', JSON.stringify(items));
+    fs.writeFileSync(path.join(OUT, 'test-items.json'), JSON.stringify(items, null, 1));
+    // Two different items, one discounted when the shop has one, and the
+    // quantities that put the basket between 300,000 and 500,000 (after the
+    // dice's 5% as well as before it).
+    let plan = null;
+    const inRange = (t) => t >= 300000 && t <= 500000 && t * 0.95 >= 300000;
+    for (const a of items) for (const b of items) {
+      if (a.href === b.href || plan) continue;
+      if (items.some((x) => x.off) && !b.off) continue;
+      for (let qa = 1; qa <= 4 && !plan; qa++) for (let qb = 1; qb <= 3 && !plan; qb++) {
+        if (inRange(a.price * qa + b.price * qb)) plan = { a, qa, b, qb, total: a.price * qa + b.price * qb };
+      }
+    }
+    log('plan', JSON.stringify(plan));
+    if (!plan) { push('snapp test: no test basket'); throw new Error('no two test items make a 300,000-500,000 basket: ' + JSON.stringify(items)); }
 
-    await page.goto(picks.plain.href, { waitUntil: 'domcontentloaded' }); await sleep(2500);
-    await page.locator('.vp-pick .quantity-plus').first().click(); await sleep(800);
-    await page.locator('.vp-pick .vp-pick-go').first().click(); await page.waitForLoadState('domcontentloaded'); await sleep(2000);
-    await page.goto(picks.off.href, { waitUntil: 'domcontentloaded' }); await sleep(2500);
-    await page.locator('.vp-pick .vp-pick-go').first().click(); await page.waitForLoadState('domcontentloaded'); await sleep(2000);
+    const addToBasket = async (item, qty) => {
+      await page.goto(item.href, { waitUntil: 'domcontentloaded' }); await sleep(2500);
+      for (let i = 1; i < qty; i++) { await page.locator('.vp-pick .quantity-plus').first().click(); await sleep(600); }
+      await page.locator('.vp-pick .vp-pick-go').first().click(); await page.waitForLoadState('domcontentloaded'); await sleep(2000);
+    };
+    await addToBasket(plan.a, plan.qa);
+    await addToBasket(plan.b, plan.qb);
     await page.goto(SITE + '/cart', { waitUntil: 'domcontentloaded' }); await sleep(5000);
     clip('01-basket'); await shot('01-basket'); push('snapp test: 01 basket');
     await waitFor('go-1');
