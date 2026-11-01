@@ -1,4 +1,4 @@
-// TEMPORARY (run 7). SnappPay's merchant test, recorded at 1440x900 on the live site.
+// TEMPORARY (run 8, panel). SnappPay's merchant test, recorded at 1440x900 on the live site.
 // Scripted where the shop's own pages are known; remote-controlled through
 // commits where they are not (SnappPay's pages, the card page, the panel).
 const { chromium } = require('playwright');
@@ -104,6 +104,12 @@ async function remote(prefix) {
   execSync('openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out /tmp/key.pem 2>/dev/null && openssl pkey -in /tmp/key.pem -pubout -out ' + path.join(OUT, 'pub.pem'));
   push('snapp test: public key');
   page.setDefaultTimeout(30000);
+  // The panel's forms ask «are you sure?» before their own review screen.
+  page.on('dialog', (d) => { log('dialog', d.message()); setTimeout(() => d.accept().catch(() => {}), 1800); });
+  if (fs.existsSync(path.join(__dirname, 'mode-panel'))) {
+    // The shop half is already recorded; this run is the panel only.
+    try { await remote('04'); } catch (e) { log('FAILED', e.message); fs.writeFileSync(path.join(OUT, 'error.txt'), e.stack || e.message); }
+  } else
   try {
     // 1 — the shop, two different products, one discounted, into the basket.
     await page.goto(SITE + '/', { waitUntil: 'domcontentloaded' });
