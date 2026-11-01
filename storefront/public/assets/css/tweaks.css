@@ -1045,7 +1045,7 @@ option:hover {
 
   margin-block: -18px;
 
-  transform: translateY(var(--vp-hero-shot-shift, 0px)) scale(0.9);
+  transform: translateY(var(--vp-hero-shot-shift, 0px)) scale(var(--vp-hero-shot-scale, 0.9));
 }
 
 .heroSlide6 {
@@ -15063,12 +15063,11 @@ body.shoe-shop {
 
 @media (max-width: 767.98px) {
   .heroSlide6 .hero-inner {
-    aspect-ratio: 1 / 1;
     align-items: flex-start;
   }
 
   .heroSlide6 .hero-inner .row > .col-lg-6:last-child {
-    margin-bottom: var(--vp-hero-sq-pull, -14px);
+    margin-bottom: calc(5px - 10vw);
   }
 
   .heroSlide6 .hero-inner .hero-title br {
@@ -15082,7 +15081,7 @@ body.shoe-shop {
   }
 
   .heroSlide6 .hero-style6 {
-    padding-block: 4px 10px;
+    padding-block: 4px 24px;
   }
 
   .heroSlide6 .hero-inner .sub-title {
@@ -15091,13 +15090,7 @@ body.shoe-shop {
 
   .heroSlide6 .hero-img > img {
     width: calc(100vw * 284 / 390);
-    --vp-hero-shot-shift: -6px;
-  }
-}
-
-@media (min-width: 576px) and (max-width: 767.98px) {
-  .heroSlide6 .hero-inner {
-    align-items: center;
+    --vp-hero-shot-shift: calc(100vw * -6 / 390);
   }
 }
 
@@ -15110,6 +15103,46 @@ body.shoe-shop {
 @media (min-width: 992px) {
   .vp-homeshop-area[data-vp-place="phone"] {
     display: none;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .heroSlide6 .hero-img > img[src*="/vikyplus-hero-cloudtilt-on-black."] {
+    --vp-hero-shot-shift: calc(100vw * -7 / 390);
+  }
+
+  .heroSlide6 .hero-img > img[src*="/vikyplus-hero-goldengoose."] {
+    --vp-hero-shot-shift: calc(100vw * 10 / 390);
+  }
+
+  .heroSlide6 .hero-img > img[src*="/vikyplus-hero-goldengoose-black."] {
+    --vp-hero-shot-shift: calc(100vw * 8 / 390);
+  }
+
+  .heroSlide6 .hero-img > img[src*="/vikyplus-hero-goldengoose-suede."] {
+    --vp-hero-shot-shift: calc(100vw * 8 / 390);
+  }
+
+  .heroSlide6 .hero-img > img[src*="/vikyplus-hero-jordan."] {
+    --vp-hero-shot-scale: 0.756;
+    --vp-hero-shot-shift: calc(100vw * -14 / 390);
+  }
+
+  .heroSlide6 .hero-img > img[src*="/vikyplus-hero-jordan-chicago."] {
+    --vp-hero-shot-scale: 0.772;
+    --vp-hero-shot-shift: calc(100vw * -14 / 390);
+  }
+
+  .heroSlide6 .hero-img > img[src*="/vikyplus-hero-jordan-travis."] {
+    --vp-hero-shot-shift: calc(100vw * -11 / 390);
+  }
+
+  .heroSlide6 .hero-img > img[src*="/vikyplus-hero-nb530-white."] {
+    --vp-hero-shot-shift: calc(100vw * 4 / 390);
+  }
+
+  .heroSlide6 .hero-img > img[src*="/vikyplus-hero-v2k-white-blue."] {
+    --vp-hero-shot-shift: calc(100vw * 4 / 390);
   }
 }
 

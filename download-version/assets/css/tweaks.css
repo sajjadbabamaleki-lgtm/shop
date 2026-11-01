@@ -1775,7 +1775,7 @@ option:hover {
      declaration rather than adding to it, so writing the scale three times
      would work until the fourth slide wanted an offset and silently dropped
      it. The variable is the fix rather than a comment warning about it. */
-  transform: translateY(var(--vp-hero-shot-shift, 0px)) scale(0.9);
+  transform: translateY(var(--vp-hero-shot-shift, 0px)) scale(var(--vp-hero-shot-scale, 0.9));
 }
 
 /* The swiper held room below the slides for the card's shadow to fall in,
@@ -26435,12 +26435,11 @@ body.shoe-shop {
    touched by any line here. */
 @media (max-width: 767.98px) {
   .heroSlide6 .hero-inner {
-    aspect-ratio: 1 / 1;
     align-items: flex-start;
   }
 
   .heroSlide6 .hero-inner .row > .col-lg-6:last-child {
-    margin-bottom: var(--vp-hero-sq-pull, -14px);
+    margin-bottom: calc(5px - 10vw);
   }
 
   .heroSlide6 .hero-inner .hero-title br {
@@ -26454,7 +26453,7 @@ body.shoe-shop {
   }
 
   .heroSlide6 .hero-style6 {
-    padding-block: 4px 10px;
+    padding-block: 4px 24px;
   }
 
   .heroSlide6 .hero-inner .sub-title {
@@ -26463,17 +26462,7 @@ body.shoe-shop {
 
   .heroSlide6 .hero-img > img {
     width: calc(100vw * 284 / 390);
-    --vp-hero-shot-shift: -6px;
-  }
-}
-
-/* Between 576 and 767 — a phone on its side, a small tablet — the square is
-   up to 747 tall while the type stays phone-sized, so the room left under the
-   button reached 214. There the contents sit on the card's centre instead and
-   that room is shared above and below. */
-@media (min-width: 576px) and (max-width: 767.98px) {
-  .heroSlide6 .hero-inner {
-    align-items: center;
+    --vp-hero-shot-shift: calc(100vw * -6 / 390);
   }
 }
 
@@ -26495,6 +26484,68 @@ body.shoe-shop {
     display: none;
   }
 }
+
+/* Each shoe ends the same distance above the words, on a phone.
+
+   «این دوتا فاصله … باید نصف بشن» and «چرا کفش گلدن گوس اونجوری چسبیده به
+   متن پایینیش؟». Every hero photograph is framed differently — the shoe sits
+   at a different height inside each file — so one nudge for all of them
+   cannot put the soles on one line. Golden Goose still carried the +50 of an
+   earlier round, which the square pass's lift never reached (the attribute
+   selector outranks the plain rule), and sat 12px *into* the eyebrow.
+
+   So each file the hero can draw — the `hero.photos` overrides in
+   config/storefront.php plus the preview's own — has its own numbers, solved
+   from the photograph's alpha at 390 rather than from its box: the sole 7px
+   above the eyebrow's box (20 above its letters; it was 40), and the top at
+   least 9 inside the card. The two Jordan high-tops fill their files and
+   cannot do both at 0.9, so they are drawn a little smaller instead of losing
+   their toe caps to the card's top edge. Shifts are in vw so the geometry
+   holds from 320 to 767; measured, every file within 3px of the others.
+
+   **A new hero photograph needs a line here**, or it falls back to the base
+   nudge and its sole lands wherever its file puts it. `[src*="/name."]`
+   with the dot, so «goldengoose» does not also match «goldengoose-suede». */
+@media (max-width: 767.98px) {
+  .heroSlide6 .hero-img > img[src*="/vikyplus-hero-cloudtilt-on-black."] {
+    --vp-hero-shot-shift: calc(100vw * -7 / 390);
+  }
+
+  .heroSlide6 .hero-img > img[src*="/vikyplus-hero-goldengoose."] {
+    --vp-hero-shot-shift: calc(100vw * 10 / 390);
+  }
+
+  .heroSlide6 .hero-img > img[src*="/vikyplus-hero-goldengoose-black."] {
+    --vp-hero-shot-shift: calc(100vw * 8 / 390);
+  }
+
+  .heroSlide6 .hero-img > img[src*="/vikyplus-hero-goldengoose-suede."] {
+    --vp-hero-shot-shift: calc(100vw * 8 / 390);
+  }
+
+  .heroSlide6 .hero-img > img[src*="/vikyplus-hero-jordan."] {
+    --vp-hero-shot-scale: 0.756;
+    --vp-hero-shot-shift: calc(100vw * -14 / 390);
+  }
+
+  .heroSlide6 .hero-img > img[src*="/vikyplus-hero-jordan-chicago."] {
+    --vp-hero-shot-scale: 0.772;
+    --vp-hero-shot-shift: calc(100vw * -14 / 390);
+  }
+
+  .heroSlide6 .hero-img > img[src*="/vikyplus-hero-jordan-travis."] {
+    --vp-hero-shot-shift: calc(100vw * -11 / 390);
+  }
+
+  .heroSlide6 .hero-img > img[src*="/vikyplus-hero-nb530-white."] {
+    --vp-hero-shot-shift: calc(100vw * 4 / 390);
+  }
+
+  .heroSlide6 .hero-img > img[src*="/vikyplus-hero-v2k-white-blue."] {
+    --vp-hero-shot-shift: calc(100vw * 4 / 390);
+  }
+}
+
 
 :root {
   --vp-design: ok;
