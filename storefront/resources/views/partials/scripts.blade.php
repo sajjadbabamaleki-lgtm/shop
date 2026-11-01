@@ -267,10 +267,8 @@
                 box.appendChild(take);
                 card.appendChild(box);
 
-                var cash = document.createElement('p');
-                cash.className = 'vp-prize-cash';
-                cash.textContent = 'این کد تخفیف فقط برای خرید نقدی قابل استفاده است';
-                card.appendChild(cash);
+                // No «cash only» line: a code works for instalments too — SnappPay's
+                // review refused the distinction on 2026-10-07 (see Gateways).
 
                 var when = document.createElement('p');
                 when.className = 'vp-prize-when';
