@@ -1,9 +1,0 @@
-[
- {"goto": "https://vikyplus.ir/orders/VP-BGTBAK2N", "after": 4000},
- {"scroll": 350, "after": 3500},
- {"scroll": -350, "after": 2000},
- {"goto": "https://vikyplus.ir/admin/login", "after": 2500},
- {"fill": "#lg-email", "value": "aliemami200014@gmail.com", "after": 800},
- {"fill": "#lg-pass", "secret": "pw.enc", "after": 800},
- {"press": "Enter", "after": 5000}
-]
