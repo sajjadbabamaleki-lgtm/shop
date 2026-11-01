@@ -1,0 +1,7 @@
+[
+ {"goto": "https://vikyplus.ir/admin/orders", "after": 3000},
+ {"fill": "#vp-q", "value": "V000000223", "after": 1000},
+ {"press": "Enter", "after": 5000},
+ {"clip": "03-search", "after": 500},
+ {"done": true}
+]
