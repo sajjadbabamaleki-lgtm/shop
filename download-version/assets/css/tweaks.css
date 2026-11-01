@@ -26547,6 +26547,26 @@ body.shoe-shop {
 }
 
 
+/* The tiles, the shop and the six badges on one white ground, on a phone.
+
+   «چرا بکگراند جدا برای این بخش ها گذاشتی؟ … بک‌گراند این بخش هم باید امتداد
+   بالایی و پایینیش باشه». Moving «فروشگاه» under the tiles pushed the dice
+   band ~1700px down, and the body's hard step to 240 at 1230px — placed to sit
+   hidden behind the dice band — landed behind the six badges instead, under a
+   band that also ramped white → 240 → white on its own. Three grounds in one
+   screen. The band's phone copy and the badges' row now paint themselves
+   white, the way the dice band below them does, so the white runs unbroken
+   from the header to the dice band.
+
+   Those two and not the whole section: painted whole, it covered a sliver of
+   the hero's soft shadow that spills into it — 10 pixels at 991, measured. */
+@media (max-width: 991.98px) {
+  .vp-homeshop-area[data-vp-place="phone"],
+  .vp-trust-row-wrap {
+    background: #FFFFFF;
+  }
+}
+
 :root {
   --vp-design: ok;
 }

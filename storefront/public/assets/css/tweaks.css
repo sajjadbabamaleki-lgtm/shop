@@ -15146,6 +15146,13 @@ body.shoe-shop {
   }
 }
 
+@media (max-width: 991.98px) {
+  .vp-homeshop-area[data-vp-place="phone"],
+  .vp-trust-row-wrap {
+    background: #FFFFFF;
+  }
+}
+
 :root {
   --vp-design: ok;
 }
