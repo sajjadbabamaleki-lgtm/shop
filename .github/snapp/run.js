@@ -1,4 +1,4 @@
-// TEMPORARY (run 5). SnappPay's merchant test, recorded at 1440x900 on the live site.
+// TEMPORARY (run 6). SnappPay's merchant test, recorded at 1440x900 on the live site.
 // Scripted where the shop's own pages are known; remote-controlled through
 // commits where they are not (SnappPay's pages, the card page, the panel).
 const { chromium } = require('playwright');
@@ -189,6 +189,12 @@ async function remote(prefix) {
     // minutes), then step by step from here.
     await page.locator('.vp-snapp-form button[type="submit"]').first().click();
     await sleep(7000);
+    // SnappPay refuses some addresses outside Iran with a 403 page; this
+    // runner's address is whatever GitHub gave it, so try again a few times.
+    for (let i = 0; i < 4 && /Access Denied|Error 403/.test(await page.content()); i++) {
+      log('SnappPay 403, retry', i + 1);
+      await sleep(8000); await page.reload({ waitUntil: 'domcontentloaded' }).catch(() => {}); await sleep(5000);
+    }
     await remote('03');
   } catch (e) {
     log('FAILED', e.message);
