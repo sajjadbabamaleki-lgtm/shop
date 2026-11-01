@@ -31,6 +31,7 @@ jobs:
           cp .env.example .env
           php artisan key:generate
           php artisan migrate --seed --force
+          php artisan tinker --execute='echo \App\Models\VariantMedia::query()->update(["path" => "assets/img/product/college-lock-cream/1.jpg"]);' || true
           (DB_HOST=127.0.0.1 DB_PASSWORD=vikyplus DB_DATABASE=vikyplus_testing DB_USERNAME=vikyplus php artisan serve --port=8812 > /tmp/serve.log 2>&1 &)
           sleep 5; curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8812/
       - name: Shoot
