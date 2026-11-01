@@ -15147,8 +15147,8 @@ body.shoe-shop {
 }
 
 @media (max-width: 991.98px) {
-  .vp-homeshop-area[data-vp-place="phone"],
-  .vp-trust-row-wrap {
+  .feature-area2,
+  .vp-homeshop-area[data-vp-place="phone"] {
     background: #FFFFFF;
   }
 }

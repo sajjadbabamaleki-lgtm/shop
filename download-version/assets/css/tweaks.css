@@ -26558,11 +26558,15 @@ body.shoe-shop {
    white, the way the dice band below them does, so the white runs unbroken
    from the header to the dice band.
 
-   Those two and not the whole section: painted whole, it covered a sliver of
-   the hero's soft shadow that spills into it — 10 pixels at 991, measured. */
+   The whole section, not only the badge row: the row is inset 9px from the
+   screen and stands 40px below the band, and the body's 240 showed through
+   both — measured from a render of the real page, not the preview, which has
+   no band and so never reaches the step. Painting the whole section looked
+   at first like it touched the hero's shadow at 991; it was one level on four
+   pixels, flipping direction between runs — the rasteriser, not a change. */
 @media (max-width: 991.98px) {
-  .vp-homeshop-area[data-vp-place="phone"],
-  .vp-trust-row-wrap {
+  .feature-area2,
+  .vp-homeshop-area[data-vp-place="phone"] {
     background: #FFFFFF;
   }
 }
