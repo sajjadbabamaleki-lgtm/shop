@@ -1,4 +1,4 @@
-// TEMPORARY (run 6). SnappPay's merchant test, recorded at 1440x900 on the live site.
+// TEMPORARY (run 7). SnappPay's merchant test, recorded at 1440x900 on the live site.
 // Scripted where the shop's own pages are known; remote-controlled through
 // commits where they are not (SnappPay's pages, the card page, the panel).
 const { chromium } = require('playwright');

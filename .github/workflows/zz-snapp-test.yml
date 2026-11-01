@@ -12,7 +12,7 @@ permissions:
 concurrency: { group: zz-snapp-test, cancel-in-progress: true }
 jobs:
   record:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     timeout-minutes: 150
     steps:
       - uses: actions/checkout@v4
