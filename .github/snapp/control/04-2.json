@@ -1,5 +1,0 @@
-[
- {"fill": "input[name^=\"lines[\"] >> nth=1", "value": "1", "after": 800},
- {"fill": "#return-why", "value": "تست اسنپ پی - کاهش تعداد", "after": 800},
- {"text": "ادامه به تأیید مرجوعی", "after": 5000}
-]
