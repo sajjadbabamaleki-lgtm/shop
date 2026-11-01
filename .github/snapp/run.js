@@ -111,14 +111,16 @@ async function remote(prefix) {
     await page.mouse.wheel(0, 500); await sleep(1500);
     await page.goto(SITE + '/products?sort=cheapest', { waitUntil: 'domcontentloaded' });
     await sleep(2500);
-    const picks = await page.evaluate(() => {
-      const cards = [...document.querySelectorAll('article.vp-card')]
-        .filter((c) => !c.querySelector('.vp-card-out') && !/آزمایشی/.test(c.innerText))
-        .map((c) => ({ href: c.querySelector('a.vp-card-name').href, off: !!c.querySelector('.vp-card-was'), name: c.querySelector('a.vp-card-name').innerText.trim() }));
-      const plain = cards.find((c) => !c.off);
-      const off = cards.find((c) => c.off && (!plain || c.href !== plain.href));
-      return { plain, off };
-    });
+    const cardsHere = () => page.evaluate(() => [...document.querySelectorAll('article.vp-card')]
+      .filter((c) => !c.querySelector('.vp-card-out') && !/آزمایشی/.test(c.innerText))
+      .map((c) => ({ href: c.querySelector('a.vp-card-name').href, off: !!c.querySelector('.vp-card-was'), name: c.querySelector('a.vp-card-name').innerText.trim() })));
+    const plain = (await cardsHere()).find((c) => !c.off);
+    // The discounted one from the stepped-sale tab, the listing's own way of
+    // showing only what has a struck-through price.
+    await page.goto(SITE + '/products?sale=1&sort=cheapest', { waitUntil: 'domcontentloaded' });
+    await sleep(2500);
+    const off = (await cardsHere()).find((c) => c.off && (!plain || c.href !== plain.href));
+    const picks = { plain, off };
     log('picks', JSON.stringify(picks));
     if (!picks.plain || !picks.off) throw new Error('could not find a plain and a discounted product');
 
