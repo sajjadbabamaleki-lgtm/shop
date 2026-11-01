@@ -1,0 +1,2 @@
+Error: could not find a plain and a discounted product
+    at /home/runner/work/shop/shop/.github/snapp/run.js:123:43
