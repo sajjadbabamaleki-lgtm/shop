@@ -13,8 +13,9 @@
     @include('home.hero')
     @include('home.categories')
     @include('home.dice')
-    {{-- «بالای بخش حراج پله ای» --}}
-    @include('home.shop-window')
+    {{-- «بالای بخش حراج پله ای» — above 992. On a phone it is drawn under
+         the category tiles instead; see home/shop-window. --}}
+    @include('home.shop-window', ['place' => 'wide'])
     @include('home.ladder')
     @include('home.best-sellers')
     @include('home.offer-banner')

@@ -26477,6 +26477,25 @@ body.shoe-shop {
   }
 }
 
+/* «فروشگاه» directly under the category tiles, on a phone only.
+
+   «تو موبایل فروشگاهو بیار اولین آیتم زیر اون ۸ منو زیر هیرو». The band is
+   drawn twice — once inside the tiles' section, between the tiles and the
+   trust badges, and once in its old place above the stepped sale — and each
+   copy is hidden on the side of 992 it does not belong to. 992 because that
+   is where the band itself turns from two columns to four. */
+@media (max-width: 991.98px) {
+  .vp-homeshop-area[data-vp-place="wide"] {
+    display: none;
+  }
+}
+
+@media (min-width: 992px) {
+  .vp-homeshop-area[data-vp-place="phone"] {
+    display: none;
+  }
+}
+
 :root {
   --vp-design: ok;
 }

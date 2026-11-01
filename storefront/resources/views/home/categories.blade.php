@@ -35,6 +35,9 @@
                 @endforeach
             </div>
         </div>
+        {{-- On a phone the shop comes straight after the tiles — see the
+             note at the top of home/shop-window. Hidden above 992. --}}
+        @include('home.shop-window', ['place' => 'phone'])
         <div class="vp-trust-row-wrap">
             <div class="row gy-4 row-cols-2 row-cols-lg-3 row-cols-xl-5 vp-trust-row">
                 <div class="col">

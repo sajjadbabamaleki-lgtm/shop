@@ -15101,6 +15101,18 @@ body.shoe-shop {
   }
 }
 
+@media (max-width: 991.98px) {
+  .vp-homeshop-area[data-vp-place="wide"] {
+    display: none;
+  }
+}
+
+@media (min-width: 992px) {
+  .vp-homeshop-area[data-vp-place="phone"] {
+    display: none;
+  }
+}
+
 :root {
   --vp-design: ok;
 }

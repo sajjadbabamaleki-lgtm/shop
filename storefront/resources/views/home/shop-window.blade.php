@@ -27,8 +27,17 @@
     with no photograph** — the payment-test items were the newest products and
     led the band as two grey boxes. Drawn only when there is something left.
 --}}
+{{-- **Drawn twice on the home page, shown once.** «تو موبایل فروشگاهو بیار
+     اولین آیتم زیر اون ۸ منو زیر هیرو» — on a phone the band sits between the
+     category tiles and the trust badges (`categories.blade.php` includes it
+     with `place` «phone»); above 992 it stays above the stepped sale, where it
+     was (`home.blade.php`, «wide»). The tiles and the badges are one section,
+     so there is no order to change from outside it: each copy is hidden on the
+     side of 992 it does not belong to (tweaks.css, `data-vp-place`). The card
+     photographs are `loading="lazy"`, so the hidden copy fetches none of them.
+     Only the wide copy carries the id. --}}
 @if ($shopWindow->isNotEmpty())
-<section class="vp-homeshop-area" id="vp-homeshop">
+<section class="vp-homeshop-area" data-vp-place="{{ $place ?? 'wide' }}"@if (($place ?? 'wide') === 'wide') id="vp-homeshop"@endif>
     <div class="container th-container">
         <div class="vp-listing-panel vp-homeshop">
             <div class="vp-homeshop-head">
