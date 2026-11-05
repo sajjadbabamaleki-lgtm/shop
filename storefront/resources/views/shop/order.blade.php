@@ -25,8 +25,19 @@
                 <p class="vp-note is-good">{{ session('status') }}</p>
             @endif
 
-            @foreach ($errors->all() as $error)
-                <p class="vp-note is-bad">{{ $error }}</p>
+            {{-- A gateway's refusal is printed beside the pay buttons below,
+                 not here: on a phone this is a screen above them, so a refused
+                 payment looked like a button that did nothing. --}}
+            @php
+                $payButtonsDrawn = ! $order->reservationLapsed()
+                    && $order->status === \App\Models\Order::PLACED
+                    && $gateways !== [];
+            @endphp
+            @foreach ($errors->getBag('default')->messages() as $field => $messages)
+                @continue($field === 'payment' && $payButtonsDrawn)
+                @foreach ($messages as $error)
+                    <p class="vp-note is-bad">{{ $error }}</p>
+                @endforeach
             @endforeach
 
             {{-- Where the parcel is. «ببینه الان ما در حال آماده‌سازی هستیم،
@@ -100,6 +111,11 @@
                      telephone. --}}
                 @if ($gateways !== [])
                     <p class="vp-note">سفارشت ثبت شد و کالاها برایت کنار گذاشته شده. برای نهایی شدن، مبلغ را پرداخت کن.</p>
+
+                    @error('payment')
+                        <p class="vp-note is-bad" id="vp-pay-refused">{{ $message }}</p>
+                        <script>document.getElementById('vp-pay-refused').scrollIntoView({ block: 'center' });</script>
+                    @enderror
 
                     {{-- One form per gateway the shop can take this order
                          through, in the order `Gateways` offers them: the card
