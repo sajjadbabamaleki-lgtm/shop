@@ -159,12 +159,30 @@
                         // file: that one is generated from the static page and
                         // runs at the foot of the document, and this has to be
                         // armed the moment the element exists.
+                        //
+                        // **Once per browser, not once per page.** It opened on
+                        // every visit to an order page, so a shopper who came
+                        // back to pay, or retried a payment, was told the same
+                        // thing every time, VPN or not: «فقط یک بار به کاربر
+                        // نشون داده بشه نه بیشتر … خیلی رو مخه». The mark is
+                        // written when it is shown, not on «متوجه شدم», because
+                        // Escape closes a modal too and once means once.
+                        // Storage that throws (a private window) just means
+                        // the dialog shows; that is the safe way to fail.
                         (function () {
                             var box = document.getElementById('vp-vpn');
+                            var KEY = 'vp-vpn-seen';
+                            var seen = false;
 
-                            if (box && typeof box.showModal === 'function') {
-                                box.showModal();
+                            try { seen = localStorage.getItem(KEY) === '1'; } catch (e) {}
+
+                            if (seen || !box || typeof box.showModal !== 'function') {
+                                return;
                             }
+
+                            box.showModal();
+
+                            try { localStorage.setItem(KEY, '1'); } catch (e) {}
                         }());
                     </script>
                 @else
