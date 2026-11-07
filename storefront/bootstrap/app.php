@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\ExpireUnpaidOrdersAfterResponse;
+use App\Http\Middleware\RedirectWwwToCanonicalHost;
 use App\Http\Middleware\ReportServerTiming;
 use App\Http\Middleware\ResolveAdminTenant;
 use App\Http\Middleware\ResolveTenant;
@@ -63,6 +64,10 @@ return Application::configure(basePath: dirname(__DIR__))
         // middleware: the live site spends about 915ms of its own on the home
         // page, and this is what says where that goes.
         $middleware->prepend(ReportServerTiming::class);
+
+        // www.vikyplus.ir → vikyplus.ir, so every gateway's return address is
+        // built on the one host registered with it. See the middleware.
+        $middleware->prepend(RedirectWwwToCanonicalHost::class);
 
         // An unpaid order's reservation lapses after fifteen minutes; this
         // sweeps them back onto the shelf after a page has been sent. See the
