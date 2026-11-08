@@ -8,7 +8,9 @@ on:
 jobs:
   read:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
+    env:
+      PYTHONUNBUFFERED: '1'
     steps:
       - name: read
         shell: python
@@ -17,12 +19,12 @@ jobs:
           H = 'https://vikyplus.ir'
           def get(u):
               r = urllib.request.Request(u, headers={'User-Agent': 'vikyplus-catalogue-check'})
-              return urllib.request.urlopen(r, timeout=40).read().decode('utf-8', 'replace')
+              return urllib.request.urlopen(r, timeout=25).read().decode('utf-8', 'replace')
           sm = get(H + '/sitemap.xml')
           locs = re.findall(r'<loc>([^<]+)</loc>', sm)
           prods = [l for l in locs if '/products/' in l]
           cats = [l for l in locs if '/categories/' in l]
-          print('LOCS', len(locs), 'PRODUCTS', len(prods), 'CATEGORIES', len(cats))
+          print('LOCS', len(locs), flush=True); print('X', 'PRODUCTS', len(prods), 'CATEGORIES', len(cats))
           def one(u):
               try:
                   h = get(u)
@@ -43,10 +45,11 @@ jobs:
                       if t == 'BreadcrumbList':
                           out['crumbs'] = [i.get('name') for i in x.get('itemListElement', [])]
               return out
-          with cf.ThreadPoolExecutor(4) as ex:
-              rows = list(ex.map(one, prods))
-          for r in rows:
-              print('ROW', json.dumps(r, ensure_ascii=False))
+          import time
+          t0 = time.time()
+          with cf.ThreadPoolExecutor(6) as ex:
+              for r in ex.map(one, prods):
+                  print('ROW', round(time.time()-t0), json.dumps(r, ensure_ascii=False), flush=True)
           for c in cats:
               try:
                   h = get(c)
