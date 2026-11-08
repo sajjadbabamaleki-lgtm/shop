@@ -141,8 +141,10 @@ html = html.replace(PRELOADER, '');
 // config's.
 //
 // `wa.me` wants the international form with no plus and no leading zero:
-// 09366659224 becomes 989366659224.
-const WHATSAPP_NUMBER = '989366659224';
+// 09389635031 becomes 989389635031.
+// 2026-11-08: «۰۹۳۸۹۶۳۵۰۳۱ این هم بشه شماره پشتیبانی و واتسپ بجای اونکه تو وبسایته»
+// — replaces 09366659224.
+const WHATSAPP_NUMBER = '989389635031';
 //
 // The arrow's SVG goes with the ring. It was a scroll *progress* indicator —
 // the path's dash offset was written every frame from the page's scroll — so
@@ -3940,7 +3942,8 @@ const FOOT_COLS = [
 // out loud that it is a stand-in.
 //
 // WhatsApp's link is the shop's own number, the same one the floating corner
-// button opens. The other four are '#' until the client sends the addresses.
+// button opens. Instagram is the shop's page; the other three are '#' until
+// the client sends the addresses.
 const FOOT_SOCIAL = [
   // Named in Latin, and deliberately: `HomePageTest` guards the four sections
   // taken off the page by their headings, and one of those headings is the
@@ -3957,7 +3960,9 @@ const FOOT_SOCIAL = [
   // cuts the same shapes out of the same font file the browser was drawing
   // them from, with the ink's bounding box as the viewBox, so the file's edges
   // are the mark's edges and centring the image centres the mark everywhere.
-  ['instagram', 'Instagram', '#', '<img class="vp-foot-m-soc-mark" src="assets/img/social/instagram.svg" alt="" width="24" height="24">'],
+  // «https://www.instagram.com/vikyplus» — the shop's page, sent 2026-11-08
+  // (the share link's tracking query left off).
+  ['instagram', 'Instagram', 'https://www.instagram.com/vikyplus', '<img class="vp-foot-m-soc-mark" src="assets/img/social/instagram.svg" alt="" width="24" height="24">'],
   ['telegram', 'تلگرام', '#', '<img class="vp-foot-m-soc-mark" src="assets/img/social/telegram.svg" alt="" width="26" height="26">'],
   ['whatsapp', 'واتساپ', `https://wa.me/${WHATSAPP_NUMBER}`, '<img class="vp-foot-m-soc-mark" src="assets/img/social/whatsapp.svg" alt="" width="24" height="24">'],
   // The client sent these two as photographs of the logos; `make-social-marks.js`

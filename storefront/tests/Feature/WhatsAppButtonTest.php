@@ -59,7 +59,7 @@ class WhatsAppButtonTest extends TestCase
      * here alone. Editing only the test makes it agree with whatever the page
      * says, which is the one thing it exists not to do.
      */
-    private const NUMBER = '989366659224';
+    private const NUMBER = '989389635031';
 
     public function test_the_button_is_on_the_page_and_points_at_the_shops_number(): void
     {

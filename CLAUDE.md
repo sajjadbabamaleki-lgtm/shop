@@ -1555,6 +1555,12 @@ the client saw an old page and had no way to tell why. So, plainly:
   top of `catalogue.manage`. It is a stock change, not a retirement: the shoe
   stays in the listing, search and filters with «ناموجود».
   `CatalogueBulkActionsTest` holds all four.
+  The loop itself is `App\Support\Catalogue\EmptyShelves`, shared with
+  `2026_11_08_090000_reprice_ten_sneaker_models_and_shelve_the_rest` — ten
+  sneaker models repriced and every other کتونی/ونس/نایک emptied, matched on
+  the live titles *and slugs* (the low All Star's title stops at «ساق»), and
+  by first word rather than section, because five live boots are ticked into
+  «ونس و کتونی». `TenModelsRepricedTest` holds it.
 - **`/admin/pricing` moves a whole filter's prices by a percentage.** «قیمت
   گلدن گوس هارو بالا ببرم همشونو ۲۰ درصد … نباید دونه دونه همه رنگاشو برم جدا
   جدا قیمتشونو ببرم بالا» — a shoe reaches this shop one colourway per product

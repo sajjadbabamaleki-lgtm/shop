@@ -8,10 +8,10 @@ use App\Models\BranchOffer;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\FrontPagePlacement;
-use App\Models\InventoryMovement;
 use App\Models\Product;
 use App\Models\Variant;
 use App\Models\VariantMedia;
+use App\Support\Catalogue\EmptyShelves;
 use App\Support\Catalogue\OfferPrice;
 use App\Support\FrontPage;
 use App\Support\Tenancy\TenantContext;
@@ -218,46 +218,19 @@ class CatalogueController extends Controller
     }
 
     /**
-     * Every size of these products at this branch down to what orders hold.
-     *
-     * The inventory screen's count, in a loop: the row locked, the difference
-     * written as an `adjustment`, nothing touched where there was nothing to
-     * sell. Branch-scoped through the model, so another shop's shelf of the
-     * same shoe is never reached.
+     * Every size of these products at this branch down to what orders hold —
+     * `EmptyShelves`, which a migration also uses, so «ناموجود» has one rule.
      *
      * @param  Collection<int, Product>  $products
      */
     private function emptyTheShelves($products, int $userId, TenantContext $tenant): string
     {
-        $variants = Variant::whereIn('product_id', $products->pluck('id'))->pluck('id');
-        $zeroed = 0;
-
-        foreach (BranchInventory::whereIn('variant_id', $variants)->pluck('id') as $id) {
-            DB::transaction(function () use ($id, $userId, $tenant, &$zeroed): void {
-                $shelf = BranchInventory::whereKey($id)->lockForUpdate()->firstOrFail();
-                $removed = $shelf->stock_on_hand - $shelf->stock_reserved;
-
-                if ($removed <= 0) {
-                    return;
-                }
-
-                $shelf->stock_on_hand = $shelf->stock_reserved;
-                $shelf->save();
-
-                InventoryMovement::create([
-                    'branch_id' => $tenant->id(),
-                    'variant_id' => $shelf->variant_id,
-                    'type' => 'adjustment',
-                    'quantity' => -$removed,
-                    'user_id' => $userId,
-                    'note' => 'Marked out of stock in bulk from the catalogue.',
-                ]);
-
-                $zeroed++;
-            });
-        }
-
-        return fa_number($zeroed);
+        return fa_number(EmptyShelves::of(
+            $products->pluck('id'),
+            $userId,
+            $tenant->id(),
+            'Marked out of stock in bulk from the catalogue.',
+        ));
     }
 
     /**
