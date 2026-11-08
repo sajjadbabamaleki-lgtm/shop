@@ -251,9 +251,19 @@ class OrderController extends Controller
      */
     public function label(Order $order): View
     {
+        $sender = $this->sender($order);
+
+        // The central shop's parcels go out from the office, and a courier
+        // reads this half: its postal code and the number they should ring.
+        // A franchise sends from its own counter, with its own phone.
+        if (! $order->branch || $order->branch->type === 'central') {
+            $sender['phone'] = (string) config('storefront.contact.office_phone', $sender['phone']);
+            $sender['postal_code'] = (string) config('storefront.contact.office_postal_code', '');
+        }
+
         return view('admin.print.label', [
             'order' => $order->load('items', 'shippingMethod'),
-            'sender' => $this->sender($order),
+            'sender' => $sender,
         ]);
     }
 

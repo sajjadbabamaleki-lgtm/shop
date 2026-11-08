@@ -26,6 +26,9 @@
         <p class="vp-label-tag">فرستنده</p>
         <p class="vp-label-name">{{ $sender['name'] }}</p>
         <p class="vp-label-line">{{ $sender['address'] }}</p>
+        @if (! empty($sender['postal_code']))
+            <p class="vp-label-line">کد پستی: <bdi dir="ltr">{{ $sender['postal_code'] }}</bdi></p>
+        @endif
         <p class="vp-label-line">تلفن: <bdi dir="ltr">{{ $sender['phone'] }}</bdi></p>
 
         <div class="vp-label-foot">
@@ -63,6 +66,24 @@
         <p class="vp-label-ship">
             <span class="vp-label-tag">نوع ارسال</span>
             <b>{{ $order->shippingMethod?->name ?? '—' }}</b>
+        </p>
+
+        {{-- «که مشتری که سفارش داده پس کرایه زده یا هزینرو پرداخت کرده» —
+             said in words for every parcel, not only the collect ones, so a
+             label with no band is never read as «nothing to know». Paid means
+             the order was paid: a delivery fee on an unpaid order is owed,
+             not paid, and the label says that instead. --}}
+        <p class="vp-label-ship">
+            <span class="vp-label-tag">هزینه ارسال</span>
+            @if ($order->shippingMethod?->isCollect())
+                <b>پس‌کرایه — گیرنده هنگام تحویل پرداخت می‌کند</b>
+            @elseif ((int) $order->shipping_total === 0)
+                <b>ارسال رایگان</b>
+            @elseif ($order->paid_at)
+                <b>پرداخت‌شده توسط مشتری — {{ toman($order->shipping_total) }} تومان</b>
+            @else
+                <b>{{ toman($order->shipping_total) }} تومان — سفارش هنوز پرداخت نشده</b>
+            @endif
         </p>
 
         <p class="vp-label-tag">سفارش</p>

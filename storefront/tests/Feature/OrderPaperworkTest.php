@@ -7,6 +7,7 @@ use App\Models\Customer;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\Role;
+use App\Models\ShippingMethod;
 use App\Models\User;
 use App\Models\Variant;
 use App\Support\Payments\Gateway;
@@ -184,6 +185,39 @@ class OrderPaperworkTest extends TestCase
             ->get("/admin/orders/{$order->number}/label")
             ->assertOk()
             ->assertSee(config('storefront.contact.address'));
+    }
+
+    /** «کدپستی دفتر … این شماره تلفن بیاد» — the office, on the sender's half. */
+    public function test_the_label_sends_from_the_office_postal_code_and_phone(): void
+    {
+        $order = $this->order();
+
+        $this->actingAs($this->admin())
+            ->get("/admin/orders/{$order->number}/label")
+            ->assertOk()
+            ->assertSeeInOrder(['فرستنده', '1146643847', '09121161311', 'گیرنده']);
+    }
+
+    /** «پس کرایه زده یا هزینرو پرداخت کرده» — said on every label, in words. */
+    public function test_the_label_says_whether_delivery_was_paid_or_is_collect(): void
+    {
+        $paid = $this->order(paidThrough: 'zarinpal');
+        $unpaid = $this->order();
+        $collect = $this->order(paidThrough: 'zarinpal');
+        $method = ShippingMethod::create([
+            'branch_id' => $this->branch->id, 'name' => 'تیپاکس', 'price' => 0,
+            'charge' => ShippingMethod::COLLECT, 'is_active' => true,
+        ]);
+        $collect->forceFill(['shipping_method_id' => $method->id, 'shipping_total' => 0, 'grand_total' => 1_200_000])->save();
+
+        $this->actingAs($this->admin());
+
+        $this->get("/admin/orders/{$paid->number}/label")->assertOk()
+            ->assertSee('پرداخت‌شده توسط مشتری')->assertSee(toman(100_000));
+        $this->get("/admin/orders/{$unpaid->number}/label")->assertOk()
+            ->assertSee('سفارش هنوز پرداخت نشده')->assertDontSee('پرداخت‌شده توسط مشتری');
+        $this->get("/admin/orders/{$collect->number}/label")->assertOk()
+            ->assertSee('پس‌کرایه — گیرنده هنگام تحویل پرداخت می‌کند')->assertDontSee('پرداخت‌شده توسط مشتری');
     }
 
     // --- the invoice ---------------------------------------------------

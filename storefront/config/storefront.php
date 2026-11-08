@@ -235,6 +235,17 @@ return [
         'whatsapp_href' => 'https://wa.me/989918905993',
 
         /*
+         | What the address label prints as the sender, at the client's word:
+         | «کدپستی دفتر ۱۱۴۶۶۴۳۸۴۷ … ۰۹۱۲۱۱۶۱۳۱۱ تو قسمت چاپ برچسب آدرس این کد
+         | پستی فرستنده و این شماره تلفن بیاد» (2026-11-08). The office, not
+         | the counter: a courier calls this number about a parcel, so it is
+         | the label's and not the website's — the landline above stays where
+         | it is printed for shoppers. A franchise's label keeps its own phone.
+         */
+        'office_postal_code' => '1146643847',
+        'office_phone' => '09121161311',
+
+        /*
          | Wholesale is a person, not the shop's switchboard.
          |
          | «در قسمت فروش عمده حتماً شماره تلفن آقا محمدرضا ذکر بشه», and the
