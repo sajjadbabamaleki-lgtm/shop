@@ -203,12 +203,13 @@ class OrderPaperworkTest extends TestCase
     {
         $paid = $this->order(paidThrough: 'zarinpal');
         $unpaid = $this->order();
-        $collect = $this->order(paidThrough: 'zarinpal');
+        // Paid, but not through a second gateway row: `payments.authority` is unique.
+        $collect = $this->order();
         $method = ShippingMethod::create([
             'branch_id' => $this->branch->id, 'name' => 'تیپاکس', 'price' => 0,
             'charge' => ShippingMethod::COLLECT, 'is_active' => true,
         ]);
-        $collect->forceFill(['shipping_method_id' => $method->id, 'shipping_total' => 0, 'grand_total' => 1_200_000])->save();
+        $collect->forceFill(['shipping_method_id' => $method->id, 'shipping_total' => 0, 'grand_total' => 1_200_000, 'paid_at' => now()])->save();
 
         $this->actingAs($this->admin());
 

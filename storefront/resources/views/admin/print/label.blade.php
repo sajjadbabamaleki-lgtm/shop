@@ -70,7 +70,7 @@
 
         {{-- «که مشتری که سفارش داده پس کرایه زده یا هزینرو پرداخت کرده» —
              said in words for every parcel, not only the collect ones, so a
-             label with no band is never read as «nothing to know». Paid means
+             label with no band is never read as «nothing to know». «paid» means
              the order was paid: a delivery fee on an unpaid order is owed,
              not paid, and the label says that instead. --}}
         <p class="vp-label-ship">
