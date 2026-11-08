@@ -141,10 +141,11 @@ html = html.replace(PRELOADER, '');
 // config's.
 //
 // `wa.me` wants the international form with no plus and no leading zero:
-// 09389635031 becomes 989389635031.
-// 2026-11-08: «۰۹۳۸۹۶۳۵۰۳۱ این هم بشه شماره پشتیبانی و واتسپ بجای اونکه تو وبسایته»
-// — replaces 09366659224.
-const WHATSAPP_NUMBER = '989389635031';
+// 09918905993 becomes 989918905993.
+// 2026-11-08: «۰۹۹۱۸۹۰۵۹۹۳ این هم بشه شماره پشتیبانی و واتسپ بجای اونکه تو وبسایته»
+// — replaces 09366659224 (and 09389635031, given and withdrawn the same
+// day; this is the number the client settled on).
+const WHATSAPP_NUMBER = '989918905993';
 //
 // The arrow's SVG goes with the ring. It was a scroll *progress* indicator —
 // the path's dash offset was written every frame from the page's scroll — so

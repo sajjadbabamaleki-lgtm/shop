@@ -14,7 +14,7 @@
                 <div class="vp-foot-m-social">
                     <a class="vp-foot-m-soc is-instagram" href="https://www.instagram.com/vikyplus" aria-label="Instagram"><img class="vp-foot-m-soc-mark" src="{{ asset('assets/img/social/instagram.svg') }}" alt="" width="24" height="24"></a>
                     <a class="vp-foot-m-soc is-telegram" href="#" aria-label="تلگرام"><img class="vp-foot-m-soc-mark" src="{{ asset('assets/img/social/telegram.svg') }}" alt="" width="26" height="26"></a>
-                    <a class="vp-foot-m-soc is-whatsapp" href="https://wa.me/989389635031" aria-label="واتساپ"><img class="vp-foot-m-soc-mark" src="{{ asset('assets/img/social/whatsapp.svg') }}" alt="" width="24" height="24"></a>
+                    <a class="vp-foot-m-soc is-whatsapp" href="https://wa.me/989918905993" aria-label="واتساپ"><img class="vp-foot-m-soc-mark" src="{{ asset('assets/img/social/whatsapp.svg') }}" alt="" width="24" height="24"></a>
                     <a class="vp-foot-m-soc is-bale" href="#" aria-label="بله"><img class="vp-foot-m-soc-mark" src="{{ asset('assets/img/social/bale.png') }}" alt="" width="26" height="26"></a>
                     <a class="vp-foot-m-soc is-rubika" href="#" aria-label="روبیکا"><img class="vp-foot-m-soc-mark" src="{{ asset('assets/img/social/rubika.png') }}" alt="" width="26" height="26"></a>
                 </div>
@@ -139,7 +139,7 @@
                                     <div class="vp-foot-d-social">
                                         <a class="vp-foot-m-soc is-instagram" href="https://www.instagram.com/vikyplus" aria-label="Instagram"><img class="vp-foot-m-soc-mark" src="{{ asset('assets/img/social/instagram.svg') }}" alt="" width="24" height="24"></a>
                                         <a class="vp-foot-m-soc is-telegram" href="#" aria-label="تلگرام"><img class="vp-foot-m-soc-mark" src="{{ asset('assets/img/social/telegram.svg') }}" alt="" width="26" height="26"></a>
-                                        <a class="vp-foot-m-soc is-whatsapp" href="https://wa.me/989389635031" aria-label="واتساپ"><img class="vp-foot-m-soc-mark" src="{{ asset('assets/img/social/whatsapp.svg') }}" alt="" width="24" height="24"></a>
+                                        <a class="vp-foot-m-soc is-whatsapp" href="https://wa.me/989918905993" aria-label="واتساپ"><img class="vp-foot-m-soc-mark" src="{{ asset('assets/img/social/whatsapp.svg') }}" alt="" width="24" height="24"></a>
                                         <a class="vp-foot-m-soc is-bale" href="#" aria-label="بله"><img class="vp-foot-m-soc-mark" src="{{ asset('assets/img/social/bale.png') }}" alt="" width="26" height="26"></a>
                                         <a class="vp-foot-m-soc is-rubika" href="#" aria-label="روبیکا"><img class="vp-foot-m-soc-mark" src="{{ asset('assets/img/social/rubika.png') }}" alt="" width="26" height="26"></a>
                                     </div>

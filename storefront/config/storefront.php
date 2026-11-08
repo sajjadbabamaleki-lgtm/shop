@@ -226,13 +226,13 @@ return [
         /*
          | WhatsApp, which is the shop's support channel — the floating button
          | on every page dials it. The client gave this number for it by name
-         | on 2026-11-08: «۰۹۳۸۹۶۳۵۰۳۱ این هم بشه شماره پشتیبانی و واتسپ
-         | بجای اونکه تو وبسایته». It replaces ۰۹۳۶۶۶۵۹۲۲۴, which replaced
-         | ۰۹۹۱۸۹۰۵۹۹۳. The shop's landline above is a different line and
-         | was not part of that request.
+         | on 2026-11-08: «۰۹۹۱۸۹۰۵۹۹۳ این هم بشه شماره پشتیبانی و واتسپ
+         | بجای اونکه تو وبسایته». It replaces ۰۹۳۶۶۶۵۹۲۲۴ (and ۰۹۳۸۹۶۳۵۰۳۱,
+         | sent and corrected the same day). The shop's landline above is a
+         | different line and was not part of that request.
          */
-        'whatsapp' => '۰۹۳۸۹۶۳۵۰۳۱',
-        'whatsapp_href' => 'https://wa.me/989389635031',
+        'whatsapp' => '۰۹۹۱۸۹۰۵۹۹۳',
+        'whatsapp_href' => 'https://wa.me/989918905993',
 
         /*
          | Wholesale is a person, not the shop's switchboard.

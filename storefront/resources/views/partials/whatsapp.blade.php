@@ -4,7 +4,7 @@
         <i class="fa-solid fa-comments" aria-hidden="true"></i>
         <span class="vp-support-fab-label">پشتیبانی ۲۴ ساعته</span>
     </a>
-    <a class="vp-whatsapp" href="https://wa.me/989389635031" target="_blank" rel="noopener"
+    <a class="vp-whatsapp" href="https://wa.me/989918905993" target="_blank" rel="noopener"
        aria-label="گفتگو در واتساپ">
         <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
     </a>
