@@ -1,0 +1,56 @@
+# TEMPORARY — reads the live catalogue so a price change can be written
+# against real titles. Delete before merging to main.
+name: read live catalogue
+on:
+  push:
+    branches: [claude/zen-brahmagupta-foxdtq]
+    paths: ['.github/workflows/zz-read-live-catalogue.yml']
+jobs:
+  read:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: read
+        shell: python
+        run: |
+          import json, re, urllib.request, concurrent.futures as cf
+          H = 'https://vikyplus.ir'
+          def get(u):
+              r = urllib.request.Request(u, headers={'User-Agent': 'vikyplus-catalogue-check'})
+              return urllib.request.urlopen(r, timeout=40).read().decode('utf-8', 'replace')
+          sm = get(H + '/sitemap.xml')
+          locs = re.findall(r'<loc>([^<]+)</loc>', sm)
+          prods = [l for l in locs if '/products/' in l]
+          cats = [l for l in locs if '/categories/' in l]
+          print('LOCS', len(locs), 'PRODUCTS', len(prods), 'CATEGORIES', len(cats))
+          def one(u):
+              try:
+                  h = get(u)
+              except Exception as e:
+                  return {'url': u, 'error': str(e)}
+              out = {'url': u}
+              for b in re.findall(r'<script type="application/ld\+json">(.*?)</script>', h, re.S):
+                  try:
+                      d = json.loads(b)
+                  except Exception:
+                      continue
+                  for x in (d if isinstance(d, list) else d.get('@graph', [d])):
+                      t = x.get('@type')
+                      if t == 'Product':
+                          out['name'] = x.get('name')
+                          out['brand'] = (x.get('brand') or {}).get('name')
+                          out['offers'] = x.get('offers')
+                      if t == 'BreadcrumbList':
+                          out['crumbs'] = [i.get('name') for i in x.get('itemListElement', [])]
+              return out
+          with cf.ThreadPoolExecutor(4) as ex:
+              rows = list(ex.map(one, prods))
+          for r in rows:
+              print('ROW', json.dumps(r, ensure_ascii=False))
+          for c in cats:
+              try:
+                  h = get(c)
+                  slugs = sorted(set(re.findall(r'/products/([^"?#]+)"', h)))
+                  print('CAT', c, json.dumps(slugs, ensure_ascii=False))
+              except Exception as e:
+                  print('CAT', c, 'ERROR', e)
