@@ -19,16 +19,15 @@ jobs:
             x="$(v $k)"; echo "::warning title=$k::len=${#x} digitsOnly=$([[ "$x" =~ ^[0-9]+$ ]] && echo y || echo n) hasSpace=$([[ "$x" =~ [[:space:]] ]] && echo y || echo n)"
           done
           U="$(v SMS_USER)"; K="$(v SMS_KEY)"
-          r=$(curl -s -m 30 -d "username=$U" --data-urlencode "password=$K" https://rest.payamak-panel.com/api/SendSMS/GetCredit | head -c 400)
-          echo "::warning title=panel GetCredit (user+key)::$r"
-          r=$(curl -s -m 30 "https://rest.payamak-panel.com/api/SendSMS/GetCredit?username=$U&password=$K" -X POST | head -c 400)
-          echo "::warning title=panel GetCredit query::$r"
-          r=$(curl -s -m 30 -w ' HTTP%{http_code}' "https://console.melipayamak.com/api/receive/credit/$K" | head -c 400)
-          echo "::warning title=console credit (key)::$r"
-          r=$(curl -s -m 30 -w ' HTTP%{http_code}' "http://api.payamak-panel.com/post/Send.asmx/GetCredit?username=$U&password=$K" | head -c 400)
-          echo "::warning title=asmx GetCredit::$r"
-          since=$(date -u -d '-3 days' +%Y-%m-%dT%H:%M:%SZ)
-          for u in "https://api.iran.liara.ir/v2/projects/vikyplus/logs?since=$(date -d '-3 days' +%s)" "https://api.iran.liara.ir/v1/projects/vikyplus/logs?since=$(date -d '-3 days' +%s)"; do
-            curl -s -m 60 -H "$H" "$u" > l.json; echo "::warning title=logs size $u::$(wc -c < l.json) $(head -c 200 l.json | tr -d '\n')"
-            grep -oiE '[^"]{0,40}(melipayamak|SMS)[^"]{0,260}' l.json | sed -E 's/09[0-9]{5}/09xxxxx/g' | sort | uniq -c | sort -rn | head -15 | while read -r line; do echo "::warning title=log::$(echo "$line" | sed 's/%/%25/g')"; done
+          echo "::warning title=keys::$(jq -r '[.project.envs[]?.key | "[" + . + "]"] | join(" ")' p.json)"
+          echo "::warning title=log::LOG_CHANNEL=[$(v LOG_CHANNEL)] LOG_LEVEL=[$(v LOG_LEVEL)]"
+          now=$(date +%s); st=$((now-5*86400))
+          for q in "start=$st&end=$now" "start=$st" "from=$st" "since=$((st*1000))" "start=$((st*1000))"; do
+            u="https://api.iran.liara.ir/v2/projects/vikyplus/logs?$q"
+            curl -s -m 90 -H "$H" "$u" > l.json
+            echo "::warning title=logs $q::$(wc -c < l.json) $(head -c 160 l.json | tr -d '\n')"
+            if [ $(wc -c < l.json) -gt 2000 ]; then
+              grep -oiE '[^"]{0,60}(melipayamak|SMS|پیامک)[^"]{0,300}' l.json | sed -E 's/09[0-9]{5}/09xxxxx/g' | sed -E 's/[0-9]{4}-[0-9]{2}-[0-9]{2}[T ][0-9:.]+//g' | sort | uniq -c | sort -rn | head -20 | while read -r line; do echo "::warning title=log::$(echo "$line" | sed 's/%/%25/g' | cut -c1-500)"; done
+              break
+            fi
           done
