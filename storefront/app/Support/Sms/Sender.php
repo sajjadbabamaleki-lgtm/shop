@@ -50,6 +50,32 @@ interface Sender
      */
     public const REPLY = 'reply';
 
+    /*
+     | The six order and account messages, one approved Melipayamak pattern
+     | each. Their sentences and the order of their values are in
+     | App\Support\Sms\Messages; whether each is switched on is whether its
+     | own pattern id is set (SMS_PATTERN_<NAME>), so one can be turned off
+     | from the Liara panel without a deploy.
+     */
+
+    /** The basket was turned into an order and its shoes are held. */
+    public const RESERVED = 'reserved';
+
+    /** «سفارش جدید» to the shop's own number, when an order is paid. */
+    public const NEW_ORDER = 'new_order';
+
+    /** The parcel left. */
+    public const SHIPPED = 'shipped';
+
+    /** The order was cancelled. */
+    public const CANCELLED = 'cancelled';
+
+    /** The payment went through. */
+    public const PAID = 'paid';
+
+    /** A new account was made. */
+    public const WELCOME = 'welcome';
+
     /**
      * **`$purpose` exists because a pattern is per-message, not per-shop.**
      *
@@ -64,8 +90,8 @@ interface Sender
      *
      * @param  list<string>  $args  the message's own values, in the order the
      *                              provider's approved pattern expects them
-     * @param  self::CODE|self::ALERT|self::REPLY  $purpose  which of the shop's messages
-     *                                                       this is
+     * @param  string  $purpose  which of the shop's messages
+     *                           this is
      */
     public function send(string $phone, string $message, array $args = [], string $purpose = self::CODE): void;
 }

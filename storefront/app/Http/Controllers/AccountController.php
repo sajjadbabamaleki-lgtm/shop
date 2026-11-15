@@ -9,6 +9,7 @@ use App\Models\Order;
 use App\Rules\PersianName;
 use App\Support\Auth\Passwords;
 use App\Support\Calendar\BirthDate;
+use App\Support\Sms\Messages;
 use App\Support\Sms\Sender;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -283,6 +284,13 @@ class AccountController extends Controller
 
         $customer->phone_verified_at = now();
         $customer->save();
+
+        // An account made just now — the code step for a number that had no
+        // password — is welcomed once. A returning shopper signing in with a
+        // code is not: they already have the account.
+        if ($registering) {
+            Messages::send(Sender::WELCOME, $customer->phone, [(string) $customer->name]);
+        }
 
         return $this->signIn($request, $customer);
     }

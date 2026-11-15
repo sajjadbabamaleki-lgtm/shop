@@ -4,7 +4,9 @@ namespace App\Providers;
 
 use App\Listeners\TellTheOwnerSomebodySignedIn;
 use App\Models\Category;
+use App\Models\Order;
 use App\Models\Product;
+use App\Observers\OrderMessages;
 use App\Support\Checkout\CartManager;
 use App\Support\FrontPage;
 use App\Support\Tenancy\TenantContext;
@@ -43,6 +45,13 @@ class AppServiceProvider extends ServiceProvider
          * are filled in.
          */
         Event::listen(Login::class, TellTheOwnerSomebodySignedIn::class);
+
+        /*
+         * The text messages an order sends as it moves — reserved, paid, the
+         * shop's own «سفارش جدید», shipped, cancelled. Registered by name for
+         * the reason above. See OrderMessages.
+         */
+        Order::observe(OrderMessages::class);
 
         /*
          * The header's basket badge.

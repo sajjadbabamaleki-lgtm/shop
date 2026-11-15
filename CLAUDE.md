@@ -613,6 +613,26 @@ the client saw an old page and had no way to tell why. So, plainly:
   of a shopper is worse than a message that did not arrive — so a wrong key and
   a message still in flight look identical from the outside, and without this
   command the only test is signing a real customer in and hoping.
+- **An order sends six text messages, each switched on by its own pattern id.**
+  2026-11-15, from the patterns the shop had approved at Melipayamak:
+  `SMS_PATTERN_RESERVED`, `_NEW_ORDER` (to `SMS_ALERT_TO`, values: name,
+  **the customer's phone**, Toman), `_SHIPPED`, `_CANCELLED`, `_PAID` (the
+  gateway's `ref_id`, else the order number) and `_WELCOME` (on registration
+  only). Unset is off, silently. The sentences and the order of each one's
+  values are `App\Support\Sms\Messages::TEXTS`; they fire from
+  `App\Observers\OrderMessages` on the model, after commit and after the
+  response, because an order reaches «paid» through four doors. A lapse is
+  not a cancel and sends nothing; demo orders send nothing.
+  **⛔ The approved reservation pattern says «۱ ساعت» and the shop holds
+  fifteen minutes** — the client chose to keep fifteen, so
+  `SMS_PATTERN_RESERVED` stays unset until a pattern saying fifteen is
+  approved. Setting it to the old one lies to every customer.
+  **Measured 2026-11-10 from a runner:** the live key is a valid *console* key
+  (credit call answered «عملیات موفق»), it is refused on the panel host
+  (`UserNameAndPasswordFailed`) — so the support desk's `SendByBaseNumber2`
+  needs the panel password and is not needed — and **`SMS_PATTERN` is three
+  digits long** where every bodyId this account has is six. That is the
+  first suspect for «no sign-in code arrives».
 - **The card gateway is ZarinPal and connecting it is two variables, not code.**
   `PAYMENT_DRIVER=zarinpal` and `ZARINPAL_MERCHANT_ID` on the Liara app;
   `App\Support\Payments\ZarinPal` speaks v4, sends `currency: IRR` on every

@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Listeners\TellTheOwnerSomebodySignedIn;
+use App\Support\Sms\Messages;
 use App\Support\Sms\Sender;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Console\Command;
@@ -91,6 +92,23 @@ class TestSms extends Command
             $this->line('کلید را در ملی‌پیامک «وارد» نمی‌کنید؛ از آنجا کپی می‌کنید و اینجا می‌گذارید.');
             $this->line('بعدش: php artisan config:cache');
         }
+
+        // --- the order and account messages -------------------------------
+        //
+        // Each one is on exactly when its pattern id is set, so «پیامک ارسال
+        // سفارش نیامد» is first of all a question this list answers.
+        $this->line('— پیامک‌های سفارش و حساب —');
+        $names = [
+            Sender::RESERVED => 'رزرو محصول', Sender::NEW_ORDER => 'سفارش جدید (برای فروشگاه)',
+            Sender::SHIPPED => 'ارسال', Sender::CANCELLED => 'لغو سفارش',
+            Sender::PAID => 'پرداخت موفق', Sender::WELCOME => 'خوش‌آمدگویی',
+        ];
+        foreach ($names as $purpose => $name) {
+            $this->line(sprintf('  %s: %s', $name, Messages::isOn($purpose)
+                ? 'روشن'
+                : 'خاموش — SMS_PATTERN_'.strtoupper($purpose).' ست نشده'));
+        }
+        $this->newLine();
 
         // --- the sign-in alert's own chain ----------------------------------
         //

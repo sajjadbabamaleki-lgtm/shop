@@ -148,7 +148,7 @@ abstract class Melipayamak implements Sender
 
         if ($value === null || $value === '') {
             throw new RuntimeException(
-                'SMS_'.strtoupper($key).' is empty, and the Melipayamak sender cannot send without it. '
+                'SMS_'.strtoupper(str_replace(['patterns.', '.'], ['pattern_', '_'], $key)).' is empty, and the Melipayamak sender cannot send without it. '
                 .'See config/services.php for what each of them is.'
             );
         }
@@ -173,6 +173,13 @@ abstract class Melipayamak implements Sender
         // and the panel says the message did not leave.
         if ($purpose === self::REPLY) {
             return $this->required('pattern_reply');
+        }
+
+        // The order and account messages each have a pattern of their own and
+        // never borrow the code's: their sentences have different blanks, and
+        // a borrowed pattern is a wrong message that arrives looking right.
+        if (array_key_exists($purpose, (array) config('services.sms.patterns'))) {
+            return $this->required("patterns.{$purpose}");
         }
 
         if ($purpose === self::ALERT) {

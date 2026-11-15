@@ -124,6 +124,20 @@ return [
          */
         'pattern_reply' => env('SMS_PATTERN_REPLY'),
         /*
+         | The order and account messages — one approved pattern each, and
+         | each one is switched on by setting its id and off by emptying it.
+         | The sentences, and which value fills which blank, are in
+         | App\Support\Sms\Messages; the id is Melipayamak's «کد متن».
+         */
+        'patterns' => [
+            'reserved' => env('SMS_PATTERN_RESERVED'),
+            'new_order' => env('SMS_PATTERN_NEW_ORDER'),
+            'shipped' => env('SMS_PATTERN_SHIPPED'),
+            'cancelled' => env('SMS_PATTERN_CANCELLED'),
+            'paid' => env('SMS_PATTERN_PAID'),
+            'welcome' => env('SMS_PATTERN_WELCOME'),
+        ],
+        /*
          | Where the «somebody signed in to the panel» message goes.
          |
          | Not a secret — it is the shop's own number — so it has a default
