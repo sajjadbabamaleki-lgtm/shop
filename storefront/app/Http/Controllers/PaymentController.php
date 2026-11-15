@@ -104,7 +104,7 @@ class PaymentController extends Controller
 
         if ($order->reservationLapsed()) {
             return redirect()->to(storefront_route('order', $order))
-                ->withErrors(['payment' => 'مهلت ۱۵ دقیقه‌ای پرداخت این سفارش تمام شده و کالاها به فروشگاه برگشته‌اند. لطفاً دوباره سفارش بده.']);
+                ->withErrors(['payment' => 'مهلت یک‌ساعته پرداخت این سفارش تمام شده و کالاها به فروشگاه برگشته‌اند. لطفاً دوباره سفارش بده.']);
         }
 
         $payment = Payment::create([

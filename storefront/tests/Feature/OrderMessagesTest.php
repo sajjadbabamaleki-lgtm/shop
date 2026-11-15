@@ -8,6 +8,7 @@ use App\Models\Payment;
 use App\Models\Product;
 use App\Models\ShippingMethod;
 use App\Observers\OrderMessages;
+use App\Support\Checkout\ExpireUnpaidOrders;
 use App\Support\Checkout\SettleOrder;
 use App\Support\Sms\Messages;
 use App\Support\Sms\Sender;
@@ -141,8 +142,9 @@ class OrderMessagesTest extends TestCase
 
         [$reserved] = $this->sent(Sender::RESERVED);
         $this->assertSame([$order->items()->value('product_title')], $reserved['args']);
-        // The shop holds fifteen minutes; a message saying otherwise is false.
-        $this->assertStringContainsString('۱۵ دقیقه', $reserved['message']);
+        // The message promises an hour; the sweep must keep that promise.
+        $this->assertStringContainsString('۱ ساعت', $reserved['message']);
+        $this->assertSame(60, ExpireUnpaidOrders::MINUTES);
     }
 
     public function test_an_unset_pattern_sends_nothing(): void

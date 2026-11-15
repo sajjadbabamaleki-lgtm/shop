@@ -71,8 +71,8 @@ class UnpaidOrdersLetGoTest extends TestCase
         $order = $this->place();
         $this->assertSame(1, $this->reserved());
 
-        // Fourteen minutes: still held.
-        $this->travel(14)->minutes();
+        // A minute short: still held.
+        $this->travel(ExpireUnpaidOrders::MINUTES - 1)->minutes();
         $this->assertSame(0, app(ExpireUnpaidOrders::class)->run());
         $this->assertSame(1, $this->reserved());
 
@@ -98,16 +98,16 @@ class UnpaidOrdersLetGoTest extends TestCase
     {
         $order = $this->place();
 
-        $this->travel(14)->minutes();
+        $this->travel(ExpireUnpaidOrders::MINUTES - 1)->minutes();
         Payment::create(['order_id' => $order->id, 'gateway' => 'snapppay', 'amount' => $order->grand_total, 'status' => Payment::PENDING]);
 
-        // Sixteen minutes after placing, two after opening the attempt.
+        // A minute past the hold since placing, two after opening the attempt.
         $this->travel(2)->minutes();
         app(ExpireUnpaidOrders::class)->run();
         $this->assertSame(Order::PLACED, $order->fresh()->status);
 
-        // Fifteen after the attempt: gone, and the attempt is closed.
-        $this->travel(14)->minutes();
+        // The whole hold after the attempt: gone.
+        $this->travel(ExpireUnpaidOrders::MINUTES - 1)->minutes();
         app(ExpireUnpaidOrders::class)->run();
         $this->assertTrue($order->fresh()->reservationLapsed());
         // The attempt is left as it was, for the panel to read.
@@ -119,7 +119,7 @@ class UnpaidOrdersLetGoTest extends TestCase
         $order = $this->place();
         $order->forceFill(['confirmed_at' => now()])->save();
 
-        $this->travel(1)->hours();
+        $this->travel(3)->hours();
         app(ExpireUnpaidOrders::class)->run();
 
         $this->assertSame(Order::PLACED, $order->fresh()->status);
@@ -131,7 +131,7 @@ class UnpaidOrdersLetGoTest extends TestCase
         $order = $this->place();
         $order->forceFill(['status' => Order::PAID, 'payment_status' => 'paid'])->save();
 
-        $this->travel(1)->hours();
+        $this->travel(3)->hours();
         $this->assertSame(0, app(ExpireUnpaidOrders::class)->run());
         $this->assertSame(Order::PAID, $order->fresh()->status);
     }
@@ -142,7 +142,7 @@ class UnpaidOrdersLetGoTest extends TestCase
         config(['storefront.sweep_unpaid_orders' => true]);
 
         $order = $this->place();
-        $this->travel(16)->minutes();
+        $this->travel(ExpireUnpaidOrders::MINUTES + 1)->minutes();
 
         $this->get('/products')->assertOk();
 
@@ -162,7 +162,7 @@ class UnpaidOrdersLetGoTest extends TestCase
             'status' => Payment::PENDING, 'authority' => 'A000000000000000000000000000000LATE',
         ]);
 
-        $this->travel(31)->minutes();
+        $this->travel(ExpireUnpaidOrders::MINUTES + 16)->minutes();
         app(ExpireUnpaidOrders::class)->run();
 
         config([
@@ -197,7 +197,7 @@ class UnpaidOrdersLetGoTest extends TestCase
     public function test_the_panel_still_shows_a_lapsed_order(): void
     {
         $order = $this->place();
-        $this->travel(16)->minutes();
+        $this->travel(ExpireUnpaidOrders::MINUTES + 1)->minutes();
         app(ExpireUnpaidOrders::class)->run();
 
         $owner = User::factory()->create();
@@ -215,7 +215,7 @@ class UnpaidOrdersLetGoTest extends TestCase
     public function test_a_lapsed_order_cannot_be_paid_from_the_shop(): void
     {
         $order = $this->place();
-        $this->travel(16)->minutes();
+        $this->travel(ExpireUnpaidOrders::MINUTES + 1)->minutes();
         app(ExpireUnpaidOrders::class)->run();
 
         $this->post('/orders/'.$order->number.'/pay')->assertRedirect()->assertSessionHasErrors('payment');
@@ -226,7 +226,7 @@ class UnpaidOrdersLetGoTest extends TestCase
     public function test_the_panel_can_still_record_payment_on_a_lapsed_order(): void
     {
         $order = $this->place();
-        $this->travel(16)->minutes();
+        $this->travel(ExpireUnpaidOrders::MINUTES + 1)->minutes();
         app(ExpireUnpaidOrders::class)->run();
         $onHand = (int) $this->variant->stock()->first()->stock_on_hand;
 

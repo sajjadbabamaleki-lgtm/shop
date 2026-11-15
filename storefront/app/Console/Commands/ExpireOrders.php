@@ -12,7 +12,7 @@ class ExpireOrders extends Command
 {
     protected $signature = 'orders:expire';
 
-    protected $description = 'آزاد کردن موجودی سفارش‌هایی که ۱۵ دقیقه بدون پرداخت مانده‌اند';
+    protected $description = 'آزاد کردن موجودی سفارش‌هایی که یک ساعت بدون پرداخت مانده‌اند';
 
     public function handle(ExpireUnpaidOrders $expire): int
     {

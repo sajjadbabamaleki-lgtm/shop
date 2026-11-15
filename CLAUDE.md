@@ -623,10 +623,12 @@ the client saw an old page and had no way to tell why. So, plainly:
   `App\Observers\OrderMessages` on the model, after commit and after the
   response, because an order reaches «paid» through four doors. A lapse is
   not a cancel and sends nothing; demo orders send nothing.
-  **⛔ The approved reservation pattern says «۱ ساعت» and the shop holds
-  fifteen minutes** — the client chose to keep fifteen, so
-  `SMS_PATTERN_RESERVED` stays unset until a pattern saying fifteen is
-  approved. Setting it to the old one lies to every customer.
+  **The approved reservation pattern says «۱ ساعت», so the hold is an hour**
+  — the client first chose to keep fifteen minutes, then the same day
+  «همون یه ساعت باشه», and `ExpireUnpaidOrders::MINUTES` went to 60 to
+  match the message rather than the message being reworded. The two move
+  together or every customer is told a deadline the shop does not keep;
+  `OrderMessagesTest` asserts the pair.
   **Measured 2026-11-10 from a runner:** the live key is a valid *console* key
   (credit call answered «عملیات موفق»), it is refused on the panel host
   (`UserNameAndPasswordFailed`) — so the support desk's `SendByBaseNumber2`
@@ -1358,8 +1360,8 @@ the client saw an old page and had no way to tell why. So, plainly:
   **The screen is one card per enquiry and must not go back to a table**:
   below 992 every panel table turns its rows into bordered cards, so a table in
   a card was «کادر تو کادر» on a phone. `EnquiryReplyTest` holds both.
-- **⛔ An unpaid order gives its shoes back after fifteen minutes, and for
-  three weeks nothing did.** «۲ بار کالای تستیرو … تا مرحله پرداخت با اسنپ
+- **⛔ An unpaid order gives its shoes back after an hour (fifteen minutes
+  until 2026-11-15 — see the SMS bullet), and for three weeks nothing did.** «۲ بار کالای تستیرو … تا مرحله پرداخت با اسنپ
   پی رفتم پرداخت نشد … دیگه اون کالا ها تو فروشگاه نبود». `PlaceOrder`
   reserves at placing, and **no code anywhere released a reservation** except a
   cancel by hand, so every abandoned checkout took a size off the shop for good.

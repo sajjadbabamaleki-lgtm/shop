@@ -22,8 +22,8 @@ use Illuminate\Contracts\Events\ShouldHandleEventsAfterCommit;
  * anything, and a message never reports a state the database does not hold.
  *
  * What each one is:
- *  - placed and paid online → «رزرو» to the shopper (off until a fifteen-
- *    minute pattern is approved; see Messages::TEXTS);
+ *  - placed and paid online → «رزرو» to the shopper — «۱ ساعت», which is
+ *    ExpireUnpaidOrders::MINUTES;
  *  - paid → «پرداخت موفق» to the shopper, and «سفارش جدید» to the shop's own
  *    number (`SMS_ALERT_TO`) — on payment rather than on placing, because an
  *    order placed and abandoned is not one anybody has to pack;

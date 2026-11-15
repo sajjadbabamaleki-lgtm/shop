@@ -10,7 +10,8 @@ use Illuminate\Support\Facades\Log;
 use Throwable;
 
 /**
- * An order nobody paid for gives its shoes back after fifteen minutes.
+ * An order nobody paid for gives its shoes back after an hour (fifteen
+ * minutes until 2026-11-15; see MINUTES).
  *
  * «۲ بار کالای تستیرو … تا مرحله پرداخت با اسنپ پی رفتم پرداخت نشد با ۲ تا
  * اکانت دیگه اومدم تست کنم دیگه اون کالا ها تو فروشگاه نبود در صورتی که رزرو
@@ -44,9 +45,17 @@ use Throwable;
  */
 class ExpireUnpaidOrders
 {
-    public const MINUTES = 15;
+    /*
+     | An hour, from 2026-11-15: «همون یه ساعت باشه» — the shop's approved
+     | reservation SMS says «۱ ساعت», and the hold was made to agree with it
+     | rather than the message being reworded. It was fifteen minutes before.
+     */
+    public const MINUTES = 60;
 
     /** The note on the shelf's release, which is also how the 01 Oct restore found its orders. */
+    // The marker `keep_lapsed_orders_in_the_panel` searched movements for.
+    // Its words name the old fifteen minutes and stay exactly as they are:
+    // it is an identifier written into rows that already exist, not copy.
     public const NOTE = 'رزرو پس از ۱۵ دقیقه بدون پرداخت آزاد شد.';
 
     public function __construct(private SettleOrder $settle, private TenantContext $tenant) {}

@@ -143,7 +143,7 @@
             @if ($order->reservationLapsed())
                 {{-- The order is kept whole; only the hold on the shelf went,
                      fifteen minutes after the last thing the customer did. --}}
-                <li><span>رزرو آزاد شد</span><b>{{ fa_date($order->reservation_released_at, true) }} — ۱۵ دقیقه بدون پرداخت</b></li>
+                <li><span>رزرو آزاد شد</span><b>{{ fa_date($order->reservation_released_at, true) }} — یک ساعت بدون پرداخت</b></li>
             @endif
             <li><span>پرداخت</span><b>{{ $order->paymentLabel() }}</b></li>
             @if ($order->payment_method)

@@ -37,12 +37,11 @@ final class Messages
      * @var array<string, string>
      */
     public const TEXTS = [
-        // ⛔ The approved pattern says «۱ ساعت». The shop holds an unpaid
-        // order for fifteen minutes (ExpireUnpaidOrders::MINUTES) and chose,
-        // on 2026-11-15, to keep it that way — so SMS_PATTERN_RESERVED stays
-        // unset until a pattern that says fifteen minutes is approved. Setting
-        // it to the «۱ ساعت» pattern tells every customer something false.
-        Sender::RESERVED => "کاربر گرامی،\nمحصول {0} به مدت ۱۵ دقیقه برای شما رزرو شد.\nلطفاً تا پایان مهلت، پرداخت خود را تکمیل کنید؛ در غیر این صورت رزرو به‌صورت خودکار لغو خواهد شد.\n\nویکی پلاس",
+        // «۱ ساعت» is a promise ExpireUnpaidOrders::MINUTES keeps — the hold
+        // was set to sixty on 2026-11-15 to match this approved pattern. Change
+        // one and the other has to follow, or every customer is told a
+        // deadline the shop does not keep. OrderMessagesTest holds the pair.
+        Sender::RESERVED => "کاربر گرامی،\nمحصول {0} به مدت ۱ ساعت برای شما رزرو شد.\nلطفاً تا پایان مهلت، پرداخت خود را تکمیل کنید؛ در غیر این صورت رزرو به‌صورت خودکار لغو خواهد شد.\n\nویکی پلاس",
         Sender::NEW_ORDER => "سفارش جدید:\nکاربر {0} به شماره {1} به مبلغ {2} تومان ثبت شد .ویکی پلاس",
         Sender::SHIPPED => "کاربر گرامی , سفارش {0} ارسال شد.برای پیگیری با ما در تماس باشد .\nویکی پلاس",
         Sender::CANCELLED => 'کاربر {0} سفارش {1} لغو گردید .در صورت پرداخت , مبلغ تا ۷۲ ساعت برگشت داده می شود.ویکی پلاس',
