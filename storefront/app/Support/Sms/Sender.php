@@ -76,6 +76,12 @@ interface Sender
     /** A new account was made. */
     public const WELCOME = 'welcome';
 
+    /** The company's owner signed in to the panel. One value: the name. */
+    public const ALERT_OWNER = 'alert_owner';
+
+    /** Anybody else on the staff signed in to the panel. One value: the name. */
+    public const ALERT_STAFF = 'alert_staff';
+
     /**
      * **`$purpose` exists because a pattern is per-message, not per-shop.**
      *

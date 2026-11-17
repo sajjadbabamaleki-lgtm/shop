@@ -102,7 +102,14 @@ return [
         // was null there and every sign-in code for a new number threw before
         // it was sent: «با موبایل … ثبت نام کنم … ارور ۵۰۰». Read either
         // spelling; renaming the variable in the panel makes this moot.
-        'pattern' => filled(env('SMS_PATTERN')) ? env('SMS_PATTERN') : env('SMS_PATTERN '),
+        // The sign-in code's approved pattern, «کد تایید: {0}», kode 430832.
+        // Read from SMS_PATTERN_CODE and **no longer from SMS_PATTERN**: the
+        // live app's SMS_PATTERN held a three-digit number where every pattern
+        // this account has is six (measured 2026-11-10), and the codes the
+        // shop approved are its own and no secret, so they live here with
+        // the code that fills them. Setting the variable overrides; setting it
+        // to nothing switches the message off.
+        'pattern' => env('SMS_PATTERN_CODE', '430832'),
         /*
          | The sign-in alert's own pattern.
          |
@@ -130,12 +137,19 @@ return [
          | App\Support\Sms\Messages; the id is Melipayamak's «کد متن».
          */
         'patterns' => [
-            'reserved' => env('SMS_PATTERN_RESERVED'),
-            'new_order' => env('SMS_PATTERN_NEW_ORDER'),
-            'shipped' => env('SMS_PATTERN_SHIPPED'),
-            'cancelled' => env('SMS_PATTERN_CANCELLED'),
-            'paid' => env('SMS_PATTERN_PAID'),
-            'welcome' => env('SMS_PATTERN_WELCOME'),
+            // Each one's «کد متن» as approved at Melipayamak, read off the
+            // panel's «وبسرویس خدماتی (الگو)» screen on 2026-11-17.
+            'reserved' => env('SMS_PATTERN_RESERVED', '482485'),
+            'new_order' => env('SMS_PATTERN_NEW_ORDER', '430883'),
+            'shipped' => env('SMS_PATTERN_SHIPPED', '430856'),
+            'cancelled' => env('SMS_PATTERN_CANCELLED', '430850'),
+            'paid' => env('SMS_PATTERN_PAID', '430844'),
+            'welcome' => env('SMS_PATTERN_WELCOME', '430837'),
+            // The panel sign-in alert is two patterns with one blank each —
+            // «مالک شرکت {0} وارد پنل…» and «مدیر داخلی شرکت {0} وارد پنل…» —
+            // and {0} is the person's name. See TellTheOwnerSomebodySignedIn.
+            'alert_owner' => env('SMS_PATTERN_ALERT_OWNER', '524812'),
+            'alert_staff' => env('SMS_PATTERN_ALERT_STAFF', '524848'),
         ],
         /*
          | Where the «somebody signed in to the panel» message goes.

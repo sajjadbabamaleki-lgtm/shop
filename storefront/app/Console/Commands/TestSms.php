@@ -102,6 +102,7 @@ class TestSms extends Command
             Sender::RESERVED => 'رزرو محصول', Sender::NEW_ORDER => 'سفارش جدید (برای فروشگاه)',
             Sender::SHIPPED => 'ارسال', Sender::CANCELLED => 'لغو سفارش',
             Sender::PAID => 'پرداخت موفق', Sender::WELCOME => 'خوش‌آمدگویی',
+            Sender::ALERT_OWNER => 'ورود مالک به پنل', Sender::ALERT_STAFF => 'ورود مدیر داخلی به پنل',
         ];
         foreach ($names as $purpose => $name) {
             $this->line(sprintf('  %s: %s', $name, Messages::isOn($purpose)
@@ -194,9 +195,9 @@ class TestSms extends Command
             $when = fa_date(now(), true);
             $to = $alertTo;
             $body = "مالک شرکت «آزمایشی» وارد پنل مدیریت ویکی پلاس شد.\n{$when}";
-            $args = ['مالک شرکت', 'آزمایشی', $when];
-            // The alert's own pattern, not the code's — three values, not one.
-            $purpose = Sender::ALERT;
+            $args = ['آزمایشی'];
+            // The owner's alert pattern: one blank, the name.
+            $purpose = Sender::ALERT_OWNER;
 
             $this->line('حالت هشدار: همان جمله‌ای که هنگام ورود می‌رود، به '.$to);
         }

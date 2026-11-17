@@ -635,6 +635,18 @@ the client saw an old page and had no way to tell why. So, plainly:
   needs the panel password and is not needed — and **`SMS_PATTERN` is three
   digits long** where every bodyId this account has is six. That is the
   first suspect for «no sign-in code arrives».
+  **From 2026-11-17 the pattern ids live in `config/services.php` as
+  defaults**, read off the client's own screenshot of Melipayamak's «وبسرویس
+  خدماتی (الگو)» list: code 430832, welcome 430837, reserved 482485, paid
+  430844, new order 430883, shipped 430856, cancelled 430850, and the panel
+  sign-in alert as **two one-blank patterns** — owner 524812 («مالک شرکت {0}
+  وارد پنل…») and everybody else 524848 («مدیر داخلی شرکت {0} …») — where
+  the listener used to send three values into one. **The code's id is read
+  from `SMS_PATTERN_CODE` and `SMS_PATTERN` is no longer read at all**, so
+  the wrong three-digit value on Liara stops mattering without anybody
+  touching the panel. A variable set on Liara still overrides its default;
+  set to nothing it switches that message off. phpunit.xml empties the six
+  order/welcome ids so a test sends one only where it is the subject.
 - **The card gateway is ZarinPal and connecting it is two variables, not code.**
   `PAYMENT_DRIVER=zarinpal` and `ZARINPAL_MERCHANT_ID` on the Liara app;
   `App\Support\Payments\ZarinPal` speaks v4, sends `currency: IRR` on every

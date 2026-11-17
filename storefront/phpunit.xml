@@ -29,6 +29,14 @@
         <env name="MAIL_MAILER" value="array"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SWEEP_UNPAID_ORDERS" value="false"/>
+        <!-- The order and welcome messages have their live pattern ids as
+             defaults; off here so a test sends one only where it is the subject. -->
+        <env name="SMS_PATTERN_RESERVED" value=""/>
+        <env name="SMS_PATTERN_NEW_ORDER" value=""/>
+        <env name="SMS_PATTERN_SHIPPED" value=""/>
+        <env name="SMS_PATTERN_CANCELLED" value=""/>
+        <env name="SMS_PATTERN_PAID" value=""/>
+        <env name="SMS_PATTERN_WELCOME" value=""/>
         <env name="SESSION_DRIVER" value="array"/>
         <env name="PULSE_ENABLED" value="false"/>
         <!-- Pinned so the suite tests the shipped default rather than whatever

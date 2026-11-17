@@ -85,6 +85,10 @@ class SignInAlertTest extends TestCase
         $this->assertStringContainsString('مالک شرکت', $box->messages[0]['message']);
         $this->assertStringContainsString('علی امامی', $box->messages[0]['message']);
         $this->assertStringContainsString('پنل مدیریت', $box->messages[0]['message']);
+
+        // «مالک شرکت {0} وارد پنل…»: the owner's own pattern, the name in it.
+        $this->assertSame(Sender::ALERT_OWNER, $box->messages[0]['purpose']);
+        $this->assertSame(['علی امامی'], $box->messages[0]['args']);
     }
 
     /**
@@ -101,6 +105,10 @@ class SignInAlertTest extends TestCase
             Role::where('slug', Role::ADMIN)->value('name'),
             $box->messages[0]['message'],
         );
+
+        // «مدیر داخلی شرکت {0} وارد پنل…» for anybody who is not the owner.
+        $this->assertSame(Sender::ALERT_STAFF, $box->messages[0]['purpose']);
+        $this->assertSame(['بهاره'], $box->messages[0]['args']);
     }
 
     /**

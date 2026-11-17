@@ -2,6 +2,7 @@
 
 namespace App\Listeners;
 
+use App\Models\Role;
 use App\Models\User;
 use App\Support\Sms\Sender;
 use Illuminate\Auth\Events\Login;
@@ -82,10 +83,16 @@ class TellTheOwnerSomebodySignedIn
         $message = "{$title} «{$user->name}» وارد پنل مدیریت ویکی پلاس شد.\n{$when}";
 
         try {
-            // The parts as well as the sentence, because a provider that sends
-            // an approved pattern rather than free text needs them in order —
-            // see the Sender contract. Today's driver sends the sentence.
-            app(Sender::class)->send($to, $message, [$title, (string) $user->name, $when], Sender::ALERT);
+            // Two approved patterns, one blank each, and the blank is the
+            // name: «مالک شرکت {0} وارد پنل…» for the owner and «مدیر داخلی
+            // شرکت {0} وارد پنل…» for everybody else. Sent through one
+            // three-blank pattern, as it was, the role filled the name's
+            // place and the name and time were dropped.
+            $purpose = $user->roles->contains('slug', Role::OWNER)
+                ? Sender::ALERT_OWNER
+                : Sender::ALERT_STAFF;
+
+            app(Sender::class)->send($to, $message, [(string) $user->name], $purpose);
         } catch (Throwable $e) {
             // **A sign-in must never fail because a text message did.** The
             // Sender contract already says an ordinary refusal must not throw,

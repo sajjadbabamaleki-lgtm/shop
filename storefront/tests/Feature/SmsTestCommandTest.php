@@ -158,7 +158,7 @@ class SmsTestCommandTest extends TestCase
 
         $this->assertSame('09121161311', $seen['phone'], 'The alert went to the number typed in, not the one it is set to.');
         $this->assertStringContainsString('وارد پنل مدیریت ویکی پلاس شد', $seen['message']);
-        $this->assertCount(3, $seen['args'], 'A pattern-based provider needs the same three values the listener sends.');
+        $this->assertSame(['آزمایشی'], $seen['args'], 'The alert patterns have one blank: the name.');
     }
 
     /** With nowhere to send it, `--alert` refuses rather than sending nothing. */
