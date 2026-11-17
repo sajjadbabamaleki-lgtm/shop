@@ -97,15 +97,12 @@ return [
         // line sends the sentence itself and needs no approved pattern; the
         // shared «۹۹۹۹» lines do, which is what SMS_PATTERN is for.
         'from' => env('SMS_FROM'),
-        // The live app's variable is named «SMS_PATTERN » — with a trailing
-        // space, typed into the Liara panel that way — so env('SMS_PATTERN')
-        // was null there and every sign-in code for a new number threw before
-        // it was sent: «با موبایل … ثبت نام کنم … ارور ۵۰۰». Read either
-        // spelling; renaming the variable in the panel makes this moot.
-        // The sign-in code's approved pattern, «کد تایید: {0}», kode 430832.
+        // The sign-in code's approved pattern, «کد تایید: {0}», id 430832.
         // Read from SMS_PATTERN_CODE and **no longer from SMS_PATTERN**: the
-        // live app's SMS_PATTERN held a three-digit number where every pattern
-        // this account has is six (measured 2026-11-10), and the codes the
+        // live variable of that name was first misnamed with a trailing space
+        // (every new number's code threw, «ارور ۵۰۰»), then held a three-digit
+        // number where every pattern this account has is six (measured
+        // 2026-11-10). The ids
         // shop approved are its own and no secret, so they live here with
         // the code that fills them. Setting the variable overrides; setting it
         // to nothing switches the message off.
