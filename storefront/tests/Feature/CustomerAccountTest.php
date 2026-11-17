@@ -987,11 +987,16 @@ class CustomerAccountTest extends TestCase
         $this->assertSame(0, LoginCode::count());
     }
 
-    /** The misnamed variable on the live app («SMS_PATTERN ») is read too. */
-    public function test_the_pattern_is_read_from_the_misnamed_variable(): void
+    /**
+     * The code's approved pattern is the shop's own «کد تایید» (430832) unless
+     * SMS_PATTERN_CODE says otherwise. The live SMS_PATTERN — first misnamed
+     * with a trailing space, then holding three digits — is no longer read.
+     */
+    public function test_the_code_pattern_defaults_to_the_shops_approved_one(): void
     {
         $config = file_get_contents(config_path('services.php'));
 
-        $this->assertStringContainsString("env('SMS_PATTERN ')", $config);
+        $this->assertStringContainsString("env('SMS_PATTERN_CODE', '430832')", $config);
+        $this->assertStringNotContainsString("env('SMS_PATTERN')", $config);
     }
 }
