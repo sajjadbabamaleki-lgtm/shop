@@ -42,11 +42,28 @@ final class Messages
         // one and the other has to follow, or every customer is told a
         // deadline the shop does not keep. OrderMessagesTest holds the pair.
         Sender::RESERVED => "کاربر گرامی،\nمحصول {0} به مدت ۱ ساعت برای شما رزرو شد.\nلطفاً تا پایان مهلت، پرداخت خود را تکمیل کنید؛ در غیر این صورت رزرو به‌صورت خودکار لغو خواهد شد.\n\nویکی پلاس",
-        Sender::NEW_ORDER => "سفارش جدید:\nکاربر {0} به شماره {1} به مبلغ {2} تومان ثبت شد .ویکی پلاس",
+        Sender::NEW_ORDER => "سفارش جدید:\nکاربر{0} به شماره {1} به مبلغ {2} تومان ثبت شد .ویکی پلاس",
         Sender::SHIPPED => "کاربر گرامی , سفارش {0} ارسال شد.برای پیگیری با ما در تماس باشد .\nویکی پلاس",
         Sender::CANCELLED => 'کاربر {0} سفارش {1} لغو گردید .در صورت پرداخت , مبلغ تا ۷۲ ساعت برگشت داده می شود.ویکی پلاس',
         Sender::PAID => "کاربر گرامی {0} پرداخت سفارش {1} با موفقیت انجام شد .شماره پیگیری {2} .\nفروشگاه ویکی پلاس",
         Sender::WELCOME => "کاربر گرامی{0} به ویکی پلاس خوش آمدید.\nپشتیبانی ما همیشه همراه شماست.",
+    ];
+
+    /**
+     * Blanks the approved pattern runs straight into the word before it.
+     *
+     * «کاربر گرامی{0}» and «کاربر{0}» were approved with no space before the
+     * name, so the first welcome arrived as «کاربر گرامیسجاد». A pattern is
+     * fixed once approved and changing it is another round with Melipayamak,
+     * so the value carries the space instead. The sentences above are written
+     * exactly as approved for the same reason: the space must come from one
+     * place, or a dedicated-line driver would print two.
+     *
+     * @var array<string, list<int>>
+     */
+    private const SPACE_BEFORE = [
+        Sender::WELCOME => [0],
+        Sender::NEW_ORDER => [0],
     ];
 
     /**
@@ -81,6 +98,12 @@ final class Messages
             fn ($value) => mb_strimwidth(trim((string) $value), 0, self::LONGEST_VALUE, '…'),
             array_values($values),
         );
+
+        foreach (self::SPACE_BEFORE[$purpose] ?? [] as $i) {
+            if (isset($values[$i]) && $values[$i] !== '') {
+                $values[$i] = ' '.$values[$i];
+            }
+        }
 
         $replace = [];
         foreach ($values as $i => $value) {

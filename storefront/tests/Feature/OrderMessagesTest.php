@@ -106,7 +106,9 @@ class OrderMessagesTest extends TestCase
 
         [$alert] = $this->sent(Sender::NEW_ORDER);
         $this->assertSame('09121111111', $alert['phone']);
-        $this->assertSame(['سجاد', '09123456789', fa_number(intdiv($order->grand_total, 10))], $alert['args']);
+        // The approved pattern reads «کاربر{0}», so the name brings its space.
+        $this->assertSame([' سجاد', '09123456789', fa_number(intdiv($order->grand_total, 10))], $alert['args']);
+        $this->assertStringContainsString('کاربر سجاد به شماره', $alert['message']);
     }
 
     public function test_a_payment_recorded_by_hand_quotes_the_order_number(): void
@@ -180,5 +182,14 @@ class OrderMessagesTest extends TestCase
             $this->assertArrayHasKey($purpose, Messages::TEXTS);
             $this->assertArrayHasKey($purpose, config('services.sms.patterns'));
         }
+    }
+
+    public function test_the_welcome_puts_a_space_between_the_greeting_and_the_name(): void
+    {
+        Messages::send(Sender::WELCOME, '09123456789', ['سجاد']);
+
+        [$welcome] = $this->sent(Sender::WELCOME);
+        $this->assertSame([' سجاد'], $welcome['args']);
+        $this->assertStringStartsWith('کاربر گرامی سجاد به ویکی پلاس', $welcome['message']);
     }
 }
